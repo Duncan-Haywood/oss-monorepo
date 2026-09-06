@@ -327,6 +327,18 @@ code {
   margin-top: 0.5rem !important;
 }
 
+.sidebar-support {
+  font-size: 0.7rem;
+  line-height: 1.4;
+  color: var(--muted);
+  margin-top: 0.75rem !important;
+}
+
+.sidebar-support a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 .role-tag strong {
   color: var(--text);
 }

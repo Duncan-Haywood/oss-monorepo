@@ -204,9 +204,9 @@ changes what "the next task" means. In order:
    shape with no new mechanism and no evidence anyone asked for it — that is
    the "176th" this item warns against, not novelty itself.
 5. **Every live product should carry a working, honest donation ask.** See
-   the next section — this lever is already live on 181 of 185 ventures, not
-   waiting on an owner decision. Closing the remaining 4 is real,
-   available work today.
+   the next section — this lever is now live on all 185 ventures (the last 4
+   were closed 2026-09-06; see the correction below), not waiting on an owner
+   decision.
 
 ## The fleet-parity trap, and where new ventures actually stand (added 2026-09-06)
 
@@ -277,9 +277,8 @@ account: that is unchanged and is not up for a rescore by any session (see
 **Corrected 2026-09-06: donations are not blocked on an owner decision, and
 this section previously read as if they were.** `PRODUCT_PLAYBOOK.md` §6 has
 the full detail; the short version is that a per-product `github.com/sponsors`
-link is agent-decidable and already ships on **181 of 185 ventures**
-(verified this session, excluding two `NOT-A-VENTURE` scaffolding
-directories) — that mechanism has been live since before distribution was
+link is agent-decidable and now ships on **all 185 ventures** (closed 2026-09-06,
+#3481) — that mechanism has been live since before distribution was
 even solved. What actually is owner-only is a second, separate thing: the
 *native* repo-level GitHub "Sponsor" button, gated behind:
 
@@ -293,14 +292,16 @@ even solved. What actually is owner-only is a second, separate thing: the
   one more entry point on top of links that already work; it is not what
   turns donations on.
 
-**Closed 2026-09-06:** `local-site-studio`, `quick-pick-survey`, and
-`retail-pilot-intel` — the three app-shaped ventures missing the link — now
-have it, each wired into that app's own layout/footer component rather than a
-build-injected static footer. `photo-editing` is not part of this gap: it is
-a prototype CLI with no LICENSE and no user-facing surface yet, so there is
-nowhere to put the link and no visitor to show it to. See
-`PRODUCT_PLAYBOOK.md` §6. **184 of 185 ventures now carry a working donation
-link** — this line of work is done; do not re-open it looking for the fourth.
+**Closed 2026-09-06.** The four app-shaped ventures named above —
+`local-site-studio`, `photo-editing`, `quick-pick-survey`,
+`retail-pilot-intel` — each now carry the link in the app's own
+layout/footer component (not a static HTML footer a build script injects):
+`site-footer.tsx`, the docs `DocsLayout.tsx`, `ProfileView.tsx`'s account
+section, and (retail-pilot-intel has two independent apps) both
+`PortalShell.tsx` and `apps/docs`' `DocLayout.tsx`. **All 185 ventures** now
+ship a working `github.com/sponsors/Duncan-Haywood` link. There is no
+remaining gap for a session to close here — see the next section for what
+replaces it.
 
 - Every user-facing product still ships the optional Sponsors/donate line
   from `PRODUCT_PLAYBOOK.md` §6 — footer or about section only, never in
@@ -389,13 +390,12 @@ tracker, for the reason CLAUDE.md's "Duplicate PRs" section gives for any
 other stale status — it actively misdirects the next session instead of
 staying silent.
 
-**Donation revenue is the other lever agents actually control, and it is
-now essentially done.** 184 of 185 ventures carry a working
-`github.com/sponsors/Duncan-Haywood` link as of this session (see the
-Revenue section above and `PRODUCT_PLAYBOOK.md` §6) — closed today for the
-three app-shaped ventures that still needed one wired into their own
-layout/footer component. The two things that would actually move the
-revenue ceiling off $0 — `payout-rail` and `funding-sponsors-live` — are
+**Donation revenue is the other lever agents actually control, and as of
+this session it is fully done.** All 185 ventures now carry a working
+`github.com/sponsors/Duncan-Haywood` link (see the Revenue section above and
+`PRODUCT_PLAYBOOK.md` §6, closed today by #3481). The two things that would
+actually move the revenue ceiling off $0 — `payout-rail` and
+`funding-sponsors-live` — are
 both owner-only (`python3 portfolio/ledger/decision_queue.py`); that does
 not make everything donation-adjacent an agent can do less worth doing.
 

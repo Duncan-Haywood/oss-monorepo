@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Step 3 of the Codex worker's three owner steps: turn the governor on.
 #
-#   ./bootstrap/scripts/enable-codex-governor.sh            # flip both switches
-#   ./bootstrap/scripts/enable-codex-governor.sh --check    # report, write nothing
-#   ./bootstrap/scripts/enable-codex-governor.sh --disable  # flip them back off
+#   ./bootstrap/scripts/enable-codex-governor.sh              # flip both switches
+#   ./bootstrap/scripts/enable-codex-governor.sh --check      # report, write nothing
+#   ./bootstrap/scripts/enable-codex-governor.sh --disable    # flip them back off
+#   ./bootstrap/scripts/enable-codex-governor.sh --host-only  # policy.json alone,
+#                                                              # no SealedSecret needed
 #
 # Why this exists
 # ---------------
@@ -35,6 +37,18 @@
 # skip it would leave the script no safer than the hand-edit it replaces.
 # `--disable` is ungated on purpose: turning automation off is never the
 # direction that needs a guard.
+#
+# `--host-only` is the one deliberate exception, added once host mode
+# (`gitops/agents/host/`) existed: `policy.json`'s "enabled" field is the one
+# kill switch both the k3s CronJob and the host-mode systemd timer read
+# (governor.py:420, host_governor.py:345), but host mode never touches the
+# k8s SealedSecret this script otherwise requires -- its credential is a plain
+# file on the box, written by `install-codex-host.sh --credentials`. Requiring
+# the SealedSecret anyway would block turning on host-mode-only dev capacity
+# for as long as the cluster stays down, via the one script whose whole job is
+# making this flip safe. `--host-only` flips `policy.json` alone and leaves
+# `cronjob.yaml` suspended, so the k3s path stays off until it is deliberately
+# re-enabled with a real seal in place.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -47,12 +61,14 @@ SEALED="$ROOT/gitops/agents/secrets/codex-token.sealed.yaml"
 SEALED_REF="secrets/codex-token.sealed.yaml"
 
 MODE=enable
+HOST_ONLY=0
 for arg in "$@"; do
   case "$arg" in
-    --check)   MODE=check ;;
-    --disable) MODE=disable ;;
-    -h|--help) sed -n '2,36p' "${BASH_SOURCE[0]}"; exit 0 ;;
-    *) echo "unknown argument: $arg (want: --check | --disable)" >&2; exit 2 ;;
+    --check)     MODE=check ;;
+    --disable)   MODE=disable ;;
+    --host-only) HOST_ONLY=1 ;;
+    -h|--help)   sed -n '2,51p' "${BASH_SOURCE[0]}"; exit 0 ;;
+    *) echo "unknown argument: $arg (want: --check | --disable | --host-only)" >&2; exit 2 ;;
   esac
 done
 
@@ -219,24 +235,35 @@ case "$MODE" in
       say "  - CronJob:  suspended (suspend: true)"
     fi
     if policy_enabled; then
-      ok "policy:   enabled"
+      ok "policy:   enabled — this is the one kill switch both the CronJob"
+      say "            and a host-mode systemd timer read"
     else
       say "  - policy:   disabled (\"enabled\": false)"
     fi
     if [[ -f "$SEALED" ]]; then
       require_seal || true
     else
-      say "  - seal:     absent (${SEALED#"$ROOT"/})"
+      say "  - seal:     absent (${SEALED#"$ROOT"/}) — required only for the"
+      say "              CronJob path; host mode reads a plain file on the box"
+      say "              instead (see --host-only)"
     fi
     if cronjob_running && policy_enabled; then
       say ""
       say "  The governor is on. It starts at most one worker Job every five"
       say "  minutes, inside its window and weekly budget fraction."
       exit 0
+    elif policy_enabled; then
+      say ""
+      say "  The governor is on for host mode alone — the CronJob stays"
+      say "  suspended. It runs once the box has credentials"
+      say "  (bootstrap/scripts/install-codex-host.sh --credentials)."
+      say "  Run with no arguments (and a real seal) to also enable the"
+      say "  cluster path."
+      exit 0
     fi
-    say ""
-    say "  The governor is off. Run this script with no arguments to turn it on"
-    say "  once the credential is sealed."
+    say "  The governor is off. Run this script with no arguments to turn it"
+    say "  on once the credential is sealed, or with --host-only for host mode"
+    say "  alone, which needs no seal."
     exit 1
     ;;
 
@@ -252,6 +279,31 @@ case "$MODE" in
     ;;
 
   enable)
+    if [[ "$HOST_ONLY" == "1" ]]; then
+      step "Enabling the Codex governor (host mode only)"
+      if policy_enabled; then
+        ok "policy already enabled — nothing to change"
+        exit 0
+      fi
+      say "  Skipping the SealedSecret precondition: it guards the k3s"
+      say "  CronJob's credential, which host mode never reads. Leaving"
+      say "  gitops/agents/governor/cronjob.yaml untouched (suspended), so the"
+      say "  cluster path stays off until it is enabled deliberately, with a"
+      say "  real seal, by running this script with no flags."
+      set_policy true
+      ok "policy enabled"
+      say ""
+      say "  This does nothing on its own until the box has credentials:"
+      say "      ./bootstrap/scripts/install-codex-host.sh --credentials"
+      say "  (bootstrap/scripts/setup-codex-host-from-laptop.sh does the whole"
+      say "  install and credential hand-off from your machine in one run.)"
+      say ""
+      say "  Review gitops/agents/governor/policy.json, then commit and push"
+      say "  so the file in the repo matches what you rsync to the box next,"
+      say "  and re-run install-codex-host.sh there to copy it over."
+      exit 0
+    fi
+
     step "Enabling the Codex governor"
     if cronjob_running && policy_enabled; then
       ok "already enabled — nothing to change"
@@ -259,6 +311,8 @@ case "$MODE" in
     fi
     require_seal || {
       warn "nothing changed"
+      warn "for host mode without the cluster, use --host-only instead --"
+      warn "it does not need the SealedSecret."
       exit 1
     }
     set_cronjob false

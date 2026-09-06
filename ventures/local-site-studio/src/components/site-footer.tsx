@@ -18,6 +18,17 @@ export function SiteFooter() {
               </p>
             )}
             <p className="mt-4 text-xs text-zinc-500">{marketingFooterLine()}</p>
+            <p className="mt-2 text-xs text-zinc-500">
+              Free to run.{" "}
+              <a
+                href="https://github.com/sponsors/Duncan-Haywood"
+                rel="noopener"
+                className="underline hover:text-zinc-900"
+              >
+                Support
+              </a>{" "}
+              is entirely optional and never changes what the product does.
+            </p>
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-600">
             <Link href="/privacy" className="hover:text-zinc-900">
@@ -32,13 +43,6 @@ export function SiteFooter() {
             <Link href="/docs" className="hover:text-zinc-900">
               Docs
             </Link>
-            <a
-              href="https://github.com/sponsors/Duncan-Haywood"
-              rel="noopener"
-              className="hover:text-zinc-900"
-            >
-              Support
-            </a>
           </div>
         </div>
       </div>
