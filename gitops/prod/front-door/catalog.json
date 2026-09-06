@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 185,
-  "collection_total": 185,
+  "served_here": 186,
+  "collection_total": 186,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -26,7 +26,7 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 121
+      "tool_count": 122
     },
     {
       "id": "evidence",
@@ -1448,7 +1448,7 @@
       "url": "https://marisstella.dev/tools/vehicle-wrap-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Free calculator for independent vehicle wrap and graphics shops: price a full or partial wrap from vehicle surface area, material waste factor, install complexity, and labor, then see exactly what a waste-blind quote loses on every job.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "vending-machine-route-margin",
