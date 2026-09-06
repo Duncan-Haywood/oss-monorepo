@@ -3,6 +3,33 @@
 An agent can write this tree. It cannot mint accounts, money, or
 identities. Nothing here applies itself.
 
+## Where to keep what you type: [`infra/SECRETS.md`](SECRETS.md)
+
+Added 2026-09-06. Everything below assumes a credential ends up in an
+Actions secret or a sealed secret. Both are currently unreadable — an
+Actions secret needs a runner (`github-actions-runners: down`) and a
+sealed secret needs a cluster (`k3s-cluster: down`) — so the credentials
+have been locked inside the systems they were supposed to unlock.
+
+The store that is not:
+
+```bash
+bootstrap/scripts/load-secrets.sh --put HETZNERSSHKEY < ~/.ssh/<key>
+bootstrap/scripts/load-secrets.sh --put ARGOCD_REPO_TOKEN   # paste, Ctrl-D
+bootstrap/scripts/load-secrets.sh                           # what is present, no values
+```
+
+One mode-600 file per secret under `~/.config/marisstella/secrets`, on the
+machine that runs your agents, with an optional age-encrypted copy in
+`infra/secrets/` so a second machine is one key away rather than six pastes
+away. No runner, no cluster, no vendor, no network. It is also the only
+thing here that can tell you a stored key is the **public** half before you
+spend a dispatch finding out.
+
+Item 7's seals and the Actions secrets below are still worth doing — when
+the cluster and the runners are back, they make the recovery repeatable
+without a laptop. They are no longer the *only* copy, which is the change.
+
 ## The short version: two seals, one command
 
 **Changed 2026-09-01: this was "three seals" until CI came back on its

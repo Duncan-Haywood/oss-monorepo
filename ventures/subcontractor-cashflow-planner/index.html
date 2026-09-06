@@ -42,8 +42,9 @@
     <label>Deposit or mobilisation payment (% of invoice) <input name="deposit" type="number" min="0" max="100" step="1" value="0"></label>
     <label>Supplier terms on materials (days, 0 = pay on delivery) <input name="supplierTerms" type="number" min="0" step="1" value="0"></label>
     <label>Rate on money you borrow to bridge (APR %) <input id="apr" name="apr" type="number" min="0" max="200" step="0.5" value="12"></label>
-    <button type="submit">Plan the cash gap</button><button type="button" class="secondary" id="save">Save locally</button><button type="button" class="secondary" id="export">Export CSV</button>
-  </form><section class="card" aria-live="polite"><h2>Scenario result</h2><div id="result"></div><p class="fine">This is a timing scenario, not a prediction. The cost to bridge is simple daily interest on the shortfall, not a quote &mdash; it ignores draw fees, minimum charges, and whether credit is available to you at all. Confirm contract terms, retention release dates, taxes, debt, financing, and supplier requirements with your accountant or adviser.</p></section></section>
+    <button type="submit">Plan the cash gap</button><button type="button" class="secondary" id="save">Save locally</button><button type="button" class="secondary" id="export">Export CSV</button><button type="button" class="secondary" id="shareLink">Copy share link</button>
+    <p class="fine" id="shareStatus" role="status" aria-live="polite"></p>
+  </form><section class="card" aria-live="polite"><h2>Scenario result</h2><div id="result"></div><p class="fine">This is a timing scenario, not a prediction. The cost to bridge is simple daily interest on the shortfall, not a quote &mdash; it ignores draw fees, minimum charges, and whether credit is available to you at all. Confirm contract terms, retention release dates, taxes, debt, financing, and supplier requirements with your accountant or adviser.</p><p class="fine">Share link: your numbers ride in the page's own URL, never sent to a server &mdash; only share it with people you trust.</p></section></section>
   <section class="card" style="margin-top:18px"><h2>Privacy and limits</h2><p>Everything runs in your browser. There are no accounts, cookies, analytics vendors, network requests, or uploads. Optional usage counters record only feature names in local storage, never your numbers or identity. <label><input id="usage" type="checkbox" checked style="display:inline;width:auto;margin-right:6px"> Count anonymous local feature events</label></p>  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p></section>
   <section class="card" id="faq" style="margin-top:18px"><h2>Common questions</h2>
     <h3>What is the difference between "expected payment day" and when retention actually clears?</h3>
@@ -69,8 +70,8 @@
   </section>
   <footer>Subcontractor Cash Flow Planner is free to use. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Keep a copy of important project assumptions outside this browser.</footer>
 </main><script type="module">
-import { planCashflow, csvRow, CSV_FIELDS } from './calc.mjs'; import { recordUsage } from './usage.mjs';
-const form = document.querySelector('#planner'), result = document.querySelector('#result'), usage = document.querySelector('#usage'); let latest;
+import { planCashflow, csvRow, CSV_FIELDS } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs } from './share.mjs';
+const form = document.querySelector('#planner'), result = document.querySelector('#result'), usage = document.querySelector('#usage'), shareStatus = document.querySelector('#shareStatus'); let latest;
 const money = (n) => new Intl.NumberFormat(undefined, {style:'currency', currency:'USD', maximumFractionDigits:0}).format(n);
 const cents = (n) => new Intl.NumberFormat(undefined, {style:'currency', currency:'USD', maximumFractionDigits:2}).format(n);
 const metric = (label, value, cls = '') => `<div class="metric"><span>${label}</span><strong${cls ? ` class="${cls}"` : ''}>${value}</strong></div>`;
@@ -107,5 +108,23 @@ function run(count = true) {
   if (count) recordUsage('scenario_planned', usage.checked);
 }
 form.addEventListener('submit', (e) => { e.preventDefault(); run(); }); document.querySelector('#save').addEventListener('click', () => { localStorage.setItem('subcontractor-cashflow-draft', JSON.stringify(Object.fromEntries(new FormData(form)))); run(false); }); document.querySelector('#export').addEventListener('click', () => { if (!latest) run(false); const blob = new Blob([`field,value\n${csvRow(latest).split(',').map((v,i)=>`${CSV_FIELDS[i]},${v}`).join('\n')}`], {type:'text/csv'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'subcontractor-cashflow-scenario.csv'; a.click(); recordUsage('csv_exported', usage.checked); });
-const draft = JSON.parse(localStorage.getItem('subcontractor-cashflow-draft') || 'null'); if (draft) for (const [key,value] of Object.entries(draft)) if (form.elements[key]) form.elements[key].value = value; run(false);
+document.querySelector('#shareLink').addEventListener('click', async () => {
+  const fragment = encodeInputs(Object.fromEntries(new FormData(form)));
+  const shareUrl = `${location.href.split('#')[0]}#${fragment}`;
+  try {
+    await navigator.clipboard.writeText(shareUrl);
+    shareStatus.textContent = 'Share link copied. Anyone with it can see the values in the link.';
+    recordUsage('share_link_copied', usage.checked);
+  } catch {
+    window.prompt('Copy this share link:', shareUrl);
+  }
+  setTimeout(() => { shareStatus.textContent = ''; }, 5000);
+});
+const shared = decodeInputs(location.hash);
+const openedFromShareLink = Object.keys(shared).length > 0;
+const draft = openedFromShareLink ? null : JSON.parse(localStorage.getItem('subcontractor-cashflow-draft') || 'null');
+const restored = openedFromShareLink ? shared : draft;
+if (restored) for (const [key, value] of Object.entries(restored)) if (form.elements[key]) form.elements[key].value = value;
+run(false);
+if (openedFromShareLink) recordUsage('shared_scenario_opened', usage.checked);
 </script></body></html>
