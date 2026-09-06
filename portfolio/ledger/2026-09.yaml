@@ -14778,3 +14778,52 @@ entries:
         matches the printed price, no cost/wage/margin leak in print, print
         correctly hides the calculator).
     mrr_end: null
+  - venture: cam-reconciliation-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second competitor comparison page, vs-appfolio.html,
+        alongside the existing vs-yardi.html: AppFolio Property Manager is
+        the natural second reference point for this niche (cloud
+        property-management aimed at small-to-midsize portfolios, versus
+        Yardi Voyager's enterprise scope), and this session found every
+        other venture in the fleet already carries at least one such page
+        while a handful of the most-developed ones carry two -- this was
+        the same gap on the venture with only one. No pricing claim is
+        made for AppFolio (its plan terms cannot be verified from this
+        session), only its documented scope as a platform; the
+        no-warranty/no-affiliation disclaimers and the GitHub Sponsors line
+        match every sibling page. Linked from index.html and listed in the
+        venture's sitemap.xml; ran `node platform/marketing/regen.mjs`
+        afterward so the apex mirror, its kustomization, catalog.json, and
+        the front-door sitemap/llms.txt all reflect the new page.
+      - >-
+        This session opened with the mandatory PR-drain phase: zero open
+        pull requests existed, and `supersede_check.py` was run against 18
+        branches spanning the full age range of the ~90 branches with
+        commits not on `main` (including every branch with more than 5
+        commits ahead and every branch touched in the last 24h) -- every
+        one was either an identical-merge SUPERSEDED result or a
+        ledger-only diff with no product code, matching the independent
+        finding already recorded in `portfolio/ledger/infra_state.yaml`
+        under `github-actions-runners` from a session the previous day.
+        No PR was opened for any of them, since doing so would have added
+        review noise for zero shipped work. Also confirmed `gitops/agents/host/`
+        (Codex CLI running as a systemd timer on the Hetzner box, spending
+        the owner's ChatGPT quota instead of the exhausted Actions
+        allowance) is fully built, documented, and passing its 39-test
+        suite -- it needs no further work from a session and is blocked
+        purely on the owner rotating `HETZNERSSHKEY` (currently a public
+        key, so no session can SSH in to install it). GitHub Actions
+        remained starved today (every workflow run on `main` in the last
+        20 minutes completed in 3-5s with no real runner), so this PR was
+        verified locally rather than on CI, per CLAUDE.md's starvation
+        protocol: venture suite (cam-reconciliation-check) 54/54,
+        platform/marketing+platform/pages 1126/1126 after regen.mjs,
+        gitops/tests 428 passed/1 pre-existing flake (confirmed
+        unrelated to this diff: fails and passes identically with the
+        diff stashed, a same-second timestamp collision in
+        test_portfolio_site_host.py unconnected to this venture)/25
+        skipped, and all 16 platform/ci unittest modules pass.
+    mrr_end: null
