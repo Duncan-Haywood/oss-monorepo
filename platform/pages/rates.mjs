@@ -132,6 +132,8 @@ export const PARTIAL_SHOP_RATE_PAGES = {
     'This tool allocates overhead as dollars for the job rather than a percentage of direct cost, so your saved overhead rate is left alone here.',
   'vehicle-wrap-bid-calculator':
     'This tool asks for a loaded installer rate — wage and burden together — so your saved wage and burden are left alone here.',
+  'locksmith-bid-calculator':
+    'This tool prices one call from a single billed rate rather than a separate crew wage and payroll burden, so your saved wage and burden are left alone here.',
 };
 
 /**

@@ -31,20 +31,51 @@ document.
    public URL is not a product yet. `python3 platform/ci/pages_state.py`
    says whether the live snapshot matches `main`; if it says `stale`, that
    refresh outranks new work (see "Current priority" below).
-2. **New ventures get first call, right now, not the leftover slot.** As of
-   today `portfolio/pipeline/candidates.yaml` has **zero** `build-now`
-   candidates left unbuilt — everything scored has already shipped. On a
-   session with no in-progress venture work, the standing task is
-   originating a fresh niche: use the method in `PRODUCT_PLAYBOOK.md` §1
-   ("Pick the niche before you pick the product"), check it against
-   `portfolio/pipeline/screened-out.md` (106 lines of ideas already
-   rejected — read it before proposing one) and the `liability_containment`
-   / `ethical_robustness` gates in `pipeline/README.md`, then graduate and
-   build it the same session if it clears both. This beats adding a parity
-   feature (a share link, an export format) to a product nobody has
-   visited — see "The fleet-parity trap" below. New ventures are how this
-   portfolio finds the business that actually works; treat sourcing one as
-   real product work, not as meta-work to defer.
+2. **New ventures get first call, right now, not the leftover slot — and the
+   owner has a standing special interest in them, so raise the bar rather
+   than the count.** `portfolio/pipeline/candidates.yaml` has **zero**
+   `build-now` candidates left unbuilt, and the fleet has still gone on to
+   graduate niche after niche anyway — 195 `ventures/` directories as of
+   2026-09-06, up from 185 six days earlier, with **zero** nonzero
+   `live_url_visitors`/`repo_views_14d`/`release_downloads_total` readings
+   anywhere in `usage/usage.yaml` and $0 revenue across all 756 ledger
+   entries. "Not in `screened-out.md`" is necessary but no longer
+   sufficient on its own to graduate a 196th one. Before building a fresh
+   niche, name in the ledger entry **where the first real visitor would
+   come from** — a specific subreddit, trade forum, search phrase with
+   demonstrable volume, or a competitor's own comparison-search traffic —
+   the same evidence `PRODUCT_PLAYBOOK.md` §1 already asks a session to
+   gather, just now stated as a graduation condition rather than a nice-to-
+   have. This is not a slowdown: it is how "more viable" differs from "more
+   businesses" when the count is already 195 and none of them has a
+   confirmed visitor. New ventures still beat a parity feature on a product
+   nobody has visited — see "The fleet-parity trap" below — and sourcing
+   one is real product work, not meta-work to defer.
+
+   **Read "zero in `usage.yaml`" as "unmeasured," not "unwanted," on the
+   route that is actually live (added 2026-09-06).** GitHub Pages is what a
+   stranger reaches today, and it self-reports nothing; every per-venture
+   counter in `usage.mjs` is `localStorage`-only and never leaves the
+   visitor's browser (`usage/README.md`, "The published tool site counts
+   itself" — the one route that did aggregate, nginx on the k3s cluster, has
+   been down since 2026-09-04). So a fleet-wide zero right now is consistent
+   with real, silent visitors and with zero, and this file's own "zero after
+   a fair run, stop building" rule (`usage/README.md` "How to read it")
+   cannot currently be applied to any product on this route — there is no
+   fair-run reading to have. That is not licence to keep graduating on
+   quantity alone (see the visitor-channel requirement just above, which
+   does not depend on this counter), and it is not a problem for a session
+   to go solve with a new script: every free option left (a hit-counter
+   badge, a third-party analytics tag) is exactly the "no analytics vendor"
+   line `usage/README.md` already forbids, and Search Console-style
+   ownership verification ties a real Google identity to the repo, which
+   reads as an account decision for the owner, not a build task — raise it
+   on the decision queue if a session wants to pursue it, don't wire it
+   unilaterally. Until the cluster or an owner-approved channel restores a
+   real signal, weigh a venture's future by the discoverability checklist
+   (`PRODUCT_PLAYBOOK.md` §5e) and the free public signals in
+   `usage/README.md`'s table (stars, referrers, release downloads) — not by
+   a `usage.yaml` field that cannot currently move either way.
 3. **Donations only, and most of the mechanism already ships.** Every live
    venture carries a `github.com/sponsors/Duncan-Haywood` link (done, all
    185) and should carry the `sponsor_link_clicked` usage counter
