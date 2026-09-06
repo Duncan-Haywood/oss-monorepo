@@ -197,3 +197,37 @@ test("markdown for an inconclusive report says so and still disclaims", () => {
   assert.match(markdown, /not legal advice/i);
   assert.ok(!/No section-level differences/.test(markdown));
 });
+
+test("markdown for a changed section shows the word-level diff, not two walls of prose", () => {
+  const report = buildReport(
+    snap("Retention\n\nWe keep data for 30 days.", { capturedAt: "2026-08-01T00:00:00Z" }),
+    snap("Retention\n\nWe keep data for 180 days.", { capturedAt: "2026-09-01T00:00:00Z" }),
+  );
+  const markdown = markdownReport(report);
+  // The unchanged words appear once, plain; only the moved word is marked up.
+  assert.match(markdown, /We keep data for ~~30~~ \*\*180\*\* days\./);
+  // The old full-section dump this replaces must be gone from a "changed" block.
+  assert.ok(!/\*\*Before:\*\*/.test(markdown));
+  assert.ok(!/\*\*After:\*\*/.test(markdown));
+});
+
+test("markdown for added/removed sections keeps the full-text Before/After dump", () => {
+  const report = buildReport(
+    snap("Retention\n\nWe keep data for 30 days."),
+    snap("Retention\n\nWe keep data for 30 days.\n\nOnward transfers\n\nWe may share data outside your region."),
+  );
+  const markdown = markdownReport(report);
+  assert.match(markdown, /## Onward transfers — added/);
+  assert.match(markdown, /\*\*After:\*\* We may share data outside your region\./);
+});
+
+test("markdown word-diff escapes literal Markdown emphasis characters in the page text", () => {
+  const report = buildReport(
+    snap("Retention\n\nSee footnote_1 for the *standard* window."),
+    snap("Retention\n\nSee footnote_1 for the *extended* window."),
+  );
+  const markdown = markdownReport(report);
+  // The escaped literal asterisks around "standard"/"extended" must not be
+  // confused with the ~~/** diff markup wrapped around the changed word.
+  assert.match(markdown, /~~\\\*standard\\\*~~ \*\*\\\*extended\\\*\*\*/);
+});
