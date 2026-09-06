@@ -14554,3 +14554,79 @@ entries:
         653 pages. build.mjs --out=dist + check.mjs dist: 720 pages (up from
         719), no dead links.
     mrr_end: null
+  - venture: appointment-deposit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a shareable deposit-plan link to the calculator's index.html.
+        Picked after re-confirming this scheduled run's collision guard (git
+        fetch origin main: unmoved; 0 open PRs) and finding, contrary to
+        this task's stated priors, that the "vs-*.html comparison page"
+        route is now fully saturated: every one of the 174 static-page
+        ventures already carries at least one vs-*.html (0 zero-vs
+        outliers), the three shortest existing comparison pages (55-64
+        lines: payment-reconciliation-workbench/vs-synder.html,
+        contractor-bid-readiness/vs-jobtread.html,
+        tender-bid-readiness/vs-govwin.html) read as complete and correctly
+        terse rather than thin or defective on inspection, and
+        node platform/marketing/regen.mjs, platform/pages/clauses.mjs
+        (no-warranty clause, 694/694 pages) and
+        build.mjs+check.mjs (720 pages, no dead links) all reported the
+        published surface already current with no gaps. Fell through to
+        this brief's second-priority route: scanned every venture's built
+        entry page for a `<form>` with no share-link control (via
+        build.mjs's own pageHasOwnShareControl/injectBidLink gate) and
+        hand-verified each hit against the built dist output, since three
+        of the twelve raw hits were false positives -- pages that already
+        implement a working share link under a button id
+        (copy-share, share-link) the fleet's own detection regex does not
+        yet recognise (commercial-photo-license-calculator,
+        no-show-fee-calculator, music-lesson-break-even) -- and two more
+        (3pl-quote-normalizer, saas-seat-true-up) had been touched by other
+        sessions in the last 12 hours. appointment-deposit-calculator was
+        the first remaining candidate with a real gap: its calculator
+        already offers "Copy policy" (a text-only draft) but no way to
+        reopen the ten-field plan (price, deposit %, bookings/week, both
+        booking-rate and no-show assumptions, notice window, currency,
+        business and service names) as a live, editable calculator, so
+        verifying a number with a bookkeeper or business partner meant
+        retyping every field by hand -- the same gap this month's
+        cloud-egress-calculator, 3pl-quote-normalizer and
+        cam-reconciliation-check share-link PRs each closed for their own
+        ventures.
+      - >-
+        share.mjs follows this month's established convention exactly:
+        URLSearchParams-encoded payload in the URL fragment (never sent to
+        a server or logged in a Referer header), blank/unusable fields
+        omitted rather than serialized as zero so a partial link does not
+        overwrite the recipient's own defaults, and a fixed allowlist of
+        field ids so a crafted fragment cannot inject an unexpected field
+        into the form (verified: __proto__ pollution attempt is dropped,
+        prototype stays clean). app.mjs decodes an incoming hash/query on
+        load, fills the form, calls the existing render() so the recipient
+        sees the recalculated plan immediately, and records one of two new
+        allowlisted usage events (share_link_copied, shared_link_opened) --
+        extended page.test.mjs's existing closed-event-allowlist assertion
+        to match rather than loosening it. Footer privacy paragraph updated
+        to state the fragment never leaves the browser, matching the
+        wording already used on commercial-photo-license-calculator and
+        cloud-egress-calculator.
+      - >-
+        Verified: ventures/appointment-deposit-calculator 57/57 (9 new
+        assertions in share.test.mjs, including a round-trip that recomputes
+        the exact same plan() output the sender saw, a prototype-pollution
+        fragment test, and the extended event-allowlist test).
+        platform/marketing+platform/pages 1126/1126 after
+        node platform/marketing/regen.mjs (rewrote only this venture's
+        mirror shard and kustomization.yaml). platform/proposal 101/101.
+        platform/privacy+platform/webcheck 50/50.
+        platform/ci/check_money_sign.py: clean (no money() formatter puts
+        the sign inside the currency symbol). gitops/tests: 409 passed, 25
+        skipped. All 15 platform/ci unittest modules pass individually.
+        build.mjs --out=dist + check.mjs dist: 720 pages, no dead links.
+        ci_starvation.py --run 34005411155: still exits 0 (starved, 4/6
+        jobs runner_id 0) -- read per CLAUDE.md's "While runners are
+        starved" section as reason to verify locally and report what ran,
+        not as a reason to skip local verification.
+    mrr_end: null

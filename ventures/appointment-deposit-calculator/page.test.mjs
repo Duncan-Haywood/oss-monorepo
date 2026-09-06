@@ -97,7 +97,7 @@ test('the outcome event is one of two buckets and carries no amounts', () => {
   }
   assert.deepEqual(
     [...names].sort(),
-    ['deposit_calculated', 'deposit_costs_money', 'deposit_pays_off', 'policy_copied'],
+    ['deposit_calculated', 'deposit_costs_money', 'deposit_pays_off', 'policy_copied', 'share_link_copied', 'shared_link_opened'],
   );
 });
 
