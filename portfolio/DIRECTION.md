@@ -321,11 +321,13 @@ check that venture's row in `usage.yaml` first. Zero usage after a fair run
    share button."
 3. **Donation-readiness housekeeping** (next section) — so the day
    `funding-sponsors-live` is decided, every product's footer is already
-   correct and nothing needs revisiting. This now has a concrete, specific
-   task, not just "make sure it's correct": wire the `sponsor_link_clicked`
-   counter (`PRODUCT_PLAYBOOK.md` §6) on a zero-usage venture you are
-   already touching, so the fleet can eventually tell a click-through of
-   zero from a click-through nobody measured.
+   correct and nothing needs revisiting. **Corrected 2026-09-06:** the
+   `sponsor_link_clicked` counter is no longer a per-venture task to wire —
+   see the correction in "Revenue: donations, and keeping customers happy"
+   below — it already fires fleet-wide from the published-site build. The
+   housekeeping that remains here is the ordinary kind: a venture's footer
+   actually has the link, the disclaimer, and nothing that reads as a
+   paywall.
 
 This does not forbid fleet-parity work outright — a share link genuinely
 requested by, or built for, a product that already has visitors is exactly
@@ -377,14 +379,29 @@ replaces it.
   not a revenue win; keep it exactly as optional as the free tier it sits
   next to.
 
-**The link rollout is done; measuring it is not.** As of 2026-09-06 zero of
-185 ventures record whether their sponsor link is ever clicked — the fleet
-shipped the ask without instrumenting the one signal that would say whether
-it is working. `PRODUCT_PLAYBOOK.md` §6 now specifies a fleet-standard
-`sponsor_link_clicked` event through each venture's existing usage counter.
-Wiring it is not a mechanical fleet-wide pass to launch on its own (see "the
-fleet-parity trap" below) — but it belongs in the same commit as any other
-touch to a venture's footer, and on a new venture it ships from v0.
+**Corrected 2026-09-06, same day: the link rollout is done and so is the
+default click instrumentation.** This paragraph said zero of 185 ventures
+recorded a sponsor-link click and asked each session to wire
+`sponsor_link_clicked` into a venture's own `usage.mjs` one footer at a time.
+That was overtaken a commit later (#3511): the click is now counted once, in
+the build, for every published page at once — `markSponsorLinksIn` in
+`platform/pages/build.mjs` tags every Sponsors anchor across all 186 ventures'
+tool, hub, category, and comparison pages, and the shared `pf-site.js` chrome
+those pages already load counts a click into `portfolio-hub-usage` under the
+literal event `sponsor_link_clicked`. See
+[`portfolio/usage/README.md`](usage/README.md#the-published-tool-site-counts-itself)
+"Wired the same day, on the published site, in one place rather than 186" for
+the full mechanism. **Do not hand-wire this per venture** — the build already
+covers the published site, and a mechanical pass adding a second, redundant
+listener to 185 footers is exactly the fleet-parity trap below, not progress.
+The one case worth an individual venture's own `usage.mjs` wiring it too:
+someone opens that venture's `index.html` locally rather than through the
+published build (a clone, an offline copy) — optional, not a fleet task.
+What is still genuinely open: like every other counter here, this one is
+`localStorage`-only and never transmits, so nobody can read the aggregate back
+yet — the click is now *countable*, not yet *counted for us*. That gap closes
+with the rest of "the published tool site counts itself" (`usage/README.md`),
+not with more per-venture code.
 
 **Keeping customers happy is not a separate initiative — it's what makes a
 donation ask credible, and it's cheap to check for:**
