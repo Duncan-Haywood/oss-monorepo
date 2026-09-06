@@ -200,7 +200,16 @@ jobs:
       # has neither -- this installs the same tool on either runner.
       - name: shellcheck
         run: |
-          pip install shellcheck-py
+          # Pinned. shellcheck adds checks in minor releases, so an unpinned
+          # install means a shellcheck release -- not a repo change -- can turn
+          # this job red across every branch at once, with a diff that explains
+          # nothing. It has already caused one misreading here: the
+          # `# shellcheck disable=SC2329` in gitops/ci/runner-entrypoint.sh is
+          # the >=0.10 code for the check 0.9.0 called SC2317, so a session that
+          # happened to have 0.9.0 installed locally read this job as broken on
+          # main when it was clean. Bump deliberately, with the findings fixed
+          # in the same commit.
+          pip install shellcheck-py==0.11.0.1
           shellcheck bootstrap/install-k3s-server.sh \
             bootstrap/install-k3s-agent.sh \
             bootstrap/install-argocd.sh \
