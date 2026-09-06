@@ -6,8 +6,10 @@ import unittest
 from decision_queue import (
     EXPOSURES,
     GATES,
+    PUBLIC_ORIGINS,
     VERDICTS,
     load_infra,
+    serving_origins,
     viability,
     age_days,
     check,
@@ -668,6 +670,107 @@ class UnmeasuredIsNotBlocked(unittest.TestCase):
         # prerequisite reading as healthy is what cost five days.
         d = self.outage_row("pages", ["never-read"])
         self.assertEqual(viability(d, {}, self.DAY)[0], "unknown")
+
+
+class AServedCatalogueIsNotADarkOne(unittest.TestCase):
+    """The banner must not call the catalogue dark while an origin serves it.
+
+    Fixed 2026-09-06. `render()` printed "OUTAGE: the public surface is down
+    ... every other row here is downstream of a host answering at all"
+    whenever any row carried `outage: true`, with no reference to whether a
+    surface was in fact serving. That day `github-pages-branch-route` read
+    `up` -- GitHub's own managed builder had run on `gh-pages` and succeeded,
+    which it does only for the configured Pages source -- so 186 tools were
+    publicly served while the queue told the owner the catalogue was dark and
+    that reading no further was correct.
+
+    The cost is specific: the banner exists to suppress the rest of the queue,
+    and suppressing it against a served catalogue buries the three rows that
+    move the revenue ceiling off $0 behind a route the owner may not be able
+    to take today.
+    """
+
+    DAY = dt.date(2026, 9, 6)
+    ORIGIN = "github-pages-branch-route"
+
+    def render_with(self, infra, ids=("ssh",)):
+        rows = [decision(id=i, outage=True, gates="deployment") for i in ids]
+        rows.append(decision())
+        return " ".join(render(rows, self.DAY, infra=infra).split())
+
+    def up(self, name):
+        return {name: {"verdict": "up", "measured": self.DAY.isoformat(), "run": 1}}
+
+    def test_a_served_origin_replaces_the_dark_catalogue_claim(self):
+        out = self.render_with(self.up(self.ORIGIN))
+        self.assertNotIn("the public surface is down", out)
+        self.assertIn("PARTIAL OUTAGE", out)
+        self.assertIn("the catalogue is being served by", out)
+
+    def test_it_tells_the_owner_to_keep_reading(self):
+        # The one behaviour the bug destroyed: the rest of the queue is not
+        # all downstream of this outage, so it must not be suppressed.
+        out = self.render_with(self.up(self.ORIGIN))
+        self.assertIn("read on", out)
+        self.assertNotIn("downstream of a host answering at all", out)
+
+    def test_it_still_names_the_route_that_repairs_the_dark_origin(self):
+        out = self.render_with(self.up(self.ORIGIN))
+        self.assertIn("ssh restores the origin that is down", out)
+
+    def test_deployed_is_never_reported_as_fetched(self):
+        # The mirror of the bug, and the worse one: an unauthenticated 200 is
+        # a different reading (`github-pages-origin`) that no session can
+        # take. Claiming it would stop the owner making the one check that
+        # settles it.
+        out = self.render_with(self.up(self.ORIGIN))
+        self.assertIn("Not yet confirmed by a logged-out fetch", out)
+        self.assertIn("github-pages-origin", out)
+        self.assertIn("not that a stranger has read it", out)
+
+    def test_a_confirmed_origin_drops_the_caveat(self):
+        infra = self.up(self.ORIGIN) | self.up("github-pages-origin")
+        out = self.render_with(infra)
+        self.assertIn("PARTIAL OUTAGE", out)
+        self.assertNotIn("Not yet confirmed by a logged-out fetch", out)
+
+    def test_no_served_origin_keeps_the_original_outage_banner(self):
+        # The safeguard must keep working for the case it was written for:
+        # with every origin dark, the old wording is correct and stays.
+        out = self.render_with({self.ORIGIN: {"verdict": "down",
+                                              "measured": self.DAY.isoformat(),
+                                              "run": 1}})
+        self.assertIn("OUTAGE: the public surface is down", out)
+        self.assertIn("ssh comes first", out)
+        self.assertNotIn("PARTIAL OUTAGE", out)
+
+    def test_a_stale_reading_falls_back_to_the_outage_banner(self):
+        # The direction that must not invert: an origin nobody has re-measured
+        # ages out to `unknown` and stops suppressing the banner. Keeping a
+        # stale `up` would be the 2026-08-30..09-04 "nothing is served"
+        # episode again, with the queue as the thing asserting it.
+        stale = {self.ORIGIN: {"verdict": "up", "measured": "2026-08-01", "run": 1}}
+        self.assertEqual(serving_origins(stale, self.DAY), [])
+        self.assertIn("OUTAGE: the public surface is down",
+                      self.render_with(stale))
+
+    def test_an_unmeasured_origin_does_not_count_as_serving(self):
+        self.assertEqual(serving_origins({}, self.DAY), [])
+
+    def test_every_named_origin_has_an_owner_facing_label(self):
+        for name, label in PUBLIC_ORIGINS.items():
+            self.assertTrue(label.strip(), f"{name} has no label")
+
+    def test_the_live_readings_still_name_a_real_origin(self):
+        # Not a fixture: PUBLIC_ORIGINS keys must exist in infra_state.yaml,
+        # or the banner silently reverts to claiming the catalogue is dark.
+        infra = load_infra()
+        for name in PUBLIC_ORIGINS:
+            self.assertIn(
+                name, infra,
+                f"{name} is named in PUBLIC_ORIGINS but has no reading in "
+                "infra_state.yaml, so it can never suppress the outage banner",
+            )
 
 
 if __name__ == "__main__":
