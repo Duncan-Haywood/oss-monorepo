@@ -728,8 +728,37 @@ def exit_code(state):
     `publish-branch.sh` re-run away and does not change whether the route
     exists, so folding it into the exit code would make a green run mean two
     different things.
+
+    `--require-current` is the other question, and it gets its own function
+    below rather than a flag threaded through this one, for exactly the reason
+    this docstring already gives.
     """
     return 0 if state["plan_verdict"] == "likely-up" else 1
+
+
+def freshness_exit_code(state):
+    """0 when the published snapshot is `current`, 1 when it is not.
+
+    A separate contract from `exit_code` on purpose. That one answers "is this
+    route worth having?", which is a question about configuration and barely
+    changes; this one answers "is the site a stranger reaches right now the
+    same as `main`?", which changes on every merge that touches a served
+    surface.
+
+    This exists because that second question had no gate at all. GitHub Pages
+    serves `gh-pages`, a *committed artifact*: nothing rebuilds it when `main`
+    moves, so the live site silently falls behind and there is no error
+    anywhere to say so. The documented remedy was a paragraph in CLAUDE.md
+    telling each session to re-run `publish-branch.sh` by hand -- and on
+    2026-09-06 the snapshot was found stale (built from `1afe50c5` while
+    `main` was at `565cc635`) by a session that had *read* that paragraph.
+    A guard nobody can forget beats a reminder everybody has already read.
+
+    Note what this deliberately does not do: it never publishes. It reports a
+    failure and names the one command that fixes it. Publishing rewrites a
+    branch, which is not something a check should do as a side effect.
+    """
+    return 0 if state["snapshot"] == "current" else 1
 
 
 def main(argv=None, api=None):
@@ -738,6 +767,14 @@ def main(argv=None, api=None):
     )
     parser.add_argument("--json", action="store_true", help="machine-readable")
     parser.add_argument("--repo", help="owner/name (default: origin remote)")
+    parser.add_argument(
+        "--require-current",
+        action="store_true",
+        help=(
+            "exit non-zero unless the published snapshot is `current`; use "
+            "after merging a change that touches a served surface"
+        ),
+    )
     args = parser.parse_args(argv)
 
     if api is None:
@@ -758,6 +795,26 @@ def main(argv=None, api=None):
         return 2
 
     print(json.dumps(state, indent=2) if args.json else render(state), end="")
+
+    if args.require_current:
+        code = freshness_exit_code(state)
+        if code:
+            # To stderr and spelled out: the caller is a verification step that
+            # may only surface the last line, and "stale" alone does not say
+            # what to do about it.
+            print(
+                f"\nFAIL: the published snapshot is '{state['snapshot']}', not "
+                "'current', so the live site is not serving what `main` "
+                "contains.\n"
+                f"  reason: {state['snapshot_reason']}\n"
+                "  fix:    CONFIRM=publish-pages-branch PUSH=1 "
+                "./platform/pages/publish-branch.sh\n"
+                "This needs no runner, no cluster and no credential beyond the "
+                "push you already have.",
+                file=sys.stderr,
+            )
+        return code
+
     return exit_code(state)
 
 

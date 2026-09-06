@@ -588,3 +588,97 @@ class DeploymentVote(unittest.TestCase):
         out = ps.render(ps.collect(api))
         self.assertIn("deployed", out)
         self.assertIn("served", out)
+
+
+class RequireCurrent(unittest.TestCase):
+    """The `--require-current` gate.
+
+    Its whole reason to exist is that a stale snapshot had no failure mode:
+    `main` moves, `gh-pages` does not, and the live site falls behind with no
+    error anywhere. Every assertion below is about that gate being loud, being
+    separate from the route-viability verdict, and never publishing anything.
+    """
+
+    def test_current_snapshot_passes(self):
+        self.assertEqual(ps.freshness_exit_code({"snapshot": "current"}), 0)
+
+    def test_stale_snapshot_fails(self):
+        self.assertEqual(ps.freshness_exit_code({"snapshot": "stale"}), 1)
+
+    def test_unreadable_states_fail_rather_than_pass(self):
+        """`absent` and `unknown` are not `current`, and must not read as it.
+
+        This is the direction the whole module already refuses to fail in: an
+        unreadable comparison is never licence to call a snapshot fresh.
+        """
+        for verdict in ("absent", "unknown"):
+            with self.subTest(verdict=verdict):
+                self.assertEqual(ps.freshness_exit_code({"snapshot": verdict}), 1)
+
+    def test_gate_is_independent_of_the_route_verdict(self):
+        """A viable route with a stale snapshot must still fail the gate.
+
+        `exit_code` says the route is worth having; this says the site is
+        up to date. Folding them together is what the `exit_code` docstring
+        declines to do, so pin that they can disagree.
+        """
+        state = {"plan_verdict": "likely-up", "snapshot": "stale"}
+        self.assertEqual(ps.exit_code(state), 0)
+        self.assertEqual(ps.freshness_exit_code(state), 1)
+
+    def _run(self, changed):
+        """End to end through `main`, with `changed` the files `main` moved.
+
+        Built the same way as the `collect` tests above: a venture file makes
+        the snapshot stale, a docs file leaves it current.
+        """
+        api = fake_api(
+            branches={
+                "gh-pages": branch(),
+                "main": branch(sha="f" * 40, message="a merge"),
+            },
+            compare=changed,
+        )
+        err = io.StringIO()
+        with unittest.mock.patch("sys.stdout", new=io.StringIO()) as out:
+            with unittest.mock.patch("sys.stderr", new=err):
+                code = ps.main(["--require-current"], api=api)
+        return code, out.getvalue(), err.getvalue()
+
+    def test_stale_run_names_the_command_that_fixes_it(self):
+        """A failure that does not say what to do gets re-diagnosed next run."""
+        code, _, err = self._run(["ventures/new-tool/index.html"])
+        self.assertEqual(code, 1)
+        self.assertIn("FAIL", err)
+        self.assertIn("publish-branch.sh", err)
+        self.assertIn("CONFIRM=publish-pages-branch", err)
+
+    def test_a_docs_only_merge_passes_the_gate(self):
+        """The gate must not cry wolf: a merge that changes no build input
+        rebuilds byte-identically, so it is not a reason to republish."""
+        code, _, err = self._run(["AGENTS.md", "portfolio/DIRECTION.md"])
+        self.assertEqual(code, 0)
+        self.assertEqual(err, "")
+
+    def test_the_report_is_still_printed_when_the_gate_fails(self):
+        """The gate adds a verdict; it must not swallow the reading."""
+        _, out, _ = self._run(["ventures/new-tool/index.html"])
+        self.assertIn("snapshot", out)
+
+    def test_the_gate_never_publishes(self):
+        """A check that rewrote a branch as a side effect would be a footgun."""
+        with unittest.mock.patch("subprocess.run") as ran:
+            self._run(["ventures/new-tool/index.html"])
+        ran.assert_not_called()
+
+    def test_without_the_flag_a_stale_snapshot_still_exits_zero(self):
+        """The pre-existing contract is unchanged; the gate is opt-in."""
+        api = fake_api(
+            branches={
+                "gh-pages": branch(),
+                "main": branch(sha="f" * 40, message="a merge"),
+            },
+            compare=["ventures/new-tool/index.html"],
+        )
+        with unittest.mock.patch("sys.stdout", new=io.StringIO()):
+            self.assertEqual(ps.main([], api=api), 0)
