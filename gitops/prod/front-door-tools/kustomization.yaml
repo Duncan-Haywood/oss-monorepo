@@ -35,7 +35,7 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 132 files, 551950 bytes
 #   portfolio-front-tools-1: 113 files, 555910 bytes
-#   portfolio-front-tools-2: 149 files, 553583 bytes
+#   portfolio-front-tools-2: 150 files, 555593 bytes
 #   portfolio-front-tools-3: 120 files, 555450 bytes
 #   portfolio-front-tools-4: 120 files, 548096 bytes
 #   portfolio-front-tools-5: 121 files, 547631 bytes
@@ -338,6 +338,7 @@ configMapGenerator:
       - cloud-egress-calculator__does-a-replica-beat-cross-region-pull.html.gz=cloud-egress-calculator__does-a-replica-beat-cross-region-pull.html.gz
       - cloud-egress-calculator__does-infrequent-access-still-beat-standard.html.gz=cloud-egress-calculator__does-infrequent-access-still-beat-standard.html.gz
       - cloud-egress-calculator__index.html.gz=cloud-egress-calculator__index.html.gz
+      - cloud-egress-calculator__share.mjs.gz=cloud-egress-calculator__share.mjs.gz
       - cloud-egress-calculator__usage.mjs.gz=cloud-egress-calculator__usage.mjs.gz
       - cloud-egress-calculator__vs-aws-pricing-calculator.html.gz=cloud-egress-calculator__vs-aws-pricing-calculator.html.gz
       - cloud-egress-calculator__vs-azure-pricing-calculator.html.gz=cloud-egress-calculator__vs-azure-pricing-calculator.html.gz
