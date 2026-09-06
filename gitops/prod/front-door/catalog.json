@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 188,
-  "collection_total": 188,
+  "served_here": 189,
+  "collection_total": 189,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -26,7 +26,7 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 123
+      "tool_count": 124
     },
     {
       "id": "evidence",
@@ -953,6 +953,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a residential home elevator from stops, travel, pneumatic versus hydraulic versus traction MRL, through-floor versus a new shaft, acrylic versus glass cab, and extras — plus the walk-away price an $18,995 pneumatic special cannot see.",
       "pages": 6
+    },
+    {
+      "slug": "home-staging-bid-calculator",
+      "name": "Home Staging Bid Calculator — Price a Vacant Listing",
+      "url": "https://marisstella.dev/tools/home-staging-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for independent home stagers: price a vacant-listing staging job from the included term, furniture carrying cost, crew labor, and mileage, then check whether your extension fee actually covers your own carrying cost before a slow listing erases the margin.",
+      "pages": 1
     },
     {
       "slug": "hood-cleaning-bid-calculator",

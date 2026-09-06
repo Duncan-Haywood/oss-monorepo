@@ -1322,7 +1322,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 188 since 2026-09-06, when `ice-dam-removal-bid-calculator` shipped —
     # same shape again: a new venture with a static `index.html` from its
     # first commit, entering the mirror and the total together.
-    total = 188  # `infra/OWNER_CHECKLIST.md`'s own "N of the 188 tools" wording.
+    # 189 since 2026-09-06, when `home-staging-bid-calculator` shipped — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    total = 189  # `infra/OWNER_CHECKLIST.md`'s own "N of the 189 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

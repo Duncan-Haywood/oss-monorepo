@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 188 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 189 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-09-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.</summary>
+  </entry>
+  <entry>
+    <title>Home Staging Bid Calculator — Price a Vacant Listing</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-staging-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/home-staging-bid-calculator</id>
+    <published>2026-09-06T00:00:00Z</published>
+    <updated>2026-09-06T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free calculator for independent home stagers: price a vacant-listing staging job from the included term, furniture carrying cost, crew labor, and mileage, then check whether your extension fee actually covers your own carrying cost before a slow listing erases the margin.</summary>
   </entry>
   <entry>
     <title>Ice Dam Removal Bid Calculator — Price a Steam Removal Job</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Logistics, freight &amp; cloud cost"/>
     <summary type="text">Compare monthly S3-compatible storage, request, and data egress costs for a real workload. Free, private, and runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Commercial Photography Licensing Quote Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/commercial-photo-license-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/commercial-photo-license-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Price commercial photography usage rights by channel, term, territory, and exclusivity. Free local-first quote worksheet for photographers.</summary>
   </entry>
 </feed>
