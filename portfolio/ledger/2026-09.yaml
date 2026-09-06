@@ -17553,3 +17553,81 @@ entries:
         `pages_state.py --require-current` then reported `current`,
         built from `519069aa`, exit 0.
     mrr_end: null
+  - venture: where-to-sell-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the Reverb channel and its handoff (#3578), closing the
+        funnel gap between the router's top two rows -- `allocate.py`
+        ranked `reverb-fee-calculator` and `where-to-sell-calculator`
+        joint first (merit 7.00), and they name the same untested
+        hypothesis from opposite ends: the handoff, not the depth of the
+        second tool, decides whether the portfolio's deeper scenarios
+        ever get used. The portfolio shipped a deep Reverb calculator
+        while the page answering "where do I list this" could not put
+        Reverb in the ranking at all, so a gear seller had no route from
+        the question to the tool built for it.
+      - >-
+        Reverb ships **off by default**: it only applies to instruments
+        and audio gear, and a channel a seller cannot list on is noise in
+        a ranking rather than information. `CHANNEL_PRESETS` drives the
+        whole UI, so no rendering change was needed.
+      - >-
+        Two guards added for failures that were live rather than
+        hypothetical. `channel-parity.test.mjs` imports `REVERB_DEFAULTS`
+        from the dedicated calculator so the two tools cannot quote the
+        same marketplace differently -- the copied-constant failure
+        CLAUDE.md already records paying for twice. And a
+        privacy-disclosure guard in `page.test.mjs`: the usage event is
+        built as `handoff_${channel}`, so adding a channel creates a
+        recordable event with no code change, and the fifth handoff
+        shipped an undisclosed `handoff_reverb` past all 141 existing
+        assertions. Verified both fail when the defect is reintroduced.
+      - >-
+        Then the marketing surface for it: `reverb-vs-ebay-for-gear.html`
+        works an $800 guitar through both channels and lands on the
+        genuine tension the tool exists to surface -- Reverb leaves about
+        $47 more per sale, eBay leaves more per month of shelf ($84.21 vs
+        $58.91) because it sells faster. `reverb-vs-ebay-page.test.mjs`
+        recomputes every figure on the page through `compareChannels` and
+        asserts the page contains it, so a preset edit fails the test
+        rather than leaving a static page asserting arithmetic the tool
+        no longer does.
+      - >-
+        Dropped false precision found by that test: the exact per-sale gap
+        is $46.8125, but the two profits printed in the table above it
+        round to $270.58 and $223.76, which a reader subtracts to $46.82.
+        Stated in whole dollars instead -- a page whose whole job is to be
+        checkable must not appear to contradict its own table by a cent.
+      - >-
+        TikTok Shop deliberately left out despite having a calculator in
+        the portfolio: it has no `share.mjs`, so it cannot accept a
+        prefilled link, and `handoff.mjs`'s own rule is that a channel
+        with no prefill gets no link because a link arriving with silent
+        default numbers is worse than none. Adding prefill there is the
+        named follow-up.
+      - >-
+        CI starved (`ci_starvation.py` on job 101568542446: `runner_id: 0`,
+        no step ran). Verified locally instead: 1140 `platform/marketing` +
+        `platform/pages` tests; 1473 across the six affected ventures; 167
+        `platform/privacy` + `webcheck` + `proposal`; 490 `gitops/tests`
+        pytest (25 skipped); all `platform/ci` unittest modules plus
+        `agent_review`; 380 `portfolio/*` + `infra/tests` pytest;
+        `checklist_coverage.py` clean; and the Playwright/axe pass via
+        `browser_checks.py --only where-to-sell-calculator` (6 of 7 checks
+        ran and passed, axe found zero violations, `highlight` skipped --
+        this venture prints no highlight promise). No payment collection,
+        no third-party script or network call, no personal data; the
+        handoff carries values in the URL fragment, which no server
+        receives.
+      - >-
+        Deployed and verified: `pages_state.py --require-current` found
+        the snapshot stale after the merge, ran
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-
+        branch.sh`, and GitHub's managed Pages builder then ran on
+        `gh-pages` at `55ac3186` and concluded success (run 34065339028).
+        No logged-out fetch is possible from a session (agent egress proxy
+        answers `403 to CONNECT` for `github.io`), so `github-pages-origin`
+        stays `unknown`.
+    mrr_end: null

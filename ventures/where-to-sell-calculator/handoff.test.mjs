@@ -23,12 +23,14 @@ import { INPUT_FIELDS as EBAY_FIELDS } from '../ebay-fee-calculator/calc.mjs';
 import { FIELD_IDS as ETSY_FIELDS } from '../etsy-profit-calculator/share.mjs';
 import { INPUT_FIELDS as AMAZON_FIELDS } from '../amazon-fba-calculator/calc.mjs';
 import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs';
+import { INPUT_FIELDS as REVERB_FIELDS } from '../reverb-fee-calculator/calc.mjs';
 
 const TARGET_FIELDS = {
   'ebay-fee-calculator': EBAY_FIELDS,
   'etsy-profit-calculator': ETSY_FIELDS,
   'amazon-fba-calculator': AMAZON_FIELDS,
   'shopify-fee-calculator': SHOPIFY_FIELDS,
+  'reverb-fee-calculator': REVERB_FIELDS,
 };
 
 const SHARED = {
@@ -92,6 +94,21 @@ test('a cost the target has no field for is folded in, not dropped', () => {
   const params = paramsOf(handoffUrl('etsy', SHARED));
   assert.equal(params.get('materialCost'), String(SHARED.itemCost + SHARED.packagingCost));
   assert.equal(params.get('packagingCost'), null);
+});
+
+test('Reverb receives packaging folded into its general other-cost field', () => {
+  // Reverb's calculator has no packaging input — gear packing is not a flat
+  // per-order cost there. Dropping it would overstate profit on arrival, which
+  // is the whole failure mode this module exists to prevent.
+  const params = paramsOf(handoffUrl('reverb', SHARED));
+  assert.equal(params.get('otherCost'), String(SHARED.otherCost + SHARED.packagingCost));
+  assert.equal(params.get('packagingCost'), null);
+  // The rest of the item is named identically on both sides and rides across
+  // unrenamed.
+  assert.equal(params.get('price'), '40');
+  assert.equal(params.get('shippingCharged'), '6');
+  assert.equal(params.get('shippingCost'), '5.2');
+  assert.equal(params.get('itemCost'), '12');
 });
 
 test('a blank input is left out so the target keeps its own default', () => {
