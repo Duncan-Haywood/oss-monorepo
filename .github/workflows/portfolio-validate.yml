@@ -317,6 +317,22 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_pages_state
 
+      # `test_publish_pages_branch.py` pins the invariants of
+      # `publish-pages-branch.yml` itself -- the workflow that keeps the
+      # `gh-pages` branch snapshot from silently lagging `main` (see that
+      # workflow's own header). The test module has existed since the
+      # workflow was added on 2026-09-06 but ran in no CI workflow at all:
+      # `.github/workflows/**` and `platform/ci/**` are both in this job's
+      # `paths:` filter, so it was one `run:` line away the whole time. A
+      # green run of this job was silently not proving the one thing whose
+      # breakage this job exists to catch quietly -- the exact failure mode
+      # `checklist_coverage.py` was written to close for the shell-script
+      # checklist in CLAUDE.md, arrived at here from the workflow side
+      # instead.
+      - name: Publish-Pages-branch workflow unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_publish_pages_branch
+
       # A calculator whose shipped defaults fail constraint validation cannot be
       # submitted at all: the browser refuses before dispatching the event, so
       # the page's own handler never runs and the button silently does nothing.
