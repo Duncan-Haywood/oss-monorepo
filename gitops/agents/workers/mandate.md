@@ -115,6 +115,22 @@ toward *running in public* ranks with feature work here, not below it:
   state from `python3 platform/ci/pages_state.py` -- its `deployed` row -- not
   from this paragraph.
 
+  **Because it is live, refreshing it is part of shipping, not an afterthought.**
+  `gh-pages` is a committed artifact: nothing rebuilds it when `main` moves, so
+  a merge that touches a served surface leaves the live site behind with no
+  error anywhere to say so. If your run merges such a change, finish the job:
+
+      python3 platform/ci/pages_state.py --require-current   # exits 1 if stale
+      CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
+      python3 platform/ci/pages_state.py --require-current   # must exit 0 now
+
+  The flag exists because the prose version of this instruction did not hold:
+  CLAUDE.md had carried it for a day when a session that had read it still left
+  the snapshot stale. Do not treat a green `--require-current` as optional
+  paperwork -- it is the difference between a merged asset and a published one.
+  It never publishes for you, and a docs-only merge passes it without a
+  republish, so running it costs nothing when there is nothing to do.
+
   **And a third, added 2026-09-06: `gitops/prod/host/`.** Host mode for the
   *site*, completing the set `gitops/agents/host/` (this worker) and
   `gitops/ci/host/` (the Actions runner) had already started — nginx and a
