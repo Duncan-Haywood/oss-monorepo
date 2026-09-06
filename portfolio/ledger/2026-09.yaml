@@ -17408,3 +17408,93 @@ entries:
         no personal data collected beyond the existing privacy-conscious
         usage-tracking pattern already used fleet-wide.
     mrr_end: null
+  - venture: ice-dam-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new niche not in `portfolio/pipeline/screened-out.md`
+        and not an existing `ventures/` directory: independent ice dam
+        removal contractors (steam-based winter roof service) pricing a
+        job by linear feet of roof edge. Shipped the full vertical slice
+        (#3569), following `locksmith-bid-calculator` and
+        `dumpster-rental-margin-calculator` as templates -- VENTURE.yaml,
+        README, MIT LICENSE, calc.mjs + 19 calc.test.mjs cases,
+        index.html with labeled/accessible inputs, page.test.mjs,
+        usage.mjs (local-only, DNT/GPC-respecting) + usage.test.mjs,
+        robots.txt, sitemap.xml, a worked-example guide page, and
+        vs-jobber.html + vs-jobber.test.mjs (FAQPage JSON-LD, no
+        fabricated competitor pricing since jobber.com is unreachable
+        from this sandbox, standard non-affiliation disclaimer).
+      - >-
+        The core economic insight modeled: a two-person crew, truck and
+        steam machine cost nearly the same to dispatch whether the eave
+        needing clearing is 15ft or 150ft, so a per-linear-foot rate card
+        that comfortably covers a long roof run can lose money on a short
+        one. `breakEvenRatePerFoot` says what the rate would need to be
+        for a specific job's footage to break even on its own, ignoring
+        the minimum service charge, and `underpriced` flags the sharper
+        case where even the minimum charge does not clear the job's real
+        cost. A separate actual-hours reconciliation section (ice removal
+        time is unpredictable) recomputes the real profit from the
+        crew's actual on-site hours against the quote already given,
+        catching a job that ran long enough to erase the built-in
+        margin -- mirroring `dumpster-rental-margin-calculator`'s
+        actual-scale-ticket check on the cost side instead of the
+        revenue side.
+      - >-
+        Adopted the fleet-wide customer-proposal module
+        (`platform/proposal/`), required of every `*-bid-calculator`
+        venture: added a `trades.json` entry and ran `adopt.mjs`, plus
+        the JSON-LD `featureList` clause `discoverability.test.mjs`
+        checks for. Added the matching `SHOP_RATE_ALIASES` /
+        `PARTIAL_SHOP_RATE_PAGES` entry in `platform/pages/rates.mjs`
+        (this venture's `crewHourlyRate` aliases the canonical
+        `hourlyWage`; no separate payroll-burden field, so it carries
+        three of the four shared shop-rate fields) with the matching
+        `NO_SHARED_SHOP_RATES` entry in `rates.test.mjs`. Scored in
+        `portfolio/scoring/venture-scores.yaml` (composite 6.333, same
+        shape and gates as `locksmith-bid-calculator`).
+      - >-
+        Ran `platform/marketing/regen.mjs` and `platform/pages/build.mjs`,
+        which bumped the mirrored-tool count 187 -> 188 in the four
+        places `gitops/tests/test_manifests.py` checks by hand
+        (`infra/OWNER_CHECKLIST.md`, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2, and the test's own
+        comment trail), and added this venture's sub-group keyword to
+        `build.mjs`'s `SUBCATEGORY_RULES.trades` (joins the
+        "Roofing, siding & gutters" group). `main` moved twice while this
+        session worked it (a sibling `fire-extinguisher-inspection-
+        route-margin` graduation and a `cam-reconciliation-check` fix);
+        rebuilt the branch cleanly on the current tip both times rather
+        than force-resolving stale generated-file conflicts.
+      - >-
+        CI was fleet-wide starved (runner_id: 0 on every red check,
+        confirmed with `ci_starvation.py` on all distinct failing job
+        types before merging). Verified locally against the merged tree
+        instead: 88 `ice-dam-removal-bid-calculator` venture tests; 1140
+        `platform/marketing` + `platform/pages` tests; 167
+        `platform/proposal` + `platform/privacy` + `platform/webcheck`
+        tests; 490 `gitops/tests` pytest cases (25 skipped); all 15
+        `platform/ci` unittest modules plus `agent_review`'s
+        `test_review`; 380 `portfolio/ledger|scoring|router|usage
+        |pipeline` + `infra/tests` pytest cases (8 subtests);
+        `checklist_coverage.py` clean; and the Playwright/axe browser
+        pass (contrast/axe found zero WCAG A/AA violations,
+        sweep/journey/roundtrip/presets/sideways all green, `highlight`
+        skipped -- this venture makes no highlight promise) via
+        `browser_checks.py --only ice-dam-removal-bid-calculator`, plus
+        `platform/proposal/verify.mjs` against a built `dist` (1/1
+        sound). No payment collection, no third-party script/CDN/network
+        call, no personal data collected beyond the existing
+        privacy-conscious usage-tracking pattern already used
+        fleet-wide.
+      - >-
+        Merged as #3569. Deployed: `pages_state.py --require-current`
+        found the `gh-pages` snapshot stale (built from `bbc5f53f` while
+        `main` had moved to the merge commit `519069aa`); ran
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-
+        branch.sh` (188 products, 760 pages, no dead links), and
+        `pages_state.py --require-current` then reported `current`,
+        built from `519069aa`, exit 0.
+    mrr_end: null
