@@ -9,8 +9,11 @@ tests that matter are the ones pinning where the verdict must *not* go:
   - `has_pages: false` is not evidence of a Free plan either, only of an
     unflipped switch, so it must stay `unknown` rather than becoming `down`;
   - a `gh-pages` branch built from a commit that is no longer the tip must
-    read `stale`, because the failure this half exists to prevent is an owner
-    flipping the switch and publishing a snapshot from last week.
+    read `stale` **when a build input changed**, because the failure this half
+    exists to prevent is an owner flipping the switch and publishing a snapshot
+    from last week -- and must read `current` when nothing the site is built
+    from moved, because a warning that fires after every docs merge is one the
+    fleet learns to skim.
 """
 
 import io
@@ -22,7 +25,7 @@ import pages_state as ps
 
 
 def fake_api(repo=None, branches=None, missing=(), workflows=None, workflows_fail=False,
-             runs=None, runs_fail=False):
+             runs=None, runs_fail=False, compare=None, compare_fail=False):
     """An api(path) callable over canned payloads.
 
     `missing` names branches that should raise the way `http_api_for` does on
@@ -39,6 +42,10 @@ def fake_api(repo=None, branches=None, missing=(), workflows=None, workflows_fai
     branches = branches or {}
 
     def call(path):
+        if "/compare/" in path:
+            if compare_fail:
+                raise RuntimeError("GET .../compare failed: HTTP 404")
+            return {"files": [{"filename": name} for name in (compare or [])]}
         if "/actions/runs" in path:
             if runs_fail:
                 raise RuntimeError("GET .../actions/runs failed: HTTP 403")
@@ -140,6 +147,110 @@ class Freshness(unittest.TestCase):
         self.assertEqual(state, "unknown")
 
 
+PATTERNS = ["ventures/**", "platform/pages/**", ".github/workflows/publish-pages-branch.yml"]
+
+
+class BuildInputs(unittest.TestCase):
+    """The filter is parsed from the workflow, never restated here.
+
+    A copied constant is the mistake CLAUDE.md records twice as having cost
+    live product, so the test that matters is that the real file still parses
+    and still names the subtrees the build reads.
+    """
+
+    def test_patterns_come_from_the_publishing_workflow(self):
+        patterns = ps.build_input_patterns()
+        self.assertIsNotNone(patterns)
+        self.assertIn("ventures/**", patterns)
+        self.assertIn("platform/pages/**", patterns)
+
+    def test_unreadable_workflow_is_none_not_empty(self):
+        """None and [] support opposite conclusions in `freshness`."""
+        self.assertIsNone(ps.build_input_patterns("/nonexistent/publish.yml"))
+
+    def test_subtree_glob_matches_nested_files(self):
+        self.assertTrue(ps.is_build_input("ventures/a/site/index.html", PATTERNS))
+
+    def test_docs_are_not_build_inputs(self):
+        for path in ("AGENTS.md", "portfolio/DIRECTION.md", "portfolio/ledger/2026-09.yaml"):
+            self.assertFalse(ps.is_build_input(path, PATTERNS), path)
+
+    def test_a_literal_path_matches_exactly(self):
+        self.assertTrue(
+            ps.is_build_input(".github/workflows/publish-pages-branch.yml", PATTERNS)
+        )
+        self.assertFalse(ps.is_build_input(".github/workflows/other.yml", PATTERNS))
+
+    def test_a_truncated_comparison_reads_as_unknown(self):
+        """300 files is GitHub's cap, so the list may be incomplete.
+
+        Returning the partial list would let a genuinely stale snapshot pass as
+        current -- the one way this optimisation could cause the failure it
+        exists to sharpen.
+        """
+        api = fake_api(compare=[f"ventures/v{i}/index.html" for i in range(300)])
+        self.assertIsNone(ps.read_changed_paths(api, "a" * 40, "b" * 40))
+
+    def test_an_unreadable_comparison_is_none(self):
+        api = fake_api(compare_fail=True)
+        self.assertIsNone(ps.read_changed_paths(api, "a" * 40, "b" * 40))
+
+
+class FreshnessAgainstBuildInputs(unittest.TestCase):
+    """Measured 2026-09-06: `main` was one docs commit ahead of the snapshot and
+    rebuilding produced a byte-identical tree (2053 files, zero diff). The old
+    check called that `stale`."""
+
+    def test_docs_only_drift_is_current(self):
+        state, reason = ps.freshness(
+            {"built_from": "d" * 40}, "e" * 40, ["AGENTS.md"], PATTERNS
+        )
+        self.assertEqual(state, "current")
+        self.assertIn("same tree", reason)
+
+    def test_a_changed_venture_is_still_stale(self):
+        state, reason = ps.freshness(
+            {"built_from": "d" * 40},
+            "e" * 40,
+            ["AGENTS.md", "ventures/foo/index.html"],
+            PATTERNS,
+        )
+        self.assertEqual(state, "stale")
+        self.assertIn("ventures/foo/index.html", reason)
+        self.assertIn("publish-branch.sh", reason)
+
+    def test_an_unreadable_comparison_keeps_saying_stale(self):
+        """An absent measurement must never read as a healthy one."""
+        state, _ = ps.freshness({"built_from": "d" * 40}, "e" * 40, None, PATTERNS)
+        self.assertEqual(state, "stale")
+
+    def test_an_unreadable_filter_keeps_saying_stale(self):
+        state, _ = ps.freshness({"built_from": "d" * 40}, "e" * 40, ["AGENTS.md"], None)
+        self.assertEqual(state, "stale")
+
+    def test_collect_reports_current_for_a_docs_only_merge(self):
+        api = fake_api(
+            branches={
+                "gh-pages": branch(),
+                "main": branch(sha="f" * 40, message="docs: tidy"),
+            },
+            compare=["AGENTS.md", "portfolio/DIRECTION.md"],
+        )
+        state = ps.collect(api)
+        self.assertEqual(state["snapshot"], "current")
+
+    def test_collect_still_reports_stale_when_a_venture_moved(self):
+        api = fake_api(
+            branches={
+                "gh-pages": branch(),
+                "main": branch(sha="f" * 40, message="feat: new tool"),
+            },
+            compare=["ventures/new-tool/index.html"],
+        )
+        state = ps.collect(api)
+        self.assertEqual(state["snapshot"], "stale")
+
+
 class ReadPublishBranch(unittest.TestCase):
     def test_missing_branch_is_none_not_an_error(self):
         api = fake_api(missing=("gh-pages",))
@@ -162,12 +273,18 @@ class Collect(unittest.TestCase):
         self.assertEqual(ps.exit_code(state), 0)
 
     def test_exit_code_ignores_a_stale_snapshot(self):
-        """A stale snapshot is a re-run away; it must not flip the verdict."""
+        """A stale snapshot is a re-run away; it must not flip the verdict.
+
+        The `compare` payload is what makes this snapshot genuinely stale
+        rather than merely built from an older commit -- since 2026-09-06 those
+        are different things, and only the first should read `stale`.
+        """
         api = fake_api(
             branches={
                 "gh-pages": branch(),
                 "main": branch(sha="f" * 40, message="merge"),
-            }
+            },
+            compare=["ventures/foo/index.html"],
         )
         state = ps.collect(api)
         self.assertEqual(state["snapshot"], "stale")
