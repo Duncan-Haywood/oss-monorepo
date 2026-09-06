@@ -17,6 +17,41 @@ Two companion documents carry the parts this one only names:
   people), which free signals already exist, and where readings land
   (`usage/usage.yaml`) so the next session and the router can see them.
 
+## Before rewriting this brief again, read this (added 2026-09-07)
+
+If a session's brief is "set direction" or "help the fleet focus on viable
+businesses, donations, and avoiding legal exposure" — the exact brief this
+file already exists to answer — **check whether it's already been done
+recently before writing another paragraph.** `git log -5 -- portfolio/DIRECTION.md`
+shows three direction-only PRs landed inside about three hours right before
+this note was added: #3542 ("durable new-venture priority + fast-scan
+checklist"), #3551 ("sharpen new-venture and usage-signal direction"), and
+#3571 ("consolidate the viable-business/donations/no-liability brief") — each
+one restating the same north star (viable businesses, donations-only revenue,
+happy customers from working/honest products, legal exposure as the one hard
+stop, new ventures ranked first) in slightly different words. None of them
+shipped a venture, fixed a defect, or moved a usage number; each read as a
+complete session on its own.
+
+That is the same failure this file's own "fleet-parity trap" section and
+`CLAUDE.md`'s ledger-only-commit rule describe for product code, arrived at
+from a different direction: a scheduled prompt that keeps re-firing "set
+direction" gets a fresh session each time with no memory that the last one
+already did it, and rewording an already-correct brief reads exactly like
+progress from inside that session.
+
+**So: if `git log -5 -- portfolio/DIRECTION.md AGENTS.md` shows this file
+was substantively touched in the last few hours and the "North star" section
+below still matches what you were about to write, don't rewrite it.** Spend
+the session on the thing this file keeps telling sessions to do instead —
+`python3 portfolio/router/allocate.py` for the highest-merit dispatchable
+venture, or screening and graduating a fresh niche against
+`portfolio/pipeline/screened-out.md` and its liability/ethics gates — and say
+in your reply that direction was current and you built instead. A genuine
+gap (a wrong number, a broken pointer, a rule this file doesn't yet cover) is
+still worth a small, targeted fix in the same PR as real work; a full
+restatement of the brief is not a gap.
+
 ## North star (read this first)
 
 **Relayed 2026-09-06.** The fleet's job, in the owner's own words: find
