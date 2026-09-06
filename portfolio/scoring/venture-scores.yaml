@@ -6367,6 +6367,49 @@ ventures:
       claim about what a route will earn. The tool never touches a live
       transaction, card data, or cash-handling compliance. Nothing entered
       leaves the browser.
+  - slug: dumpster-rental-margin-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — a rental price built
+      to cover an included weight allowance rather than the estimated job
+      weight, and a per-ton overage fee checked against the operator's own
+      tipping fee rather than trusted at face value — and it is arithmetic an
+      operator has to be able to re-derive before quoting a job.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. Same shape as this portfolio's other
+      route/rate calculators (`atm-route-margin`, `vending-machine-route-
+      margin`, `custom-farm-rate-calculator`), scored the same way, applied to
+      a genuinely different buyer: a roll-off dumpster rental operator pricing
+      a container rental from a weight allowance and a separately billed
+      overage fee, distinct from `junk-removal-bid-calculator`'s
+      hauler-prices-the-whole-job-from-estimated-tonnage model. Defensibility
+      5: the allowance/overage-cost-floor arithmetic is specific to this buyer
+      and not modeled by a generic per-size rate card or dispatch/billing
+      software built for a rental company's back office rather than the
+      pre-quote pricing decision. Distribution 6: "dumpster rental pricing
+      calculator" and "roll off overage fee" are narrow, low-volume search
+      terms with no incumbent free interactive tool built around this exact
+      arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      waste-management recommendation, a market-rate determination, or a
+      rental/disposal agreement interpretation. The tool never touches a live
+      transaction or anyone else's data. Nothing entered leaves the browser.
+
   - slug: custom-farm-rate-calculator
     scores:
       ai_leverage: 1

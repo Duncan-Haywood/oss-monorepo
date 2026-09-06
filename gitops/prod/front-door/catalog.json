@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 183,
-  "collection_total": 183,
+  "served_here": 184,
+  "collection_total": 184,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -50,7 +50,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 7
+      "tool_count": 8
     },
     {
       "id": "services",
@@ -745,6 +745,14 @@
       "category": "Trade & contractor bids",
       "description": "Price an air-duct cleaning job from extra systems, extra vents, extra stories, crawl access, and a coil clean — not a published $99 whole-house special. See the walk-away number before you match a cheaper ranch quote.",
       "pages": 3
+    },
+    {
+      "slug": "dumpster-rental-margin-calculator",
+      "name": "Dumpster Rental Margin Calculator — Price a Roll-Off Job",
+      "url": "https://marisstella.dev/tools/dumpster-rental-margin-calculator/",
+      "category": "More free tools",
+      "description": "Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.",
+      "pages": 2
     },
     {
       "slug": "egress-window-bid-calculator",
