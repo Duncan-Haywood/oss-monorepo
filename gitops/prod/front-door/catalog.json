@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 179,
-  "collection_total": 179,
+  "served_here": 180,
+  "collection_total": 180,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 3
+      "tool_count": 4
     }
   ],
   "tools": [
@@ -1401,6 +1401,14 @@
       "category": "Trade & contractor bids",
       "description": "Price tuckpointing from wall area, grind versus smear, scaffold versus swing stage, and extras — plus the walk-away price an $8 / sq ft special cannot see.",
       "pages": 3
+    },
+    {
+      "slug": "vending-machine-route-margin",
+      "name": "Vending Machine Route Profit Calculator — Price Each Location",
+      "url": "https://marisstella.dev/tools/vending-machine-route-margin/",
+      "category": "More free tools",
+      "description": "Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.",
+      "pages": 1
     },
     {
       "slug": "vendor-change-watch",

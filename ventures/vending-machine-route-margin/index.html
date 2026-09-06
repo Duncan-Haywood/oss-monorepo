@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vending Machine Route Profit Calculator — Price Each Location</title>
+<meta name="description" content="Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Vending Machine Route Profit Calculator">
+<meta property="og:description" content="Stop judging a location by gross sales alone. Find real profit after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vending Machine Route Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds true profit for one vending-machine location after location commission, card processing fees, shrink/spoilage, drive time, mileage, restock labor, and amortized machine cost, and rolls a list of locations up into monthly route profit."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does shrink (theft or spoilage) add extra cost instead of just lowering my sales count?","acceptedAnswer":{"@type":"Answer","text":"Because you already paid for those units when you loaded the machine — they were product cost, not lost revenue. Treating shrink as a hit to sales undercounts how much theft or spoiled stock is actually costing you; this calculator adds it on top of the cost of the units you did sell, so the real product cost shows up."}},{"@type":"Question","name":"Why does commission come out of gross sales rather than my profit?","acceptedAnswer":{"@type":"Answer","text":"Because that is how nearly every vending placement agreement is written — the location owner is paid a percentage of what the machine takes in, not a share of what is left after your costs. Commission is one of the first numbers charged to a visit here, before card fees, mileage, or your own labor."}},{"@type":"Question","name":"Why allocate the machine's monthly cost across each visit instead of tracking it separately?","acceptedAnswer":{"@type":"Answer","text":"A machine you are still paying off or leasing costs money whether or not a location sells well. Spreading that fixed cost across the visits you actually make each month is what turns \"this location has $73 in sales\" into \"this location is worth keeping,\" the number that actually decides whether to renegotiate commission or pull the machine."}},{"@type":"Question","name":"Does anything about my locations or sales get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#2b1d12;background:#fdf3e7}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e7c9a3;border-radius:16px;padding:20px;box-shadow:0 8px 24px #5a381208;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #edd9bb;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a5a20;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9b98c;border-radius:8px;font:inherit;background:#fffdfa}.result{background:#8a3d1f;color:#fff;border-color:#8a3d1f;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6b563f}.result .note{color:#f6dcc9}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#8a5a20}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #d9b98c;background:#fff;cursor:pointer;color:#2b1d12}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR INDEPENDENT VENDING MACHINE ROUTE OPERATORS</p><h1>Gross sales lie. Profit per stop doesn't.</h1><p class="lede">A location that "did $73 in sales" can still be losing you money once commission, card fees, shrink, drive time, and the machine's own cost come out. This free calculator finds real profit for one location, then rolls your whole route up into a monthly number you can check against your income goal.</p></header>
+
+<main class="layout">
+<section><h2>Price one location</h2>
+<fieldset><legend>Sales &amp; product</legend><div class="fields">
+<label>Units sold since last restock<input id="unitsSold" type="number" min="0" step="1" value="42"></label>
+<label>Price per unit ($)<input id="pricePerUnit" type="number" min="0" step="0.05" value="1.75"></label>
+<label>Cost per unit ($)<input id="costPerUnit" type="number" min="0" step="0.01" value="0.55"></label>
+<label>Location commission (%)<input id="commissionPct" type="number" min="0" max="100" step="1" value="15"></label>
+<label>Card processing fee (%)<input id="cardFeePct" type="number" min="0" max="99.9" step="0.1" value="2.6"></label>
+<label>Shrink / spoilage (%)<input id="shrinkPct" type="number" min="0" max="100" step="0.5" value="3"></label>
+</div></fieldset>
+<fieldset><legend>Your time &amp; travel</legend><div class="fields">
+<label>Restock minutes on-site<input id="restockMinutes" type="number" min="0" step="1" value="12"></label>
+<label>Round-trip drive minutes<input id="driveMinutes" type="number" min="0" step="1" value="20"></label>
+<label>Round-trip miles<input id="mileage" type="number" min="0" step="0.1" value="8"></label>
+<label>Mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.67"></label>
+<label>Target hourly rate ($/hr)<input id="targetHourlyRate" type="number" min="0" step="0.5" value="22"></label>
+</div></fieldset>
+<fieldset><legend>Machine &amp; schedule</legend><div class="fields">
+<label>Machine monthly cost (lease/amortized)<input id="machineMonthlyCost" type="number" min="0" step="1" value="15"></label>
+<label>Restock visits per month<input id="visitsPerMonth" type="number" min="1" step="1" value="4"></label>
+</div></fieldset>
+</section>
+
+<section class="result" aria-live="polite"><h2>Profit for this visit</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="profit" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Gross revenue</dt><dd id="revenueOut"></dd>
+<dt>Product cost (incl. shrink)</dt><dd id="cogsOut"></dd>
+<dt>Commission</dt><dd id="commissionOut"></dd>
+<dt>Card processing fee</dt><dd id="cardFeeOut"></dd>
+<dt>Mileage</dt><dd id="mileageOut"></dd>
+<dt>Your labor</dt><dd id="laborOut"></dd>
+<dt>Machine cost allocated</dt><dd id="machineOut"></dd>
+<dt>Profit margin</dt><dd id="marginOut"></dd>
+<dt>Projected monthly profit</dt><dd id="monthlyOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not add taxes, insurance, or a slow-season adjustment unless you fold those into machine cost or target rate yourself.</p>
+</section>
+</main>
+
+<section><h2>Your route this month</h2><p class="note">For each location, run it through the calculator above and enter its projected monthly profit here. Blank or zero rows are ignored. Nothing you type here is saved or uploaded — refreshing the page clears it.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Location</th><th>Monthly profit ($)</th></tr></thead><tbody id="locationRows">
+<tr><td>1</td><td><input class="locationProfit" data-row="1" type="number" step="1" value="64"></td></tr>
+<tr><td>2</td><td><input class="locationProfit" data-row="2" type="number" step="1" value="38"></td></tr>
+<tr><td>3</td><td><input class="locationProfit" data-row="3" type="number" step="1" value=""></td></tr>
+<tr><td>4</td><td><input class="locationProfit" data-row="4" type="number" step="1" value=""></td></tr>
+<tr><td>5</td><td><input class="locationProfit" data-row="5" type="number" step="1" value=""></td></tr>
+<tr><td>6</td><td><input class="locationProfit" data-row="6" type="number" step="1" value=""></td></tr>
+</tbody></table></div>
+<div class="fields" style="margin-top:14px">
+<label>Target monthly income<input id="targetMonthlyIncome" type="number" min="0" step="10" value="800"></label>
+</div>
+<p id="routeErrors" class="err" role="alert" hidden></p>
+<dl>
+<dt>Locations counted</dt><dd id="routeLocations"></dd>
+<dt>Total monthly route profit</dt><dd id="routeTotal"></dd>
+<dt>Average profit / location</dt><dd id="routeAverage"></dd>
+<dt>Gap to income goal</dt><dd id="routeGap"></dd>
+<dt>Additional locations to close it</dt><dd id="routeExtra"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your sales figures and location list are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>visit-priced</code>, <code>route-check</code>) so we can tell whether the calculator gets used — no locations, prices, or sales figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does shrink (theft or spoilage) add extra cost instead of just lowering my sales count?</h3><p>Because you already paid for those units when you loaded the machine &mdash; they were product cost, not lost revenue. Treating shrink as a hit to sales undercounts how much theft or spoiled stock is actually costing you; this calculator adds it on top of the cost of the units you did sell, so the real product cost shows up.</p>
+<h3>Why does commission come out of gross sales rather than my profit?</h3><p>Because that is how nearly every vending placement agreement is written &mdash; the location owner is paid a percentage of what the machine takes in, not a share of what is left after your costs. Commission is one of the first numbers charged to a visit here, before card fees, mileage, or your own labor.</p>
+<h3>Why allocate the machine's monthly cost across each visit instead of tracking it separately?</h3><p>A machine you are still paying off or leasing costs money whether or not a location sells well. Spreading that fixed cost across the visits you actually make each month is what turns "this location has $73 in sales" into "this location is worth keeping," the number that actually decides whether to renegotiate commission or pull the machine.</p>
+<h3>Does anything about my locations or sales get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere &mdash; it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a location-owner commission agreement, or replace your own contract, insurance, or accountant.</p><p>MIT licensed. If it helped you decide which locations to keep, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculate, computeRouteProfit, incomeGap, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const VISIT_IDS = Object.keys(DEFAULTS);
+let counted = false;
+let routeCounted = false;
+
+function visitInputs() { return Object.fromEntries(VISIT_IDS.map(id => [id, el(id).value])); }
+
+function updateVisit(count = false) {
+  try {
+    const r = calculate(visitInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('profit').hidden = false;
+    el('profit').textContent = money(r.netProfit);
+    el('rateLine').textContent = r.effectiveHourlyRate === null
+      ? 'no on-site/drive time entered'
+      : `about ${money(r.effectiveHourlyRate)}/hr after all costs across ${r.laborHours.toFixed(2)} hrs on this stop`;
+    el('revenueOut').textContent = money(r.grossRevenue);
+    el('cogsOut').textContent = money(r.cogs);
+    el('commissionOut').textContent = money(r.commissionAmount);
+    el('cardFeeOut').textContent = money(r.cardFeeAmount);
+    el('mileageOut').textContent = money(r.mileageCost);
+    el('laborOut').textContent = money(r.laborCost);
+    el('machineOut').textContent = money(r.machineCostPerVisit);
+    el('marginOut').textContent = r.profitMarginPct === null ? '—' : `${r.profitMarginPct.toFixed(1)}%`;
+    el('monthlyOut').textContent = money(r.monthlyProfit);
+    if (count && !counted) { recordEvent('visit-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('profit').hidden = true;
+    for (const id of ['rateLine', 'revenueOut', 'cogsOut', 'commissionOut', 'cardFeeOut', 'mileageOut', 'laborOut', 'machineOut', 'marginOut', 'monthlyOut']) el(id).textContent = '';
+  }
+}
+
+function updateRoute(count = false) {
+  try {
+    const locations = [];
+    for (let row = 1; row <= 6; row++) {
+      const profitEl = document.querySelector(`.locationProfit[data-row="${row}"]`);
+      const profit = parseFloat(profitEl.value);
+      if (!Number.isFinite(profit) || profit === 0) continue;
+      locations.push({ monthlyProfit: profit });
+    }
+    const route = computeRouteProfit(locations);
+    const targetMonthlyIncome = parseFloat(el('targetMonthlyIncome').value) || 0;
+    const gap = incomeGap(targetMonthlyIncome, route.totalMonthlyProfit, route.averageProfitPerLocation);
+    el('routeErrors').hidden = true; el('routeErrors').textContent = '';
+    el('routeLocations').textContent = String(route.locationCount);
+    el('routeTotal').textContent = money(route.totalMonthlyProfit);
+    el('routeAverage').textContent = money(route.averageProfitPerLocation);
+    el('routeGap').textContent = gap.meetsTarget ? 'Goal met' : money(gap.gap);
+    el('routeExtra').textContent = gap.meetsTarget ? '0' : (gap.additionalLocationsNeeded === null ? 'add a profitable location' : String(gap.additionalLocationsNeeded));
+    if (count && !routeCounted) { recordEvent('route-check'); routeCounted = true; }
+  } catch (e) {
+    el('routeErrors').textContent = e.message; el('routeErrors').hidden = false;
+    for (const id of ['routeLocations', 'routeTotal', 'routeAverage', 'routeGap', 'routeExtra']) el(id).textContent = '';
+  }
+}
+
+VISIT_IDS.forEach(id => el(id).addEventListener('input', () => updateVisit(true)));
+document.querySelectorAll('.locationProfit').forEach(input => input.addEventListener('input', () => updateRoute(true)));
+el('targetMonthlyIncome').addEventListener('input', () => updateRoute(true));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+updateVisit(false);
+updateRoute(false);
+</script>
+</body></html>

@@ -16049,3 +16049,77 @@ entries:
         backstop instead of relying on a session remembering a sentence in
         two files.
     mrr_end: null
+  - venture: vending-machine-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened a fresh niche per `portfolio/DIRECTION.md`'s 2026-09-06
+        "new ventures get first call" direction (the pipeline's build-now
+        queue is genuinely empty). Independent vending-machine route
+        operators judge a location by gross sales alone, which hides
+        whether it is actually profitable once location commission, card
+        processing fees, shrink/spoilage, drive time, and the machine's own
+        amortized monthly cost come out. Scored against the pipeline's
+        gates: `liability_containment` 8, `ethical_robustness` 9 (both
+        clear the 5 floor with room); composite 6.875, floor 1
+        (`ai_leverage`, the deliberate floor of a deterministic calculator,
+        matching `pool-route-pricing` and `dog-walking-route-pricing`).
+        Not a duplicate of any existing `ventures/` directory or
+        `screened-out.md` entry -- checked both.
+      - >-
+        Graduated and built the full vertical slice in
+        `ventures/vending-machine-route-margin`: a tested `calc.mjs`
+        pricing/rollup engine (`calculate` for one location's restock
+        visit -- commission, card fees, shrink modeled as extra product
+        cost rather than a revenue discount, mileage, restock labor, and
+        machine-cost amortization -- plus `computeRouteProfit` and
+        `incomeGap` for the route-level rollup), a single-page calculator
+        UI matching the established route-pricing pattern (validation,
+        error states, `aria-live` results), the standard no-warranty
+        disclaimer, a privacy section, browser-local opt-out usage counting
+        (`visit-priced`, `route-check`, and the fleet-standard
+        `sponsor_link_clicked` on the Sponsors link from v0), LICENSE,
+        README, robots.txt/sitemap.xml, and JSON-LD (SoftwareApplication +
+        FAQPage). Graduated the candidate in
+        `portfolio/pipeline/candidates.yaml` (verdict `graduated`,
+        `initiated_path` set) and `portfolio/pipeline/README.md`'s ranked
+        table in the same change; `validate_candidates.py` and
+        `validate_doc_consistency.py` both pass (24/24 consistent).
+      - >-
+        Ran `platform/marketing/regen.mjs` so the front-door mirror and
+        sitemap actually publish the new page (180 tools mirrored, up from
+        179) and `platform/pages/launched.mjs --write` so it enters the
+        Atom feed. `check_step_grid.py` caught a real min/step mismatch on
+        the visits-per-month field (`min="0.01" step="1"`, no whole number
+        reachable) before it shipped; fixed to `min="1"`.
+        `gitops/tests/test_manifests.py` caught the mirrored-tool count
+        hardcoded in `infra/OWNER_CHECKLIST.md`,
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        (twice), and its own test constant -- all five updated 179 -> 180 in
+        the same change.
+      - >-
+        Verified: `ventures/vending-machine-route-margin` test suite (31/31),
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1139/1139, after fixing a curly-vs-straight-quote mismatch between
+        the FAQPage JSON-LD and the visible page that `faq-visible.test.mjs`
+        caught), `platform/proposal` (101/101), `platform/privacy` +
+        `platform/webcheck` (66/66), `python3 -m pytest gitops/tests -q`
+        (480 passed / 25 skipped), all 18 `platform/ci` unittest modules
+        (646/646), `checklist_coverage.py`, `check_no_payment_code.py`,
+        `node platform/pages/clauses.mjs vending-machine-route-margin`,
+        `python3 portfolio/router/validate.py` (188 VENTURE.yaml files
+        valid).
+      - >-
+        Bundled one unrelated, independent change into the same PR per the
+        session's instructions: applied a small, already-written clarifying
+        paragraph to the `codex-governor-enable` decision row's `note:` in
+        `portfolio/ledger/asks.yaml`, explaining that `gitops/agents/host/`
+        now offers a k3s-independent way to run the Codex worker on the
+        Hetzner box. Not a new decision or a new row --
+        `decision_queue.py --check` still reports 16 decisions, schema OK.
+      - >-
+        No revenue moved yet; this is a new, unmeasured product. Repeat
+        usage, organic search demand, and distribution all remain to be
+        seen, same as every other calculator at graduation.
+    mrr_end: null
