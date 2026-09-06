@@ -273,6 +273,18 @@ if [ "${PUSH:-}" = '1' ]; then
     git -C "$repo_root" fetch --quiet --depth=1 origin "refs/heads/$BRANCH" 2>/dev/null || true
     published_from="$(git -C "$repo_root" show -s --format=%B "$remote_tip" 2>/dev/null \
       | sed -n 's/^Publish site built from \([0-9a-f]\{7,40\}\).*/\1/p' | head -n1)"
+    # `merge-base --is-ancestor` needs $published_from's own ancestry present
+    # locally, and `actions/checkout` -- what publish-pages-branch.yml uses,
+    # with no `fetch-depth` override -- leaves exactly one commit in the repo.
+    # Left alone, `cat-file -e` below fails on every ordinary CI run (the
+    # referenced commit is simply absent) and the whole guard falls through
+    # silently: no error, just the backwards push it exists to stop. Unshallow
+    # first, so the check runs against real history instead of a single
+    # commit it was never going to find anything in.
+    if [ -n "$published_from" ] && [ "$published_from" != "$source_sha" ] \
+       && [ "$(git -C "$repo_root" rev-parse --is-shallow-repository 2>/dev/null)" = 'true' ]; then
+      git -C "$repo_root" fetch --quiet --unshallow origin 2>/dev/null || true
+    fi
     if [ -n "$published_from" ] && [ "$published_from" != "$source_sha" ] \
        && git -C "$repo_root" cat-file -e "${published_from}^{commit}" 2>/dev/null \
        && git -C "$repo_root" merge-base --is-ancestor "$source_sha" "$published_from" 2>/dev/null; then

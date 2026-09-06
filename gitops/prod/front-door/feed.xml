@@ -13,7 +13,7 @@
     <id>tag:marisstella.dev,2026:tool/card-processing-fee-audit</id>
     <published>2026-09-06T00:00:00Z</published>
     <updated>2026-09-06T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Back-office money &amp; contracts"/>
     <summary type="text">Read five numbers off your merchant statement and see how much of your card processing bill is network interchange you cannot negotiate and how much is processor markup you can. Free, private, runs in your browser.</summary>
   </entry>
   <entry>
@@ -31,7 +31,7 @@
     <id>tag:marisstella.dev,2026:tool/equipment-lease-buyout-calculator</id>
     <published>2026-09-06T00:00:00Z</published>
     <updated>2026-09-06T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Back-office money &amp; contracts"/>
     <summary type="text">Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.</summary>
   </entry>
   <entry>
@@ -49,7 +49,7 @@
     <id>tag:marisstella.dev,2026:tool/which-job-first</id>
     <published>2026-09-03T00:00:00Z</published>
     <updated>2026-09-03T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Trade &amp; contractor bids"/>
     <summary type="text">Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.</summary>
   </entry>
   <entry>

@@ -1,5 +1,49 @@
 period: 2026-09
 entries:
+  - venture: equipment-lease-buyout-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a second comparison page, this calculator vs. Crest Capital's
+        lease calculator, following the vs-competitor pattern used across
+        ~120 sibling ventures (FAQPage JSON-LD, affiliation disclaimer, no
+        specific competitor rate/fee stated, standard no-warranty footer).
+        Distinguishes the two tools by which end of a lease they serve --
+        Crest Capital prices a new lease before it starts, this calculator
+        prices an existing lease's buyout offer at lease end -- reusing
+        verified facts about Crest Capital already vetted in this repo
+        (vendor-rate-break-even/vs-crest-capital.html) rather than
+        researching an unfamiliar competitor from an environment that
+        cannot reach outbound HTTPS. Linked from index.html, README.md, and
+        sitemap.xml.
+      - >-
+        Rebased onto #3493 (a concurrent session's vs-Lendzero comparison
+        page for the same venture) after `git fetch` surfaced it mid-session
+        -- resolved the sitemap.xml conflict to list both pages, kept both
+        footer/header links, and re-ran `regen.mjs` fresh against the merged
+        base rather than replaying a stale mirror.
+      - >-
+        `front-door.test.mjs`'s "every rendered per-product comparison page
+        is mounted by the kustomization" caught a real gap on first pass:
+        `regen.mjs` writes the compressed shard under
+        `gitops/prod/front-door/`, but the shard's mount line in
+        `gitops/prod/kustomization.yaml` is a hand-maintained list the
+        generator does not touch. Added the
+        `vs__crest-capital-s-lease-calculator.html.gz` line myself; without
+        it the page would have shipped dark despite passing regen.mjs and
+        every other check.
+      - >-
+        Verified: `node --test` on the venture (41/41), on
+        platform/marketing/*.test.mjs + platform/pages/*.test.mjs (1136/1136,
+        including the kustomization fix), platform/proposal (101/101),
+        platform/privacy + platform/webcheck (66/66); all 18 platform/ci
+        unittest modules individually (629 tests); `python3 -m pytest
+        gitops/tests` (480 passed, 25 skipped); `checklist_coverage.py`
+        clean. `ci_starvation.py` not re-checked this session (no PR checks
+        consulted yet at commit time) -- verified locally per CLAUDE.md's
+        starvation checklist instead.
+    mrr_end: null
   - venture: appliance-repair-quote-calculator
     agent_spend_usd: null
     human_hours: 0
