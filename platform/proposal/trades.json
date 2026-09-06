@@ -3748,5 +3748,29 @@
       },
       "Priced separately from, and not itself a change to, the underlying contract's other terms"
     ]
+  },
+  "vehicle-wrap-bid-calculator": {
+    "jobTitle": "Vehicle wrap — {vehicleSurfaceAreaSqFt~0} sq ft",
+    "jobTitleFallback": "Vehicle wrap",
+    "scope": [
+      "Wrap {vehicleSurfaceAreaSqFt~0} sq ft of vehicle surface in cast vinyl film",
+      {
+        "line": "Apply a protective laminate over the full wrap",
+        "when": "laminateCostPerSqFt"
+      },
+      {
+        "line": "Remove and dispose of the existing wrap or graphics before installing",
+        "when": "removalHours"
+      },
+      "Design, proof, and prepare a print-ready file for your approval before production",
+      "Install, seal edges, and post-heat for a durable finish; leave the vehicle clean"
+    ],
+    "placeholders": {
+      "companyName": "Overland Wrap & Graphics LLC",
+      "scope": "Full wrap on one mid-size sedan in cast vinyl with laminate\nDesign proof and one revision round included",
+      "exclusions": "Bodywork, dent repair, or paint correction before install\nRemoval of a wrap installed by another shop unless quoted separately",
+      "notes": "Vehicle should arrive clean and free of wax or silicone-based products for the film to bond properly."
+    },
+    "disclaimerTail": "Vinyl wrap adhesion depends on paint condition and surface prep; it is not a paint-correction, dent, or rust repair, and film life varies with climate, garaging, and care."
   }
 }

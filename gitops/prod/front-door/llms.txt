@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 184 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 185 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 184 of them — and
+Every tool in the collection is listed below — all 185 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -133,6 +133,7 @@ page that hosts it.
 - [Toilet Replacement Bid Calculator — Price to Replace It](https://marisstella.dev/tools/toilet-replacement-bid-calculator/): Price a toilet replacement from toilet count, two-piece versus comfort-height versus one-piece versus bidet-combo, swap-only versus flange-repair, owner-supplied versus plumber-supplied, weekday versus Saturday emergency, and extras — plus the walk-away price a $249 installed special cannot see.
 - [Tree Service Bid Calculator — Removal by DBH and Access](https://marisstella.dev/tools/tree-service-bid-calculator/): Price a tree-removal stop the way the job actually costs: DBH-squared wood volume, access, targets, stump grinding, haul, travel, loaded crew cost, and the walk-away number. Free, in your browser.
 - [Tuckpointing Bid Calculator — Price for Brick Pointing](https://marisstella.dev/tools/tuckpointing-bid-calculator/): Price tuckpointing from wall area, grind versus smear, scaffold versus swing stage, and extras — plus the walk-away price an $8 / sq ft special cannot see.
+- [Vehicle Wrap Bid Calculator — Price a Wrap Install](https://marisstella.dev/tools/vehicle-wrap-bid-calculator/): Free calculator for independent vehicle wrap and graphics shops: price a full or partial wrap from vehicle surface area, material waste factor, install complexity, and labor, then see exactly what a waste-blind quote loses on every job.
 - [Vinyl Liner Bid Calculator — Price to Replace a Liner](https://marisstella.dev/tools/vinyl-liner-bid-calculator/): Price a residential vinyl pool liner from the liner square feet a water-surface special cannot see, the hopper, the stairs, and the track — plus walk-away price and proposed-price margin check.
 - [Walk-In Shower Bid Calculator — Drain, Slope, Overtime](https://marisstella.dev/tools/walk-in-shower-bid-calculator/): Price a tiled walk-in shower from tile, waterproofing, linear drain, curbless slope, glass — and whether Saturday still pays after overtime. See the walk-away number before you match a cheaper tile quote.
 - [Walk-In Tub Bid Calculator — Price to Install a Tub](https://marisstella.dev/tools/walk-in-tub-bid-calculator/): Price a walk-in tub from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove swap versus relocate versus new-construction versus custom opening, inward versus outward versus walk-through door, contractor-supplied versus customer-supplied tub, weekday versus only-bath-in-use versus Saturday / after-hours, and extras — plus the walk-away price a $3,499 installed special cannot see.

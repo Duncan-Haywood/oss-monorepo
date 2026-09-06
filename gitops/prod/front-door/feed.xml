@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 184 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 185 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,15 @@
     <updated>2026-09-06T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you&#39;re already considering against the breakeven.</summary>
+  </entry>
+  <entry>
+    <title>Vehicle Wrap Bid Calculator — Price a Wrap Install</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vehicle-wrap-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/vehicle-wrap-bid-calculator</id>
+    <published>2026-09-06T00:00:00Z</published>
+    <updated>2026-09-06T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Free calculator for independent vehicle wrap and graphics shops: price a full or partial wrap from vehicle surface area, material waste factor, install complexity, and labor, then see exactly what a waste-blind quote loses on every job.</summary>
   </entry>
   <entry>
     <title>Vending Machine Route Profit Calculator — Price Each Location</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Compare before-and-after consent browser traces and create a local request and storage change record.</summary>
-  </entry>
-  <entry>
-    <title>Construction Daily Log and Change Order Evidence Pack</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/construction-evidence-log/"/>
-    <id>tag:marisstella.dev,2026:tool/construction-evidence-log</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free private construction daily log and change order documentation tool for small contractors. Create a dated, reviewable evidence pack in your browser, saved locally so you can export a combined pack across the whole project.</summary>
   </entry>
 </feed>
