@@ -15991,3 +15991,61 @@ entries:
         snapshot after merge (`publish-branch.sh`) and confirmed
         `pages_state.py --require-current` exits 0.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled direction-setting session ("move the fleet toward viable
+        businesses, donation revenue, happy customers, no legal liability for
+        the owner"). `portfolio/DIRECTION.md` and `PRODUCT_PLAYBOOK.md`
+        already state nearly everything the brief asked for -- new ventures
+        first, donations-only, per-venture disclaimers, usage-driven
+        prioritization -- and 20+ same-day commits had already iterated on
+        exactly this prose, so another round of direction text would have
+        been the redundant-meta-work pattern `session_gate.py` and the
+        ledger's own 34.6%-meta-work measurement warn against. Looked instead
+        for where the fleet's stated legal guardrail ("no checkout, no card
+        fields, no billing code... not even disabled") was not actually
+        enforced.
+      - >-
+        Found a second, previously undocumented instance:
+        `ventures/print-atelier` carries real `stripe.checkout.sessions.create`
+        and Stripe Connect payout code
+        (`src/lib/stripe-checkout-server.ts`, `src/lib/commerce/stripe-connect.ts`,
+        `src/app/api/stripe/{checkout,webhook,bootstrap-prices,billing-portal}/route.ts`),
+        gated only by an unset `STRIPE_SECRET_KEY` -- the same shape as the
+        already-flagged `local-site-studio` exception (#731), but with no
+        decision-queue row anywhere. Traced provenance: it arrived via
+        `db5e9bb5`, a subtree merge the owner's own account committed
+        directly on 2026-07-29, four weeks before the donations-only policy
+        was first written (2026-08-24) -- a pre-existing venture nobody
+        reconciled against the policy, not an agent gate-crossing. PR #481
+        (2026-08-21) is the only later touch, a self-merged bug fix
+        (webhook-retry dedup) that did not extend the integration.
+      - >-
+        Added decision-queue row `print-atelier-stripe-checkout` in
+        `portfolio/ledger/asks.yaml` (`decision_queue.py --check` passes, 16
+        decisions). Documented both exceptions in `portfolio/DIRECTION.md`
+        "Legal guardrails" and pointed `PRODUCT_PLAYBOOK.md` §6 at the new
+        check. Built `platform/ci/check_no_payment_code.py` (+ 17-test
+        `test_check_no_payment_code.py`) to fail CI if a third venture adds a
+        payment-SDK import or dependency (Stripe, Braintree, Square, PayPal
+        server SDK, Adyen, Checkout.com, Razorpay, Klarna) without a matching
+        `ALLOWED_EXCEPTIONS` entry pointing at a decision row -- exercised
+        against the live `ventures/` tree: flags exactly the two known cases
+        and nothing else, clean on all other ~183 ventures. Wired into
+        `portfolio-validate.yml` next to the other single-purpose guards
+        (`check_money_sign.py`, `check_step_grid.py`).
+      - >-
+        Verified: all 17 `platform/ci` unittest modules green (`check_no_payment_code`
+        included), `python3 -m pytest gitops/tests -q` 480 passed / 25
+        skipped, `validate_workflows` unit tests green against the edited
+        workflow file, `checklist_coverage.py` and `check_ledger_only.py`
+        both clean.
+      - >-
+        No revenue moved. The concrete deliverable is enforcement, not more
+        policy prose: the fleet's one hard legal stop now has a red-CI
+        backstop instead of relying on a session remembering a sentence in
+        two files.
+    mrr_end: null

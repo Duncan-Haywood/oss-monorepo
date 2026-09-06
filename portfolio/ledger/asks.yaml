@@ -1262,3 +1262,62 @@ decisions:
     the owner's (three others this note used to count -- DNS, the ACME
     contact, and the issuer flip -- have since landed with no owner action,
     see `action` above).
+
+- id: print-atelier-stripe-checkout
+  asks: []
+  prs: [481]
+  gates: revenue
+  exposure: legal-person
+  opened: "2026-09-06"
+  action: >-
+    Say accept-and-fund or revert on `ventures/print-atelier`'s Stripe
+    checkout/webhook/payout integration
+    (`src/app/api/stripe/{checkout,webhook,bootstrap-prices,billing-portal}/route.ts`,
+    `src/lib/stripe-checkout-server.ts`, `src/lib/commerce/stripe-connect.ts`,
+    `src/lib/stripe-ledger.ts`) before any session wires a real
+    `STRIPE_SECRET_KEY` to it. Accept-and-fund means opening the
+    merchant-of-record account, the Stripe Connect platform application (this
+    venture pays artists 30% of net profit through Connect transfers, which
+    is its own onboarding and compliance surface beyond plain checkout), and
+    the tax identity that real checkout requires -- the same class of
+    decision `payout-rail` already names, not something this row invents.
+    Revert means removing the routes and the `stripe` dependency rather than
+    leaving them dormant on `main`.
+  unlocks:
+    - >-
+      Closes the one venture-code gap in "donations only, no payment
+      collection" (`portfolio/DIRECTION.md` "Legal guardrails") that this
+      session found undocumented: real `stripe.checkout.sessions.create` and
+      `stripe.accounts` (Connect) calls, gated only by the same unset-env-var
+      pattern as the already-flagged `local-site-studio` exception, with no
+      decision-queue row and no mention in `DIRECTION.md` until this session
+      added one.
+  blocked_by: []
+  note: >-
+    Found this session while looking for what "without creating legal
+    liabilities" actually covers today, not from a report. The provenance is
+    different from `local-site-studio` and worth being precise about: the
+    Stripe integration arrived via `db5e9bb5`, "Merge print-atelier into
+    ventures/", a subtree merge committed directly by the owner's own account
+    on 2026-07-29 -- a full four weeks *before* `portfolio/DIRECTION.md`'s
+    donations-only policy existed (first stated 2026-08-24). This is not an
+    agent gate-crossing like `local-site-studio-subtree-gate-crossing` (#731,
+    self-merged by a bot against an explicit "flagging for review"); it is a
+    pre-existing venture nobody reconciled against a policy written after it
+    landed. PR #481 (self-merged 2026-08-21 as an agent-decidable bug fix, a
+    webhook-retry dedup guard against double fulfillment orders) is the only
+    later touch to this code and is cited here as the nearest real PR number
+    the schema can point at -- it fixed a bug in the existing integration, it
+    did not introduce or extend it, and self-merging it was reasonable
+    regardless of how this row resolves. `stage: idea` in `VENTURE.yaml` and
+    exclusion from the GitHub Pages build (`platform/pages/build.mjs` treats
+    it as a preflight app, not a static page) mean it has never been
+    reachable by a stranger and `STRIPE_SECRET_KEY` is unset, so nobody has
+    hit "Pay" -- real mitigation, but not the same as gated: unset stops the
+    route from running, not from existing, and this had no decision-queue row
+    at all until now. `platform/ci/check_no_payment_code.py`, added the same
+    session, now fails CI if a third venture adds payment-SDK code without a
+    matching row here -- see its `ALLOWED_EXCEPTIONS` for both current
+    entries. Do not
+    read the new check as license to extend either exception; it exists so a
+    third instance is a red build instead of a third silent one.
