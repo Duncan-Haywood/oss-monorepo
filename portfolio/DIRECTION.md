@@ -258,7 +258,11 @@ check that venture's row in `usage.yaml` first. Zero usage after a fair run
    share button."
 3. **Donation-readiness housekeeping** (next section) — so the day
    `funding-sponsors-live` is decided, every product's footer is already
-   correct and nothing needs revisiting.
+   correct and nothing needs revisiting. This now has a concrete, specific
+   task, not just "make sure it's correct": wire the `sponsor_link_clicked`
+   counter (`PRODUCT_PLAYBOOK.md` §6) on a zero-usage venture you are
+   already touching, so the fleet can eventually tell a click-through of
+   zero from a click-through nobody measured.
 
 This does not forbid fleet-parity work outright — a share link genuinely
 requested by, or built for, a product that already has visitors is exactly
@@ -309,6 +313,15 @@ replaces it.
   donation ask that reads like a paywall is a legal-exposure regression,
   not a revenue win; keep it exactly as optional as the free tier it sits
   next to.
+
+**The link rollout is done; measuring it is not.** As of 2026-09-06 zero of
+185 ventures record whether their sponsor link is ever clicked — the fleet
+shipped the ask without instrumenting the one signal that would say whether
+it is working. `PRODUCT_PLAYBOOK.md` §6 now specifies a fleet-standard
+`sponsor_link_clicked` event through each venture's existing usage counter.
+Wiring it is not a mechanical fleet-wide pass to launch on its own (see "the
+fleet-parity trap" below) — but it belongs in the same commit as any other
+touch to a venture's footer, and on a new venture it ships from v0.
 
 **Keeping customers happy is not a separate initiative — it's what makes a
 donation ask credible, and it's cheap to check for:**
