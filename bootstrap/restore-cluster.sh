@@ -210,6 +210,41 @@ if [[ "$DRY_RUN" == "1" ]]; then
   exit 0
 fi
 
+# ---------------------------------------------------------------------------
+# Steps 4-8 rebuild the cluster. They run in a subshell so that a failure in
+# any of them does NOT skip steps 9-11.
+#
+# Why this wrapper exists. Steps 9, 10 and 11 are each written to be unable to
+# fail the restore, and each says so in its own output ("The cluster restore
+# above is unaffected"). That was only ever half true: `set -euo pipefail` and
+# `fail()`'s `exit 1` meant a cluster restore that died at, say, node readiness
+# ended the script outright, and the three steps that need no k3s at all never
+# ran. So the guarantee held in the direction nobody needed (a broken Codex
+# install cannot break the cluster) and not in the direction that costs the
+# owner (a broken cluster silently withholds the things that do not depend on
+# it).
+#
+# That is this repository's most expensive recurring shape, recorded twice in
+# CLAUDE.md and once in infra_state.yaml: the insurance was downstream of the
+# outage it insured. `gitops/ci/`'s self-hosted runners ran as pods in the
+# cluster they were meant to survive; `gitops/agents/host/` was built precisely
+# to be downstream of neither a runner nor the cluster — and then wiring it in
+# here as step 9 put it back downstream of the cluster.
+#
+# It matters most on the run that matters most. Nobody has ever executed this
+# script against these boxes (`hetzner-ssh-key-is-a-public-key` has blocked it
+# all week) and `hetzner-private-network` is down, so the addressing steps are
+# the least-proven part of it. The owner rotates the key, makes the one
+# documented run, it dies at step 6 — and they get no cluster, no Codex worker,
+# no self-hosted runner and, through step 11, no public surface either, despite
+# three of those four needing nothing that just failed. They would have to
+# diagnose k3s, still holding the key, before getting the capacity that never
+# needed k3s.
+#
+# Steps 1-3 stay outside the subshell and still abort hard, correctly: they
+# establish SSH reachability, and without SSH steps 9-11 cannot run either.
+CLUSTER_STATUS=0
+(
 # --------------------------------------------------------- step 4: k3s server
 step "k3s server"
 if [[ "$SERVER_PRESENT" == "1" ]]; then
@@ -328,6 +363,17 @@ echo
 echo "Confirm from outside the box — this is the only check a stranger's view agrees with:"
 echo "  dispatch 'Public surface check' (.github/workflows/public-surface-check.yml)."
 echo "Record what it returns in portfolio/ledger/infra_state.yaml."
+) || CLUSTER_STATUS=$?
+
+if [[ "$CLUSTER_STATUS" != "0" ]]; then
+  echo >&2
+  echo "== cluster restore FAILED (exit ${CLUSTER_STATUS}) ==" >&2
+  echo "  Read the step that failed above; it names the box and the check." >&2
+  echo "  Continuing anyway with the host-mode steps below, which need no k3s." >&2
+  echo "  They install onto the same boxes over the SSH you already have, so" >&2
+  echo "  they are worth taking now rather than after a second trip." >&2
+  echo "  This script still exits non-zero at the end." >&2
+fi
 
 # ------------------------------------------ step 9: dev capacity that outlives
 # this cluster
@@ -504,4 +550,17 @@ else
   echo "  Re-run with WITH_PORTFOLIO_SITE_HOST=1 and SITE_GH_TOKEN=<pat> to serve"
   echo "  the catalogue from ${CP} while you still hold the SSH key."
   echo "  Steps 9 and 10 restore what builds; this is the one that serves."
+fi
+
+# A failed cluster restore is still a failed run, however well steps 9-11 went.
+# Reported last rather than at the point of failure so the exit code cannot be
+# read as "the host-mode steps failed", and so a caller that only checks `$?`
+# gets the same answer it did before this script continued past step 8.
+if [[ "$CLUSTER_STATUS" != "0" ]]; then
+  echo >&2
+  echo "restore: the cluster restore failed (exit ${CLUSTER_STATUS}); any" >&2
+  echo "  host-mode steps above are reported on their own terms and may well" >&2
+  echo "  have succeeded. Re-run this script once the cluster fault is fixed —" >&2
+  echo "  each host-mode installer is idempotent, so re-running costs nothing." >&2
+  exit "$CLUSTER_STATUS"
 fi

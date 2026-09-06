@@ -735,3 +735,69 @@ def test_every_with_flag_is_named_in_the_owners_instruction():
         "command to run. A step nobody is told to pass is a step that does "
         "not happen."
     )
+
+
+# --------------------------------------------------------------------------
+# A failed cluster restore must not withhold the steps that need no cluster.
+#
+# Steps 9, 10 and 11 install the Codex worker, a self-hosted Actions runner and
+# the host-mode portfolio server. All three are systemd units on the boxes,
+# downstream of neither k3s nor a GitHub runner -- that independence is the
+# entire reason `gitops/agents/host/` and `gitops/prod/host/` exist, after the
+# cluster outage took down the `gitops/ci/` runners that were supposed to
+# insure against exactly it.
+#
+# Each of those steps is written so its own failure cannot fail the restore,
+# and each says so in its output. The reverse did not hold: `set -euo pipefail`
+# plus `fail()`'s `exit 1` meant a cluster restore dying at, say, the node
+# token ended the script before step 9 was ever reached. The owner's one
+# documented recovery run would then return no cluster AND no dev capacity AND
+# no public surface, having held the SSH key for all three.
+#
+# These pin both halves: the host-mode steps still run, and the run still fails.
+
+
+def _fails_at_the_node_token(box):
+    """A cluster restore that dies mid-way, at a step 9-11 do not depend on."""
+    (box.state / "node_token").write_text("")
+
+
+def test_host_mode_steps_still_run_when_the_cluster_restore_fails(box):
+    _fails_at_the_node_token(box)
+    result = box.run(
+        WITH_CODEX_HOST=1, WITH_GITHUB_RUNNER_HOST=1,
+        WITH_PORTFOLIO_SITE_HOST=1, SITE_GH_TOKEN="ghp_stub",
+    )
+
+    log = box.log()
+    for installer in (
+        "install-codex-host.sh",
+        "install-github-runner-host.sh",
+        "install-portfolio-site-host.sh",
+    ):
+        assert installer in log, (
+            f"{installer} did not run after the cluster restore failed. It "
+            "needs no k3s, and the SSH key that reaches it is exactly what the "
+            "owner is holding during that run."
+        )
+
+
+def test_a_failed_cluster_restore_still_exits_non_zero(box):
+    """The host-mode steps succeeding must not paper over a dead cluster."""
+    _fails_at_the_node_token(box)
+    result = box.run(WITH_CODEX_HOST=1)
+
+    assert result.returncode != 0, (
+        "a failed cluster restore reported success because the host-mode "
+        "steps after it went fine"
+    )
+    assert "cluster restore failed" in result.stderr
+
+
+def test_a_clean_cluster_restore_says_nothing_about_failing(box):
+    """The new banner must not fire on the ordinary path."""
+    result = box.run(WITH_CODEX_HOST=1)
+
+    assert result.returncode == 0, result.stderr
+    assert "cluster restore FAILED" not in result.stderr
+    assert "cluster restore failed" not in result.stderr

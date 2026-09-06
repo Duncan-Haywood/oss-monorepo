@@ -87,9 +87,11 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
-  // Compares against "a published custom rate survey" as a category --
-  // the page's own FAQ says it "does not name or link to any specific
-  // survey publisher", so there is no party to disclaim affiliation with.
+  // Compares against "a published custom rate survey" -- a category of
+  // publication (state extension services, farm trade press) that several
+  // different publishers produce, not one specific company or product this
+  // could be mistaken for. The page's own FAQ already says so explicitly
+  // ("does not name or link to any specific survey publisher").
   'custom-farm-rate-calculator/vs-survey-rates.html',
 ]);
 

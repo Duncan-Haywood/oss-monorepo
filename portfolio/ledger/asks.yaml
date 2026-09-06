@@ -117,6 +117,19 @@ decisions:
     nowhere to run anything. It runs last, cannot fail the restore, and
     enables nothing: the policy still ships `"enabled": false`, so it holds
     until credentials and the switch arrive.
+    Changed 2026-09-06, and it matters for the run you are about to make: the
+    three host-mode steps now also run when the **cluster** restore fails.
+    They used to sit after `set -euo pipefail`, so a fault anywhere in the k3s
+    rebuild ended the script before them — and none of the three needs k3s.
+    Nobody has ever executed this script against these boxes and the private
+    network was never applied, so the addressing steps are its least-proven
+    part; the shape that was waiting was a run that dies at node readiness and
+    hands you no cluster, no Codex worker, no runner and no public surface,
+    with the key in your hand for all four. Now a partial failure still leaves
+    you the capacity that never depended on what broke. The script still exits
+    non-zero — it tells you the cluster failed and reports each host-mode step
+    on its own terms — and every host-mode installer is idempotent, so
+    re-running after you fix the cluster fault costs nothing.
     `WITH_GITHUB_RUNNER_HOST=1` is the same fix for the *other* tenant of that
     same cluster: `gitops/ci/`'s self-hosted Actions runners also run as pods
     there, so metered-CI insurance was equally downstream of this outage. It
