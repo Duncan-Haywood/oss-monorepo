@@ -349,3 +349,42 @@ readings:
       runner and the lever is Settings → Pages → Source.
       Do not resolve this by reasoning. One browser request settles it, needs
       no credential, and is the cheapest unread fact in this file.
+
+  agent-session-egress:
+    # What a Claude Code web session — the thing that runs most of the work
+    # here — can actually reach. `down` means it cannot reach the boxes or any
+    # hosted secret store, so it cannot be the machine that deploys.
+    verdict: down
+    measured: "2026-09-06"
+    run: null
+    how: >-
+      From inside a session: `curl -s -o /dev/null -w '%{http_code}'
+      https://api.1password.com` (or any non-allowlisted host), then
+      `curl -sS "$HTTPS_PROXY/__agentproxy/status"` and read
+      `recentRelayFailures` for the reason. For the boxes,
+      `cat < /dev/null > /dev/tcp/89.167.29.39/22`. Re-measure in a session
+      rather than reasoning about it; the policy is per-environment and the
+      owner can change it.
+    note: >-
+      Measured 2026-09-06, and it is the reading that decides where secrets
+      belong. `api.github.com` returns 200; `vault.example.com`,
+      `api.1password.com`, `api.doppler.com`, `app.infisical.com` and
+      `api.hetzner.cloud` each come back `gateway answered 403 to CONNECT`
+      (policy denial). Raw TCP to `89.167.29.39:22` does not connect and there
+      is no `ssh` binary in the image at all.
+      Two consequences, and the second is the one this repository kept getting
+      wrong. **A hosted secret manager cannot be the answer**: it would put the
+      credentials somewhere the automation cannot reach, which is the same
+      failure mode as an Actions secret with no runner, so
+      `bootstrap/scripts/load-secrets.sh` reads a local directory and a
+      committed age file and deliberately has no network source. **And a web
+      session can never be the deployer** — no choice of secret store changes
+      that, because the block is the egress policy, not the credential. The
+      deploy is driven from Cursor or a local Claude Code CLI, which sit on a
+      machine with ordinary networking; web sessions build, review and merge.
+      Worth stating because the failure is quiet: a session that *has* the SSH
+      key would still fail to reach `:22`, and the obvious reading of that
+      failure is "the key is wrong" — which is exactly the sentence this
+      repository has already spent a week on once.
+      This does not supersede `github-actions-runners` or `k3s-cluster`; it is
+      orthogonal to both. It says who can act while they are down.
