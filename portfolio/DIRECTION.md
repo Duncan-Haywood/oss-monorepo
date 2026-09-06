@@ -204,9 +204,9 @@ changes what "the next task" means. In order:
    shape with no new mechanism and no evidence anyone asked for it — that is
    the "176th" this item warns against, not novelty itself.
 5. **Every live product should carry a working, honest donation ask.** See
-   the next section — this lever is already live on 181 of 185 ventures, not
-   waiting on an owner decision. Closing the remaining 4 is real,
-   available work today.
+   the next section — this lever is now live on all 185 ventures (the last 4
+   were closed 2026-09-06; see the correction below), not waiting on an owner
+   decision.
 
 ## The fleet-parity trap, and where new ventures actually stand (added 2026-09-06)
 
@@ -293,12 +293,16 @@ even solved. What actually is owner-only is a second, separate thing: the
   one more entry point on top of links that already work; it is not what
   turns donations on.
 
-**What an agent should actually do:** close the remaining gap —
+**Closed 2026-09-06.** The four app-shaped ventures named above —
 `local-site-studio`, `photo-editing`, `quick-pick-survey`,
-`retail-pilot-intel` are the four ventures without a working link, all
-app-shaped (the link belongs in the app's own layout/footer component, not a
-static HTML footer a build script can inject into). That is real, available
-revenue-enabling work today, not something to defer behind #839.
+`retail-pilot-intel` — each now carry the link in the app's own
+layout/footer component (not a static HTML footer a build script injects):
+`site-footer.tsx`, the docs `DocsLayout.tsx`, `ProfileView.tsx`'s account
+section, and (retail-pilot-intel has two independent apps) both
+`PortalShell.tsx` and `apps/docs`' `DocLayout.tsx`. **All 185 ventures** now
+ship a working `github.com/sponsors/Duncan-Haywood` link. There is no
+remaining gap for a session to close here — see the next section for what
+replaces it.
 
 - Every user-facing product still ships the optional Sponsors/donate line
   from `PRODUCT_PLAYBOOK.md` §6 — footer or about section only, never in

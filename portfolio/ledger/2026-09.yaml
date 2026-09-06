@@ -15495,3 +15495,57 @@ entries:
         (classification: none, publishes: []). Combined final run of
         marketing+pages+proposal+privacy+webcheck+this-venture: 1400/1400.
     mrr_end: null
+  - venture: local-site-studio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed one of the four gaps DIRECTION.md named 2026-09-06:
+        local-site-studio had no working `github.com/sponsors` link anywhere
+        in its app. Added it to `src/components/site-footer.tsx`, the shared
+        footer every page renders, phrased as optional support per
+        PRODUCT_PLAYBOOK.md §6 (never framed as payment for the free tier).
+        Verified: `npx vitest run` (238 files, 4049 tests) and
+        `npx tsc --noEmit` both clean.
+    mrr_end: null
+  - venture: photo-editing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same fleet-parity closure as local-site-studio: added the Sponsors
+        link to `docs-site/src/components/DocsLayout.tsx`, the one shared
+        layout every page in ShootFlow's docs site renders (the venture's
+        only web surface; the core product is a Python CLI with no public
+        UI of its own). Verified: `npx tsc --noEmit` and `npm run build`
+        (Next.js, 23 routes) both clean.
+    mrr_end: null
+  - venture: quick-pick-survey
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same closure: added the Sponsors link to `ProfileView.tsx`'s
+        account section (the "You" tab, next to the existing Privacy/Terms
+        links -- the app has no traditional footer, being a mobile-style
+        swipe UI with a persistent bottom tab bar instead). Verified:
+        `npx vitest run src/components/ProfileView.test.tsx` (8/8) and
+        `npx tsc --noEmit` clean.
+    mrr_end: null
+  - venture: retail-pilot-intel
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same closure, and the last of the four DIRECTION.md named. This
+        venture ships two independent apps (a passcode-gated sales-demo
+        portal and a passcode-gated private docs site), so the link went
+        into both shared shells: `apps/portal/src/components/PortalShell.tsx`
+        (sidebar, new `.sidebar-support` style) and
+        `apps/docs/src/components/DocLayout.tsx` (new `.doc-support` style).
+        Updated DIRECTION.md and PRODUCT_PLAYBOOK.md's counts from 181/185
+        to 185/185 now that no venture is missing the link. Verified:
+        `pnpm run typecheck`, `pnpm run test` (0 failures across
+        analytics/edge/pos/portal packages), and `pnpm run build` (both
+        apps) all clean.
+    mrr_end: null
