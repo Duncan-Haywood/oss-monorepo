@@ -169,9 +169,26 @@ command is faster than the recollection and it cannot be honestly wrong.
 published snapshot** (added 2026-09-05):
 
 ```
-python3 platform/ci/pages_state.py                  # says whether it is stale
+python3 platform/ci/pages_state.py --require-current   # exits 1 if it is stale
 CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
+python3 platform/ci/pages_state.py --require-current   # and 0 once you have
 ```
+
+**`--require-current` was added 2026-09-06, and the reason is that the
+paragraph you are reading did not work.** This section has said "refresh the
+snapshot" since 2026-09-05, and on 2026-09-06 the snapshot was found stale
+anyway — built from `1afe50c5` while `main` was at `565cc635` — by a session
+that had read it. A reminder competes with everything else in a long file; an
+exit code does not. The flag prints the same report and then fails, naming the
+one command that fixes it, so a stale snapshot stops being something you have
+to remember to look for. Bare `pages_state.py` is unchanged and still exits 0
+on a stale snapshot: that answers "is this route worth having?", which is a
+different question, and folding the two together would make a green run mean
+two things.
+
+It never publishes for you. Publishing rewrites a branch, which is not
+something a check should do as a side effect — so the gate reports and you run
+the second line.
 
 The runner-free deploy route serves the `gh-pages` branch, which is a
 committed artifact rather than a build: **nothing rebuilds it when `main`

@@ -15295,3 +15295,58 @@ entries:
         passed, 25 skipped. All 17 platform/ci unittest modules pass
         individually.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, 2026-09-06. Open-PR queue was empty and
+        no remote branch carried unmerged work, so the three-PR merge floor
+        was met vacuously rather than skipped; deploy-first found nothing
+        either -- the 10 ventures on main absent from the published site were
+        each opened and are genuinely not static pages (Next.js apps, Python
+        CLIs, a Swift package, a Garmin watchface, Ansible), which is
+        CLAUDE.md's "the remaining exclusions really are CLIs, servers and
+        apps" holding up.
+      - >-
+        Shipped #3476. The marketing-distribution queue item -- the one the
+        account owner's own sentence promoted to priority 6 -- told the Codex
+        worker to build the site with
+        PAGES_BASE_URL=https://tools.marisstella.dev/, a host that has refused
+        connections since 2026-09-04. build.mjs bakes that into every
+        canonical tag, every og:url and every sitemap <loc>, so a run
+        following it would have published canonicals pointing at a host no
+        crawler can fetch -- degrading indexing of the live site in the name
+        of promoting it. Removed the override rather than repointing it
+        (DEFAULT_BASE_URL is already the live origin), corrected two commands
+        to forms that actually parse, and added the deploy step the owner's
+        "building and deploying" asked for. Same stale premise corrected in
+        portfolio/usage/README.md, which opened by telling every session that
+        no usage reading can exist until a stranger can reach the product.
+      - >-
+        Shipped the follow-up that #3476 named: pages_state.py grew
+        --require-current, a gate that exits 1 when the published snapshot is
+        not current. The prose version of this instruction demonstrably did
+        not hold -- the snapshot was found stale on 2026-09-06 by a session
+        that had read the CLAUDE.md paragraph telling it to refresh. Kept as
+        a separate contract from the existing exit code, which answers a
+        different question, and wired into CLAUDE.md, the worker mandate and
+        the marketing item. It never publishes; it reports and names the fix.
+      - >-
+        Verified locally (Actions runners starved -- all 14 checks on #3476
+        came back runner_id: 0 in 2-4s, classified with
+        ci_starvation.py --run on runs 34022199999 / 34022200045 /
+        34022200007): gitops/tests 480 passed, 25 skipped. All 17 platform/ci
+        unittest modules pass individually, test_pages_state now 65 including
+        11 new for the gate. platform/marketing + platform/pages 1136.
+        platform/proposal 101. platform/privacy + platform/webcheck 50.
+        build.mjs + check.mjs on a real artifact: 175 products, 721 pages, no
+        dead links. pages_state.py reports deployed: served, snapshot current.
+      - >-
+        Not shipped, and named rather than worked around: every part of the
+        owner's Hetzner ask (deploying marketing materials on the VMs, and
+        the Codex CLI running there on its built-in ChatGPT quota) is fully
+        built and blocked on one owner action, hetzner-ssh-key-is-a-public-key
+        (#3184). HETZNERSSHKEY holds a public key, so it has never opened a
+        session.
+    mrr_end: null

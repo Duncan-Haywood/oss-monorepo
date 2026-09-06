@@ -202,8 +202,9 @@ prompt: |
   the gap is invisible -- there is no error anywhere to say the live site is
   behind. After your merge lands:
 
-    python3 platform/ci/pages_state.py                  # says `stale` or `current`
+    python3 platform/ci/pages_state.py --require-current   # exits 1 if stale
     CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
+    python3 platform/ci/pages_state.py --require-current   # must exit 0 now
 
   That script rebuilds from `main`'s tip, runs `check.mjs` against the
   artifact before it pushes anything, and refuses to publish a broken one. It
