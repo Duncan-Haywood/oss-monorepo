@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 132 files, 551950 bytes
+#   portfolio-front-tools-0: 133 files, 553763 bytes
 #   portfolio-front-tools-1: 113 files, 548937 bytes
 #   portfolio-front-tools-2: 146 files, 554583 bytes
 #   portfolio-front-tools-3: 120 files, 544617 bytes
@@ -106,6 +106,7 @@ configMapGenerator:
       - subscription-price-impact__calc.mjs.gz=subscription-price-impact__calc.mjs.gz
       - subscription-price-impact__how-much-can-i-raise-my-saas-price.html.gz=subscription-price-impact__how-much-can-i-raise-my-saas-price.html.gz
       - subscription-price-impact__index.html.gz=subscription-price-impact__index.html.gz
+      - subscription-price-impact__share.mjs.gz=subscription-price-impact__share.mjs.gz
       - subscription-price-impact__usage.mjs.gz=subscription-price-impact__usage.mjs.gz
       - subscription-price-impact__vs-baremetrics.html.gz=subscription-price-impact__vs-baremetrics.html.gz
       - saas-seat-true-up__calc.mjs.gz=saas-seat-true-up__calc.mjs.gz
