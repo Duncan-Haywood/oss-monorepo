@@ -17631,3 +17631,82 @@ entries:
         answers `403 to CONNECT` for `github.io`), so `github-pages-origin`
         stays `unknown`.
     mrr_end: null
+  - venture: home-staging-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Open-PR queue was empty (0 open PRs)
+        and a sample of every stale non-PR branch in the repo (11
+        `session/agent_*` branches plus 8 named feature branches, all
+        cross-checked against `main`'s git log for the PR numbers they
+        referenced) showed the entire backlog already superseded --
+        confirmed independently of `infra_state.yaml`'s existing note to
+        the same effect, on branches that note did not name. Health
+        checks came back clean: `platform/ci` unittest (all modules),
+        `checklist_coverage.py`, and a fleet-wide `browser_checks.py
+        --checks contrast,sweep` (axe-core across the whole built site,
+        zero violations; every calculator still computes). Confirmed the
+        CI/CD and Codex-host-mode infrastructure the owner asked about is
+        already fully built and tested (`gitops/agents/host/`,
+        `gitops/ci/host/`, `gitops/prod/host/`) -- all three routes are
+        blocked on the single owner action already first in the decision
+        queue (`HETZNERSSHKEY` holds a public key, not a private one), so
+        no duplicate ask was added.
+      - >-
+        Per `portfolio/DIRECTION.md`'s 2026-09-06 owner direction ("the
+        next new-venture session screens a fresh niche, not the queue"),
+        screened and graduated a new venture rather than picking up a
+        parity feature on a product nobody has visited (usage is 0
+        fleet-wide). Independent home stagers price a vacant-listing
+        furniture package at a flat included-term rate, but delivery/pickup
+        labor and the package's own carrying cost (storage, insurance,
+        wear) are paid regardless of how long the listing actually takes
+        to sell -- same shape as this portfolio's other job-pricing
+        calculators (`dumpster-rental-margin-calculator`,
+        `ice-dam-removal-bid-calculator`), applied to a segment (real
+        estate staging) with no existing venture or screened-out entry.
+        Checked against `ventures/ai-first-markets/src/data/ideas.ts` and
+        `portfolio/pipeline/screened-out.md`: no overlap.
+      - >-
+        Shipped a complete vertical slice, not scaffolding: `calc.mjs`
+        (pure pricing logic, 20 tests, hand-verified against the default
+        inputs), a full accessible UI with the standard disclaimer,
+        sponsor link, and DNT/GPC-respecting local usage counter
+        (`page.test.mjs` 14 tests, `usage.test.mjs` 6 tests), README,
+        LICENSE, robots.txt, sitemap.xml. Wired into the three fleet-wide
+        guards a new `*-bid-calculator` is expected to join:
+        `SUBCATEGORY_RULES.trades` in `build.mjs`, the shared shop-rates
+        bar in `rates.mjs`/`rates.test.mjs` (partial: 3 of 4 fields, same
+        shape as `ice-dam-removal-bid-calculator`), and `launched.json`.
+        Bumped the four-place hand-written mirrored-tool count (188->189)
+        in `gitops/tests/test_manifests.py`, `infra/OWNER_CHECKLIST.md`
+        (x2), `gitops/prod/usage/aggregate.py`, and
+        `gitops/prod/front-door/default.conf` (x2) in the same PR, per
+        CLAUDE.md's standing note that this count drifts silently when a
+        new venture's PR does not carry it.
+      - >-
+        CI starved on the PR (`ci_starvation.py --run 34066409326`:
+        `runner_id: 0`, no step ran). Verified locally instead: 39/39
+        venture tests; 1140/1140 `platform/marketing` + `platform/pages`
+        tests (run twice, once before and once after rebasing onto two
+        rounds of concurrent `main` movement mid-session -- #3578, #3579);
+        490 `gitops/tests` pytest (25 skipped); all `platform/ci` unittest
+        modules plus `agent_review`; `checklist_coverage.py` clean;
+        `regen.mjs` surface current. No payment collection, no
+        third-party script or network call, no personal data --
+        everything runs client-side and only anonymous local feature
+        events are counted.
+      - >-
+        Deployed and verified: merged #3580, then `pages_state.py
+        --require-current` found the snapshot stale (built one commit
+        behind the merge), ran `CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh`, which reported "189 products,
+        7 category pages, 764 pages, no dead links" and pushed
+        `gh-pages` at `a0eb40cd`. `pages_state.py --require-current` then
+        exited 0. No logged-out fetch is possible from a session (agent
+        egress proxy answers `403 to CONNECT` for `github.io`), so a
+        stranger's read of `github-pages-origin` stays unconfirmed from
+        here, same limitation as every other ledger entry using this
+        deploy path.
+    mrr_end: null
