@@ -6628,3 +6628,49 @@ ventures:
       never a claim about NFPA 10 or any other fire-code compliance status.
       The tool never touches a live inspection or anyone else's data.
       Nothing entered leaves the browser.
+  - slug: ice-dam-removal-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — a per-linear-foot
+      rate card checked against this job's own largely-fixed dispatch cost
+      (breakEvenRatePerFoot), an emergency/storm-dispatch premium applied to
+      billed time only, and a minimum service charge floor — arithmetic an
+      ice dam removal contractor has to be able to re-derive before quoting
+      a short call on the phone.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. A fresh niche (not in
+      `portfolio/pipeline/screened-out.md`, not an existing `ventures/`
+      directory) rather than a queued pipeline candidate, per
+      `portfolio/DIRECTION.md`'s 2026-09-06 direction that a genuinely new,
+      gate-cleared niche competes on equal footing with the (currently empty)
+      `build-now` queue. Same per-job trade-calculator shape as
+      `locksmith-bid-calculator` and `dumpster-rental-margin-calculator`,
+      scored the same way. Defensibility 5: the break-even-rate-per-foot
+      check against a largely fixed dispatch cost is specific to this trade's
+      cost structure and not modeled by a generic bid or service-call
+      calculator, and it is the exact mechanic a short-job phone quote most
+      often gets wrong. Distribution 6: "ice dam removal cost" and "ice dam
+      removal pricing" are narrow, real seasonal search terms bought by an
+      operator pricing a storm-response call, with no incumbent free
+      interactive tool built around this exact arithmetic, but volume is
+      unmeasured and highly seasonal.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended price, a roofing or structural assessment, or a
+      determination about ice-dam prevention. The tool never touches a live
+      transaction or anyone else's data, and it is not a safety or
+      fall-protection assessment. Nothing entered leaves the browser.

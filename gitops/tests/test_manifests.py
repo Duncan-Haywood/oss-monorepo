@@ -1319,7 +1319,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 187 since 2026-09-06, when `fire-extinguisher-inspection-route-margin`
     # shipped — same shape again: a new venture with a static `index.html`
     # from its first commit, entering the mirror and the total together.
-    total = 187  # `infra/OWNER_CHECKLIST.md`'s own "N of the 187 tools" wording.
+    # 188 since 2026-09-06, when `ice-dam-removal-bid-calculator` shipped —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    total = 188  # `infra/OWNER_CHECKLIST.md`'s own "N of the 188 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

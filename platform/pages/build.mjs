@@ -958,7 +958,7 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-roof',
       title: 'Roofing, siding & gutters',
-      test: (slug) => /^(roofing|flat-roof|metal-roof|siding|soffit-fascia|gutter-|skylight|stucco|tuckpointing|exterior-painting)/.test(slug),
+      test: (slug) => /^(roofing|flat-roof|metal-roof|siding|soffit-fascia|gutter-|skylight|stucco|tuckpointing|exterior-painting|ice-dam-removal)/.test(slug),
     },
     {
       id: 'trades-openings',
