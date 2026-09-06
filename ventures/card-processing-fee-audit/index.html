@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Card Processing Fee Audit — Split Your Statement Into Interchange and Markup</title>
+  <meta name="description" content="Read five numbers off your merchant statement and see how much of your card processing bill is network interchange you cannot negotiate and how much is processor markup you can. Free, private, runs in your browser.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Card processing fee audit">
+  <meta property="og:description" content="Split one month of card processing fees into network pass-through and processor markup, and price the same month under a competing quote.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Card Processing Fee Audit","applicationCategory":"BusinessApplication","operatingSystem":"Web","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Which five numbers do I need off the statement?","acceptedAnswer":{"@type":"Answer","text":"Total card sales for the month, the number of card transactions, the total fees charged, roughly what share of your sales were card-present (tapped, dipped or swiped in front of you) rather than keyed or online, and the flat monthly fees — statement, PCI, gateway, batch, monthly minimum. The first three are on the summary page of every statement. The fourth you can usually estimate from how the business runs. The fifth is the one people miss, because it is printed apart from the rate summary."}},{"@type":"Question","name":"Why does the tool refuse to give a single markup number?","acceptedAnswer":{"@type":"Answer","text":"Because it cannot see your card mix, and the card mix moves interchange by more than a percentage point. A regulated debit card, a consumer credit card and a small-business rewards card run on the same terminal cost very different amounts, and nothing on a bundled statement tells you the split. So the estimate is a band. If you take a figure to your processor, take the band and say where it came from — a precise number you cannot defend is worse in that conversation than an honest range."}},{"@type":"Question","name":"What is interchange, and why can no processor discount it?","acceptedAnswer":{"@type":"Answer","text":"Interchange is the portion the card-issuing bank keeps, set by the card networks on published schedules that apply identically to every merchant in a category. Assessments are a smaller slice the networks themselves keep. Together they are pass-through: your processor collects them and hands them on. Nobody sells them to you cheaper, which is why a quote that undercuts a competitor is always undercutting the third component — the processor’s own markup — and why splitting the bill is the only way to see whether a quote is actually better."}},{"@type":"Question","name":"Are the fixed monthly fees really markup?","acceptedAnswer":{"@type":"Answer","text":"In substance, yes. A statement fee, a PCI-compliance fee, a gateway fee, a batch fee and a monthly minimum are all revenue the processor keeps, and none of them fall when your rate falls. On a business doing $42,000 a month they are easy to wave off as small; at $45 a month they are $540 a year, and they are the part of a bill most often left out of a rate comparison entirely. Price them separately when you compare quotes, because a quote that wins on rate and loses on monthly fees can cost more."}},{"@type":"Question","name":"My effective rate came out below the estimate. What does that mean?","acceptedAnswer":{"@type":"Answer","text":"That the whole bill is explained by the cheapest reading of network pass-through, so this model cannot identify markup in it. That is usually good news, and it is occasionally a sign that a fee is being billed somewhere the total you entered does not include — an equipment lease on a separate invoice, or a fee netted out of deposits rather than charged monthly. Worth a look before concluding the account is cheap."}},{"@type":"Question","name":"Does a lower effective rate always mean a better deal?","acceptedAnswer":{"@type":"Answer","text":"No, and this is the trap flat-rate pricing depends on. Effective rate divides fees by sales, so it is driven by your average ticket as much as by your pricing. A business with a $10 average ticket and a business with a $200 average ticket paying identical processor markup will show wildly different effective rates, because the per-transaction cents are spread over very different amounts. Compare the markup figure and the per-transaction fee, not the blended rate."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The calculation runs entirely in your browser, there are no accounts, no cookies and no analytics vendor, and there is no network request in the page at all. A saved audit stores only the numbers you typed and stays in this browser; reset deletes it. Monthly card volume is effectively your revenue, which is exactly why none of it leaves the page."}},{"@type":"Question","name":"What should I actually ask my processor?","acceptedAnswer":{"@type":"Answer","text":"Ask for interchange-plus pricing quoted as a percentage over interchange plus a per-transaction amount, and ask for every recurring monthly fee listed by name. Then ask them to price your last statement under that quote. If they will not put the markup and the monthly fees in writing as separate line items, you cannot compare their offer to anyone else’s — which is generally the reason it is not offered that way."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#16232b; --muted:#5b6a72; --paper:#f4f1ea; --accent:#1f6f5c; --warn:#8a4b1d; --line:#d6cfc2; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,sans-serif; }
+    main { max-width:1000px; margin:auto; padding:52px 20px 40px; }
+    .eyebrow { color:var(--accent); font-weight:800; letter-spacing:.12em; text-transform:uppercase; font-size:.75rem; }
+    h1 { max-width:720px; font:800 clamp(2.1rem,5.6vw,4.4rem)/1.0 Georgia,serif; margin:14px 0; }
+    .lede { max-width:660px; color:var(--muted); font-size:1.14rem; }
+    .grid { display:grid; grid-template-columns: minmax(280px,.9fr) 1.1fr; gap:24px; margin-top:34px; }
+    .panel { background:#fffdf8; border:1px solid var(--line); border-radius:18px; padding:24px; box-shadow:0 10px 30px #2b3a3010; }
+    label { display:block; font-weight:700; margin:15px 0 5px; }
+    input { width:100%; border:1px solid #b6ada0; border-radius:8px; padding:11px; font:inherit; background:white; }
+    button { border:0; border-radius:999px; background:var(--accent); color:white; padding:12px 20px; font-weight:800; cursor:pointer; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; } button.secondary { background:#4a5a60; }
+    .status { margin-top:10px; color:var(--muted); font-size:.9rem; }
+    #status { min-height:1.2em; }
+    .results { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+    .metric { background:#e9efe9; border-radius:12px; padding:16px; } .metric strong { display:block; font-size:1.55rem; } .metric span { color:var(--muted); font-size:.88rem; }
+    .band { color:var(--muted); font-size:.82rem; margin-top:4px; display:block; }
+    .callout { margin-top:18px; border-left:4px solid var(--accent); padding:12px 15px; background:#eef5f1; }
+    .notes { margin-top:16px; padding-left:20px; } .notes li { margin-bottom:10px; color:var(--ink); }
+    fieldset { border:1px solid var(--line); border-radius:12px; padding:8px 16px 18px; margin:22px 0 0; } legend { font-weight:800; padding:0 6px; }
+    footer { color:var(--muted); font-size:.85rem; margin-top:32px; } a { color:inherit; }
+    @media (max-width:700px) { main { padding-top:30px; } .grid { grid-template-columns:1fr; } }
+    /* Two 1fr columns leave ~140px each on a 320px phone, and a label like
+       "estimated processor markup" under a $1,124.40 needs more than that. */
+    @media (max-width:400px) { .results { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body><main>
+  <div class="eyebrow">For anyone who takes cards and has never read the statement</div>
+  <h1>How much of your card bill is the processor, and how much is the network?</h1>
+  <p class="lede">Five numbers off one merchant statement. This splits the fee into the part the card
+    networks set — which no processor can discount — and the part your processor keeps, which is the
+    only half a quote can change. Then it prices the same month under a competing quote.</p>
+  <p class="lede"><a href="./what-is-a-good-effective-rate-for-card-processing.html">What is a good effective rate?</a></p>
+
+  <section class="grid">
+    <form class="panel" id="form">
+      <h2>Last month&rsquo;s statement</h2>
+      <label for="monthlyVolume">Total card sales for the month ($)</label>
+      <input id="monthlyVolume" type="number" min="0.01" step="0.01" value="42000" required>
+
+      <label for="transactions">Number of card transactions</label>
+      <input id="transactions" type="number" min="1" step="1" value="1400" required>
+
+      <label for="totalFees">Total processing fees charged ($)</label>
+      <input id="totalFees" type="number" min="0" step="0.01" value="1300" required>
+
+      <label for="cardPresentPercent">Share of sales taken in person (%)</label>
+      <input id="cardPresentPercent" type="number" min="0" max="100" step="1" value="85" required>
+      <p class="status">Tapped, dipped or swiped in front of you. The rest is keyed or online, which
+        genuinely costs more at the network level — an estimate is fine.</p>
+
+      <label for="fixedMonthlyFees">Flat monthly fees included in that total ($)</label>
+      <input id="fixedMonthlyFees" type="number" min="0" step="0.01" value="45" required>
+      <p class="status">Statement, PCI compliance, gateway, batch, monthly minimum. Printed apart
+        from the rate summary, which is why they are the easiest line to miss.</p>
+
+      <fieldset>
+        <legend>Compare against a quote</legend>
+        <label for="quoteMarkupPercent">Quoted markup over interchange (%)</label>
+        <input id="quoteMarkupPercent" type="number" min="0" step="0.01" value="0.25" required>
+        <label for="quotePerTransaction">Quoted fee per transaction ($)</label>
+        <input id="quotePerTransaction" type="number" min="0" step="0.01" value="0.10" required>
+        <label for="quoteMonthlyFees">Quoted monthly fees ($)</label>
+        <input id="quoteMonthlyFees" type="number" min="0" step="0.01" value="10" required>
+        <p class="status">Defaults are a competitive interchange-plus quote for a small merchant.
+          Replace them with whatever you have actually been offered.</p>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit">Audit this statement</button>
+        <button type="button" class="secondary" id="save">Save audit</button>
+        <button type="button" class="secondary" id="reset">Reset</button>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </form>
+
+    <section class="panel" aria-live="polite">
+      <h2>What the statement says</h2>
+      <div class="results">
+        <div class="metric"><strong id="effectiveRate">3.10%</strong><span>effective rate</span></div>
+        <div class="metric"><strong id="perTransaction">$0.93</strong><span>average fee per transaction</span></div>
+        <div class="metric"><strong id="passThrough">$951.30</strong><span>estimated network pass-through</span>
+          <span class="band" id="passThroughBand">range $867.30 &ndash; $1,059.45</span></div>
+        <div class="metric"><strong id="markup">$348.70</strong><span>estimated processor markup</span>
+          <span class="band" id="markupBand">range $240.55 &ndash; $432.70</span></div>
+      </div>
+      <div class="callout" id="message"></div>
+      <ul class="notes" id="notes"></ul>
+    </section>
+  </section>
+
+  <section class="panel" id="faq">
+    <h2>Common questions</h2>
+
+    <h3>Which five numbers do I need off the statement?</h3>
+    <p>Total card sales for the month, the number of card transactions, the total fees charged,
+      roughly what share of your sales were card-present (tapped, dipped or swiped in front of you)
+      rather than keyed or online, and the flat monthly fees &mdash; statement, PCI, gateway, batch,
+      monthly minimum. The first three are on the summary page of every statement. The fourth you can
+      usually estimate from how the business runs. The fifth is the one people miss, because it is
+      printed apart from the rate summary.</p>
+
+    <h3>Why does the tool refuse to give a single markup number?</h3>
+    <p>Because it cannot see your card mix, and the card mix moves interchange by more than a
+      percentage point. A regulated debit card, a consumer credit card and a small-business rewards
+      card run on the same terminal cost very different amounts, and nothing on a bundled statement
+      tells you the split. So the estimate is a band. If you take a figure to your processor, take the
+      band and say where it came from &mdash; a precise number you cannot defend is worse in that
+      conversation than an honest range.</p>
+
+    <h3>What is interchange, and why can no processor discount it?</h3>
+    <p>Interchange is the portion the card-issuing bank keeps, set by the card networks on published
+      schedules that apply identically to every merchant in a category. Assessments are a smaller
+      slice the networks themselves keep. Together they are <em>pass-through</em>: your processor
+      collects them and hands them on. Nobody sells them to you cheaper, which is why a quote that
+      undercuts a competitor is always undercutting the third component &mdash; the processor&rsquo;s
+      own markup &mdash; and why splitting the bill is the only way to see whether a quote is actually
+      better.</p>
+
+    <h3>Are the fixed monthly fees really markup?</h3>
+    <p>In substance, yes. A statement fee, a PCI-compliance fee, a gateway fee, a batch fee and a
+      monthly minimum are all revenue the processor keeps, and none of them fall when your rate falls.
+      On a business doing $42,000 a month they are easy to wave off as small; at $45 a month they are
+      $540 a year, and they are the part of a bill most often left out of a rate comparison entirely.
+      Price them separately when you compare quotes, because a quote that wins on rate and loses on
+      monthly fees can cost more.</p>
+
+    <h3>My effective rate came out below the estimate. What does that mean?</h3>
+    <p>That the whole bill is explained by the cheapest reading of network pass-through, so this model
+      cannot identify markup in it. That is usually good news, and it is occasionally a sign that a fee
+      is being billed somewhere the total you entered does not include &mdash; an equipment lease on a
+      separate invoice, or a fee netted out of deposits rather than charged monthly. Worth a look
+      before concluding the account is cheap.</p>
+
+    <h3>Does a lower effective rate always mean a better deal?</h3>
+    <p>No, and this is the trap flat-rate pricing depends on. Effective rate divides fees by sales, so
+      it is driven by your average ticket as much as by your pricing. A business with a $10 average
+      ticket and a business with a $200 average ticket paying identical processor markup will show
+      wildly different effective rates, because the per-transaction cents are spread over very
+      different amounts. Compare the markup figure and the per-transaction fee, not the blended
+      rate.</p>
+
+    <h3>Is any of this uploaded?</h3>
+    <p>No. The calculation runs entirely in your browser, there are no accounts, no cookies and no
+      analytics vendor, and there is no network request in the page at all. A saved audit stores only
+      the numbers you typed and stays in this browser; reset deletes it. Monthly card volume is
+      effectively your revenue, which is exactly why none of it leaves the page.</p>
+
+    <h3>What should I actually ask my processor?</h3>
+    <p>Ask for interchange-plus pricing quoted as a percentage over interchange plus a
+      per-transaction amount, and ask for every recurring monthly fee listed by name. Then ask them to
+      price your last statement under that quote. If they will not put the markup and the monthly fees
+      in writing as separate line items, you cannot compare their offer to anyone else&rsquo;s &mdash;
+      which is generally the reason it is not offered that way.</p>
+  </section>
+
+  <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+    kind, express or implied. It is not financial, accounting, or legal advice, and it does not replace
+    a qualified professional. <strong>You are responsible for reviewing and verifying its output before
+    relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum
+    extent permitted by law, the authors accept no liability for any loss or damage arising from its
+    use.<br><br>The interchange figures are an estimate from published card-brand rate ranges, not a
+    lookup of the rates on your account; your own card mix moves them. Everything runs in your browser.
+    Your data is never uploaded; there are no accounts, cookies, or analytics vendors. A saved audit
+    stores only the numbers entered here and stays in this browser &mdash; reset deletes it. Anonymous
+    feature events are stored only in this browser and can be disabled by
+    <a href="#" id="disable">turning usage counting off</a>.
+    <p class="support">Free and open source. If it found money on your statement, the
+      <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash;
+      <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+      optional and never changes what the tool does.</p></footer>
+</main><script type="module">
+  import { auditStatement, auditMessage, auditNotes, formatMoney, formatPercent } from './calc.mjs';
+  import { recordEvent, disableUsage, saveScenario, loadScenario, clearScenario, SCENARIO_FIELDS } from './usage.mjs';
+
+  const form = document.querySelector('#form');
+  const example = {
+    monthlyVolume: 42000, transactions: 1400, totalFees: 1300, cardPresentPercent: 85,
+    fixedMonthlyFees: 45, quoteMarkupPercent: 0.25, quotePerTransaction: 0.1, quoteMonthlyFees: 10,
+  };
+  const read = id => document.querySelector(`#${id}`).value;
+  const values = () => Object.fromEntries(SCENARIO_FIELDS.map(id => [id, read(id)]));
+  const status = text => { document.querySelector('#status').textContent = text; };
+  const set = (id, text) => { document.querySelector(`#${id}`).textContent = text; };
+
+  function render(count = false) {
+    try {
+      const result = auditStatement(values());
+      set('effectiveRate', formatPercent(result.effectiveRatePercent));
+      set('perTransaction', formatMoney(result.costPerTransaction));
+      set('passThrough', formatMoney(result.passThrough.mid));
+      set('passThroughBand', `range ${formatMoney(result.passThrough.low)} – ${formatMoney(result.passThrough.high)}`);
+      set('markup', formatMoney(result.markup.mid));
+      set('markupBand', `range ${formatMoney(result.markup.low)} – ${formatMoney(result.markup.high)}`);
+      set('message', auditMessage(result));
+      const list = document.querySelector('#notes');
+      list.textContent = '';
+      for (const note of auditNotes(result)) {
+        const item = document.createElement('li');
+        item.textContent = note;
+        list.append(item);
+      }
+      if (count) recordEvent('statement_audited');
+    } catch (error) {
+      // A rejected input must not leave the previous audit on screen beside a
+      // small error line. Every derived figure showing last month's split
+      // while the form holds this month's numbers reads as the answer, and
+      // there is nothing on the page to say otherwise -- so clear them all
+      // and show the message in its own region.
+      for (const id of ['effectiveRate', 'perTransaction', 'passThrough', 'passThroughBand', 'markup', 'markupBand']) {
+        document.querySelector(`#${id}`).textContent = '';
+      }
+      document.querySelector('#notes').textContent = '';
+      document.querySelector('#message').textContent = error.message;
+    }
+  }
+
+  form.addEventListener('submit', event => { event.preventDefault(); render(true); });
+
+  document.querySelector('#save').addEventListener('click', () => {
+    if (saveScenario(null, values())) {
+      recordEvent('audit_saved');
+      status('Audit saved in this browser.');
+    } else {
+      status('This browser could not save the audit. Check every field holds a number of zero or more.');
+    }
+  });
+
+  document.querySelector('#reset').addEventListener('click', () => {
+    for (const [id, value] of Object.entries(example)) document.querySelector(`#${id}`).value = value;
+    clearScenario();
+    render(false);
+    status('Reset to the example statement.');
+  });
+
+  document.querySelector('#disable').addEventListener('click', event => {
+    event.preventDefault();
+    disableUsage();
+    status('Usage counting is off in this browser.');
+  });
+
+  const saved = loadScenario();
+  if (saved) {
+    for (const id of SCENARIO_FIELDS) document.querySelector(`#${id}`).value = saved[id];
+    recordEvent('audit_restored');
+    status('Saved audit restored from this browser.');
+  }
+  render(false);
+</script></body></html>
