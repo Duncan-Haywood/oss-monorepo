@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 132 files, 552303 bytes
+#   portfolio-front-tools-0: 133 files, 554533 bytes
 #   portfolio-front-tools-1: 112 files, 548882 bytes
 #   portfolio-front-tools-2: 149 files, 553583 bytes
 #   portfolio-front-tools-3: 120 files, 555450 bytes
@@ -149,6 +149,7 @@ configMapGenerator:
       - owner-operator-cpm-calculator__deadhead-miles.html.gz=owner-operator-cpm-calculator__deadhead-miles.html.gz
       - owner-operator-cpm-calculator__does-detention-pay-cover-the-wait.html.gz=owner-operator-cpm-calculator__does-detention-pay-cover-the-wait.html.gz
       - owner-operator-cpm-calculator__index.html.gz=owner-operator-cpm-calculator__index.html.gz
+      - owner-operator-cpm-calculator__share.mjs.gz=owner-operator-cpm-calculator__share.mjs.gz
       - owner-operator-cpm-calculator__usage.mjs.gz=owner-operator-cpm-calculator__usage.mjs.gz
       - owner-operator-cpm-calculator__vs-atbs.html.gz=owner-operator-cpm-calculator__vs-atbs.html.gz
       - chargeback-evidence-packet__how-to-respond-to-a-chargeback.html.gz=chargeback-evidence-packet__how-to-respond-to-a-chargeback.html.gz
