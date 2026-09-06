@@ -15224,3 +15224,74 @@ entries:
         passed, 25 skipped. All 17 platform/ci unittest modules pass
         individually (603 tests).
     mrr_end: null
+  - venture: contractor-bid-readiness
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continued the fleet's shareable-link backlog. Listed every venture
+        under ventures/ lacking a share.mjs, pulled origin/main first
+        (grant-deadline-tracker and sponsor-ready had just landed theirs,
+        #3457 and #3453, one commit ahead of the local checkout). Grepped
+        the remaining ~44 for existing inline sharing under other names
+        (copyLink/writeShareQuery/scenarioLink/location.hash) to avoid
+        duplicating already-shipped work: booth-rent-vs-commission,
+        chargeback-evidence-packet, no-show-fee-calculator,
+        tiktok-shop-fee-calculator, and which-job-first all already carry a
+        query-string share link, just not named share.mjs. shop-rate-
+        calculator was ruled out on its own committed test
+        ("the tool does not read or write a saved bid or a shared link" --
+        payroll/overhead figures are deliberately kept out of any URL).
+        contractor-bid-readiness was the real gap: a genuine bid-prep tool
+        (opportunity name, deadline, and a dynamic list of requirement rows
+        with owner/status/note) whose own copy already promised "a portable
+        handoff" but only shipped a Markdown download half of that promise
+        -- no way to hand the live, editable checklist itself to a
+        subcontractor or co-bidder.
+      - >-
+        share.mjs follows the fleet's established convention: URLSearchParams
+        in the URL fragment (never a query string, never sent to a server or
+        logged in a Referer header), a fixed field list mirroring index.html's
+        own #opportunity/#due ids and its per-row {name, owner, status, note}
+        shape (readItems()), a blank/unusable field omitted rather than
+        serialized as a default, and the row-encoding pattern (colon-
+        separated cells, comma-separated rows, URI-encoded free text) that
+        tree-service-bid-calculator/share.mjs uses for the same open-ended-
+        list problem. A row with no usable name is dropped on decode,
+        matching index.html's own `.filter(item => item.name.trim())` before
+        a row is ever assessed, so a crafted link cannot inject a nameless
+        requirement. Wrote the control-character stripper as a character-code
+        loop rather than a regex literal after the first draft's `\u00XX`
+        regex escapes were written into the file as literal control bytes by
+        the file-write path -- caught by `file` reporting the module as
+        binary, not text, before it ever reached a test run.
+      - >-
+        Wired "Copy shareable link" into the Required artifacts panel,
+        decoding an incoming hash/query ahead of the two placeholder rows so
+        a recipient opening a shared link sees the sender's requirements on
+        first paint instead of the shipped example; added a shareStatus
+        line, a FAQ entry (both the visible page and the JSON-LD, kept
+        verbatim per platform/pages/faq-visible.test.mjs), and a privacy-
+        panel sentence naming the fragment mechanism, matching the wording
+        convention invoice-payment-terms-calculator and grant-deadline-
+        tracker already use. Updated README.md and the SoftwareApplication
+        JSON-LD description to mention the link. Found unrelated, uncommitted
+        work for a different venture (delivery-app-margin-calculator) sitting
+        in the working tree from earlier in this session; backed it up,
+        reverted it so this venture's regen.mjs run and commit stayed scoped
+        to contractor-bid-readiness only, and left the backup in the
+        session's scratchpad rather than discarding it.
+      - >-
+        Verified locally (Actions runners remain starved per
+        infra_state.yaml): venture suite 44/44 (15 new share.test.mjs
+        assertions: round-trip, field-coverage against readItems(), dropped
+        nameless row, unknown-status fallback to "attention", MAX_ROWS cap,
+        cell truncation, separator-embedded text, hash/query prefixes).
+        platform/marketing + platform/pages 1172/1172 after
+        node platform/marketing/regen.mjs (rewrote only this venture's
+        mirror shard and kustomization.yaml -- diffed to confirm no other
+        venture's entries moved). platform/proposal 101/101.
+        platform/privacy + platform/webcheck 50/50. gitops/tests: 461
+        passed, 25 skipped. All 17 platform/ci unittest modules pass
+        individually.
+    mrr_end: null
