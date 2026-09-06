@@ -1,0 +1,32 @@
+name: dumpster-rental-margin-calculator
+description: Free browser calculator for independent roll-off dumpster rental operators to price one rental from the included weight allowance, tipping fee, driver labor, mileage, and equipment cost, flag an overage rate priced below the tipping fee before it quietly loses money on a heavy load, and check a real scale ticket's weight against the quote's breakeven.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent roll-off dumpster rental operators will use a calculator that prices the base rental from the included weight allowance rather than the expected job weight, since disposal is billed by the ton at the transfer station and a rental agreement's sticker price only ever promises to cover the allowance.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators will use the overage-rate check specifically, because an overage fee set below the operator's own tipping fee loses money on every excess ton with no ceiling, and that mispricing is invisible until a heavy job (a shingle tear-off, a concrete tear-out) actually produces enough overage tons to erase the built-in margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators will use the "check a real scale ticket" comparison after a haul more than they will re-run the estimate before quoting, since the actual weight is unknown until the container is on the scale and the estimate is only ever a planning number.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Operators report that separating the allowance price from the overage fee is more work than their existing flat per-size rate card without changing the number they would have quoted.
+links:
+  production: null
+  analytics: null

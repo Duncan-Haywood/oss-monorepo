@@ -4663,3 +4663,19 @@ products:
           instrumented-but-unreachable product. Counts are local, opt-in, off
           by default, and honor DNT/GPC, so zero is the expected reading for a
           tool nobody has visited or switched the counter on for yet.
+  - slug: dumpster-rental-margin-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-06
+        signals:
+          live_url_visitors: null
+          quote-priced: 0
+          weight-ticket-checked: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/dumpster-rental-margin-calculator/`)
+          from its first commit, so unlike most rows here it has never been an
+          instrumented-but-unreachable product. Counts are local, opt-in, off
+          by default, and honor DNT/GPC, so zero is the expected reading for a
+          tool nobody has visited or switched the counter on for yet.
