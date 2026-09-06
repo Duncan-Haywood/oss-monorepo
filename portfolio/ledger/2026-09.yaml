@@ -1,5 +1,85 @@
 period: 2026-09
 entries:
+  - venture: dog-walking-route-pricing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled Hetzner-CI/CD-and-marketing/Codex-CLI mandate run.
+        First phase: reviewed the open-PR and branch backlog for repairable
+        work. Zero PRs were open. Checked ~24 of the most promising of 254
+        stale remote branches (all `pr/*`, `venture/*`, `agent/*`,
+        `fix/*` named branches plus several `claude/*` ones) with
+        `portfolio/ledger/supersede_check.py` after `git fetch --unshallow`
+        (the shallow clone reported "no merge base" on every branch until
+        this ran). All were superseded or empty-diff against `main`,
+        including two that the tool's line-scan initially flagged
+        NOT SUPERSEDED (`pr/governor-rbac-narrow-jobs-pods-verbs`,
+        `pr/hetzner-ssh-key-diagnostic`) -- direct inspection showed `main`
+        already carries both fixes in a strictly better form (the RBAC
+        verbs and test verbatim under a different rebase; the SSH-key
+        classifier refactored into the shared
+        `bootstrap/scripts/load-ssh-key.sh`), matching this file's own
+        RENAME SUSPECTED guidance. No PR met the merge bar; the backlog is
+        genuinely spent, corroborating the same conclusion an earlier
+        session recorded in `infra_state.yaml` the same week.
+      - >-
+        Hetzner deployment and the Codex-CLI-on-the-Hetzner-VM ask from
+        the owner's mandate: both already fully built and blocked purely
+        on the owner's own SSH private key + ArgoCD/Codex credentials,
+        which only their own machine holds (`portfolio/ledger/
+        decision_queue.py` item #1, `hetzner-ssh-key-is-a-public-key`).
+        `gitops/agents/host/README.md`'s `mandate.md` already mirrors this
+        session's own operating mandate for a Codex worker running on the
+        box outside k3s. Nothing in this session can unblock it; not
+        re-built, since it already exists. `ci_starvation.py --run
+        34034818275` confirmed Actions runners are still starved (`runner_
+        id: 0`), consistent with `infra_state.yaml`'s last reading.
+        `pages_state.py` confirmed the GitHub Pages `gh-pages` snapshot is
+        current (built from `main`'s own tip), so no republish was needed.
+      - >-
+        Shipped one marketing asset instead, per the mandate's "building
+        and deploying marketing materials" priority:
+        `ventures/dog-walking-route-pricing/vs-rover.html` (+
+        `vs-rover.test.mjs`, linked from `index.html`, listed in
+        `sitemap.xml`), a comparison page distinguishing this per-visit/
+        route-pricing calculator from Rover's client-matching marketplace
+        for the venture graduated earlier this week with no comparison
+        page yet. `WebFetch` cannot reach rover.com (egress proxy blocks
+        the domain), so -- the same discipline
+        `ventures/siding-bid-calculator/vs-jobnimbus.test.mjs` already
+        uses for JobNimbus -- the page states only well-corroborated,
+        non-numeric identity facts (`WebSearch`, cross-checked against
+        Wikipedia and Rover's own press releases: founded 2011 in Seattle,
+        marketplace for pet sitting/boarding/walking, took private by
+        Blackstone in 2024) and zero dollar figures or fee percentages for
+        Rover; a test (`no unverifiable price or fee percentage is claimed
+        for Rover`) enforces that mechanically against the page's `<body>`.
+      - >-
+        Ran: `node platform/marketing/regen.mjs` (mirror regenerated, 179
+        tools, this venture's new page picked up), `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1137/1137,
+        `platform/proposal` 101/101, `platform/privacy` +
+        `platform/webcheck` 66/66, `ventures/dog-walking-route-pricing/
+        *.test.mjs` 46/46 (new vs-rover tests included),
+        `python3 -m pytest gitops/tests -q` 480/480 (25 skipped) since
+        `regen.mjs` touched `gitops/`, all 15 `platform/ci` unittest
+        modules OK, `platform/pages/ink.test.mjs` (WCAG AA link contrast)
+        18/18, and a full `build.mjs` + `check.mjs` pass: 179 products, 733
+        pages (up from 732), no dead links. `checklist_coverage.py`
+        confirmed CLAUDE.md's checklist names every `*.test.mjs` directory
+        outside `ventures/`.
+      - >-
+        Opened as a PR and merged on this session's own local verification
+        per CLAUDE.md's "Ship without review ceremony" (Actions runners
+        confirmed starved above, so absent CI is not failed CI). Then
+        republished the GitHub Pages `gh-pages` branch snapshot so the new
+        page is actually reachable, not merged-and-invisible, and
+        re-confirmed `pages_state.py` reports `current` afterwards. No
+        separate Hetzner surface for this venture -- nothing to deploy
+        there. No payment collection, no new third-party script/CDN/
+        network call, no personal data collected.
+    mrr_end: null
   - venture: equipment-lease-buyout-calculator
     agent_spend_usd: null
     human_hours: 0
