@@ -32,6 +32,13 @@ export function SiteFooter() {
             <Link href="/docs" className="hover:text-zinc-900">
               Docs
             </Link>
+            <a
+              href="https://github.com/sponsors/Duncan-Haywood"
+              rel="noopener"
+              className="hover:text-zinc-900"
+            >
+              Support
+            </a>
           </div>
         </div>
       </div>

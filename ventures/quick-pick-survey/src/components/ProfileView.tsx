@@ -151,6 +151,13 @@ export function ProfileView() {
         <Link href="/terms" className="underline underline-offset-2">
           Terms of use
         </Link>
+        <a
+          href="https://github.com/sponsors/Duncan-Haywood"
+          rel="noopener"
+          className="underline underline-offset-2"
+        >
+          Support this app
+        </a>
       </section>
     </main>
   );

@@ -266,13 +266,21 @@ account and a tax identity.
 
 1. **A per-product `github.com/sponsors/<owner>` link in the footer or about
    section.** This is agent-decidable, needs no owner action, and is already
-   live: verified 2026-09-06, **181 of 185 ventures** (excluding two
-   `NOT-A-VENTURE` scaffolding directories) already carry a working link. Add
-   it the same way when you ship a new product, and if you're touching one of
-   the four still missing it — `local-site-studio`, `photo-editing`,
-   `quick-pick-survey`, `retail-pilot-intel` — adding it to that app's own
-   layout/footer component is real, available revenue work today, not
-   something waiting on an owner decision.
+   live: verified 2026-09-06, **184 of 185 ventures** (excluding two
+   `NOT-A-VENTURE` scaffolding directories) now carry a working link, after
+   `local-site-studio`, `quick-pick-survey`, and `retail-pilot-intel` were
+   closed the same day — each is an app with no build-time footer injection,
+   so the link went into that app's own layout/footer component
+   (`site-footer.tsx`, `ProfileView.tsx`, `LoginGate.tsx` respectively). Add
+   it the same way when you ship a new product.
+
+   `photo-editing` is the one remaining exception, and it is not the same
+   gap: it is a `stage: prototype` CLI pipeline with no LICENSE, no web
+   surface, and per its own `kill_criteria` no external user has tried it
+   yet. There is no footer to put a link in and no visitor to show it to —
+   forcing one in now would be exactly the parity-for-its-own-sake habit
+   `portfolio/DIRECTION.md` warns against. Add the link when this venture
+   ships a user-facing surface, not before.
 2. **The native repo-level GitHub "Sponsor this project" button**, via
    `.github/FUNDING.yml`, which is a separate, owner-only account-ownership
    decision (queued as `funding-sponsors-live`, PR #839 — read the queue with

@@ -118,6 +118,12 @@ export function LoginGate({ onAuthenticated }: { onAuthenticated: () => void }) 
           <li>Edge-first · aggregates only</li>
           <li>Illustrative metrics · not live POS</li>
           <li>Session expires after 8 hours</li>
+          <li>
+            Free to use ·{" "}
+            <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">
+              support optional
+            </a>
+          </li>
         </ul>
       </div>
     </div>
