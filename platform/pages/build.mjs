@@ -367,7 +367,11 @@ const CATEGORY_RULES = [
     // a marketplace fee, or a back-office reconciliation. Grouped by an explicit
     // slug list rather than a keyword, because what unites them is the buyer,
     // and no substring names that.
-    test: (slug) => /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project)/.test(slug),
+    // `fire-extinguisher-inspection-route-margin` is the same shape as
+    // `pool-route` above: a one-technician certified-maintenance route,
+    // priced per visit and rolled up per route. It landed in the catch-all
+    // only because its slug does not start with `pool-`.
+    test: (slug) => /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection)/.test(slug),
   },
   {
     id: 'logistics',
