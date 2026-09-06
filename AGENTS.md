@@ -45,6 +45,16 @@ one that has had a fair run at zero. See `portfolio/DIRECTION.md`
 "What changes now that distribution is solved" for the full priority order,
 including when a new venture is and isn't the better use of the session.
 
+**Before copying a feature onto a venture just because a sibling venture has
+it** (a share link, a save slot, an export format), check that venture's row
+in `portfolio/usage/usage.yaml`. As of 2026-09-06, 55 of 185 ventures had a
+`share.mjs` added this way with zero usage signal on any of them to justify
+it, while the pipeline still has ungraduated `build-now` candidates and new,
+non-duplicative niches are always welcome. See `portfolio/DIRECTION.md`
+"The fleet-parity trap, and where new ventures actually stand" — a new
+venture or a real discoverability fix now outranks a parity feature on a
+product nobody has visited yet.
+
 Use traditional software patterns. Add AI where it clearly helps; do not
 AI-wrap by default.
 

@@ -208,6 +208,65 @@ changes what "the next task" means. In order:
    revenue off $0 without touching payment rails, and it currently sits
    unrealized behind one owner decision.
 
+## The fleet-parity trap, and where new ventures actually stand (added 2026-09-06)
+
+Measured this session: **55 of 185 ventures** now carry a `share.mjs`
+shareable-link module, added one venture at a time across dozens of sessions
+in the days since distribution was solved — a mechanical feature-parity
+pattern, not a response to anything a user asked for. `portfolio/ledger/2026-09.yaml`
+already records **274 per-venture entries** in the first six days of the
+month. In that same window `portfolio/usage/usage.yaml` has not recorded a
+single nonzero visitor count anywhere, and `session_gate.py` still reports
+**revenue recorded this month: none (0 of 756 entries)**.
+
+That is not a coincidence of timing — it is what "ship something every
+session" turns into once the two intended default candidates fill up first.
+The priority order above says step 2 is "read `usage.yaml`, work on what has
+a signal" and a product stuck at zero is supposed to fall out of rotation —
+but in practice it doesn't, because there is almost always a sibling venture
+missing a convenience feature its neighbor already has, and copying it over
+is real code, passes CI, and reads as shipped. It genuinely is real code.
+It is also not what a stranger who has never visited the product is waiting
+on, and every one of the 55 additions had zero usage signal to test it
+against — the fleet cannot know these features matter, because it does not
+yet know these products have visitors.
+
+**So, effective now: parity-for-its-own-sake is not the default job.** Before
+adding a feature to a venture *because a sibling venture already has it* (a
+share link, a save slot, an export format — anything copied fleet-wide
+rather than requested by that specific product's own users or friction),
+check that venture's row in `usage.yaml` first. Zero usage after a fair run
+(`PRODUCT_PLAYBOOK.md` §8) means spend the session on one of these instead:
+
+1. **A new venture.** Graduate a `build-now` pipeline candidate, or a strong
+   fresh niche not in `screened-out.md`. This is not the fourth-place, do-it-
+   last item the numbered list above might read as — it is where a
+   disproportionate share of session time should go, because a 56th share
+   link on an unvisited calculator teaches the portfolio nothing new, while a
+   new venture is a new shot at finding the business that actually works.
+   Score it honestly against the pipeline's liability/ethics gates and ship
+   it with the same disclaimers and usage tracking as every other product —
+   "new" buys no exception from "Legal guardrails" below — but do not let
+   "we already have 185" be a reason to defer one. New ventures compete for
+   session time on equal footing with deploy-and-measure work, not behind it.
+2. **A real discoverability defect, not a discoverability feature.** Confirm
+   a venture's sitemap entry actually resolves, its JSON-LD matches its
+   visible copy, and it is reachable from the apex catalogue's own index —
+   the kind of break `platform/ci/public_surface.py` and the browser checks
+   in `AGENTS.md` catch, which a share-link addition does nothing about and
+   which is a more plausible reason a product sits at zero than "it lacked a
+   share button."
+3. **Donation-readiness housekeeping** (next section) — so the day
+   `funding-sponsors-live` is decided, every product's footer is already
+   correct and nothing needs revisiting.
+
+This does not forbid fleet-parity work outright — a share link genuinely
+requested by, or built for, a product that already has visitors is exactly
+the friction-driven improvement §8 asks for. What changes is the default: a
+convenience feature copied onto a zero-usage product because a sibling has
+one is no longer, by itself, a sufficient reason to call a session's job
+done.
+
 ## Revenue: donations, and keeping customers happy
 
 The portfolio's revenue model is, and stays, **donations only** — GitHub
