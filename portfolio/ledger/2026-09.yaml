@@ -16049,6 +16049,86 @@ entries:
         backstop instead of relying on a session remembering a sentence in
         two files.
     mrr_end: null
+  - venture: atm-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened a fresh niche per `portfolio/DIRECTION.md`'s 2026-09-06
+        "new ventures get first call" direction (the pipeline's build-now
+        queue is genuinely empty). Independent ATM route operators judge a
+        placement by transaction count alone, which hides whether it is
+        actually profitable once the location's surcharge commission split
+        and/or flat placement fee, per-transaction processor fees, the
+        vault cash cost of capital, and refill labor/travel come out.
+        Scored against the pipeline's gates: `liability_containment` 8,
+        `ethical_robustness` 9 (both clear the floor of 5 with room);
+        composite 6.875, floor 1 (`ai_leverage`, the deliberate floor of a
+        deterministic calculator, matching `pool-route-pricing`,
+        `dog-walking-route-pricing`, and `vending-machine-route-margin`).
+        Not a duplicate of any existing `ventures/` directory or
+        `screened-out.md` entry -- checked both, including
+        `card-processing-fee-audit` (audits a merchant's own card-processing
+        statement, not an ATM operator's surcharge/network economics).
+      - >-
+        Graduated and built the full vertical slice in
+        `ventures/atm-route-margin`: a tested `calc.mjs` pricing/rollup
+        engine (`calculate` for one location's monthly profit -- surcharge
+        revenue split as a percentage and/or flat fee, a per-transaction
+        processor fee, vault cash modeled as a cost of capital on the
+        average cash balance, refill labor/mileage, an optional armored-
+        transport cost per visit, and machine amortization -- plus
+        `computeRouteProfit` and `incomeGap` for the route-level rollup), a
+        single-page calculator UI matching the established route-pricing
+        pattern (validation, error states, `aria-live` results), the
+        standard no-warranty disclaimer, a privacy section, browser-local
+        opt-out usage counting (`location-priced`, `route-check`, and the
+        fleet-standard `sponsor_link_clicked` on the Sponsors link from v0),
+        LICENSE, README, robots.txt/sitemap.xml, and JSON-LD
+        (SoftwareApplication + FAQPage). Graduated the candidate in
+        `portfolio/pipeline/candidates.yaml` (verdict `graduated`,
+        `initiated_path` set) and `portfolio/pipeline/README.md`'s ranked
+        table (renumbered rows 13-25 to keep the composite ranking correct)
+        in the same change; `validate_candidates.py` and
+        `validate_doc_consistency.py` both pass (25/25 consistent). Also
+        added the merit-score row `score_ventures.py --check` requires
+        (composite 6.333; `portfolio/router/test_allocate.py` caught the
+        missing row before it shipped).
+      - >-
+        Ran `platform/marketing/regen.mjs` so the front-door mirror and
+        sitemap actually publish the new page (181 tools mirrored, up from
+        180) and `platform/pages/launched.mjs --write` so it enters the
+        Atom feed. `faq-visible.test.mjs` caught a curly-vs-straight-quote
+        mismatch between the FAQPage JSON-LD and the visible page before it
+        shipped; fixed to match. `gitops/tests/test_manifests.py` caught the
+        mirrored-tool count hardcoded in `infra/OWNER_CHECKLIST.md` (twice),
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        (twice), and its own test constant -- all six updated 180 -> 181 in
+        the same change. `test_ci_runner.py::test_readme_runs_on_count_matches_reality`
+        was also red on `main` before this change (an unrelated workflow-job
+        drift, 263/265/230 -> 264/266/231); fixed forward in
+        `gitops/ci/README.md` in the same commit since it was blocking a
+        clean `gitops/tests` run.
+      - >-
+        Verified: `ventures/atm-route-margin` test suite (32/32),
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1139/1139), `platform/proposal` (101/101), `platform/privacy` +
+        `platform/webcheck` (66/66), `python3 -m pytest gitops/tests -q`
+        (480 passed / 25 skipped), all 18 `platform/ci` unittest modules,
+        `platform/ci/agent_review` `test_review` (21/21),
+        `python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q`,
+        `checklist_coverage.py`, `check_no_payment_code.py`,
+        `check_step_grid.py`, `check_input_bounds.py`,
+        `check_form_defaults.py`, `check_money_sign.py`,
+        `node platform/pages/clauses.mjs atm-route-margin`,
+        `python3 portfolio/router/validate.py` (189 VENTURE.yaml files
+        valid).
+      - >-
+        No revenue moved yet; this is a new, unmeasured product. Repeat
+        usage, organic search demand, and distribution all remain to be
+        seen, same as every other calculator at graduation.
+    mrr_end: null
   - venture: vending-machine-route-margin
     agent_spend_usd: null
     human_hours: 0

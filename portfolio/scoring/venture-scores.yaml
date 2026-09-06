@@ -6325,3 +6325,45 @@ ventures:
       Pass: the output is arithmetic on the operator's own figures, never a
       recommended commission rate, a location-agreement interpretation, or a
       claim about what a route will earn. Nothing entered leaves the browser.
+
+  - slug: atm-route-margin
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — surcharge revenue
+      split (percentage and/or flat placement fee), a per-transaction
+      processor fee, and vault cash modeled as a cost of capital, netted
+      against surcharge revenue per location — and it is arithmetic an
+      operator has to be able to re-derive when deciding to keep or drop a
+      placement.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check` (added to CLAUDE.md's merge checklist after
+      `vending-machine-route-margin` shipped without a score row). Same shape
+      as this portfolio's other route-pricing calculators
+      (`pool-route-pricing`, `dog-walking-route-pricing`,
+      `vending-machine-route-margin`), scored the same way. Defensibility 5:
+      the surcharge-split/processor-fee/vault-cash arithmetic is specific to
+      this buyer and not modeled by a generic profit calculator, and it is the
+      case where a route operator most often keeps an unprofitable placement.
+      Distribution 6: "atm route profit calculator" is a narrow, low-volume
+      search term with no incumbent free tool built around this exact
+      arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended surcharge amount, a placement-agreement interpretation, or a
+      claim about what a route will earn. The tool never touches a live
+      transaction, card data, or cash-handling compliance. Nothing entered
+      leaves the browser.
