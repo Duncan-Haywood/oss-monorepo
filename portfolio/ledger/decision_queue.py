@@ -117,6 +117,46 @@ REQUIRED = {
 # implying the first is the one to do.
 OUTAGE = "outage"
 
+# Readings that, when they read `up`, mean a public origin is serving the
+# catalogue right now. Keyed by the `infra_state.yaml` reading; the value is
+# how to name that origin to the owner.
+#
+# Added 2026-09-06, because the banner below asserted the opposite of a
+# measurement this file already had. `render()` printed "OUTAGE: the public
+# surface is down. ... every other row here is downstream of a host answering
+# at all" whenever *any* row carried `outage: true` -- and on 2026-09-06
+# `github-pages-branch-route` read `up`, measured that same day: GitHub's own
+# managed builder ran on `gh-pages` and succeeded, which it does only for the
+# configured Pages source. 186 tools were being served while the queue told
+# the owner the catalogue was dark and that "reading no further is the correct
+# behaviour".
+#
+# That is expensive in the one currency this file spends. The banner's whole
+# job is to stop the owner reading further when reading further is waste; used
+# against a served catalogue it suppresses every other row, including the three
+# that move the revenue ceiling off $0. And it is the *exact* failure this
+# repository keeps paying for -- see CLAUDE.md, "MEASURED 2026-09-04" -- a
+# claim about what a visitor receives, derived once and then never re-asked,
+# going quietly wrong when the world moved underneath it. The correction there
+# was "a reading, never a claim"; this is that rule applied to the banner
+# itself, which had been exempt from it.
+#
+# Deliberately narrow. `github-pages-origin` -- an unauthenticated 200 from a
+# logged-out fetch -- is a *different* reading and is still `unknown`, because
+# no session can make that request (the egress proxy refuses `github.io`) and
+# a Pages site can in principle be access-controlled. So a `up` here downgrades
+# the banner from "the catalogue is dark" to "one origin is down and the other
+# is deployed"; it never promotes it to "a stranger has read it". Overclaiming
+# in that direction is the mirror of the bug being fixed and would be worse,
+# because it would stop the owner taking the thirty-second check that settles
+# it for good.
+PUBLIC_ORIGINS = {
+    "github-pages-branch-route": (
+        "GitHub Pages (the gh-pages branch, "
+        "duncan-haywood.github.io/monorepo-projects/)"
+    ),
+}
+
 # Optional. `requires: [<reading>, ...]` names shared infrastructure a restore
 # route needs to be *working* before granting it changes anything.
 #
@@ -203,6 +243,21 @@ def reading(name: str, infra: dict, today: dt.date) -> tuple[str, str]:
     run = entry.get("run")
     stamp = f"measured {age}d ago" + (f", run {run}" if run else "")
     return verdict, f"{name}: {verdict} ({stamp})"
+
+
+def serving_origins(infra: dict, today: dt.date) -> list[tuple[str, str]]:
+    """(reading name, owner-facing label) for every public origin measured up.
+
+    Uses `reading()`, so a stale measurement ages out to `unknown` and drops
+    out of this list. That direction matters more here than anywhere else in
+    the file: an un-re-measured origin must fall back to the outage banner,
+    never keep suppressing it on the strength of a reading nobody retook.
+    """
+    return [
+        (name, label)
+        for name, label in PUBLIC_ORIGINS.items()
+        if reading(name, infra, today)[0] == UP
+    ]
 
 
 def viability(d: dict, infra: dict, today: dt.date) -> tuple[str, list[str]]:
@@ -481,12 +536,46 @@ def render(decisions: list[dict], today: dt.date, infra: dict | None = None) -> 
 
     if outage:
         ids = [d["id"] for d in outage]
+        serving = serving_origins(infra, today)
         out.append("")
-        if len(ids) == 1:
+        if serving:
+            # At least one origin is measured serving, so the catalogue is not
+            # dark and the rows below are NOT all downstream of the outage.
+            # Say which origin is down, and do not tell the owner to stop
+            # reading -- see PUBLIC_ORIGINS for what this cost when it did.
+            body = (
+                "PARTIAL OUTAGE: "
+                + ("one origin is" if len(ids) == 1 else f"{len(ids)} origins are")
+                + " down, but the catalogue is being served by "
+                + "; ".join(label for _, label in serving)
+                + ". So the rows below are NOT all waiting on this — read on. "
+                + ", ".join(ids)
+                + (" restores" if len(ids) == 1 else " restore")
+                + " the origin that is down."
+            )
+            out += wrap(body, 72, "  ")
+            # The distinction the fix must not blur: deployed is not fetched.
+            unconfirmed = [
+                n for n in ("github-pages-origin",)
+                if reading(n, infra, today)[0] != UP
+            ]
+            if unconfirmed:
+                out.append("")
+                out += wrap(
+                    "Not yet confirmed by a logged-out fetch ("
+                    + ", ".join(unconfirmed)
+                    + "): no session can make that request, so what is measured"
+                    " is that GitHub deployed the site, not that a stranger has"
+                    " read it. One logged-out page load settles it — the URL is"
+                    " in `python3 platform/ci/pages_state.py` under `next`.",
+                    72, "  ",
+                )
+        elif len(ids) == 1:
             body = (
                 f"OUTAGE: the public surface is down. {ids[0]} comes first; "
                 "every other row here is downstream of a host answering at all."
             )
+            out += wrap(body, 72, "  ")
         else:
             body = (
                 "OUTAGE: the public surface is down. "
@@ -497,7 +586,7 @@ def render(decisions: list[dict], today: dt.date, infra: dict | None = None) -> 
                 "different origin. Every other row here is downstream of "
                 "something answering at all."
             )
-        out += wrap(body, 72, "  ")
+            out += wrap(body, 72, "  ")
 
         # The old banner ended "Do the cheapest first." That is right only
         # while every route can actually be taken, so it is now said only in
