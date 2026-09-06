@@ -34,7 +34,7 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 136 files, 556763 bytes
-#   portfolio-front-tools-1: 112 files, 553366 bytes
+#   portfolio-front-tools-1: 112 files, 553515 bytes
 #   portfolio-front-tools-2: 147 files, 550728 bytes
 #   portfolio-front-tools-3: 125 files, 556703 bytes
 #   portfolio-front-tools-4: 119 files, 555226 bytes
@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 116 files, 555743 bytes
 #   portfolio-front-tools-8: 115 files, 553330 bytes
 #   portfolio-front-tools-9: 100 files, 550496 bytes
-#   portfolio-front-tools-10: 108 files, 548359 bytes
+#   portfolio-front-tools-10: 108 files, 548406 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has

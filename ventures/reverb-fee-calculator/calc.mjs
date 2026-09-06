@@ -50,8 +50,8 @@ export const REVERB_DEFAULTS = {
   itemCost: 450,
   otherCost: 10,
   marketplaceRate: 5,
-  paymentRate: 2.9,
-  paymentFixed: 0.3,
+  paymentRate: 3.19,
+  paymentFixed: 0.49,
   givesRate: 0,
   bumpFee: 0,
   meetupCost: 0,
@@ -79,8 +79,8 @@ function saleInputs(input, salePrice) {
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
   const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
-  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
-  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 3.19);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.49);
   const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
   const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
   if (marketplaceRate + paymentRate + givesRate >= 100) {
@@ -181,8 +181,8 @@ export function offerThatMatchesEbayList(input) {
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
   const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
-  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
-  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 3.19);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.49);
   const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
   const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
   const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
@@ -255,8 +255,8 @@ function includedListThatMatchesBuyerPays(input, targetProfit) {
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
   const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
-  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
-  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 3.19);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.49);
   const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
   const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
   const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
@@ -486,7 +486,7 @@ export function compareReturnResolution(input, salePrice = input?.price) {
   const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
-  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.49);
   const returnShippingCost = number(input.returnShippingCost, 'Return shipping you pay', 0);
   const relistPrice = number(input.relistPrice, 'Relist price', 0);
   const partialRefund = number(input.partialRefund, 'Partial refund', 0);
@@ -616,7 +616,7 @@ export const ILLUSTRATED_BUMP_DEFAULT = 3;
 
 function keepRateOnItem(input) {
   const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
-  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 3.19);
   const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
   const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
   if (keepRate <= 0) throw new Error('Combined percentage fees must stay below 100%');

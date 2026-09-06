@@ -92,13 +92,14 @@ export const CHANNEL_PRESETS = [
     label: "Reverb (musical gear)",
     note: "Off by default because it only applies to instruments and audio gear — turn it on if that is what you sell. Reverb bills the selling fee and payment processing separately, which is why the processor rate is not zero here the way it is for eBay. Sell-through and days to sell are illustrative starting points, not a claim about Reverb velocity.",
     // Matches ventures/reverb-fee-calculator's own defaults (5% selling fee,
-    // 2.9% + $0.30 Reverb Payments). Two tools in one portfolio printing
-    // different fee assumptions for the same marketplace is a credibility
-    // problem, so `channel-parity.test.mjs` asserts these stay equal by
-    // importing that calculator's defaults rather than restating them.
+    // 3.19% + $0.49 Reverb Payments standard-seller rate, as of September
+    // 2026). Two tools in one portfolio printing different fee assumptions
+    // for the same marketplace is a credibility problem, so
+    // `channel-parity.test.mjs` asserts these stay equal by importing that
+    // calculator's defaults rather than restating them.
     commissionRate: 5,
-    paymentRate: 2.9,
-    paymentFixed: 0.3,
+    paymentRate: 3.19,
+    paymentFixed: 0.49,
     perListingFee: 0,
     monthlyFee: 0,
     // Bumps are optional and priced per listing rather than as a rate, so they
