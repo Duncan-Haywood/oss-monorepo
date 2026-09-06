@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 112 files, 553370 bytes
 #   portfolio-front-tools-2: 147 files, 550709 bytes
 #   portfolio-front-tools-3: 121 files, 556836 bytes
-#   portfolio-front-tools-4: 118 files, 543224 bytes
+#   portfolio-front-tools-4: 119 files, 546885 bytes
 #   portfolio-front-tools-5: 129 files, 553467 bytes
 #   portfolio-front-tools-6: 104 files, 556249 bytes
 #   portfolio-front-tools-7: 112 files, 547581 bytes
@@ -677,6 +677,7 @@ configMapGenerator:
       - cut-list-optimizer__csv.mjs.gz=cut-list-optimizer__csv.mjs.gz
       - cut-list-optimizer__draft.mjs.gz=cut-list-optimizer__draft.mjs.gz
       - cut-list-optimizer__index.html.gz=cut-list-optimizer__index.html.gz
+      - cut-list-optimizer__share.mjs.gz=cut-list-optimizer__share.mjs.gz
       - cut-list-optimizer__sheet.mjs.gz=cut-list-optimizer__sheet.mjs.gz
       - cut-list-optimizer__usage.mjs.gz=cut-list-optimizer__usage.mjs.gz
       - cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz=cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz
