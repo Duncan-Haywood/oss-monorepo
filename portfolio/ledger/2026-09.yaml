@@ -14488,3 +14488,69 @@ entries:
         runners starved, k3s :6443 refused, and the Codex-on-Hetzner host
         route built and waiting on the owner's own SSH private key.
     mrr_end: null
+  - venture: 3pl-quote-normalizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second competitor comparison page, vs-shipbob.html, plus
+        its test file, an index.html link, and a sitemap.xml entry. Picked
+        after this scheduled run's mandatory PR/branch-drain phase found the
+        queue empty of repairable work: 0 open PRs, and a sample re-check of
+        the freshest non-ledger branches (agent/deploy-cicd-ledger-2868,
+        ci/hetzner-ssh-key-diagnostic, agent/marketing-distribution-gutter-
+        guard-vs-jobnimbus, agent/runner-token-error-message,
+        fix/governor-rbac-narrow-jobs-pods-verbs,
+        hotfix/boiler-replacement-conflict-markers) all confirmed already
+        landed on main or stale drafts main has overtaken -- consistent with
+        the full 232-branch sweep an earlier session recorded the same day in
+        portfolio/ledger/infra_state.yaml. The venture already has one
+        comparison page (vs-extensiv.html, a different-category WMS) and
+        every other venture with an index.html already has at least one
+        vs-*.html page, so a second page for this venture -- naming one
+        specific 3PL network (ShipBob) rather than the WMS-category framing
+        of the first -- was the highest-value marketing increment available
+        without duplicating the saturated one-page-per-venture pattern.
+      - >-
+        Followed this repo's established no-fabrication discipline for
+        vendor comparisons: no dollar figure is stated for ShipBob (it, like
+        most 3PLs, quotes per account rather than publishing a rate card),
+        only its publicly documented category and identity are described,
+        and the page states plainly that it makes no live comparison against
+        ShipBob. Mirrors the FAQPage JSON-LD / visible-copy-must-match
+        pattern, the no-warranty and privacy-by-design footer, and the
+        "not affiliated" disclaimer already used on this venture's
+        vs-extensiv.html and on amazon-fba-calculator's
+        vs-amazon-revenue-calculator.html.
+      - >-
+        Also re-confirmed rather than re-deriving this run's standing infra
+        picture for the user's explicit deployment/CI-CD and
+        Codex-on-Hetzner-quota asks: dispatched a fresh classification
+        (run 34005411155, hetzner-gitops CI on the current main tip) --
+        ci_starvation.py exits 0, 4 of 6 jobs runner_id 0, so
+        github-actions-runners still reads down. gitops/agents/ (the
+        Codex-on-Hetzner governor/worker system, mandate.md included) is
+        fully built and code-healthy -- 140 gitops/tests cases covering it
+        all pass -- but stays owner-blocked on two independent gates neither
+        of which a session can push further: the k3s cluster is down
+        pending the owner's real SSH private key
+        (hetzner-ssh-key-is-a-public-key, already queued and already
+        includes a WITH_CODEX_HOST=1 option for this exact ask), and
+        gitops/agents/governor/policy.json ships enabled:false, an
+        unattended-automation-that-spends-paid-API-budget flip CLAUDE.md
+        reserves for the owner even once the cluster is back.
+        platform/ci/pages_state.py: the gh-pages snapshot is current
+        (built from main's own tip, 559e3597), so no republish was needed
+        there.
+      - >-
+        Verified: ventures/3pl-quote-normalizer 127/127 (7 new assertions in
+        vs-shipbob.test.mjs). platform/marketing+platform/pages 1126/1126
+        after node platform/marketing/regen.mjs (rewrote only this venture's
+        mirror shard, the front-door catalog/llms.txt/sitemap, and
+        compare.html). platform/proposal 101/101.
+        platform/privacy+platform/webcheck 50/50.
+        platform/ci/check_money_sign.py and check_conflict_markers.py: clean.
+        platform/pages/ink.mjs --strict: no link-contrast violation across
+        653 pages. build.mjs --out=dist + check.mjs dist: 720 pages (up from
+        719), no dead links.
+    mrr_end: null
