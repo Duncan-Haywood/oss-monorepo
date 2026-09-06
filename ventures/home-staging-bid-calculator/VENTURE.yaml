@@ -1,0 +1,32 @@
+name: home-staging-bid-calculator
+description: Free browser calculator for independent home stagers to price a vacant-listing furniture package from the included term, furniture carrying cost, crew labor, mileage, and equipment cost, flag an extension fee priced below the furniture's own carrying cost before a slow listing quietly loses money, and check the real profit once the actual time on market (unpredictable until the home sells) comes in against the quote.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent home stagers will use a calculator that separates the included-term price from the furniture package's real monthly carrying cost, since delivery and pickup labor, the truck, and the package's storage/insurance cost nearly the same to provide whether a listing sells in three weeks or three months, and a term price that comfortably covers a fast sale can under-recover the cost of a slow one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Stagers will use the extension-fee-vs-carrying-cost check specifically, because it tells them before they discount an extension (to keep a nervous seller happy) whether their existing rate actually clears the ongoing cost of keeping that furniture package off the market for another job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Stagers will use the actual-time-on-market reconciliation after a sale more than they will re-run the estimate before quoting, since days on market is unknown until the home closes and the phone-quote estimate is only ever a planning number.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Stagers report that separating the extension fee from the furniture's carrying cost is more work than their existing flat monthly rate without changing the number they would have quoted.
+links:
+  production: null
+  analytics: null

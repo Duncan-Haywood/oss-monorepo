@@ -982,8 +982,10 @@ const SUBCATEGORY_RULES = {
       // `cut-list` joins this group rather than any other: the parts it nests
       // are cabinet doors, countertop substrate and molding stock, so the
       // related-tool offer at the foot of its pages is work the same visitor
-      // sells.
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list)/.test(slug),
+      // sells. `home-staging` joins for the same reason as `cut-list`: it
+      // sells to the same real-estate-prep visitor as the remodel tools here,
+      // even though its own job is furniture, not construction.
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|home-staging)/.test(slug),
     },
     {
       id: 'trades-site',
