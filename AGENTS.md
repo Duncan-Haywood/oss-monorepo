@@ -5,9 +5,11 @@ Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first — start with its
 ventures rank first as the owner's standing preference, donations only, keep
 customers happy by shipping working/honest products, market the products
 within the fair-use rules — enforced automatically in CI, not a manual
-re-derivation — and legal exposure is the one hard stop) and its "Fast scan
-for what should this session do" checklist right after it. This file is how
-to execute that strategy in this repo.
+re-derivation — and legal exposure is the one hard stop), then its "Owner
+direction, relayed again" section right after for the five-minute version of
+the same brief with today's numbers attached, and its "Fast scan for what
+should this session do" checklist right after that. This file is how to
+execute that strategy in this repo.
 
 ## Your job
 
