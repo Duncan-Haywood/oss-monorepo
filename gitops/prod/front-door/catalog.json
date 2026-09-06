@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 177,
-  "collection_total": 177,
+  "served_here": 178,
+  "collection_total": 178,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -47,6 +47,12 @@
       "tool_count": 11
     },
     {
+      "id": "more",
+      "name": "More free tools",
+      "url": "https://marisstella.dev/c/more/",
+      "tool_count": 7
+    },
+    {
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
@@ -56,12 +62,6 @@
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
       "url": "https://marisstella.dev/c/logistics/",
-      "tool_count": 6
-    },
-    {
-      "id": "more",
-      "name": "More free tools",
-      "url": "https://marisstella.dev/c/more/",
       "tool_count": 6
     }
   ],
@@ -761,6 +761,14 @@
       "category": "Trade & contractor bids",
       "description": "Price an epoxy or polyaspartic garage floor from grind hours, flake load, waste, cracks, and travel — not a $4/sq ft special. See kit cost, walk-away price, and whether a proposed number loses money.",
       "pages": 4
+    },
+    {
+      "slug": "equipment-lease-buyout-calculator",
+      "name": "Equipment Lease Buyout Calculator — Buy Out vs. Return and Replace",
+      "url": "https://marisstella.dev/tools/equipment-lease-buyout-calculator/",
+      "category": "More free tools",
+      "description": "Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.",
+      "pages": 1
     },
     {
       "slug": "equipment-rental-break-even",

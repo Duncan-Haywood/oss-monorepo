@@ -15612,3 +15612,83 @@ entries:
         the page" defect DIRECTION.md names as a real discoverability
         defect.
     mrr_end: null
+  - venture: equipment-lease-buyout-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Phase 1 (PR/branch drain): 0 open PRs
+        existed. Checked the 4 branches with the smallest gap to `main` by
+        hand first (`fix/saas-seat-true-up-share-link-notice-deadline`,
+        `claude/secrets-deployment-access-spw34t`,
+        `ci/hetzner-ssh-key-diagnostic`, `tree-service-bid-share-link`) --
+        all four turned out to be fully superseded by later independent
+        work already on `main` (confirmed via direct tree diffs, not just
+        the three-dot diffstat against a stale merge-base, which reads
+        already-shipped files as "new"). Kicked off a `supersede_check.py`
+        sweep of all 91 branches with commits ahead of `main`; every result
+        that returned before this entry was written came back SUPERSEDED
+        (52/91 checked). No branch met the bar for a repaired PR, so
+        forcing merges to hit a numeric quota would have reverted real
+        work (one candidate would have reverted the restore-cluster job and
+        the current load-ssh-key.sh) -- treated the drain phase as
+        satisfied per "if none exist, start new work after the overlap
+        check" rather than merge known regressions.
+      - >-
+        Investigated the owner's explicit ask this run to prioritize
+        Hetzner CI/CD, marketing-materials deployment, and a Codex-CLI host
+        using its own plan quota. All three are real, code-complete, and
+        already correctly identified as blocked on one root cause: the
+        k3s cluster is down (`:6443` refused) because `HETZNERSSHKEY` holds
+        a public key, and decision_queue.py already carries this as the
+        #1 ranked ask (#3184) with an exact recovery command -- explicitly
+        not actionable from a web session (no SSH binary, `:22` refused
+        through the egress proxy). Did not duplicate that ask. Verified
+        instead: GitHub Pages route is live and current
+        (`pages_state.py --require-current` exit 0, served at
+        df1e5512/2026-09-06T11:19:51Z); codex-host infra tests pass clean
+        (45/45, `test_host_governor.py` + `test_install_codex_host.py`).
+        Nothing further to do there without the owner's SSH-key rotation.
+      - >-
+        Build-now pipeline was empty (`session_gate.py`), so graduated a new
+        niche per DIRECTION.md's "new ventures rank first" note. Overlap
+        checked against `portfolio/pipeline/screened-out.md` and
+        `ventures/`: `equipment-rental-break-even` is a different job
+        (break-even on renting equipment *out*), nothing analyses a
+        lease-end buyout decision. The product converts a lessor's buyout
+        price into cost-per-month-of-use against a return-and-replace
+        path (all-in replacement cost, removal, downtime), and reports a
+        break-even buyout price to negotiate against plus a signed
+        fair-market-value comparison -- both numbers a payoff letter never
+        states. Fair-market-value and useful-life are disclosed as the
+        reader's own estimates, not a lookup.
+      - >-
+        Verified locally, runners still starved (inherited 2026-09-05
+        classification per CLAUDE.md). `node --test` in the venture 31/31.
+        checklist_coverage.py exit 0. `platform/marketing` + `platform/pages`
+        node suites 1136/1136 (after a fix -- see below).
+        `platform/proposal` 101/101, `platform/privacy` + `platform/webcheck`
+        66/66. `pytest gitops/tests` 480/480 (25 skipped) -- failed first on
+        the same documented four-place mirrored-tool count (177 -> 178 in
+        OWNER_CHECKLIST.md x2, aggregate.py, default.conf, plus the typed
+        constant in test_manifests.py) and on test_ci_runner's runs-on
+        count, both fixed in this commit. All 15 platform/ci unittest
+        modules OK, after registering the new venture's CI workflow in
+        publish-surface.yaml. `regen.mjs` ran (2 generators) and its
+        output — 736 changed mirror files, all the "N free tools" count
+        bumping 177→178 — is committed. `router/validate.py` and
+        `clauses.mjs equipment-lease-buyout-calculator` both clean.
+      - >-
+        Hit the exact same defect the previous session's ledger entry
+        (card-processing-fee-audit) flagged as worth recording:
+        `faq-visible.test.mjs` caught two apostrophes in this venture's own
+        JSON-LD that were typed straight where the visible page renders
+        `&rsquo;`. Fixed by matching the JSON-LD to the literal curly
+        character. Recording again because it is now two consecutive new
+        ventures with the identical defect on first draft — worth a
+        template/lint fix for whichever session builds the next one.
+      - >-
+        Not deployed beyond the GitHub Pages branch route (verified current
+        above); the venture has no separate Hetzner surface to fail. No
+        Cloudflare/Vercel added.
+    mrr_end: null

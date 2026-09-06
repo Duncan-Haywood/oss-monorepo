@@ -1,0 +1,47 @@
+name: equipment-lease-buyout-calculator
+description: >-
+  A browser-local comparison of buying out an equipment lease against
+  returning the equipment and replacing it. Both paths are converted to cost
+  per month of use — using the equipment's remaining useful life and a
+  replacement's all-in cost, including removal and downtime — so a payoff
+  price can be judged against something other than itself.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: >-
+      A lessee facing a lease-end buyout cannot tell from the payoff price
+      alone whether buying out or replacing is cheaper, and will use a tool
+      that converts both paths to a comparable cost-per-month figure.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Naming a break-even buyout price gives the lessee a concrete number to
+      negotiate against, which a bare "compare these two options" output does
+      not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Equipment lease terms and replacement costs are commercially sensitive
+      enough that a browser-local tool with no upload path is preferred over
+      a leasing broker's own comparison worksheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No measurable return visits or organic referral traffic 60 days after the page is live.
+  - >-
+    No unsolicited feedback, star, fork, or referral within 90 days of
+    publishing, and no evidence anyone completed a comparison.
+links:
+  production: null
+  analytics: null
