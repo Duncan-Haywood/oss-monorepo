@@ -6538,3 +6538,48 @@ ventures:
       determination, or a design/trademark clearance opinion. The tool never
       touches a live transaction or anyone else's data. Nothing entered
       leaves the browser.
+  - slug: fire-extinguisher-inspection-route-margin
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — recharge,
+      hydrostatic-test, and replacement materials cost netted against their
+      own fees at each site's own incidence rate, plus an annual (not
+      monthly) visit cadence matching NFPA 10's certified-maintenance
+      requirement — and it is arithmetic a technician has to be able to
+      re-derive when deciding whether a site is worth keeping.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. Same shape as this portfolio's other
+      route/rate calculators (`atm-route-margin`, `vending-machine-route-
+      margin`, `custom-farm-rate-calculator`), scored the same way, applied
+      to a genuinely different buyer: an independent fire-extinguisher and
+      life-safety inspection route operator pricing a certified-maintenance
+      visit from three distinct service types (recharge, hydro-test,
+      replacement), each with its own incidence rate, fee, and materials
+      cost. Defensibility 5: the three-service-type materials split and the
+      annual-visit cadence are specific to this buyer and not modeled by a
+      generic profit calculator or by inspection-scheduling/compliance-
+      recordkeeping SaaS built for scheduling rather than the pre-visit
+      pricing decision. Distribution 6: "fire extinguisher inspection route
+      pricing" and "fire extinguisher service pricing calculator" are
+      narrow, low-volume search terms with no incumbent free tool built
+      around this exact arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the technician's own figures, never
+      a determination that an extinguisher or site passes inspection, and
+      never a claim about NFPA 10 or any other fire-code compliance status.
+      The tool never touches a live inspection or anyone else's data.
+      Nothing entered leaves the browser.

@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 185,
-  "collection_total": 185,
+  "served_here": 186,
+  "collection_total": 186,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -56,7 +56,7 @@
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
-      "tool_count": 6
+      "tool_count": 7
     },
     {
       "id": "logistics",
@@ -825,6 +825,14 @@
       "category": "Trade & contractor bids",
       "description": "Price an exterior house-painting job from extra stories, extra elevation square footage, scrape and prime, trim, shutters, and hard access — not a published $3,999 house special. See the walk-away number before you match a cheaper ranch quote.",
       "pages": 3
+    },
+    {
+      "slug": "fire-extinguisher-inspection-route-margin",
+      "name": "Fire Extinguisher Inspection Route Margin Calculator",
+      "url": "https://marisstella.dev/tools/fire-extinguisher-inspection-route-margin/",
+      "category": "Service business pricing & quotes",
+      "description": "Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.",
+      "pages": 1
     },
     {
       "slug": "fireplace-insert-bid-calculator",
