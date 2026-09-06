@@ -131,6 +131,9 @@ workflows:
 - workflow: chargeback-evidence-packet-ci.yml
   classification: none
   publishes: []
+- workflow: checklist-coverage.yml
+  classification: none
+  publishes: []
 - workflow: chimney-sweep-bid-calculator-ci.yml
   classification: none
   publishes: []
