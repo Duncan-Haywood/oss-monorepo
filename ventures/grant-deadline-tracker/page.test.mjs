@@ -29,6 +29,10 @@ test("the tracker page wires the late-report comparison without a build step", (
   assert.match(html, /id="fill-risk"/);
   assert.match(html, /late_report_compared/);
   assert.match(html, /late_report_note_copied/);
+  assert.match(html, /id="copyRiskLink"/);
+  assert.match(html, /risk_share_link_copied/);
+  assert.match(html, /risk_shared_link_opened/);
+  assert.match(html, /from "\.\/share\.mjs"/);
   assert.match(html, /should-i-hire-a-grant-writer-to-file-this-report\.html/);
   assert.match(html, /Best-effort hosting, no SLA/);
   assert.match(html, /GitHub Sponsors/);
