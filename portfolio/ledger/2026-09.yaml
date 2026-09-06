@@ -17710,3 +17710,52 @@ entries:
         here, same limitation as every other ledger entry using this
         deploy path.
     mrr_end: null
+  - venture: reverb-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real accuracy bug in a live financial tool: calc.mjs's
+        REVERB_DEFAULTS shipped Reverb's payment-processing default as
+        2.9% + $0.30, a rate that no longer matches Reverb's own published
+        schedule and that contradicted this same venture's own
+        vs-reverbs-selling-fees-page.html, which already stated the
+        current rate (3.19% + $0.49 for standard sellers, 2.99% + $0.49
+        for Preferred Sellers) citing Reverb's help center. Confirmed via
+        WebSearch against help.reverb.com, ecomcalctools.com, and
+        sellculate.com (all 2026-dated, all agreeing).
+      - >-
+        Updated the default in calc.mjs (REVERB_DEFAULTS and every
+        function's fallback default) and index.html's input value to the
+        current standard-seller rate, and added a note by the payment-rate
+        field naming both the standard and Preferred Seller rates so a
+        reader is not left guessing which applies to them.
+      - >-
+        Recomputed every worked-example dollar figure across all seven
+        should-i-*.html pages by running the updated calc.mjs, not by hand
+        arithmetic -- page.test.mjs and return-page.test.mjs already
+        assert page prose against live calculator output for exactly this
+        reason, so a grep for the old figures plus those two suites caught
+        every stale number, including three the first pass of edits
+        missed (a duplicate FAQ answer, an offer-vs-list table, and a bump
+        table).
+      - >-
+        Propagated the same fix to where-to-sell-calculator, which
+        channel-parity.test.mjs asserts must quote Reverb identically to
+        the dedicated calculator -- the copied-constant failure CLAUDE.md
+        already records paying for twice. Recomputed
+        reverb-vs-ebay-for-gear.html's worked example the same way; the
+        per-sale gap moved from "about $47" to "about $44" and the
+        eBay-match price from $863 to $860.
+      - >-
+        Left every unrelated $0.30/2.9% figure untouched on purpose: eBay's
+        own $0.30 fixed fee (both ventures) and the own-store preset's
+        2.9% + $0.30 card-processing rate in where-to-sell-calculator
+        (Shopify/Stripe, not Reverb) are correct as they stand.
+      - >-
+        Verified: 217 tests across both ventures (67 + 150), all green.
+        `regen.mjs` rewrote the gitops/prod/front-door-tools mirror for
+        both ventures; 490 gitops/tests pytest and 1140
+        platform/marketing + platform/pages tests re-verified green after
+        the rebase onto main. `checklist_coverage.py` clean.
+    mrr_end: null
