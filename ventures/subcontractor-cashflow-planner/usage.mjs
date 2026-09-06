@@ -1,5 +1,5 @@
 const KEY = 'subcontractor-cashflow-planner-usage';
-const EVENTS = new Set(['scenario_planned', 'csv_exported']);
+const EVENTS = new Set(['scenario_planned', 'csv_exported', 'share_link_copied', 'shared_scenario_opened']);
 
 function honorsPrivacy() {
   return globalThis.navigator?.doNotTrack === '1'

@@ -12,6 +12,7 @@ test('landing page exposes searchable product, full disclaimer, and local app', 
   assert.match(html, /planCashflow/);
   assert.match(html, /Export CSV/);
   assert.match(html, /Count anonymous local feature events/);
+  assert.match(html, /Copy share link/);
 });
 
 test('index links to the payment-terms SEO/AI-discovery page', () => {

@@ -14778,3 +14778,64 @@ entries:
         matches the printed price, no cost/wage/margin leak in print, print
         correctly hides the calculator).
     mrr_end: null
+  - venture: subcontractor-cashflow-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled deploy-focused run found all three deploy routes
+        (GitHub Pages source flip, Hetzner SSH key rotation, the
+        tools.marisstella.dev token seal) still blocked exclusively on
+        already-queued owner actions, and the unified portfolio site itself
+        clean: regen.mjs reported the served surface current, build.mjs +
+        check.mjs found 175 products / 720 pages / no dead links, and every
+        published page already carries the no-warranty clause and a launch
+        date. Fell through to the shareable-link backlog. Built a
+        collision-safe candidate list (unshallowed the clone; diffed
+        ventures touched by any commit in the last 24h against every
+        venture with a `<form>` and no existing share code, then hand-
+        grepped each remaining candidate for share.mjs/buildShareUrl/
+        readShareValues/"Copy share link" to rule out false positives like
+        no-show-fee-calculator and tiktok-shop-fee-calculator, which already
+        implement their own share link under a button id/label the fleet's
+        detection helpers recognise by different means). Confirmed
+        `pageHasOwnShareLink`'s text-based check (`/Copy share link/`)
+        already covers the one id spelling (`share-link`, 4 pages) that
+        `OWN_COPY_BUTTON`'s stricter regex misses, so that mismatch is not a
+        live duplicate-button bug and was left alone.
+        subcontractor-cashflow-planner was the first remaining venture with
+        a real gap: a single-form cash-flow scenario with "Save locally"
+        and "Export CSV" but no way to send the eleven-field scenario to a
+        client or bookkeeper without retyping it.
+      - >-
+        share.mjs follows this month's established convention: a
+        URLSearchParams payload in the URL fragment (never sent to a server
+        or logged in a Referer header), blank/unusable numeric fields
+        omitted rather than serialized as zero, and a fixed field allowlist
+        so a crafted fragment cannot inject an unexpected value (verified: a
+        `__proto__` pollution attempt is dropped). The inline module script
+        decodes an incoming hash on load ahead of the saved local draft,
+        fills the form, and recalculates so the recipient sees the same
+        scenario immediately; two new allowlisted usage events
+        (share_link_copied, shared_scenario_opened) were added to
+        usage.mjs's existing closed EVENTS set rather than loosening it. The
+        new "Copy share link" button uses id="shareLink", which both of
+        build.mjs's share-detection helpers (OWN_COPY_BUTTON's id regex and
+        pageHasOwnShareLink's text match) already recognise, so the build
+        does not also inject its own generic bid-link control on top of it.
+      - >-
+        Verified locally (ci_starvation.py --run 33953052273 still exits 1,
+        runner_id 0 -- Actions starved per this file's standing reading, so
+        no runner was re-dispatched to re-confirm): venture suite 41/41 (7
+        new assertions in share.test.mjs, including a round-trip through
+        planCashflow that reproduces the sender's exact gap/surplus/
+        bridgeCost/absorbableDelay, and a prototype-pollution fragment
+        test). platform/marketing+platform/pages 1126/1126 after
+        node platform/marketing/regen.mjs (rewrote only this venture's
+        mirror shard and kustomization.yaml). platform/proposal 101/101.
+        platform/privacy+platform/webcheck 50/50. gitops/tests: 429 passed,
+        25 skipped. All 17 platform/ci unittest modules pass individually,
+        including check_money_sign.py (clean). build.mjs --out=dist +
+        check.mjs dist: 175 products, 720 pages, no dead links, and exactly
+        one `id="shareLink"` in the built output (no duplicate control).
+    mrr_end: null
