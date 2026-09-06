@@ -15549,3 +15549,66 @@ entries:
         analytics/edge/pos/portal packages), and `pnpm run build` (both
         apps) all clean.
     mrr_end: null
+  - venture: card-processing-fee-audit
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture from scratch, chosen after the open-PR queue
+        came back empty (0 open PRs) and a `supersede_check.py` sweep of all
+        90 branches ahead of `main` returned 72 SUPERSEDED with the
+        remainder spot-checked as behind `main` rather than ahead of it --
+        so DIRECTION.md's post-distribution item 1, "a new venture", was the
+        highest-value work available. Overlap gate run before writing any
+        code: `invoice-payment-terms-calculator` already carries
+        `compareFactor` and a should-i-factor page, which ruled out the
+        freight-factoring idea that was the first candidate; nothing in the
+        fleet analyses a merchant statement, and
+        `payment-reconciliation-workbench` reconciles payouts to invoices,
+        which is a different job.
+      - >-
+        The mechanism is new to the portfolio, which is what DIRECTION.md's
+        "fleet-parity trap" section asks for rather than a 178th bid
+        calculator. Five numbers off one merchant statement are split into
+        estimated network pass-through (interchange + assessments, identical
+        under any processor) and processor markup (the only negotiable
+        half), and the same month is re-priced under a competing
+        interchange-plus quote on the *same* pass-through midpoint so the
+        comparison is like for like. The effective rate alone cannot answer
+        "am I paying too much" -- two merchants on character-for-character
+        identical pricing differ by nearly a full point on a $10 vs $200
+        average ticket -- and that is the gap the product exists to close.
+      - >-
+        The estimate is reported as a band everywhere, never as a single
+        figure, and `page.test.mjs` fails if a redesign drops the band from
+        the results panel. Interchange depends on the exact card mix, which
+        no bundled statement reveals; since the point of the tool is that
+        the number gets carried into a processor conversation, a precise
+        figure the merchant cannot defend is worse than an honest range.
+        Markup floors at zero and says so rather than going negative.
+        Positioning follows PRODUCT_PLAYBOOK.md §5b -- observations the
+        reader acts on, never "you are overpaying", asserted by a test.
+      - >-
+        Verified locally, runners still starved (`ci_starvation.py` verdict
+        inherited from infra_state.yaml's 2026-09-05 readings; one
+        classification per session per CLAUDE.md). `node --test` in the
+        venture 36/36. checklist_coverage.py exit 0. platform node suites
+        1303/1303. `pytest gitops/tests` 480 passed / 25 skipped -- this
+        failed first on the documented four-place mirrored-tool count
+        (176 -> 177 in OWNER_CHECKLIST.md x2, aggregate.py, default.conf,
+        plus the typed constant in test_manifests.py) and on
+        test_ci_runner's runs-on count, both fixed in this commit. All 18
+        platform/ci unittest modules OK, after registering the new venture
+        CI workflow in publish-surface.yaml. build.mjs + check.mjs on a real
+        artifact: 177 products, 726 pages, no dead links. regen.mjs ran and
+        its output is committed.
+      - >-
+        Two guards caught real defects during the build and are worth
+        recording: `faq-visible.test.mjs` rejected the first draft because
+        the explainer page's JSON-LD answers were summaries of the visible
+        prose rather than the same strings, and because two apostrophes in
+        index.html's JSON-LD were straight where the page renders
+        `&rsquo;`. Both are exactly the "structured data that disagrees with
+        the page" defect DIRECTION.md names as a real discoverability
+        defect.
+    mrr_end: null

@@ -1,0 +1,48 @@
+name: card-processing-fee-audit
+description: >-
+  A browser-local merchant statement audit. Five numbers off one month's card
+  processing statement are split into estimated network pass-through
+  (interchange plus assessments, identical under any processor) and processor
+  markup (the only negotiable half), reported as a band rather than a single
+  figure, and the same month is re-priced under a competing interchange-plus
+  quote.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: >-
+      Small merchants comparing processor quotes cannot tell a good offer from
+      a bad one on the blended effective rate alone, and will use a tool that
+      separates the negotiable markup from the pass-through they cannot change.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      An estimate reported as an honest band, with the reason it cannot be
+      exact stated on the page, is more useful in a processor conversation than
+      a single confident number the merchant cannot defend when challenged.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Monthly card volume is close enough to revenue that a browser-local tool
+      with no upload path is preferred over a rate-review service that asks for
+      the statement itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No measurable return visits or organic referral traffic 60 days after the page is live.
+  - >-
+    No unsolicited feedback, star, fork, or referral within 90 days of
+    publishing, and no evidence anyone completed an audit.
+links:
+  production: null
+  analytics: null

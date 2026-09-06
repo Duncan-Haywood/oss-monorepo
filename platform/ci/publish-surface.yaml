@@ -113,6 +113,9 @@ workflows:
 - workflow: cam-reconciliation-check-ci.yml
   classification: none
   publishes: []
+- workflow: card-processing-fee-audit-ci.yml
+  classification: none
+  publishes: []
 - workflow: carpet-cleaning-bid-calculator-ci.yml
   classification: none
   publishes: []

@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 176,
-  "collection_total": 176,
+  "served_here": 177,
+  "collection_total": 177,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
+      "tool_count": 6
     }
   ],
   "tools": [
@@ -577,6 +577,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a kitchen cabinet refinish from doors, drawer fronts, face frames, hardware, degrease, and a dark-to-light extra coat — then see price per door, price per painted piece, and the walk-away number.",
       "pages": 3
+    },
+    {
+      "slug": "card-processing-fee-audit",
+      "name": "Card Processing Fee Audit — Split Your Statement Into Interchange and Markup",
+      "url": "https://marisstella.dev/tools/card-processing-fee-audit/",
+      "category": "More free tools",
+      "description": "Read five numbers off your merchant statement and see how much of your card processing bill is network interchange you cannot negotiate and how much is processor markup you can. Free, private, runs in your browser.",
+      "pages": 2
     },
     {
       "slug": "carpet-cleaning-bid-calculator",
