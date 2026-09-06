@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -701,3 +702,36 @@ def test_all_three_host_mode_extras_can_be_installed_in_one_restore(box):
     assert "install-codex-host.sh" in log
     assert "install-github-runner-host.sh" in log
     assert "install-portfolio-site-host.sh" in log
+
+
+# ------------------------------------ the instruction that goes stale silently
+#
+# `restore-cluster.sh` is run by a person reading `portfolio/ledger/asks.yaml`,
+# not by anything that would notice a missing flag. So a step added here is
+# only actually reachable once that row names it -- and on 2026-09-06 step 11
+# shipped while the row still listed the two flags that restore what *builds*
+# and neither setting that restores what *serves*. The paste would have
+# finished clean and left marisstella.dev refusing.
+#
+# That is the same shape CLAUDE.md records paying for twice under "168 became
+# 169": a rule restated in a second place, going stale in one of them. It
+# cannot be fixed by importing here -- the row is prose for a human -- so this
+# asserts the two agree instead.
+
+
+def test_every_with_flag_is_named_in_the_owners_instruction():
+    script = SCRIPT.read_text()
+    ask = (
+        SCRIPT.resolve().parents[1] / "portfolio" / "ledger" / "asks.yaml"
+    ).read_text()
+
+    flags = sorted(set(re.findall(r'"\$\{(WITH_[A-Z_]+):-0\}"', script)))
+    assert flags, "no WITH_* flags found; has the script's idiom changed?"
+
+    missing = [f for f in flags if f not in ask]
+    assert not missing, (
+        f"{missing} gate a step of the recovery but are named nowhere in "
+        "portfolio/ledger/asks.yaml, which is where the owner reads the "
+        "command to run. A step nobody is told to pass is a step that does "
+        "not happen."
+    )
