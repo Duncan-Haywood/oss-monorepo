@@ -379,6 +379,55 @@ codes as exit 42 and a rejected credential as exit 43.
 
 ## Publish `tools.marisstella.dev` (the whole product portfolio)
 
+> **READ THIS FIRST — 2026-09-06. This section is about the origin that is
+> DOWN, and it is no longer the route to a public URL.**
+>
+> Two things changed under this section and neither one rewrote it, so every
+> paragraph below reads as if `marisstella.dev` were serving. It is not:
+>
+> - **The cluster is down.** `:6443` and `:443` refused on both boxes
+>   (`Outage triage` run 33889983086, 2026-09-04), corroborated 2026-09-06
+>   from your own browser — `https://marisstella.dev/` returns
+>   `ERR_CONNECTION_REFUSED`. So the "the domain is no longer dark" note
+>   directly below, and the mirror-count arithmetic after it, describe a
+>   front door nobody can currently open. Restoring it is the
+>   `hetzner-ssh-key-is-a-public-key` row in your decision queue, and it is
+>   the **only** unblocker here that depends on neither a runner nor the
+>   cluster (`:22` answers on both boxes).
+> - **A different origin went live.** GitHub Pages serves the `gh-pages`
+>   branch that `platform/pages/publish-branch.sh` writes. GitHub's own
+>   managed builder ran on that branch and succeeded (runs 34011996382,
+>   34012041708, 34056715531), and a managed Pages build fires only for the
+>   *configured source* — so the catalogue has a public URL today, without
+>   the cluster, without a runner, and without any step in this section:
+>   **https://duncan-haywood.github.io/monorepo-projects/**
+>
+> Ask `python3 platform/ci/pages_state.py` rather than trusting either this
+> box or the prose below it — it prints the live route, whether the snapshot
+> still matches `main`, and the URL to confirm.
+>
+> **The one flip that is worth your time here, and it is not Step 1.** The
+> `gh-pages` branch is a *committed artifact*: nothing rebuilds it when
+> `main` moves, so today the live site only stays current because a session
+> remembers to re-run the publish script after every merge. It has already
+> been found stale once (built from `1afe50c5` while `main` was at
+> `565cc635`). `.github/workflows/publish-pages-branch.yml` closes that hole
+> permanently — it runs exactly that script on every push to `main` that
+> touches a served surface — but it ships switched off, per CLAUDE.md's rule
+> that an unattended workflow must not push commits without your approval.
+> To arm it: **Settings → Secrets and variables → Actions → Variables → set
+> `PAGES_BRANCH_PUBLISH` to `true`.** Clearing the variable switches it back
+> off. It needs an Actions runner, so it does nothing until the metered
+> allowance resets (`github-actions-runners` in `infra_state.yaml`, down
+> since 2026-09-04) — which is exactly why it is worth setting *now* rather
+> than being remembered later: with it set, the drift hole closes by itself
+> on the day runners return.
+>
+> Step 1 below is still worth doing eventually — it buys the canonical
+> hostname and search indexability, which the mirrored copies deliberately
+> do not have. It is no longer what stands between the portfolio and a
+> reader.
+
 This is the shortest path from "175 finished tools nobody can reach" to a
 public URL, and every step in it is yours — none of it is waiting on an
 agent. `gitops/README.md` explains *why* each one exists; this is the
