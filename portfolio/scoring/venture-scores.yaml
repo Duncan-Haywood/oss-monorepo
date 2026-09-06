@@ -6367,3 +6367,46 @@ ventures:
       claim about what a route will earn. The tool never touches a live
       transaction, card data, or cash-handling compliance. Nothing entered
       leaves the browser.
+
+  - slug: photo-booth-event-quote
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — setup/teardown time
+      added to the booked hours, travel, attendant labor, and an
+      unlimited-print package's print-cost share of the price — and it is
+      arithmetic an operator has to be able to re-derive before agreeing to a
+      booking.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. Same event-rental quote shape as
+      `portable-restroom-event-quote`, scored the same way: a flat package
+      price hides committed time (setup, teardown, drive) and a
+      volume-dependent cost line (print consumables here; pump-outs and
+      mileage there), and the incumbent is a Saturday-special guess rather
+      than a free page that itemizes both. Defensibility 5: the
+      setup/teardown-plus-travel time model and the print-cost-share risk
+      flag are specific to this buyer, not modeled by a generic profit
+      calculator or an event-booking platform's built-in pricing field.
+      Distribution 7: "photo booth rental pricing" and "how much to charge
+      for a photo booth" are narrow, real search terms bought by an operator
+      building a package list, with no incumbent free tool built around this
+      arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended booking price, a venue/vendor contract interpretation, or a
+      guarantee of actual attendance or print volume. The tool never touches
+      a live payment, a guest's photo, or personal data of any kind. Nothing
+      entered leaves the browser.
