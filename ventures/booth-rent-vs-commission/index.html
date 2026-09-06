@@ -91,7 +91,7 @@
           <label>Clients per week <input id="clientsPerWeek" type="number" min="0" step="1" value="14"></label>
           <label>Retail sales / week ($) <input id="retailPerWeek" type="number" min="0" step="1" value="80"></label>
           <label>Weeks worked / year <input id="weeksWorkedPerYear" type="number" min="1" max="52" step="1" value="50"></label>
-          <label>Average service (minutes) <input id="averageServiceMinutes" type="number" min="1" step="5" value="75"></label>
+          <label>Average service (minutes) <input id="averageServiceMinutes" type="number" min="1" step="any" value="75"></label>
         </div>
       </section>
 
@@ -126,7 +126,7 @@
         <p class="hint">On commission you are a W-2 employee and the salon pays half your FICA. On booth rent you are self-employed and pay both halves &mdash; an effective 14.1% of net against 7.65% of wages, charged to the booth side only. Until that comes out, the two checks are not the same dollars.</p>
         <div class="fields">
           <label>Marginal income-tax bracket (%) <input id="marginalIncomeTaxPercent" type="number" min="0" max="100" step="1" value="0" placeholder="0 = ignore"></label>
-          <label>Social Security wage base ($) <input id="socialSecurityWageBase" type="number" min="1" step="100" value="176100"></label>
+          <label>Social Security wage base ($) <input id="socialSecurityWageBase" type="number" min="1" step="any" value="176100"></label>
         </div>
         <p class="hint">The bracket is optional: half of self-employment tax is deductible against income tax, and naming your bracket credits that back. Left at 0 it is worth nothing here, which understates booth rent rather than overstating it. Social Security stops at the wage base and Medicare does not; the default is the 2025 amount, indexed every January, so check yours if your chair income is near it. Income tax itself is not modelled &mdash; it lands on either deal much the same and depends on your whole household.</p>
       </section>

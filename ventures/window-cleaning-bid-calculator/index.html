@@ -304,7 +304,7 @@
       row.innerHTML = `
         <label for="${id}-type"><span class="lbl">Glass type</span><select class="g-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
         <label for="${id}-panes"><span class="lbl">Panes</span><input class="g-panes" id="${id}-panes" type="number" min="0" step="1"></label>
-        <label for="${id}-mins"><span class="lbl">Minutes per pane (one side)</span><input class="g-mins" id="${id}-mins" type="number" min="0.1" step="0.5"></label>
+        <label for="${id}-mins"><span class="lbl">Minutes per pane (one side)</span><input class="g-mins" id="${id}-mins" type="number" min="0.1" step="any"></label>
         <label for="${id}-sides"><span class="lbl">Sides (1 or 2)</span><input class="g-sides" id="${id}-sides" type="number" min="1" max="2" step="1"></label>
         <button type="button" class="remove">Remove<span class="lbl"> this glass type</span></button>`;
 
