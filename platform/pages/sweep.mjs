@@ -354,6 +354,39 @@ async function discoverChildTools(prefix) {
 }
 
 /**
+ * The URL path for one discovered child, with a trailing slash only where one
+ * belongs.
+ *
+ * `discoverChildTools` reads the hub's own links and returns the first path
+ * segment of each, which is two different kinds of thing: a directory
+ * (`resistor-calculator`, served as `/resistor-calculator/`) and a page file
+ * (`vs-omni-calculator.html`). Both are real destinations a visitor clicks to,
+ * so both belong in the sweep — but only the directory takes the slash.
+ *
+ * This sweep appended one unconditionally until 2026-09-06, and the failure was
+ * the expensive kind rather than the loud kind. `GET
+ * /ai-engineering-academy/vs-omni-calculator.html/` 404s; Chromium logs that
+ * navigation as a console error; `sweepOne` sees the console error and reports
+ * the page as a dead product. So the one red line in a 182-tool run named a
+ * page that was perfectly healthy — and a standing false positive is how a
+ * sweep stops being read at all.
+ *
+ * The half that is worse: the page was never actually loaded, so nothing on it
+ * was exercised. Had its arithmetic genuinely broken, this sweep would have
+ * printed the identical message it was already printing, and the run would have
+ * looked no different. A gate that reports the same thing whether or not the
+ * product works is not covering that ground, which is the failure this
+ * repository keeps re-learning about checks that only appear to run.
+ *
+ * Decided on the extension rather than on a directory listing because the sweep
+ * runs against a served site and has no filesystem to consult — a segment with
+ * a file extension is a file, and every other segment is a directory.
+ */
+function childPath(child) {
+  return /\.[a-z0-9]+$/i.test(child) ? child : `${child}/`;
+}
+
+/**
  * Loads one page and decides whether it works, whether it is a landing page
  * doing its job, or whether it is dead. Pulled out of the sweep's main loop
  * so the same judgment applies to a top-level tool and to a calculator only
@@ -512,7 +545,7 @@ for (const slug of slugs) {
   if (verdict !== 'links-only') continue;
   for (const child of await discoverChildTools(`/${slug}/`)) {
     const label = `${slug}/${child}`;
-    const childResult = await sweepOne(`${BASE}/${slug}/${child}/`);
+    const childResult = await sweepOne(`${BASE}/${slug}/${childPath(child)}`);
     report(label, childResult.verdict, childResult.detail);
   }
 }
