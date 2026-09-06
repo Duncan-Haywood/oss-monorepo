@@ -76,6 +76,49 @@ document.
    of how good the resulting numbers would look. See "Legal guardrails"
    below; it is not negotiable by session judgment.
 
+**New ventures are the owner's standing preference, not a dated note.**
+Every correction above about "new ventures rank first" was written against a
+specific day's pipeline state and will go stale the way dated notes do; this
+paragraph is meant not to. Finding the next viable business is the highest-
+leverage bet this fleet makes — more valuable, session for session, than
+another increment of depth on an existing product — because a portfolio of
+185 unvisited calculators proves nothing on its own, while a new, gate-
+cleared niche is a fresh shot at the thing the owner actually wants: a
+business that reaches real users, earns donations, and keeps them happy.
+Treat "screen and graduate a fresh niche" as always in bounds, every
+session, not as a fallback for when the pipeline queue happens to be empty.
+
+**Fast scan for "what should this session do," in priority order:**
+
+1. A live product is broken, or a fleet-wide guardrail is red
+   (`check_no_payment_code.py`, `clauses.mjs`, the accessibility/contrast
+   checks) — a defect or exposure on something a stranger can already reach
+   outranks everything below.
+2. The published snapshot is stale (`pages_state.py --require-current`) —
+   refresh it; a merge nobody can see is not shipped.
+3. `usage.yaml` shows a real, nonzero signal on some product — go remove
+   that product's actual friction.
+4. Screen and graduate a new venture (gates and process in
+   `pipeline/README.md`, rejected ideas in `screened-out.md`) — see above;
+   this is not the leftover slot.
+5. Only then: parity features, comparison pages, or added depth on a
+   product that has had a fair run and is still at zero.
+
+**Marketing is encouraged at every step above, and it is not where the
+legal risk this file guards against actually lives — the guardrails are
+automatic, not a rule to re-derive by hand.** Landing copy, SEO content, and
+`vs-<competitor>.html` comparison pages are a normal part of shipping any of
+the five items above, not a separate, riskier track needing extra sign-off.
+`platform/pages/clauses.mjs` runs with no arguments, over every venture at
+once, from `portfolio-validate.yml` on any push or PR touching
+`ventures/**/*.html` — so a comparison page missing its nominative-fair-use
+disclaimer fails CI fleet-wide, not just in the venture's own workflow, the
+day it's added. `platform/ci/check_no_payment_code.py` gives the same
+fleet-wide backstop against payment-processor code. Write the copy, keep the
+disclaimer wording from `PRODUCT_PLAYBOOK.md` §5b (every page) and §5f
+(comparison pages), and let CI catch a slip — do not read "legal exposure is
+the one hard stop" as a reason to under-market a product.
+
 On a generic brief, `python3 portfolio/ledger/session_gate.py` already
 encodes points 1 and 2 above in its verdict — run it and follow what it
 says rather than re-deriving this from scratch.
