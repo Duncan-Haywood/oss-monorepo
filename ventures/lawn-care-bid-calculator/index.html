@@ -311,7 +311,7 @@
       row.innerHTML = `
         <label for="${id}-type"><span class="lbl">Service</span><select class="s-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
         <label for="${id}-qty"><span class="lbl">Quantity</span><input class="s-qty" id="${id}-qty" type="number" min="0" step="1"></label>
-        <label for="${id}-rate"><span class="lbl">Quantity per hour</span><input class="s-rate" id="${id}-rate" type="number" min="0.01" step="1"></label>
+        <label for="${id}-rate"><span class="lbl">Quantity per hour</span><input class="s-rate" id="${id}-rate" type="number" min="0.01" step="any"></label>
         <button type="button" class="remove">Remove<span class="lbl"> this service</span></button>`;
 
       const typeField = row.querySelector('.s-type');
