@@ -17229,3 +17229,70 @@ entries:
         ceiling and would have failed `build.test.mjs`'s "time for another
         category" guard otherwise.
     mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a live share-link defect: the tool's share link carried 18 of
+        its 24 plan fields and silently dropped all six of the
+        alternative-sheet comparison inputs (`sheet-alt1-width/height/cost`,
+        `sheet-alt2-width/height/cost`). A recipient opening a shared plan
+        got the sender's primary sheet beside their own browser's defaults
+        for both alternatives -- a complete, plausible, *different*
+        comparison, under a headline figure that matched the sender's. No
+        error was shown at either end. This is the exact failure
+        `platform/pages/roundtrip.mjs` was written for after
+        `where-to-sell-calculator` (2026-08-24) and `shopify-fee-calculator`
+        (2026-08-29) shipped it, and this is the first whole-catalogue run
+        of that check to find a third instance.
+      - >-
+        Root cause was a hand-kept list, not a copied one. `DRAFT_FIELDS` in
+        `draft.mjs` is already the single definition -- `share.mjs`,
+        `index.html`'s value collector, its draft restorer and its link
+        applier all import it rather than restating it, and
+        `share.test.mjs` asserted that every name in the list exists in the
+        markup. What nothing asserted was the converse: that every editable
+        control in the form appears in the list. So when the
+        alternative-sheet comparison added six inputs to `index.html` and
+        none to `DRAFT_FIELDS`, containment stayed true and every test
+        stayed green. Same shape as the `platform/proposal/term-ids` and
+        `venturePageRoot` lessons in CLAUDE.md, reached from a fourth
+        direction: one definition stops two uses drifting apart, and does
+        nothing about the definition drifting from the form.
+      - >-
+        Fix: added the six ids to `DRAFT_FIELDS` (which repairs encode,
+        decode, draft save/restore and DOM write-back at once, since all
+        four iterate the list generically), and added the missing converse
+        assertion to `share.test.mjs` -- it enumerates input/select/textarea
+        ids out of `index.html` and fails naming any that ride in no link,
+        with `optout` excluded and the reason written down (it is the
+        visitor's own privacy preference for their browser, not part of the
+        plan, and carrying it would apply the sender's choice to the
+        recipient's device). Enumerated rather than asserting a field count,
+        which would be a second hand-kept list with the same failure mode.
+      - >-
+        Verified: `node --test ventures/cut-list-optimizer/*.test.mjs`
+        (146/146; the new test failed as intended against the unfixed list,
+        and the pre-existing "every draft field rides in the link" test
+        caught the incomplete fixture), then the real browser check --
+        `npm install --no-save playwright@1.56.0 axe-core` +
+        `platform/ci/browser_checks.py --checks roundtrip --only
+        cut-list-optimizer` -- which now reports `ok cut-list-optimizer: 24
+        fields` where the whole-catalogue run had reported six dropped. Also
+        ran `regen.mjs` (rewrites the mirror shard
+        `cut-list-optimizer__draft.mjs.gz` and `kustomization.yaml`),
+        `python3 -m pytest gitops/tests -q`, the marketing+pages suite
+        (1140/1140) and `checklist_coverage.py`.
+      - >-
+        Found by the first whole-catalogue `browser_checks.py` sweep of this
+        session: 6 of 7 checks passed fleet-wide (`sweep` 192/192 tools
+        answered, `contrast` clean -- so the axe label fixes in #3530 and the
+        WCAG contrast fixes in #3547 are holding -- plus `journey`,
+        `sideways`, `presets`, `highlight`), and `roundtrip` failed on this
+        one venture out of 157 carrying a share link. Worth recording that
+        the sweep costs ~30 minutes and one `npm install` line, and that
+        CLAUDE.md's note about sessions writing "no Playwright in this
+        environment" continues to be the only thing standing between this
+        catalogue and defects of this class.
+    mrr_end: null
