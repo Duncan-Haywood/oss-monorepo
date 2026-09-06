@@ -17,6 +17,69 @@ Two companion documents carry the parts this one only names:
   people), which free signals already exist, and where readings land
   (`usage/usage.yaml`) so the next session and the router can see them.
 
+## North star (read this first)
+
+**Relayed 2026-09-06.** The fleet's job, in the owner's own words: find
+*viable software businesses* — ones that reach real users, earn optional
+donation revenue, keep those users happy, and create no legal exposure the
+owner has to clean up personally. Everything else in this file is detail
+and history; this section is the version a session can act on without first
+reconstructing it from the corrections layered into the rest of the
+document.
+
+1. **Ship and deploy, not just build.** An `index.html` on `main` with no
+   public URL is not a product yet. `python3 platform/ci/pages_state.py`
+   says whether the live snapshot matches `main`; if it says `stale`, that
+   refresh outranks new work (see "Current priority" below).
+2. **New ventures get first call, right now, not the leftover slot.** As of
+   today `portfolio/pipeline/candidates.yaml` has **zero** `build-now`
+   candidates left unbuilt — everything scored has already shipped. On a
+   session with no in-progress venture work, the standing task is
+   originating a fresh niche: use the method in `PRODUCT_PLAYBOOK.md` §1
+   ("Pick the niche before you pick the product"), check it against
+   `portfolio/pipeline/screened-out.md` (106 lines of ideas already
+   rejected — read it before proposing one) and the `liability_containment`
+   / `ethical_robustness` gates in `pipeline/README.md`, then graduate and
+   build it the same session if it clears both. This beats adding a parity
+   feature (a share link, an export format) to a product nobody has
+   visited — see "The fleet-parity trap" below. New ventures are how this
+   portfolio finds the business that actually works; treat sourcing one as
+   real product work, not as meta-work to defer.
+3. **Donations only, and most of the mechanism already ships.** Every live
+   venture carries a `github.com/sponsors/Duncan-Haywood` link (done, all
+   185) and should carry the `sponsor_link_clicked` usage counter
+   (`PRODUCT_PLAYBOOK.md` §6) — the one signal that will eventually say
+   whether the ask works. No checkout, no card fields, no billing code, not
+   even disabled behind an unset env var, anywhere outside the two flagged
+   pre-existing exceptions (`local-site-studio`, `print-atelier`); this is
+   enforced in CI by `platform/ci/check_no_payment_code.py`. A payout rail
+   is owner-only and not close — see the decision queue.
+4. **Happy customers come from the product working and being honest, not
+   from a separate initiative.** Run the venture's own tests and the
+   browser checks before calling something done; keep the
+   no-advice-of-record / no-compliance-warranty disclaimer in front of the
+   user (`PRODUCT_PLAYBOOK.md` §5b); fix a real defect a visitor hit before
+   adding a feature nobody has asked for yet.
+5. **Marketing is welcome and is not exempt from the legal guardrails.**
+   Landing copy, SEO content, and comparison pages are how a niche product
+   gets found without ad spend — keep building them. A page that names a
+   specific competitor (`vs-<competitor>.html`) needs the
+   nominative-fair-use disclaimer and sourced, non-derogatory facts only
+   (`PRODUCT_PLAYBOOK.md` §5f, checked by `node platform/pages/clauses.mjs
+   <slug>`) — get it wrong and the exposure is the owner's, not a session's.
+   Preparing a listing artifact is always fine; publishing it under the
+   portfolio's public name (a store listing, a production domain cutover)
+   is still owner-only.
+6. **Legal exposure is the one hard stop — never traded for speed.**
+   Payment collection, a compliance warranty, scraped personal data, or a
+   claim the product can't back up are not worth a faster ship regardless
+   of how good the resulting numbers would look. See "Legal guardrails"
+   below; it is not negotiable by session judgment.
+
+On a generic brief, `python3 portfolio/ledger/session_gate.py` already
+encodes points 1 and 2 above in its verdict — run it and follow what it
+says rather than re-deriving this from scratch.
+
 ## What we are doing
 
 Build software products that create large amounts of value for real users.
