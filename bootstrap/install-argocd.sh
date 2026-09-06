@@ -114,5 +114,4 @@ else
 fi
 echo
 echo "Do not expose this UI on :80/:443. Use: kubectl -n argocd port-forward svc/argocd-server 8080:443"
-echo "If the GitOps repo is private, create a read-only repo Secret in argocd now."
 echo "Then merge GitOps PRs. Do not kubectl apply platform/prod/agents by hand."
