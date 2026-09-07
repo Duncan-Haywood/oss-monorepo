@@ -154,3 +154,15 @@ test('index links one hop to the basement-finishing-bid-calculator sibling', () 
     'index must link ../basement-finishing-bid-calculator/ so crawlers reach the finishing calculator in one hop',
   );
 });
+
+// Closest moisture-remediation sibling: same cleaning/restoration subcategory,
+// but mold containment and demo after the wet basement. Without a crawlable
+// link here, a crawler entering on the waterproofing calculator never reaches
+// the mold-remediation tool in one hop.
+test('index links one hop to the mold-remediation-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/mold-remediation-bid-calculator\/"/,
+    'index must link ../mold-remediation-bid-calculator/ so crawlers reach the mold remediation calculator in one hop',
+  );
+});
