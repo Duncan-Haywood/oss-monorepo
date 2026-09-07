@@ -418,15 +418,26 @@ readings:
     # `duncan-haywood.github.io/monorepo-projects/` **is serving one right
     # now** — and the honest answer is that nobody has ever asked.
     verdict: unknown
-    measured: "2026-09-05"
+    measured: "2026-09-07"
     run: null
     how: >-
       Dispatch `Public surface check`
       (`.github/workflows/public-surface-check.yml`) and read the Pages row of
       its table; it needs no secret. Or, with a browser and no infrastructure
       at all, open the URL `python3 platform/ci/pages_state.py` now prints
-      under `next`. The second route is the one that works today, because the
-      first needs a runner and `github-actions-runners` above is down.
+      under `next` — in a logged-out or private window, which is the whole
+      point: a signed-in owner receives 200 from an access-controlled Pages
+      site too, so a casual check from an ordinary browser cannot tell the
+      two apart and is not a reading. The second route is the one that works
+      today, because the first needs a runner and `github-actions-runners`
+      above is flapping.
+      Third route, added 2026-09-07 and usable from a session: ask a search
+      engine for pages on the host (`WebSearch` for the exact string
+      `duncan-haywood.github.io/monorepo-projects`). This is deliberately
+      asymmetric and only one direction of it is a proof. **Any** indexed
+      page from that host settles the row `up` outright — a crawler is an
+      anonymous stranger, and it could not have read a member-only site.
+      Zero hits proves nothing at all; see the note.
     note: >-
       Added 2026-09-05. `platform/ci/public_surface.py` grew a probe for this
       origin in dbf614c74 (#3199), precisely because nothing had ever measured
@@ -450,6 +461,37 @@ readings:
       runner and the lever is Settings → Pages → Source.
       Do not resolve this by reasoning. One browser request settles it, needs
       no credential, and is the cheapest unread fact in this file.
+      2026-09-07, three readings. **One half of the paragraph above is now
+      retired**: the source is not "GitHub Actions". `pages_state.py` reports
+      `source: branch` and `deployed: served`, from GitHub's managed
+      `dynamic/pages/` builder concluding `success` on `gh-pages` (run
+      34089258996, 06:05:17Z) — a managed build is triggered only by a push
+      to the configured source. So the site is not dark for want of a runner,
+      and Settings → Pages → Source is not the lever.
+      Second: the repository is private, confirmed from the API rather than
+      inferred (`GET /repos/Duncan-Haywood/monorepo-projects` →
+      `"visibility": "private"`). That is what keeps the row `unknown` rather
+      than resolving it — Pages on a private repository can be public or
+      restricted to members, and the field that says which
+      (`GET /repos/{owner}/{repo}/pages` → `public`) returns **403** to the
+      token these sessions carry. Worth knowing before reaching for it again.
+      Third, and it is a *negative* reading, so read the asymmetry above
+      before using it: a `WebSearch` for the exact string
+      `duncan-haywood.github.io/monorepo-projects` returned zero pages from
+      that host. **This is not evidence the site is restricted.** The URL is
+      about a day old, and — the part that matters more — the repository is
+      private, so there is no public page anywhere linking to it. A crawler
+      with no inbound link and no public repository to walk has no route to
+      the site whether or not it is allowed in, which makes zero hits the
+      expected reading under *both* hypotheses and therefore worth nothing as
+      evidence for either.
+      That last point is the one with a consequence beyond this row, and it
+      is a distribution finding rather than an infrastructure one: the
+      catalogue currently ships 192 sitemap entries and a `robots.txt` that
+      allows every crawler, from an origin nothing links to. Confirming the
+      site is public would therefore be necessary and not sufficient for the
+      SEO work in `PRODUCT_PLAYBOOK.md` §5e to reach anyone. Do not read a
+      later "still zero indexed" as a regression, or as this row going down.
 
   agent-session-egress:
     # What a Claude Code web session — the thing that runs most of the work
