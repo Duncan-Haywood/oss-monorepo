@@ -33,18 +33,18 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 554622 bytes
-#   portfolio-front-tools-1: 111 files, 555137 bytes
-#   portfolio-front-tools-2: 148 files, 556412 bytes
-#   portfolio-front-tools-3: 143 files, 556910 bytes
-#   portfolio-front-tools-4: 116 files, 556575 bytes
-#   portfolio-front-tools-5: 134 files, 554713 bytes
-#   portfolio-front-tools-6: 114 files, 554661 bytes
-#   portfolio-front-tools-7: 113 files, 554350 bytes
-#   portfolio-front-tools-8: 119 files, 547400 bytes
-#   portfolio-front-tools-9: 105 files, 555510 bytes
-#   portfolio-front-tools-10: 109 files, 550396 bytes
-#   portfolio-front-tools-11: 79 files, 402913 bytes
+#   portfolio-front-tools-0: 136 files, 554597 bytes
+#   portfolio-front-tools-1: 111 files, 555106 bytes
+#   portfolio-front-tools-2: 148 files, 556497 bytes
+#   portfolio-front-tools-3: 143 files, 556837 bytes
+#   portfolio-front-tools-4: 116 files, 556537 bytes
+#   portfolio-front-tools-5: 134 files, 554696 bytes
+#   portfolio-front-tools-6: 114 files, 549757 bytes
+#   portfolio-front-tools-7: 111 files, 548851 bytes
+#   portfolio-front-tools-8: 116 files, 553857 bytes
+#   portfolio-front-tools-9: 109 files, 556560 bytes
+#   portfolio-front-tools-10: 111 files, 555617 bytes
+#   portfolio-front-tools-11: 82 files, 416544 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -911,6 +911,10 @@ configMapGenerator:
       - flooring-bid-calculator__share.mjs.gz=flooring-bid-calculator__share.mjs.gz
       - flooring-bid-calculator__usage.mjs.gz=flooring-bid-calculator__usage.mjs.gz
       - flooring-bid-calculator__vs-rfms.html.gz=flooring-bid-calculator__vs-rfms.html.gz
+      - food-truck-event-margin-calculator__calc.mjs.gz=food-truck-event-margin-calculator__calc.mjs.gz
+      - food-truck-event-margin-calculator__how-much-to-charge-for-a-food-truck-catering-event.html.gz=food-truck-event-margin-calculator__how-much-to-charge-for-a-food-truck-catering-event.html.gz
+      - food-truck-event-margin-calculator__index.html.gz=food-truck-event-margin-calculator__index.html.gz
+      - food-truck-event-margin-calculator__usage.mjs.gz=food-truck-event-margin-calculator__usage.mjs.gz
       - foundation-repair-bid-calculator__calc.mjs.gz=foundation-repair-bid-calculator__calc.mjs.gz
       - foundation-repair-bid-calculator__how-much-to-charge-for-foundation-repair.html.gz=foundation-repair-bid-calculator__how-much-to-charge-for-foundation-repair.html.gz
       - foundation-repair-bid-calculator__index.html.gz=foundation-repair-bid-calculator__index.html.gz
@@ -995,15 +999,15 @@ configMapGenerator:
       - home-elevator-bid-calculator__vs-jobber.html.gz=home-elevator-bid-calculator__vs-jobber.html.gz
       - home-staging-bid-calculator__calc.mjs.gz=home-staging-bid-calculator__calc.mjs.gz
       - home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz=home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz
-      - home-staging-bid-calculator__index.html.gz=home-staging-bid-calculator__index.html.gz
-      - home-staging-bid-calculator__usage.mjs.gz=home-staging-bid-calculator__usage.mjs.gz
-      - home-staging-bid-calculator__vs-honeybook.html.gz=home-staging-bid-calculator__vs-honeybook.html.gz
-      - home-staging-bid-calculator__vs-hutch.html.gz=home-staging-bid-calculator__vs-hutch.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - home-staging-bid-calculator__index.html.gz=home-staging-bid-calculator__index.html.gz
+      - home-staging-bid-calculator__usage.mjs.gz=home-staging-bid-calculator__usage.mjs.gz
+      - home-staging-bid-calculator__vs-honeybook.html.gz=home-staging-bid-calculator__vs-honeybook.html.gz
+      - home-staging-bid-calculator__vs-hutch.html.gz=home-staging-bid-calculator__vs-hutch.html.gz
       - hood-cleaning-bid-calculator__calc.mjs.gz=hood-cleaning-bid-calculator__calc.mjs.gz
       - hood-cleaning-bid-calculator__how-much-to-charge.html.gz=hood-cleaning-bid-calculator__how-much-to-charge.html.gz
       - hood-cleaning-bid-calculator__index.html.gz=hood-cleaning-bid-calculator__index.html.gz
@@ -1111,17 +1115,17 @@ configMapGenerator:
       - mini-split-bid-calculator__vs-servicetitan.html.gz=mini-split-bid-calculator__vs-servicetitan.html.gz
       - mobile-detailing-bid-calculator__calc.mjs.gz=mobile-detailing-bid-calculator__calc.mjs.gz
       - mobile-detailing-bid-calculator__how-much-to-charge.html.gz=mobile-detailing-bid-calculator__how-much-to-charge.html.gz
+  - name: portfolio-front-tools-8
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - mobile-detailing-bid-calculator__index.html.gz=mobile-detailing-bid-calculator__index.html.gz
       - mobile-detailing-bid-calculator__share.mjs.gz=mobile-detailing-bid-calculator__share.mjs.gz
       - mobile-detailing-bid-calculator__usage.mjs.gz=mobile-detailing-bid-calculator__usage.mjs.gz
       - mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz=mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz
       - mold-remediation-bid-calculator__calc.mjs.gz=mold-remediation-bid-calculator__calc.mjs.gz
       - mold-remediation-bid-calculator__how-much-to-charge-for-mold-remediation.html.gz=mold-remediation-bid-calculator__how-much-to-charge-for-mold-remediation.html.gz
-  - name: portfolio-front-tools-8
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - mold-remediation-bid-calculator__index.html.gz=mold-remediation-bid-calculator__index.html.gz
       - mold-remediation-bid-calculator__share.mjs.gz=mold-remediation-bid-calculator__share.mjs.gz
       - mold-remediation-bid-calculator__usage.mjs.gz=mold-remediation-bid-calculator__usage.mjs.gz
@@ -1232,6 +1236,11 @@ configMapGenerator:
       - print-atelier__usage.mjs.gz=print-atelier__usage.mjs.gz
       - print-atelier__vs-printful.html.gz=print-atelier__vs-printful.html.gz
       - print-atelier__what-resolution-do-i-need-to-print-my-artwork.html.gz=print-atelier__what-resolution-do-i-need-to-print-my-artwork.html.gz
+  - name: portfolio-front-tools-9
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - quote-margin-check__calc.mjs.gz=quote-margin-check__calc.mjs.gz
       - quote-margin-check__draft.mjs.gz=quote-margin-check__draft.mjs.gz
       - quote-margin-check__drafts.mjs.gz=quote-margin-check__drafts.mjs.gz
@@ -1241,11 +1250,6 @@ configMapGenerator:
       - quote-margin-check__history.mjs.gz=quote-margin-check__history.mjs.gz
       - quote-margin-check__if-costs-go-up-is-this-quote-still-alive.html.gz=quote-margin-check__if-costs-go-up-is-this-quote-still-alive.html.gz
       - quote-margin-check__if-they-ask-for-10-percent-off.html.gz=quote-margin-check__if-they-ask-for-10-percent-off.html.gz
-  - name: portfolio-front-tools-9
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - quote-margin-check__index.html.gz=quote-margin-check__index.html.gz
       - quote-margin-check__markdown.mjs.gz=quote-margin-check__markdown.mjs.gz
       - quote-margin-check__report.mjs.gz=quote-margin-check__report.mjs.gz
@@ -1346,16 +1350,16 @@ configMapGenerator:
       - shopify-permission-drift__capture.html.gz=shopify-permission-drift__capture.html.gz
       - shopify-permission-drift__capture.mjs.gz=shopify-permission-drift__capture.mjs.gz
       - shopify-permission-drift__compare.mjs.gz=shopify-permission-drift__compare.mjs.gz
-      - shopify-permission-drift__index.html.gz=shopify-permission-drift__index.html.gz
-      - shopify-permission-drift__usage.mjs.gz=shopify-permission-drift__usage.mjs.gz
-      - shopify-permission-drift__vs-miniorange.html.gz=shopify-permission-drift__vs-miniorange.html.gz
-      - siding-bid-calculator__calc.mjs.gz=siding-bid-calculator__calc.mjs.gz
-      - siding-bid-calculator__how-much-to-charge.html.gz=siding-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-permission-drift__index.html.gz=shopify-permission-drift__index.html.gz
+      - shopify-permission-drift__usage.mjs.gz=shopify-permission-drift__usage.mjs.gz
+      - shopify-permission-drift__vs-miniorange.html.gz=shopify-permission-drift__vs-miniorange.html.gz
+      - siding-bid-calculator__calc.mjs.gz=siding-bid-calculator__calc.mjs.gz
+      - siding-bid-calculator__how-much-to-charge.html.gz=siding-bid-calculator__how-much-to-charge.html.gz
       - siding-bid-calculator__index.html.gz=siding-bid-calculator__index.html.gz
       - siding-bid-calculator__share.mjs.gz=siding-bid-calculator__share.mjs.gz
       - siding-bid-calculator__usage.mjs.gz=siding-bid-calculator__usage.mjs.gz
@@ -1462,14 +1466,14 @@ configMapGenerator:
       - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
       - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
-      - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
-      - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
-      - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
+      - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
+      - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
       - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
       - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
