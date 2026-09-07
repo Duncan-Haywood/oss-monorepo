@@ -218,6 +218,9 @@ workflows:
 - workflow: deck-staining-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: dependency-confusion-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: delivery-app-margin-calculator-ci.yml
   classification: none
   publishes: []
@@ -465,6 +468,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: npm-deployment-evidence-ci.yml
+  classification: none
+  publishes: []
+- workflow: npm-lifecycle-script-check-ci.yml
   classification: none
   publishes: []
 - workflow: npm-reachability-triage-ci.yml

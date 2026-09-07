@@ -7511,6 +7511,67 @@ ventures:
       offer, and never tax or legal advice. The tax-reserve figure is
       labelled a rough set-aside estimate, not a filing number, and
       nothing entered leaves the browser.
+  - slug: dependency-confusion-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over pip/npm configuration already on
+      disk or pasted into the browser: a --extra-index-url flag, or an
+      unscoped npm dependency name alongside a private-registry .npmrc.
+      There is nothing to infer.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags
+      pip --extra-index-url usage and an unscoped npm dependency name
+      behind a private registry -- the two configuration shapes behind the
+      2021 dependency-confusion incidents (Alex Birsan's research against
+      Apple, Microsoft, PayPal, Netflix, Uber, and Tesla). Same shape and
+      rubric as `actions-cache-poisoning-check`, `actions-injection-check`,
+      and `pinned-actions-check`: a standard-library-only classifier over
+      data the user already has.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page classifies text the visitor pastes and the CLI reads only local
+      files, so marginal cost per use is zero and there is no server to
+      operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the two configuration patterns are individually
+      well known (pip's own docs name the --extra-index-url risk; npm's
+      own guidance recommends scoping); what is not trivially copied is
+      the paired CLI/browser port with a shared classifier module, a
+      parity test, and the already-written explanation tied to a specific,
+      well-documented incident class (Birsan's 2021 research), which is
+      the actual value a searcher is buying.
+      Distribution 5: a well-known, citable incident class gives this a
+      concrete search hook ("dependency confusion check"), but this
+      portfolio has no existing developer-tool distribution channel and
+      volume is unmeasured, so scored level with the family rather than
+      above it.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network calls anywhere in either
+      implementation — it classifies pip/npm configuration already on the
+      user's disk or pasted into the browser, and never queries a package
+      registry on the user's behalf. It makes no security or compliance
+      claim: a clean scan means these two specific, documented patterns
+      are absent, not that the user's supply chain is safe overall. The
+      npm check is deliberately over-inclusive (it flags already-public
+      names too, since it cannot check registry claim status without a
+      network call) and says so in its own docstring, README, and the
+      page's FAQ, rather than presenting an unverifiable claim as a
+      confirmed finding.
   - slug: npm-lifecycle-script-check
     scores:
       ai_leverage: 1
