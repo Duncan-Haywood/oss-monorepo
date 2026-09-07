@@ -53,6 +53,9 @@ workflows:
 - workflow: actions-runner-starvation-check-ci.yml
   classification: none
   publishes: []
+- workflow: actions-self-hosted-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: ada-title-ii-evidence-ci.yml
   classification: none
   publishes: []
@@ -218,13 +221,13 @@ workflows:
 - workflow: deck-staining-bid-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: dependency-confusion-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: delivery-app-margin-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: demand-signal-reachability-ci.yml
+  classification: none
+  publishes: []
+- workflow: dependency-confusion-check-ci.yml
   classification: none
   publishes: []
 - workflow: dns-configuration-evidence-ci.yml
@@ -774,6 +777,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: vinyl-liner-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: vscode-extension-drift-check-ci.yml
   classification: none
   publishes: []
 - workflow: walk-in-shower-bid-calculator-ci.yml

@@ -1377,7 +1377,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 206 since 2026-09-07, when `dependency-confusion-check` graduated —
     # same shape again: a new venture with a static `index.html` from its
     # first commit, entering the mirror and the total together.
-    total = 206  # `infra/OWNER_CHECKLIST.md`'s own "N of the 206 tools" wording.
+    # 207 since 2026-09-07, when `actions-self-hosted-exposure-check`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 208 since 2026-09-07, when `vscode-extension-drift-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    total = 208  # `infra/OWNER_CHECKLIST.md`'s own "N of the 208 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -159,3 +159,16 @@ test('the "how much to charge" SEO page exists, is linked from the calculator, a
   const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+// Closest sibling: the same electrical contractor sizing the same service, for the other resilience option a homeowner shops. Related-tool chrome rotates inside the
+// HVAC, plumbing & electrical subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the solar-pv-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/solar-pv-bid-calculator\/"/,
+    'index must link ../solar-pv-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /solar PV bid calculator/i);
+});

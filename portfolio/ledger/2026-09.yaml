@@ -19248,3 +19248,50 @@ entries:
         run before pushing -- this entry ships in the same PR as the code,
         not on its own.
     mrr_end: 0
+  - venture: vscode-extension-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture graduated: a free, zero-dependency CLI + browser tool
+        that snapshots which VS Code (or Cursor/Windsurf/VSCodium)
+        extensions are installed and diffs two point-in-time snapshots to
+        flag exactly which ones changed activation surface, dependencies,
+        or entry point since the last check, plus a CLI-only live lookup
+        against the VS Code Marketplace to flag an installed extension that
+        no longer resolves there. Same snapshot-diff archetype as
+        `license-drift-check` and `npm-lifecycle-script-check`.
+        `duplicate_check.py` scored every existing venture, screened-out
+        row, and pipeline candidate below 0.12. Motivated by two dated,
+        event-driven supply-chain incidents (GlassWorm, ongoing since
+        2026-01-31; the Nx Console VS Code Marketplace compromise,
+        2026-05-18) that neither VS Code nor the Marketplace itself warns
+        an existing installer about.
+      - >-
+        This PR (originally #3902) was found on review to have silently
+        deleted the just-merged `actions-self-hosted-exposure-check`
+        venture (#3898) along with its CI workflow, mirror shards, score
+        row, and its reciprocal sibling link from
+        `actions-cache-poisoning-check` -- git's rename heuristic matched
+        the deleted venture's boilerplate LICENSE/robots.txt/sitemap.xml/
+        usage.mjs against the new venture's, which made a real deletion
+        read as an innocuous rename in the diff summary. Repaired rather
+        than merged as-is, per CLAUDE.md's "Duplicate Prs" guidance against
+        letting concurrent sessions silently destroy each other's shipped
+        work: restored the deleted venture, its workflow, and its sibling
+        link from `origin/main`, and added the missing `venture-scores.yaml`
+        row for this new venture (score_ventures.py --check had flagged
+        both slugs as unscored). Both ventures are now present and tested
+        together.
+      - >-
+        Verification after repair: `python3 -m unittest test_check -v`
+        (restored venture's CLI), `node --test` across both ventures' own
+        suites plus `actions-cache-poisoning-check` (reciprocal-link
+        assertion), `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1169 assertions), `python3 platform/ci/checklist_coverage.py`,
+        `python3 platform/ci/check_conflict_markers.py`, `python3
+        portfolio/router/validate.py`, `python3 portfolio/scoring/
+        score_ventures.py --check` (217 scores, all covered), `node
+        platform/pages/siblings.mjs --check`, `node platform/marketing/
+        regen.mjs`, and `python3 -m pytest gitops/tests -q`, all green.
+    mrr_end: 0

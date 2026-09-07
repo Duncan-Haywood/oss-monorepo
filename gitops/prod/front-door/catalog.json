@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 207,
-  "collection_total": 206,
+  "served_here": 208,
+  "collection_total": 208,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -56,7 +56,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 11
+      "tool_count": 12
     },
     {
       "id": "logistics",
@@ -526,6 +526,14 @@
       "url": "https://marisstella.dev/tools/actions-runner-starvation-check/",
       "category": "CI checks & developer gates",
       "description": "Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "actions-self-hosted-exposure-check",
+      "name": "Actions Self-Hosted Exposure Check — Is Your Self-Hosted Runner Exposed to Forks?",
+      "url": "https://marisstella.dev/tools/actions-self-hosted-exposure-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub's own docs warn against on public repos. Free, runs in your browser, nothing uploaded.",
       "pages": 2
     },
     {
