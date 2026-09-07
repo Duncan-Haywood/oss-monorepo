@@ -1334,7 +1334,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # updated neither this constant nor the four hand-typed counts below it, so
     # `main` was red on this test for three merges; that is exactly the drift
     # this test exists to catch, working as intended.
-    total = 191  # `infra/OWNER_CHECKLIST.md`'s own "N of the 191 tools" wording.
+    # 192 since 2026-09-07, when `flaky-test-finder` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    total = 192  # `infra/OWNER_CHECKLIST.md`'s own "N of the 192 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

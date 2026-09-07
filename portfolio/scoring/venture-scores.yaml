@@ -6823,3 +6823,59 @@ ventures:
       their own credentials, so their token and their run data never leave
       their own machine or session. The output is a classification of a
       public API field, not a security or compliance verdict.
+  - slug: flaky-test-finder
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Flaky-vs-broken is decided by
+      counting pass/fail occurrences per test across the reports a developer
+      already has — an inferred, model-based guess would be strictly worse
+      than the deterministic comparison, and would reintroduce exactly the
+      kind of uncertainty the tool exists to remove.
+    basis: >-
+      Same shape as ventures/actions-runner-starvation-check: a developer
+      CLI/browser tool, not the trade-calculator archetype that dominates the
+      catalogue (portfolio/pipeline/README.md's archetype-saturation note).
+      Scored on this file's six-dimension rubric at graduation, same session.
+      Time to revenue 5: developers reading a red CI check are a strong
+      free-utility-norm audience with no purchase moment at the point of use,
+      slightly below the sibling venture's 6 because flaky-test tooling
+      already has funded commercial competitors (Launchable, BuildPulse) that
+      have spent marketing budget training the audience to expect a paid,
+      account-based product — a small headwind this free, no-signup tool has
+      to work against rather than benefit from.
+      Defensibility 3, the lowest score in this file: the classification rule
+      is trivial (compare pass/fail per test name across files) and, unlike
+      the sibling venture's narrow, undocumented-elsewhere GitHub-Actions-
+      specific insight, "flaky tests" is a well-covered space with existing
+      free plugins (pytest-rerunfailures, jest-junit-adjacent scripts) and
+      paid SaaS already solving adjacent versions of this problem. What is
+      not already available for free: a zero-account, framework-agnostic
+      tool that works from the one format (JUnit XML) nearly every test
+      runner already emits, entirely client-side.
+      Distribution 5: "flaky test detector", "why is my test flaky in CI",
+      and "pytest flaky test" are real, established developer search terms —
+      evidenced by existing free plugins, paid vendors' own blog content, and
+      built-in flaky-test features in Azure DevOps and CircleCI, all found
+      via a live web search this session rather than assumed — but this
+      portfolio has no existing developer-tool distribution channel and
+      volume specific to this free tool is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool classifies test reports the developer already generated
+      and pasted or pointed the CLI at — it fetches nothing on their behalf,
+      asks for no token, and makes no claim about the cause of a failure or
+      the quality of their code, only whether a named test's outcome flipped
+      across the given runs. Nothing is uploaded; the CLI makes no network
+      call at all.
