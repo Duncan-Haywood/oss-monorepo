@@ -42,6 +42,18 @@ test("index links one hop to the equipment-lease-buyout-calculator sibling", () 
   );
   assert.match(html, /equipment lease buyout calculator/i);
 });
+// Same break-even shape, other direction: ranking supplier or subcontractor
+// rates on a job rather than pricing a rental booking. Reciprocal of the
+// link added to vendor-rate-break-even's index so a crawler can hop both
+// ways — and so the vendor-rate tool stops being a crawlable orphan.
+test("index links one hop to the vendor-rate-break-even sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/vendor-rate-break-even\/"/,
+    "index must link ../vendor-rate-break-even/ so crawlers reach the vendor rate calculator in one hop",
+  );
+  assert.match(html, /vendor rate break-even calculator/i);
+});
 test("app wires the share button to encode/decode and applies an incoming link on load", () => {
   assert.match(app, /import \{ encodeShare, decodeShare \} from "\.\/share\.mjs";/);
   assert.match(app, /"copy-share"\)\.addEventListener/);
