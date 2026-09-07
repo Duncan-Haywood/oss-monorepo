@@ -41,6 +41,9 @@ workflows:
 - workflow: a11y-theme-resolution-ci.yml
   classification: none
   publishes: []
+- workflow: actions-injection-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-runner-starvation-check-ci.yml
   classification: none
   publishes: []
@@ -144,6 +147,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: checklist-coverage.yml
+  classification: none
+  publishes: []
+- workflow: childcare-tuition-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: chimney-sweep-bid-calculator-ci.yml

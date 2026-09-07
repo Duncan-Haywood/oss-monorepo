@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 199,
-  "collection_total": 199,
+  "served_here": 200,
+  "collection_total": 200,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -59,15 +59,15 @@
       "tool_count": 6
     },
     {
-      "id": "ci",
-      "name": "CI checks & developer gates",
-      "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 4
-    },
-    {
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
+      "tool_count": 5
+    },
+    {
+      "id": "ci",
+      "name": "CI checks & developer gates",
+      "url": "https://marisstella.dev/c/ci/",
       "tool_count": 4
     }
   ],
@@ -647,6 +647,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a carpet install from floor yards, stairs, stretch-in versus glue-down versus carpet tile, patterned waste, and extras — plus the walk-away price a $2-a-yard special cannot see.",
       "pages": 3
+    },
+    {
+      "slug": "childcare-tuition-calculator",
+      "name": "Daycare Tuition Calculator",
+      "url": "https://marisstella.dev/tools/childcare-tuition-calculator/",
+      "category": "More free tools",
+      "description": "Free daycare and childcare tuition calculator. Price a classroom from your own child:staff ratio, staffing cost, and overhead, and see what an empty seat actually costs you at every occupancy level.",
+      "pages": 2
     },
     {
       "slug": "chimney-sweep-bid-calculator",
