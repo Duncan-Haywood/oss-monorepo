@@ -101,3 +101,14 @@ test('every .html file in the venture is reachable from the sitemap', async () =
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+// Closest sibling: both are free, browser-only GitHub Actions workflow
+// checkers. Without a crawlable link here, a crawler entering on this tool
+// never reaches pinned-actions-check in one hop.
+test('index links one hop to the pinned-actions-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/pinned-actions-check\/"/,
+    'index must link ../pinned-actions-check/ so crawlers reach the pinned-actions checker in one hop',
+  );
+});

@@ -1,0 +1,48 @@
+name: actions-injection-check
+description: 'Free, read-only checker that scans GitHub Actions workflow YAML for pull_request_target/workflow_run "pwn request" checkouts of an untrusted ref, and for run: steps that interpolate untrusted ${{ github.event.* }} expressions directly into a shell command (script injection) — each finding printed with the exact fix, browser or zero-dependency CLI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as
+# actions-runner-starvation-check and pinned-actions-check, a direct,
+# obvious, low-risk dev-tool idea rather than a pipeline-candidate write-up.
+# Not a duplicate of either: pinned-actions-check flags mutable-tag action
+# references (@v4 vs a pinned SHA), actions-runner-starvation-check is about
+# CI runner starvation, and this is about two distinct injection patterns in
+# workflow trigger/checkout and run: step shape — different bug class,
+# different remediation, no overlapping code.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are both
+# high — a mechanical, read-only linter with no advice-of-record, no
+# compliance claim, no data leaving the user's device, and no scraping. It
+# makes no network calls of its own anywhere in the code (check.py,
+# classify.mjs): findings are printed with a suggested fix for the user to
+# apply themselves.
+hypotheses:
+  - claim: A maintainer who read about a supply-chain or pwn-request incident (tj-actions/changed-files or similar) will paste their workflow YAML here and find a checkout/script-injection risk no existing local-only tool flags.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will wire check.py --fail-on-risk into their own CI to block a newly-added pwn-request checkout or script-injection pattern before it merges.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/
+  analytics: null

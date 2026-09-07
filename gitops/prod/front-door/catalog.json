@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 198,
-  "collection_total": 198,
+  "served_here": 199,
+  "collection_total": 199,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -68,7 +68,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 3
+      "tool_count": 4
     }
   ],
   "tools": [
@@ -495,6 +495,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a fence installation from posts, terminals, gates, tear-out, and digging conditions. See installed price per foot, effective hourly rate, and the walk-away number before you send the bid.",
       "pages": 3
+    },
+    {
+      "slug": "actions-injection-check",
+      "name": "GitHub Actions Injection Check — Pwn Requests & Script Injection",
+      "url": "https://marisstella.dev/tools/actions-injection-check/",
+      "category": "More free tools",
+      "description": "Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run 'pwn request' checkouts and shell script-injection from untrusted ${{ github.event }} expressions. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "actions-runner-starvation-check",
