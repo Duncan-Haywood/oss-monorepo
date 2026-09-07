@@ -1,6 +1,7 @@
 {
   "launched": {
     "3pl-quote-normalizer": "2026-08-25",
+    "actions-injection-check": "2026-09-07",
     "actions-runner-starvation-check": "2026-09-07",
     "ada-title-ii-evidence": "2026-09-07",
     "ai-crawler-access-check": "2026-09-07",

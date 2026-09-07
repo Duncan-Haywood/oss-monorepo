@@ -198,3 +198,15 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same roofing subcategory, but standing-seam / exposed-
+// fastener panels rather than a low-slope membrane. Without a crawlable link
+// here, a crawler entering on the flat-roof calculator never reaches the metal
+// tool in one hop — same one-way orphan class as #3709 / #3729 / #3743.
+test('index links one hop to the metal-roof-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/metal-roof-bid-calculator\/"/,
+    'index must link ../metal-roof-bid-calculator/ so crawlers reach the metal calculator in one hop',
+  );
+});
