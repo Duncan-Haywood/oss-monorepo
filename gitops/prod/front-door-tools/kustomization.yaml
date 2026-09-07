@@ -33,18 +33,18 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 553382 bytes
-#   portfolio-front-tools-1: 111 files, 556861 bytes
-#   portfolio-front-tools-2: 148 files, 555981 bytes
-#   portfolio-front-tools-3: 130 files, 550154 bytes
-#   portfolio-front-tools-4: 116 files, 551048 bytes
-#   portfolio-front-tools-5: 130 files, 544149 bytes
-#   portfolio-front-tools-6: 110 files, 555934 bytes
-#   portfolio-front-tools-7: 114 files, 556754 bytes
-#   portfolio-front-tools-8: 118 files, 543998 bytes
-#   portfolio-front-tools-9: 96 files, 543749 bytes
-#   portfolio-front-tools-10: 86 files, 439545 bytes
-#   portfolio-front-tools-11: 53 files, 263667 bytes
+#   portfolio-front-tools-0: 136 files, 553355 bytes
+#   portfolio-front-tools-1: 111 files, 556873 bytes
+#   portfolio-front-tools-2: 148 files, 555994 bytes
+#   portfolio-front-tools-3: 130 files, 550128 bytes
+#   portfolio-front-tools-4: 118 files, 556873 bytes
+#   portfolio-front-tools-5: 132 files, 552181 bytes
+#   portfolio-front-tools-6: 110 files, 555921 bytes
+#   portfolio-front-tools-7: 114 files, 556849 bytes
+#   portfolio-front-tools-8: 118 files, 543937 bytes
+#   portfolio-front-tools-9: 96 files, 543695 bytes
+#   portfolio-front-tools-10: 86 files, 439627 bytes
+#   portfolio-front-tools-11: 53 files, 263711 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -674,6 +674,10 @@ configMapGenerator:
       - countertop-bid-calculator__share.mjs.gz=countertop-bid-calculator__share.mjs.gz
       - countertop-bid-calculator__usage.mjs.gz=countertop-bid-calculator__usage.mjs.gz
       - countertop-bid-calculator__vs-moraware.html.gz=countertop-bid-calculator__vs-moraware.html.gz
+      - coverage-drop-check__compare.mjs.gz=coverage-drop-check__compare.mjs.gz
+      - coverage-drop-check__index.html.gz=coverage-drop-check__index.html.gz
+      - coverage-drop-check__usage.mjs.gz=coverage-drop-check__usage.mjs.gz
+      - coverage-drop-check__why-did-my-pr-drop-coverage.html.gz=coverage-drop-check__why-did-my-pr-drop-coverage.html.gz
       - cra-evidence-desk__index.html.gz=cra-evidence-desk__index.html.gz
       - cra-evidence-desk__match.mjs.gz=cra-evidence-desk__match.mjs.gz
       - cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz=cra-evidence-desk__sbom-and-advisory-package-names-dont-match.html.gz
@@ -726,13 +730,13 @@ configMapGenerator:
       - dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz=dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz
       - dns-configuration-evidence__index.html.gz=dns-configuration-evidence__index.html.gz
       - dns-configuration-evidence__vs-whatsmydns.html.gz=dns-configuration-evidence__vs-whatsmydns.html.gz
-      - dog-walking-route-pricing__calc.mjs.gz=dog-walking-route-pricing__calc.mjs.gz
-      - dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz=dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - dog-walking-route-pricing__calc.mjs.gz=dog-walking-route-pricing__calc.mjs.gz
+      - dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz=dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz
       - dog-walking-route-pricing__index.html.gz=dog-walking-route-pricing__index.html.gz
       - dog-walking-route-pricing__usage.mjs.gz=dog-walking-route-pricing__usage.mjs.gz
       - dog-walking-route-pricing__vs-rover.html.gz=dog-walking-route-pricing__vs-rover.html.gz

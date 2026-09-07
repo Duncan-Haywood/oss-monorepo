@@ -330,6 +330,67 @@ class Execute(unittest.TestCase):
                          "failed")
 
 
+class ToolchainMissing(unittest.TestCase):
+    """A step that could not find its tools did not run the check it makes.
+
+    The measured case this class exists for: on 2026-09-07 `--tree` reported
+    `55/60 ... 5 failed` and then `60/60` on the same clean checkout of
+    `main`, minutes apart, with nothing between the runs but
+    `pip install pytest`. All five said `No module named pytest`. Reading the
+    first as a red `main` is the failure being prevented.
+    """
+
+    def run_one(self, command, workdir="."):
+        step = runner.Step("j", "n", command, workdir)
+        runner.execute(step, timeout=60)
+        return step
+
+    def test_an_absent_python_module_is_unrun_not_failed(self):
+        step = self.run_one("python3 -m pytest_absent_xyz --version")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing, "pytest_absent_xyz")
+
+    def test_an_absent_binary_is_unrun_not_failed(self):
+        step = self.run_one("definitely-not-a-real-binary-xyz --version")
+        self.assertEqual(step.status, "unrun")
+
+    def test_an_absent_node_module_is_unrun_not_failed(self):
+        step = self.run_one(
+            "node -e \"require('playwright-absent-xyz')\"")
+        self.assertEqual(step.status, "unrun")
+
+    def test_a_module_this_repo_provides_is_a_real_failure(self):
+        """The discrimination the whole class turns on.
+
+        `platform/ci`'s suites import by bare name and resolve only with
+        `platform/ci` as the working directory -- CLAUDE.md records that
+        `python3 -m pytest platform/ci` from the root fails collection for
+        exactly this reason. Classifying that as a missing toolchain would
+        bury the defect the check exists to surface.
+        """
+        step = self.run_one("python3 -c 'import pages_state'")
+        self.assertEqual(step.status, "failed",
+                         "pages_state.py is in platform/ci; not a missing tool")
+
+    def test_a_repo_module_missing_from_the_wrong_cwd_is_still_a_failure(self):
+        step = self.run_one("python3 -c 'import pages_state'",
+                            workdir="platform/marketing")
+        self.assertEqual(step.status, "failed")
+
+    def test_an_ordinary_assertion_failure_is_untouched(self):
+        step = self.run_one("python3 -c 'assert False, \"real defect\"'")
+        self.assertEqual(step.status, "failed")
+
+    def test_a_failing_install_is_still_classified_as_setup_first(self):
+        """SETUP is checked before this, and must stay that way: an install
+        that fails because a package is absent is the setup class, not a
+        step that owes an answer."""
+        step = self.run_one(
+            "pip install nothing-here-at-all-xyz 2>&1; "
+            "echo 'No module named nothing_here'; exit 1")
+        self.assertEqual(step.status, "setup-failed")
+
+
 class Report(unittest.TestCase):
     def report(self, steps, uses_skipped=(), forced=False):
         out = io.StringIO()
@@ -367,6 +428,35 @@ class Report(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("SETUP", out)
         self.assertIn("deps", out)
+
+    def test_an_unrun_step_is_not_a_failure_and_not_green(self):
+        step = self.done("unrun", "pytest-step")
+        step.missing = "pytest"
+        code, out = self.report([self.done("ok"), step])
+        self.assertEqual(code, 0, "a missing tool is not the repository's fault")
+        self.assertIn("UNRUN", out)
+        self.assertIn("pytest-step", out)
+        self.assertIn("Not a green check", out,
+                      "it still owes an answer; it must not read as passing")
+
+    def test_an_unrun_step_names_what_to_install(self):
+        step = self.done("unrun", "s")
+        step.missing = "pytest"
+        _, out = self.report([step])
+        self.assertIn("pytest", out)
+
+    def test_an_unrun_step_is_counted_as_not_run_rather_than_passed(self):
+        step = self.done("unrun", "s")
+        step.missing = "pytest"
+        _, out = self.report([self.done("ok"), step])
+        self.assertIn("1/1 run: step(s) passed", out)
+        self.assertIn("(1 not run)", out)
+
+    def test_a_real_failure_alongside_an_unrun_step_still_fails(self):
+        step = self.done("unrun", "s")
+        step.missing = "pytest"
+        code, _ = self.report([step, self.done("failed", "real")])
+        self.assertEqual(code, 1)
 
 
 class AgainstThisRepository(unittest.TestCase):
