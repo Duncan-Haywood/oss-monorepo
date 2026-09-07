@@ -74,3 +74,16 @@ test('the "how much to charge" SEO page exists, is linked from the calculator, a
   const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+// Closest winter-weather sibling: roof-edge steam ice-dam removal (linear feet,
+// crew, emergency premium) rather than driveway/lot plow routes. Related-tool
+// chrome rotates alphabetically inside each subcategory, so without an
+// explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the ice-dam-removal-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/ice-dam-removal-bid-calculator\/"/,
+    'index must link ../ice-dam-removal-bid-calculator/ so crawlers reach the ice-dam calculator in one hop',
+  );
+  assert.match(html, /ice dam removal bid calculator/i);
+});

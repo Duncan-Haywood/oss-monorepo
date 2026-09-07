@@ -113,6 +113,33 @@ VERIFICATION_ONLY = {
     # object and a compare over the API and writes nothing -- in particular it
     # never publishes, which is why it is a check and not a fixer.
     "pages-freshness-ci.yml",
+    # Added 2026-09-07, and unlike the two above these were NOT added with the
+    # workflow that needed them -- they had been outside this set since they
+    # were written. Both sweep the whole catalogue (754 and 807 pages) and both
+    # write nothing: `contents: read`, no secrets, checkout plus `node --test`
+    # plus a read-only sweep. They are the same shape as `sibling-links-ci.yml`
+    # above and belong here for the same reason.
+    #
+    # Measured, which is why they are here now. PR #3895 added a visible link
+    # to twelve product pages. All 25 of its checks came back red, every one
+    # classified `runner_id: 0` by `ci_starvation.py` -- so `link-contrast` and
+    # `page-integrity` never ran on a runner, and `--tree` did not run them
+    # either, because of this list. A change that adds twelve `<a>` elements is
+    # precisely what those two guards exist to check, and nothing at all
+    # checked them. Run by hand afterwards they were green (no link contrast
+    # violation over 659 link colours; 807 pages sound), so this cost nothing
+    # that day -- but "we got away with it" is not the same as "it was
+    # verified", and CLAUDE.md already records the day `contrast.mjs` first ran
+    # and found 48 critical `label` violations that had been live for the whole
+    # life of the catalogue.
+    #
+    # This is the `checklist_coverage.py` lesson one level up: that tool fails
+    # when a new *test directory* outruns CLAUDE.md's list, and nothing plays
+    # the same role for this list. A whole-catalogue guard can still be written
+    # tomorrow, left out of here, and go unrun for as long as Actions stays
+    # starved.
+    "link-contrast-ci.yml",
+    "page-integrity-ci.yml",
 }
 
 # Commands that change something outside this working tree. A verification
