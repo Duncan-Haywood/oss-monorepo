@@ -64,3 +64,15 @@ test('discoverability files let crawlers find both pages', () => {
   assert.match(sitemap, /carpet-cleaning-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /how-to-price-carpet-cleaning\.html/);
 });
+
+// Closest sibling: same cleaning subcategory, but chemical cost rather than a
+// carpet stop. Without a crawlable link here, a crawler entering on the carpet
+// calculator never reaches the dilution tool in one hop — same one-way orphan
+// class as #3709 / #3729 / #3743.
+test('index links one hop to the cleaning-dilution-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/cleaning-dilution-calculator\/"/,
+    'index must link ../cleaning-dilution-calculator/ so crawlers reach the dilution calculator in one hop',
+  );
+});

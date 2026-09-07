@@ -255,3 +255,22 @@ test("visible FAQ explains why Whatnot is excluded", () => {
   assert.match(markup, /Why is Whatnot not in the comparison\?/);
   assert.match(prose, /livestream auction/i);
 });
+
+// #3682's commit message says it closed the crawlable orphan to the Whatnot
+// payout calculator. What it actually shipped into the static HTML was FAQ
+// prose naming the tool; the only href to it is written by `calc.mjs` at
+// runtime, from `EXCLUDED_CHANNELS[].deepTool`. A crawler that does not
+// execute JavaScript therefore never followed it, and
+// `whatnot-seller-payout` stayed the one-way orphan the commit set out to
+// close — while `whatnot-seller-payout/index.html` had linked back here
+// statically the whole time.
+//
+// Found by `node platform/pages/siblings.mjs`, which counts static hrefs only
+// and so cannot be satisfied by a mention or by a link a script assembles.
+test("index links statically to the Whatnot payout calculator", () => {
+  assert.match(
+    markup,
+    /href="\.\.\/whatnot-seller-payout\/"/,
+    "index must carry a static ../whatnot-seller-payout/ href — a runtime-built link is invisible to a crawler",
+  );
+});
