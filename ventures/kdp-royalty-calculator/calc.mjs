@@ -177,7 +177,11 @@ export function compareExclusiveVsWide(input) {
 }
 
 export function exclusiveNote(result) {
-  const money = (n) => `$${n.toFixed(2)}`;
+  const money = (n) => {
+    const format = (n) => `$${n.toFixed(2)}`;
+    const text = format(Math.abs(n));
+    return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   if (result.wideExtras === 0 && result.ku === 0) {
     return `With no KU reads and no wide extras, both paths keep ${money(result.exclusive)} — the paid KDP sales alone.`;
   }
