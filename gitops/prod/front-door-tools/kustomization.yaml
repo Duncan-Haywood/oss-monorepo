@@ -39,8 +39,8 @@
 #   portfolio-front-tools-3: 125 files, 556703 bytes
 #   portfolio-front-tools-4: 119 files, 555226 bytes
 #   portfolio-front-tools-5: 131 files, 549137 bytes
-#   portfolio-front-tools-6: 105 files, 552781 bytes
-#   portfolio-front-tools-7: 116 files, 553656 bytes
+#   portfolio-front-tools-6: 104 files, 554934 bytes
+#   portfolio-front-tools-7: 117 files, 556162 bytes
 #   portfolio-front-tools-8: 115 files, 555217 bytes
 #   portfolio-front-tools-9: 101 files, 556382 bytes
 #   portfolio-front-tools-10: 111 files, 555483 bytes
@@ -970,12 +970,12 @@ configMapGenerator:
       - janitorial-bid-calculator__calc.mjs.gz=janitorial-bid-calculator__calc.mjs.gz
       - janitorial-bid-calculator__index.html.gz=janitorial-bid-calculator__index.html.gz
       - janitorial-bid-calculator__second-site.html.gz=janitorial-bid-calculator__second-site.html.gz
-      - janitorial-bid-calculator__second-site.mjs.gz=janitorial-bid-calculator__second-site.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - janitorial-bid-calculator__second-site.mjs.gz=janitorial-bid-calculator__second-site.mjs.gz
       - janitorial-bid-calculator__share.mjs.gz=janitorial-bid-calculator__share.mjs.gz
       - janitorial-bid-calculator__should-i-let-them-buy-the-paper.html.gz=janitorial-bid-calculator__should-i-let-them-buy-the-paper.html.gz
       - janitorial-bid-calculator__should-i-throw-in-the-initial-clean.html.gz=janitorial-bid-calculator__should-i-throw-in-the-initial-clean.html.gz
