@@ -1,0 +1,84 @@
+name: npm-lifecycle-script-check
+description: 'Free, read-only checker that lists every package in a package-lock.json running a preinstall/install/postinstall/prepare lifecycle script at install time, and diffs two lockfile snapshots to flag exactly which packages gained one since the last check -- the mechanism behind the ua-parser-js (2021), coa/rc (2021), and Shai-Hulud (2025) npm supply-chain attacks, which npm audit does not catch. Browser or zero-dependency CLI, no upload, no account.'
+stage: prototype
+
+owner: duncan
+
+# Not a pipeline candidate write-up, and not a trade-bid calculator: same
+# archetype as ventures/license-drift-check (paste two point-in-time
+# dependency-tree snapshots, get a deterministic diff) and the other
+# developer/CI checkers portfolio/pipeline/README.md's "archetype itself"
+# section (2026-09-07) argues for over a 143rd <trade>-bid-calculator, since
+# 141+ of 200+ ventures already share that shape with zero recorded visitors
+# between them.
+#
+# duplicate_check.py scored every existing venture, screened-out.md row, and
+# pipeline candidate below 0.13 for "free CLI/browser checker that scans
+# package.json and package-lock.json/yarn.lock/pnpm-lock.yaml for npm
+# install-time lifecycle scripts (preinstall/install/postinstall) and flags
+# newly-added or suspicious ones (network calls, base64/eval, curl|bash) as
+# the supply-chain-worm risk vector, since npm audit does not check for
+# this" -- nothing close to the 0.45 review bar. Read against the closest
+# existing ventures by eye as well: license-drift-check diffs a dependency's
+# declared *license* field, not whether it runs code at install time;
+# mcp-supply-chain-watch monitors MCP server manifests a customer has
+# already connected, not npm packages; actions-injection-check and
+# actions-cache-poisoning-check scan GitHub Actions workflow YAML, a
+# different artifact and a different attacker entry point entirely. None of
+# them read a package-lock.json's hasInstallScript field or a package's own
+# lifecycle scripts.
+#
+# Distribution channel this was picked for: not "searchable, like the other
+# 141" -- real, dated, event-driven demand, confirmed by web search on
+# 2026-09-07 rather than assumed. Four separate npm supply-chain incidents
+# used exactly this mechanism -- ua-parser-js (2021-10-22, ~8M weekly
+# downloads, XMRig cryptominer + Windows credential-stealing trojan via a
+# preinstall script after an npm account hijack), coa & rc (2021-11-04, 8.8M
+# and 14.2M weekly downloads, identical malicious postinstall payload), and
+# the Shai-Hulud worm (2025-09-15, postinstall-based credential harvesting
+# that self-propagated by republishing every package a stolen npm token
+# could reach) and its second wave Shai-Hulud 2.0 (2025-11, moved to
+# preinstall specifically to run before scanners, 700+ packages and 27,000+
+# malicious repos). Confirmed the same day: npm audit's own documentation
+# and independent write-ups agree it matches only known CVEs and has no
+# mechanism to flag a new or changed lifecycle script; existing paid
+# scanners (Socket.dev) address the same gap behind a signup/GitHub-app
+# install, and community tools like can-i-ignore-scripts answer a different
+# question (is this script safe to skip) rather than diffing two snapshots
+# to name what is newly present. The audience this targets first: developers
+# who lived through one of the four incidents directly (a huge, motivated
+# set given the download counts above), and anyone searching "npm audit
+# postinstall script", "npm ignore-scripts security", or "shai-hulud check
+# my dependencies" in the aftermath of the 2025 worm's wide press coverage
+# (Unit 42, Sysdig, Wiz, Securelist, Datadog Security Labs, Zscaler, and
+# Checkmarx all published incident write-ups).
+hypotheses:
+  - claim: A developer who lived through the Shai-Hulud worm, ua-parser-js, or coa/rc incident (directly or by reading about it) will search for a way to check whether their own dependency tree just gained an install-time script, and will wire the CLI into their own CI as a gate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A maintainer doing routine dependency review will prefer a one-command "what changed in what runs at install time" diff over manually re-reading every updated package's package.json for a new lifecycle script.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only text pasted into
+  # it, in the visitor's own browser, and the CLI reads only local files with
+  # no network call at all. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/npm-lifecycle-script-check/
+  analytics: null
