@@ -206,7 +206,8 @@ def normalize_app(app: dict) -> dict:
     record = {"id": app_id, "scopes": scopes, "webhooks": _string_list(webhooks_value, field="webhooks", app_id=app_id) if webhooks_present else []}
     if declared is not None:
         record["declared_scopes"] = _string_list(declared, field="declared_scopes", app_id=app_id)
-    if not webhooks_present:
+    # A normalized capture uses [] for omitted webhooks; preserve that uncertainty.
+    if not webhooks_present or app.get("webhook_coverage") == "absent":
         record["webhook_coverage"] = "absent"
     else:
         record["webhook_coverage"] = "complete"
