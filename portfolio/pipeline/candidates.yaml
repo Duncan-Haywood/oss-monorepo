@@ -1086,3 +1086,26 @@ candidates:
     mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: pour-cost-calculator
+    name: Pour cost calculator
+    doc: candidates/pour-cost-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-07
+    initiated_path: ventures/pour-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every input as a user-supplied bottle cost or pour size; measure repeat use before adding any integration, POS connection, or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

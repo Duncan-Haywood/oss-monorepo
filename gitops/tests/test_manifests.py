@@ -1325,7 +1325,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 189 since 2026-09-06, when `home-staging-bid-calculator` shipped — same
     # shape again: a new venture with a static `index.html` from its first
     # commit, entering the mirror and the total together.
-    total = 189  # `infra/OWNER_CHECKLIST.md`'s own "N of the 189 tools" wording.
+    # 190 since 2026-09-07, when `pour-cost-calculator` shipped — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    total = 190  # `infra/OWNER_CHECKLIST.md`'s own "N of the 190 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

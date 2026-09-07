@@ -6720,3 +6720,53 @@ ventures:
       sell. The tool never touches a live transaction or anyone else's
       data; nothing entered leaves the browser and nothing is saved between
       sessions.
+  - slug: pour-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — pricing a
+      spirit/modifier/mixer recipe from each ingredient's own bottle cost
+      and pour size, comparing the result to an operator-set pour cost
+      target, and separately turning a stated over-pour on the primary
+      spirit into a weekly and annual dollar figure across the operator's
+      own drink volume — arithmetic a bar or restaurant beverage program
+      has to be able to re-derive before pricing a menu.
+    basis: >-
+      Graduated and scored 2026-09-07 as `portfolio/pipeline/candidates/
+      pour-cost-calculator.md` (build-now, composite 6.875 on that
+      rubric's eight dimensions including the liability and ethics gates).
+      Scored here on this file's six-dimension rubric to keep coverage
+      complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`, the same day the venture
+      shipped, in the same PR as the code. Same deterministic-calculator
+      shape as `locksmith-bid-calculator`, `dumpster-rental-margin-
+      calculator`, and `home-staging-bid-calculator`, scored the same way.
+      Defensibility 5: the over-pour-cost-over-a-year framing, applied to a
+      per-ingredient recipe cost rather than a flat percentage assumption,
+      is specific to a beverage program's own recipe and volume and is not
+      modeled by any generic margin or fee calculator on this site.
+      Distribution 6: "pour cost calculator," "liquor cost calculator," and
+      "how to calculate pour cost" are real, recurring search terms with
+      existing commercial and blog-embedded calculators but no free-
+      standing, private one built around the over-pour-cost check
+      specifically, and r/bartenders / r/TendingBar are a named,
+      no-cost channel — but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on bottle costs, pour sizes, and
+      prices the operator types in, never a recommended menu price, an
+      alcohol-service determination, or a claim about any specific
+      bartender. The tool never touches a live transaction, a POS, or
+      anyone else's data; nothing entered leaves the browser and nothing is
+      saved between sessions.

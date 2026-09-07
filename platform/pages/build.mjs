@@ -391,8 +391,14 @@ const CATEGORY_RULES = [
     // `portable-restroom` above. All five shipped the same day and sat in
     // the catch-all for the same reason as every entry above them: no
     // keyword in this list started with their slug.
+    //
+    // `pour-cost-calculator` prices a menu item for a bar or restaurant
+    // beverage program the same way `notary-trip-quote` prices a visit and
+    // `booth-rent-vs-commission` prices a stall — a small service business
+    // turning its own costs into a customer-facing price, not a trade bid, a
+    // marketplace fee, or a back-office reconciliation.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost)/.test(
         slug,
       ),
   },
