@@ -234,3 +234,15 @@ test("the sharing FAQ answer matches between JSON-LD and the visible section", (
     "the JSON-LD answer text must also be visible on the page",
   );
 });
+
+// where-to-sell-calculator ranks the same one-item shape after returns and
+// shelf time (and covers Reverb / a local sale). Without a crawlable reverse
+// link, a crawler entering here never reaches that sibling hub — same
+// one-way orphan class as #3639 / #3650 / #3658.
+test("index links to the related where-to-sell calculator", () => {
+  assert.match(
+    markup,
+    /href="\.\.\/where-to-sell-calculator\/"/,
+    "index must link ../where-to-sell-calculator/ so crawlers can reach the returns/shelf-time ranking",
+  );
+});
