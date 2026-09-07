@@ -199,3 +199,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest outbuilding sibling: post-frame / pole-barn (bays, eave, floor) rather
+// than a backyard shed kit with pad and delivery. Related-tool chrome rotates
+// alphabetically inside each subcategory, so without an explicit one-hop a
+// crawler on this page may never land on that tool.
+test('index links one hop to the pole-barn-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/pole-barn-bid-calculator\/"/,
+    'index must link ../pole-barn-bid-calculator/ so crawlers reach the pole-barn calculator in one hop',
+  );
+  assert.match(html, /pole barn bid calculator/i);
+});
