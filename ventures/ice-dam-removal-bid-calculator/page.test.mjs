@@ -111,3 +111,16 @@ test('the guide page worked example matches calc.mjs for the same inputs', () =>
   assert.match(guide, /\$42\.98/);
   assert.match(guide, /−\$132\.02|&minus;\$132\.02/);
 });
+
+// Closest winter-weather sibling: driveway/lot snow (route minutes, salt,
+// seasonal vs per-push) rather than roof-edge steam ice-dam removal. Related-
+// tool chrome rotates alphabetically inside each subcategory, so without an
+// explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the snow-removal-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/snow-removal-bid-calculator\/"/,
+    'index must link ../snow-removal-bid-calculator/ so crawlers reach the snow calculator in one hop',
+  );
+  assert.match(html, /snow removal bid calculator/i);
+});
