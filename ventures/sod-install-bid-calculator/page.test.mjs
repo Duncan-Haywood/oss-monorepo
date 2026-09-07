@@ -199,3 +199,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same outdoor subcategory, but artificial turf (roll waste,
+// base, sod demo) rather than natural sod (pallets, prep, watering). Related-
+// tool chrome rotates alphabetically inside the subcategory, so without an
+// explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the artificial-turf-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/artificial-turf-bid-calculator\/"/,
+    'index must link ../artificial-turf-bid-calculator/ so crawlers reach the turf calculator in one hop',
+  );
+  assert.match(html, /artificial turf bid calculator/i);
+});
