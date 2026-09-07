@@ -130,6 +130,12 @@
     <loc>https://marisstella.dev/tools/actions-injection-check/what-is-a-pwn-request-in-github-actions.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-permissions-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-permissions-check/how-to-set-least-privilege-permissions-for-github-actions.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-runner-starvation-check/</loc>
   </url>
   <url>

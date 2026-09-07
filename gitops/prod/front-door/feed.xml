@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 200 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 201 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run &#39;pwn request&#39; checkouts and shell script-injection from untrusted ${{ github.event }} expressions. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Actions Permissions Check — Does Your GITHUB_TOKEN Use Least Privilege?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-permissions-check/"/>
+    <id>tag:marisstella.dev,2026:tool/actions-permissions-check</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Actions Runner Starvation Check — Is Your Red CI Even Real?</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price a basement finish from finished square feet, rec-room versus framed-finish versus legal-living, drop ceiling versus drywall, carpet versus LVP, bath, egress, and extras — plus the walk-away price a $30 / SF special cannot see.</summary>
-  </entry>
-  <entry>
-    <title>Basement Waterproofing Bid Calculator — Wells, Sump, Drain</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/basement-waterproofing-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/basement-waterproofing-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price an interior French drain, exterior excavation, or crawl encapsulation from perimeter, wall height, window wells, crack repair, sump pit, backup pump, and freeze-protected discharge — not a published price per lineal foot. See the walk-away number before you match a cheaper drain-tile quote.</summary>
   </entry>
 </feed>

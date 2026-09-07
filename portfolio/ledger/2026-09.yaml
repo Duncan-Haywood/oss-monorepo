@@ -19035,6 +19035,7 @@ entries:
         winner's work, and nothing else was going to while CI is starved.
     mrr_end: null
   - venture: platform
+  - venture: actions-permissions-check
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -19088,4 +19089,46 @@ entries:
         is gated on the owner setting `PAGES_BRANCH_PUBLISH` -- and needs a
         runner, which `ci_starvation.py --run 34131540325` confirms is still
         unavailable (`runner_id: 0`, 4s, no steps).
+        Repaired and merged PR #3787. `actions-permissions-check` flags
+        GitHub Actions workflows and jobs running with no explicit
+        `permissions:` block (so they inherit the repository or organization
+        default GITHUB_TOKEN scope) or with `permissions: write-all`, with
+        the minimal replacement scope printed for each finding. Browser page
+        plus zero-dependency Python CLI, parity-tested against each other.
+        Third checker over GitHub's "Security hardening for GitHub Actions"
+        guidance and orthogonal to both siblings: `pinned-actions-check` asks
+        which code runs, `actions-injection-check` asks whose input runs,
+        this asks what the token may do while it runs -- a workflow can pass
+        either sibling and still give a compromised step write access to the
+        whole repository.
+      - >-
+        The branch would have DELETED a live product. Its commit removes
+        `ventures/childcare-tuition-calculator/` outright -- twelve files
+        including `index.html`, `VENTURE.yaml` and the CI workflow -- along
+        with that venture's `venture-scores.yaml` row, its `launched.json`
+        and `publish-surface.yaml` entries, and the mirrored-tool count that
+        had just moved to 200. It also reverted #3784's door sibling links.
+        The venture had merged roughly an hour earlier (#3770, itself merged
+        by this session), so the branch's tree predates it and `git merge
+        origin/main` resolved *cleanly* while keeping the deletion. Third
+        instance of this exact shape in one session (#3746 reverted a
+        test_manifests guard the same way) and the most expensive: nothing
+        turns red when a venture disappears, because its tests leave with it.
+        Restored all twelve files and every metadata row from `origin/main`
+        before touching anything else.
+      - >-
+        Completed the graduation the branch left half-done, the same gaps
+        #3746 shipped with: no `venture-scores.yaml` row (so
+        `score_ventures.py --check` and `portfolio/router/test_allocate.py`
+        both fail) and no CI workflow (so `test_validate_workflows`'s
+        venture-test-coverage check fails). Added both, regenerated
+        `launched.json` and `publish-surface.yaml` rather than hand-editing,
+        ran `sync_readme_counts.py`, and moved the mirrored-tool count
+        200->201 in the five hand-typed places CLAUDE.md warns about.
+      - >-
+        Verified locally, Actions being starved (`ci_starvation.py --run
+        34131540325`: `runner_id: 0`, 4s, no steps): the venture's own 29
+        node and 29 python tests; `gitops/tests` 490 passed / 25 skipped;
+        `score_ventures.py --check` clean across 210; `siblings.mjs --check`
+        142 orphans within budget at 201 tools.
     mrr_end: null
