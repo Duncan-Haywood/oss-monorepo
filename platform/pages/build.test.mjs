@@ -1302,6 +1302,12 @@ test('tools that belong to a named category are not left in the catch-all', () =
   assert.equal(categoryFor('coverage-drop-check').id, 'ci');
   assert.equal(categoryFor('flaky-test-finder').id, 'ci');
   assert.equal(categoryFor('ai-crawler-access-check').id, 'ci');
+  // `license-drift-check` graduated 2026-09-07 and landed in the catch-all
+  // because the rule enumerates families by prefix and its slug starts a new
+  // one — it names what it diffs rather than what it reads. Same shape as the
+  // rest: a browser-local checker plus a matching CLI, run against a
+  // dependency tree the maintainer already has.
+  assert.equal(categoryFor('license-drift-check').id, 'ci');
 });
 
 // Found 2026-09-06: five more tools sat in the catch-all for the same reason —
