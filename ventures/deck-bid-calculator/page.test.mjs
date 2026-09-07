@@ -92,3 +92,16 @@ test('robots and sitemap let crawlers find both pages', () => {
   assert.match(sitemap, /deck-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+// Closest sibling: same deck-contractor job, but a stain / seal rather than a
+// new build. Related-tool chrome rotates inside the carpentry subcategory, so
+// without an explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the deck-staining-bid-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/deck-staining-bid-calculator\/"/,
+    'index must link ../deck-staining-bid-calculator/ so crawlers reach the stain calculator in one hop',
+  );
+  assert.match(html, /deck staining bid calculator/i);
+});
