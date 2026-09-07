@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 192,
-  "collection_total": 192,
+  "served_here": 193,
+  "collection_total": 193,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 4
+      "tool_count": 5
     }
   ],
   "tools": [
@@ -649,6 +649,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a quartz or granite countertop job from slabs, sink and cooktop cutouts, edge profile, backsplash, and waterfalls — not a published price per finished square foot. See the walk-away number before you match a cheaper kitchen quote.",
       "pages": 3
+    },
+    {
+      "slug": "coverage-drop-check",
+      "name": "Coverage Drop Check — Did This PR Lower Line Coverage?",
+      "url": "https://marisstella.dev/tools/coverage-drop-check/",
+      "category": "More free tools",
+      "description": "Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.",
+      "pages": 2
     },
     {
       "slug": "cra-evidence-desk",

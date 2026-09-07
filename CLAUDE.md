@@ -147,6 +147,40 @@ pytest, so that `gitops/tests` line exits `No module named pytest` rather than
 failing any test. Do not read that as a clean run. The `platform/ci` line needs
 no pytest — those suites are `unittest`.)
 
+**That parenthesis is no longer the only thing standing between a session and
+a wrong reading of `main` (changed 2026-09-07).** It warns about the raw
+`node --test`/`pytest` lines above, and `run_workflow_locally.py` — the line
+this block tells you to prefer, precisely because a hand-copied list goes
+stale — had the same hole and no warning at all. Measured that day, twice on
+the same clean checkout of `main` minutes apart, with nothing between the two
+runs but `pip install pytest`:
+
+```
+portfolio-validate.yml: 55/60 run: step(s) passed, 5 failed
+portfolio-validate.yml: 60/60 run: step(s) passed
+```
+
+All five said `No module named pytest`; `main` was green both times. The tool
+already exempted a failing *install* step from the verdict, on the stated
+grounds that reporting it as a failure "trains a reader to ignore the result"
+— and then rendered the five steps downstream of that install as ordinary
+`FAILED`, indistinguishable from an assertion failure in the repository. This
+is the same shape as the starvation signature the section above describes: a
+red that means "nothing ran" wearing the costume of a red that means "your
+code is broken."
+
+A step that cannot find its interpreter, module, or binary is now reported as
+**`UNRUN`** — named, counted as not run, listed with what to install, and
+never left reading as green. It does not fail the sweep, because a sandbox
+without pytest is not a defect in `main`. What it is *not* is a licence to
+ignore the line: an `UNRUN` step still owes an answer, and the summary says
+so. Install what it names and re-run before you claim the tree is green.
+
+The one discrimination that matters: a module the repository itself supplies
+(`No module named pages_state`) stays `FAILED`. That is not a missing tool —
+it is the documented `platform/ci` working-directory trap, and calling it
+"toolchain missing" would bury the defect the check exists to surface.
+
 **If your change touches markup a user types into, run the browser checks too —
 one `npm install` is the whole barrier, and sessions have been treating it as
 impossible** (added 2026-09-06):

@@ -32,6 +32,12 @@ Reads committed repo data and `git log`, plus one `git fetch origin main`
 issued by this script itself (read-only, no credential beyond the repo access
 the session already has) — see `refresh_origin_main`'s docstring for why that
 fetch turned out not to be optional.
+
+It also asks `platform/ci/pages_state.py` whether the published snapshot still
+matches `main`, because `portfolio/DIRECTION.md` ranks that refresh above all
+new work and nothing else in a generic session's opening minute says it. That
+read is best-effort and degrades to `unknown`, never to `current` — see
+`published_snapshot`.
 """
 
 from __future__ import annotations
@@ -212,6 +218,63 @@ def refresh_origin_main(timeout: float = 20.0) -> bool:
     except (subprocess.TimeoutExpired, OSError):
         return False
     return result.returncode == 0
+
+
+def published_snapshot(timeout: float = 25.0) -> tuple[str, str]:
+    """Whether the live site is serving what `main` contains.
+
+    `portfolio/DIRECTION.md`'s North star says, in its first numbered point,
+    that a stale published snapshot outranks new work: "`pages_state.py` says
+    whether the live snapshot matches `main`; if it says `stale`, that refresh
+    outranks new work." Until 2026-09-07 this gate — the one command a generic
+    scheduled session is told to run *first*, and the only place the fleet's
+    priorities get printed rather than written down — never asked the question.
+    A session could read a full PROCEED verdict, follow every line of it, and
+    spend the run building on top of a live site that had silently been behind
+    `main` since somebody else's merge.
+
+    That gap is the same shape this repository keeps rediscovering. `CLAUDE.md`
+    records it against `pages_state.py --require-current`, which exists because
+    "refresh the snapshot" had been prose in `CLAUDE.md` since 2026-09-05 and
+    the snapshot was found stale anyway on 2026-09-06 *by a session that had
+    read it*: "a reminder competes with everything else in a long file; an exit
+    code does not." The flag fixed the case where a session finished a merge and
+    remembered to check. This fixes the case where a session never merges
+    anything at all — it inherits a gap another session left, and nothing in its
+    run would ever mention it.
+
+    Failure is never `current`. No token, no network, an unreadable `gh-pages`
+    tip, an exception inside `pages_state` — all of it returns `unknown` with
+    the reason, because "an absent measurement must not read as a healthy one"
+    is the rule `portfolio/ledger/infra_state.yaml` and `freshness()` itself
+    already follow, and it is the direction this gate can afford to be wrong in.
+    A spurious `unknown` costs a session one command; a spurious `current` costs
+    the live site.
+    """
+    sys.path.insert(0, str(REPO / "platform" / "ci"))
+    try:
+        import pages_state
+    except Exception as exc:  # pragma: no cover - import shape, not logic
+        return "unknown", f"could not load platform/ci/pages_state.py ({exc})"
+
+    try:
+        token = pages_state.api_token()
+        if not token:
+            return (
+                "unknown",
+                "neither GH_TOKEN nor GITHUB_TOKEN is set, so the published "
+                "snapshot could not be read from here",
+            )
+        api = pages_state.http_api_for(pages_state.resolve_repo(None), token)
+        state = pages_state.collect(api)
+    except Exception as exc:
+        # Deliberately broad. This is an advisory line on a gate whose whole
+        # job is to run in two seconds at the top of every generic session; a
+        # network hiccup inside a reporting helper must not crash the reading
+        # the session actually came here for.
+        return "unknown", f"reading the published snapshot failed ({exc})"
+
+    return state.get("snapshot", "unknown"), state.get("snapshot_reason", "")
 
 
 def history_span_hours(commit_timestamps: list[int]) -> float:
@@ -540,6 +603,7 @@ def report(
     cadence_reliable: bool = True,
     origin_fetched: bool = True,
     targets: list[dict] | None = None,
+    snapshot: tuple[str, str] | None = None,
 ) -> dict:
     revenue = revenue_recorded(entries)
     meta = meta_share(entries)
@@ -559,6 +623,27 @@ def report(
             "a 24h average won't show this. Before starting new work, check open PRs, "
             "branches, and issue #139 for what those sessions are already doing, and "
             "re-check `main` immediately before pushing or opening a PR."
+        ]
+    snap, snap_reason = snapshot or ("unknown", "not read")
+    if snap == "stale":
+        # First, ahead of every other reason including the verdict's own. This
+        # is the one line in the report that describes something already broken
+        # for real visitors rather than something worth doing next, and
+        # DIRECTION.md ranks it above the work the verdict is about to name.
+        reasons = [
+            "THE LIVE SITE IS BEHIND `main`. Refresh the published snapshot "
+            "before anything else — `CONFIRM=publish-pages-branch PUSH=1 "
+            "./platform/pages/publish-branch.sh`, then `python3 "
+            "platform/ci/pages_state.py --require-current` to confirm. It needs "
+            "no runner, no cluster and no credential beyond the push you "
+            f"already have. Reason: {snap_reason}"
+        ] + reasons
+    elif snap != "current":
+        reasons = reasons + [
+            f"Published-snapshot state is `{snap}`, not a clean `current` — "
+            f"{snap_reason}. Treat that as unread, never as fine: run `python3 "
+            "platform/ci/pages_state.py` yourself before assuming the live site "
+            "serves what `main` contains."
         ]
     if stale_streak >= STALE_PR_STREAK_THRESHOLD:
         reasons = reasons + [
@@ -584,6 +669,8 @@ def report(
         "burst_window_minutes": BURST_WINDOW_MINUTES,
         "burst_lookback_hours": BURST_LOOKBACK_HOURS,
         "stale_pr_check_streak": stale_streak,
+        "published_snapshot": snap,
+        "published_snapshot_reason": snap_reason,
         "break_even_usd_per_session": break_even_per_session(),
     }
 
@@ -608,6 +695,12 @@ def render(r: dict) -> str:
         f"{r['burst_window_minutes']}-min window (last {r['burst_lookback_hours']}h)",
         f"  stale open-PR-check streak ..... {r['stale_pr_check_streak']} trailing entries "
         f"with nothing new (flag at {STALE_PR_STREAK_THRESHOLD})",
+        f"  published snapshot ............. {r.get('published_snapshot', 'unknown')}"
+        + (
+            ""
+            if r.get("published_snapshot") == "current"
+            else "  <-- the live site is not known to match `main`"
+        ),
         f"  break-even ..................... "
         + (f"${be:.2f} per session" if be is not None else "unknown"),
         "",
@@ -656,6 +749,7 @@ def main() -> int:
         burst=burst,
         cadence_reliable=cadence_reliable and fetched,
         origin_fetched=fetched,
+        snapshot=published_snapshot(),
     )
     print(json.dumps(r, indent=2) if args.json else render(r))
     return 0
