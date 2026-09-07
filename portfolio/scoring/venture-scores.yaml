@@ -6678,40 +6678,44 @@ ventures:
     scores:
       ai_leverage: 1
       autonomous_ops: 10
-      time_to_revenue: 7
+      time_to_revenue: 6
       gross_margin: 10
       defensibility: 5
-      distribution: 7
-    composite: 6.667
+      distribution: 6
+    composite: 6.333
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
     floor_note: >-
-      No AI in the product. The value is a domain model — an included-term
-      price built from a once-paid install/de-install cost plus the furniture
-      package's own monthly carrying cost, and an extension fee checked
-      against that carrying cost — arithmetic a stager has to be able to
-      re-derive against their own storage bills and mileage log before
-      quoting.
+      No AI in the product. The value is a domain model — separating the
+      included-term staging price from the furniture package's own monthly
+      carrying cost, an extension-fee-vs-carrying-cost check
+      (maxExtensionMonthsBeforeLoss), and an actual-time-on-market
+      reconciliation once a listing sells — arithmetic a stager has to be
+      able to re-derive before quoting a job or discounting an extension.
     basis: >-
-      Graduated 2026-09-06 (#3583); scored 2026-09-07 in the change that
-      added its guide page, closing the gap `score_ventures.py --check` had
-      been red on since the graduation. Same per-job trade-calculator shape
-      as `carpet-cleaning-bid-calculator` and `moving-bid-calculator`, scored
-      the same way. Defensibility 5: the term-price-versus-carrying-cost
-      split is specific to a business whose inventory is off the market for
-      the duration of a job whose length the operator does not control, and
-      it is not modeled by a generic bid calculator or by the franchise rate
-      cards that rank for the query. Distribution 7: "how much to charge for
-      home staging" and "home staging pricing" are real operator queries
-      whose current results are franchise rate cards and lead forms, but
-      volume here is unmeasured.
+      Graduated and scored 2026-09-07 (#3580 added the venture without a
+      score row; `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py` both fail coverage until every
+      `VENTURE.yaml` has one, so this closes that gap in the same PR as
+      unrelated pipeline-tooling work rather than leaving `main` red). Same
+      per-job trade-calculator shape as `locksmith-bid-calculator` and
+      `dumpster-rental-margin-calculator`, scored the same way.
+      Defensibility 5: separating the included-term price from the
+      furniture package's ongoing carrying cost, and flagging an extension
+      fee priced below that carrying cost, is specific to a rental-package
+      staging business and not modeled by a generic hourly or flat-rate
+      service-pricing calculator. Distribution 6: "home staging pricing
+      calculator" and "staging extension fee" are narrow, real search terms
+      an independent stager (not a franchise with a warehouse team) would
+      type, with no incumbent free interactive tool built around the
+      carrying-cost split, but volume is unmeasured.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
       Pass: the output is arithmetic on the stager's own figures, never a
-      recommended price, an industry rate card, a real-estate opinion, or a
-      prediction of how long a home will take to sell. The tool never touches
-      a live transaction or anyone else's data, and nothing entered leaves
-      the browser.
+      recommended price or a claim about how long a listing will take to
+      sell. The tool never touches a live transaction or anyone else's
+      data; nothing entered leaves the browser and nothing is saved between
+      sessions.

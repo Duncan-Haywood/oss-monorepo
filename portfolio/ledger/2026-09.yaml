@@ -33,15 +33,27 @@ entries:
         a ceiling. Visible Q&A with matching `FAQPage` JSON-LD, the venture's
         no-warranty clause, links both ways with `index.html`.
       - >-
-        Fixed `main` red along the way, unrelated to the page:
+        Concurrency, recorded because it changed what this branch carries.
+        `main` was red when this run started:
         `portfolio/scoring/test_score_ventures.py` (two cases) and
         `portfolio/router/test_allocate.py` (one) had been failing since the
         #3583 graduation, which added `ventures/home-staging-bid-calculator/
-        VENTURE.yaml` without a row in `portfolio/scoring/venture-scores.yaml`.
-        Confirmed pre-existing by stashing this branch's changes and
-        re-running. Added the row (composite 6.667, same shape and reasoning
-        as `carpet-cleaning-bid-calculator`); `score_ventures.py --check` now
-        reports all 198 scores consistent and covering every `VENTURE.yaml`.
+        VENTURE.yaml` with no row in `portfolio/scoring/venture-scores.yaml`.
+        Confirmed pre-existing by stashing this branch and re-running, then
+        wrote the row. #3588 merged the same fix while this branch was in
+        test, so the merge took `main`'s row (`--theirs`) and dropped the
+        duplicate rather than keeping both — `score_ventures.py --check`
+        reports all 198 consistent either way, and one row per venture is the
+        invariant. Nothing of that session's work was discarded.
+      - >-
+        Same merge also brought in `vs-hutch.html`, a named-competitor
+        comparison page another session added to this venture. Kept both: the
+        two answer different queries and the portfolio ships both shapes side
+        by side elsewhere (`carpet-cleaning-bid-calculator` has
+        `how-to-price-carpet-cleaning.html` and `vs-servicemonster.html`).
+        Folded the two separate link surfaces the merge left in `index.html`
+        into the single `.note` line that venture already had, matching the
+        carpet-cleaning convention, rather than shipping two link blocks.
       - >-
         Verified: `checklist_coverage.py` (clean), `regen.mjs` (2 generators,
         served surface current — it picked the new page into the Hetzner
@@ -17823,4 +17835,123 @@ entries:
         both ventures; 490 gitops/tests pytest and 1140
         platform/marketing + platform/pages tests re-verified green after
         the rebase onto main. `checklist_coverage.py` clean.
+    mrr_end: null
+  - venture: home-staging-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a `vs-hutch.html` competitor-comparison page, following the
+        pattern already merged for dog-walking-route-pricing (vs-Rover) and
+        locksmith-bid-calculator (vs-Jobber/vs-Housecall-Pro/vs-Workiz).
+        Named competitor: Hutch (hutchstaging.com), a real, paid,
+        account-based inventory and project management platform built
+        specifically for home staging businesses -- the closest thing this
+        niche has to an established SaaS incumbent. Positioned honestly
+        against it: Hutch tracks a furniture catalogue and coordinates a
+        team across concurrent jobs on a paid monthly account; this
+        calculator has no inventory, no accounts, and no team features --
+        it only prices one job and checks whether an extension fee covers
+        the furniture package's own carrying cost, free and browser-local.
+      - >-
+        Outbound access to hutchstaging.com is blocked from this session
+        (the same egress limit vs-rover.html's own test documents for
+        rover.com), and the two independent secondary sources found for
+        Hutch's pricing disagreed with each other ($99/mo vs $149/mo per
+        different aggregators), so the page states an approximate
+        $100-$150/month range attributed by name to those third-party
+        directories (StageCore's own comparison page, the WifiTalents
+        aggregator) rather than asserting a single figure as a confirmed
+        reading of Hutch's own site -- and a dedicated test asserts every
+        dollar figure on the page sits near that hedge, not just near a
+        citation link.
+      - >-
+        Wired into the existing pipeline rather than treated as a one-off:
+        linked from index.html next to the footer (matching the sibling
+        vs- pages' placement), added to the venture's sitemap.xml, and
+        picked up automatically by `platform/marketing/regen.mjs` --
+        front-door-tools.mjs mirrored the new page as its own ConfigMap
+        entry, and front-door.mjs added Hutch to the portfolio-wide
+        `/compare/` hub's single-comparison list (it is compared by only
+        this one tool today, so it did not clear the multi-tool grouping
+        threshold for its own dedicated `/compare/hutch` page -- expected
+        and correct given only one venture names it).
+      - >-
+        Added vs-hutch.test.mjs (14 tests) mirroring vs-rover.test.mjs's
+        structure: disclaimer text, non-affiliation statement, FAQ schema
+        matching visible headings, sitemap/index wiring, and the
+        pricing-hedge proximity check described above. Verified: 51/51
+        tests green in ventures/home-staging-bid-calculator (37 existing +
+        14 new). Ran the full CLAUDE.md starvation-window checklist after
+        `regen.mjs`: `checklist_coverage.py` clean; 1140/1140
+        platform/marketing + platform/pages tests green; 490/490
+        gitops/tests pytest green; all 15 platform/ci unittest modules
+        green (including agent_review's test_review, 21/21);
+        `pages_state.py` reported the gh-pages snapshot already current
+        against this branch's parent commit before this change, so it
+        will need a republish after merge per CLAUDE.md.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Another scheduled direction-setting session (same owner brief as the
+        entry above, ~2 hours earlier: push the fleet toward viable,
+        donation-revenue businesses, keep customers happy, avoid legal
+        exposure, rank new ventures highly). `portfolio/DIRECTION.md` had
+        just gained an explicit dated note ("Before rewriting this brief
+        again") recording that three direction-only PRs (#3542, #3551,
+        #3571) had landed in the three hours before it, none shipping a
+        venture or fixing a defect -- so a fourth restatement was the
+        anti-pattern to avoid, not the job. Read DIRECTION.md/AGENTS.md/
+        PRODUCT_PLAYBOOK.md/pipeline/README.md and confirmed the North star
+        already covers every point in the brief; wrote nothing there beyond
+        two one-line tool pointers (below).
+      - >-
+        Built `portfolio/pipeline/duplicate_check.py` + tests (16 passing):
+        scores a proposed niche against every venture description (+ product
+        lines), every `screened-out.md` row, the eight `ai-first-markets`
+        ideas, and every pipeline candidate, using IDF-weighted word/bigram
+        containment, and exits 1 with the closest matches when one clears a
+        calibrated "read this first" bar. Motivation: at 199 `ventures/`
+        directories, nearly all a `<trade>-bid-calculator` shape,
+        `DIRECTION.md`'s own "raise the bar, not just the count" note asks
+        sessions to avoid a near-duplicate niche, and eyeballing that list by
+        hand is exactly the kind of manual step this repo has repeatedly
+        replaced with a script (`supersede_check.py`,
+        `checklist_coverage.py`, `check_no_payment_code.py`). Plain Jaccard
+        was tried first and rejected: it scored an actual near-duplicate
+        pair (asphalt-sealcoat-bid-calculator vs. a one-line rephrasing of
+        its own description) at 0.16 because the real description is 6x
+        longer than a candidate one-liner; IDF-weighted containment scores
+        the same pair 0.85, and two genuinely unrelated live ventures
+        (world-clock-widget vs. septic-pumping-bid-calculator) stay below
+        the 0.45 threshold. Wired one-line pointers into
+        `portfolio/pipeline/README.md`, `DIRECTION.md`, and `AGENTS.md`
+        where the manual screening step they already describe lives --
+        not a policy restatement.
+      - >-
+        Found `main` red on `portfolio/scoring` + `portfolio/router` tests
+        while running the pipeline/scoring/router/usage/ledger checklist
+        line: #3580 (merged ~2h earlier, unrelated to this session) added
+        `ventures/home-staging-bid-calculator` without a `venture-scores.yaml`
+        row, and `score_ventures.py --check` requires every VENTURE.yaml to
+        have one. Ported the fix in this PR rather than leaving it red or
+        widening scope into a separate PR: added a scored entry (composite
+        6.333, same per-job trade-calculator shape and dimension values as
+        `ice-dam-removal-bid-calculator`/`locksmith-bid-calculator`, gates
+        both pass) with its own `basis`/`floor_note`/`gate_note` reasoned
+        from that venture's actual README and VENTURE.yaml. `score_ventures.py
+        --check` and the full `portfolio/scoring` + `portfolio/router` +
+        `portfolio/pipeline` suites (128 tests total across the three) pass
+        clean afterward.
+      - >-
+        Did not graduate a new venture this session -- the pipeline README's
+        own rule ("a candidate that fits an existing venture is a product
+        line first") and the just-raised visitor-channel bar make that a
+        genuine research task, not one to rush inside a direction-setting
+        session already spending most of its budget verifying no gap
+        existed. Built the tool that makes the *next* such session's
+        screening step reliable instead.
     mrr_end: null
