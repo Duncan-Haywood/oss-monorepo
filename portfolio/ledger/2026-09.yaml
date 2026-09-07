@@ -19186,6 +19186,68 @@ entries:
         `check_ledger_only.py` run before pushing -- this entry ships in the
         same PR as the code, not on its own.
     mrr_end: 0
+  - venture: dependency-confusion-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Direction check before building: `git log` showed `DIRECTION.md`
+        substantively rewritten as recently as this morning (2026-09-07
+        02:23, #3652) and `session_gate.py` returned PROCEED with meta-work
+        share at 32%, below the 70% threshold. Per `DIRECTION.md`'s own
+        "before rewriting this brief again" guard, the north-star content the
+        owner's brief asked for (viable businesses, donations-only revenue,
+        happy customers, legal exposure as the one hard stop, new ventures
+        ranked first) was already current and had been restated three times
+        in three hours the day before with nothing shipped each time. So this
+        session did not touch the direction docs and built a venture instead,
+        which is what that guard explicitly asks a session to do in this
+        situation.
+      - >-
+        Screened and graduated a new, genuinely non-duplicate niche, weighing
+        shape per `pipeline/README.md`'s "archetype itself" section: a free
+        CLI + browser tool that flags the two configuration patterns behind
+        the 2021 dependency-confusion incidents (Alex Birsan's research
+        against Apple, Microsoft, PayPal, Netflix, Uber, and Tesla) -- pip
+        `--extra-index-url` usage, and an unscoped npm dependency name while
+        `.npmrc` sets a private default registry. `duplicate_check.py`
+        scored the top match (`actions-cache-poisoning-check`) at 0.08,
+        well below the 0.45 flag bar. A developer-niche CLI/browser checker,
+        not another trade bid calculator -- 138+ of ~214 `ventures/`
+        directories already share that shape with zero visitors on any of
+        them, per the same section's finding.
+      - >-
+        Built and tested: `check.py` (stdlib-only CLI, no dependencies, no
+        network calls of any kind -- it never queries npm or PyPI, so it
+        cannot confirm whether a flagged name is actually claimed publicly,
+        and says so plainly in its own docstring, README, and the page's
+        FAQ), `classify.mjs` (byte-identical browser port, pinned to the CLI
+        by two parity tests that shell out to `python3 check.py`), a browser
+        page, and a docs page. Deliberately over-inclusive by design and
+        documented as such: the npm check flags every unscoped dependency
+        once a private registry is configured, including already-public
+        ones (a dependency on `left-pad` looks identical, from a read-only
+        view of `package.json`, to an internal package of the same shape),
+        because without a network call the tool cannot tell the two apart --
+        this is stated in the docstring, the README, the page copy, and the
+        FAQ rather than presented as a confirmed finding. 44 `node --test`
+        assertions plus 20 `python3 -m unittest` assertions, all passing.
+      - >-
+        Definition-of-done checklist run: `platform/pages/clauses.mjs
+        dependency-confusion-check` (both pages carry the no-warranty
+        clause), `platform/ci/checklist_coverage.py` (clean),
+        `portfolio/router/validate.py` (all 213 VENTURE.yaml valid),
+        `portfolio/usage/validate_usage.py` (usage.yaml entry added, valid),
+        `node platform/marketing/regen.mjs` (mirror + front-door
+        regenerated, 205 tools -- the fleet-wide "All N free tools" counter
+        in every sibling tool's back-link is the reason ~800 unrelated
+        `.gz` files also changed in this diff), `node platform/pages/
+        launched.mjs --write` (entered the Atom feed), and `node --test`
+        across the venture's own suites plus `platform/marketing/*.test.mjs`
+        and `platform/pages/*.test.mjs` (1169 assertions). `check_ledger_only.py`
+        run before pushing -- this entry ships in the same PR as the code,
+        not on its own.
+    mrr_end: 0
   - venture: actions-self-hosted-exposure-check
     agent_spend_usd: null
     human_hours: 0
@@ -19240,19 +19302,23 @@ entries:
         Definition-of-done checklist run: `node platform/pages/clauses.mjs
         actions-self-hosted-exposure-check` (no-warranty clause present on
         both pages), `check_no_payment_code.py` (clean), `portfolio/router/
-        validate.py` (all 214 VENTURE.yaml valid), `python3
-        portfolio/scoring/score_ventures.py --check` (214 scored, entry
-        added to `venture-scores.yaml`), `node platform/marketing/regen.mjs`
-        (mirror + front-door regenerated, 205 tools; ran twice, the second
-        time after a post-regen JSON-LD/visible-copy wording fix caught by
-        `faq-visible.test.mjs`), `node platform/pages/launched.mjs --write`
-        (entered the Atom feed), and the four hand-typed mirror-count
-        locations CLAUDE.md names (`infra/OWNER_CHECKLIST.md` x2,
-        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/
-        default.conf` x2) plus a fifth `test_manifests.py` caught
-        ("the apex serves all N") updated 204 -> 205, and
-        `gitops/ci/sync_readme_counts.py` run after the new CI workflow
-        added a `runs-on:` line (297/259 -> 298/260).
+        validate.py` (all VENTURE.yaml valid), `python3
+        portfolio/scoring/score_ventures.py --check` (entry added to
+        `venture-scores.yaml`), `node platform/marketing/regen.mjs` (mirror
+        + front-door regenerated; ran three times -- once before, once after
+        a post-regen JSON-LD/visible-copy wording fix caught by
+        `faq-visible.test.mjs`, and once more after merging `origin/main`,
+        which had gained two more ventures -- `npm-lifecycle-script-check`
+        and `dependency-confusion-check` -- while this session was building,
+        bringing the mirror to 207 tools), `node platform/pages/
+        launched.mjs --write` (entered the Atom feed), and the five
+        hand-typed mirror-count locations CLAUDE.md names
+        (`infra/OWNER_CHECKLIST.md` x3, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2, `test_manifests.py`'s
+        pinned `total`) all reconciled to 207 across the three-way count
+        (this session's +1, plus the two that landed on `main` concurrently),
+        and `gitops/ci/sync_readme_counts.py` run after the new CI workflow
+        added a `runs-on:` line.
       - >-
         Full verification: `python3 -m pytest gitops/tests -q` (490 passed,
         25 skipped), all 20 `platform/ci` unittest modules plus
