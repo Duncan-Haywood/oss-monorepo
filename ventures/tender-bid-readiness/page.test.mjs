@@ -29,3 +29,15 @@ test("index links to the related Tender Radar shortlist tool", () => {
     "index must link ../tender-radar/ so crawlers can reach the shortlist tool",
   );
 });
+
+// Closest hand-built sibling: contractor-bid-readiness tracks requirements you
+// list yourself. It was a crawlable orphan (no inbound tool link); this one-hop
+// closes it. Reciprocal of the link that page now carries back here.
+test("index links one hop to the contractor-bid-readiness sibling", () => {
+  assert.match(
+    page,
+    /href="\.\.\/contractor-bid-readiness\/"/,
+    "index must link ../contractor-bid-readiness/ so crawlers reach the hand-built checklist in one hop",
+  );
+  assert.match(page, /contractor bid readiness checklist/i);
+});
