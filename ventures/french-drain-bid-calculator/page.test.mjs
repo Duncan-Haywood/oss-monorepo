@@ -198,3 +198,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same wet-basement / site-water problem, but pier and strap
+// foundation repair rather than exterior trench drainage. Without a crawlable
+// link here, a crawler entering on the French-drain calculator never reaches
+// the foundation-repair tool in one hop.
+test('index links one hop to the foundation-repair-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/foundation-repair-bid-calculator\/"/,
+    'index must link ../foundation-repair-bid-calculator/ so crawlers reach the foundation repair calculator in one hop',
+  );
+  assert.match(html, /foundation repair bid calculator/i);
+});
