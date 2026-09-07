@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gig Driver Net Pay Calculator — What You Keep After Gas</title>
+  <meta name="description" content="Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session's gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <meta property="og:title" content="Gig Driver Net Pay Calculator">
+  <meta property="og:description" content="The app shows gross pay per hour. See what you actually kept after the car — and what to set aside for taxes.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Gig Driver Net Pay Calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Net pay per hour and per mile after gas and vehicle wear, monthly fixed cost prorated across a session's miles, self-employment tax reserve, comparison against another hourly wage, gross pay needed to hit a take-home goal, copyable session summary"
+  }
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I calculate my real hourly pay driving for DoorDash, Uber Eats, or Instacart?","acceptedAnswer":{"@type":"Answer","text":"Take everything the app paid out this session — base pay, tips, promotions — and subtract what the vehicle actually cost to run: fuel for every mile driven (including the drive to go online and back home), a per-mile reserve for maintenance and tires, and a share of your monthly insurance and other fixed costs spread across your typical monthly mileage. Divide what is left by hours logged, not by hours with a delivery in progress. On this page’s starting figures — $180 gross, 90 miles, 6 hours, 28 MPG, $3.49 gas — the vehicle costs about $30.64 for the session, so $30.00/hour gross becomes about $24.89/hour net, before income tax."}},{"@type":"Question","name":"What miles count toward the cost, active delivery miles or every mile?","acceptedAnswer":{"@type":"Answer","text":"Every mile the car moved this session, not just miles with an order in progress. The drive to a good starting spot, the loop between orders with nothing assigned, and the drive home all burn the same gas and put the same wear on the car as an active mile does. Undercounting miles by only logging active-delivery mileage understates vehicle cost and overstates how much the session actually netted."}},{"@type":"Question","name":"How much should I set aside for taxes as a DoorDash, Uber, or Instacart driver?","acceptedAnswer":{"@type":"Answer","text":"This page will not tell you a percentage — that depends on your filing status, state, total income, deductions, and quarterly-estimate schedule, and picking one for you would be a claim about what you owe. What it does is arithmetic once you tell it your own reserve percentage: it holds that share out of session profit only (never out of a losing session, which reserves nothing), and shows both the pre-tax profit and what is actually left after the reserve. Ask a tax preparer for your percentage, then use this page to see what it does to a session’s take-home."}},{"@type":"Question","name":"Am I actually making minimum wage after gas and car costs?","acceptedAnswer":{"@type":"Answer","text":"Enter an hourly wage to compare against — a state minimum wage, a job offer, whatever you want to check against — and the page reports the gap between that number and this session’s net-per-hour, both stated before income tax so they compare on the same basis. It does not assume a minimum wage for you; wages vary too much by state and city to guess at one."}},{"@type":"Question","name":"Does this use the IRS standard mileage rate?","acceptedAnswer":{"@type":"Answer","text":"No. The standard mileage rate is a single blended figure the IRS sets once a year for a tax deduction, and it changes annually — hardcoding a specific year’s rate here would go stale the first time it changed. This page instead asks for your own gas price, MPG, and a maintenance reserve per mile, plus your monthly insurance and other fixed costs spread across your typical monthly miles, so the cost per mile reflects your actual car rather than a national average. If you prefer to use the current standard mileage rate as a single per-mile figure, put it in the maintenance-per-mile box and set gas price to 0."}},{"@type":"Question","name":"What gross pay do I need to hit a take-home goal?","acceptedAnswer":{"@type":"Answer","text":"Type an hourly take-home goal and the page solves backwards: it takes the session’s vehicle cost, adds the profit needed to clear that goal after the tax reserve, and reports the gross pay — and gross pay per mile — that would take. At the starting figures with a 25% tax reserve, a $20/hour take-home goal on a 6-hour, 90-mile session solves to about $190.64 of gross pay, roughly $2.12 per mile."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1a5a8a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .85fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c4cedb; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1c232010; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4f5967; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8e9bab; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8e9bab; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2320; }
+    button:hover { background: #dde7f0; }
+    .result { position: sticky; top: 15px; background: #12233a; color: #f2f6fa; border-color: #12233a; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue, which fails contrast on this fill. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9d8ff; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #cfe3f7; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4f5967; }
+    footer a { color: #1a5a8a; }
+    .faq { margin-top: 4px; }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; }
+      .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR DOORDASH, UBER EATS, INSTACART, UBER &amp; LYFT DRIVERS</p>
+    <h1>Gross pay isn&rsquo;t take-home pay.</h1>
+    <p>The app screen shows what it paid you per hour. It never subtracts gas, tires, oil changes, or insurance &mdash; those are entirely yours. Enter one session&rsquo;s gross pay, miles, and hours, and see what you actually kept per hour and per mile, plus what to set aside for taxes nobody withholds for you.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>This session</h2>
+        <p class="hint">Whatever period you want to check &mdash; one dash, one shift, one week. Count every mile the car moved, including the drive to go online and the drive home.</p>
+        <div class="fields">
+          <label>Gross pay (base + tips + promos) <input id="grossPay" type="number" min="0" step="1" value="180"></label>
+          <label>Miles driven <input id="milesDriven" type="number" min="0" step="1" value="90"></label>
+          <label>Hours active / online <input id="hoursActive" type="number" min="0" step="0.25" value="6"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your vehicle (per mile)</h2>
+        <div class="fields">
+          <label>Miles per gallon <input id="mpg" type="number" min="0.1" step="0.1" value="28"></label>
+          <label>Gas price ($/gal) <input id="gasPrice" type="number" min="0" step="0.01" value="3.49"></label>
+          <label>Maintenance / mile <input id="maintenancePerMile" type="number" min="0" step="0.01" value="0.07"></label>
+        </div>
+        <p class="hint">Maintenance/mile is your own reserve for oil changes, tires, and repairs &mdash; not the IRS standard mileage rate, which changes every year and would go stale here. Prefer the current standard rate as one figure? Put it here and set gas price to 0.</p>
+      </section>
+
+      <section>
+        <h2>Monthly fixed cost</h2>
+        <p class="hint">Insurance and other fixed costs don&rsquo;t care how many sessions you drove this month. This session gets the share of them its miles represent, out of your typical monthly business miles.</p>
+        <div class="fields">
+          <label>Insurance / month <input id="insuranceMonthly" type="number" min="0" step="5" value="150"></label>
+          <label>Other fixed / month <input id="otherFixedMonthly" type="number" min="0" step="5" value="25"></label>
+          <label>Typical monthly miles <input id="monthlyMiles" type="number" min="0.1" step="10" value="1200"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Tax reserve, and how this session compares</h2>
+        <div class="fields">
+          <label>Tax reserve (% of profit) <input id="taxReservePercent" type="number" min="0" max="99.9" step="0.5" value="0" placeholder="e.g. 25"></label>
+          <label>Compare against this hourly wage (optional) <input id="comparisonHourlyWage" type="number" min="0" step="0.25" placeholder="e.g. 15"></label>
+          <label>Target take-home per hour (optional) <input id="targetHourlyTakeHome" type="number" min="0" step="1" placeholder="e.g. 20"></label>
+        </div>
+        <p class="hint">Nothing withholds tax for a self-employed driver. Put in whatever share of profit you set aside for self-employment and income tax and every figure below accounts for it. Leave it at 0 and the page behaves exactly as if the reserve did not exist. We do not guess the percentage &mdash; ask a tax preparer for yours.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Net pay per hour</h2>
+      <div id="hero" class="hero-number">$&mdash;</div>
+      <div id="heroLabel">kept per hour, after the car</div>
+      <dl>
+        <dt>Gross pay per hour</dt><dd id="grossPerHour"></dd>
+        <dt>Gross pay per mile</dt><dd id="grossPerMile"></dd>
+        <dt>All-in vehicle cost per mile</dt><dd id="allInCostPerMile"></dd>
+        <dt>Vehicle cost this session</dt><dd id="vehicleCost"></dd>
+        <dt>Net pay per mile</dt><dd id="netPerMile"></dd>
+        <dt>Net profit this session</dt><dd id="netProfit"></dd>
+        <dt>Tax reserve</dt><dd id="taxReserve"></dd>
+        <dt>Take-home after reserve</dt><dd id="takeHome"></dd>
+        <dt>Take-home per hour</dt><dd id="takeHomePerHour"></dd>
+        <dt>Take-home per mile</dt><dd id="takeHomePerMile"></dd>
+        <dt>Gross pay needed for target</dt><dd id="grossPayNeeded"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy session summary</button>
+        <button type="button" id="copyShareLink">Copy share link</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting figures are an illustrative example, not a benchmark or a claim about what any platform pays. Replace them with your own gas receipts, insurance bill, and app screen.</p>
+    </section>
+  </main>
+
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>Every delivery and rideshare app shows gross pay per hour or per trip. None of them subtract the car. The decision a driver actually faces is whether <strong>this session, after gas and wear</strong>, still cleared what it looked like it cleared on the app screen &mdash; and what is left once a tax reserve comes out too. <a href="how-much-should-i-set-aside-for-gig-driving-taxes.html">How much to set aside for gig-driving taxes</a> walks through the reserve in search-query words.</p>
+    <p>It does not tell you which platform to drive for, which order to accept, or what your car is worth. The gap between gross pay and net pay is arithmetic on the numbers you typed.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>How do I calculate my real hourly pay driving for DoorDash, Uber Eats, or Instacart?</h3>
+  <p>Take everything the app paid out this session &mdash; base pay, tips, promotions &mdash; and subtract what the vehicle actually cost to run: fuel for every mile driven (including the drive to go online and back home), a per-mile reserve for maintenance and tires, and a share of your monthly insurance and other fixed costs spread across your typical monthly mileage. Divide what is left by hours logged, not by hours with a delivery in progress. On this page&rsquo;s starting figures &mdash; $180 gross, 90 miles, 6 hours, 28 MPG, $3.49 gas &mdash; the vehicle costs about $30.64 for the session, so $30.00/hour gross becomes about $24.89/hour net, before income tax.</p>
+  <h3>What miles count toward the cost, active delivery miles or every mile?</h3>
+  <p>Every mile the car moved this session, not just miles with an order in progress. The drive to a good starting spot, the loop between orders with nothing assigned, and the drive home all burn the same gas and put the same wear on the car as an active mile does. Undercounting miles by only logging active-delivery mileage understates vehicle cost and overstates how much the session actually netted.</p>
+  <h3>How much should I set aside for taxes as a DoorDash, Uber, or Instacart driver?</h3>
+  <p>This page will not tell you a percentage &mdash; that depends on your filing status, state, total income, deductions, and quarterly-estimate schedule, and picking one for you would be a claim about what you owe. What it does is arithmetic once you tell it your own reserve percentage: it holds that share out of session profit only (never out of a losing session, which reserves nothing), and shows both the pre-tax profit and what is actually left after the reserve. Ask a tax preparer for your percentage, then use this page to see what it does to a session&rsquo;s take-home.</p>
+  <h3>Am I actually making minimum wage after gas and car costs?</h3>
+  <p>Enter an hourly wage to compare against &mdash; a state minimum wage, a job offer, whatever you want to check against &mdash; and the page reports the gap between that number and this session&rsquo;s net-per-hour, both stated before income tax so they compare on the same basis. It does not assume a minimum wage for you; wages vary too much by state and city to guess at one.</p>
+  <h3>Does this use the IRS standard mileage rate?</h3>
+  <p>No. The standard mileage rate is a single blended figure the IRS sets once a year for a tax deduction, and it changes annually &mdash; hardcoding a specific year&rsquo;s rate here would go stale the first time it changed. This page instead asks for your own gas price, MPG, and a maintenance reserve per mile, plus your monthly insurance and other fixed costs spread across your typical monthly miles, so the cost per mile reflects your actual car rather than a national average. If you prefer to use the current standard mileage rate as a single per-mile figure, put it in the maintenance-per-mile box and set gas price to 0.</p>
+  <h3>What gross pay do I need to hit a take-home goal?</h3>
+  <p>Type an hourly take-home goal and the page solves backwards: it takes the session&rsquo;s vehicle cost, adds the profit needed to clear that goal after the tax reserve, and reports the gross pay &mdash; and gross pay per mile &mdash; that would take. At the starting figures with a 25% tax reserve, a $20/hour take-home goal on a 6-hour, 90-mile session solves to about $190.64 of gross pay, roughly $2.12 per mile.</p>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or legal advice, and it does not replace a qualified professional. It does not tell you which platform to drive for or what to reserve for taxes. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any tax obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Gross pay, miles, gas price, and every other figure stay on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your numbers. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Driving a commercial truck instead of a personal vehicle? The <a href="../owner-operator-cpm-calculator/">owner-operator cost per mile calculator</a> works out all-in cost per mile and the loaded rate that covers deadhead miles &mdash; nothing uploaded.</p>
+    <p>Free and open source. If it changed how you read your next dash, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateSession } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+
+    const FIELD_IDS = [
+      'grossPay', 'milesDriven', 'hoursActive', 'mpg', 'gasPrice',
+      'maintenancePerMile', 'insuranceMonthly', 'otherFixedMonthly', 'monthlyMiles',
+      'taxReservePercent', 'comparisonHourlyWage', 'targetHourlyTakeHome',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const perHour = value => value === null ? 'n/a' : `${money(value)}/hr`;
+    const perMile = value => value === null ? 'n/a' : `${money(value)}/mi`;
+    const el = id => document.getElementById(id);
+
+    function readInput() {
+      return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message) {
+      el('hero').textContent = message;
+      el('hero').className = 'hero-number negative';
+      el('heroLabel').textContent = 'check the highlighted input';
+      ['grossPerHour', 'grossPerMile', 'allInCostPerMile', 'vehicleCost', 'netPerMile', 'netProfit', 'taxReserve', 'takeHome', 'takeHomePerHour', 'takeHomePerMile', 'grossPayNeeded']
+        .forEach(id => { el(id).textContent = ''; });
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateSession(readInput());
+      } catch (error) {
+        clearOutputs(error.message);
+        return;
+      }
+
+      if (result.netPerHour === null) {
+        el('hero').textContent = money(result.netProfit);
+        el('hero').className = 'hero-number';
+        el('heroLabel').textContent = 'net profit this session — add hours to see a per-hour rate';
+      } else {
+        el('hero').textContent = money(result.netPerHour);
+        el('hero').className = `hero-number ${result.netPerHour < 0 ? 'negative' : 'positive'}`;
+        el('heroLabel').textContent = 'kept per hour, after the car';
+      }
+
+      el('grossPerHour').textContent = perHour(result.grossPerHour);
+      el('grossPerMile').textContent = perMile(result.grossPerMile);
+      el('allInCostPerMile').textContent = perMile(result.allInCostPerMile);
+      el('vehicleCost').textContent = money(result.vehicleCost);
+      el('netPerMile').textContent = perMile(result.netPerMile);
+      el('netProfit').textContent = money(result.netProfit);
+      el('taxReserve').textContent = money(result.taxReserve);
+      el('takeHome').textContent = money(result.takeHome);
+      el('takeHomePerHour').textContent = perHour(result.takeHomePerHour);
+      el('takeHomePerMile').textContent = perMile(result.takeHomePerMile);
+      el('grossPayNeeded').textContent = result.target === null ? 'n/a' : money(result.target.grossPayNeeded);
+
+      const verdict = el('verdict');
+      if (result.comparison === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.comparison.clears === false ? ' bad' : ''}`;
+        if (result.comparison.clears === null) {
+          verdict.innerHTML = `Add hours to compare against ${money(result.comparison.comparisonHourlyWage)}/hr.`;
+        } else if (result.comparison.clears) {
+          verdict.innerHTML = `This session clears ${money(result.comparison.comparisonHourlyWage)}/hr by <strong>${money(result.comparison.gapPerHour)}/hr</strong>, before income tax.`;
+        } else {
+          verdict.innerHTML = `This session falls <strong>${money(Math.abs(result.comparison.gapPerHour))}/hr short</strong> of ${money(result.comparison.comparisonHourlyWage)}/hr, before income tax.`;
+        }
+      }
+    }
+
+    function summaryText(result) {
+      return [
+        'GIG DRIVING SESSION',
+        '',
+        `Gross pay: ${money(result.grossPay)} (${perHour(result.grossPerHour)}, ${perMile(result.grossPerMile)})`,
+        `Miles driven: ${result.milesDriven.toLocaleString('en-US')}`,
+        `Hours active: ${result.hoursActive}`,
+        `Vehicle cost: ${money(result.vehicleCost)} (${perMile(result.allInCostPerMile)})`,
+        `Net profit: ${money(result.netProfit)} (${perHour(result.netPerHour)}, ${perMile(result.netPerMile)})`,
+        ...(result.taxReservePercent > 0
+          ? [
+            `Tax reserve (${result.taxReservePercent}% of profit): ${money(result.taxReserve)}`,
+            `Take-home after reserve: ${money(result.takeHome)} (${perHour(result.takeHomePerHour)})`,
+          ]
+          : []),
+        ...(result.comparison
+          ? [`Vs ${money(result.comparison.comparisonHourlyWage)}/hr: ${result.comparison.clears ? '+' : ''}${money(result.comparison.gapPerHour ?? 0)}/hr`]
+          : []),
+        ...(result.target
+          ? [`Gross pay needed for ${money(result.target.targetHourlyTakeHome)}/hr take-home: ${money(result.target.grossPayNeeded)}`]
+          : []),
+        '',
+        'This is arithmetic on the entered figures, not a claim about what any platform pays. Confirm gas price, insurance, and mileage against your own receipts and odometer.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateSession(readInput());
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    // Restoring a shared link sets each field's value directly rather than
+    // going through readInput()'s string coercion, and skips any id the
+    // link did not carry so the recipient's own page defaults stand.
+    function applyShared(incoming) {
+      for (const id of FIELD_IDS) {
+        if (id in incoming) el(id).value = incoming[id];
+      }
+    }
+
+    function shareUrl() {
+      const { origin, pathname } = window.location;
+      return `${origin}${pathname}#${encodeInputs(readInput())}`;
+    }
+
+    async function copyShareLink() {
+      const text = shareUrl();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('share_link_copied');
+      el('summaryStatus').textContent = 'Link copied — the numbers travel in the link, not to a server';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => {
+        const tax = id === 'taxReservePercent';
+        const target = id === 'targetHourlyTakeHome';
+        const comparison = id === 'comparisonHourlyWage';
+        count(tax
+          ? 'tax_reserve_set'
+          : target
+            ? 'target_set'
+            : comparison ? 'wage_compared' : 'session_calculated');
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShareLink').addEventListener('click', () => {
+      copyShareLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    // A shared session arrives in the fragment, which browsers never send to
+    // a server. `search` is accepted too, so a link that lost its # on the
+    // way through a messaging app still opens on the sender's numbers.
+    const incoming = decodeInputs(window.location.hash || window.location.search);
+    if (Object.keys(incoming).length > 0) {
+      applyShared(incoming);
+      count('shared_link_opened');
+      el('summaryStatus').textContent = 'Opened from a shared link — verify every figure against your own gas receipts and odometer.';
+    }
+    update();
+  </script>
+</body>
+</html>
