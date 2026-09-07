@@ -44,7 +44,8 @@ function parseLockfile(text) {
         "or check package.json — yarn.lock and pnpm-lock.yaml are not supported.",
     );
   }
-  const packages = {};
+  // Package names are data, including names inherited by ordinary objects.
+  const packages = Object.create(null);
   for (const [location, entry] of Object.entries(raw.packages)) {
     if (entry === null || typeof entry !== "object" || Array.isArray(entry) || !entry.version) continue;
     const name = packageName(location);
