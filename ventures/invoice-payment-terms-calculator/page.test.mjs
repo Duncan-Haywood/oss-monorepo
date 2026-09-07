@@ -69,6 +69,18 @@ test("the 2/10 landing page uses the same worked example the tests lock", () => 
   assert.match(sitemap, /should-i-offer-2-10-net-30\.html/);
 });
 
+// faire-wholesale-calculator's Pay Now page already links here as the
+// generic early-pay path. Without the reverse link, a crawler entering on
+// this page never reaches the Faire-specific sibling — same one-way
+// orphan class as #3639 / #3641 / #3650.
+test("the 2/10 page links to the related Faire Pay Now early-pay page", () => {
+  assert.match(
+    earlySeo,
+    /href="\.\.\/faire-wholesale-calculator\/should-i-offer-faire-pay-now\.html"/,
+    "2/10 page must link the Faire Pay Now sibling so crawlers can reach it",
+  );
+});
+
 test("the calculator page wires the billing-schedule comparison", () => {
   assert.match(html, /compareSchedules/);
   assert.match(html, /depositForPeakExposure/);
