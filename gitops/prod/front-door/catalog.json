@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 191,
-  "collection_total": 191,
+  "served_here": 192,
+  "collection_total": 192,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 3
+      "tool_count": 4
     }
   ],
   "tools": [
@@ -849,6 +849,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a fireplace-insert install from fuel, liner footage, hearth, gas run, dedicated circuit, surround, and stack height — not a published $2,499-installed gas special. See the walk-away number before you match a cheaper quote.",
       "pages": 3
+    },
+    {
+      "slug": "flaky-test-finder",
+      "name": "Flaky Test Finder — Which Tests Flipped Between CI Runs?",
+      "url": "https://marisstella.dev/tools/flaky-test-finder/",
+      "category": "More free tools",
+      "description": "Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "flat-roof-bid-calculator",
