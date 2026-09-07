@@ -17759,3 +17759,58 @@ entries:
         platform/marketing + platform/pages tests re-verified green after
         the rebase onto main. `checklist_coverage.py` clean.
     mrr_end: null
+  - venture: home-staging-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a `vs-hutch.html` competitor-comparison page, following the
+        pattern already merged for dog-walking-route-pricing (vs-Rover) and
+        locksmith-bid-calculator (vs-Jobber/vs-Housecall-Pro/vs-Workiz).
+        Named competitor: Hutch (hutchstaging.com), a real, paid,
+        account-based inventory and project management platform built
+        specifically for home staging businesses -- the closest thing this
+        niche has to an established SaaS incumbent. Positioned honestly
+        against it: Hutch tracks a furniture catalogue and coordinates a
+        team across concurrent jobs on a paid monthly account; this
+        calculator has no inventory, no accounts, and no team features --
+        it only prices one job and checks whether an extension fee covers
+        the furniture package's own carrying cost, free and browser-local.
+      - >-
+        Outbound access to hutchstaging.com is blocked from this session
+        (the same egress limit vs-rover.html's own test documents for
+        rover.com), and the two independent secondary sources found for
+        Hutch's pricing disagreed with each other ($99/mo vs $149/mo per
+        different aggregators), so the page states an approximate
+        $100-$150/month range attributed by name to those third-party
+        directories (StageCore's own comparison page, the WifiTalents
+        aggregator) rather than asserting a single figure as a confirmed
+        reading of Hutch's own site -- and a dedicated test asserts every
+        dollar figure on the page sits near that hedge, not just near a
+        citation link.
+      - >-
+        Wired into the existing pipeline rather than treated as a one-off:
+        linked from index.html next to the footer (matching the sibling
+        vs- pages' placement), added to the venture's sitemap.xml, and
+        picked up automatically by `platform/marketing/regen.mjs` --
+        front-door-tools.mjs mirrored the new page as its own ConfigMap
+        entry, and front-door.mjs added Hutch to the portfolio-wide
+        `/compare/` hub's single-comparison list (it is compared by only
+        this one tool today, so it did not clear the multi-tool grouping
+        threshold for its own dedicated `/compare/hutch` page -- expected
+        and correct given only one venture names it).
+      - >-
+        Added vs-hutch.test.mjs (14 tests) mirroring vs-rover.test.mjs's
+        structure: disclaimer text, non-affiliation statement, FAQ schema
+        matching visible headings, sitemap/index wiring, and the
+        pricing-hedge proximity check described above. Verified: 51/51
+        tests green in ventures/home-staging-bid-calculator (37 existing +
+        14 new). Ran the full CLAUDE.md starvation-window checklist after
+        `regen.mjs`: `checklist_coverage.py` clean; 1140/1140
+        platform/marketing + platform/pages tests green; 490/490
+        gitops/tests pytest green; all 15 platform/ci unittest modules
+        green (including agent_review's test_review, 21/21);
+        `pages_state.py` reported the gh-pages snapshot already current
+        against this branch's parent commit before this change, so it
+        will need a republish after merge per CLAUDE.md.
+    mrr_end: null
