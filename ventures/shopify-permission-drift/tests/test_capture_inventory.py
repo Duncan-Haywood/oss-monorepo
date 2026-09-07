@@ -66,6 +66,19 @@ class CaptureInventoryTests(unittest.TestCase):
         self.assertEqual([app["id"] for app in inventory["apps"]], [app["id"] for app in self.before["apps"]])
         self.assertEqual(inventory["apps"][0]["scopes"], ["read_analytics"])
 
+    def test_webhook_coverage_survives_canonical_reimport(self):
+        for supplied in (False, True):
+            with self.subTest(webhooks_supplied=supplied):
+                app = {"id": "app-shipping", "scopes": ["read_products"]}
+                if supplied:
+                    app["webhooks"] = []
+                inventory = normalize_export({"api_version": "2026-07", "apps": [app]})
+                restored = normalize_export(json.loads(json.dumps(inventory)))
+                self.assertEqual(restored["apps"][0]["webhooks"], [])
+                self.assertEqual(restored["apps"][0]["webhook_coverage"],
+                                 "complete" if supplied else "absent")
+                self.assertEqual(capture_summary(restored), capture_summary(inventory))
+
     def test_unknown_payload_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "app inventory"):
             normalize_export({"orders": []}, api_version="2026-07")

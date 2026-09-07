@@ -37,3 +37,18 @@ test('robots and sitemap let crawlers find both pages', () => {
   assert.match(sitemap, /asphalt-sealcoat-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+// Closest sibling: same asphalt-contractor trade, but hot-mix paving
+// (overlay / mill-and-overlay / full-depth) rather than coats and crack
+// fill. Related-tool chrome rotates inside the trades category, so
+// without an explicit one-hop a crawler on this page may never land on
+// that tool.
+test('index links one hop to the asphalt-driveway-pave-bid-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/asphalt-driveway-pave-bid-calculator\/"/,
+    'index must link ../asphalt-driveway-pave-bid-calculator/ so crawlers reach the paving calculator in one hop',
+  );
+  assert.match(html, /asphalt driveway paving bid calculator/i);
+});
