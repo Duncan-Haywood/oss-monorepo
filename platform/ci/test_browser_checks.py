@@ -225,7 +225,14 @@ class DiscoverChrome(unittest.TestCase):
             os.chmod(path, 0o755)
         return root
 
+    def _always_launches(self):
+        """Stub the launch probe: every candidate starts. Restores on exit."""
+        original = bc.chrome_launches
+        bc.chrome_launches = lambda env, path: True
+        self.addCleanup(setattr, bc, "chrome_launches", original)
+
     def test_an_explicit_choice_is_never_overridden(self):
+        self._always_launches()
         root = self._tree("chromium-1194")
         env = {"PLAYWRIGHT_BROWSERS_PATH": root, "CHROME_PATH": "/somewhere/else"}
         self.assertIsNone(bc.discover_chrome(env))
@@ -234,6 +241,7 @@ class DiscoverChrome(unittest.TestCase):
         self.assertIsNone(bc.discover_chrome(env))
 
     def test_a_browser_in_the_tree_is_found(self):
+        self._always_launches()
         root = self._tree("chromium-1194")
         found = bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root})
         self.assertEqual(found, os.path.join(root, "chromium-1194", "chrome-linux", "chrome"))
@@ -242,18 +250,30 @@ class DiscoverChrome(unittest.TestCase):
         # Alphabetical order would pick 1194 over 989, and a stale tree left
         # by an older install would then shadow the current one.
         root = self._tree("chromium-989", "chromium-1194")
-        found = bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root})
-        self.assertIn("chromium-1194", found)
+        found = bc.chrome_candidates({"PLAYWRIGHT_BROWSERS_PATH": root})
+        self.assertIn("chromium-1194", found[0])
 
-    def test_the_headless_shell_is_not_mistaken_for_a_browser(self):
-        # Same tree, different binary and a different name. The checks drive a
-        # real page; launching the shell build fails later and less clearly.
+    def test_the_headless_shell_is_offered_after_the_full_browser(self):
+        # It is a different binary under a different name, and it is what
+        # Playwright itself launches for `headless: true` — which is the only
+        # mode these checks use. So it is a real fallback, not a mistake.
+        # It ranks below the full build: preferred only when that will not run.
+        root = self._tree("chromium-1194", shell=("chromium_headless_shell-1194",))
+        found = bc.chrome_candidates({"PLAYWRIGHT_BROWSERS_PATH": root})
+        self.assertEqual(len(found), 2)
+        self.assertTrue(found[0].endswith(os.path.join("chromium-1194", "chrome-linux", "chrome")))
+        self.assertTrue(found[1].endswith("headless_shell"))
+
+    def test_the_headless_shell_alone_is_still_a_candidate(self):
         root = self._tree(shell=("chromium_headless_shell-1194",))
-        self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root}))
+        found = bc.chrome_candidates({"PLAYWRIGHT_BROWSERS_PATH": root})
+        self.assertEqual(len(found), 1)
+        self.assertTrue(found[0].endswith("headless_shell"))
 
     def test_nothing_found_changes_nothing(self):
-        # None means "leave the environment alone", so a launch failure gets to
-        # report itself instead of being pre-empted by a wrong guess.
+        # None means "leave the environment alone", so Playwright's own
+        # resolution gets its turn instead of being pre-empted by a wrong guess.
+        self._always_launches()
         self.assertIsNone(bc.discover_chrome({}))
         self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": "/no/such/dir"}))
         self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": self._tree()}))
@@ -261,6 +281,28 @@ class DiscoverChrome(unittest.TestCase):
     def test_a_non_executable_file_is_not_offered(self):
         root = self._tree("chromium-1194")
         os.chmod(os.path.join(root, "chromium-1194", "chrome-linux", "chrome"), 0o644)
+        self.assertEqual(bc.chrome_candidates({"PLAYWRIGHT_BROWSERS_PATH": root}), [])
+
+    def test_a_candidate_that_will_not_launch_is_skipped(self):
+        # The defect this exists for, measured 2026-09-07: the full
+        # chromium-1194 on this image dies on SIGTRAP the moment Playwright
+        # connects, while the shell build beside it renders fine. Offering the
+        # first one turned all seven checks red with a stack trace that reads
+        # like a broken catalogue rather than a browser that will not start.
+        root = self._tree("chromium-1194", shell=("chromium_headless_shell-1194",))
+        original = bc.chrome_launches
+        bc.chrome_launches = lambda env, path: path.endswith("headless_shell")
+        self.addCleanup(setattr, bc, "chrome_launches", original)
+        found = bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root})
+        self.assertTrue(found.endswith("headless_shell"))
+
+    def test_nothing_that_launches_means_no_override(self):
+        # Not a dead end: returning None leaves Playwright's own resolution to
+        # try, which on the image that produced this bug is one that works.
+        root = self._tree("chromium-1194", shell=("chromium_headless_shell-1194",))
+        original = bc.chrome_launches
+        bc.chrome_launches = lambda env, path: False
+        self.addCleanup(setattr, bc, "chrome_launches", original)
         self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root}))
 
 
