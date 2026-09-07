@@ -18261,3 +18261,69 @@ entries:
         merged after the local run above, then refreshed the gh-pages
         snapshot per CLAUDE.md's publish-branch instructions.
     mrr_end: null
+  - venture: appointment-deposit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled brief asked for a direction-setting session (viable
+        businesses, donation revenue, happy customers, no legal exposure,
+        new ventures). `portfolio/DIRECTION.md` already carries a note added
+        ~2.7h earlier (commit e5185d6, guarding against exactly this: three
+        direction-only PRs restated the same brief in three hours
+        immediately prior and none shipped anything). The North star section
+        still matched what this session was about to write, so per that
+        note's own instruction, declined to rewrite it and built instead.
+      - >-
+        Refreshed the gh-pages snapshot first (it was stale, built from
+        b48ce518 vs main's 59a7a15c); a concurrent session published first,
+        so re-fetched and confirmed `pages_state.py` reports current rather
+        than force-publishing.
+      - >-
+        Ran a defect sweep across 6 live, unrelated ventures (fence,
+        moving, gutter-cleaning, amazon-fba, shop-rate, seller-net-sheet
+        bid/fee calculators) with `browser_checks.py` after installing
+        playwright@1.56.0 + axe-core -- all 6 came back clean (0 WCAG A/AA
+        violations, 0 console/journey errors). No defect to fix; recorded as
+        a real result per this file's own "record outcomes even when they
+        are nothing" rule, not skipped.
+      - >-
+        Screened a new-venture candidate ("tattoo deposit and touch-up
+        pricing calculator") via `duplicate_check.py` (top score 0.19,
+        nothing near the 0.45 bar) but declined to open a new
+        `ventures/` directory: `appointment-deposit-calculator` already
+        covers generic small-service-business deposits, and
+        `pipeline/README.md`'s own rule ("a candidate that fits an existing
+        venture is a product line first") applies. Touch-up pricing itself
+        (a free-window check plus percent/flat/hourly pricing once it
+        closes) is genuinely new math the existing venture's annual
+        recurring-booking model cannot answer, so shipped it as a product
+        line instead: a new page
+        (`tattoo-deposit-and-touchup-calculator.html`), a new calculation
+        module (`touchup.mjs`, 13 unit tests), its own app script and share
+        module, and a page-level test file (13 more assertions), all
+        following the venture's existing disclaimer/FAQPage/usage-tracking
+        conventions. Linked from `index.html`, added to `sitemap.xml`, and
+        recorded a new `customer-contact` hypothesis in `VENTURE.yaml` naming
+        the channel (r/TattooArtists, tattoo-shop-owner Facebook groups,
+        search terms "tattoo touch up pricing"/"tattoo deposit policy
+        calculator").
+      - >-
+        Full verification: `node --test
+        ventures/appointment-deposit-calculator/*.test.mjs` (67 pass),
+        `node platform/pages/clauses.mjs appointment-deposit-calculator`
+        (5 pages carry required clauses), `python3 platform/ci/check_no_payment_code.py`
+        (clean), `python3 platform/ci/browser_checks.py --only
+        appointment-deposit-calculator` (sideways/presets/roundtrip/contrast/sweep/journey
+        all ok, highlight skipped for a missing dependency, not a failure),
+        `node platform/marketing/regen.mjs` (committed the front-door
+        mirror/sitemap/catalog rewrites it produced -- picked up prior
+        sessions' already-merged, not-yet-regenerated content along with
+        this change), `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1153 pass), `python3 -m pytest
+        gitops/tests -q` (490 passed, 25 skipped), and
+        `python3 platform/ci/checklist_coverage.py` (clean, checklist
+        current). `ci_starvation.py` showed the fleet is in a starved
+        window again (`auto-merge` check: `runner_id: 0`), so this is the
+        real, sole verification rather than a CI cross-check.
+    mrr_end: null
