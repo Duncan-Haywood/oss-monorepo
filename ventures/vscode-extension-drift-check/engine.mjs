@@ -50,11 +50,19 @@ export function classifySurfaceRisk(before, after) {
   const gainedDep = [...afterDeps].some((d) => !beforeDeps.has(d));
   if (gainedDep) tags.push("gained-extension-dependency");
 
-  if (before?.main != null && after?.main != null && before.main !== after.main) {
-    tags.push("entry-point-changed");
-  }
-  if (before?.browser != null && after?.browser != null && before.browser !== after.browser) {
-    tags.push("entry-point-changed");
+  // An extension that *gains* an entry point where it declared none before
+  // has expanded its surface at least as much as one that swapped an
+  // existing entry point for another file -- an extension with no `main`
+  // and no `browser` ships no code the host will load, so a snapshot where
+  // one appears is precisely the "it started doing something it didn't
+  // declare before" case this tool exists to catch. Requiring both sides to
+  // be non-null missed that, and missed the reverse (an entry point
+  // disappearing) too, so compare presence-or-value and only skip the pair
+  // when neither snapshot declared the field at all.
+  for (const field of ["main", "browser"]) {
+    const b = before?.[field] ?? null;
+    const a = after?.[field] ?? null;
+    if ((b !== null || a !== null) && b !== a) tags.push("entry-point-changed");
   }
   return [...new Set(tags)];
 }
