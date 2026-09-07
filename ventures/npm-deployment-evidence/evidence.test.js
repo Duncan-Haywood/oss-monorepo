@@ -78,6 +78,27 @@ test("rejects a lockfile that is not valid JSON", () => {
   assert.throws(() => buildReport("not json", "x.json"), /not valid JSON/);
 });
 
+test("names a yarn.lock instead of calling it invalid JSON", () => {
+  const yarn = "# yarn lockfile v1\n\nlodash@^4.0.0:\n  version \"4.17.21\"\n";
+  assert.throws(() => buildReport(yarn, "yarn.lock"), /yarn\.lock/);
+  assert.throws(() => buildReport(yarn, "yarn.lock"), /package-lock\.json/);
+  assert.doesNotMatch(
+    (() => { try { buildReport(yarn, "yarn.lock"); return ""; } catch (e) { return e.message; } })(),
+    /not valid JSON/,
+  );
+});
+
+test("names a pnpm-lock.yaml instead of calling it invalid JSON", () => {
+  const pnpm = "lockfileVersion: 5.4\n\nimporters:\n  .\n    dependencies:\n      lodash: 4.17.21\n";
+  assert.throws(() => buildReport(pnpm, "pnpm-lock.yaml"), /pnpm-lock\.yaml/);
+  assert.throws(() => buildReport(pnpm, "pasted.txt"), /pnpm-lock\.yaml/);
+});
+
+test("detects yarn from content even when the filename is generic", () => {
+  const yarn = "# yarn lockfile v1\n\nfoo@1.0.0:\n  version \"1.0.0\"\n";
+  assert.throws(() => buildReport(yarn, "lockfile.txt"), /yarn\.lock/);
+});
+
 test("package names that collide with Object properties still produce exportable reports", () => {
   const text = JSON.stringify({
     lockfileVersion: 3,

@@ -126,3 +126,14 @@ test('index links one hop to the construction-evidence-log sibling', () => {
     'index must link ../construction-evidence-log/ so crawlers reach the evidence log in one hop',
   );
 });
+
+// Same subcategory, other direction: recurring retainer billing rather than
+// one-off change orders. Reciprocal of the link added to
+// freelance-retainer-calculator's index so a crawler can hop both ways.
+test('index links one hop to the freelance-retainer-calculator sibling', () => {
+  assert.match(
+    page,
+    /href="\.\.\/freelance-retainer-calculator\/"/,
+    'index must link ../freelance-retainer-calculator/ so crawlers reach the retainer calculator in one hop',
+  );
+});

@@ -164,3 +164,16 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+// Closest sibling in Service business pricing & quotes: both price a
+// solo mobile professional's one-off job (an appointment vs. a project)
+// whose flat quote hides real committed time. Without a crawlable link
+// here, a crawler entering on the notary calculator never reaches the
+// translator calculator in one hop.
+test('index links one hop to the translator-project-quote sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/translator-project-quote\/"/,
+    'index must link ../translator-project-quote/ so crawlers reach the translator calculator in one hop',
+  );
+});

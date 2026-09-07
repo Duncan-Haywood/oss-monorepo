@@ -147,6 +147,25 @@ pytest, so that `gitops/tests` line exits `No module named pytest` rather than
 failing any test. Do not read that as a clean run. The `platform/ci` line needs
 no pytest — those suites are `unittest`.)
 
+**The same shape had a third instance, in `node --test` rather than pytest, and
+it is closed (2026-09-07).** `platform/webcheck/page-integrity.test.mjs` pins
+its checker against the exact `index.html` blobs from the commits where two
+products shipped dead — the suite's most valuable test, because it is proven
+against the real defect and not an approximation of it. It reads them with
+`git show <sha>:<path>`, and a web session's clone is **shallow** (50 commits),
+so both history-pinned tests failed with `fatal: invalid object name '1a8feb3'`
+on a clean checkout of `main`. Measured that day: a session running the block
+above sees `# fail 2` and must choose between "the checker regressed" (burn the
+run chasing nothing) and "ignore it" (learn to ignore a suite that also catches
+real regressions). `platform/webcheck/history-blob.mjs` now makes the one
+discrimination that matters — object absent **and** clone shallow is a SKIP
+naming `git fetch --unshallow`; object absent in a **full** clone still fails,
+because a test pinned to a sha that a complete history lacks has gone stale and
+must go red. Verified both ways: 20 pass / 2 skip shallow, 22 pass / 0 skip
+after unshallowing. If you want those two to actually run, `git fetch
+--unshallow` first — which `CLAUDE.md` already tells you to do before any
+supersession check, for the same underlying reason.
+
 **That parenthesis is no longer the only thing standing between a session and
 a wrong reading of `main` (changed 2026-09-07).** It warns about the raw
 `node --test`/`pytest` lines above, and `run_workflow_locally.py` — the line

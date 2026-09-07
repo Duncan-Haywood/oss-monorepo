@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 210,
-  "collection_total": 210,
+  "served_here": 211,
+  "collection_total": 211,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 7
+      "tool_count": 8
     },
     {
       "id": "logistics",
@@ -959,6 +959,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a flooring install from waste, tear-out, and stairs — not a flat dollar per square foot. See purchased material, kitchen tile demo hours, tread labor, and the walk-away price.",
       "pages": 3
+    },
+    {
+      "slug": "food-truck-event-margin-calculator",
+      "name": "Food Truck Event & Catering Margin Calculator — Price a Booking",
+      "url": "https://marisstella.dev/tools/food-truck-event-margin-calculator/",
+      "category": "More free tools",
+      "description": "Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you're already considering against the breakeven.",
+      "pages": 2
     },
     {
       "slug": "foundation-repair-bid-calculator",
