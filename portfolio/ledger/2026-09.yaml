@@ -18991,3 +18991,46 @@ entries:
         local rather than trusting a
         third-party site with their workflow files.
     mrr_end: null
+  - venture: actions-injection-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed forward the one thing #3746's merge left red on `main`:
+        `.github/workflows/actions-injection-check-ci.yml` shipped without a
+        row in `platform/ci/publish-surface.yaml`, so
+        `platform/ci/test_publish_surface` failed with "new workflow,
+        classified 'none' and not in publish-surface.yaml" -- the same shape
+        #3407 merged red on, and invisible in GitHub's check list because
+        Actions is starved (`ci_starvation.py`: `runner_id: 0`). Regenerated
+        the snapshot with `publish_surface.py --write` rather than
+        hand-editing it; all 21 `platform/ci` unittest modules pass now.
+      - >-
+        Added the venture's missing `README.md`. Every other graduated
+        venture here carries one, and it is the file a developer arriving
+        from GitHub search reads before the page -- so its absence is a
+        distribution gap, not a tidiness one. Documents both patterns the
+        tool finds, why `pull_request_target` exists at all, the CLI
+        quickstart including `--fail-on-risk` as a CI gate, the disclaimers,
+        what the localStorage usage counters do, and the optional Sponsors
+        link.
+      - >-
+        Concurrency note, recorded because it cost a full duplicate repair.
+        This session and another were repairing PR #3746 at the same time
+        without either knowing. Both found the same defects -- the branch
+        predated the guard in `gitops/tests/test_manifests.py` pinning
+        `OWNER_CHECKLIST.md`'s "apex serves all N" sentence, and `git merge
+        origin/main` resolved *cleanly* while keeping the branch's older
+        copy, silently reverting the guard and putting the count back to
+        175; the venture also shipped with no `VENTURE.yaml`, no
+        `venture-scores.yaml` row, no CI workflow, and a `page.test.mjs`
+        FAQ assertion that substring-matched raw JSON-LD so the one question
+        containing a double quote could never match. The other session
+        merged first, at 13:41:27Z, which deleted the PR branch mid-push
+        here. Discarded this session's parallel copy rather than fighting
+        over 800 generated mirror files, kept only what `main` genuinely
+        still lacked, and verified the merged result rather than assuming
+        it. That verification is what found the publish-surface drift: the
+        losing side of a duplicate repair is the natural place to check the
+        winner's work, and nothing else was going to while CI is starved.
+    mrr_end: null

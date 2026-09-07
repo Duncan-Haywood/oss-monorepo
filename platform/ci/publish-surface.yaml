@@ -41,6 +41,9 @@ workflows:
 - workflow: a11y-theme-resolution-ci.yml
   classification: none
   publishes: []
+- workflow: actions-injection-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-runner-starvation-check-ci.yml
   classification: none
   publishes: []
