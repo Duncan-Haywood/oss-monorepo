@@ -406,16 +406,24 @@ jobs:
       # than its parent commit is the ordinary case. This asks the one question
       # the rest of the suite structurally cannot.
       #
-      # Needs `origin/main` to compare against, which `actions/checkout@v4`'s
+      # Needs the base branch to compare against, which `actions/checkout@v4`'s
       # shallow default does not fetch. On a pull_request event the checkout is
       # the merge commit, so this reads as "would merging this remove a live
       # venture?" -- which is the question, and is why a venture main gained
       # after the branch forked does not false-positive.
+      #
+      # Fetched into `refs/ci/base-main` rather than `refs/remotes/origin/main`,
+      # and forced. Writing the tracking ref is what a first draft did, and
+      # `run_workflow_locally.py` rejected it here: in any checkout that already
+      # has `origin/main` at a different commit, a `--depth=1` fetch is a
+      # non-fast-forward and the step exits 1. That is every local run and the
+      # `push: branches: [main]` event. A private ref namespace cannot collide
+      # with anything, so the step means the same thing everywhere it runs.
       - name: Fetch the base branch for the venture-regression check
-        run: git fetch --no-tags --depth=1 origin main:refs/remotes/origin/main
+        run: git fetch --no-tags --depth=1 origin +refs/heads/main:refs/ci/base-main
 
       - name: Check no live venture disappears from the served catalogue
-        run: python3 platform/ci/check_venture_regression.py
+        run: python3 platform/ci/check_venture_regression.py --base refs/ci/base-main
 
       - name: Venture-regression checker unit tests
         working-directory: platform/ci
