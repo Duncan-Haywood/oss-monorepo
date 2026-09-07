@@ -52,3 +52,17 @@ test('index links one hop to the fireplace-insert-bid-calculator sibling', () =>
   );
   assert.match(html, /fireplace insert bid calculator/i);
 });
+
+// Second sibling, kept alongside the insert pair rather than replacing it:
+// same venting trade and often the same visit, but the dryer duct rather than
+// the flue. A page may carry more than one one-hop, and dropping either would
+// reopen an orphan.
+test('index links one hop to the dryer-vent-bid-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/dryer-vent-bid-calculator\/"/,
+    'index must link ../dryer-vent-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(html, /dryer vent bid calculator/i);
+});

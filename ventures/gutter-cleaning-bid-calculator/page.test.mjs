@@ -46,3 +46,16 @@ test('index links one hop to the window-cleaning-bid-calculator sibling', () => 
   );
   assert.match(html, /window cleaning bid calculator/i);
 });
+
+// Second sibling, added alongside the window pair rather than in place of it:
+// same exterior-maintenance crew, and a wash is routinely bundled onto the same
+// visit as the gutter clear. Both one-hops are kept -- a page may carry more
+// than one, and dropping either would reopen an orphan.
+test('index links one hop to the pressure-washing-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/pressure-washing-bid-calculator\/"/,
+    'index must link ../pressure-washing-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(html, /pressure washing bid calculator/i);
+});
