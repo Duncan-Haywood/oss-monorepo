@@ -2,6 +2,7 @@
   "launched": {
     "3pl-quote-normalizer": "2026-08-25",
     "actions-runner-starvation-check": "2026-09-07",
+    "ai-crawler-access-check": "2026-09-07",
     "ai-engineering-academy": "2026-08-18",
     "amazon-fba-calculator": "2026-08-24",
     "appliance-repair-quote-calculator": "2026-08-26",
@@ -189,6 +190,7 @@
     "water-heater-bid-calculator": "2026-08-26",
     "water-softener-bid-calculator": "2026-08-26",
     "well-pump-bid-calculator": "2026-08-26",
+    "whatnot-seller-payout": "2026-09-07",
     "wheelchair-ramp-bid-calculator": "2026-08-26",
     "where-to-sell-calculator": "2026-08-24",
     "which-job-first": "2026-09-03",

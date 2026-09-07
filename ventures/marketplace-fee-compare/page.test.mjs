@@ -128,7 +128,7 @@ test("the own-store demand caveat is in the markup, not only in prose", () => {
   assert.match(prose, /A marketplace fee buys buyers/);
 });
 
-test("every channel and the excluded one link to their deep calculator", () => {
+test("every channel and every excluded channel link to their deep calculator", () => {
   for (const channel of [...CHANNELS, ...EXCLUDED_CHANNELS]) {
     assert.ok(
       scriptSource.includes("../${escapeHtml(channel.deepTool)}/"),
@@ -139,6 +139,10 @@ test("every channel and the excluded one link to their deep calculator", () => {
   assert.equal(
     (scriptSource.match(/\.\.\/\$\{escapeHtml\(channel\.deepTool\)\}\//g) ?? []).length,
     2,
+  );
+  assert.ok(
+    EXCLUDED_CHANNELS.some((c) => c.deepTool === "whatnot-seller-payout"),
+    "Whatnot must be in EXCLUDED_CHANNELS so the hub generates its deep link",
   );
 });
 
@@ -245,4 +249,9 @@ test("index links to the related where-to-sell calculator", () => {
     /href="\.\.\/where-to-sell-calculator\/"/,
     "index must link ../where-to-sell-calculator/ so crawlers can reach the returns/shelf-time ranking",
   );
+});
+
+test("visible FAQ explains why Whatnot is excluded", () => {
+  assert.match(markup, /Why is Whatnot not in the comparison\?/);
+  assert.match(prose, /livestream auction/i);
 });

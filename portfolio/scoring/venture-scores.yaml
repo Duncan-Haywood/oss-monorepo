@@ -6965,3 +6965,97 @@ ventures:
       quality or what coverage they "should" have, only whether the line
       rate went down between the two files. Nothing is uploaded; the CLI
       makes no network call at all.
+
+  - slug: whatnot-seller-payout
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model
+      — commission on the hammer, processing on the checkout total, the
+      published $1,500 category cap, and the charge-vs-bake-vs-eat
+      shipping split — that is arithmetic, and adding inference would
+      only make the result less checkable.
+    basis: >-
+      Graduated 2026-09-07 as a browser-local Whatnot live-seller payout
+      calculator. Scored with tiktok-shop-fee-calculator (composite
+      6.833): same single-channel fee shape, same defensibility 5
+      (processing-on-checkout and the $1,500 cap are the decision a
+      headline “8%” page hides), distribution 8 because “whatnot seller
+      fees” and “whatnot fee calculator” are high-intent seller queries
+      with named communities (r/whatnot, r/whatnotapp) and no
+      overlapping venture in the portfolio (duplicate_check.py top score
+      0.23). Not a trade bid calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the seller's own inputs, never a
+      recommended start price, a claim about Whatnot's live schedule, or
+      tax advice. Presets are labelled starting points from a published
+      help article. Nothing the user enters leaves the browser.
+
+  - slug: ai-crawler-access-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Which crawlers are allowed or
+      blocked is decided by parsing robots.txt against a fixed algorithm
+      (longest matching rule wins, ties go to Allow) and a curated list of
+      publicly documented bot tokens — a model-based guess about "is this
+      site AI-friendly" would be strictly worse than reading the file the
+      site owner actually wrote.
+    basis: >-
+      Graduated as part of issue #3665's new-venture lane. Same shape as
+      ventures/flaky-test-finder and ventures/coverage-drop-check: a
+      developer/webmaster CLI+browser checker, not the trade-calculator
+      archetype that dominates the catalogue (portfolio/pipeline/README.md's
+      archetype-saturation note). Scored on this file's six-dimension
+      rubric at graduation, same session.
+      Autonomous ops 10 / gross margin 10: the browser page classifies text
+      the visitor pastes and the CLI fetches only the one domain it is
+      given (or reads local files) — no hosting, no per-user cost.
+      Time to revenue 5: site owners and SEO practitioners deciding whether
+      to block AI training crawlers are a free-utility-norm audience with
+      no purchase moment at the point of use, scored like this portfolio's
+      other free-forever dev/webmaster utilities.
+      Defensibility 3: the robots.txt matching algorithm itself is Google's
+      own published rule, not proprietary insight. What is not already
+      bundled for free elsewhere is the specific pairing of a curated,
+      15-token AI-crawler list with that exact matching algorithm plus a
+      structural llms.txt check, in one paste with no account.
+      Distribution 5: "block GPTBot robots.txt", "llms.txt checker", and
+      "AI crawler access audit" are real, active SEO/webmaster community
+      search phrases (r/TechSEO, r/SEO, r/webdev, webmaster forums) as of
+      this tool's build, evidenced by ongoing public discussion of AI-bot
+      blocking — but this session had no live internet access to pull a
+      current search-volume number, so the phrases are reasoned from known
+      community behavior, not a verified traffic figure, and this
+      portfolio has no existing developer-tool distribution channel.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool only reports what a robots.txt or llms.txt file says —
+      it fetches nothing except the one domain the user names (or reads
+      local/pasted text), asks for no token, scrapes no personal data, and
+      makes no claim that any crawler will actually honor the directives it
+      reports. It is explicit that robots.txt is a request, not an
+      enforcement or compliance mechanism.
