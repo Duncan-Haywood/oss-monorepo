@@ -32,9 +32,9 @@
 readings:
 
   github-actions-runners:
-    verdict: down
+    verdict: up
     measured: "2026-09-07"
-    run: 34091300665
+    run: 34104983650
     how: >-
       Cheapest route, and it costs nothing at all: classify a check that
       already ran on any open PR, by its **job** id rather than a run id --
@@ -138,6 +138,16 @@ readings:
       the reset" shape the rest of this file assumes; it can flip inside a
       session. Classify per push rather than trusting a reading more than
       about half an hour old.
+      Re-measured 2026-09-07T09:15:58Z from a scheduled autonomous session,
+      via `ci_starvation.py --run 34104983650` against a `portfolio-pages`
+      run triggered by this session's own `gh-pages` publish (`build`,
+      `deploy` and `report-build-status` jobs, real runner ids
+      `1000063591`/`1000063597`/`1000063596`, all `success` in under 12s
+      each) — exit 0, up again about 2h43m after the 06:33Z starved reading
+      above. Consistent with the "flips inside a session" shape already
+      recorded here, not a new pattern. Do not read this as "fixed" any more
+      than the 06:33Z entry meant "broken forever" — classify the next push
+      on its own merits.
 
   k3s-cluster:
     verdict: down
