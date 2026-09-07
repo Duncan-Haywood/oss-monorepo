@@ -60,3 +60,16 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+// Closest sibling: same cleaning subcategory, but a carpet stop rather than
+// chemical cost. Without a crawlable link here, a crawler entering on the
+// dilution calculator never reaches the carpet tool in one hop — same one-way
+// orphan class as #3709 / #3729 / #3743.
+test('index links one hop to the carpet-cleaning-bid-calculator sibling', () => {
+  const html = readPage();
+  assert.match(
+    html,
+    /href="\.\.\/carpet-cleaning-bid-calculator\/"/,
+    'index must link ../carpet-cleaning-bid-calculator/ so crawlers reach the carpet calculator in one hop',
+  );
+});
