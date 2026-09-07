@@ -30,9 +30,27 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const VENTURES = 'ventures';
+// Resolved from this file, not from the working directory. It was `'ventures'`
+// until 2026-09-07, which resolves only when the runner happens to stand in
+// the repository root -- and the workflow step that runs this suite does not:
+// `portfolio-pages.yml` invokes `node --test "*.test.mjs"` from
+// `platform/pages`. So the very first statement in the test threw
+// `ENOENT: scandir 'ventures'` and the run was red without ever reading a page.
+//
+// That is worse than it sounds, because of what this file is. The comment
+// above describes it as the cheap standing guard between full axe runs, and
+// it carries a "guard the guard" assertion (`checked >= 24`) written so the
+// suite could never pass while silently scanning nothing. The path bug
+// defeated that assertion by never reaching it: the failure was real and
+// loud, but it said `ENOENT`, so it read as environmental rather than as a
+// guard that had stopped guarding. Every sibling test in this directory
+// already resolved the tree this way -- see `saved-bids.test.mjs` -- which is
+// what makes this a slip rather than a judgement call.
+const HERE = dirname(fileURLToPath(import.meta.url));
+const VENTURES = join(HERE, '..', '..', 'ventures');
 
 // An input that lives in a generated row: `data-row="N"` is how all three
 // route tables address their cells from JS.
