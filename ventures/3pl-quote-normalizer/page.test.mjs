@@ -311,11 +311,20 @@ test('negotiation page points back to the calculator’s own itemized brief', as
 
 test('inbound SEO page explains the container-fee arithmetic', async () => {
   const page = await readFile(new URL('./pallet-vs-carton-inbound.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(page, /\$10/);
   assert.match(page, /inbound.html/);
   assert.match(page, /not financial, tax, legal/);
   assert.match(sitemap, /pallet-vs-carton-inbound.html/);
+  // The explainer already linked back via inbound.html; the product index
+  // shipped without a crawlable link of its own, so a visitor (or crawler)
+  // on the tool never reached the search-phrase page in one hop.
+  assert.match(
+    index,
+    /href="\.\/pallet-vs-carton-inbound\.html"/,
+    'index must link the inbound SEO page so crawlers can reach it from the product',
+  );
 });
 
 test('kitting page compares 3PL assembly, pre-kit, and skipping the bundle', async () => {
