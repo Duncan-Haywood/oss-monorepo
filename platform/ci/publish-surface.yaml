@@ -41,6 +41,9 @@ workflows:
 - workflow: a11y-theme-resolution-ci.yml
   classification: none
   publishes: []
+- workflow: actions-cache-poisoning-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-injection-check-ci.yml
   classification: none
   publishes: []
@@ -329,6 +332,9 @@ workflows:
 - workflow: garmin-world-traveler-watchface-ci.yml
   classification: none
   publishes: []
+- workflow: gig-driver-net-pay-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
@@ -476,15 +482,10 @@ workflows:
 - workflow: page-integrity-ci.yml
   classification: none
   publishes: []
-- workflow: pages.yml
+- workflow: pages-freshness-ci.yml
   classification: none
   publishes: []
-# Reads the Pages route's state and asserts the published snapshot is current.
-# `none` is the intended classification and the distinction is the point: it
-# reports that the live site is behind `main` and names the command that fixes
-# it, but it never runs that command. Publishing rewrites a branch, which is
-# not something a check should do as a side effect.
-- workflow: pages-freshness-ci.yml
+- workflow: pages.yml
   classification: none
   publishes: []
 - workflow: painting-bid-calculator-ci.yml

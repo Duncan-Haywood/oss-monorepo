@@ -7290,6 +7290,66 @@ ventures:
       or resolves anything on the user's behalf. It makes no security or
       compliance claim: a clean scan means these two specific, documented
       patterns are absent, not that the workflow is secure overall.
+  - slug: actions-cache-poisoning-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over workflow YAML already on disk or
+      pasted into the browser: an actions/cache (or actions/cache/save) step
+      under a pull_request_target/workflow_run trigger, or a restore-keys
+      field on actions/cache or actions/cache/restore. There is nothing to
+      infer.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags an
+      actions/cache write reachable from a fork-triggered
+      pull_request_target/workflow_run job, and an unscoped restore-keys
+      fallback that can adopt a colliding entry -- the two patterns behind
+      the TanStack Router cache-poisoning incident (May 2026). Same shape as
+      `actions-injection-check`, `actions-permissions-check`, and
+      `pinned-actions-check`: a standard-library-only classifier over data
+      the user already has, scored on this file's six-dimension rubric to
+      keep coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page classifies YAML the visitor pastes and the CLI reads only local
+      files, so marginal cost per use is zero and there is no server to
+      operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the classification rules are a handful of documented
+      regex-shaped checks any developer could write; what is not trivially
+      copied is the paired CLI/browser port with a shared classifier module,
+      a parity test, and the already-written explanation of why each pattern
+      is dangerous (the TanStack incident, AdnaneKhan's ActionsCacheBlasting
+      research, Hive Security's writeup), which is the actual value a
+      searcher is buying. Unmeasured beyond that, hence not scored higher.
+      Distribution 5: a dated, named incident (TanStack Router, May 2026)
+      gives this a concrete recent-news hook none of its siblings had at
+      launch, but this portfolio has no existing developer-tool distribution
+      channel and volume is unmeasured, so scored level with the family
+      rather than above it.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network calls anywhere in either
+      implementation — it classifies workflow YAML already on the user's
+      disk or pasted into the browser, asks for no token, and never fetches
+      or resolves anything on the user's behalf. It makes no security or
+      compliance claim: a clean scan means these two specific, documented
+      patterns are absent, not that the workflow or its cache usage is safe
+      overall.
   - slug: childcare-tuition-calculator
     scores:
       ai_leverage: 1
@@ -7408,3 +7468,46 @@ ventures:
       match rather than a legal opinion. It never recommends accepting or
       rejecting a license change — that decision, and verifying the actual
       license text, stays the user's.
+  - slug: gig-driver-net-pay-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on a
+      session's own gross pay, mileage, and cost inputs — a net-pay,
+      per-hour, per-mile, and tax-reserve computation — and adding
+      inference would only make the result less checkable against the
+      driver's own numbers.
+    basis: >-
+      Graduated 2026-09-07 as a browser-local net-pay calculator for
+      DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers. Distinct
+      from delivery-app-margin-calculator (the restaurant's side of a
+      delivery order) and owner-operator-cpm-calculator (a commercial
+      trucking cost-per-mile): this is the gig driver's own session,
+      turning gross app pay into net pay after gas, maintenance, and a
+      prorated insurance share, plus a self-employment tax reserve and a
+      target-take-home solver. Scored at parity with
+      delivery-app-margin-calculator on defensibility (4): the wedge is
+      combining gross pay, per-mile vehicle cost, and a tax reserve in one
+      pass rather than the single-purpose mileage-deduction calculators
+      already free elsewhere, but none of those three components is
+      individually hard to build. Distribution 8: "how much should I set
+      aside for gig driving taxes" and "is doordash worth it after gas"
+      are high-intent queries with a same-session decision attached.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the driver's own entered figures
+      — never a recommendation to accept or decline a specific delivery
+      offer, and never tax or legal advice. The tax-reserve figure is
+      labelled a rough set-aside estimate, not a filing number, and
+      nothing entered leaves the browser.
