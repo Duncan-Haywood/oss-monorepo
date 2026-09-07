@@ -40,3 +40,19 @@ jobs:
           python-version: "3.12"
       - run: pip install ruff==0.15.8
       - run: ruff check .
+
+  # Added 2026-09-07. This venture started as a Python tool and later gained a
+  # browser page with its own `*.test.mjs` suites, but the workflow was never
+  # widened and no portfolio-wide workflow runs `node --test` inside a venture
+  # -- so those assertions ran in no CI job at all. `validate_workflows.py`
+  # invariant 7 now fails when a venture ships `*.test.mjs` that nothing runs.
+  page-test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run the page module tests
+        run: node --test

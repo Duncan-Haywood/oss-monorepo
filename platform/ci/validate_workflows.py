@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Validate that every .github/workflows file is a well-formed GitHub workflow.
 
-Five invariants:
+Seven invariants (the count in this line was stale at "five" from the day
+invariant 6 landed -- it is the same hand-typed-number defect invariant 7 is
+about, one paragraph above where it is described):
 
 1. Parseability. An unparseable workflow file fails silently: GitHub registers
    it with its `name` set to its own path, then emits a zero-job
@@ -56,6 +58,30 @@ Five invariants:
    (`uses:`) is exempt: it has no `runs-on` and GitHub does not accept a job
    timeout on it; the timeout belongs in the called workflow's own jobs.
 
+7. Every venture that ships `*.test.mjs` has a workflow that runs them. The
+   portfolio-wide workflows do not: `portfolio-validate.yml` checks structure
+   and markup, `page-integrity-ci.yml` and `link-contrast-ci.yml` read HTML,
+   and `proposal-module-ci.yml` runs exactly one filename
+   (`ventures/*/proposal.test.mjs`). Nothing else executes `node --test`
+   inside a venture, so a venture's own arithmetic is covered only by its own
+   `<slug>-ci.yml` -- and that file is hand-written per venture, from a
+   template nobody enforces.
+
+   Measured 2026-09-07: 16 ventures were shipping 62 `*.test.mjs` files that
+   no workflow ran. Eleven had no workflow at all (ten graduated after
+   2026-09-02, one on 2026-09-03); five were Python ventures that later gained
+   a browser page -- the "a CLI acquiring a page is a routine event here" case
+   CLAUDE.md names -- whose workflow was never widened past `pytest`. All 62
+   passed locally, so nothing was broken; what was missing was anything that
+   would notice if they broke. Same failure mode as `checklist_coverage.py`
+   and `test_readme_runs_on_count_matches_reality`: a list maintained by hand
+   cannot notice the thing it describes grew.
+
+   A venture is covered when some workflow both filters on
+   `ventures/<slug>/...` and runs `node --test` (or `npm test`, whose
+   `package.json` script is the same command). Filtering alone is not enough:
+   five of the sixteen had a slug-filtered workflow that ran only Python.
+
 Usage: python3 platform/ci/validate_workflows.py
 """
 import re
@@ -69,6 +95,7 @@ except ImportError:
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS_DIR = REPO_ROOT / ".github" / "workflows"
+VENTURES_DIR = REPO_ROOT / "ventures"
 
 
 class DuplicateKeyError(yaml.YAMLError):
@@ -265,6 +292,106 @@ def check_unique_names(paths):
     return errors
 
 
+# `npm test` / `npm run test`, whose package.json script is `node --test ...`
+# in every venture that uses it. Spelled as a pattern rather than a substring
+# so `npm testfoo` or a comment mentioning "npm tests" cannot match.
+_NPM_TEST = re.compile(r"\bnpm\s+(?:run\s+)?test\b")
+
+
+def _trigger_paths(data):
+    """Every `paths:` entry on this workflow's pull_request / push triggers.
+
+    `on:` unquoted parses to the boolean True under YAML 1.1, the same trap
+    check() already works around, so both spellings are read here too.
+    """
+    on = data.get("on", data.get(True))
+    if not isinstance(on, dict):
+        return []
+    found = []
+    for event in ("pull_request", "push"):
+        config = on.get(event)
+        if isinstance(config, dict):
+            for entry in config.get("paths") or []:
+                if isinstance(entry, str):
+                    found.append(entry)
+    return found
+
+
+def _runs_js_tests(data):
+    """True when some step runs the venture's `*.test.mjs` files.
+
+    `node --test` is the repository's convention; `npm test` is accepted
+    because the one venture spelling it that way (`no-show-fee-calculator`)
+    defines that script as `node --test test/*.test.mjs`. A `uses:` step
+    cannot be read this way and is not counted.
+    """
+    for job in (data.get("jobs") or {}).values():
+        if not isinstance(job, dict):
+            continue
+        for step in job.get("steps") or []:
+            if not isinstance(step, dict):
+                continue
+            run = step.get("run")
+            if not isinstance(run, str):
+                continue
+            if "node --test" in run or _NPM_TEST.search(run):
+                return True
+    return False
+
+
+def check_venture_tests_run(paths, ventures_dir=VENTURES_DIR):
+    """Invariant 7: a venture's `*.test.mjs` files must run in some workflow.
+
+    Takes the real path list for the same reason check_unique_names does: this
+    is a question about the directory as a whole, not about one file, and
+    check() sees one synthetic file at a time.
+
+    Coverage needs both halves. A workflow has to be *triggered* by the
+    venture -- a `paths:` entry under `ventures/<slug>/` -- and has to actually
+    *run* the tests. Five of the sixteen ventures this check first found had
+    the first half and not the second: a slug-filtered workflow that ran only
+    `pytest`, added before the venture had a browser page.
+    """
+    if not ventures_dir.is_dir():
+        return []
+
+    runners = []
+    for path in paths:
+        try:
+            data = yaml.safe_load(path.read_text())
+        except yaml.YAMLError:
+            continue  # check() reports the parse failure itself
+        if not isinstance(data, dict) or not _runs_js_tests(data):
+            continue
+        runners.append(_trigger_paths(data))
+
+    errors = []
+    for venture in sorted(p for p in ventures_dir.iterdir() if p.is_dir()):
+        # `node_modules` is excluded rather than merely absent: no venture
+        # commits one, but a `npm install` in the one venture with a
+        # package.json would fill this glob with a dependency's own suites and
+        # report the venture as uncovered on that machine only.
+        tests = sorted(
+            t for t in venture.rglob("*.test.mjs") if "node_modules" not in t.parts
+        )
+        if not tests:
+            continue
+        prefix = f"ventures/{venture.name}/"
+        if any(entry.startswith(prefix) for filters in runners for entry in filters):
+            continue
+        names = ", ".join(str(t.relative_to(venture)) for t in tests)
+        errors.append(
+            f"ventures/{venture.name}: {len(tests)} test file(s) ({names}) run in "
+            "no workflow -- no workflow both filters on "
+            f"`{prefix}**` and runs `node --test`. The portfolio-wide workflows "
+            "do not run venture unit tests, so these assertions execute only on "
+            "a contributor's machine. Add `.github/workflows/"
+            f"{venture.name}-ci.yml` (copy a sibling), or add a `node --test` "
+            "job to the workflow this venture already has"
+        )
+    return errors
+
+
 def main():
     if not WORKFLOWS_DIR.is_dir():
         print(f"No {WORKFLOWS_DIR.relative_to(REPO_ROOT)} directory; nothing to check.")
@@ -277,6 +404,7 @@ def main():
     for path in paths:
         check(path, errors)
     errors.extend(check_unique_names(paths))
+    errors.extend(check_venture_tests_run(paths))
 
     if errors:
         print(f"{len(errors)} problem(s) found:\n", file=sys.stderr)

@@ -1,5 +1,50 @@
 period: 2026-09
 entries:
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Delivery-path gap, found by enumerating rather than recalling: 16
+        ventures were shipping 62 `*.test.mjs` files that no workflow ran.
+        Eleven had no `<slug>-ci.yml` at all (ten graduated after 2026-09-02,
+        one on 2026-09-03); five were Python ventures that later gained a
+        browser page — the "a CLI acquiring a page is a routine event here"
+        case CLAUDE.md names — whose workflow still ran only pytest. No
+        portfolio-wide workflow covers this: `portfolio-validate.yml` checks
+        structure and markup, `proposal-module-ci.yml` runs exactly
+        `ventures/*/proposal.test.mjs`, and nothing else executes
+        `node --test` inside a venture. All 62 files pass locally (842
+        assertions across the 16), so nothing was broken — what was missing
+        was anything that would notice if they broke.
+      - >-
+        Fixed both halves and closed the hole behind them: 11 new per-venture
+        workflows on the existing template, a `page-test` job added to the 5
+        Python-venture workflows, and invariant 7 in
+        `platform/ci/validate_workflows.py`, which fails naming the venture,
+        its unrun test files and the fix whenever a venture ships
+        `*.test.mjs` that no workflow both filters on and runs. Coverage
+        needs both halves deliberately: five of the sixteen already had a
+        slug-filtered workflow and were still uncovered. 11 unit tests for
+        the new check, including a real-tree regression guard. Verified it
+        fires by holding one of the new files back: exit 1, correct message.
+      - >-
+        Counted-in-prose follow-ups the workflow additions moved:
+        `platform/ci/publish-surface.yaml` regenerated (`--write`, 231 → 242
+        workflows) and `gitops/ci/sync_readme_counts.py` run (264/266/231 →
+        280/282/242). Both are guarded, so skipping either lands red.
+      - >-
+        CI on this PR is starved, not failing: every run on `main` at
+        2026-09-07T01:00Z came back `runner_id: 0`
+        (`ci_starvation.py --run 34071590563`, exit 0 = starvation), so the
+        local run is the gate. Ran the CLAUDE.md merge checklist:
+        `checklist_coverage.py`, 490 passed/25 skipped in `gitops/tests`,
+        all 19 `platform/ci` unittest modules (669 tests) plus
+        `agent_review` (21), 1140 `node --test` assertions across
+        `platform/marketing` + `platform/pages`, 396 in the portfolio
+        suites, `publish_surface.py --check` and
+        `run_workflow_locally.py --for-changes`.
+    mrr_end: null
   - venture: home-staging-bid-calculator
     agent_spend_usd: null
     human_hours: 0
