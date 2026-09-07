@@ -45,6 +45,105 @@ entries:
         suites, `publish_surface.py --check` and
         `run_workflow_locally.py --for-changes`.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `/guides/`, a distribution asset for the half of the
+        catalogue nothing indexed. Measured against a fresh
+        `platform/pages/build.mjs` run on 2026-09-07: the artifact carries
+        342 pages that a venture ships *beside* its calculator — the "how
+        much to charge to replace a boiler" articles, the worked examples,
+        the decision pages — against 189 tool entry pages and 201
+        comparison pages. `/compare/` indexes the comparisons and the hub
+        and category pages index the tools; **nothing indexed the 342**.
+        `llms.txt` named 0 of the 173 question-shaped ones, and 64 of them
+        had exactly one inbound link in the whole artifact (their own
+        tool's entry page), so a crawler reached them at depth 3 or via the
+        sitemap alone. `guide-coverage.mjs`'s own header calls these pages
+        "the acquisition surface, not decoration" — this is the index that
+        was missing under that claim.
+      - >-
+        What shipped, built to the `/compare/` precedent rather than beside
+        it: `GUIDES_PATH`, `isGuidePage`, `guidePageMeta`, `discoverGuides`,
+        `groupGuidesByCategory` and `renderGuidesPage` in
+        `platform/pages/build.mjs`; the page listed in `sitemap-hub.xml`,
+        named in `llms.txt`, and linked from the hub, category, comparison
+        and About footers. `discoverGuides` reads the *built* tree rather
+        than `ventures/`, so a page is listed because it shipped, at the URL
+        it shipped to — the argument `renderVentureSitemap` already makes.
+        Every word on the index is lifted from the page it links (its own
+        `<h1>`, its own meta description): an index may restate what a
+        venture author wrote and may not add a claim of its own, which the
+        page says in its own footer and a test pins at the source.
+      - >-
+        Guards, because an index that goes quiet looks healthy. `check.mjs`
+        gained `GUIDES_DIR` in `SITE_OWN_DIRS` plus the four failures the
+        comparison index already has (missing, unlinked from the hub, empty,
+        undisclaimed, or linking a product that did not ship) — the empty
+        case matters more here since `discoverGuides` reads the output, so a
+        change to `isGuidePage` or the layout would render a headline, a
+        disclaimer and nothing else with no dead link anywhere. 11 new tests
+        across `build.test.mjs` and `check.test.mjs`, including an
+        end-to-end `buildSite` run asserting the three places a page must
+        appear before anyone reaches it (a clickable link, a sitemap entry,
+        an llms.txt line).
+      - >-
+        Two fix-forwards carried in this PR rather than left on `main`, both
+        found by running the checklist after rebasing onto
+        `6159e26a8`. `main` was red on
+        `build.test.mjs`'s "every published trade tool lands in a named
+        sub-group": #3596 routed `custom-farm-rate-calculator` into the
+        `trades` category and stopped there, so it fell to the
+        `trades-other` fallback. Filed under `trades-paid` ("Getting paid &
+        job margin") for the reason `shop-rate-calculator` sits there — it
+        derives a rate from the operator's own overhead (a machine's annual
+        ownership cost over the hours it runs) plus a season-against-income
+        check, rather than being a takeoff for an installed product. And
+        `gitops/tests/test_site_usage.py` names its known usage buckets
+        deliberately ("adding a new top-level page is a deliberate edit to
+        this list"), so `guides` was added to it — `slug_for` already gives
+        the page its own row, which is the row we want.
+      - >-
+        Verified locally, all green: `node platform/pages/build.mjs` +
+        `check.mjs` (189 products, 769 pages, no dead links);
+        `node --test platform/pages/*.test.mjs` (275 build + 86 check + 570
+        across the other 20 files, 0 failures);
+        `node --test platform/marketing/*.test.mjs` (222);
+        `platform/proposal` (101); `platform/privacy` + `platform/webcheck`
+        (66); `checklist_coverage.py`; `python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline
+        infra/tests -q` (396); `python3 -m pytest gitops/tests -q` (490
+        passed, 25 skipped); `platform/ci` unittests (659 of 660 — the one
+        error is `agent_review.test_review` failing to import by bare name
+        under `discover`, the cwd artifact CLAUDE.md documents, and it passes
+        run from its own directory);
+        `python3 platform/ci/browser_checks.py --checks contrast,sideways`
+        against a real build — 766 pages at two viewports, no WCAG A/AA
+        violations, and none of 767 scrolls sideways at 360px, the new page
+        included. `node platform/marketing/regen.mjs` reported the served
+        surface already current and rewrote nothing, so the only `gitops/`
+        change here is the one-line known-bucket edit above.
+      - >-
+        Candidates 1-4 in `gitops/agents/queue/marketing-distribution.yaml`
+        were re-checked before picking, since its "no genuine shippable gap"
+        note was five days old. Embed widget: 189/189 entry pages carry the
+        offer on a fresh build, none skipped — still closed. Comparison
+        pages: 192 `vs-*.html` across 199 ventures, and **all 15 ventures
+        added to `main` since 2026-09-02 already have one**; the 19 without
+        are CLIs, servers and apps with no household-name incumbent — still
+        closed, and no competitor number was estimated or invented. Category
+        hubs and the `/about/` press kit: unchanged and substantive. The gap
+        found was outside that list, which is why the list did not have it.
+      - >-
+        No outward publishing, no new third-party script, font, CDN or
+        network call — `/about/` promises there are none and a test asserts
+        the new page adds none. Usage counted the same anonymous,
+        local-only way every other page counts, under its own slug
+        (`data-pf-slug="guides"`), so whether an informational query sends
+        anyone here is answerable rather than folded into the hub's number.
+    mrr_end: null
   - venture: home-staging-bid-calculator
     agent_spend_usd: null
     human_hours: 0
