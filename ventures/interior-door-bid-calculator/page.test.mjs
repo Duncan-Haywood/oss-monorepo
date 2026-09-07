@@ -275,3 +275,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same openings subcategory, but a sliding / patio unit
+// (panels, glass, frame wrap) rather than interior slabs. Related-tool chrome
+// rotates inside the windows/doors subcategory, so without an explicit one-hop
+// a crawler on this page may never land on that tool.
+test('index links one hop to the patio-door-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/patio-door-bid-calculator\/"/,
+    'index must link ../patio-door-bid-calculator/ so crawlers reach the patio-door calculator in one hop',
+  );
+  assert.match(html, /patio door bid calculator/i);
+});
