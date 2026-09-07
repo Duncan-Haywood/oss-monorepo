@@ -212,3 +212,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same asphalt-contractor trade, but coats and crack fill
+// on existing pavement rather than hot-mix paving. Related-tool chrome
+// rotates inside the trades category, so without an explicit one-hop a
+// crawler on this page may never land on that tool.
+test('index links one hop to the asphalt-sealcoat-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/asphalt-sealcoat-bid-calculator\/"/,
+    'index must link ../asphalt-sealcoat-bid-calculator/ so crawlers reach the sealcoat calculator in one hop',
+  );
+  assert.match(html, /asphalt sealcoating bid calculator/i);
+});
