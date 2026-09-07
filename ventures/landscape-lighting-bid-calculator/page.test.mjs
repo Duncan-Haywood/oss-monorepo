@@ -95,6 +95,19 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.doesNotMatch(seo, /<textarea/i);
 });
 
+// Closest sibling: same outdoor subcategory, but seasonal eave hang rather than
+// permanent low-voltage fixtures. Without a crawlable link here, a crawler
+// entering on the landscape-lighting calculator never reaches the holiday tool
+// in one hop.
+test('index links one hop to the holiday-light-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/holiday-light-bid-calculator\/"/,
+    'index must link ../holiday-light-bid-calculator/ so crawlers reach the holiday calculator in one hop',
+  );
+  assert.match(html, /holiday light bid calculator/i);
+});
+
 // The saved-and-shared bid is only trustworthy if it carries every field the
 // calculator reads. This repo has already shipped the opposite once: a
 // `share.mjs` kept its own hand-written field list, the form grew two fields
