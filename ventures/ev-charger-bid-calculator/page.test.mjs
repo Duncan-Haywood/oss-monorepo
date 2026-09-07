@@ -152,3 +152,17 @@ test('the "how much to charge" SEO page exists, is linked from the calculator, a
   const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+// Closest sibling journey: this Level 2 EVSE install calculator already asks
+// whether the job needs a service upgrade, and the electrical-panel-upgrade
+// calculator prices that upgrade on its own. Related-tool chrome rotates
+// inside trades-mep, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the electrical-panel-upgrade-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/electrical-panel-upgrade-bid-calculator\/"/,
+    'index must link ../electrical-panel-upgrade-bid-calculator/ so crawlers reach the panel upgrade calculator in one hop',
+  );
+  assert.match(html, /electrical panel upgrade bid calculator/i);
+});
