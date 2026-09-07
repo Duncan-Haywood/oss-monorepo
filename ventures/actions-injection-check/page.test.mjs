@@ -52,16 +52,22 @@ test('the page tells the visitor it makes no network calls of its own', () => {
 });
 
 test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {
-  const ldMatch = index.match(/"@type":"FAQPage"[\s\S]*?<\/script>/);
+  // Parse the block rather than substring-matching it. A question containing a
+  // double quote is spelled `\"` inside JSON and `"` in the visible <h3>, so a
+  // raw includes() reports a mismatch on a pair that is in fact identical.
+  const ldMatch = index.match(
+    /<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage"[\s\S]*?)<\/script>/,
+  );
   assert.ok(ldMatch, 'expected a FAQPage JSON-LD block');
-  const ld = ldMatch[0];
+  const faq = JSON.parse(ldMatch[1]);
+  const questions = faq.mainEntity.map((entry) => entry.name);
   const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) =>
     m[1].replace(/<[^>]+>/g, '').trim(),
   );
   assert.ok(headings.length > 0, 'expected visible h3 FAQ headings');
   for (const heading of headings) {
     assert.ok(
-      ld.includes(heading) || ld.includes(heading.replace(/’/g, "'")),
+      questions.includes(heading) || questions.includes(heading.replace(/’/g, "'")),
       `visible heading not found in FAQPage JSON-LD: ${heading}`,
     );
   }

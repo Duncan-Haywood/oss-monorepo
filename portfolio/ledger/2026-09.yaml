@@ -18991,3 +18991,78 @@ entries:
         local rather than trusting a
         third-party site with their workflow files.
     mrr_end: null
+  - venture: actions-injection-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Repaired and merged PR #3746, which carried a complete, well-tested
+        new dev-tool venture but could not have shipped as opened.
+        `actions-injection-check` scans GitHub Actions workflow YAML for the
+        two documented untrusted-input paths GitHub's own security-hardening
+        guidance names: a `pull_request_target`/`workflow_run` "pwn request"
+        that checks out the fork's head with the base repo's secrets in
+        scope, and a `run:` step that interpolates an untrusted
+        `${{ github.event.* }}` or `${{ github.head_ref }}` expression
+        straight into a shell. Browser page plus a zero-dependency Python
+        CLI held in lock-step by a parity test that shells out to `check.py`
+        and asserts identical findings. Screened with
+        `portfolio/pipeline/duplicate_check.py` first (top score 0.17,
+        `pinned-actions-check`, well below the 0.45 bar) -- and it is not
+        that sibling: pinning asks *which* code runs, this asks *whose
+        input* runs, so a fully SHA-pinned workflow can still be a textbook
+        pwn request.
+      - >-
+        The branch was opened against a `main` from earlier the same day and
+        would have **reverted** the guard added to
+        `gitops/tests/test_manifests.py` hours before -- the assertion
+        pinning `OWNER_CHECKLIST.md`'s "the apex serves all N" sentence to
+        the real mirrored-tool count -- along with the doc correction that
+        added it, silently putting the count back to 175 while the rest of
+        the same document said 198. `git merge origin/main` resolved
+        *cleanly* and kept the deletion, because the branch's base predates
+        the guard: exactly the shape CLAUDE.md's "STALE DRAFT SUSPECTED"
+        note describes, arriving as a clean merge rather than a conflict.
+        Restored both files from `origin/main` before doing anything else.
+        Worth recording because no check would have caught it: the guard
+        deletes itself, so the suite it belongs to goes green on the revert.
+      - >-
+        Completed the graduation the PR had left half-done. It shipped the
+        product files but none of the metadata that makes a venture
+        reachable or consistent: added `VENTURE.yaml` (so the venture is
+        routable at all), `README.md`, a six-dimension `venture-scores.yaml`
+        row (composite 6.167, both gates pass -- without it
+        `score_ventures.py --check` and `portfolio/router/test_allocate.py`
+        fail, the same defect #3615 shipped), `.github/workflows/actions-injection-check-ci.yml`
+        on the sibling's template, and regenerated `launched.json` and
+        `publish-surface.yaml` rather than hand-editing them.
+      - >-
+        Fixed one real test failure in the PR as opened:
+        `page.test.mjs`'s FAQPage check substring-matched the raw JSON-LD
+        text against the visible `<h3>` headings, so the one question
+        containing a double quote (`What is a "pwn request" in GitHub
+        Actions?`) never matched -- `"` in the heading versus `\"` inside
+        the JSON. Rewrote the assertion to parse the block and compare
+        `mainEntity[].name`, which is the comparison it was reaching for and
+        cannot go wrong on escaping again.
+      - >-
+        Ran `node platform/marketing/regen.mjs` (the defect CLAUDE.md
+        records costing live product in #3256-#3258 and again in
+        #3324-#3326: a venture page that lands without regen leaves the apex
+        404ing on a URL the sitemap advertises). The mirrored-tool count
+        moved 198->199 in the five hand-typed places CLAUDE.md warns keeps
+        costing: `infra/OWNER_CHECKLIST.md` (three sentences),
+        `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` (twice), and
+        `gitops/tests/test_manifests.py`'s own constant.
+        `gitops/ci/sync_readme_counts.py` picked up the new workflow's
+        `runs-on` line.
+      - >-
+        Verified locally per CLAUDE.md's starvation checklist rather than
+        trusting CI: `python3 -m pytest gitops/tests -q` 490 passed / 25
+        skipped; all 21 `platform/ci` unittest modules OK (run from that
+        directory, per the working-directory trap the file documents);
+        `platform/ci/agent_review` OK; `checklist_coverage.py` clean;
+        `score_ventures.py --check` clean across 208 ventures; the
+        venture's own suites 29/29 node and 34/34 python.
+    mrr_end: null

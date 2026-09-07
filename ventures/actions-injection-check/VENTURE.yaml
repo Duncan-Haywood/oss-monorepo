@@ -1,0 +1,66 @@
+name: actions-injection-check
+description: >-
+  Free, read-only checker that scans GitHub Actions workflow YAML for the two
+  documented untrusted-input paths — a pull_request_target/workflow_run "pwn
+  request" that checks out the fork's head, and a shell step that interpolates
+  an untrusted ${{ github.event.* }} expression straight into the command.
+  Browser page and matching zero-dependency Python CLI; nothing is uploaded and
+  neither half makes a network call.
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: screened with
+# `python3 portfolio/pipeline/duplicate_check.py` against every existing
+# venture, pipeline candidate, screened-out row and ai-first-markets idea --
+# top score 0.17 (pinned-actions-check), well below the 0.45 read-this-first
+# bar. It is not that sibling: pinned-actions-check asks whether a third-party
+# action is pinned to a SHA (a supply-chain question about *which* code runs),
+# this asks whether an attacker-controlled *value* reaches a privileged
+# checkout or a shell (an injection question about *whose input* runs). A
+# fully SHA-pinned workflow can still be a textbook pwn request, and a
+# workflow with no third-party actions at all can still be script-injectable.
+#
+# Shape rationale: portfolio/pipeline/README.md's archetype-saturation note
+# tells sessions to prefer a CLI/checker over another trade-bid calculator
+# absent an unusually strong named channel. The channel here is named rather
+# than assumed: GitHub's own "Security hardening for GitHub Actions" page
+# documents both patterns, actions/checkout v7 (June 2026) began refusing the
+# common pwn-request form by default, and maintainers hitting that refusal
+# have a concrete "which of my workflows does this affect?" question with no
+# local, account-free tool answering it.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are both
+# high. It is a mechanical, read-only linter over text the user pastes or
+# points at on their own disk -- no advice of record, no compliance claim, no
+# scraping, no token, and no data leaving the device. It reports patterns in
+# a defender's own configuration; it does not scan anyone else's repository
+# and has no capability to. Same reasoning as pinned-actions-check and
+# actions-runner-starvation-check, both already graduated on it.
+hypotheses:
+  - claim: A maintainer whose actions/checkout v7 upgrade started failing, or who has just read a pwn-request writeup, will paste a workflow into a page that answers "is this the pattern?" locally rather than wire up a full SAST scanner or a marketplace action that needs a token.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will wire `check.py --fail-on-risk` into their own CI as a merge gate so a newly-added pull_request_target checkout or an interpolated github.event expression cannot land unnoticed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring check.py into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/
+  analytics: null

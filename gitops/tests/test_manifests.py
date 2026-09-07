@@ -1355,7 +1355,9 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 198 since 2026-09-07, when `pinned-actions-check` graduated — same
     # shape again: a new venture with a static `index.html` from its first
     # commit, entering the mirror and the total together.
-    total = 198  # `infra/OWNER_CHECKLIST.md`'s own "N of the 198 tools" wording.
+    # 199 since 2026-09-07, when `actions-injection-check` graduated — same
+    # shape a third time in one day.
+    total = 199  # `infra/OWNER_CHECKLIST.md`'s own "N of the 199 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
@@ -1443,6 +1445,23 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     for value in conf_matches:
         assert int(value) == actual, (
             f"default.conf's comment claims {value} mirrored tools, actual is {actual}"
+        )
+
+    # A fifth count, found stale on 2026-09-07: `OWNER_CHECKLIST.md` restates
+    # the total a second time, in the "not a tool-count difference at all"
+    # paragraph explaining what sealing `portfolio-site-repo` buys once the
+    # mirror already carries everything. It said "175" for days while the
+    # "mirrors N of the N tools directly" sentence 40 lines above it (checked
+    # above) already said 198 -- two counts in the same document disagreeing,
+    # because this sentence was never one of the four this test pinned. Same
+    # failure mode as the rest of this test, caught the same way.
+    apex_serves_matches = re.findall(r"the apex serves all (\d+)", checklist)
+    assert apex_serves_matches, (
+        "OWNER_CHECKLIST.md's 'the apex serves all N' sentence not found or reworded"
+    )
+    for value in apex_serves_matches:
+        assert int(value) == actual, (
+            f"OWNER_CHECKLIST.md's 'apex serves all' claims {value} tools, actual is {actual}"
         )
 
 

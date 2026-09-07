@@ -6806,6 +6806,66 @@ ventures:
       anyone else's data; nothing entered leaves the browser and nothing is
       saved between sessions.
 
+  - slug: actions-injection-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over workflow YAML the user supplies.
+      The two patterns are documented by GitHub and expressible as an
+      indentation-aware line scan; there is nothing for a model to infer,
+      and a model would make the verdict less reproducible, not more.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check for the two
+      documented GitHub Actions untrusted-input paths: a
+      pull_request_target/workflow_run "pwn request" that checks out the
+      fork's head, and a `run:` step interpolating an untrusted
+      `${{ github.event.* }}` expression into a shell. Same shape as
+      `pinned-actions-check` and `actions-runner-starvation-check` — a
+      standard-library-only classifier over text the user already has, with
+      a browser port held in lock-step by a parity test — scored on this
+      file's six-dimension rubric to keep coverage complete for
+      `score_ventures.py --check` and `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host. The page
+      classifies text the visitor pastes and the CLI reads local files, so
+      marginal cost per use is zero and there is no server to operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like the portfolio's other
+      free-forever dev utilities, since usage rather than payment is the
+      current-phase metric.
+      Defensibility 4: the matching rules are a few dozen lines any
+      developer could write. What is less trivially copied is the pairing
+      of a verdict with the specific remediation GitHub names, and the
+      published explanation of why `pull_request_target` exists at all —
+      which is the part a searcher arriving from a failing checkout upgrade
+      is actually looking for. Unmeasured beyond that, hence not higher.
+      Distribution 6: one point above its sibling because the demand event
+      is dated rather than ambient — actions/checkout v7 (June 2026) began
+      refusing the common pwn-request form by default, so maintainers hit a
+      concrete failure and search for what it means. "pwn request github
+      actions" and "github actions script injection" are narrow, real
+      developer terms with no free local tool answering them. Still capped
+      at 6: this portfolio has no existing developer-tool distribution
+      channel and the volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only linter over the user's own configuration text. It
+      makes no network call anywhere in either implementation, needs no
+      token, and nothing the visitor pastes leaves the device. It reports
+      patterns in a defender's own workflows and has no capability to scan
+      anyone else's repository. The page states plainly that a clean scan
+      is not a security audit and names both patterns' known blind spots,
+      so there is no advice-of-record or compliance claim to contain.
   - slug: actions-runner-starvation-check
     scores:
       ai_leverage: 1
