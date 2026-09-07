@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 116 files, 543480 bytes
 #   portfolio-front-tools-5: 131 files, 555279 bytes
 #   portfolio-front-tools-6: 108 files, 545792 bytes
-#   portfolio-front-tools-7: 111 files, 544660 bytes
+#   portfolio-front-tools-7: 112 files, 548837 bytes
 #   portfolio-front-tools-8: 119 files, 554407 bytes
 #   portfolio-front-tools-9: 98 files, 553097 bytes
 #   portfolio-front-tools-10: 72 files, 368076 bytes
@@ -993,6 +993,7 @@ configMapGenerator:
       - junk-removal-bid-calculator__index.html.gz=junk-removal-bid-calculator__index.html.gz
       - junk-removal-bid-calculator__share.mjs.gz=junk-removal-bid-calculator__share.mjs.gz
       - junk-removal-bid-calculator__usage.mjs.gz=junk-removal-bid-calculator__usage.mjs.gz
+      - junk-removal-bid-calculator__vs-jobber.html.gz=junk-removal-bid-calculator__vs-jobber.html.gz
       - junk-removal-bid-calculator__vs-workiz.html.gz=junk-removal-bid-calculator__vs-workiz.html.gz
       - kitchen-tile-backsplash-bid-calculator__calc.mjs.gz=kitchen-tile-backsplash-bid-calculator__calc.mjs.gz
       - kitchen-tile-backsplash-bid-calculator__do-leftover-tile-boxes-cover-the-next-wall.html.gz=kitchen-tile-backsplash-bid-calculator__do-leftover-tile-boxes-cover-the-next-wall.html.gz
