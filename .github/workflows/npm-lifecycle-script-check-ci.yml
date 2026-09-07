@@ -6,8 +6,7 @@ name: npm-lifecycle-script-check CI
 # workflow, which only checks published pages and does not run venture
 # unit tests. Without this file, `validate_workflows.py` would fail the
 # moment the venture's `*.test.mjs` files land -- the same hole
-# `license-drift-check-ci.yml` documents, found again the same day this
-# venture graduated in #3856 (which shipped without this workflow).
+# `license-drift-check-ci.yml` documents.
 on:
   pull_request:
     paths:
