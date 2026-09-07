@@ -113,6 +113,7 @@ python3 check.py baseline.xml current.xml --json</code></pre>
     <h3>Is my coverage report uploaded anywhere?</h3>
     <p>No. The browser page parses the XML you paste entirely in your own browser and never sends it anywhere. The CLI reads local files and makes no network call at all.</p>
     <p>More: <a href="why-did-my-pr-drop-coverage.html">why coverage drops on a PR that "didn't touch tests"</a>.</p>
+    <p>Related: if coverage looks fine but the same tests flip between CI runs, the <a href="../flaky-test-finder/">flaky test finder</a> classifies which tests are flaky versus broken from JUnit XML you paste — nothing uploaded.</p>
   </section>
 
   <footer>

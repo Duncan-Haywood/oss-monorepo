@@ -31,3 +31,16 @@ test('index links to the related actions-runner-starvation-check', async () => {
     'index must link ../actions-runner-starvation-check/ so crawlers can reach the runner_id check',
   );
 });
+
+// coverage-drop-check covers the coverage-delta question after "are the tests
+// stable?". Without a crawlable link on this hub, a crawler entering on the
+// flaky finder never reaches that sibling in one hop — same one-way orphan
+// class as #3639 / #3667 / #3677.
+test('index links to the related coverage-drop-check', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/coverage-drop-check\/"/,
+    'index must link ../coverage-drop-check/ so crawlers can reach the coverage-delta check',
+  );
+});
