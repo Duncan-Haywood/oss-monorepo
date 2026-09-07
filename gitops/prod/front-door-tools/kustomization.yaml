@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 125 files, 556703 bytes
 #   portfolio-front-tools-4: 119 files, 555226 bytes
 #   portfolio-front-tools-5: 131 files, 549137 bytes
-#   portfolio-front-tools-6: 104 files, 553551 bytes
+#   portfolio-front-tools-6: 105 files, 552781 bytes
 #   portfolio-front-tools-7: 116 files, 553656 bytes
 #   portfolio-front-tools-8: 115 files, 555217 bytes
 #   portfolio-front-tools-9: 101 files, 556382 bytes
@@ -924,6 +924,7 @@ configMapGenerator:
       - home-elevator-bid-calculator__usage.mjs.gz=home-elevator-bid-calculator__usage.mjs.gz
       - home-elevator-bid-calculator__vs-jobber.html.gz=home-elevator-bid-calculator__vs-jobber.html.gz
       - home-staging-bid-calculator__calc.mjs.gz=home-staging-bid-calculator__calc.mjs.gz
+      - home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz=home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz
       - home-staging-bid-calculator__index.html.gz=home-staging-bid-calculator__index.html.gz
       - home-staging-bid-calculator__usage.mjs.gz=home-staging-bid-calculator__usage.mjs.gz
       - home-staging-bid-calculator__vs-honeybook.html.gz=home-staging-bid-calculator__vs-honeybook.html.gz
