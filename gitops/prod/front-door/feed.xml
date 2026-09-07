@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 202 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 203 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,15 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Gig Driver Net Pay Calculator — What You Keep After Gas</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gig-driver-net-pay-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/gig-driver-net-pay-calculator</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session&#39;s gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.</summary>
   </entry>
   <entry>
     <title>KDP Royalty Calculator — KU Page Reads vs Going Wide</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price a blown-in attic insulation job from floor areas, existing versus target R-value, bag yield, air-sealing penetrations, and baffles — not a flat price per square foot. See bag count, walk-away price, and the margin a $1.50-a-foot special actually leaves.</summary>
-  </entry>
-  <entry>
-    <title>Automatic Driveway Gate Bid Calculator — Price Operators</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/automatic-driveway-gate-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/automatic-driveway-gate-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price an automatic driveway gate from single swing, dual swing, or slide: opening width, leaf material, columns, power, loops, and access — not a published $4,500 kit special. See the operators and the walk-away number.</summary>
   </entry>
 </feed>

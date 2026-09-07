@@ -199,3 +199,16 @@ test('"you keep" in the verdict means take-home once a reserve is set', () => {
   // the operator actually reads.
   assert.match(scriptSource, /weeklyTakeHome\)\}<\/strong> this week after setting aside/);
 });
+
+// Both are self-employed driver economics tools this calculator's own
+// visitors ask about, and neither linked the other before this: a
+// commercial-truck owner-operator and a personal-vehicle gig delivery /
+// rideshare driver. Without a crawlable link here, a crawler entering on the
+// owner-operator page never reaches the gig-driver page in one hop.
+test('index links one hop to the gig-driver-net-pay-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/gig-driver-net-pay-calculator\/"/,
+    'index must link ../gig-driver-net-pay-calculator/ so crawlers reach the gig driver net pay calculator in one hop',
+  );
+});
