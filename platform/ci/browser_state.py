@@ -193,7 +193,9 @@ def record(checks, *, result: str, commit: str | None = None, pages: int | None 
     return reading
 
 
-_MARK = {"current": "ok  ", "stale": "STALE", "unknown": "?   ", "never": "NEVER"}
+# Padded to a common width so the check names line up in the report; the
+# summary marks in browser_checks.py are padded for the same reason.
+_MARK = {"current": "ok   ", "stale": "STALE", "unknown": "?    ", "never": "NEVER"}
 
 
 def report(st: dict) -> str:
