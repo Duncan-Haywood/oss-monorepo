@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 197 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 198 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -60,6 +60,15 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">See what a Kindle book keeps on KDP exclusive (paid sales plus Kindle Unlimited page reads) versus going wide. Paperback print cost, 70% vs 35% ebook, and Ingram wholesale are boxes you type from your own dashboard. Free, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Pinned Actions Check — Are Your GitHub Actions Pinned to a Commit SHA?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pinned-actions-check/"/>
+    <id>tag:marisstella.dev,2026:tool/pinned-actions-check</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Pour Cost Calculator</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price a kitchen cabinet refinish from doors, drawer fronts, face frames, hardware, degrease, and a dark-to-light extra coat — then see price per door, price per painted piece, and the walk-away number.</summary>
-  </entry>
-  <entry>
-    <title>CAM Reconciliation Calculator for Commercial Leases</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cam-reconciliation-check/"/>
-    <id>tag:marisstella.dev,2026:tool/cam-reconciliation-check</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free CAM reconciliation calculator for small commercial landlords and tenants. Check area-share math, credits, billed charges, and variance privately in your browser.</summary>
   </entry>
 </feed>
