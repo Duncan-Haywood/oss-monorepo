@@ -72,6 +72,19 @@ test('inputs and result fields for the primary journey are present', () => {
   }
 });
 
+// Closest sibling: same cleaning/restoration subcategory, and the radon tool
+ // prices crawl membrane as part of a depressurization install. Related-tool
+ // chrome rotates inside the subcategory, so without an explicit one-hop a
+ // crawler on this page may never land on that tool.
+test('index links one hop to the radon-mitigation-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/radon-mitigation-bid-calculator\/"/,
+    'index must link ../radon-mitigation-bid-calculator/ so crawlers reach the radon calculator in one hop',
+  );
+  assert.match(html, /radon mitigation bid calculator/i);
+});
+
 test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /<title>[^<]*Crawl Space Encapsulation Bid Calculator/i);
   assert.match(html, /meta name="description"[^>]*crawl space encapsulation/i);

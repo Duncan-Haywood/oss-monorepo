@@ -71,6 +71,18 @@ test('inputs and result fields for the primary journey are present', () => {
   }
 });
 
+// Closest sibling: same cleaning/restoration subcategory, and this tool already
+ // prices crawl membrane — a crawler pricing membrane-only under radon should
+ // reach the full encapsulate calculator in one hop.
+test('index links one hop to the crawl-space-encapsulation-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/crawl-space-encapsulation-bid-calculator\/"/,
+    'index must link ../crawl-space-encapsulation-bid-calculator/ so crawlers reach the encapsulate calculator in one hop',
+  );
+  assert.match(html, /crawl space encapsulation bid calculator/i);
+});
+
 test('the landing page names the problem in the mitigator\'s words', () => {
   assert.match(html, /<title>[^<]*Radon Mitigation Bid Calculator/i);
   assert.match(html, /meta name="description"[^>]*suction/i);
