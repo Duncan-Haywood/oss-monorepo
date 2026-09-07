@@ -7572,3 +7572,57 @@ ventures:
       network call) and says so in its own docstring, README, and the
       page's FAQ, rather than presenting an unverifiable claim as a
       confirmed finding.
+  - slug: npm-lifecycle-script-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a package gained an
+      install-time lifecycle script since the last snapshot is a
+      deterministic field comparison (`hasInstallScript`) between two
+      package-lock.json snapshots the user supplies; there is nothing to
+      infer or classify beyond that.
+    basis: >-
+      Graduated 2026-09-07 per portfolio/pipeline/README.md's "archetype
+      itself" section: same shape as `license-drift-check` (paste two
+      point-in-time dependency-tree snapshots, get a deterministic diff),
+      just for install-time lifecycle scripts instead of declared
+      licenses. Distinct from license-drift-check (license field, not code
+      execution), mcp-supply-chain-watch (MCP server manifests, not npm
+      packages), and actions-injection-check/actions-cache-poisoning-check
+      (GitHub Actions workflow YAML, a different artifact and attacker
+      entry point). This entry backfills score_ventures.py --check, which
+      was red on main after the venture's original PR landed without one.
+      Autonomous ops 10 / gross margin 10: the browser page diffs
+      snapshots the visitor pastes and the CLI reads only local files (its
+      own package-lock.json scan makes no network call) — no hosting, no
+      per-user cost.
+      Time to revenue 5: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link, scored like this portfolio's other
+      free-forever dev utilities.
+      Defensibility 3: the diff itself is a few dozen lines any developer
+      could write in an afternoon; npm audit does not check for this, but
+      a maintainer could grep hasInstallScript by hand.
+      Distribution 6: the channel claim rests on four dated, named
+      incidents (ua-parser-js 2021, coa/rc 2021, Shai-Hulud 2025 and its
+      2.0 wave), and Shai-Hulud is recent enough to still be an active
+      search query — but this remains a reasoned claim, not a measured
+      search-volume figure.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool reports a factual field comparison between two
+      snapshots the user supplies (or the CLI reads from local files with
+      no network call), makes no claim about whether a flagged package is
+      actually malicious, and states explicitly that it is over-inclusive
+      by design. It never blocks an install or takes any action — that
+      decision stays the user's.
