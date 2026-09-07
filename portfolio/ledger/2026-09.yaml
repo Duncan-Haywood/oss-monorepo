@@ -18822,3 +18822,25 @@ entries:
         violations, confirming the earlier #3530/#3536/#3628 accessible-name
         fixes have not regressed. No conflict in substance, only in timing.
     mrr_end: null
+  - venture: whatnot-seller-payout
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged the only open PR at session start (#3667, tender-radar
+        reciprocal hub link to tender-bid-readiness). CI reds were
+        starvation (`ci_starvation.py --run 34104491301`, runner_id 0).
+        Unique leftover branches were already on main; #3669 was a
+        browser_state stamp against a now-stale commit and was left open.
+      - >-
+        Graduated whatnot-seller-payout: a browser-local Whatnot live-seller
+        payout calculator. Commission on the hammer, processing on the
+        checkout total (item + buyer-paid shipping + tax) plus $0.30, the
+        published $1,500 TCG/comics/sports/toys cap, leftover after the
+        label, hammer-for-target, and charge-vs-bake-vs-eat shipping.
+        First-visitor channel: r/whatnot, r/whatnotapp, and “whatnot seller
+        fees” / “whatnot fee calculator”. duplicate_check.py was 0.23
+        against the nearest existing venture before this directory existed.
+        40/40 venture tests pass. Mirror count 194 -> 195 after integrating
+        #3671's kdp-royalty-calculator on main.
+    mrr_end: null

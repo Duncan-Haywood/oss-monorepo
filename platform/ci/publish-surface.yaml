@@ -158,9 +158,6 @@ workflows:
 - workflow: concrete-bid-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: coverage-drop-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: concrete-lifting-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -177,6 +174,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: countertop-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: coverage-drop-check-ci.yml
   classification: none
   publishes: []
 - workflow: cra-evidence-desk-ci.yml
@@ -753,6 +753,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: well-pump-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: whatnot-seller-payout-ci.yml
   classification: none
   publishes: []
 - workflow: wheelchair-ramp-bid-calculator-ci.yml

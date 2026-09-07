@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 194,
-  "collection_total": 194,
+  "served_here": 195,
+  "collection_total": 195,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
+      "tool_count": 6
     }
   ],
   "tools": [
@@ -1576,6 +1576,14 @@
       "url": "https://marisstella.dev/tools/well-pump-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a well-pump replacement from extra drop-pipe footage past the included run, seized versus free pitless, stuck-pump pull, extra well cable, a new pressure tank, and a constant-pressure drive — not a published $1,495 pump special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "whatnot-seller-payout",
+      "name": "Whatnot Seller Payout Calculator — Keep After 8% + Processing",
+      "url": "https://marisstella.dev/tools/whatnot-seller-payout/",
+      "category": "More free tools",
+      "description": "Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.",
       "pages": 3
     },
     {
