@@ -212,6 +212,17 @@ test("the dynamic result regions are announced to screen readers", () => {
   assert.match(markup, /<span id="copyStatus" class="fine" role="status" aria-live="polite">/);
 });
 
+// where-to-sell-calculator is the sell-through / Reverb / handoff sibling.
+// Without a reverse link, a crawler on this fees-only ranking never reaches
+// it — same one-way orphan class as #3661, the other direction.
+test("index links to the where-to-sell calculator", () => {
+  assert.match(
+    html,
+    /href="\.\.\/where-to-sell-calculator\/"/,
+    "fee-compare page must link the where-to-sell sibling so crawlers can reach it",
+  );
+});
+
 test("the sharing FAQ answer matches between JSON-LD and the visible section", () => {
   const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
   let answer = null;

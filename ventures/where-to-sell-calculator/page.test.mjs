@@ -400,6 +400,17 @@ test('share-link copy falls back when the Clipboard API is unavailable', () => {
 // sees the static list. When amazon and reverb handoffs shipped, the footer
 // still named only eBay, Etsy and Shopify — the two new deep tools were
 // unreachable from this page unless you already knew their URLs.
+// marketplace-fee-compare is the fees-only sibling (Walmart + TikTok Shop,
+// no Reverb, no sell-through). #3661 closed the one-way orphans from the
+// six ranked deep tools; this hub still had no crawlable path to it.
+test('the footer links to the marketplace fee comparison', () => {
+  assert.match(
+    html,
+    /href="\.\.\/marketplace-fee-compare\/"/,
+    'footer must link to ../marketplace-fee-compare/ so crawlers can reach the fees-only sibling',
+  );
+});
+
 test('the footer lists every channel that has a handoff deep tool', () => {
   for (const { slug } of HANDOFFS) {
     assert.match(
