@@ -127,6 +127,55 @@ class TestNotSuperseded(RepoFixture):
         self.assertTrue(any(f.path == "share.mjs" for f in verdict.files))
         self.assertFalse(any(f.path == "mirror.gz" for f in verdict.files))
 
+    def test_a_renamed_binary_file_does_not_crash_the_scan(self):
+        """The `agent/claude/issue-3821` shape: a mirror shard renamed from
+        one venture's LICENSE.gz to another's in the same directory.
+
+        `git diff --numstat` abbreviates a detected rename to a common-prefix
+        form like `dir/{old.gz => new.gz}` -- a string that does not match
+        the real path `--name-only` reports for the same change. Before
+        `binary_paths` passed `--no-renames`, that mismatch let the binary
+        path slip past the `skip` set and crash `base_tree_lines` decoding it
+        as UTF-8, exactly like the case above but only for a rename.
+        """
+        write_bytes(self.repo, "dir/old.gz", bytes([0x1F, 0x8B, 0x08, 0x00]) + b"x" * 200)
+        commit(self.repo, "add the shard to be renamed")
+
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(self.repo, "share.mjs", "export function encodeInputs(input) {}\n")
+        git(self.repo, "mv", "dir/old.gz", "dir/new.gz")
+        commit(self.repo, "add sharing, rename the mirror shard")
+
+        git(self.repo, "checkout", "-q", "main")
+        write(self.repo, "unrelated.mjs", "export const x = 1;\n")
+        # `dir/new.gz` also exists on `main`, independently of the rename on
+        # `feature` -- the real case (a different venture's mirror shard
+        # that already happens to share the new name). Without this, the
+        # renamed-to path would not exist at `base` at all, `git show` would
+        # fail cleanly, and the bug this test guards against would not fire:
+        # `base_tree_lines` only crashes decoding content that is actually
+        # there to decode.
+        write_bytes(self.repo, "dir/new.gz", bytes([0x1F, 0x8B, 0x08, 0x00]) + b"y" * 300)
+        commit(self.repo, "unrelated change on main, coincidentally sharing the new name")
+
+        # Confirm the fixture actually exercises a numstat rename
+        # abbreviation, not just a plain add/delete pair -- otherwise this
+        # test would pass without ever reaching the bug it guards against.
+        merge_base = subprocess.run(
+            ["git", "merge-base", "main", "feature"],
+            cwd=self.repo, capture_output=True, text=True, check=True,
+        ).stdout.strip()
+        numstat = subprocess.run(
+            ["git", "diff", "--numstat", f"{merge_base}..feature"],
+            cwd=self.repo, capture_output=True, text=True, check=True,
+        ).stdout
+        self.assertIn("=>", numstat, "fixture did not trigger rename detection")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        self.assertFalse(verdict.superseded)
+        self.assertTrue(any(f.path == "share.mjs" for f in verdict.files))
+        self.assertFalse(any(f.path == "dir/new.gz" for f in verdict.files))
+
     def test_an_edit_to_an_existing_file_still_counts(self):
         """Not every dropped feature arrives as a new file."""
         git(self.repo, "checkout", "-q", "-b", "feature")
