@@ -34,7 +34,7 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 136 files, 554622 bytes
-#   portfolio-front-tools-1: 110 files, 553458 bytes
+#   portfolio-front-tools-1: 111 files, 555137 bytes
 #   portfolio-front-tools-2: 148 files, 555984 bytes
 #   portfolio-front-tools-3: 143 files, 556764 bytes
 #   portfolio-front-tools-4: 116 files, 556575 bytes
@@ -298,6 +298,7 @@ configMapGenerator:
       - reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz=reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html.gz
       - reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz=reverb-fee-calculator__should-i-take-this-reverb-offer.html.gz
       - reverb-fee-calculator__should-i-wait-for-a-better-reverb-offer.html.gz=reverb-fee-calculator__should-i-wait-for-a-better-reverb-offer.html.gz
+      - reverb-fee-calculator__to-where-to-sell.mjs.gz=reverb-fee-calculator__to-where-to-sell.mjs.gz
       - reverb-fee-calculator__usage.mjs.gz=reverb-fee-calculator__usage.mjs.gz
       - reverb-fee-calculator__vs-reverbs-selling-fees-page.html.gz=reverb-fee-calculator__vs-reverbs-selling-fees-page.html.gz
       - 3pl-quote-normalizer__LICENSE.gz=3pl-quote-normalizer__LICENSE.gz

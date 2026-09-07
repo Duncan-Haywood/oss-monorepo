@@ -19471,3 +19471,87 @@ entries:
         unaffected). `check_ledger_only.py` run before pushing -- this entry
         ships in the same PR as the code, not on its own.
     mrr_end: 0
+  - venture: reverb-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Path B (router-directed), not a new venture: `python3
+        portfolio/router/allocate.py` ranked this venture #1 (merit 7.00,
+        task "test the untested hypothesis" about the offer-versus-list
+        calculator), with `where-to-sell-calculator` tied at #2 on a
+        different hypothesis about the same portfolio cluster -- "the
+        handoff, not the depth of the second tool, is what decides whether
+        the portfolio's deeper scenarios ever get used." Both hypotheses
+        carry `evidence: customer-contact`, which no session can fabricate,
+        so the scoped work was to close a real gap in the mechanism the
+        handoff hypothesis depends on, rather than claim it tested.
+      - >-
+        Found the gap by reading the code, not the README: every one of the
+        five single-channel calculators (ebay, etsy, amazon, reverb,
+        shopify) already links into `where-to-sell-calculator`'s comparison,
+        but only as a plain, non-prefilled `<a href="../where-to-sell-calculator/">`
+        -- the handoff ran one way only. A seller who lands on
+        reverb-fee-calculator first (e.g. from "should I take this Reverb
+        offer") and then wants to compare channels had to retype price,
+        shipping and cost. where-to-sell-calculator's own README also
+        understated what it already ships -- "Today that is eBay and Etsy"
+        -- when `handoff.mjs` and its own tests already cover all five
+        channels; fixed that stale line in the same commit (a small,
+        factual doc correction, not a restatement of any brief).
+      - >-
+        Shipped the reverse handoff for Reverb: `ventures/reverb-fee-calculator/
+        to-where-to-sell.mjs` builds a link into where-to-sell-calculator's
+        own `#c=` shared-comparison format, carrying price, shipping charged,
+        shipping cost, item cost and the general-cost bucket, and switching
+        the Reverb channel on there. Reverb's own fee-rate fields (marketplace,
+        payment, Gives) have no equivalent slot on the receiving side, so they
+        are deliberately left out rather than mapped onto the wrong field --
+        the same rule the existing (opposite-direction) `handoff.mjs` already
+        follows. Wired into `index.html`'s footer link (href refreshed on every
+        input change) with a `handoff_where_to_sell` usage counter on click,
+        matching the `handoff_<channel>` naming the forward direction already
+        uses. `to-where-to-sell.test.mjs` (7 cases) imports
+        `where-to-sell-calculator/share.mjs`'s real `decodeComparison` directly,
+        so a future change to that payload shape fails a test in this venture
+        instead of silently landing a wrong number in that one -- the same
+        drift-guard pattern `handoff.test.mjs` already uses in the other
+        direction.
+      - >-
+        What this does and does not establish: it removes a real, demonstrated
+        retype barrier standing between the two hypotheses above and the
+        cross-channel comparison they depend on. It is not evidence either
+        hypothesis is true -- that still needs a real visitor, and this
+        product's route (GitHub Pages, no server-side analytics) cannot
+        supply one; see `usage/README.md`. The kill criteria in both
+        ventures' `VENTURE.yaml` (three-plus repeat users in 90 days) are
+        unchanged and still unmeasured.
+      - >-
+        Verification run: `node --test ventures/reverb-fee-calculator/*.test.mjs`
+        (90/90), `node --test ventures/where-to-sell-calculator/*.test.mjs`
+        (154/154, unaffected by the README fix), `node platform/marketing/
+        regen.mjs` (mirror + front-door regenerated to pick up the new module
+        and edited page; failed once pre-regen as expected, green after),
+        `node --test platform/marketing/*.test.mjs` (222/222 post-regen),
+        `node --test platform/pages/build.test.mjs` (277/277) and
+        `check.test.mjs` (86/86), `python3 -m pytest gitops/tests -q` (490
+        passed, 25 skipped), `checklist_coverage.py`, `check_no_payment_code.py`,
+        `router/validate.py` (217 ventures valid), `usage/validate_usage.py`
+        all clean. `run_workflow_locally.py --list` named 12 workflows this
+        diff would trigger; ran each: `reverb-fee-calculator-ci.yml` and
+        `where-to-sell-calculator-ci.yml` (2/2 each, forced after reading both
+        -- both are `node --test` plus the no-warranty clause check, no
+        secrets or writes), `page-integrity-ci.yml`, `link-contrast-ci.yml`,
+        `sibling-links-ci.yml`, `pages-freshness-ci.yml`,
+        `conflict-markers-ci.yml` (2/2 each), and `portfolio-validate.yml`
+        (61/63; the repo's shallow clone failed 2 `platform/webcheck` tests
+        that `git show` a historical revision until `git fetch --unshallow`,
+        then 22/22). The remaining 2 failures on `portfolio-validate.yml`
+        (`check_step_grid.py` on `ventures/3d-print-price-calculator`) are a
+        pre-existing defect on `main` in a venture this diff never touches --
+        confirmed via `git status` and `git log` on that file. Held rather
+        than run: 4 jobs across `agent-cross-review.yml` and
+        `hetzner-gitops-ci.yml` (read secrets) and 2 that grant write
+        (`portfolio-pages.yml` deploy, `publish-pages-branch.yml`) -- none
+        apply to a docs/venture-code change with no deploy step of its own.
+    mrr_end: 0
