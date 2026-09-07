@@ -95,6 +95,19 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.doesNotMatch(seo, /<textarea/i);
 });
 
+// Closest sibling: same asphalt shop, but a sealcoat (coats / oil spots /
+// crack fill) rather than an overlay, mill-and-overlay, or full-depth pave.
+// Related-tool chrome rotates inside the trades category, so without an
+// explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the asphalt-sealcoat-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/asphalt-sealcoat-bid-calculator\/"/,
+    'index must link ../asphalt-sealcoat-bid-calculator/ so crawlers reach the sealcoat calculator in one hop',
+  );
+  assert.match(html, /asphalt sealcoating bid calculator/i);
+});
+
 // The saved-and-shared bid is only trustworthy if it carries every field the
 // calculator reads. This repo has already shipped the opposite once: a
 // `share.mjs` kept its own hand-written field list, the form grew two fields
