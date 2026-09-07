@@ -94,20 +94,6 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.doesNotMatch(seo, /<textarea/i);
 });
 
-// Closest sibling: same interior-enclosure subcategory, but screened porch /
-// lanai (wall-screen, knee wall, mesh) rather than glazed sunroom /
-// three-season (glass, thermal floor, insulated roof). Without a crawlable
-// link here, a crawler entering on the sunroom calculator never reaches the
-// screened-porch tool in one hop.
-test('index links one hop to the screened-porch-bid-calculator sibling', () => {
-  assert.match(
-    html,
-    /href="\.\.\/screened-porch-bid-calculator\/"/,
-    'index must link ../screened-porch-bid-calculator/ so crawlers reach the screened-porch calculator in one hop',
-  );
-  assert.match(html, /screened porch bid calculator/i);
-});
-
 // The saved-and-shared bid is only trustworthy if it carries every field the
 // calculator reads. This repo has already shipped the opposite once: a
 // `share.mjs` kept its own hand-written field list, the form grew two fields

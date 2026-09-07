@@ -148,12 +148,6 @@
     <loc>https://marisstella.dev/tools/actions-runner-starvation-check/why-is-my-github-actions-check-red-in-seconds.html</loc>
   </url>
   <url>
-    <loc>https://marisstella.dev/tools/actions-self-hosted-exposure-check/</loc>
-  </url>
-  <url>
-    <loc>https://marisstella.dev/tools/actions-self-hosted-exposure-check/self-hosted-runners-in-public-repositories.html</loc>
-  </url>
-  <url>
     <loc>https://marisstella.dev/tools/ada-title-ii-evidence/</loc>
   </url>
   <url>
@@ -2315,6 +2309,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/vinyl-liner-bid-calculator/vs-jobber.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/vscode-extension-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/vscode-extension-drift-check/why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/walk-in-shower-bid-calculator/</loc>

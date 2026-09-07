@@ -9,7 +9,7 @@
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
   "served_here": 207,
-  "collection_total": 207,
+  "collection_total": 206,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -526,14 +526,6 @@
       "url": "https://marisstella.dev/tools/actions-runner-starvation-check/",
       "category": "CI checks & developer gates",
       "description": "Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
-    },
-    {
-      "slug": "actions-self-hosted-exposure-check",
-      "name": "Actions Self-Hosted Exposure Check — Is Your Self-Hosted Runner Exposed to Forks?",
-      "url": "https://marisstella.dev/tools/actions-self-hosted-exposure-check/",
-      "category": "CI checks & developer gates",
-      "description": "Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub's own docs warn against on public repos. Free, runs in your browser, nothing uploaded.",
       "pages": 2
     },
     {
@@ -1639,6 +1631,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a residential vinyl pool liner from the liner square feet a water-surface special cannot see, the hopper, the stairs, and the track — plus walk-away price and proposed-price margin check.",
       "pages": 3
+    },
+    {
+      "slug": "vscode-extension-drift-check",
+      "name": "VS Code Extension Drift Check — Did an Extension You Trust Just Change What It Does?",
+      "url": "https://marisstella.dev/tools/vscode-extension-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check. A CLI-only command also checks whether an extension still resolves on the VS Code Marketplace. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "walk-in-shower-bid-calculator",

@@ -50,9 +50,6 @@ workflows:
 - workflow: actions-permissions-check-ci.yml
   classification: none
   publishes: []
-- workflow: actions-self-hosted-exposure-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: actions-runner-starvation-check-ci.yml
   classification: none
   publishes: []

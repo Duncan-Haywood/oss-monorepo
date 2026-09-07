@@ -1,4 +1,4 @@
-const KEY = "actions-self-hosted-exposure-check-usage";
+const KEY = "vscode-extension-drift-check-usage";
 
 function usageBlocked() {
   if (globalThis.__usageOptOut) return true;

@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VS Code Extension Drift Check — Did an Extension You Trust Just Change What It Does?</title>
+  <meta name="description" content="Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check. A CLI-only command also checks whether an extension still resolves on the VS Code Marketplace. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Did an extension you already trust just change what it does?">
+  <meta property="og:description" content="Paste a snapshot of your installed VS Code / Cursor / Windsurf extensions and get a deterministic diff of what changed since your last check -- plus a CLI-only live check against the VS Code Marketplace. The mechanism behind the GlassWorm and Nx Console incidents. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"VS Code Extension Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Diffs two point-in-time snapshots of installed VS Code / Cursor / Windsurf / VSCodium extensions to flag exactly which ones changed their activation surface since the last check, and checks a snapshot against the live VS Code Marketplace to flag an extension that no longer resolves there. Runs entirely in the browser or as a zero-dependency Node CLI usable as a CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn't VS Code already warn me about this?","acceptedAnswer":{"@type":"Answer","text":"VS Code auto-updates extensions silently and has no mechanism to tell you an installed extension's activation surface changed, or that it was later pulled from the marketplace for being malicious. If you already have it installed when that happens, it keeps running with no notice -- auto-update just quietly stops offering a newer version."}},{"@type":"Question","name":"Is this a malware scanner?","acceptedAnswer":{"@type":"Answer","text":"No. It reports a structural difference between two snapshots of an extension's declared manifest fields (when it activates, what it depends on, its entry point), and a factual marketplace-resolution check. A flag means \"read this one\", not \"this is malware\" -- it is not exhaustive and it is not a verdict."}},{"@type":"Question","name":"Is my extension list uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the snapshot you paste entirely in your own browser and never sends it anywhere. The CLI's snapshot and diff commands read only local files -- no network call, ever. Only the CLI's separate check command talks to the network, on your own machine, and only when you run it."}},{"@type":"Question","name":"What do I paste in?","acceptedAnswer":{"@type":"Answer","text":"The output of \"node cli.mjs snapshot\" for the full picture, or the plain output of \"code --list-extensions --show-versions\" (Cursor and Windsurf have the same flag) for a quick id/version-only check."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 700px) { .cols { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input[type="text"] { font: inherit; border: 1px solid #cdd5df; border-radius: 6px; padding: 7px 10px; width: 280px; max-width: 100%; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; margin: 1px 3px 1px 0; }
+    .pill.added { background: #e6eaf0; color: #55606f; }
+    .pill.removed { background: #e6eaf0; color: #55606f; }
+    .pill.risk { background: #fde8e8; color: #7f1d1d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">VS CODE EXTENSION DRIFT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Did an extension you already trust just change what it does?</h1>
+    <p>Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their <strong>activation surface</strong> -- a new startup trigger, a new extension dependency, or a changed entry point -- since an earlier snapshot. Neither VS Code nor the marketplaces warn you when this happens, or when an extension you already have installed is later pulled for being malicious -- the mechanism behind the GlassWorm and Nx Console incidents.</p>
+    <p class="note">Nothing is uploaded. The text you paste is parsed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your extension snapshot</h2>
+    <div class="cols">
+      <div>
+        <label for="current-input">Current snapshot (required)</label>
+        <textarea id="current-input" spellcheck="false" placeholder='Output of "node cli.mjs snapshot", or "code --list-extensions --show-versions" (e.g. dbaeumer.vscode-eslint@2.4.4)'></textarea>
+      </div>
+      <div>
+        <label for="baseline-input">Older snapshot (optional — to see what's new)</label>
+        <textarea id="baseline-input" spellcheck="false" placeholder="Paste an earlier snapshot to diff against, or leave blank to just inspect what's installed right now."></textarea>
+      </div>
+    </div>
+    <label for="ignore-input">Ignore these extension ids (comma-separated, optional — a change you've already reviewed and accepted)</label>
+    <input type="text" id="ignore-input" placeholder="ms-python.python, esbenp.prettier-vscode">
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What changed</h2>
+    <p id="summary"></p>
+
+    <div id="surface-block" hidden>
+      <h3>Surface changed since the older snapshot</h3>
+      <table>
+        <thead><tr><th>Extension</th><th>Versions</th><th>Risk flags</th></tr></thead>
+        <tbody id="surface-rows"></tbody>
+      </table>
+    </div>
+    <div id="version-block" hidden>
+      <h3>Updated version only (no declared surface change)</h3>
+      <table>
+        <thead><tr><th>Extension</th><th>Versions</th></tr></thead>
+        <tbody id="version-rows"></tbody>
+      </table>
+    </div>
+    <div id="added-block" hidden>
+      <h3>Newly installed</h3>
+      <table>
+        <thead><tr><th>Extension</th><th>Version</th></tr></thead>
+        <tbody id="added-rows"></tbody>
+      </table>
+    </div>
+    <div id="removed-block" hidden>
+      <h3>No longer installed</h3>
+      <table>
+        <thead><tr><th>Extension</th><th>Version</th></tr></thead>
+        <tbody id="removed-rows"></tbody>
+      </table>
+    </div>
+    <div id="broad-block" hidden>
+      <h3>Activates unconditionally on every startup</h3>
+      <p class="note">Informational, not a finding on its own -- some extensions legitimately need this. Worth knowing which ones do.</p>
+      <table>
+        <thead><tr><th>Extension</th><th>Version</th></tr></thead>
+        <tbody id="broad-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one file — and it can read your local extensions directory directly, which a browser cannot do:</p>
+    <pre class="cmd">node cli.mjs snapshot --out baseline.json     # scans your extensions dir, commit this once after review
+# ...time passes; an extension auto-updates...
+node cli.mjs snapshot --out current.json
+node cli.mjs diff baseline.json current.json  # exit 1 only if something's surface changed
+node cli.mjs diff baseline.json current.json --ignore ms-python.python
+node cli.mjs check current.json               # live Marketplace lookup -- the only command that touches the network</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. <code>snapshot</code> and <code>diff</code> read only local files: no network call, ever. Only <code>check</code> talks to the network, from your machine, and only when you run it.</p>
+  </section>
+
+  <section class="card">
+    <h2>Real, dated incidents that used exactly this mechanism</h2>
+    <table>
+      <thead><tr><th>Campaign</th><th>Marketplace</th><th>Since</th><th>What happened</th></tr></thead>
+      <tbody id="incidents-rows"></tbody>
+    </table>
+    <p class="note">More: <a href="why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html">why VS Code doesn't warn you when an extension is delisted, and how to wire the CLI into CI</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why doesn't VS Code already warn me about this?</h3>
+    <p>VS Code auto-updates extensions silently and has no mechanism to tell you an installed extension's activation surface changed, or that it was later pulled from the marketplace for being malicious. If you already have it installed when that happens, it keeps running with no notice -- auto-update just quietly stops offering a newer version.</p>
+    <h3>Is this a malware scanner?</h3>
+    <p>No. It reports a structural difference between two snapshots of an extension's declared manifest fields (when it activates, what it depends on, its entry point), and a factual marketplace-resolution check. A flag means "read this one", not "this is malware" — it is not exhaustive and it is not a verdict.</p>
+    <h3>Is my extension list uploaded anywhere?</h3>
+    <p>No. The browser page parses the snapshot you paste entirely in your own browser and never sends it anywhere. The CLI's <code>snapshot</code> and <code>diff</code> commands read only local files — no network call, ever. Only the CLI's separate <code>check</code> command talks to the network, on your own machine, and only when you run it.</p>
+    <h3>What do I paste in?</h3>
+    <p>The output of <code>node cli.mjs snapshot</code> for the full picture, or the plain output of <code>code --list-extensions --show-versions</code> (Cursor and Windsurf have the same flag) for a quick id/version-only check.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports a structural difference between two snapshots of an extension's declared manifest fields, and whether an id currently resolves on the VS Code Marketplace — it is not a malware scanner, not a security audit, and not a guarantee that an unflagged extension is safe or a flagged one is dangerous. It does not replace reading the extension's source yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass over your dependency tree: <a href="../npm-lifecycle-script-check/">npm Lifecycle Script Check</a> diffs two snapshots of your <code>package-lock.json</code> for a newly gained install-time script — the same "paste two snapshots, get a deterministic diff" shape as this tool, for a different supply-chain surface.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSnapshot, diffSnapshots, summarizeDiff, broadActivation, KNOWN_INCIDENTS } from "./engine.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      current: $("#current-input"), baseline: $("#baseline-input"), ignore: $("#ignore-input"),
+      status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      surfaceBlock: $("#surface-block"), surfaceRows: $("#surface-rows"),
+      versionBlock: $("#version-block"), versionRows: $("#version-rows"),
+      addedBlock: $("#added-block"), addedRows: $("#added-rows"),
+      removedBlock: $("#removed-block"), removedRows: $("#removed-rows"),
+      broadBlock: $("#broad-block"), broadRows: $("#broad-rows"),
+      incidentsRows: $("#incidents-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    els.incidentsRows.innerHTML = KNOWN_INCIDENTS.map((e) => `<tr>
+      <td><strong>${escapeHtml(e.project)}</strong></td>
+      <td>${escapeHtml(e.marketplace)}</td>
+      <td>${escapeHtml(e.date)}</td>
+      <td>${escapeHtml(e.note)}</td>
+    </tr>`).join("");
+
+    function riskPills(tags) {
+      return (tags || []).map((t) => `<span class="pill risk">${escapeHtml(t.replace(/-/g, " "))}</span>`).join("") || "—";
+    }
+
+    function renderReport() {
+      let current;
+      try {
+        current = parseSnapshot(els.current.value);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      if (!current.length) {
+        els.status.innerHTML = `<span class="error">Paste a snapshot first (or load the worked example).</span>`;
+        return;
+      }
+
+      const baselineText = els.baseline.value.trim();
+      els.status.textContent = "";
+      els.surfaceBlock.hidden = true;
+      els.versionBlock.hidden = true;
+      els.addedBlock.hidden = true;
+      els.removedBlock.hidden = true;
+      els.broadBlock.hidden = true;
+
+      if (!baselineText) {
+        const broad = broadActivation(current);
+        els.summary.innerHTML = broad.length
+          ? `<span class="changed">${broad.length} of ${current.length} extension(s) activate unconditionally on every startup.</span>`
+          : `<span class="ok">0 of ${current.length} extension(s) activate unconditionally on every startup.</span>`;
+        els.broadBlock.hidden = broad.length === 0;
+        els.broadRows.innerHTML = broad.map((e) => `<tr>
+          <td><strong>${escapeHtml(e.id)}</strong></td>
+          <td>${escapeHtml(e.version || "?")}</td>
+        </tr>`).join("");
+      } else {
+        let baseline;
+        try {
+          baseline = parseSnapshot(baselineText);
+        } catch (err) {
+          els.status.innerHTML = `<span class="error">Older snapshot: ${escapeHtml(err.message)}</span>`;
+          return;
+        }
+        const ignore = els.ignore.value.split(",").map((s) => s.trim()).filter(Boolean);
+        const result = diffSnapshots(baseline, current, { ignore });
+        const { status, text } = summarizeDiff(result);
+        els.summary.innerHTML = status === "changed" ? `<span class="changed">${escapeHtml(text)}</span>` : `<span class="ok">${escapeHtml(text)}</span>`;
+
+        const surfaceChanged = result.changed.filter((c) => c.surfaceChanged);
+        els.surfaceBlock.hidden = surfaceChanged.length === 0;
+        els.surfaceRows.innerHTML = surfaceChanged.map((c) => `<tr>
+          <td><strong>${escapeHtml(c.id)}</strong></td>
+          <td>${escapeHtml(c.beforeVersion || "?")} → ${escapeHtml(c.afterVersion || "?")}</td>
+          <td>${riskPills(c.riskTags)}</td>
+        </tr>`).join("");
+
+        const versionOnly = result.changed.filter((c) => !c.surfaceChanged);
+        els.versionBlock.hidden = versionOnly.length === 0;
+        els.versionRows.innerHTML = versionOnly.map((c) => `<tr>
+          <td><strong>${escapeHtml(c.id)}</strong></td>
+          <td>${escapeHtml(c.beforeVersion || "?")} → ${escapeHtml(c.afterVersion || "?")}</td>
+        </tr>`).join("");
+
+        els.addedBlock.hidden = result.added.length === 0;
+        els.addedRows.innerHTML = result.added.map((a) => `<tr>
+          <td><strong>${escapeHtml(a.id)}</strong></td>
+          <td>${escapeHtml(a.version || "?")}</td>
+        </tr>`).join("");
+
+        els.removedBlock.hidden = result.removed.length === 0;
+        els.removedRows.innerHTML = result.removed.map((r) => `<tr>
+          <td><strong>${escapeHtml(r.id)}</strong></td>
+          <td>${escapeHtml(r.version || "?")}</td>
+        </tr>`).join("");
+      }
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    const EXAMPLE_BASELINE = JSON.stringify([
+      { publisher: "dbaeumer", name: "vscode-eslint", version: "2.4.4", activationEvents: ["onLanguage:javascript"] },
+      { publisher: "esbenp", name: "prettier-vscode", version: "10.1.0", activationEvents: ["onLanguage:javascript"] },
+    ], null, 2);
+    const EXAMPLE_CURRENT = JSON.stringify([
+      { publisher: "dbaeumer", name: "vscode-eslint", version: "2.4.5", activationEvents: ["onLanguage:javascript"] },
+      { publisher: "esbenp", name: "prettier-vscode", version: "10.2.0", activationEvents: ["onLanguage:javascript", "*"], extensionDependencies: ["some-publisher.telemetry-helper"] },
+    ], null, 2);
+
+    $("#load-example").addEventListener("click", () => {
+      els.baseline.value = EXAMPLE_BASELINE;
+      els.current.value = EXAMPLE_CURRENT;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.current.value = "";
+      els.baseline.value = "";
+      els.ignore.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>
