@@ -105,3 +105,17 @@ test('index links one hop to the deck-staining-bid-calculator sibling', () => {
   );
   assert.match(html, /deck staining bid calculator/i);
 });
+
+// Closest outdoor sibling beyond staining: same landscape-contractor job on
+// one property, but a fence run rather than a deck build. Without a crawlable
+// link here, a crawler entering on the deck calculator never reaches the
+// fence calculator in one hop.
+test('index links one hop to the fence-bid-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/fence-bid-calculator\/"/,
+    'index must link ../fence-bid-calculator/ so crawlers reach the fence calculator in one hop',
+  );
+  assert.match(html, /fence bid calculator/i);
+});
