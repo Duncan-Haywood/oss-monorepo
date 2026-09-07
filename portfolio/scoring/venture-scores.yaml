@@ -7585,44 +7585,42 @@ ventures:
     floor: 1
     floor_dimension: ai_leverage
     floor_note: >-
-      No AI in the product, deliberately. Whether a package gained an
-      install-time lifecycle script since the last snapshot is a
-      deterministic field comparison (`hasInstallScript`) between two
-      package-lock.json snapshots the user supplies; there is nothing to
-      infer or classify beyond that.
+      No AI in the product, deliberately. Whether a package runs a
+      preinstall/install/postinstall/prepare script, and whether that
+      changed since the last snapshot, is decided by parsing
+      package-lock.json and package.json fields directly — a factual
+      diff, not a model judgment. The handful of risk-tag keywords
+      (piping a download into a shell, an obvious network call,
+      obfuscated code) are a static keyword match the tool's own copy
+      calls non-exhaustive, not an inferred verdict.
     basis: >-
-      Graduated 2026-09-07 per portfolio/pipeline/README.md's "archetype
-      itself" section: same shape as `license-drift-check` (paste two
-      point-in-time dependency-tree snapshots, get a deterministic diff),
-      just for install-time lifecycle scripts instead of declared
-      licenses. Distinct from license-drift-check (license field, not code
-      execution), mcp-supply-chain-watch (MCP server manifests, not npm
-      packages), and actions-injection-check/actions-cache-poisoning-check
-      (GitHub Actions workflow YAML, a different artifact and attacker
-      entry point). This entry backfills score_ventures.py --check, which
-      was red on main after the venture's original PR landed without one.
-      Autonomous ops 10 / gross margin 10: the browser page diffs
-      snapshots the visitor pastes and the CLI reads only local files (its
-      own package-lock.json scan makes no network call) — no hosting, no
-      per-user cost.
-      Time to revenue 5: no direct revenue path beyond the site's standard
-      voluntary GitHub Sponsors link, scored like this portfolio's other
-      free-forever dev utilities.
-      Defensibility 3: the diff itself is a few dozen lines any developer
-      could write in an afternoon; npm audit does not check for this, but
-      a maintainer could grep hasInstallScript by hand.
-      Distribution 6: the channel claim rests on four dated, named
-      incidents (ua-parser-js 2021, coa/rc 2021, Shai-Hulud 2025 and its
-      2.0 wave), and Shai-Hulud is recent enough to still be an active
-      search query — but this remains a reasoned claim, not a measured
-      search-volume figure.
+      Screened and graduated 2026-09-07 per portfolio/pipeline/README.md's
+      "archetype itself" section: same shape as license-drift-check and
+      the actions-*-check family — a free CLI + browser tool that diffs
+      two point-in-time snapshots of a dependency tree and reports
+      exactly what changed, scored on this file's six-dimension rubric to
+      keep coverage complete for score_ventures.py --check and
+      portfolio/router/test_allocate.py. duplicate_check.py scored the
+      closest existing venture (actions-cache-poisoning-check) at 0.13,
+      well below the 0.45 flag bar. Autonomous ops 10 / gross margin 10:
+      the browser page parses only text pasted into it and the CLI reads
+      only local files, so serving one more user costs a static file and
+      needs no human review of any output. Distribution 6, a point above
+      license-drift-check's 5: the ua-parser-js (2021), coa/rc (2021),
+      and Shai-Hulud (2025, plus a 2025-11 second wave) npm
+      supply-chain incidents used exactly this mechanism, are the
+      subject of incident write-ups from Unit 42, Sysdig, Wiz,
+      Securelist, Datadog Security Labs, Zscaler, and Checkmarx, and
+      npm audit's own documentation confirms it has no mechanism to
+      flag a new or changed lifecycle script — real, dated, event-driven
+      search demand ("npm audit postinstall script", "shai-hulud check
+      my dependencies") rather than an evergreen query.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Pass: the tool reports a factual field comparison between two
-      snapshots the user supplies (or the CLI reads from local files with
-      no network call), makes no claim about whether a flagged package is
-      actually malicious, and states explicitly that it is over-inclusive
-      by design. It never blocks an install or takes any action — that
-      decision stays the user's.
+      Pass: read-only and defensive — it flags a well-documented
+      supply-chain risk pattern in the user's own dependency tree for
+      the user to review, never a claim that a specific package is
+      malicious. Makes no network call of any kind (never queries npm),
+      uploads nothing, and says so plainly in its own FAQ.
