@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 203 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 204 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -366,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price a sealcoating job from square feet, coats, oil spots, crack fill, and the drive — not a cents-per-foot special. See gallons, walk-away price, and margin before you quote.</summary>
-  </entry>
-  <entry>
-    <title>Attic Insulation Bid Calculator — Price the Bags, Not Attic</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/attic-insulation-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/attic-insulation-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price a blown-in attic insulation job from floor areas, existing versus target R-value, bag yield, air-sealing penetrations, and baffles — not a flat price per square foot. See bag count, walk-away price, and the margin a $1.50-a-foot special actually leaves.</summary>
   </entry>
 </feed>
