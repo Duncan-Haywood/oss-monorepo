@@ -1392,6 +1392,28 @@
     },
     "disclaimerTail": "Residential elevators are governed by the elevator code and inspection regime in force locally; this is a price, not a code determination or an inspection."
   },
+  "home-staging-bid-calculator": {
+    "priceField": "basePrice",
+    "jobTitle": "Home staging — {roomsStaged} room{roomsStaged+s}, {includedTermMonths}-month included term",
+    "scope": [
+      "Deliver, arrange, and style a full furniture package across {roomsStaged} room{roomsStaged+s}",
+      "Hold the furniture package on site for the {includedTermMonths}-month included term",
+      {
+        "line": "Include a design consultation",
+        "when": "consultFlatFee"
+      },
+      "Pick up and remove the furniture package once the listing sells or the included term ends",
+      "A month-to-month extension is available beyond the included term at the rate quoted below"
+    ],
+    "placeholders": {
+      "companyName": "Harborview Home Staging LLC",
+      "scope": "Stage 4 rooms for a 2-month included term\nInclude a design consultation",
+      "exclusions": "Storage or staging beyond the included term without an agreed extension\nRepair of damage found at pickup not caused by the crew",
+      "paymentTerms": "Due in full before delivery.",
+      "notes": "An extension fee applies for every month beyond the included term the listing remains on the market."
+    },
+    "disclaimerTail": "It is not a listing agreement, a guarantee of time on market, or a valuation of the property."
+  },
   "hood-cleaning-bid-calculator": {
     "jobTitle": "Kitchen exhaust cleaning — {hoodCount~0} hood system{hoodCount+s}",
     "priceField": "jobPrice",

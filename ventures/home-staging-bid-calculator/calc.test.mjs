@@ -19,6 +19,12 @@ test('calculateQuote() matches hand-computed arithmetic on the default inputs', 
   assert.ok(r.baseProfit > 0, 'the included-term price should be profitable');
 });
 
+test('echoes includedTermMonths and extensionFeePerMonth for the proposal to quote from', () => {
+  const r = calculateQuote(DEFAULTS);
+  assert.equal(r.includedTermMonths, DEFAULTS.includedTermMonths);
+  assert.equal(r.extensionFeePerMonth, DEFAULTS.extensionFeePerMonth);
+});
+
 test('baseMarginPct always equals the requested target margin', () => {
   const r = calculateQuote(DEFAULTS);
   close(r.baseMarginPct, DEFAULTS.targetMargin, 1e-6);

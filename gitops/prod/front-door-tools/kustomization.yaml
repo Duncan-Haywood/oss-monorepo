@@ -39,10 +39,10 @@
 #   portfolio-front-tools-3: 125 files, 556703 bytes
 #   portfolio-front-tools-4: 119 files, 555226 bytes
 #   portfolio-front-tools-5: 131 files, 549137 bytes
-#   portfolio-front-tools-6: 106 files, 553120 bytes
-#   portfolio-front-tools-7: 116 files, 555743 bytes
-#   portfolio-front-tools-8: 115 files, 553330 bytes
-#   portfolio-front-tools-9: 100 files, 550496 bytes
+#   portfolio-front-tools-6: 104 files, 554327 bytes
+#   portfolio-front-tools-7: 116 files, 551911 bytes
+#   portfolio-front-tools-8: 116 files, 555626 bytes
+#   portfolio-front-tools-9: 101 files, 555506 bytes
 #   portfolio-front-tools-10: 108 files, 548406 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -970,13 +970,13 @@ configMapGenerator:
       - janitorial-bid-calculator__second-site.mjs.gz=janitorial-bid-calculator__second-site.mjs.gz
       - janitorial-bid-calculator__share.mjs.gz=janitorial-bid-calculator__share.mjs.gz
       - janitorial-bid-calculator__should-i-let-them-buy-the-paper.html.gz=janitorial-bid-calculator__should-i-let-them-buy-the-paper.html.gz
-      - janitorial-bid-calculator__should-i-throw-in-the-initial-clean.html.gz=janitorial-bid-calculator__should-i-throw-in-the-initial-clean.html.gz
-      - janitorial-bid-calculator__usage.mjs.gz=janitorial-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - janitorial-bid-calculator__should-i-throw-in-the-initial-clean.html.gz=janitorial-bid-calculator__should-i-throw-in-the-initial-clean.html.gz
+      - janitorial-bid-calculator__usage.mjs.gz=janitorial-bid-calculator__usage.mjs.gz
       - janitorial-bid-calculator__vs-cleanguru.html.gz=janitorial-bid-calculator__vs-cleanguru.html.gz
       - junk-removal-bid-calculator__calc.mjs.gz=junk-removal-bid-calculator__calc.mjs.gz
       - junk-removal-bid-calculator__how-to-price-junk-removal.html.gz=junk-removal-bid-calculator__how-to-price-junk-removal.html.gz
@@ -1091,13 +1091,13 @@ configMapGenerator:
       - pet-grooming-bid-calculator__usage.mjs.gz=pet-grooming-bid-calculator__usage.mjs.gz
       - pet-grooming-bid-calculator__vs-moego.html.gz=pet-grooming-bid-calculator__vs-moego.html.gz
       - photo-booth-event-quote__calc.mjs.gz=photo-booth-event-quote__calc.mjs.gz
-      - photo-booth-event-quote__index.html.gz=photo-booth-event-quote__index.html.gz
-      - photo-booth-event-quote__usage.mjs.gz=photo-booth-event-quote__usage.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - photo-booth-event-quote__index.html.gz=photo-booth-event-quote__index.html.gz
+      - photo-booth-event-quote__usage.mjs.gz=photo-booth-event-quote__usage.mjs.gz
       - photo-booth-event-quote__vs-photobooth-supply-co.html.gz=photo-booth-event-quote__vs-photobooth-supply-co.html.gz
       - plantation-shutter-bid-calculator__calc.mjs.gz=plantation-shutter-bid-calculator__calc.mjs.gz
       - plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz=plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz
@@ -1212,12 +1212,12 @@ configMapGenerator:
       - shop-rate-calculator__shop-rates.mjs.gz=shop-rate-calculator__shop-rates.mjs.gz
       - shop-rate-calculator__usage.mjs.gz=shop-rate-calculator__usage.mjs.gz
       - shop-rate-calculator__vs-servicetitan.html.gz=shop-rate-calculator__vs-servicetitan.html.gz
-      - shop-rate-calculator__what-should-i-charge-per-hour.html.gz=shop-rate-calculator__what-should-i-charge-per-hour.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shop-rate-calculator__what-should-i-charge-per-hour.html.gz=shop-rate-calculator__what-should-i-charge-per-hour.html.gz
       - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
       - shopify-fee-calculator__calc.mjs.gz=shopify-fee-calculator__calc.mjs.gz
       - shopify-fee-calculator__index.html.gz=shopify-fee-calculator__index.html.gz
