@@ -104,3 +104,15 @@ test("the snapshot reports unreached break-even without inventing a percentage",
   const text = buildSnapshotText(v, r, "2026-08-30T00:00:00.000Z");
   assert.match(text, /Break-even bookings per month: Not reached/);
 });
+
+// Regression: sitemap.xml listed only vs-booqable.html and missed the
+// how-much pricing walkthrough linked from index.html — same incomplete
+// hand-authored sitemap class fixed fleet-wide in #3292.
+test("every .html file in the venture is reachable from the sitemap", () => {
+  const sitemap = fs.readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+  const htmlFiles = fs.readdirSync(new URL("./", import.meta.url)).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    if (name === "index.html" || name === "offline.html") continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+  }
+});

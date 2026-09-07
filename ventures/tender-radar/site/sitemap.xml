@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://example.invalid/tender-radar/</loc></url>
+  <url><loc>https://example.invalid/tender-radar/which-tenders-are-worth-bidding-on.html</loc></url>
+  <url><loc>https://example.invalid/tender-radar/vs-govwin.html</loc></url>
 </urlset>
