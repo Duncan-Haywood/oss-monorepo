@@ -18844,3 +18844,51 @@ entries:
         40/40 venture tests pass. Mirror count 194 -> 195 after integrating
         #3671's kdp-royalty-calculator on main.
     mrr_end: null
+  - venture: ada-title-ii-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a deadline lookup and browser-local WCAG
+        2.1 AA evidence report for state/local government and
+        special-district (school, water, fire, transit) webmasters facing
+        ADA Title II's April 2027/2028 compliance dates. Verified the DOJ's
+        2026 rule-extension dates via web search against the Federal
+        Register notice (2026-07663) and ada.gov's own fact sheet before
+        writing any copy, since a wrong date on a government-facing
+        compliance tool would be exactly the exposure this portfolio's
+        legal guardrails exist to prevent. Confirmed against
+        `portfolio/pipeline/duplicate_check.py` (top score 0.14, against
+        cra-evidence-desk -- a different regulation and buyer) before
+        building, and chose this shape deliberately per
+        `pipeline/README.md`'s 2026-09-07 archetype-saturation note: a
+        developer/government evidence tool, not a 143rd trade calculator.
+      - >-
+        Two v0 pages (index.html evidence formatter, deadline.html lookup),
+        21 passing `node --test` assertions (one caught a real bug during
+        review: an empty population field coerced to 0 via `Number("")`
+        and silently returned the small-entity deadline instead of erroring
+        -- fixed before shipping), no-warranty and not-legal-advice clauses,
+        localStorage-only usage counting with DNT/GPC opt-out, a
+        `<slug>-ci.yml` workflow, and a merit score in
+        `venture-scores.yaml` (composite 6.0, both gates pass). Ran the
+        full CLAUDE.md starvation checklist: `checklist_coverage.py`,
+        `regen.mjs`, `platform/ci` unittest suites (fixed pre-existing
+        mirrored-tool-count drift, 193->194, and unrelated `runs-on`
+        count drift, 283->285, both via their own sync scripts),
+        `gitops/tests` (490 passed), `portfolio/{ledger,scoring,router,
+        usage,pipeline}` and `infra/tests` (415 passed), the eight
+        `portfolio-validate.yml` validators, and a full `browser_checks.py
+        --only ada-title-ii-evidence` pass (contrast/WCAG AA, sweep,
+        journey all ok).
+      - >-
+        Also refreshed the published GitHub Pages snapshot before starting
+        (it was one merge stale, built from a commit behind `main`) and
+        declined a fourth same-day direction-setting rewrite of
+        `DIRECTION.md`/`AGENTS.md`: both already state this exact brief
+        (viable businesses, donations-only, happy customers, legal
+        exposure as the hard stop, new ventures ranked first) and had been
+        substantively touched under an hour earlier, matching the file's
+        own "don't rewrite, build instead" note added the same morning
+        after three such PRs landed with nothing shipped.
+    mrr_end: null
