@@ -24,6 +24,22 @@
       "pages": 775,
       "result": "pass",
       "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "ba83eb7ccf233ad1f12f1d6508084b7e669dc155",
+      "measured": "2026-09-07",
+      "pages": 787,
+      "result": "pass",
+      "scope": "full"
     }
   ]
 }
