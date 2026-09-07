@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 202 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 203 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 202 of them — and
+Every tool in the collection is listed below — all 203 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -228,6 +228,7 @@ page that hosts it.
 - [Actions Permissions Check — Does Your GITHUB_TOKEN Use Least Privilege?](https://marisstella.dev/tools/actions-permissions-check/): Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.
 - [Free Electronics Calculators — AI Engineering Academy](https://marisstella.dev/tools/ai-engineering-academy/): A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.
 - [Daycare Tuition Calculator](https://marisstella.dev/tools/childcare-tuition-calculator/): Free daycare and childcare tuition calculator. Price a classroom from your own child:staff ratio, staffing cost, and overhead, and see what an empty seat actually costs you at every occupancy level.
+- [Gig Driver Net Pay Calculator — What You Keep After Gas](https://marisstella.dev/tools/gig-driver-net-pay-calculator/): Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session's gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.
 - [License Drift Check — Did a Dependency's License Change Since Your Last Snapshot?](https://marisstella.dev/tools/license-drift-check/): Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.
 - [Pinned Actions Check — Are Your GitHub Actions Pinned to a Commit SHA?](https://marisstella.dev/tools/pinned-actions-check/): Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.
 
