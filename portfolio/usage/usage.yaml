@@ -4696,3 +4696,18 @@ products:
           instrumented-but-unreachable product. Counts are local, opt-in, off
           by default, and honor DNT/GPC, so zero is the expected reading for a
           tool nobody has visited or switched the counter on for yet.
+  - slug: coverage-drop-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/coverage-drop-check/`)
+          from its first commit. Counts are local, opt-in, off by default,
+          and honor DNT/GPC, so zero is the expected reading for a tool
+          nobody has visited or switched the counter on for yet.
