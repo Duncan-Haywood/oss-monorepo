@@ -59,6 +59,57 @@ PATTERNS = (
     re.compile(r"function\s+" + NAME + r"\s*\(\s*[A-Za-z_$][\w$]*\s*\)\s*\{\s*return\s+`\$\$\{"),
 )
 
+# The two patterns above require the body to *open* with the template literal.
+# A formatter that guards first slips straight through them -- measured
+# 2026-09-07 on `kdp-royalty-calculator/index.html`, which shipped
+#
+#     const money = (n) => (Number.isFinite(n) ? `$${n.toFixed(2)}` : 'not available');
+#
+# and rendered a 400-page $6.99 paperback's per-copy net as "$-1.46" on the
+# live site while this check reported the repository clean. Its sibling
+# `calc.mjs` used the unguarded spelling and *was* caught, so the venture
+# turned CI red and the on-screen defect was still not the thing that failed.
+# That is the worse half of the bug: a green check over a visible defect.
+#
+# So the body is read as a whole rather than by its first token. The signal
+# that separates a correct guarded formatter from a broken one is whether it
+# takes the magnitude before interpolating: `where-to-sell-calculator` spells
+# it `value < 0 ? `−$${Math.abs(value)...}` : ...` and is right. Anything that
+# interpolates straight after a "$" without ever reaching for `Math.abs` is
+# formatting a negative into the wrong place.
+BODY_START = re.compile(
+    r"(?:const|let)\s+" + NAME + r"\s*=\s*\(?[A-Za-z_$][\w$]*\)?\s*=>\s*"
+    r"|function\s+" + NAME + r"\s*\(\s*[A-Za-z_$][\w$]*\s*\)\s*(?=\{)"
+)
+
+# A `$` immediately followed by a template interpolation, i.e. `` `$${x}` ``.
+INTERPOLATES_AFTER_SYMBOL = re.compile(r"\$\$\{")
+
+# Taking the magnitude first is what a correct formatter does; a "−$"/"-$"
+# literal is the other correct spelling (the sign is already outside).
+TAKES_MAGNITUDE = re.compile(r"Math\.abs\s*\(|[-−]\$")
+
+
+def _body_after(text: str, start: int) -> str:
+    """The formatter's body: balanced to its closing brace, else to its `;`.
+
+    Only ever used to ask two yes/no questions of the body, so it does not need
+    to be a parser -- it needs to stop before the *next* declaration, which is
+    what a naive fixed-size window fails to do on a minified line.
+    """
+    depth = 0
+    for index in range(start, len(text)):
+        char = text[index]
+        if char in "{([":
+            depth += 1
+        elif char in "})]":
+            if depth == 0:
+                return text[start:index]
+            depth -= 1
+        elif char in ";\n" and depth == 0:
+            return text[start:index]
+    return text[start:]
+
 SUFFIXES = (".html", ".mjs")
 
 
@@ -78,10 +129,33 @@ def findings_in(path: Path):
         text = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
         return
+    lines = text.splitlines()
+    seen: set[int] = set()
+
+    def report(offset: int):
+        number = text.count("\n", 0, offset) + 1
+        if number in seen:
+            return None
+        seen.add(number)
+        return number, lines[number - 1]
+
     for pattern in PATTERNS:
         for match in pattern.finditer(text):
-            number = text.count("\n", 0, match.start()) + 1
-            yield number, text.splitlines()[number - 1]
+            found = report(match.start())
+            if found:
+                yield found
+
+    # The guarded spellings the two patterns above cannot see. Reported through
+    # the same `seen` set so a formatter both agree on is named once.
+    for match in BODY_START.finditer(text):
+        body = _body_after(text, match.end())
+        if not INTERPOLATES_AFTER_SYMBOL.search(body):
+            continue
+        if TAKES_MAGNITUDE.search(body):
+            continue
+        found = report(match.start())
+        if found:
+            yield found
 
 
 def main() -> int:

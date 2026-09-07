@@ -568,7 +568,11 @@ Top: 31.5 x 11.25 x 2</textarea>
         return null;
       }
       const comparison = compareSheetSizes({ panels, kerf, trim, allowRotation, unit, candidates });
-      const money = (value) => value == null ? 'add a price' : `$${value.toFixed(2)}`;
+      const money = (value) => {
+        if (value == null) return 'add a price';
+        const text = `$${Math.abs(value).toFixed(2)}`;
+        return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+      };
       const rows = comparison.rows.map((row) => {
         const pick = row === comparison.winner
           ? '<span class="pick">Buy this size</span>'
