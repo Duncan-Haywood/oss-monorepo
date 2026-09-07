@@ -4474,6 +4474,21 @@ products:
           Public URL remains owner-gated; the browser counter is local and
           opt-out. Baseline row.
 
+  - slug: kdp-royalty-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+          royalty_compared: 0
+        note: >-
+          Graduated a browser-local KDP exclusive-versus-wide royalty
+          calculator (70/35 ebook, KU page-reads, paperback print cost,
+          Ingram wholesale). GitHub Pages exposes no server-side visitor
+          count, so live_url_visitors stays null; the browser counter is
+          local and opt-out. Baseline row.
+
   - slug: pressure-washing-bid-calculator
     surface: static-page-in-repo
     readings:
