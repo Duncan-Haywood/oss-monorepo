@@ -9,7 +9,7 @@
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
   "served_here": 199,
-  "collection_total": 198,
+  "collection_total": 199,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -497,6 +497,14 @@
       "pages": 3
     },
     {
+      "slug": "actions-injection-check",
+      "name": "GitHub Actions Injection Check — Pwn Requests & Script Injection",
+      "url": "https://marisstella.dev/tools/actions-injection-check/",
+      "category": "More free tools",
+      "description": "Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run 'pwn request' checkouts and shell script-injection from untrusted ${{ github.event }} expressions. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "actions-runner-starvation-check",
       "name": "Actions Runner Starvation Check — Is Your Red CI Even Real?",
       "url": "https://marisstella.dev/tools/actions-runner-starvation-check/",
@@ -639,14 +647,6 @@
       "category": "Trade & contractor bids",
       "description": "Price a carpet install from floor yards, stairs, stretch-in versus glue-down versus carpet tile, patterned waste, and extras — plus the walk-away price a $2-a-yard special cannot see.",
       "pages": 3
-    },
-    {
-      "slug": "childcare-tuition-calculator",
-      "name": "Daycare Tuition Calculator",
-      "url": "https://marisstella.dev/tools/childcare-tuition-calculator/",
-      "category": "More free tools",
-      "description": "Free daycare and childcare tuition calculator. Price a classroom from your own child:staff ratio, staffing cost, and overhead, and see what an empty seat actually costs you at every occupancy level.",
-      "pages": 2
     },
     {
       "slug": "chimney-sweep-bid-calculator",
