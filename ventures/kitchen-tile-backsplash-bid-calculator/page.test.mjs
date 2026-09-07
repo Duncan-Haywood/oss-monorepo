@@ -371,3 +371,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest kitchen-remodel sibling: quartz/granite countertops (slabs, cutouts,
+// edge, waterfalls) rather than tile wall SF and pattern. Related-tool chrome
+// rotates alphabetically inside each subcategory, so without an explicit
+// one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the countertop-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/countertop-bid-calculator\/"/,
+    'index must link ../countertop-bid-calculator/ so crawlers reach the countertop calculator in one hop',
+  );
+  assert.match(html, /countertop bid calculator/i);
+});

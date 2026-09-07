@@ -501,8 +501,15 @@ const CATEGORY_RULES = [
     // checker for that same dependency tree, just for an install-time script
     // instead of a declared license. Both belong beside the four workflow
     // checkers, not below the childcare tuition calculator.
+    //
+    // `vscode-extension-drift-check` joined 2026-09-07: the same
+    // paste-a-snapshot, deterministic-diff shape as its two neighbors above,
+    // just for an installed editor extension's activation surface instead of
+    // an npm dependency's license or install-time script. It cross-links
+    // `npm-lifecycle-script-check` as Related for the same reason those two
+    // already cross-link each other.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check)/.test(
         slug,
       ),
   },

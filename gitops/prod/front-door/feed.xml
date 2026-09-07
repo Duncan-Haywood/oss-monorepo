@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 207 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 208 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -159,6 +159,15 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free pour cost calculator for bars and restaurants: price a cocktail from your own bottle costs and pour sizes, see the liquor cost percentage against your target, and find out what over-pouring is really costing you a year. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>VS Code Extension Drift Check — Did an Extension You Trust Just Change What It Does?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vscode-extension-drift-check/"/>
+    <id>tag:marisstella.dev,2026:tool/vscode-extension-drift-check</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check. A CLI-only command also checks whether an extension still resolves on the VS Code Marketplace. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Whatnot Seller Payout Calculator — Keep After 8% + Processing</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-27T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Free, no-signup checklist that scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors, and tells you exactly what to fix first.</summary>
-  </entry>
-  <entry>
-    <title>Appliance Repair Quote Calculator — Repair vs Replace</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/appliance-repair-quote-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/appliance-repair-quote-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price an appliance repair service call, then see whether finishing the repair still beats recommending replace — customer cost per remaining year versus what you keep if they decline.</summary>
   </entry>
 </feed>

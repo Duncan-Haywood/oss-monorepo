@@ -152,3 +152,16 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
+
+// Closest kitchen-remodel sibling: tile backsplash (wall SF, pattern waste,
+// extras) rather than quartz/granite slabs and cutouts. Related-tool chrome
+// rotates alphabetically inside each subcategory, so without an explicit
+// one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the kitchen-tile-backsplash-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/kitchen-tile-backsplash-bid-calculator\/"/,
+    'index must link ../kitchen-tile-backsplash-bid-calculator/ so crawlers reach the tile calculator in one hop',
+  );
+  assert.match(html, /kitchen tile backsplash bid calculator/i);
+});
