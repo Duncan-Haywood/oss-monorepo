@@ -18892,3 +18892,102 @@ entries:
         own "don't rewrite, build instead" note added the same morning
         after three such PRs landed with nothing shipped.
     mrr_end: null
+  - venture: pinned-actions-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new CLI + browser dev-tool venture rather than a 143rd
+        trade calculator, per `portfolio/pipeline/README.md`'s
+        archetype-saturation note (141 of 200 ventures are
+        `<trade>-bid-calculator` clones with zero measured visitors).
+        `pinned-actions-check` scans a repository's GitHub Actions workflow
+        files and flags third-party actions referenced by a mutable tag
+        (`@v4`, `@main`) instead of a pinned 40-character commit SHA -- a
+        documented GitHub Actions supply-chain hardening practice, sharpened
+        by a real incident (`tj-actions/changed-files`'s tags were repointed
+        at a malicious commit in March 2025). Screened with
+        `portfolio/pipeline/duplicate_check.py` first (top score 0.11,
+        against every existing venture, pipeline candidate, screened-out row
+        and ai-first-markets idea -- well below the 0.45 bar); not a
+        duplicate of `mcp-supply-chain-watch` (a customer's connected MCP
+        servers, not their own CI config) or `actions-runner-starvation-check`
+        (runner starvation, unrelated). Direct graduation, not a scored
+        pipeline candidate, following that same sibling's precedent.
+      - >-
+        Read-only by construction: `check.py` and `classify.mjs` make no
+        network calls anywhere in either file. A mutable finding prints the
+        exact `git ls-remote` command to look up the current commit SHA --
+        the lookup and the decision to pin stay entirely the user's. CLI
+        supports `--format text|json` and `--fail-on-risk` (exit 2 on any
+        mutable finding), matching `repository-branch-hygiene`'s own CLI
+        convention. 41 Python unit tests and 41 `node --test` assertions
+        pass, including a parity test that shells out to `python3 check.py`
+        and asserts the browser port produces byte-identical findings on the
+        same fixture, following `repository-branch-hygiene/scan.test.mjs`'s
+        discipline between its Python and JS ports.
+      - >-
+        Shipped the full product surface: `index.html` (multi-file paste,
+        results table, copy-to-clipboard remediation commands),
+        `how-to-pin-a-github-action-to-a-commit-sha.html` (the SEO landing
+        page, answering the search phrase directly), `usage.mjs`
+        (localStorage-only `check_run`/`example_loaded` counters, DNT/GPC
+        honoured), `robots.txt`, `sitemap.xml`, `LICENSE` (MIT), `README.md`,
+        and `VENTURE.yaml` with the gate self-assessment (liability_containment
+        and ethical_robustness both high -- mechanical read-only linter, no
+        advice-of-record, no compliance claim, no data leaving the device, no
+        scraping -- comparable to `repository-branch-hygiene` and
+        `actions-runner-starvation-check`, both already graduated on this
+        reasoning). §5b no-warranty and no-SLA clauses, and the
+        `github.com/sponsors/Duncan-Haywood` link, are on both HTML pages;
+        `node platform/pages/clauses.mjs pinned-actions-check` confirms both
+        published pages carry their required clauses.
+      - >-
+        Ran the CLAUDE.md starvation checklist and found (then fixed) three
+        real gaps it exists to catch, rather than a clean pass on the first
+        try. `regen.mjs` mirrored the new tool into the front-door shards,
+        rebalancing 782 existing gzip files as a side effect (committed
+        alongside). `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` first failed 3 of 1155: the venture's own
+        JSON-LD FAQ text didn't byte-match its visible prose (fixed by
+        aligning both pages' copy), `launched.mjs --write` hadn't been run
+        for the new venture (fixed), and the committed front-door
+        `index.html` briefly read "198 of the 197 tools" because it was
+        built between those two fixes (fixed by re-running `regen.mjs`
+        after `launched.json` settled) -- all 1155 pass now.
+        `platform/ci`'s own 20 unittest modules (run from that directory,
+        per CLAUDE.md's own trap warning) first failed on
+        `test_validate_workflows` (no CI workflow ran this venture's
+        `node --test` files -- added `.github/workflows/pinned-actions-check-ci.yml`
+        on the sibling's template) and `test_publish_surface` (the new
+        workflow wasn't in the committed snapshot -- `publish_surface.py
+        --write`); both clean now, and `gitops/ci/sync_readme_counts.py`
+        caught the new workflow's `runs-on` line too. The mirrored-tool
+        count moved 197->198 in the five hand-typed places CLAUDE.md names
+        this keeps costing: `infra/OWNER_CHECKLIST.md` (twice),
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        (twice), and `gitops/tests/test_manifests.py`'s own constant --
+        `python3 -m pytest gitops/tests` (490 passed) and the
+        `platform/ci` suite confirm consistency. `venture-scores.yaml` was
+        also missing this venture entirely, failing
+        `portfolio/scoring/score_ventures.py --check` and
+        `portfolio/router/test_allocate.py`'s merit-coverage test; added a
+        six-dimension entry (composite 6.0, both gates pass) matching
+        `actions-runner-starvation-check`'s pattern -- `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests` now passes 418/418. Also green:
+        `checklist_coverage.py`, `check_no_payment_code.py`,
+        `portfolio/router/validate.py` (206 VENTURE.yaml files valid),
+        `platform/pages/clauses.mjs pinned-actions-check` (both pages carry
+        their clauses), and a `browser_checks.py --only pinned-actions-check`
+        pass (6 of 7 checks ok; `highlight` skipped -- this venture makes no
+        highlight promise, which its own message says is allowed). First
+        real visitor is expected from developers searching "pin github
+        action to commit sha" or "github actions supply chain security",
+        r/devops and r/github threads discussing action-pinning after a
+        supply-chain incident, and GitHub's own security-hardening
+        documentation, which recommends exactly this practice and is read
+        by exactly the audience who would want a tool that stays entirely
+        local rather than trusting a
+        third-party site with their workflow files.
+    mrr_end: null
