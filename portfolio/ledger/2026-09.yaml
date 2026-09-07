@@ -18061,3 +18061,59 @@ entries:
         existed. Built the tool that makes the *next* such session's
         screening step reliable instead.
     mrr_end: null
+  - venture: owner-operator-cpm-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second comparison page, `vs-dat-rateview.html`, for a
+        merit-6.83 venture with no comparison content touched today (checked
+        `git log --since` against the day's other merges --
+        reverb-fee-calculator, where-to-sell-calculator,
+        home-staging-bid-calculator, locksmith-bid-calculator and
+        mcp-supply-chain-watch had all already shipped comparison content
+        today; owner-operator-cpm-calculator had not). Named competitor: DAT
+        RateView, part of DAT iQ from DAT Freight & Analytics -- a real,
+        paid, subscription lane-rate benchmarking product confirmed via
+        WebSearch against dat.com/rateview and dat.com's own product
+        description (average spot/contract rates per lane from real freight
+        invoices, day/week/multi-month history). Positioned as a different
+        job from the existing `vs-atbs.html` page: ATBS is an ongoing
+        bookkeeping/tax service, DAT RateView is a market-rate lookup, and
+        this calculator answers neither -- it is a free, instant, personal
+        break-even check against the operator's own costs for one week, with
+        no market data and no history. No dollar figure is stated for either
+        product, matching the existing `vs-atbs.html` convention in this
+        venture's own test file.
+      - >-
+        `portfolio/pipeline/duplicate_check.py` on the page description
+        scored 0.22 top match (the venture itself) -- nothing near the 0.45
+        threshold. Wired the page into `index.html`'s "see also" line,
+        `sitemap.xml`, and extended `page.test.mjs` with the same assertions
+        the existing ATBS comparison test uses (links back, cites
+        dat.com/rateview, no affiliation, no warranty, no-SLA, sponsors
+        link, no bare dollar figure). `node --test
+        ventures/owner-operator-cpm-calculator/*.test.mjs` (55 assertions),
+        `node platform/pages/clauses.mjs owner-operator-cpm-calculator`, and
+        `python3 platform/ci/checklist_coverage.py` all pass. Ran
+        `node platform/marketing/regen.mjs` and committed the front-door
+        mirror/sitemap/catalog rewrites it produced.
+      - >-
+        Full CLAUDE.md "Ship without review ceremony" checklist run locally
+        (no `ci_starvation.py` dispatch needed -- everything run here
+        regardless): `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1140 pass), `node --test
+        platform/proposal/*.test.mjs` (101 pass), `node --test
+        platform/privacy/*.test.mjs platform/webcheck/*.test.mjs` (66
+        pass), the 14 non-agent_review `platform/ci` unittest modules plus
+        `agent_review.test_review` separately (659 + 21 pass),
+        `python3 -m pytest gitops/tests -q` (490 passed, 25 skipped -- this
+        venture's change touches `gitops/prod/front-door*` via `regen.mjs`),
+        and `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`
+        (all pass). No new form input was added (the new page is static
+        prose with no calculator fields), so the Playwright/axe browser
+        checks were not required and were not run. Opened PR against `main`,
+        merged after the local run above, then refreshed the gh-pages
+        snapshot per CLAUDE.md's publish-branch instructions.
+    mrr_end: null
