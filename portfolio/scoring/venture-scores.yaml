@@ -7402,6 +7402,68 @@ ventures:
       to overenroll past a safe ratio. Nothing entered leaves the browser
       and nothing is saved between sessions. The disclaimer is explicit that
       the tool does not replace the operator's own state licensing agency.
+  - slug: npm-lifecycle-script-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a package runs a
+      preinstall/install/postinstall/prepare script, and whether that
+      changed between two snapshots, is decided by parsing
+      `package-lock.json` and comparing declared script fields; the
+      keyword flags on a script's own text (piped download, network call,
+      obfuscated code) are a static match, not a model judgment. There is
+      nothing to infer.
+    basis: >-
+      Screened and graduated 2026-09-07 as the install-time-execution
+      sibling of `license-drift-check`: same "paste two point-in-time
+      snapshots of a dependency tree, get a deterministic diff" shape,
+      here applied to which packages run a lifecycle script rather than
+      which license they declare. Motivated by four dated, sourced
+      supply-chain incidents that all used exactly this mechanism
+      (ua-parser-js 2021, coa/rc 2021, Shai-Hulud 2025, Shai-Hulud 2.0
+      2025) -- `npm audit` has nothing to say about any of them, since
+      none had a CVE until after they had already run. Scored on this
+      file's six-dimension rubric to keep coverage complete for
+      `score_ventures.py --check` and `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: the browser page parses the
+      lockfile the visitor pastes and the CLI reads only local files (no
+      network call at all) -- no hosting, no per-user cost.
+      Time to revenue 5: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 3: the lockfile diff and the keyword-flag heuristic
+      are each a few dozen lines any developer could write directly, and
+      the underlying data (a package's declared lifecycle scripts) is
+      already visible in the lockfile itself. What is not already bundled
+      for free elsewhere is the point-in-time-diff framing (what changed,
+      not just what exists) paired with the four dated, sourced incidents
+      that make the risk concrete.
+      Distribution 5: scored at parity with `license-drift-check` on the
+      same reasoning -- no live search-volume or community-thread figure
+      was measured at graduation, so this is a reasoned channel estimate
+      from known developer behavior (searches after a supply-chain
+      incident makes headlines), not a verified current number, per
+      `kill_criteria`.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool reports a factual difference between two lockfile
+      snapshots the user supplies (or the CLI reads from local files with
+      no network call), makes no claim that a flagged script is
+      malicious, and states explicitly that its keyword flags are not a
+      verdict. It never blocks an install or modifies the user's
+      dependency tree -- it only reports.
   - slug: license-drift-check
     scores:
       ai_leverage: 1

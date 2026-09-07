@@ -19186,3 +19186,53 @@ entries:
         `check_ledger_only.py` run before pushing -- this entry ships in the
         same PR as the code, not on its own.
     mrr_end: 0
+  - venture: npm-lifecycle-script-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture (PR #3856): a free, zero-dependency CLI +
+        browser tool that lists every package in a `package-lock.json`
+        running a preinstall/install/postinstall/prepare script, and, given
+        an older lockfile, exactly which packages gained one since then. The
+        install-time-execution sibling of `license-drift-check`: same
+        "paste two point-in-time snapshots, get a deterministic diff" shape.
+        Motivated by four dated, sourced supply-chain incidents that used
+        exactly this mechanism (ua-parser-js 2021, coa/rc 2021, Shai-Hulud
+        2025, Shai-Hulud 2.0 2025) -- `npm audit` has nothing to say about
+        any of them, since none had a CVE until after they had already run.
+      - >-
+        Merging this PR (opened against an older `main`) surfaced and fixed
+        three real defects from the branch's own regen pass, not just the
+        expected mirrored-tool-count drift: the branch had accidentally
+        deleted two already-shipped sibling-link pairs
+        (`duct-cleaning-bid-calculator`/`hood-cleaning-bid-calculator` and
+        `painting-bid-calculator`/`exterior-painting-bid-calculator`,
+        restored from `main`), the new venture's FAQPage JSON-LD used `--`
+        where the visible page text used an em dash (fixed to match), and
+        the venture had no CI workflow of its own (added
+        `npm-lifecycle-script-check-ci.yml`, copied from
+        `license-drift-check-ci.yml`'s shape) and no `publish-surface.yaml`
+        row. Fixed the mirrored-tool-count drift across all four places
+        CLAUDE.md tracks it (`infra/OWNER_CHECKLIST.md`,
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        twice, and `gitops/tests/test_manifests.py`'s own hard-coded total),
+        `gitops/ci/README.md`'s workflow-count sentence via
+        `sync_readme_counts.py`, and added a `venture-scores.yaml` entry and
+        a `usage.yaml` baseline.
+      - >-
+        Definition-of-done checklist run: `platform/pages/clauses.mjs
+        npm-lifecycle-script-check` (both pages carry the no-warranty
+        clause), `check_no_payment_code.py` (clean), `portfolio/router/validate.py`
+        (all 213 VENTURE.yaml valid), `portfolio/scoring/score_ventures.py
+        --check` (all 214 covered), `portfolio/usage/validate_usage.py`
+        (196 products valid), `node platform/marketing/regen.mjs` (mirror +
+        front-door regenerated, 205 tools), `node platform/pages/siblings.mjs
+        --check` (99 orphans, within budget once the accidental sibling-link
+        deletions were restored), `python3 -m pytest gitops/tests` (490
+        passed), all 21 `platform/ci` unittest modules, `python3 -m pytest
+        portfolio/scoring portfolio/router` (88 passed), and `node --test`
+        across the venture's own suites plus `platform/marketing/*.test.mjs`
+        and `platform/pages/*.test.mjs` (1169 passed). `check_ledger_only.py`
+        run before pushing -- this entry ships in the same PR as the code.
+    mrr_end: 0

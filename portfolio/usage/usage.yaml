@@ -4800,3 +4800,26 @@ products:
           license change detection". Counts are local, opt-in, off by
           default, and honor DNT/GPC, so zero is the expected reading for a
           tool nobody has visited or switched the counter on for yet.
+  - slug: npm-lifecycle-script-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/npm-lifecycle-script-check/`) from its first commit: lists
+          every package in a `package-lock.json` that runs a lifecycle
+          script at install time, and, given an older lockfile, exactly
+          which packages gained one since then. First-visitor channel is
+          developers who lived through one of the four dated incidents named
+          in the README (ua-parser-js 2021, coa/rc 2021, Shai-Hulud 2025,
+          Shai-Hulud 2.0 2025) and search phrases like "npm postinstall
+          malware check" / "detect new install script package-lock". Counts
+          are local, opt-in, off by default, and honor DNT/GPC, so zero is
+          the expected reading for a tool nobody has visited or switched the
+          counter on for yet.

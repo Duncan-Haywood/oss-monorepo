@@ -83,3 +83,15 @@ test('share and restore are wired without uploading inputs', () => {
   assert.match(scriptSource, /localStorage/);
   assert.match(markup, /Copy shareable link/);
 });
+
+// Closest sibling: same painting trade, but exterior elevation rather than
+// interior rooms. Related-tool chrome may never surface that pair, so without
+// an explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the exterior-painting-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/exterior-painting-bid-calculator\/"/,
+    'index must link ../exterior-painting-bid-calculator/ so crawlers reach the exterior calculator in one hop',
+  );
+  assert.match(html, /exterior painting bid calculator/i);
+});
