@@ -181,6 +181,18 @@ test('every published page carries Open Graph tags and the no-warranty clause', 
   }
 });
 
+// marketplace-fee-compare deliberately excludes Whatnot from the retail ranking
+// and deep-links here instead. Without the reverse link, a crawler entering on
+// this hub never reaches that compare — same one-way orphan class as #3639 /
+// #3667 / #3678.
+test('index links to the related marketplace fee compare hub', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/marketplace-fee-compare\/"/,
+    'index must link ../marketplace-fee-compare/ so crawlers can reach the retail fee ranking',
+  );
+});
+
 function near(actual, expected, tolerance = 0.001) {
   assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} is not within ${tolerance} of ${expected}`);
 }

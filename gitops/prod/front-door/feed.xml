@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 196 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 197 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Turn a government website&#39;s axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.</summary>
+  </entry>
+  <entry>
+    <title>AI Crawler Access Check — Which AI Bots Does Your robots.txt Block?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ai-crawler-access-check/"/>
+    <id>tag:marisstella.dev,2026:tool/ai-crawler-access-check</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Coverage Drop Check — Did This PR Lower Line Coverage?</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free CAM reconciliation calculator for small commercial landlords and tenants. Check area-share math, credits, billed charges, and variance privately in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Carpet Cleaning Bid Calculator — Price the Stop, Not Room</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/carpet-cleaning-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/carpet-cleaning-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price a carpet cleaning job from soil-specific extraction rates: rooms, stairs, pet-urine extra passes, upholstery, furniture moving, and drive time — plus the walk-away number a $129 three-bedroom special hides.</summary>
   </entry>
 </feed>

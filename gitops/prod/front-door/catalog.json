@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 196,
-  "collection_total": 196,
+  "served_here": 197,
+  "collection_total": 197,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -53,15 +53,15 @@
       "tool_count": 13
     },
     {
-      "id": "logistics",
-      "name": "Logistics, freight & cloud cost",
-      "url": "https://marisstella.dev/c/logistics/",
-      "tool_count": 6
-    },
-    {
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
+      "tool_count": 7
+    },
+    {
+      "id": "logistics",
+      "name": "Logistics, freight & cloud cost",
+      "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 6
     }
   ],
@@ -504,6 +504,14 @@
       "url": "https://marisstella.dev/tools/ada-title-ii-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.",
+      "pages": 2
+    },
+    {
+      "slug": "ai-crawler-access-check",
+      "name": "AI Crawler Access Check — Which AI Bots Does Your robots.txt Block?",
+      "url": "https://marisstella.dev/tools/ai-crawler-access-check/",
+      "category": "More free tools",
+      "description": "Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 2
     },
     {
