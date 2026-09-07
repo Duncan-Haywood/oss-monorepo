@@ -41,3 +41,17 @@ test("every .html file in the venture is reachable from the sitemap", async () =
     assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
   }
 });
+
+// tender-bid-readiness already links here for CSV shortlist → paperwork
+// check (#3650). The SEO pages on this venture already deep-link out, but
+// without a crawlable link on the index a crawler entering on the product
+// hub never reaches the readiness checker in one hop — same one-way orphan
+// class as #3639 / #3650.
+test("index links to the related tender-bid-readiness checker", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    /href="\.\.\/tender-bid-readiness\/"/,
+    "index must link ../tender-bid-readiness/ so crawlers can reach the paperwork checker",
+  );
+});
