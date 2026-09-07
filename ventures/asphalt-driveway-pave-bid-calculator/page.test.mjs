@@ -212,3 +212,16 @@ test('index links one hop to the asphalt-sealcoat-bid-calculator sibling', () =>
   );
   assert.match(html, /asphalt sealcoating bid calculator/i);
 });
+
+// Same Concrete / masonry / site-work subcategory: a gravel driveway bid is
+// the nearest alternate surface for a shop that already paved in asphalt.
+// Related-tool chrome rotates alphabetically, so without an explicit one-hop
+// a crawler on this page may never land on that tool.
+test('index links one hop to the gravel-driveway-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/gravel-driveway-bid-calculator\/"/,
+    'index must link ../gravel-driveway-bid-calculator/ so crawlers reach the gravel calculator in one hop',
+  );
+  assert.match(html, /gravel driveway bid calculator/i);
+});
