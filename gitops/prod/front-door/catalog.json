@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 198,
-  "collection_total": 198,
+  "served_here": 197,
+  "collection_total": 197,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -68,7 +68,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 3
+      "tool_count": 2
     }
   ],
   "tools": [
@@ -1231,14 +1231,6 @@
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.",
       "pages": 3
-    },
-    {
-      "slug": "pinned-actions-check",
-      "name": "Pinned Actions Check — Are Your GitHub Actions Pinned to a Commit SHA?",
-      "url": "https://marisstella.dev/tools/pinned-actions-check/",
-      "category": "More free tools",
-      "description": "Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
     },
     {
       "slug": "plantation-shutter-bid-calculator",
