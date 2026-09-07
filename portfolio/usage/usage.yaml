@@ -4474,6 +4474,21 @@ products:
           Public URL remains owner-gated; the browser counter is local and
           opt-out. Baseline row.
 
+  - slug: kdp-royalty-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+          royalty_compared: 0
+        note: >-
+          Graduated a browser-local KDP exclusive-versus-wide royalty
+          calculator (70/35 ebook, KU page-reads, paperback print cost,
+          Ingram wholesale). GitHub Pages exposes no server-side visitor
+          count, so live_url_visitors stays null; the browser counter is
+          local and opt-out. Baseline row.
+
   - slug: pressure-washing-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -4711,3 +4726,38 @@ products:
           from its first commit. Counts are local, opt-in, off by default,
           and honor DNT/GPC, so zero is the expected reading for a tool
           nobody has visited or switched the counter on for yet.
+  - slug: whatnot-seller-payout
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          free_shipping_compared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/whatnot-seller-payout/`)
+          from its first commit. First-visitor channel is r/whatnot,
+          r/whatnotapp, and the search phrases “whatnot seller fees” /
+          “whatnot fee calculator”. Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for
+          a tool nobody has visited or switched the counter on for yet.
+  - slug: ai-crawler-access-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          fetch_attempted: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/ai-crawler-access-check/`)
+          from its first commit. First-visitor channel is r/TechSEO, r/SEO,
+          r/webdev, and the search phrases “block GPTBot robots.txt” /
+          “llms.txt checker”. Counts are local, opt-in, off by default, and
+          honor DNT/GPC, so zero is the expected reading for a tool nobody
+          has visited or switched the counter on for yet.

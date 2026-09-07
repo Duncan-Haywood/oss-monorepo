@@ -34,7 +34,7 @@ readings:
   github-actions-runners:
     verdict: down
     measured: "2026-09-07"
-    run: 34091300665
+    run: 34111214478
     how: >-
       Cheapest route, and it costs nothing at all: classify a check that
       already ran on any open PR, by its **job** id rather than a run id --
@@ -56,6 +56,23 @@ readings:
       is why the publish route in `github-pages-branch-route` keeps working
       while everything in `.github/workflows/` starves.
     note: >-
+      **Flipped back to `down` at 10:23Z on 2026-09-07, and the pair of
+      readings four minutes apart is the point.** Run 34104983650 (09:0xZ)
+      took three real runners and passed -- that is the reading the row
+      carried, honestly measured. By 09:18Z every run on `main` was back to
+      `runner_id: 0` in 3-4s (34105290955, 34105301962), a dispatched `Public
+      surface check` starved at 09:24Z (34105796681), and all 21 checks on
+      #3691 starved at 10:23Z (jobs 101707659622, 101707660396, 101707660041
+      classified individually). So the allowance is not simply spent: it
+      admits an occasional job and starves the rest, which is worse than a
+      clean cliff because a single green run reads as recovery.
+      What that cost, measured the same hour: #3671 merged at 09:18Z with four
+      red checks nobody could see, three of them live user-facing defects (a
+      calculator rendering "$-1.46", two pages whose FAQ JSON-LD diverged from
+      their visible copy). Fixed in #3691. Do not infer recovery from one
+      green run -- classify the run you are actually looking at, which is what
+      this row's `how` has always said and what the 09:0xZ reading did
+      correctly and then over-generalised.
       Starvation recurred mid-session on 2026-09-04, exactly as
       `gitops/ci/README.md` predicted it would when the metered allowance is
       spent again. The cliff is pinned to a nine-minute window: run
@@ -138,6 +155,16 @@ readings:
       the reset" shape the rest of this file assumes; it can flip inside a
       session. Classify per push rather than trusting a reading more than
       about half an hour old.
+      Re-measured 2026-09-07T09:15:58Z from a scheduled autonomous session,
+      via `ci_starvation.py --run 34104983650` against a `portfolio-pages`
+      run triggered by this session's own `gh-pages` publish (`build`,
+      `deploy` and `report-build-status` jobs, real runner ids
+      `1000063591`/`1000063597`/`1000063596`, all `success` in under 12s
+      each) — exit 0, up again about 2h43m after the 06:33Z starved reading
+      above. Consistent with the "flips inside a session" shape already
+      recorded here, not a new pattern. Do not read this as "fixed" any more
+      than the 06:33Z entry meant "broken forever" — classify the next push
+      on its own merits.
 
   k3s-cluster:
     verdict: down

@@ -79,6 +79,7 @@ import {
   COMPARISON_FILE_PATTERN,
   comparisonSubject,
   comparisonSubjectKey,
+  comparisonText,
   comparisonProductGroups,
   comparisonProductSlug,
   discoverComparisons,
@@ -1280,6 +1281,7 @@ test("socialCardFileFor names a file under the category's own id, not its title"
 test('tools that belong to a named category are not left in the catch-all', () => {
   assert.equal(categoryFor('tiktok-shop-fee-calculator').id, 'marketplace');
   assert.equal(categoryFor('delivery-app-margin-calculator').id, 'marketplace');
+  assert.equal(categoryFor('kdp-royalty-calculator').id, 'marketplace');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
   assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');
@@ -4345,8 +4347,11 @@ test('the venture tree still has comparison pages, and every one names a product
   for (const entry of entries) {
     const surface = surfaces.find((s) => s.slug === entry.slug);
     const html = await fs.readFile(path.join(surface.sourceDir, entry.file), 'utf8');
+    // Normalised on both sides — see `comparisonText`. `entry.subject` has
+    // already had its entities decoded, so `html.includes` was asking the page
+    // to carry the heading a second time in raw form.
     assert.ok(
-      html.includes(entry.subject),
+      comparisonText(html).includes(entry.subject),
       `"${entry.subject}" is not text ${entry.slug}/${entry.file} contains`,
     );
   }

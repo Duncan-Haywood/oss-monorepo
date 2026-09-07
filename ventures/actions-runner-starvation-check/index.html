@@ -92,6 +92,8 @@ python3 check.py --from-json jobs.json # classify a payload you already have, no
     <h3>Why do I have to paste JSON instead of it just checking for me?</h3>
     <p>Checking for you would mean either a server that sees every token pasted into it, or this page fetching on your behalf with a token it would have to hold. Neither is worth the convenience next to pasting the response you already fetched yourself with your own credentials.</p>
     <p>More: <a href="why-is-my-github-actions-check-red-in-seconds.html">why a GitHub Actions check goes red in seconds with no output</a>.</p>
+    <p>Related: if the job did get a runner and tests flip between runs, the <a href="../flaky-test-finder/">flaky test finder</a> classifies which tests are flaky versus broken from JUnit XML you paste — nothing uploaded.</p>
+    <p>Related: if the job did get a runner and line coverage fell on the PR, the <a href="../coverage-drop-check/">coverage drop check</a> compares two Cobertura or JaCoCo reports and names the files that got worse — nothing uploaded.</p>
   </section>
 
   <footer>

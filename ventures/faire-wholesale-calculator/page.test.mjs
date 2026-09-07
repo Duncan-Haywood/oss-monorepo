@@ -238,3 +238,15 @@ test("the result panel is announced to screen readers when it updates", () => {
     "the result section is not a live region, so updates are never announced",
   );
 });
+
+// marketplace-fee-compare's lowest-fees article already deep-links here as the
+// wholesale sibling it deliberately excludes from the retail ranking. Without
+// the reverse link, a crawler entering on this hub never reaches that compare —
+// same one-way orphan class as #3639 / #3650 / #3667.
+test("index links to the related marketplace fee compare hub", () => {
+  assert.match(
+    brand,
+    /href="\.\.\/marketplace-fee-compare\/"/,
+    "index must link ../marketplace-fee-compare/ so crawlers can reach the retail fee ranking",
+  );
+});

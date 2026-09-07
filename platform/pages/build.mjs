@@ -317,7 +317,7 @@ const CATEGORY_RULES = [
     // marketplaces' fee schedules on one booking, which is this section's exact
     // job. It sat in the catch-all because the slug does not start with a
     // storefront's name.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host)/.test(slug),
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp)/.test(slug),
   },
   {
     id: 'trades',
@@ -753,16 +753,35 @@ export const COMPARISON_FILE_PATTERN = /^vs-[a-z0-9][a-z0-9-]*\.html$/i;
  * than one fewer entry, and this is a page about other companies' products.
  * Measured across all 167 pages on 2026-09-05, nothing fell through.
  */
+/**
+ * The plain text of a fragment, with the entity spellings a heading uses folded
+ * to one form: `&rsquo;` and `&#8217;` both become a straight `'`.
+ *
+ * Exported because the containment check that keeps the comparison index honest
+ * — "every product name it prints is text the linked page contains" — has to
+ * normalise *both* sides or it is comparing a decoded subject against raw
+ * markup. It did exactly that until 2026-09-07, and passed only because
+ * `vs-amazon-kdp-royalty-calculator.html` happened to carry the straight-quote
+ * spelling in its FAQ JSON-LD while its `<h1>` used `&rsquo;`. Correcting that
+ * JSON-LD to match the visible copy removed the coincidence and the check went
+ * red on a page that had never misnamed anything.
+ *
+ * A caller that re-spelled this normaliser instead of importing it would be the
+ * fourth instance of the mistake CLAUDE.md records under "168 became 169".
+ */
+export function comparisonText(value) {
+  return value
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&#0?39;|&apos;|&rsquo;|&#8217;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function comparisonSubject(html) {
-  const text = (value) =>
-    value
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&#0?39;|&apos;|&rsquo;|&#8217;/g, "'")
-      .replace(/&quot;/g, '"')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
+  const text = comparisonText;
   const afterVs = (value) => {
     const matches = [...value.matchAll(/\svs\.?\s/gi)];
     if (!matches.length) return null;
@@ -1045,7 +1064,7 @@ const CATEGORY_PAGE_COPY = {
   marketplace: {
     title: 'Free marketplace seller fee calculators',
     description:
-      'Free fee and profit calculators for eBay, Etsy, Amazon, Shopify, Walmart, TikTok Shop, Faire and Reverb. Enter your cost of goods, see what an order nets.',
+      'Free fee and profit calculators for eBay, Etsy, Amazon, KDP, Shopify, Walmart, TikTok Shop, Faire and Reverb. Enter your cost of goods, see what an order nets.',
     intro:
       'Every marketplace publishes a fee schedule and none of them publish what you keep. These calculators put your own cost of goods, shipping and return rate into the arithmetic, so the number you get is the one that lands in your account — not a percentage off the sale price.',
     audience: 'people selling on marketplaces',

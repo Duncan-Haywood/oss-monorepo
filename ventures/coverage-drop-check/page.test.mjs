@@ -49,3 +49,28 @@ test("every .html file in the venture is reachable from the sitemap", () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
   }
 });
+
+// flaky-test-finder covers the next question after "did coverage drop?": which
+// tests actually flipped. Without a crawlable link on this hub, a crawler
+// entering on coverage-drop-check never reaches that sibling in one hop —
+// same one-way orphan class as #3639 / #3667 / #3677.
+test("index links to the related flaky-test-finder", () => {
+  assert.match(
+    html,
+    /href="\.\.\/flaky-test-finder\/"/,
+    "index must link ../flaky-test-finder/ so crawlers can reach the JUnit flaky classifier",
+  );
+});
+
+// actions-runner-starvation-check covers the question before coverage math
+// matters: did GitHub assign a runner at all. The flaky edge of this triangle
+// already has reciprocal hub links; without this one, a crawler entering on
+// coverage-drop-check still needs two hops to reach the starvation tool —
+// same one-hop orphan class as #3677 / #3685.
+test("index links to the related actions-runner-starvation-check", () => {
+  assert.match(
+    html,
+    /href="\.\.\/actions-runner-starvation-check\/"/,
+    "index must link ../actions-runner-starvation-check/ so crawlers can reach the runner_id classifier",
+  );
+});

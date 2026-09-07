@@ -30,6 +30,18 @@ test('index links to the deposit-percentage SEO/AI-discovery page', () => {
   assert.match(page, /what-percentage-deposit-should-i-charge\.html/);
 });
 
+// deposit-vs-no-show-fee.html already deep-links to the no-show fee calculator,
+// and that calculator links back into this venture — but the deposit hub itself
+// had no crawlable outbound link, so a crawler entering on index needed an
+// extra hop. Same one-way orphan class as #3650 / #3663 / #3667.
+test('index links to the related no-show fee calculator', () => {
+  assert.match(
+    page,
+    /href="\.\.\/no-show-fee-calculator\/"/,
+    'index must link ../no-show-fee-calculator/ so crawlers can reach the after-the-fact fee tool',
+  );
+});
+
 const docsPage = (name) => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 
 test('the deposit-percentage page answers the search question with a worked table', () => {

@@ -109,6 +109,8 @@ python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
     <h3>Is my test output uploaded anywhere?</h3>
     <p>No. The browser page parses the XML you paste entirely in your own browser and never sends it anywhere. The CLI reads local files and makes no network call at all.</p>
     <p>More: <a href="why-are-my-tests-flaky-in-ci.html">why tests go flaky in CI and what to do about each one</a>, or how this compares to <a href="vs-buildpulse.html">BuildPulse</a>, a paid, connected, always-on alternative.</p>
+    <p>Related: if every check fails in a few seconds with an empty body, first check whether GitHub assigned a runner with the <a href="../actions-runner-starvation-check/">actions runner starvation check</a> — paste the run&rsquo;s job JSON and it reads <code>runner_id</code>.</p>
+    <p>Related: if tests are stable but line coverage fell on the PR, the <a href="../coverage-drop-check/">coverage drop check</a> compares two Cobertura or JaCoCo reports and names the files that got worse — nothing uploaded.</p>
   </section>
 
   <footer>
