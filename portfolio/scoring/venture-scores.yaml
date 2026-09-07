@@ -7468,3 +7468,46 @@ ventures:
       match rather than a legal opinion. It never recommends accepting or
       rejecting a license change — that decision, and verifying the actual
       license text, stays the user's.
+  - slug: gig-driver-net-pay-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on a
+      session's own gross pay, mileage, and cost inputs — a net-pay,
+      per-hour, per-mile, and tax-reserve computation — and adding
+      inference would only make the result less checkable against the
+      driver's own numbers.
+    basis: >-
+      Graduated 2026-09-07 as a browser-local net-pay calculator for
+      DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers. Distinct
+      from delivery-app-margin-calculator (the restaurant's side of a
+      delivery order) and owner-operator-cpm-calculator (a commercial
+      trucking cost-per-mile): this is the gig driver's own session,
+      turning gross app pay into net pay after gas, maintenance, and a
+      prorated insurance share, plus a self-employment tax reserve and a
+      target-take-home solver. Scored at parity with
+      delivery-app-margin-calculator on defensibility (4): the wedge is
+      combining gross pay, per-mile vehicle cost, and a tax reserve in one
+      pass rather than the single-purpose mileage-deduction calculators
+      already free elsewhere, but none of those three components is
+      individually hard to build. Distribution 8: "how much should I set
+      aside for gig driving taxes" and "is doordash worth it after gas"
+      are high-intent queries with a same-session decision attached.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the driver's own entered figures
+      — never a recommendation to accept or decline a specific delivery
+      offer, and never tax or legal advice. The tax-reserve figure is
+      labelled a rough set-aside estimate, not a filing number, and
+      nothing entered leaves the browser.
