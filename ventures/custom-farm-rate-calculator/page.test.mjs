@@ -134,3 +134,15 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(`/custom-farm-rate-calculator/${name === 'index.html' ? '' : name}<`), `${name} is not reachable from sitemap.xml`);
   }
 });
+
+// Closest sibling: same "Getting paid & job margin" subcategory, but a shop
+// hourly rate from payroll/burden/overhead rather than a per-acre custom-farm
+// rate. Without a crawlable link here, a crawler entering on the farm
+// calculator never reaches the shop calculator in one hop.
+test('index links one hop to the shop-rate-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/shop-rate-calculator\/"/,
+    'index must link ../shop-rate-calculator/ so crawlers reach the shop calculator in one hop',
+  );
+});

@@ -250,3 +250,15 @@ test('every published page carries Open Graph tags', () => {
     assert.match(source, /<meta property="og:description" content="[^"]+">/, `${name} is missing og:description`);
   }
 });
+
+// Closest sibling: same "Getting paid & job margin" subcategory, but a
+// per-acre custom-farm rate rather than a shop hourly rate from payroll.
+// Without a crawlable link here, a crawler entering on the shop calculator
+// never reaches the farm calculator in one hop.
+test('index links one hop to the custom-farm-rate-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/custom-farm-rate-calculator\/"/,
+    'index must link ../custom-farm-rate-calculator/ so crawlers reach the farm calculator in one hop',
+  );
+});
