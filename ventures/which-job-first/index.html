@@ -262,7 +262,12 @@
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
       if (saved && Array.isArray(saved.items) && saved.items.length >= 2 && !isComplete(saved)) state = saved;
-    } catch { /* a damaged saved session just starts fresh */ }
-    render();
+      render();
+    } catch {
+      // A saved object can parse successfully but still contain a damaged
+      // comparison. Recover even when rendering that comparison fails.
+      state = null;
+      render();
+    }
   }
 </script></body></html>
