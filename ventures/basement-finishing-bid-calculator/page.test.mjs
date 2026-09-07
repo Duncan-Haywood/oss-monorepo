@@ -233,3 +233,15 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
+
+// Closest sibling: same basement shop, but a waterproofing job rather than a
+// finish. Without a crawlable link here, a crawler entering on the finishing
+// calculator never reaches the waterproofing tool in one hop — same one-way
+// orphan class as #3709 / #3729 / #3743.
+test('index links one hop to the basement-waterproofing-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/basement-waterproofing-bid-calculator\/"/,
+    'index must link ../basement-waterproofing-bid-calculator/ so crawlers reach the waterproofing calculator in one hop',
+  );
+});
