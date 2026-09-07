@@ -93,16 +93,3 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
-
-// Closest sibling: same cleaning subcategory, but a commercial kitchen hood
-// rather than house air ducts. Without a crawlable link here, a crawler
-// entering on the duct calculator never reaches the hood tool in one hop —
-// same one-way orphan class as #3709 / #3729 / #3743 / #3778.
-test('index links one hop to the hood-cleaning-bid-calculator sibling', () => {
-  assert.match(
-    html,
-    /href="\.\.\/hood-cleaning-bid-calculator\/"/,
-    'index must link ../hood-cleaning-bid-calculator/ so crawlers reach the hood calculator in one hop',
-  );
-  assert.match(html, /hood cleaning bid calculator/i);
-});

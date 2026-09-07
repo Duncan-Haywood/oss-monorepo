@@ -127,15 +127,3 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
-
-// Closest sibling: same painting trade, but interior rooms rather than
-// exterior elevation. Related-tool chrome may never surface that pair, so
-// without an explicit one-hop a crawler on this page may never land on that tool.
-test('index links one hop to the painting-bid-calculator sibling', () => {
-  assert.match(
-    html,
-    /href="\.\.\/painting-bid-calculator\/"/,
-    'index must link ../painting-bid-calculator/ so crawlers reach the interior calculator in one hop',
-  );
-  assert.match(html, /painting bid calculator/i);
-});

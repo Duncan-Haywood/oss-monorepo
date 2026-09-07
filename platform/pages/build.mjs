@@ -467,7 +467,7 @@ const CATEGORY_RULES = [
     id: 'ci',
     title: 'CI checks & developer gates',
     accent: '#1a4560',
-    blurb: 'Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning; tell a starved runner from a real failure; catch a coverage drop, classify flaky tests, or see which AI crawlers your robots.txt allows — free, local, no account.',
+    blurb: 'Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning; tell a starved runner from a real failure; catch a coverage drop, classify flaky tests, see which AI crawlers your robots.txt allows, or catch a dependency that just gained an install-time script — free, local, no account.',
     // These four sat in the catch-all together: each is a browser-local (and
     // matching CLI) checker a maintainer runs against files or API JSON they
     // already have, not a trade bid, marketplace fee, or compliance evidence
@@ -488,8 +488,13 @@ const CATEGORY_RULES = [
     // place a stranger browses. Written as one `actions-` prefix plus
     // `pinned-actions` rather than four alternatives, so the next checker in
     // the family lands here without another edit.
+    //
+    // `npm-lifecycle-script-check` joined 2026-09-07: a paste-a-snapshot,
+    // deterministic-diff checker for a maintainer's own dependency tree,
+    // the exact shape this section already holds, just for an install-time
+    // script instead of a workflow file, a coverage report, or a robots.txt.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|npm-lifecycle-script-check)/.test(
         slug,
       ),
   },
