@@ -139,4 +139,14 @@ assert.match(goalPage, /\$4,020/);
 assert.equal(calculateIncomeCoverage(goalPlan).retainerShareOfTarget, 22.12);
 assert.match(goalPage, /22% of \$7,800/);
 
+// Closest sibling in the "Getting paid & job margin" subcategory: a
+// construction change order rather than a recurring retainer. Without a
+// crawlable link here, a crawler entering on this calculator never reaches
+// the change-order tool in one hop.
+assert.match(
+  index,
+  /href="\.\.\/change-order-margin-calculator\/"/,
+  'index must link ../change-order-margin-calculator/ so crawlers reach the change order calculator in one hop',
+);
+
 console.log('freelance retainer page tests passed');
