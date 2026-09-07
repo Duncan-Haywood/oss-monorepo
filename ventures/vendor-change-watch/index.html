@@ -148,6 +148,7 @@ vendor-watch check</code></pre>
     <h3>Is this the same as the command-line tool?</h3>
     <p>It shares the diff logic and the exact status vocabulary — <code>observed</code>, <code>inconclusive</code> and <code>unknown</code> mean the same thing in both. The CLI adds the part a browser cannot do: it fetches the pages you configure on a schedule from your own machine, so you are not the one remembering to check.</p>
     <p class="note">Already using a general-purpose page watcher? See <a href="./vs-changedetection-io.html">this tool vs. changedetection.io</a>.</p>
+    <p class="note">Already holding two dated JSON snapshots of the same vendor page? The <a href="../vendor-change-evidence/">vendor change evidence</a> tool compares a before and after snapshot into a portable review record — nothing uploaded.</p>
   </section>
 
   <footer>

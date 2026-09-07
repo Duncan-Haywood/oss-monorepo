@@ -61,3 +61,16 @@ test("loads its logic from the shared modules rather than restating it", () => {
   assert.match(index, /from "\.\/store\.mjs"/);
   assert.match(index, /from "\.\/usage\.mjs"/);
 });
+
+// Closest sibling: same vendor-policy-diff job, but for two dated JSON
+// snapshots you already hold rather than captures stored in this browser.
+// Related-tool chrome rotates inside the whole evidence category, so without
+// an explicit one-hop a crawler on this page reaches that tool only via /c/evidence/.
+test("index links one hop to the vendor-change-evidence sibling", () => {
+  assert.match(
+    index,
+    /href="\.\.\/vendor-change-evidence\/"/,
+    "index must link ../vendor-change-evidence/ so crawlers reach the snapshot evidence tool in one hop",
+  );
+  assert.match(index, /vendor change evidence/i);
+});
