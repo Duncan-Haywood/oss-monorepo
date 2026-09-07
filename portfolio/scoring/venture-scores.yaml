@@ -6770,61 +6770,56 @@ ventures:
       bartender. The tool never touches a live transaction, a POS, or
       anyone else's data; nothing entered leaves the browser and nothing is
       saved between sessions.
+
   - slug: actions-runner-starvation-check
     scores:
       ai_leverage: 1
       autonomous_ops: 10
-      time_to_revenue: 3
+      time_to_revenue: 6
       gross_margin: 10
       defensibility: 4
       distribution: 5
-    composite: 5.5
+    composite: 6.0
     rater_b: null
     floor: 1
     floor_dimension: ai_leverage
     floor_note: >-
-      No AI in the product, deliberately. The whole argument of the tool is
-      that one field decides — a job GitHub scheduled carries a nonzero
-      `runner_id`, one it never reached carries 0 — so anything that
-      inferred rather than read that field would be strictly worse than the
-      field itself. Duration and an empty output body are reported for
-      context and never get a vote, which is the property a model-based
-      classifier could not offer.
+      Deterministic classification of one field (`runner_id`) already
+      present in GitHub's own Actions API response. There is nothing to
+      infer: a job either got a runner or it did not.
     basis: >-
-      Graduated and merged 2026-09-07 in #3615, which shipped the venture
-      without a row here; `score_ventures.py --check` was red on `main`
-      from that merge until this entry, invisible because Actions has been
-      starved since 2026-09-04 (`ci_starvation.py --run 34089278449`:
-      `runner_id: 0`). Scored on this file's six-dimension rubric to
-      restore coverage. Unlike the 141 arithmetic bid/margin calculators
-      that dominate the catalogue, this is a CLI-plus-browser developer
-      tool ported from an internal one (`platform/ci/ci_starvation.py`)
-      that was built and proven against this repository's own real
-      starvation incidents — see `portfolio/pipeline/README.md`'s
-      archetype-saturation note.
-      Time to revenue 3, the lowest non-AI score in this file: the audience
-      is developers reading a red check during an incident, a segment with
-      a strong free-utility norm and no purchase moment at the point of
-      use. That is a lower number than the trade calculators (typically 6)
-      score, and it is meant to be — those are used by an operator pricing
-      a job they are about to be paid for.
-      Defensibility 4: the mechanism is a single documented API field, so
-      the tool is trivially reimplementable once the insight is stated in
-      public — which this venture's own landing page does. What is not
-      trivially copied is the ported test suite covering the confusable
-      cases (a genuine failure that also finishes in three seconds, a run
-      that died before any step, a partially-assigned matrix).
-      Distribution 5: search demand is real but episodic rather than
-      steady — it spikes exactly when an account is starved and is near
-      zero otherwise — against free, named developer channels (r/github,
-      GitHub Community discussions, HN) and no measured volume.
+      Graduated 2026-09-07 (#3615) as a free dev-tool CLI/browser check that
+      tells a developer whether a red GitHub Actions check is a real failure
+      or a job GitHub never assigned a runner to, from the run's own
+      `runner_id` field. Same shape as `npm-deployment-evidence` and
+      `repository-branch-hygiene`: a standard-library-only classifier over
+      data the user already has, scored on this file's six-dimension rubric
+      to keep coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page and the Python CLI both run entirely on data the visitor pastes
+      or already has locally, so marginal cost per use is zero and there is
+      no server to operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like the portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the classification rule itself is one field compare
+      that any developer could write in a few lines; what is not trivially
+      copied is having already written and published the explanation of
+      *why* duration and empty output mislead, which is the actual value a
+      searcher is buying. Unmeasured beyond that, hence not scored higher.
+      Distribution 5: "why is my GitHub Actions check red" and "GitHub
+      Actions runner_id 0" are real, narrow developer search terms with no
+      dedicated free tool answering them today, but this portfolio has no
+      existing developer-tool distribution channel and volume is
+      unmeasured.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Pass: the tool reports what GitHub's own API returned about a job the
-      caller already has access to, and makes no claim about billing state,
-      account standing, or why runners are unavailable — the README says
-      explicitly that it is not a substitute for the billing page. It reads
-      with the caller's own token, stores nothing, and never writes to any
-      repository.
+      Pass: the tool never fetches anything on the user's behalf and never
+      asks for a token — the user pastes JSON they already fetched with
+      their own credentials, so their token and their run data never leave
+      their own machine or session. The output is a classification of a
+      public API field, not a security or compliance verdict.
