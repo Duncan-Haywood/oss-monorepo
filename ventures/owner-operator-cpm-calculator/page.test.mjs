@@ -10,6 +10,7 @@ const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const article = readFileSync(new URL('./deadhead-miles.html', import.meta.url), 'utf8');
 const detention = readFileSync(new URL('./does-detention-pay-cover-the-wait.html', import.meta.url), 'utf8');
 const vsAtbs = readFileSync(new URL('./vs-atbs.html', import.meta.url), 'utf8');
+const vsDatRateview = readFileSync(new URL('./vs-dat-rateview.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 
 function parse(source) {
@@ -148,6 +149,25 @@ test('the ATBS incumbent-comparison page links back, names the incumbent honestl
   assert.match(vsAtbs, /No warranty/);
   assert.match(vsAtbs, /Best-effort hosting, no SLA/);
   assert.match(vsAtbs, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('index links the DAT RateView comparison page and the sitemap lists it too', () => {
+  assert.match(markup, /vs-dat-rateview\.html/);
+  assert.match(sitemap, /vs-dat-rateview\.html/);
+});
+
+test('the DAT RateView comparison page links back, names the incumbent honestly, and cites a checkable source', () => {
+  assert.match(vsDatRateview, /<a href="\.\/">/);
+  // Names DAT's own RateView page so a reader can check the source directly.
+  assert.match(vsDatRateview, /dat\.com\/rateview/);
+  // This page has no legitimate reason to state a dollar figure for a
+  // market rate or a DAT subscription price -- only DAT's own current data
+  // and pricing could confirm either.
+  assert.doesNotMatch(vsDatRateview, /\$\d/);
+  assert.match(vsDatRateview, /not affiliated with, endorsed by, or sponsored by DAT/i);
+  assert.match(vsDatRateview, /No warranty/);
+  assert.match(vsDatRateview, /Best-effort hosting, no SLA/);
+  assert.match(vsDatRateview, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 
 test('the tax reserve is wired end to end and disclaims what it is not', () => {

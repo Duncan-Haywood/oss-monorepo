@@ -80,6 +80,9 @@ workflows:
 - workflow: asphalt-sealcoat-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: atm-route-margin-ci.yml
+  classification: none
+  publishes: []
 - workflow: attic-insulation-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -179,6 +182,9 @@ workflows:
 - workflow: crown-molding-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: custom-farm-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: cut-list-optimizer-ci.yml
   classification: none
   publishes: []
@@ -207,6 +213,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: duct-cleaning-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: dumpster-rental-margin-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: duplicate-symbols-ci.yml
@@ -258,6 +267,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: fifo-pick-evidence-ci.yml
+  classification: none
+  publishes: []
+- workflow: fire-extinguisher-inspection-route-margin-ci.yml
   classification: none
   publishes: []
 - workflow: fireplace-insert-bid-calculator-ci.yml
@@ -323,6 +335,9 @@ workflows:
 - workflow: home-elevator-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: home-staging-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: hood-cleaning-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -330,6 +345,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: hvac-maintenance-contract-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: ice-dam-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: interior-door-bid-calculator-ci.yml
@@ -366,6 +384,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: local-site-studio-ci.yml
+  classification: none
+  publishes: []
+- workflow: locksmith-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: ltl-freight-class-estimator-ci.yml
@@ -450,6 +471,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: pet-grooming-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: photo-booth-event-quote-ci.yml
   classification: none
   publishes: []
 - workflow: photo-editing-ci.yml
@@ -677,6 +701,12 @@ workflows:
 - workflow: ubuntu-agent-server-ci.yml
   classification: none
   publishes: []
+- workflow: vehicle-wrap-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: vending-machine-route-margin-ci.yml
+  classification: none
+  publishes: []
 - workflow: vendor-change-evidence-ci.yml
   classification: none
   publishes: []
@@ -714,6 +744,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: where-to-sell-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: which-job-first-ci.yml
   classification: none
   publishes: []
 - workflow: window-cleaning-bid-calculator-ci.yml
