@@ -189,6 +189,29 @@ class AskHostExtraction(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertEqual(self.extract(f"see `{token}` for it"), set())
 
+    def test_sdk_method_calls_are_not_hosts(self):
+        """The third shape this extractor has mistaken for a hostname.
+
+        A filename (`auth.json`) and a version (`next@16.3.1`) each have their
+        own guard above. An SDK method call is dotted, backticked, and ends in
+        an alphabetic label, so it passes every one of them --
+        `print-atelier-stripe-checkout` names two real Stripe calls and turned
+        `Portfolio validate` red on `main` on 2026-09-06.
+        """
+        for token in ("stripe.accounts", "stripe.checkout.sessions.create"):
+            with self.subTest(token=token):
+                self.assertEqual(self.extract(f"real `{token}` calls"), set())
+
+    def test_the_publication_origin_is_exempt_by_its_parent_too(self):
+        """`deploy-settings` names the bare `github.io` when it explains why a
+        session cannot confirm the live site for the owner. Exempting only the
+        full hostname left the parent unmeasured, and the right answer is an
+        exemption rather than a probe: a probe would file this sandbox's own
+        outbound limit as evidence against the origin we publish on.
+        """
+        self.assertIn("github.io", check_ask_hosts.PUBLICATION_HOSTS)
+        self.assertIn("duncan-haywood.github.io", check_ask_hosts.PUBLICATION_HOSTS)
+
     def test_the_non_tld_set_never_swallows_a_real_cctld(self):
         """The trap the extension blocklist fell into the first time.
 

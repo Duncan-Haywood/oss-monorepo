@@ -720,7 +720,7 @@
       "url": "https://marisstella.dev/tools/dog-walking-route-pricing/",
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "dryer-vent-bid-calculator",
@@ -800,7 +800,7 @@
       "url": "https://marisstella.dev/tools/equipment-lease-buyout-calculator/",
       "category": "Back-office money & contracts",
       "description": "Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "equipment-rental-break-even",
@@ -1176,7 +1176,7 @@
       "url": "https://marisstella.dev/tools/photo-booth-event-quote/",
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "plantation-shutter-bid-calculator",
@@ -1488,7 +1488,7 @@
       "url": "https://marisstella.dev/tools/vending-machine-route-margin/",
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "vendor-change-watch",
