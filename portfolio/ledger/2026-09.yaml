@@ -18683,3 +18683,71 @@ entries:
         Refreshed the `gh-pages` snapshot after merge, since a committed
         artifact does not rebuild itself and no runner is available to do it.
     mrr_end: null
+  - venture: flaky-test-finder
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture rather than a 202nd trade calculator, per
+        portfolio/pipeline/README.md's archetype-saturation note: a free
+        browser + CLI tool that classifies tests as flaky, broken, or stable
+        from two or more JUnit-XML test reports across CI runs. Same shape as
+        ventures/actions-runner-starvation-check (developer CLI/browser tool),
+        chosen after a live web search rather than assumed demand -- flaky
+        tests are a well-established developer pain point with existing free
+        plugins (pytest-rerunfailures) and paid SaaS (Launchable, BuildPulse),
+        which this file's own scoring row cites as both evidence of real
+        demand and the reason defensibility is scored at 3, the lowest in
+        the file. The wedge: zero-account, framework-agnostic via JUnit XML
+        (nearly every test runner already emits it), entirely client-side,
+        free forever -- rather than trying to out-feature funded incumbents.
+      - >-
+        Handles the single most common real shape deliberately: a CI job
+        that reruns only the tests that failed the first time (pytest --lf,
+        jest --onlyFailures) legitimately produces a report containing a
+        strict subset of an earlier run's tests. A test does not have to
+        appear in every run to be classified -- it is counted from exactly
+        the occurrences it has, which is what a naive "every test must
+        appear in every file" comparison would get wrong on the most common
+        input shape.
+      - >-
+        Shipped both halves of the definition of done: classify.mjs (a
+        hand-rolled XML parser, since Node has no DOMParser and the browser
+        page must run with zero dependencies) and check.py (Python stdlib
+        xml.etree, zero dependencies, no network call) implement the same
+        logic independently, each with its own test suite asserting the same
+        cases (14 node --test, 15 python unittest) so a visitor gets the same
+        verdict from either. LICENSE, no-warranty/privacy/no-SLA disclaimers,
+        localStorage-only opt-out-able usage counting, sponsor link,
+        SoftwareApplication + FAQPage JSON-LD, sitemap.xml, robots.txt, and a
+        second docs page (why-are-my-tests-flaky-in-ci.html) answering the
+        specific question a searcher would type, per PRODUCT_PLAYBOOK.md
+        section 5e.
+      - >-
+        Verification, all local: `node --test` across
+        platform/marketing, platform/pages (1155 pass, after fixing two
+        real defects the new pages introduced -- a launched.json gap and
+        three FAQPage JSON-LD/visible-copy mismatches, both caught by their
+        respective guards rather than missed), platform/proposal,
+        platform/privacy, platform/webcheck (409 pass) and the venture's own
+        suites; `clauses.mjs flaky-test-finder`; `regen.mjs` (774 mirror
+        shard files rewrote, expected whenever the venture count changes);
+        `checklist_coverage.py`; `python3 -m pytest gitops/tests` (490 pass,
+        25 skipped), `portfolio/{ledger,scoring,router,usage,pipeline}` +
+        `infra/tests` (409 pass), all 21 `platform/ci` unittest modules, and
+        `agent_review/test_review`.
+      - >-
+        Found and fixed unrelated pre-existing drift while verifying, in the
+        same PR since it blocked a clean local run: the mirrored-tool count
+        (191 -> 192, four hand-typed locations) and
+        gitops/tests/test_manifests.py's own hand-typed total, both stale
+        because #3623 graduated actions-runner-starvation-check without
+        updating them (three merges' worth of red `main` before this PR, the
+        exact CI-coverage-gap shape CLAUDE.md already documents at length for
+        this same test suite). Also merged the sole open PR (#3624, "main was
+        red on score_ventures.py --check") after finding it conflicted with a
+        second, independent session's fix (#3623) for the identical
+        row -- resolved by dropping the PR's now-duplicate venture-scores.yaml
+        entry and keeping its unique contribution, `run_workflow_locally.py
+        --tree`, verified locally (77 tests) before merging.
+    mrr_end: null
