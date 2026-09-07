@@ -478,8 +478,16 @@ it retires the mirror, serves the canonical host, and lets those pages be
 *indexed*, which the mirrored copies deliberately are not — but it is no
 longer the difference between a stranger reaching 53 tools and reaching
 169. Since the `ENTRY_OVERRIDES` fix above it is not a tool-count difference
-at all: the apex serves all 175. What Step 1 buys is the canonical host and
+at all: the apex serves all 198. What Step 1 buys is the canonical host and
 search.
+
+**Corrected 2026-09-07.** This sentence said "175" while the paragraph 40
+lines above it already said "198 of the 198" — the mirror kept growing
+(new ventures graduating with a static `index.html` from their first
+commit, same shape `test_mirrored_tool_count_matches_what_the_docs_claim`
+tracks) and this specific sentence was not one of the four the test already
+pinned, so it drifted silently and contradicted the rest of its own
+section. Added here rather than just fixed: the gap in the test, below.
 
 **Updated 2026-09-03, twice.** This paragraph said 159 until #2948
 (2026-09-02) raised the mirror to 162 — it updated the bullet two

@@ -59,9 +59,10 @@ test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {
     m[1].replace(/<[^>]+>/g, '').trim(),
   );
   assert.ok(headings.length > 0, 'expected visible h3 FAQ headings');
+  const ldUnescaped = ld.replace(/\\"/g, '"');
   for (const heading of headings) {
     assert.ok(
-      ld.includes(heading) || ld.includes(heading.replace(/’/g, "'")),
+      ldUnescaped.includes(heading) || ldUnescaped.includes(heading.replace(/’/g, "'")),
       `visible heading not found in FAQPage JSON-LD: ${heading}`,
     );
   }
