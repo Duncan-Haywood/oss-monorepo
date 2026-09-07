@@ -71,6 +71,19 @@ test('inputs and result fields for the primary journey are present', () => {
   }
 });
 
+// Closest sibling: same pool-resurfacing job, but a vinyl liner replacement
+// rather than a plaster/pebble finish. Related-tool chrome rotates inside the
+// landscape subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the vinyl-liner-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/vinyl-liner-bid-calculator\/"/,
+    'index must link ../vinyl-liner-bid-calculator/ so crawlers reach the liner calculator in one hop',
+  );
+  assert.match(html, /vinyl liner bid calculator/i);
+});
+
 test('the landing page names the problem in the plasterer\'s words', () => {
   assert.match(html, /<title>[^<]*Pool Plaster Bid Calculator/i);
   assert.match(html, /meta name="description"[^>]*chip-out/i);
