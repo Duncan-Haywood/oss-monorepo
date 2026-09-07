@@ -17896,6 +17896,112 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled autonomous session, owner brief emphasized deployment/CI-CD
+        priority, marketing-material deployment on the Hetzner VMs, and
+        setting up Codex CLI on the Hetzner VM. Drained the collaborative-work
+        phase first: 0 open PRs (`list_pull_requests`, `search_pull_requests`
+        both confirm). Ran `supersede_check.py` against every non-`main`
+        branch this session could enumerate (271 total: 20 hand-picked by
+        name/recency plus a background sweep of the remaining 243, one of
+        which timed out at 90s and was not retried) -- every branch checked
+        was either an identical-merge SUPERSEDED verdict or, for the small
+        number the line-scanner flagged NOT SUPERSEDED
+        (`atm-route-margin`, `marketing/locksmith-bid-calculator-vs-jobber`,
+        `marketing/vs-rover-dog-walking-route-pricing`,
+        `tree-service-bid-share-link`, `gitops/regen-front-door-mirror`),
+        manual content comparison against `main` showed each one a stale
+        draft main had already overtaken with an independently-shipped,
+        equal-or-better version (accessible aria-labels, a different vendor
+        comparison page, the same share.mjs verbatim) -- confirming, from a
+        different sampling method, the same emptiness a same-day sibling
+        session already recorded for a 232-branch sample. No branch needed a
+        new PR; nothing was closed or deleted (no PR existed on any of them
+        to close, and branch deletion was out of scope for what was asked).
+      - >-
+        Confirmed the CI/CD and Codex-on-Hetzner infrastructure the owner
+        asked about already exists and is fully tested:
+        `gitops/agents/host/` (Codex worker as a systemd timer, reusing
+        `governor.py`'s budget/backoff logic unchanged),
+        `gitops/ci/host/` (self-hosted GitHub Actions runner as a systemd
+        service), and `gitops/prod/host/` (the portfolio site served from
+        the control-plane box's own nginx) all read `up`/tested in
+        `portfolio/ledger/infra_state.yaml`'s `codex-host-mode` row, with
+        one-command installers already written
+        (`bootstrap/scripts/setup-codex-host-from-laptop.sh`,
+        `bootstrap/restore-cluster.sh` with `WITH_CODEX_HOST=1`/
+        `WITH_GITHUB_RUNNER_HOST=1`/`WITH_PORTFOLIO_SITE_HOST=1`). All three
+        routes -- and therefore both "deploy marketing materials on
+        Hetzner" and "run Codex CLI on Hetzner" -- are blocked on the exact
+        same single owner-only action already ranked #1 in
+        `decision_queue.py` (`hetzner-ssh-key-is-a-public-key`: the
+        `HETZNERSSHKEY` secret holds a public key, and rotating it needs the
+        owner's own machine, per that row's `do:` instructions). No
+        duplicate ask was added. Re-measured CI: still starved
+        (`ci_starvation.py --run 34067672134`/`34067672073`/`34067672063`,
+        all `runner_id: 0`, 3s, no steps, on checks triggered by the
+        `main` merge immediately before this session started) -- consistent
+        with `infra_state.yaml`'s 2026-09-04..09-06 readings, so the
+        expectation stays a 2026-10-01 allowance reset. The live deploy
+        route (`gh-pages` branch / GitHub Pages) was current against `main`
+        at session start (`pages_state.py`: snapshot built from `main`'s own
+        tip) with no republish owed at that point.
+      - >-
+        Since the Hetzner-dependent asks were already fully built and
+        correctly queued, and the PR/branch queue was empty, did the
+        highest-value reachable work: (1) found the same real, pre-existing
+        CI break on `main` that a concurrent sibling session (#3588) also
+        found and fixed a few minutes into this one --
+        `portfolio/scoring/venture-scores.yaml` had no merit-score entry for
+        `home-staging-bid-calculator` (graduated by an earlier sibling
+        session, #3580), failing
+        `portfolio/scoring/test_score_ventures.py::test_committed_scores_are_valid`
+        and `portfolio/router/test_allocate.py::test_real_scores_file_covers_every_real_venture`
+        -- wrote the same fix independently (composite 6.333, same six
+        dimensions), then on merging found #3588 had already landed an
+        equivalent entry first and kept theirs rather than carrying a
+        redundant duplicate score row. (2) Shipped a second comparison page
+        for the same venture,
+        `vs-honeybook.html` (HoneyBook: a real, well-documented CRM/
+        proposal/invoicing platform used by home stagers, confirmed via
+        WebSearch against honeybook.com's own business-type page and a
+        staging-industry blog post recommending it -- no dollar figure
+        stated for it, same discipline as every other `vs-*.html` page in
+        this repo, since its pricing page is not reachable from this
+        session's sandboxed egress). A concurrent sibling session shipped
+        `vs-hutch.html` for the same venture minutes into this one; the two
+        did not collide (different files) except in the shared,
+        one-line `sitemap.xml` and the generated `gitops/prod/front-door*`
+        mirror, both resolved by hand (merge both `<url>` entries; re-run
+        `regen.mjs` for the generated side) rather than picking one over
+        the other.
+      - >-
+        Verified: 59/59 tests in `ventures/home-staging-bid-calculator`
+        (its pre-existing 44 + this session's 15 `vs-honeybook.test.mjs`,
+        after the concurrent `vs-hutch` merge). Ran the full CLAUDE.md
+        starvation-window checklist post-merge and post-`regen.mjs`:
+        `checklist_coverage.py` clean; 1140/1140 `platform/marketing` +
+        `platform/pages` tests; 490/490 `gitops/tests` pytest; 101/101
+        `platform/proposal`; 66/66 `platform/privacy` + `platform/webcheck`;
+        all 15 `platform/ci` unittest modules plus `agent_review`'s
+        `test_review` (21/21); 380 passed (8 subtests) across
+        `portfolio/ledger`/`scoring`/`router`/`usage`/`pipeline` +
+        `infra/tests` (up from 377 passed / 3 failed before the
+        scoring-gap fix). No new user-typed input fields were added (the
+        new page is informational only, same shape as the fleet's other
+        `vs-*.html` pages), so the heavier Playwright/axe install was not
+        run for this change; every touched field remains inside the
+        already-shipped, already axe-clean calculator markup.
+      - >-
+        Not yet done: republish `gh-pages` (owed after this merge, since it
+        touches a served surface) and re-run `pages_state.py
+        --require-current` -- left for whichever session merges this, per
+        CLAUDE.md, to avoid a second session racing this one's own publish.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Another scheduled direction-setting session (same owner brief as the
         entry above, ~2 hours earlier: push the fleet toward viable,
         donation-revenue businesses, keep customers happy, avoid legal

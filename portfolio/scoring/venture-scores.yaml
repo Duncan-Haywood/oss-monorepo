@@ -6674,6 +6674,7 @@ ventures:
       determination about ice-dam prevention. The tool never touches a live
       transaction or anyone else's data, and it is not a safety or
       fall-protection assessment. Nothing entered leaves the browser.
+
   - slug: home-staging-bid-calculator
     scores:
       ai_leverage: 1
