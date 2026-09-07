@@ -271,8 +271,8 @@
       "name": "Reverb Fee Calculator — Offer vs List, Cash vs Consign",
       "url": "https://marisstella.dev/tools/reverb-fee-calculator/",
       "category": "Marketplace seller tools",
-      "description": "See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, whether consigning or taking a shop cash offer still beats listing it yourself, and how big a partial refund still beats taking a return.",
-      "pages": 9
+      "description": "See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether it is worth taking now versus waiting for a better one, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, whether consigning or taking a shop cash offer still beats listing it yourself, and how big a partial refund still beats taking a return.",
+      "pages": 10
     },
     {
       "slug": "3pl-quote-normalizer",
@@ -728,7 +728,7 @@
       "url": "https://marisstella.dev/tools/dog-walking-route-pricing/",
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "dryer-vent-bid-calculator",
@@ -808,7 +808,7 @@
       "url": "https://marisstella.dev/tools/equipment-lease-buyout-calculator/",
       "category": "Back-office money & contracts",
       "description": "Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "equipment-rental-break-even",
@@ -824,7 +824,7 @@
       "url": "https://marisstella.dev/tools/ev-charger-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential Level 2 EV charger install from the circuit, the run, the trench, and the panel work — not a flat hang fee. See labor hours, voltage drop, the walk-away price, and why a detached garage is a different job.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "exterior-painting-bid-calculator",
@@ -1184,7 +1184,7 @@
       "url": "https://marisstella.dev/tools/photo-booth-event-quote/",
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "plantation-shutter-bid-calculator",
@@ -1496,7 +1496,7 @@
       "url": "https://marisstella.dev/tools/vending-machine-route-margin/",
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "vendor-change-watch",

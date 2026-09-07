@@ -18563,3 +18563,123 @@ entries:
         `sitemap.xml`, and the mirror shards after the fix, not just in
         the tool-count total.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Branch/PR-drain phase first, per the standing three-PR floor: zero
+        open PRs existed (confirmed twice, `list_pull_requests` and a
+        `search_pull_requests` query), so the floor was met vacuously and the
+        remote-branch backlog was screened instead. 276 remote heads, 107 with
+        commits not reachable from `origin/main`; the 12 freshest were checked
+        by file and symbol presence against `main` rather than by commit count
+        -- `pour-cost-calculator`'s pages, `owner-operator-cpm/vs-dat-rateview`,
+        `locksmith/vs-jobber`, `build.mjs`'s `toolProseName`,
+        `platform/pages/input-label.test.mjs`, the ATM and custom-farm guide
+        pages -- and every one is already on `main`. Independently reaches the
+        same conclusion the 2026-09-05 and 2026-09-07 sessions did: the branch
+        backlog is spent. No PR was opened for any of them.
+      - >-
+        Product work, marketing: four shipped ventures carried a `vs-`
+        comparison page but no informational guide page, so nothing on them
+        answered the question a buyer actually searches. `guide-coverage.mjs`
+        reports 190/190 because it counts any secondary page, which is
+        deliberate -- the gap is real but narrower than that tool measures.
+        Added one question-shaped guide each, wired into `index.html` and
+        `sitemap.xml`: `equipment-lease-buyout-calculator/
+        should-i-buy-out-my-equipment-lease.html`, `photo-booth-event-quote/
+        how-much-to-charge-for-a-photo-booth-rental.html`,
+        `dog-walking-route-pricing/how-much-to-charge-for-a-dog-walk.html`,
+        `vending-machine-route-margin/
+        how-much-does-a-vending-machine-actually-make.html`.
+      - >-
+        Every worked example is computed from the venture's own `calc.mjs`
+        and asserted against it in a test rather than transcribed, because
+        nothing in the build recomputes prose -- a rate change would leave a
+        guide confidently quoting stale arithmetic. That test caught two real
+        errors before they shipped: the dog-walking income gap was written as
+        68 additional visits when `incomeGap` at the route's own average price
+        returns 65, and the vending gross was written `$294` where the
+        calculator's formatting gives `$294.00`. `faq-duplicate.test.mjs`
+        caught a third -- an `<h2>` on the vending guide identical to one of
+        its own FAQ questions, which would have shown a reader the same
+        answer twice and repeated it in `FAQPage` schema.
+      - >-
+        Found and started fixing a validator red on `main` since #3556
+        (2026-09-06), unseen because Actions has been starved since
+        2026-09-04 and CLAUDE.md's local-CI checklist does not name it:
+        `check_ask_hosts.py`. Two false-positive hostnames -- the bare
+        `github.io`, named in `deploy-settings` only to explain why a session
+        cannot confirm the live site, and `stripe.accounts` /
+        `stripe.checkout.sessions.create`, which are SDK method paths. A
+        concurrent session shipped the identical fix as #3612 while this
+        branch was building, so `main`'s copy of `check_ask_hosts.py` and
+        `test_consolidate.py` was taken wholesale and this branch's duplicate
+        comments and duplicate regression tests dropped. Recorded because the
+        previous session saw the same failure and logged it as pre-existing:
+        two sessions independently reaching the same fix is the cost of a
+        validator that CLAUDE.md's checklist omits.
+      - >-
+        Left undone deliberately: `vendor-change-watch` is the fifth venture
+        in that state, and its guide would be qualitative rather than
+        arithmetic (it diffs vendor terms pages). `guide-coverage.mjs`'s own
+        header warns that a thin guide page is worse than none because it
+        competes with the tool for the same query, so it is named here as
+        follow-up rather than filled in to clear a count.
+      - >-
+        Verification, all local -- Actions is still starved, re-measured this
+        session rather than inherited: `ci_starvation.py --run 34082282543`
+        reports `runner_id: 0`, holding the window that opened
+        2026-09-04T22:39Z open for three days, and PR #3616 registered zero
+        check runs at all. Ran `node --test` across `platform/marketing`,
+        `platform/pages`, `platform/proposal`, `platform/privacy`,
+        `platform/webcheck` (1322 pass) and each touched venture (332 pass);
+        `clauses.mjs` (749 pages across 190 surfaces); `regen.mjs`;
+        `build.mjs` + `check.mjs` (783 pages, no dead links); the eight
+        validators plus `run_workflow_locally.py --for-changes`; `python3 -m
+        pytest gitops/tests` (490 pass, 25 skipped), `portfolio/*` +
+        `infra/tests` (409 pass), and all 19 `platform/ci` unittest modules.
+      - >-
+        Ran the browser checks, which CLAUDE.md records sessions skipping for
+        want of one `npm install` line -- `npm install --no-save
+        playwright@1.56.0 axe-core` in a single command, as that section
+        warns. All seven passed catalogue-wide (773 pages: sideways, presets,
+        66/66 pickers, 162/162 share-link round-trips, 103/103 highlights,
+        contrast, sweep, journey), and the four new guide pages were then
+        re-checked on their own: 14 pages, desktop and phone, no WCAG A/AA
+        violations and no sideways scroll. Two `hetzner-gitops-ci.yml` steps
+        fail in this sandbox only -- `tofu` is not installed (its
+        `setup-opentofu` step is a `uses:`, which the local runner skips) and
+        the `pytest` on PATH resolves an interpreter without `yaml`, while
+        `python3 -m pytest gitops/tests` passes. Neither is a repo failure.
+      - >-
+        Concurrency was the ordinary case rather than the exception: `main`
+        moved four times during the run (#3612, #3613, #3614, #3615). Each
+        front-door mirror conflict was resolved with
+        `platform/marketing/resolve-mirror-merge.sh` rather than by picking a
+        side, since the shards pack sequentially and either side is stale on
+        merge. One merge conflicted in this ledger instead, and the first
+        resolution attempt committed conflict markers into it -- caught
+        immediately by a marker grep and a `yaml.safe_load` parse, then fixed
+        by resetting the file to `main`'s copy and re-appending this entry so
+        the concurrent session's entry survives intact.
+      - >-
+        Owner-blocked, not re-asked: the run's brief named Hetzner deployment,
+        marketing on the Hetzner VMs, and a Codex CLI worker there. All three
+        are code-complete and gated on the single existing ask
+        (`hetzner-ssh-key-is-a-public-key` -- `HETZNERSSHKEY` holds a public
+        key). `gitops/agents/host/` and `bootstrap/scripts/
+        install-codex-host.sh` already implement the Codex host worker, and
+        `gitops/agents/workers/mandate.md` already carries a mandate close to
+        this session's brief; `gitops/prod/host/` already implements a
+        pull-based site deploy. `restore-cluster.sh` with `WITH_CODEX_HOST=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1` is the whole
+        recovery in one run. No duplicate ask added. Re-confirmed the session
+        sandbox still cannot fetch the live Pages origin (`403 to CONNECT` for
+        `github.io`), so `github-pages-origin` stays unconfirmed by a
+        logged-out fetch.
+      - >-
+        Refreshed the `gh-pages` snapshot after merge, since a committed
+        artifact does not rebuild itself and no runner is available to do it.
+    mrr_end: null
