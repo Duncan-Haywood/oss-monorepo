@@ -19132,3 +19132,57 @@ entries:
         `score_ventures.py --check` clean across 210; `siblings.mjs --check`
         142 orphans within budget at 201 tools.
     mrr_end: null
+  - venture: license-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and graduated a new, genuinely non-duplicate niche per
+        `portfolio/pipeline/README.md`'s "archetype itself" section (2026-09-07):
+        a free CLI + browser tool that diffs two point-in-time snapshots of a
+        dependency tree's declared licenses (npm/pip/cargo/go) and reports
+        exactly which packages' license changed, were added, or were removed
+        since the last snapshot -- the gap Dependabot and Renovate leave open,
+        since both watch versions and vulnerabilities and neither diffs the
+        license field. `duplicate_check.py` scored it below 0.10 against
+        every existing venture, screened-out.md row, and pipeline candidate.
+      - >-
+        Channel evidence, not "it's searchable": four widely used open-source
+        projects relicensed away from a permissive/weak-copyleft license via
+        a routine version bump their existing users did not choose --
+        MongoDB to SSPL (2018-10-16), Elasticsearch/Kibana to SSPL/Elastic
+        License (2021-01-14, AWS forked as OpenSearch within three months),
+        Terraform to BUSL-1.1 (2023-08-10, the OpenTF Manifesto gathered
+        33,000+ GitHub stars within a month and produced the OpenTofu fork,
+        now a CNCF project), and Redis to SSPLv1/RSALv2 (2024-03-20, forked
+        as Valkey under the Linux Foundation within days, backed by AWS,
+        Google Cloud, and Oracle). Confirmed by web search on 2026-09-07 that
+        neither Dependabot's nor Renovate's own feature set includes
+        license-change detection. Dates and outcomes verified against
+        multiple independent sources per event, not asserted from training
+        data alone.
+      - >-
+        Built and tested: `engine.mjs` (snapshot parsing accepting JSON and
+        CSV/pip-licenses/go-licenses-shaped input, license-family
+        classification, the diff itself), `cli.mjs` (`snapshot` scans a local
+        `node_modules` tree with no network call; `diff` compares two files
+        and exits 1 on any unignored license change), a browser page that
+        parses pasted snapshots client-side, and a docs page with per-ecosystem
+        snapshot commands and a ready-to-paste CI step. 37 `node --test`
+        assertions across engine/cli/page tests, including the one
+        disambiguation the whole tool exists to get right: SPDX `BSL-1.0`
+        (Boost Software License, permissive) versus the colloquial "BSL"
+        that means `BUSL-1.1` (Business Source License, source-available).
+      - >-
+        Definition-of-done checklist run: `platform/pages/clauses.mjs
+        license-drift-check` (both pages carry the no-warranty clause),
+        `check_no_payment_code.py` (clean, no payment code of any kind),
+        `portfolio/router/validate.py` (all 210 VENTURE.yaml valid),
+        `portfolio/usage/validate_usage.py` (usage.yaml entry added, valid),
+        `node platform/marketing/regen.mjs` (mirror + front-door regenerated,
+        201 tools), `node platform/pages/launched.mjs --write` (entered the
+        Atom feed), and `node --test` across the venture's own suites plus
+        `platform/marketing/*.test.mjs` and `platform/pages/*.test.mjs`.
+        `check_ledger_only.py` run before pushing -- this entry ships in the
+        same PR as the code, not on its own.
+    mrr_end: 0

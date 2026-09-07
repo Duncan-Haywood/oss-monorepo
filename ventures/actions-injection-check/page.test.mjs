@@ -112,3 +112,14 @@ test('index links one hop to the pinned-actions-check sibling', () => {
     'index must link ../pinned-actions-check/ so crawlers reach the pinned-actions checker in one hop',
   );
 });
+
+// Second sibling link, closing the crawlable orphan license-drift-check
+// shipped with: both are free, deterministic, paste-and-diff CI checkers,
+// just for a different surface (workflow YAML vs. dependency licenses).
+test('index links one hop to the license-drift-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/license-drift-check\/"/,
+    'index must link ../license-drift-check/ so crawlers reach the license-drift checker in one hop',
+  );
+});

@@ -30,8 +30,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { CHANNEL_PRESETS } from './calc.mjs';
-import { REVERB_DEFAULTS } from '../reverb-fee-calculator/calc.mjs';
+import { CHANNEL_PRESETS, calculateChannel } from './calc.mjs';
+import { REVERB_DEFAULTS, calculateReverbSale } from '../reverb-fee-calculator/calc.mjs';
 
 const reverb = CHANNEL_PRESETS.find((preset) => preset.id === 'reverb');
 
@@ -48,6 +48,11 @@ test('the Reverb fee assumptions match the dedicated calculator exactly', () => 
     'selling fee disagrees with reverb-fee-calculator',
   );
   assert.equal(
+    reverb.commissionBase,
+    'item',
+    'Reverb selling fee must apply to the item price only, matching reverb-fee-calculator',
+  );
+  assert.equal(
     reverb.paymentRate,
     REVERB_DEFAULTS.paymentRate,
     'payment processing rate disagrees with reverb-fee-calculator',
@@ -57,6 +62,28 @@ test('the Reverb fee assumptions match the dedicated calculator exactly', () => 
     REVERB_DEFAULTS.paymentFixed,
     'fixed payment fee disagrees with reverb-fee-calculator',
   );
+});
+
+test('Reverb net profit matches the dedicated calculator on the shared worked example', () => {
+  // Rate equality alone is not enough: before this assertion existed, both
+  // tools quoted 5% and still disagreed by shippingCharged × 5% because this
+  // page charged the selling fee on the order total. A seller who follows the
+  // handoff watches profit change with no input change — the credibility
+  // failure this file exists to prevent.
+  const shared = {
+    price: REVERB_DEFAULTS.price,
+    shippingCharged: REVERB_DEFAULTS.shippingCharged,
+    shippingCost: REVERB_DEFAULTS.shippingCost,
+    itemCost: REVERB_DEFAULTS.itemCost,
+    packagingCost: 0,
+    otherCost: REVERB_DEFAULTS.otherCost,
+    monthlyOrders: 1,
+  };
+  const here = calculateChannel({ ...reverb, enabled: true }, shared);
+  const there = calculateReverbSale(REVERB_DEFAULTS);
+  assert.equal(here.fees.commission, there.fees.marketplace, 'selling fee on the same item');
+  assert.equal(here.fees.payment, there.fees.payment, 'processing fee on the same order');
+  assert.equal(here.profit, there.profit, 'net profit must not jump across the handoff');
 });
 
 test('Reverb bills processing separately, unlike eBay', () => {
