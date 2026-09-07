@@ -86,7 +86,31 @@ python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new ven
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
+python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches
 ```
+
+**That last line is not optional, and it is the one this block was missing
+until 2026-09-07.** Every line above it runs *tests*. `portfolio-validate.yml`
+also runs eight **validators** that no test file imports — `router/validate.py`,
+`front-door-tools.mjs --headroom`, `pipeline/validate_doc_consistency.py`,
+`pipeline/validate_candidates.py`, `probes/validate_probe_index.py`,
+`pipeline/score_sensitivity.py`, `scoring/score_ventures.py --check`,
+`usage/validate_usage.py` — and they check the thing tests cannot: whether the
+*committed data* still agrees with itself across files.
+
+Measured 2026-09-07: `main` was red on `validate_doc_consistency.py` and had
+been for at least a day. Two real inconsistencies, one of them a README row
+whose own cell said `Appended out of composite order ... to avoid renumbering
+the table`. Nothing caught it because Actions was starved, so CI never ran the
+validator, and this block — the list a session actually follows during a
+starvation window — ran every test in the repo and not one validator. The
+guard was correct, current, and shouting into an empty room.
+
+Prefer `run_workflow_locally.py` to pasting those eight commands here. It reads
+the workflow files and runs their `run:` steps, so it cannot go stale the way a
+hand-copied list does — which is the same import-don't-restate lesson this file
+records twice against the front-door mirror, and once already against
+`platform/proposal/`.
 
 (`pip install pytest` first in a web session — the image has Python but not
 pytest, so that `gitops/tests` line exits `No module named pytest` rather than
