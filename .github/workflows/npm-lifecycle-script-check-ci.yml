@@ -1,13 +1,12 @@
 name: npm-lifecycle-script-check CI
 
-# Zero-dependency Node tool: `engine.mjs` is the classifier, `cli.mjs` wraps it
-# for the terminal, and the page runs the same engine in the browser. Keep all
-# three covered independently of the portfolio-wide validation workflow, which
-# only checks published pages and does not run venture unit tests.
-#
-# Added because `platform/ci/validate_workflows.py` went red on `main` when the
-# venture merged (#3856) with no workflow filtering on its path: its three test
-# files ran only on a contributor's machine.
+# Zero-dependency CLI/browser tool: `engine.mjs` is the shared diff engine,
+# `cli.mjs` is the Node gate, and `page.test.mjs` covers the page wiring.
+# Keep all three covered independently of the portfolio-wide validation
+# workflow, which only checks published pages and does not run venture
+# unit tests. Without this file, `validate_workflows.py` would fail the
+# moment the venture's `*.test.mjs` files land -- the same hole
+# `license-drift-check-ci.yml` documents.
 on:
   pull_request:
     paths:
@@ -40,9 +39,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Run classifier tests (the engine both surfaces share)
-        run: node --test engine.test.mjs
-      - name: Run CLI tests (argument handling, exit codes, output)
-        run: node --test cli.test.mjs
-      - name: Run page tests (disclaimers, SEO metadata, sitemap coverage)
-        run: node --test page.test.mjs
+      - name: Run diff engine, CLI, and page-wiring tests
+        run: node --test engine.test.mjs cli.test.mjs page.test.mjs
