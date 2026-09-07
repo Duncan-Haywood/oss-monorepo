@@ -87,6 +87,7 @@ python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches
+python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now?
 ```
 
 **That last line is not optional, and it is the one this block was missing
@@ -111,6 +112,35 @@ the workflow files and runs their `run:` steps, so it cannot go stale the way a
 hand-copied list does — which is the same import-don't-restate lesson this file
 records twice against the front-door mirror, and once already against
 `platform/proposal/`.
+
+**`--tree` was added 2026-09-07, and the reason is that `--for-changes` cannot
+answer the question this section is actually about.** It selects workflows by
+your *diff*, so on a clean checkout of `main` it prints `No files differ from
+origin/main; nothing to verify` and exits 0 — correct for "is my change sound?"
+and useless for "is `main` green?". Every guard in this file was therefore
+still, in one specific sense, only ever run by someone who happened to be
+changing something.
+
+Measured the same day: `scoring/score_ventures.py --check` was red on `main`
+and had been across five merges. #3615 graduated
+`actions-runner-starvation-check` without a row in `venture-scores.yaml`, and
+`--check` fails by design when the scored set and the set of `VENTURE.yaml`
+files disagree. Actions has been starved since 2026-09-04
+(`ci_starvation.py --run 34089278449`: `runner_id: 0`, 3s, no steps), so CI
+never ran it; four later merges each verified their own diff, correctly, and
+none of those diffs touched scoring. That is the third instance of this exact
+shape in ten days — 2026-08-29's two red steps, 2026-09-07's
+`validate_doc_consistency.py`, now this — and all three were found by a session
+that happened to look rather than by anything that asks.
+
+`--tree` asks. It ignores the diff and runs every workflow in
+`VERIFICATION_ONLY` against the checkout as it stands, so a red `main` is one
+command rather than a coincidence. It sweeps that list and not the whole
+directory on purpose: a sweep is the mode most likely to be run unattended,
+which is exactly where a deploying or branch-deleting step would arrive
+unnoticed. Run it after `git fetch origin main && git reset --hard origin/main`
+to read `main` itself, or on your branch to check the tree you are about to
+push. An empty selection exits 1 — "nothing ran" must never read as a pass.
 
 (`pip install pytest` first in a web session — the image has Python but not
 pytest, so that `gitops/tests` line exits `No module named pytest` rather than

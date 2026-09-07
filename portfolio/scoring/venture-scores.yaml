@@ -6770,3 +6770,61 @@ ventures:
       bartender. The tool never touches a live transaction, a POS, or
       anyone else's data; nothing entered leaves the browser and nothing is
       saved between sessions.
+  - slug: actions-runner-starvation-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The whole argument of the tool is
+      that one field decides — a job GitHub scheduled carries a nonzero
+      `runner_id`, one it never reached carries 0 — so anything that
+      inferred rather than read that field would be strictly worse than the
+      field itself. Duration and an empty output body are reported for
+      context and never get a vote, which is the property a model-based
+      classifier could not offer.
+    basis: >-
+      Graduated and merged 2026-09-07 in #3615, which shipped the venture
+      without a row here; `score_ventures.py --check` was red on `main`
+      from that merge until this entry, invisible because Actions has been
+      starved since 2026-09-04 (`ci_starvation.py --run 34089278449`:
+      `runner_id: 0`). Scored on this file's six-dimension rubric to
+      restore coverage. Unlike the 141 arithmetic bid/margin calculators
+      that dominate the catalogue, this is a CLI-plus-browser developer
+      tool ported from an internal one (`platform/ci/ci_starvation.py`)
+      that was built and proven against this repository's own real
+      starvation incidents — see `portfolio/pipeline/README.md`'s
+      archetype-saturation note.
+      Time to revenue 3, the lowest non-AI score in this file: the audience
+      is developers reading a red check during an incident, a segment with
+      a strong free-utility norm and no purchase moment at the point of
+      use. That is a lower number than the trade calculators (typically 6)
+      score, and it is meant to be — those are used by an operator pricing
+      a job they are about to be paid for.
+      Defensibility 4: the mechanism is a single documented API field, so
+      the tool is trivially reimplementable once the insight is stated in
+      public — which this venture's own landing page does. What is not
+      trivially copied is the ported test suite covering the confusable
+      cases (a genuine failure that also finishes in three seconds, a run
+      that died before any step, a partially-assigned matrix).
+      Distribution 5: search demand is real but episodic rather than
+      steady — it spikes exactly when an account is starved and is near
+      zero otherwise — against free, named developer channels (r/github,
+      GitHub Community discussions, HN) and no measured volume.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool reports what GitHub's own API returned about a job the
+      caller already has access to, and makes no claim about billing state,
+      account standing, or why runners are unavailable — the README says
+      explicitly that it is not a substitute for the billing page. It reads
+      with the caller's own token, stores nothing, and never writes to any
+      repository.

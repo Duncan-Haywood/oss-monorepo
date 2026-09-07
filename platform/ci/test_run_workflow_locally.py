@@ -2,6 +2,7 @@
 """Unit tests for the local workflow runner."""
 from __future__ import annotations
 
+import argparse
 import io
 import contextlib
 import os
@@ -637,6 +638,71 @@ class ForChanges(unittest.TestCase):
 
     def test_naming_nothing_at_all_is_refused(self):
         self.assertEqual(runner.main([]), 2)
+
+
+class Tree(unittest.TestCase):
+    """`--tree`: is this checkout green, independent of any diff?
+
+    The mode exists because `--for-changes` on a clean `main` correctly
+    reports "nothing to verify", which left no way to ask whether `main`
+    itself was green -- and `score_ventures.py --check` stayed red across
+    five merges as a result, invisible because Actions was starved.
+    """
+
+    def selected(self):
+        return runner.pick_workflows(
+            lambda name, _wf: name in runner.VERIFICATION_ONLY)
+
+    def test_it_selects_every_verification_only_workflow(self):
+        selected, held = self.selected()
+        seen = {name for name, *_ in selected} | {name for name, *_ in held}
+        # Not a subset assertion: a workflow silently dropping out of the
+        # sweep is exactly the failure this mode was built to stop, and a
+        # subset check would pass while it happened.
+        self.assertEqual(seen, set(runner.VERIFICATION_ONLY))
+
+    def test_it_ignores_the_diff_entirely(self):
+        # The point of the mode. `selects()` gates --for-changes on the
+        # paths filter; this must reach the same workflows with no diff.
+        selected, _ = self.selected()
+        self.assertIn("portfolio-validate.yml", {n for n, *_ in selected})
+
+    def test_the_sweep_runs_the_step_that_was_red_on_main(self):
+        # score_ventures.py --check is the concrete regression: merged red
+        # in #3615 and unnoticed. If it ever leaves this workflow, the
+        # sweep stops covering the case it was built for, and this fails.
+        selected, _ = self.selected()
+        workflow = next(wf for name, wf, _ in selected
+                        if name == "portfolio-validate.yml")
+        steps, _ = runner.collect(workflow)
+        self.assertTrue(
+            any("score_ventures.py --check" in s.run for s in steps),
+            "the whole-tree sweep no longer runs score_ventures.py --check")
+
+    def test_it_never_sweeps_a_workflow_that_is_not_verification_only(self):
+        # A sweep is the mode most likely to be run unattended, so this is
+        # the boundary that matters most. branch-cleanup.yml deletes
+        # branches.
+        selected, held = self.selected()
+        seen = {name for name, *_ in selected} | {name for name, *_ in held}
+        self.assertNotIn("branch-cleanup.yml", seen)
+
+    def test_tree_with_a_workflow_name_is_refused(self):
+        self.assertEqual(runner.main(["portfolio-validate.yml", "--tree"]), 2)
+
+    def test_tree_with_for_changes_is_refused(self):
+        self.assertEqual(runner.main(["--tree", "--for-changes"]), 2)
+
+    def test_an_empty_selection_fails_rather_than_reporting_a_pass(self):
+        # "Nothing ran" must never exit 0: that is the reading this
+        # repository is worst at noticing, and an unattended sweep is
+        # where it would do the most damage.
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner._run_selected(
+                argparse.Namespace(list=False, timeout=1), [], [])
+        self.assertEqual(code, 1)
+        self.assertIn("nothing was verified", out.getvalue().lower())
 
 
 if __name__ == "__main__":

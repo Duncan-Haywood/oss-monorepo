@@ -29,8 +29,17 @@ So this reads the workflow file and runs its `run:` steps in order, in
 each step's `working-directory`, and reports which passed.
 
     python3 platform/ci/run_workflow_locally.py --for-changes
+    python3 platform/ci/run_workflow_locally.py --tree
     python3 platform/ci/run_workflow_locally.py portfolio-validate.yml
     python3 platform/ci/run_workflow_locally.py --list portfolio-pages.yml
+
+`--for-changes` and `--tree` ask different questions and the difference
+matters. The first is "is my diff sound?" and on a clean checkout it
+correctly reports nothing to verify. The second is "is this checkout
+green?", which nothing here could answer until 2026-09-07 -- so a validator
+that went red on `main` stayed red until a session improvised the list by
+hand, which is the very thing the paragraph below says this tool replaced.
+`score_ventures.py --check` was red across five merges that way.
 
 Choosing the workflow is the other half. Running the right steps of the
 wrong workflow verifies nothing, and `AGENTS.md` named only
@@ -523,13 +532,14 @@ def report(name, steps, uses_skipped, forced) -> int:
     return 0
 
 
-def run_for_changes(args) -> int:
-    """Select workflows by the current diff, then run the read-only ones."""
-    changed = changed_paths(args.for_changes)
-    if not changed:
-        print(f"No files differ from {args.for_changes}; nothing to verify.")
-        return 0
+def pick_workflows(wanted) -> tuple[list, list]:
+    """Every workflow `wanted` accepts, split into runnable jobs and held ones.
 
+    `wanted(name, workflow) -> bool` is the only difference between selecting
+    by diff and sweeping the whole tree, so it is the only thing the two
+    callers below supply. Keeping one selector means a workflow that becomes
+    invisible to one mode cannot stay visible to the other.
+    """
     selected, held = [], []
     for name in sorted(os.listdir(WORKFLOWS)):
         if not name.endswith((".yml", ".yaml")):
@@ -540,16 +550,68 @@ def run_for_changes(args) -> int:
             # An unparseable workflow is `validate_workflows.py`'s finding to
             # report, not this tool's to fail on.
             continue
-        if not isinstance(workflow, dict) or not selects(workflow, changed):
+        if not isinstance(workflow, dict) or not wanted(name, workflow):
             continue
         allowed, blocked = read_only_jobs(workflow)
         held.extend((name, job_id, why) for job_id, why in blocked)
         if allowed:
             selected.append((name, workflow, allowed))
+    return selected, held
+
+
+def run_tree(args) -> int:
+    """Run every verification-only workflow against the tree as it stands.
+
+    `--for-changes` answers "is my diff sound?", and on a clean checkout of
+    `main` it correctly answers "nothing to verify" -- which is why nothing
+    in this repository could answer the *other* question, "is `main` itself
+    green?", without a session improvising the list by hand. That is the
+    same improvising the module docstring above says this tool exists to
+    replace; it had simply been left in place for one caller.
+
+    It is not hypothetical. `portfolio/scoring/score_ventures.py --check`
+    went red on `main` when #3615 merged a venture without a score row, and
+    stayed red across four further merges, because Actions has been starved
+    since 2026-09-04 (`ci_starvation.py --run 34089278449`: `runner_id: 0`)
+    and no local run asks this question. The same shape as 2026-08-29's two
+    red steps and 2026-09-07's `validate_doc_consistency.py`, all three
+    caught late by a session that happened to look.
+
+    Selection is `VERIFICATION_ONLY` rather than "every workflow": a sweep
+    is the mode most likely to be run unattended, so widening it to the
+    whole directory is exactly where a deploying or branch-deleting step
+    would arrive unnoticed. `read_only_jobs` still screens what is left.
+    """
+    selected, held = pick_workflows(lambda name, _wf: name in VERIFICATION_ONLY)
+    missing = sorted(VERIFICATION_ONLY - {name for name, *_ in selected}
+                     - {name for name, *_ in held})
+    print(f"Whole-tree sweep: {len(selected)} verification-only workflow(s) "
+          "selected, regardless of the diff.")
+    for name in missing:
+        print(f"  [absent] {name}: named in VERIFICATION_ONLY but not in "
+              f"{os.path.relpath(WORKFLOWS, REPO)}")
+    return _run_selected(args, selected, held, absent=missing)
+
+
+def run_for_changes(args) -> int:
+    """Select workflows by the current diff, then run the read-only ones."""
+    changed = changed_paths(args.for_changes)
+    if not changed:
+        print(f"No files differ from {args.for_changes}; nothing to verify.")
+        print("  That answers 'is my diff sound?'. To ask whether the tree "
+              "itself is green, run --tree.")
+        return 0
+
+    selected, held = pick_workflows(lambda _n, wf: selects(wf, changed))
 
     workflows = {name for name, *_ in selected} | {name for name, *_ in held}
     print(f"{len(changed)} changed file(s) against {args.for_changes} select "
           f"{len(workflows)} workflow(s).")
+    return _run_selected(args, selected, held)
+
+
+def _run_selected(args, selected, held, absent=()) -> int:
+    """Execute the chosen workflows' read-only steps and report."""
     for name, job_id, why in held:
         print(f"  [held  ] {name} / {job_id}: {why}; run it by name with "
               "--force if you have read it")
@@ -577,6 +639,17 @@ def run_for_changes(args) -> int:
         print("  Not a clean sweep: " + ", ".join(
             f"{name}/{job_id}" for name, job_id, _ in held)
             + " were selected and not run. Say so in the pull request.")
+    # An empty selection must never read as a pass. A sweep that matched no
+    # workflow at all verified nothing, which is the outcome this repository
+    # is worst at noticing -- the same reason `report()` above fails on a run
+    # with no executed steps.
+    if not selected:
+        print("  Nothing was selected, so nothing was verified.")
+        return 1
+    if absent:
+        print("  Not a clean sweep: " + ", ".join(absent)
+              + " named in VERIFICATION_ONLY but absent from the tree.")
+        return 1
     return 1 if failures else 0
 
 
@@ -588,6 +661,11 @@ def main(argv=None) -> int:
     ap.add_argument("--for-changes", metavar="BASE", nargs="?", const="origin/main",
                     help="run every workflow the current diff against BASE "
                          "would start (default base origin/main)")
+    ap.add_argument("--tree", action="store_true",
+                    help="run every verification-only workflow against the "
+                         "tree as it stands, ignoring the diff -- answers "
+                         "'is this checkout green?' where --for-changes "
+                         "answers 'is my diff sound?'")
     ap.add_argument("--list", action="store_true",
                     help="print the steps that would run, and run nothing")
     ap.add_argument("--force", action="store_true",
@@ -596,6 +674,13 @@ def main(argv=None) -> int:
                     help="per-step timeout in seconds (default 900)")
     args = ap.parse_args(argv)
 
+    if args.tree:
+        if args.workflow or args.for_changes:
+            print("pass --tree on its own, not with a workflow name or "
+                  "--for-changes", file=sys.stderr)
+            return 2
+        return run_tree(args)
+
     if args.for_changes:
         if args.workflow:
             print("pass a workflow name or --for-changes, not both", file=sys.stderr)
@@ -603,8 +688,8 @@ def main(argv=None) -> int:
         return run_for_changes(args)
 
     if not args.workflow:
-        print("name a workflow, or pass --for-changes to select by diff",
-              file=sys.stderr)
+        print("name a workflow, --for-changes to select by diff, or --tree "
+              "to sweep the whole checkout", file=sys.stderr)
         return 2
 
     name = os.path.basename(args.workflow)
