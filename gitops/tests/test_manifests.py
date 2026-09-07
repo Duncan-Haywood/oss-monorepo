@@ -1358,10 +1358,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 199 since 2026-09-07, when `actions-injection-check` graduated — same
     # shape again: a new venture with a static `index.html` from its first
     # commit, entering the mirror and the total together.
-    # 200 since 2026-09-07, when `childcare-tuition-calculator` graduated —
-    # same shape again: a new venture with a static `index.html` from its
-    # first commit, entering the mirror and the total together.
-    total = 200  # `infra/OWNER_CHECKLIST.md`'s own "N of the 200 tools" wording.
+    total = 199  # `infra/OWNER_CHECKLIST.md`'s own "N of the 199 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

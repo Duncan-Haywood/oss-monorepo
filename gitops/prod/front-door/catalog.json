@@ -9,7 +9,7 @@
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
   "served_here": 200,
-  "collection_total": 200,
+  "collection_total": 199,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -59,16 +59,16 @@
       "tool_count": 6
     },
     {
-      "id": "more",
-      "name": "More free tools",
-      "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
-    },
-    {
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
       "tool_count": 4
+    },
+    {
+      "id": "more",
+      "name": "More free tools",
+      "url": "https://marisstella.dev/c/more/",
+      "tool_count": 5
     }
   ],
   "tools": [
@@ -505,6 +505,14 @@
       "pages": 2
     },
     {
+      "slug": "actions-permissions-check",
+      "name": "Actions Permissions Check — Does Your GITHUB_TOKEN Use Least Privilege?",
+      "url": "https://marisstella.dev/tools/actions-permissions-check/",
+      "category": "More free tools",
+      "description": "Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "actions-runner-starvation-check",
       "name": "Actions Runner Starvation Check — Is Your Red CI Even Real?",
       "url": "https://marisstella.dev/tools/actions-runner-starvation-check/",
@@ -647,14 +655,6 @@
       "category": "Trade & contractor bids",
       "description": "Price a carpet install from floor yards, stairs, stretch-in versus glue-down versus carpet tile, patterned waste, and extras — plus the walk-away price a $2-a-yard special cannot see.",
       "pages": 3
-    },
-    {
-      "slug": "childcare-tuition-calculator",
-      "name": "Daycare Tuition Calculator",
-      "url": "https://marisstella.dev/tools/childcare-tuition-calculator/",
-      "category": "More free tools",
-      "description": "Free daycare and childcare tuition calculator. Price a classroom from your own child:staff ratio, staffing cost, and overhead, and see what an empty seat actually costs you at every occupancy level.",
-      "pages": 2
     },
     {
       "slug": "chimney-sweep-bid-calculator",

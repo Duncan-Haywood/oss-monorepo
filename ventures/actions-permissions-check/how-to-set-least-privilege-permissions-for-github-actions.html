@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to set least-privilege permissions for GitHub Actions</title>
+  <meta name="description" content="A workflow with no permissions: block runs with your repository or organization's default GITHUB_TOKEN permissions, which can be read-write on every scope. Here is how to set an explicit, minimal grant instead.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="how-to-set-least-privilege-permissions-for-github-actions.html">
+  <meta property="og:title" content="How to set least-privilege permissions for GitHub Actions">
+  <meta property="og:description" content="Start from permissions: contents: read at the workflow level, then add only the one scope a specific job needs. Here is the pattern and how to check it.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How to set least-privilege permissions for GitHub Actions","acceptedAnswer":{"@type":"Answer","text":"Set permissions: contents: read at the workflow level, then add the one extra scope a specific job needs directly on that job -- for example pull-requests: write only on the job that comments on a PR -- rather than granting every job the broader set."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Actions Permissions Check</a></p>
+  <h1>How to set least-privilege permissions for GitHub Actions</h1>
+  <p>Most workflows never mention <code>permissions:</code> at all:</p>
+  <pre><code>name: ci
+on: pull_request_target
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm test</code></pre>
+  <p>That job runs with whatever your repository's or organization's <em>default</em> <code>GITHUB_TOKEN</code> permissions are. Repositories created before 2023-02-02 default to read-write on every scope unless someone has since narrowed it in Settings → Actions → General. A workflow triggered by a pull request from a fork then runs with a token that can push commits or edit releases, even though this job only reads the checkout and runs tests.</p>
+  <h2>1. Set a minimal default at the workflow level</h2>
+  <p>Add a <code>permissions:</code> block near the top of the file, starting from <code>contents: read</code> — the narrowest grant most jobs actually need:</p>
+  <pre><code>permissions:
+  contents: read</code></pre>
+  <p>Every job in the file now runs with exactly that, unless a specific job overrides it.</p>
+  <h2>2. Escalate only on the job that needs more</h2>
+  <p>If one job in the workflow needs to comment on a pull request, give <em>that job</em> the extra scope rather than widening the workflow-level default for every job:</p>
+  <pre><code>jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm test
+  comment:
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh pr comment ...</code></pre>
+  <p>The <code>build</code> job still runs with the workflow-level <code>contents: read</code>; only <code>comment</code> gets the extra scope, and only for the duration of that job.</p>
+  <h2>3. Avoid <code>write-all</code></h2>
+  <p><code>permissions: write-all</code> grants every scope write access at once. It is explicit, which is better than nothing, but it is rarely what a job actually needs — replace it with the specific scopes the job's steps actually use.</p>
+  <h2>4. Check every workflow at once</h2>
+  <p><a href="./">Paste your workflow YAML into Actions Permissions Check</a> to find every workflow and job that still relies on the ambient default, or that grants <code>write-all</code>, across every file at once — or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if any workflow or job has no explicit permissions grant, or grants <code>write-all</code> — wire it into your own CI to block a newly-added unscoped workflow before it merges.</p>
+  <h2>What this does not tell you</h2>
+  <p>This tool cannot see your repository's or organization's actual default token setting — there is no public API for it — so an "unspecified" finding means the <em>file</em> doesn't say, not that your account is definitely misconfigured. And it never judges whether the scopes a workflow does declare are the minimum a job needs; deciding that is still yours to do.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. Verify before relying on the output. This is not a security audit or a compliance attestation, and it does not tell you your repository's actual default token permissions — only what a given workflow file does or does not make explicit.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+</body>
+</html>
