@@ -19336,3 +19336,138 @@ entries:
         concurrently in that PR, and this carries only the engine
         correction on top rather than re-landing either.
     mrr_end: 0
+  - venture: 3d-print-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, browser-only calculator for makers
+        selling 3D-printed parts. It prices one print from filament,
+        electricity, printer depreciation and a realistic failed-print rate,
+        then solves `price*(1 - fee%) - cost = price*(margin%)` directly for a
+        selling price that clears the marketplace fee at a target margin — the
+        part the common "3x filament cost" rule of thumb cannot do, because a
+        percentage-of-price fee is not a flat cost. A second panel checks a
+        price already being charged against the same break-even.
+        `duplicate_check.py` found nothing at or above the 0.45 bar (closest:
+        `shopify-fee-calculator`, 0.16).
+      - >-
+        Repaired before merge rather than merged as opened. #3924 had the
+        #3740 shape `platform/ci/check_venture_regression.py` exists to catch
+        — a tree captured before its own parent commit — so it would have
+        deleted `vscode-extension-drift-check`, which had merged as #3902
+        minutes earlier. That is the third instance of this exact shape
+        (#3740, #3902, #3924), and in all three the deletion arrived inside a
+        several-hundred-file generated-mirror diff where nothing reads as a
+        revert. Merged `main`, re-ran `regen.mjs`, and confirmed the guard
+        clean.
+      - >-
+        Also closed the three gaps the PR itself declared honestly rather
+        than leaving them for someone else. Restored
+        `.github/workflows/3d-print-price-calculator-ci.yml` verbatim from the
+        commit that removed it — the opening session's OAuth token lacked the
+        `workflow` scope and it had asked for exactly this. Ran the
+        `gitops/tests` suite it had recorded as UNRUN for want of pytest: 490
+        pass, 25 skipped. And completed the graduation cascade a new venture
+        always needs here: score row, `launched.json` entry,
+        `publish-surface.yaml` registration, the mirrored-tool count in five
+        places, and the `runs-on` counts via `sync_readme_counts.py` rather
+        than by hand.
+      - >-
+        Ratcheted `orphanBudget` 64 -> 63 rather than leaving slack, per that
+        file's own rule: the new venture cross-links `cut-list-optimizer`, the
+        one genuine topical sibling (both price a maker's production cost and
+        waste, for different materials), so it ships with an inbound link
+        instead of as a 210th crawlable orphan.
+    mrr_end: 0
+  # Restored 2026-09-07, not newly written. This entry was deleted by #3902's
+  # stale tree along with the venture itself; #3902's repair restored the
+  # venture, its score row, its CI workflow and its mirrored pages, but not
+  # this record, so `main` carried a shipped venture with no outcome entry.
+  # Recovered verbatim from 5a599b0bf, the commit that first wrote it. It
+  # rides here rather than in its own PR because CLAUDE.md's
+  # `check_ledger_only.py` correctly refuses a branch that is ledger prose and
+  # nothing else.
+  - venture: actions-self-hosted-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and graduated a new, genuinely non-duplicate niche per
+        `portfolio/pipeline/README.md`'s "archetype itself" section
+        (2026-09-07): a fifth `actions-*-check` GitHub Actions security
+        checker, orthogonal in mechanism to the four already live
+        (`actions-cache-poisoning-check`, `actions-injection-check`,
+        `actions-permissions-check`, `pinned-actions-check`). Those four ask
+        what a compromised step can do once it is running; this one asks who
+        gets to make a step run at all, and on whose machine: it flags every
+        job with `runs-on: self-hosted` inside a workflow triggered by
+        `pull_request`, `pull_request_target`, `workflow_run`, or
+        `issue_comment` -- GitHub's own documented reason not to use
+        self-hosted runners on a public repository.
+        `duplicate_check.py` scored the closest match (tied between
+        `actions-cache-poisoning-check` and `actions-injection-check`) at
+        0.14, well below the 0.45 read-this-first bar.
+      - >-
+        Channel evidence, not "it's searchable": this is literally the
+        condition GitHub's own "Security hardening for GitHub Actions" and
+        "About self-hosted runners" documentation warns against by name, and
+        the same category of risk the OpenSSF Scorecard project's
+        `Dangerous-Workflow` check flags on public repositories at scale --
+        a widely adopted, GitHub-recommended supply-chain scanner run
+        against hundreds of thousands of public repos, giving a
+        Scorecard-flagged maintainer a second, concrete search-driven route
+        to this tool beyond GitHub's own docs. Real, narrow developer search
+        terms: "self-hosted runner public repository security", "self-hosted
+        runner fork pull request risk".
+      - >-
+        Built and tested exactly on the established sibling shape: `check.py`
+        (zero-dependency, stdlib-only classifier reading `.github/workflows/`
+        from disk, `--format json` and `--fail-on-risk` for CI use) and
+        `classify.mjs` (byte-identical browser port, pinned to the CLI by a
+        parity test that shells out to `python3 check.py` on the same
+        fixture). 36 Python `unittest` assertions, 18 Node assertions in
+        `classify.test.mjs`, 11 in `page.test.mjs` -- 65 total, all passing.
+        A worked example on the browser page contrasts a fork-exposed
+        `pull_request`-triggered self-hosted job against a not-flagged
+        `schedule`-triggered one.
+      - >-
+        Closed the crawlable-orphan risk in the same commit rather than
+        waiting for a later "close orphan between X and Y" pass: added a
+        reciprocal link (and a `page.test.mjs`/`page.test.mjs` assertion on
+        each side) between this tool and `actions-cache-poisoning-check`, so
+        `node platform/pages/siblings.mjs --check` still reports 97 orphans
+        -- unchanged, not 98 -- against the committed budget.
+      - >-
+        Definition-of-done checklist run: `node platform/pages/clauses.mjs
+        actions-self-hosted-exposure-check` (no-warranty clause present on
+        both pages), `check_no_payment_code.py` (clean), `portfolio/router/
+        validate.py` (all VENTURE.yaml valid), `python3
+        portfolio/scoring/score_ventures.py --check` (entry added to
+        `venture-scores.yaml`), `node platform/marketing/regen.mjs` (mirror
+        + front-door regenerated; ran three times -- once before, once after
+        a post-regen JSON-LD/visible-copy wording fix caught by
+        `faq-visible.test.mjs`, and once more after merging `origin/main`,
+        which had gained two more ventures -- `npm-lifecycle-script-check`
+        and `dependency-confusion-check` -- while this session was building,
+        bringing the mirror to 207 tools), `node platform/pages/
+        launched.mjs --write` (entered the Atom feed), and the five
+        hand-typed mirror-count locations CLAUDE.md names
+        (`infra/OWNER_CHECKLIST.md` x3, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2, `test_manifests.py`'s
+        pinned `total`) all reconciled to 207 across the three-way count
+        (this session's +1, plus the two that landed on `main` concurrently),
+        and `gitops/ci/sync_readme_counts.py` run after the new CI workflow
+        added a `runs-on:` line.
+      - >-
+        Full verification: `python3 -m pytest gitops/tests -q` (490 passed,
+        25 skipped), all 20 `platform/ci` unittest modules plus
+        `agent_review` (green), `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1169/1169 passed after the regen fix),
+        `platform/proposal|privacy|webcheck` suites (green), pipeline
+        validators (`validate_doc_consistency.py`, `validate_candidates.py`,
+        `probes/validate_probe_index.py`, `score_sensitivity.py`) unaffected
+        and clean, `usage/validate_usage.py` (195 products, 380 readings,
+        unaffected). `check_ledger_only.py` run before pushing -- this entry
+        ships in the same PR as the code, not on its own.
+    mrr_end: 0
