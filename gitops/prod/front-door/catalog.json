@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 193,
-  "collection_total": 193,
+  "served_here": 194,
+  "collection_total": 194,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "evidence",
       "name": "Compliance checks & evidence records",
       "url": "https://marisstella.dev/c/evidence/",
-      "tool_count": 19
+      "tool_count": 20
     },
     {
       "id": "services",
@@ -496,6 +496,14 @@
       "url": "https://marisstella.dev/tools/actions-runner-starvation-check/",
       "category": "More free tools",
       "description": "Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "ada-title-ii-evidence",
+      "name": "ADA Title II Website Accessibility Evidence Report",
+      "url": "https://marisstella.dev/tools/ada-title-ii-evidence/",
+      "category": "Compliance checks & evidence records",
+      "description": "Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.",
       "pages": 2
     },
     {

@@ -6823,6 +6823,61 @@ ventures:
       their own credentials, so their token and their run data never leave
       their own machine or session. The output is a classification of a
       public API field, not a security or compliance verdict.
+  - slug: ada-title-ii-evidence
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A deadline lookup (population and entity type against two published
+      dates) and an axe-core JSON formatter split by whether a tag is in the
+      WCAG 2.1 AA set the DOJ rule adopts. Both are exact, checkable rules
+      against a cited source; a model would only add hallucination risk to
+      a legal-date lookup.
+    basis: >-
+      Graduated 2026-09-07 as a free deadline lookup and browser-local WCAG
+      2.1 AA evidence report for state/local government and special-district
+      (school, water, fire, transit) webmasters ahead of ADA Title II's April
+      2027/2028 compliance dates (DOJ interim final rule, Federal Register
+      2026-07663, verified via web search before writing this up). Same
+      evidence-desk shape as cra-evidence-desk, scored on the same
+      six-dimension rubric; distinct buyer (US government IT/webmaster, not
+      a software vendor) and distinct regulation (US ADA Title II /
+      28 CFR 35.200, not the EU CRA). Confirmed against
+      `portfolio/pipeline/duplicate_check.py` before writing this up — no
+      match above 0.14, including against shopify-a11y-evidence and
+      eaa-remediation-pipeline, the two nearest existing accessibility
+      write-ups.
+      Time to revenue 6: no direct revenue path beyond the standard
+      voluntary GitHub Sponsors link; scored like the portfolio's other
+      free-forever evidence tools rather than assumed lower, since usage
+      itself is the current-phase metric.
+      Defensibility 4: paid overlay and monitoring vendors (accessiBe,
+      Siteimprove, Level Access) already sell government-focused
+      accessibility tracking; what is not already free is a two-question
+      deadline answer plus a report that separates the legally required
+      WCAG 2.1 AA findings from best-practice extras, rather than one
+      undifferentiated rule list.
+      Distribution 5: the DOJ's compliance-date extension (April 2026) is
+      recent enough that "ADA title II deadline for my city" is an active,
+      narrow search a webmaster has reason to run right now, but this
+      portfolio has no existing government-buyer channel and volume specific
+      to this tool is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a plain-language read of a cited, publicly published
+      federal rule and a formatted record of a supplied automated test —
+      never a compliance determination, a filing, or advice given on the
+      entity's behalf. No data leaves the browser; nothing is scraped.
   - slug: flaky-test-finder
     scores:
       ai_leverage: 1
