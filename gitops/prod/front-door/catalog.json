@@ -1288,7 +1288,7 @@
       "url": "https://marisstella.dev/tools/security-camera-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an IP security camera install from the drops, the cable, and the labour — and check the three things a camera bid gets wrong: days of recording the drives actually hold, PoE load against the switch budget, and runs past the 328 ft Ethernet limit.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "septic-pumping-bid-calculator",
