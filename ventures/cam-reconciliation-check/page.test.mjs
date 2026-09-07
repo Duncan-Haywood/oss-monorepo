@@ -67,3 +67,16 @@ test('the transparent-result panel is an aria-live region so screen readers hear
   // that a reconciliation result now exists.
   assert.match(html, /<section id="output" class="hidden" aria-live="polite">/);
 });
+
+// Closest sibling: same private, browser-only reconciliation shape, but
+// matching processor payouts to bank deposits rather than checking a
+// landlord's CAM bill. Without a crawlable link here, a crawler entering on
+// the CAM reconciliation calculator never reaches the payment reconciliation
+// workbench in one hop.
+test('index links one hop to the payment-reconciliation-workbench sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/payment-reconciliation-workbench\/"/,
+    'index must link ../payment-reconciliation-workbench/ so crawlers reach the payment reconciliation workbench in one hop',
+  );
+});

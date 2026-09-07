@@ -18,6 +18,18 @@ test("landing page exposes searchable product, safety copy, and local app", () =
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(html, /entirely optional and never changes what the tool does/);
 });
+// Closest sibling: same break-even shape (fixed ownership/overhead cost spread
+// over bookings vs. lesson slots), but equipment rental bookings rather than
+// music lesson time. Without a crawlable link here, a crawler entering on the
+// equipment rental calculator never reaches the music lesson calculator in
+// one hop.
+test("index links one hop to the music-lesson-break-even sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/music-lesson-break-even\/"/,
+    "index must link ../music-lesson-break-even/ so crawlers reach the music lesson calculator in one hop",
+  );
+});
 test("app wires the share button to encode/decode and applies an incoming link on load", () => {
   assert.match(app, /import \{ encodeShare, decodeShare \} from "\.\/share\.mjs";/);
   assert.match(app, /"copy-share"\)\.addEventListener/);

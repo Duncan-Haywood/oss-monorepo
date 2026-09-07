@@ -39,3 +39,15 @@ test('every .html file in the venture root is reachable from the sitemap', () =>
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+// Closest sibling: same before-and-after change detection shape, but a
+// public register snapshot rather than a consent browser trace. Without a
+// crawlable link here, a crawler entering on the consent change record never
+// reaches Public-Record Watch in one hop.
+test('index links one hop to the public-record-watch sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/public-record-watch\/"/,
+    'index must link ../public-record-watch/ so crawlers reach Public-Record Watch in one hop',
+  );
+});
