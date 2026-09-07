@@ -38,8 +38,8 @@
 #   portfolio-front-tools-2: 147 files, 554191 bytes
 #   portfolio-front-tools-3: 129 files, 547229 bytes
 #   portfolio-front-tools-4: 117 files, 553700 bytes
-#   portfolio-front-tools-5: 129 files, 554458 bytes
-#   portfolio-front-tools-6: 112 files, 546734 bytes
+#   portfolio-front-tools-5: 129 files, 551719 bytes
+#   portfolio-front-tools-6: 113 files, 553905 bytes
 #   portfolio-front-tools-7: 111 files, 554011 bytes
 #   portfolio-front-tools-8: 120 files, 555111 bytes
 #   portfolio-front-tools-9: 98 files, 555094 bytes
@@ -825,6 +825,7 @@ configMapGenerator:
       - ev-charger-bid-calculator__share.mjs.gz=ev-charger-bid-calculator__share.mjs.gz
       - ev-charger-bid-calculator__usage.mjs.gz=ev-charger-bid-calculator__usage.mjs.gz
       - ev-charger-bid-calculator__vs-servicetitan.html.gz=ev-charger-bid-calculator__vs-servicetitan.html.gz
+      - ev-charger-bid-calculator__vs-workiz.html.gz=ev-charger-bid-calculator__vs-workiz.html.gz
       - exterior-painting-bid-calculator__calc.mjs.gz=exterior-painting-bid-calculator__calc.mjs.gz
       - exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz=exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz
       - exterior-painting-bid-calculator__index.html.gz=exterior-painting-bid-calculator__index.html.gz
@@ -861,12 +862,12 @@ configMapGenerator:
       - foundation-repair-bid-calculator__vs-jobber.html.gz=foundation-repair-bid-calculator__vs-jobber.html.gz
       - freelance-retainer-calculator__app.js.gz=freelance-retainer-calculator__app.js.gz
       - freelance-retainer-calculator__how-many-retainer-hours.html.gz=freelance-retainer-calculator__how-many-retainer-hours.html.gz
-      - freelance-retainer-calculator__index.html.gz=freelance-retainer-calculator__index.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - freelance-retainer-calculator__index.html.gz=freelance-retainer-calculator__index.html.gz
       - freelance-retainer-calculator__retainer-payment-terms.html.gz=freelance-retainer-calculator__retainer-payment-terms.html.gz
       - freelance-retainer-calculator__retainer-vs-hourly.html.gz=freelance-retainer-calculator__retainer-vs-hourly.html.gz
       - freelance-retainer-calculator__share.mjs.gz=freelance-retainer-calculator__share.mjs.gz
