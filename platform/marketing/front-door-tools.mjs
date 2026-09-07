@@ -561,6 +561,7 @@ export const WHY_CATEGORY_WORD = {
   evidence: 'evidence',
   backoffice: 'back-office',
   logistics: 'logistics',
+  ci: 'ci',
   more: 'more',
 };
 

@@ -1258,7 +1258,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 7, 'the six named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 8, 'the seven named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1282,6 +1282,10 @@ test('tools that belong to a named category are not left in the catch-all', () =
   assert.equal(categoryFor('tiktok-shop-fee-calculator').id, 'marketplace');
   assert.equal(categoryFor('delivery-app-margin-calculator').id, 'marketplace');
   assert.equal(categoryFor('kdp-royalty-calculator').id, 'marketplace');
+  // Whatnot's retail fee ranking already deep-links this payout tool; leaving
+  // it in "More free tools" hid it from every seller already reading the
+  // marketplace section that names it.
+  assert.equal(categoryFor('whatnot-seller-payout').id, 'marketplace');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
   assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');
@@ -1290,6 +1294,14 @@ test('tools that belong to a named category are not left in the catch-all', () =
   // meet those two fields would never see it.
   assert.equal(categoryFor('shop-rate-calculator').id, 'trades');
   assert.equal(subcategoryFor('shop-rate-calculator').id, 'trades-paid');
+  // Four browser+CLI developer checks sat in the catch-all as a coherent
+  // group — starved-runner triage, coverage delta, flaky-test classification,
+  // AI-crawler robots.txt audit — while related-tool chrome mixed them with
+  // Sponsor Ready. A maintainer browsing for a CI gate never saw the section.
+  assert.equal(categoryFor('actions-runner-starvation-check').id, 'ci');
+  assert.equal(categoryFor('coverage-drop-check').id, 'ci');
+  assert.equal(categoryFor('flaky-test-finder').id, 'ci');
+  assert.equal(categoryFor('ai-crawler-access-check').id, 'ci');
 });
 
 // Found 2026-09-06: five more tools sat in the catch-all for the same reason —
@@ -4173,6 +4185,9 @@ test('tools whose audience browses a section are filed in it', async () => {
     // Airbnb vs Vrbo is two marketplaces' fee schedules on one booking, which
     // is the marketplace section's job, not a service quote.
     'str-host-payout-calculator': ['marketplace', null],
+    // Whatnot livestream payout is the same marketplace-seller job; slug starts
+    // with the storefront name the marketplace rule now catches.
+    'whatnot-seller-payout': ['marketplace', null],
     'notary-trip-quote': ['services', null],
     'booth-rent-vs-commission': ['services', null],
     'translator-project-quote': ['services', null],
