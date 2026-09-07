@@ -199,3 +199,15 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest openings sibling: same windows-and-doors subcategory, but a unit
+// replacement rather than covering the opening. Without a crawlable link here,
+// a crawler entering on the plantation-shutter calculator never reaches the
+// window-replacement tool in one hop.
+test('index links one hop to the window-replacement-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/window-replacement-bid-calculator\/"/,
+    'index must link ../window-replacement-bid-calculator/ so crawlers reach the window replacement calculator in one hop',
+  );
+});
