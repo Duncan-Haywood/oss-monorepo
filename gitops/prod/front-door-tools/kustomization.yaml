@@ -33,18 +33,18 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 553542 bytes
-#   portfolio-front-tools-1: 110 files, 552830 bytes
-#   portfolio-front-tools-2: 148 files, 555072 bytes
-#   portfolio-front-tools-3: 131 files, 543641 bytes
-#   portfolio-front-tools-4: 118 files, 556663 bytes
-#   portfolio-front-tools-5: 131 files, 553345 bytes
-#   portfolio-front-tools-6: 110 files, 556548 bytes
-#   portfolio-front-tools-7: 112 files, 553532 bytes
-#   portfolio-front-tools-8: 123 files, 554836 bytes
-#   portfolio-front-tools-9: 98 files, 544388 bytes
-#   portfolio-front-tools-10: 97 files, 491101 bytes
-#   portfolio-front-tools-11: 53 files, 264875 bytes
+#   portfolio-front-tools-0: 136 files, 553530 bytes
+#   portfolio-front-tools-1: 110 files, 552832 bytes
+#   portfolio-front-tools-2: 148 files, 555085 bytes
+#   portfolio-front-tools-3: 136 files, 556209 bytes
+#   portfolio-front-tools-4: 118 files, 556707 bytes
+#   portfolio-front-tools-5: 131 files, 553256 bytes
+#   portfolio-front-tools-6: 110 files, 556582 bytes
+#   portfolio-front-tools-7: 112 files, 553556 bytes
+#   portfolio-front-tools-8: 123 files, 554866 bytes
+#   portfolio-front-tools-9: 98 files, 544390 bytes
+#   portfolio-front-tools-10: 97 files, 491006 bytes
+#   portfolio-front-tools-11: 53 files, 264859 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -525,6 +525,12 @@ configMapGenerator:
       - actions-runner-starvation-check__index.html.gz=actions-runner-starvation-check__index.html.gz
       - actions-runner-starvation-check__usage.mjs.gz=actions-runner-starvation-check__usage.mjs.gz
       - actions-runner-starvation-check__why-is-my-github-actions-check-red-in-seconds.html.gz=actions-runner-starvation-check__why-is-my-github-actions-check-red-in-seconds.html.gz
+      - ada-title-ii-evidence__LICENSE.gz=ada-title-ii-evidence__LICENSE.gz
+      - ada-title-ii-evidence__calc.mjs.gz=ada-title-ii-evidence__calc.mjs.gz
+      - ada-title-ii-evidence__deadline.html.gz=ada-title-ii-evidence__deadline.html.gz
+      - ada-title-ii-evidence__deadline.mjs.gz=ada-title-ii-evidence__deadline.mjs.gz
+      - ada-title-ii-evidence__index.html.gz=ada-title-ii-evidence__index.html.gz
+      - ada-title-ii-evidence__usage.mjs.gz=ada-title-ii-evidence__usage.mjs.gz
       - ai-crawler-access-check__audit.mjs.gz=ai-crawler-access-check__audit.mjs.gz
       - ai-crawler-access-check__cli.mjs.gz=ai-crawler-access-check__cli.mjs.gz
       - ai-crawler-access-check__how-to-block-or-allow-ai-crawlers.html.gz=ai-crawler-access-check__how-to-block-or-allow-ai-crawlers.html.gz
@@ -535,7 +541,6 @@ configMapGenerator:
       - ai-engineering-academy__555-timer-calculator__can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.gz=ai-engineering-academy__555-timer-calculator__can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.gz
       - ai-engineering-academy__555-timer-calculator__index.html.gz=ai-engineering-academy__555-timer-calculator__index.html.gz
       - ai-engineering-academy__555-timer-calculator__usage.mjs.gz=ai-engineering-academy__555-timer-calculator__usage.mjs.gz
-      - ai-engineering-academy__LICENSE.gz=ai-engineering-academy__LICENSE.gz
       - ai-engineering-academy__index.html.gz=ai-engineering-academy__index.html.gz
       - ai-engineering-academy__led-resistor-calculator__calc.mjs.gz=ai-engineering-academy__led-resistor-calculator__calc.mjs.gz
       - ai-engineering-academy__led-resistor-calculator__can-i-use-one-resistor-for-multiple-leds.html.gz=ai-engineering-academy__led-resistor-calculator__can-i-use-one-resistor-for-multiple-leds.html.gz
