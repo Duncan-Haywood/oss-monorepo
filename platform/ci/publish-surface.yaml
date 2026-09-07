@@ -407,6 +407,9 @@ workflows:
 - workflow: lawn-care-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: license-drift-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: link-contrast-ci.yml
   classification: none
   publishes: []
