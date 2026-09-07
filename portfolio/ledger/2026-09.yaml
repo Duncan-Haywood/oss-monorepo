@@ -19295,3 +19295,44 @@ entries:
         platform/pages/siblings.mjs --check`, `node platform/marketing/
         regen.mjs`, and `python3 -m pytest gitops/tests -q`, all green.
     mrr_end: 0
+  - venture: vscode-extension-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a detection gap in the drift engine the day it shipped.
+        `classifySurfaceRisk` required *both* snapshots to declare a
+        non-null `main`/`browser` before emitting the
+        `entry-point-changed` risk tag, so an extension that gained an
+        entry point where it previously declared none was reported as
+        changed but carried no tag -- and that is the larger surface
+        expansion of the two, since an extension declaring neither field
+        ships no code the host will load at all. The reverse (an entry
+        point disappearing) was missed for the same reason. Now compares
+        presence-or-value across both fields and skips the pair only when
+        neither snapshot declares it, which is exactly the "it started
+        doing something it didn't declare before" case the tool exists to
+        catch. The browser page imports `engine.mjs` rather than
+        restating the rule, so the fix reaches the pasted-snapshot
+        surface and the CLI together.
+      - >-
+        Three tests added, all previously absent: a gained entry point is
+        tagged, a `browser` entry point appearing alongside an unchanged
+        `main` is tagged once rather than twice (the tag set is
+        de-duplicated), and two snapshots that both declare no entry
+        point stay untagged with `surfaceChanged` false -- the guard
+        against the fix over-reporting on the common
+        `code --list-extensions` snapshot that carries no surface data.
+        Venture suite 51 -> 54 assertions.
+      - >-
+        Verified locally, since `ci_starvation.py` reports the Actions
+        allowance still starved: `node --test
+        ventures/vscode-extension-drift-check/*.test.mjs` (54/54),
+        `node platform/marketing/regen.mjs` then `node --test
+        platform/marketing/*.test.mjs` (222/222 -- the engine is mirrored
+        into the apex shards, so the regen is not optional), and
+        `check_ledger_only.py` before pushing. Arrived at by review while
+        salvaging #3902; the venture itself and its registrations landed
+        concurrently in that PR, and this carries only the engine
+        correction on top rather than re-landing either.
+    mrr_end: 0
