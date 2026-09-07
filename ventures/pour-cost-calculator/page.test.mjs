@@ -131,3 +131,16 @@ test('every published page carries Open Graph tags and the no-warranty clause', 
     assert.match(source, /no warranty/i, `${name} is missing the no-warranty clause`);
   }
 });
+
+// Closest sibling: the same cost-vs-price arithmetic on the kitchen side
+// rather than the bar. Related-tool chrome rotates alphabetically inside a
+// subcategory, so without an explicit one-hop a crawler landing here may never
+// reach the food menu tool.
+test('index links one hop to the menu-engineering-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/menu-engineering-calculator\/"/,
+    'index must link ../menu-engineering-calculator/ so crawlers reach the menu tool in one hop',
+  );
+  assert.match(markup, /menu engineering calculator/i);
+});

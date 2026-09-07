@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://example.invalid/menu-engineering-calculator/sitemap.xml

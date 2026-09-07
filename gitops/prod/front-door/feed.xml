@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 209 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 210 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -141,6 +141,15 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste two snapshots of your dependency tree&#39;s declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Menu Engineering Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/menu-engineering-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/menu-engineering-calculator</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free menu engineering calculator for independent restaurants: enter each dish&#39;s plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.</summary>
   </entry>
   <entry>
     <title>npm Lifecycle Script Check — Did a Dependency Just Start Running Code at Install Time?</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-27T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.</summary>
-  </entry>
-  <entry>
-    <title>Marketplace Fee Comparison — Which Channel Nets Most</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/marketplace-fee-compare/"/>
-    <id>tag:marisstella.dev,2026:tool/marketplace-fee-compare</id>
-    <published>2026-08-27T00:00:00Z</published>
-    <updated>2026-08-27T00:00:00Z</updated>
-    <category term="Marketplace seller tools"/>
-    <summary type="text">Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store on one item. Enter the price and your landed cost once and see net profit on every channel. Runs entirely in your browser.</summary>
   </entry>
 </feed>

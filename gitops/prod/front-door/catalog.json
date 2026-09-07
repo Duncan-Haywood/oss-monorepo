@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 209,
-  "collection_total": 209,
+  "served_here": 210,
+  "collection_total": 210,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -59,15 +59,15 @@
       "tool_count": 12
     },
     {
-      "id": "logistics",
-      "name": "Logistics, freight & cloud cost",
-      "url": "https://marisstella.dev/c/logistics/",
-      "tool_count": 6
-    },
-    {
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
+      "tool_count": 7
+    },
+    {
+      "id": "logistics",
+      "name": "Logistics, freight & cloud cost",
+      "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 6
     }
   ],
@@ -1191,6 +1191,14 @@
       "category": "Compliance checks & evidence records",
       "description": "Free MCP tool manifest drift checker: paste two locally captured Model Context Protocol server manifests and see which tools were added, removed, or had their description or inputSchema change. Runs in your browser — nothing is uploaded, no server is contacted.",
       "pages": 3
+    },
+    {
+      "slug": "menu-engineering-calculator",
+      "name": "Menu Engineering Calculator",
+      "url": "https://marisstella.dev/tools/menu-engineering-calculator/",
+      "category": "More free tools",
+      "description": "Free menu engineering calculator for independent restaurants: enter each dish's plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.",
+      "pages": 2
     },
     {
       "slug": "metal-roof-bid-calculator",
