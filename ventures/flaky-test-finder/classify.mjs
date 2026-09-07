@@ -162,10 +162,12 @@ export function classifyRuns(runs) {
       throw new Error(`${label}: ${err.message}`);
     }
     for (const tc of cases) {
-      if (!byKey.has(tc.key)) {
-        byKey.set(tc.key, { classname: tc.classname, name: tc.name, key: tc.key, occurrences: [] });
+      // The display key is ambiguous when either field contains "::".
+      const identity = JSON.stringify([tc.classname, tc.name]);
+      if (!byKey.has(identity)) {
+        byKey.set(identity, { classname: tc.classname, name: tc.name, key: tc.key, occurrences: [] });
       }
-      byKey.get(tc.key).occurrences.push({ run: label, status: tc.status, message: tc.message, rerunSignal: tc.rerunSignal });
+      byKey.get(identity).occurrences.push({ run: label, status: tc.status, message: tc.message, rerunSignal: tc.rerunSignal });
     }
   });
 

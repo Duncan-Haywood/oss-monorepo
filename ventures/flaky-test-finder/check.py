@@ -81,8 +81,10 @@ def classify_runs(runs):
     for index, run in enumerate(runs):
         label = run.get("label") or f"run {index + 1}"
         for tc in read_testcases(run["xml"], label):
+            # Keep identity separate from the ambiguous "classname::name" label.
+            identity = (tc["classname"], tc["name"])
             entry = by_key.setdefault(
-                tc["key"], {"classname": tc["classname"], "name": tc["name"], "key": tc["key"], "occurrences": []}
+                identity, {"classname": tc["classname"], "name": tc["name"], "key": tc["key"], "occurrences": []}
             )
             entry["occurrences"].append(
                 {"run": label, "status": tc["status"], "message": tc["message"], "rerun_signal": tc["rerun_signal"]}

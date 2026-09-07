@@ -148,3 +148,21 @@ test("summarizeRuns with no failures at all reads as stable", () => {
   const summary = summarizeRuns(rows, 1);
   assert.equal(summary.status, "stable");
 });
+
+test("delimiter-containing identities do not turn unrelated failures into flakiness", () => {
+  const cases = [
+    { classname: "pkg::Suite", name: "test_it", outcome: "pass" },
+    { classname: "pkg", name: "Suite::test_it", outcome: "fail" },
+    { classname: "", name: "pkg::Suite::test_it", outcome: "skip" },
+  ];
+  const rows = classifyRuns([{ xml: junit(cases) }, { xml: junit(cases) }]);
+  assert.equal(rows.length, 3);
+  for (const [index, verdict] of ["stable", "broken", "skipped-only"].entries()) {
+    const row = rows.find((r) => r.classname === cases[index].classname);
+    assert.equal(row.name, cases[index].name);
+    assert.equal(row.verdict, verdict);
+    assert.equal(row.seenInRuns, 2);
+    assert.equal(row.passed + row.failed + row.skipped, 2);
+  }
+  assert.equal(summarizeRuns(rows, 2).status, "broken");
+});
