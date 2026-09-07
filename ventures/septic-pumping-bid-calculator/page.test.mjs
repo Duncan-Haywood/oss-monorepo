@@ -93,3 +93,17 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// This venture had no inbound link from any other tool (a crawlable
+// orphan — see platform/pages/siblings.mjs). Reciprocal of the link added
+// to security-camera-bid-calculator's index, so a crawler can hop both
+// ways between two property-service trades in the same front-door
+// subcategory.
+test('index links one hop to the security-camera-bid-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/security-camera-bid-calculator\/"/,
+    'index must link ../security-camera-bid-calculator/ so crawlers reach the security-camera calculator in one hop',
+  );
+  assert.match(markup, /security camera bid calculator/i);
+});
