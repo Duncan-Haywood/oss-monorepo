@@ -210,7 +210,18 @@ export function auditHtml(html, label = '') {
   // first of the two invents a fade the browser never applies.
   const boxBg = new Map();
   const boxAlpha = new Map();
-  const isSimple = (s) => /^(?:[a-z][a-z0-9]*|\.[\w-]+)$/i.test(s);
+  // An `#id` counts as simple for the same reason a `.class` does, and with
+  // one fewer way to be wrong: an id is unique per document, so when it
+  // appears as an ancestor in the selector being judged there is exactly one
+  // box it can name. Leaving it out was a silent false-negative that became a
+  // false *positive* the moment a venture painted its results panel dark --
+  // `#result{background:#19382d}` went unrecorded, so `#result a{color:#bff0c9}`
+  // was judged against the page's `#eef3f0` and reported 1.13:1 for a link the
+  // browser renders at 10.04:1. Measured on kdp-royalty-calculator,
+  // 2026-09-07; that reading was the whole of `ink.test.mjs`'s failure on
+  // `main`, and "fixing" the page to satisfy it would have made a correct
+  // panel worse.
+  const isSimple = (s) => /^(?:[a-z][a-z0-9]*|[.#][\w-]+)$/i.test(s);
   for (const { selector, decls } of all) {
     if (!isSimple(selector) || ['body', 'html'].includes(selector)) continue;
     const bg = resolve(decls.background ?? decls['background-color'], vars);
