@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 210,
-  "collection_total": 210,
+  "served_here": 211,
+  "collection_total": 211,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 7
+      "tool_count": 8
     },
     {
       "id": "logistics",
@@ -607,6 +607,14 @@
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent ATM route operators: find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.",
       "pages": 3
+    },
+    {
+      "slug": "ats-resume-checker",
+      "name": "ATS Resume Checker — Free Copy-Paste Test, No Sign-Up",
+      "url": "https://marisstella.dev/tools/ats-resume-checker/",
+      "category": "More free tools",
+      "description": "Free ATS resume checker, no sign-up and nothing uploaded. Paste the text copied out of your resume and instantly see the formatting issues that break applicant-tracking-system parsing — icon-font bullets, missing headings, buried contact info, and more.",
+      "pages": 2
     },
     {
       "slug": "attic-insulation-bid-calculator",

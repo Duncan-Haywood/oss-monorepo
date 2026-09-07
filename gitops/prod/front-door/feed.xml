@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 210 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 211 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -78,6 +78,15 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>ATS Resume Checker — Free Copy-Paste Test, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ats-resume-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/ats-resume-checker</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free ATS resume checker, no sign-up and nothing uploaded. Paste the text copied out of your resume and instantly see the formatting issues that break applicant-tracking-system parsing — icon-font bullets, missing headings, buried contact info, and more.</summary>
   </entry>
   <entry>
     <title>Daycare Tuition Calculator</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-28T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Work out your real labor burden, your overhead rate on direct cost, and the hourly rate a trade job has to be sold at — from your own payroll, vehicles, office and materials. Free, private, and it fills in the burden and overhead fields on every bid calculator here.</summary>
-  </entry>
-  <entry>
-    <title>Appointment Deposit Calculator for Service Businesses</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/appointment-deposit-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/appointment-deposit-calculator</id>
-    <published>2026-08-27T00:00:00Z</published>
-    <updated>2026-08-27T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.</summary>
   </entry>
 </feed>
