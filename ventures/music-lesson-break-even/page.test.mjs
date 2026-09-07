@@ -52,3 +52,17 @@ test('every .html file in the venture is reachable from the sitemap', async () =
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+// Closest sibling: same break-even shape (fixed ownership/overhead cost
+// spread over bookings vs. lesson slots), but music lesson time rather than
+// equipment rental bookings. Without a crawlable link here, a crawler
+// entering on the music lesson calculator never reaches the equipment rental
+// break-even calculator in one hop.
+test('index links one hop to the equipment-rental-break-even sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/equipment-rental-break-even\/"/,
+    'index must link ../equipment-rental-break-even/ so crawlers reach the equipment rental break-even calculator in one hop',
+  );
+});

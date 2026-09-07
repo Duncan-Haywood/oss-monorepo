@@ -134,3 +134,16 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(`/custom-farm-rate-calculator/${name === 'index.html' ? '' : name}<`), `${name} is not reachable from sitemap.xml`);
   }
 });
+
+// Closest sibling: mutual nearest match per `node platform/pages/siblings.mjs
+// --check` — this per-acre custom-farm field-work rate calculator and the
+// hourly shop-labor rate calculator. Without a crawlable link here, a
+// crawler entering on the farm rate calculator never reaches the shop rate
+// calculator in one hop.
+test('index links one hop to the shop-rate-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/shop-rate-calculator\/"/,
+    'index must link ../shop-rate-calculator/ so crawlers reach the shop rate calculator in one hop',
+  );
+});

@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 201,
-  "collection_total": 201,
+  "served_here": 202,
+  "collection_total": 202,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -53,15 +53,15 @@
       "tool_count": 13
     },
     {
-      "id": "logistics",
-      "name": "Logistics, freight & cloud cost",
-      "url": "https://marisstella.dev/c/logistics/",
-      "tool_count": 6
-    },
-    {
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
+      "tool_count": 7
+    },
+    {
+      "id": "logistics",
+      "name": "Logistics, freight & cloud cost",
+      "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 6
     },
     {
@@ -662,7 +662,7 @@
       "url": "https://marisstella.dev/tools/childcare-tuition-calculator/",
       "category": "More free tools",
       "description": "Free daycare and childcare tuition calculator. Price a classroom from your own child:staff ratio, staffing cost, and overhead, and see what an empty seat actually costs you at every occupancy level.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "chimney-sweep-bid-calculator",
@@ -1119,6 +1119,14 @@
       "category": "Trade & contractor bids",
       "description": "Price low-voltage landscape lighting from fixture mix, fixtures-only versus new-system versus existing-add-on, trench and soil, transformer size, and extras — plus the walk-away price a $150 / light special cannot see.",
       "pages": 3
+    },
+    {
+      "slug": "license-drift-check",
+      "name": "License Drift Check — Did a Dependency's License Change Since Your Last Snapshot?",
+      "url": "https://marisstella.dev/tools/license-drift-check/",
+      "category": "More free tools",
+      "description": "Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "locksmith-bid-calculator",

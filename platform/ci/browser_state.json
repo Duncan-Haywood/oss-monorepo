@@ -147,6 +147,22 @@
         "sideways",
         "sweep"
       ],
+      "commit": "ce7b9a884c02addee7e36a2ea6fd29f1a544250e",
+      "measured": "2026-09-07",
+      "pages": 810,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
       "commit": "46aeb00faa6cdc0b01069ded646416533c9be4c4",
       "measured": "2026-09-07",
       "pages": 812,
