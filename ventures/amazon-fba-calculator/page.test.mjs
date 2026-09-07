@@ -688,3 +688,10 @@ test("every .html file in the venture is reachable from the sitemap", () => {
 test("index links to the where-to-sell calculator", () => {
   assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
 });
+
+// marketplace-fee-compare already deep-links here for FBA size tiers and
+// storage a headline referral rate cannot carry; without a crawlable link
+// back, a visitor on FBA never reaches the six-channel triage (#3637 class).
+test("index links to the marketplace fee comparison", () => {
+  assert.match(html, /href="\.\.\/marketplace-fee-compare\/"/);
+});
