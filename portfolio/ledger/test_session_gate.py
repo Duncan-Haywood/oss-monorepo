@@ -10,6 +10,7 @@ must come from the ledger rather than from constants.
 
 from __future__ import annotations
 
+import sys
 import time
 
 import yaml
@@ -799,3 +800,114 @@ def test_main_does_not_trust_a_reading_the_fetch_could_not_refresh(monkeypatch, 
     # lane alone would pass even if main() stopped propagating `fetched`.
     assert captured["cadence_reliable"] is False
     assert captured["origin_fetched"] is False
+
+
+# --- the published snapshot ---------------------------------------------------
+#
+# DIRECTION.md's North star ranks refreshing a stale snapshot above all new
+# work. Until 2026-09-07 the gate never read it, so a session could follow a
+# complete PROCEED verdict while the live site sat behind `main`. These tests
+# pin the two directions that matter: a stale reading must be impossible to
+# miss, and an unreadable one must never be laundered into a healthy one.
+
+
+def _entries():
+    return [entry("some-venture") for _ in range(sg.WINDOW)]
+
+
+def test_a_stale_snapshot_leads_the_reasons_ahead_of_the_verdicts_own():
+    r = sg.report(_entries(), 1.0, snapshot=("stale", "built from abc1234"))
+    assert r["published_snapshot"] == "stale"
+    assert "THE LIVE SITE IS BEHIND" in r["reasons"][0]
+    assert "publish-branch.sh" in r["reasons"][0]
+    assert "built from abc1234" in r["reasons"][0]
+
+
+def test_a_current_snapshot_adds_no_reason_and_no_warning_marker():
+    r = sg.report(_entries(), 1.0, snapshot=("current", "built from the tip"))
+    assert r["published_snapshot"] == "current"
+    assert not any("LIVE SITE IS BEHIND" in reason for reason in r["reasons"])
+    assert not any("Published-snapshot state" in reason for reason in r["reasons"])
+    assert "the live site is not known to match" not in sg.render(r)
+
+
+def test_an_unreadable_snapshot_is_flagged_rather_than_read_as_healthy():
+    """The direction this must never be wrong in: `unknown` is not `current`."""
+    r = sg.report(_entries(), 1.0, snapshot=("unknown", "no GH_TOKEN"))
+    assert r["published_snapshot"] == "unknown"
+    flagged = [x for x in r["reasons"] if "Published-snapshot state" in x]
+    assert len(flagged) == 1
+    assert "never as fine" in flagged[0]
+    assert "the live site is not known to match" in sg.render(r)
+
+
+def test_an_absent_gh_pages_branch_is_not_silently_fine():
+    r = sg.report(_entries(), 1.0, snapshot=("absent", "no `gh-pages` branch"))
+    assert any("Published-snapshot state is `absent`" in x for x in r["reasons"])
+
+
+def test_report_without_a_snapshot_argument_defaults_to_unknown_not_current():
+    """A caller that forgets to pass the reading must not get a green line."""
+    r = sg.report(_entries(), 1.0)
+    assert r["published_snapshot"] == "unknown"
+    assert "the live site is not known to match" in sg.render(r)
+
+
+def test_render_shows_the_snapshot_row_in_every_state():
+    for state in ("current", "stale", "unknown", "absent"):
+        out = sg.render(sg.report(_entries(), 1.0, snapshot=(state, "why")))
+        assert f"published snapshot ............. {state}" in out
+
+
+def _pages_state():
+    """Import `pages_state` the way `published_snapshot` does.
+
+    A bare `import pages_state` here passes only when some earlier test in the
+    session has already called `sg.published_snapshot()` and left that path on
+    `sys.path` — so the test would go green in a full run and fail on its own,
+    which is the least useful way for a test to be wrong.
+    """
+    sys.path.insert(0, str(sg.REPO / "platform" / "ci"))
+    import pages_state
+
+    return pages_state
+
+
+def test_published_snapshot_returns_unknown_when_no_token_is_available(monkeypatch):
+    pages_state = _pages_state()
+
+    monkeypatch.setattr(pages_state, "api_token", lambda *_a, **_k: None)
+    state, reason = sg.published_snapshot()
+    assert state == "unknown"
+    assert "GH_TOKEN" in reason
+
+
+def test_published_snapshot_swallows_a_failure_rather_than_crashing_the_gate(monkeypatch):
+    """A network hiccup in a reporting helper must not take the gate down."""
+    pages_state = _pages_state()
+
+    monkeypatch.setattr(pages_state, "api_token", lambda *_a, **_k: "t")
+
+    def boom(*_a, **_k):
+        raise RuntimeError("connection reset")
+
+    monkeypatch.setattr(pages_state, "collect", boom)
+    state, reason = sg.published_snapshot()
+    assert state == "unknown"
+    assert "connection reset" in reason
+
+
+def test_main_propagates_the_snapshot_reading(monkeypatch, capsys):
+    monkeypatch.setattr(sg, "refresh_origin_main", lambda: True)
+    monkeypatch.setattr(sg, "sessions_per_hour", lambda: (1.0, True))
+    monkeypatch.setattr(sg, "max_concurrent_sessions", lambda *_a, **_k: 0)
+    monkeypatch.setattr(sg, "commits_with_sessions", lambda *_a, **_k: [])
+    monkeypatch.setattr(sg, "load_entries", lambda *_a, **_k: _entries())
+    monkeypatch.setattr(sg, "published_snapshot", lambda *_a, **_k: ("stale", "one merge behind"))
+    monkeypatch.setattr(sg.sys, "argv", ["session_gate.py"])
+
+    sg.main()
+
+    out = capsys.readouterr().out
+    assert "published snapshot ............. stale" in out
+    assert "THE LIVE SITE IS BEHIND `main`" in out
