@@ -33,8 +33,8 @@ readings:
 
   github-actions-runners:
     verdict: down
-    measured: "2026-09-06"
-    run: 101548826585
+    measured: "2026-09-07"
+    run: 34091300665
     how: >-
       Cheapest route, and it costs nothing at all: classify a check that
       already ran on any open PR, by its **job** id rather than a run id --
@@ -126,6 +126,18 @@ readings:
       three refused endpoints in a row make "unreadable" feel like a
       conclusion, and the route that worked was an endpoint this repository
       already calls for something else.
+      Re-measured 2026-09-07, and the shape is new: the allowance recovered
+      and starved again inside one session. `ci_starvation.py --run
+      34089258996` (06:05:17Z, the managed Pages builder's own trigger commit)
+      showed three real runner ids (`1000062976`-`1000062978`), all
+      `success`. `--run 34091300665` (`Portfolio validate` on this session's
+      own merge commit, 06:32:30Z) came back `runner_id: 0`, 3s, no steps —
+      starved again 27 minutes later, corroborated by `--run 34091353982`
+      (`Outage triage`, 06:33:13Z, same signature) and every other check on
+      that push. So this window is not the clean "down for N days, up at
+      the reset" shape the rest of this file assumes; it can flip inside a
+      session. Classify per push rather than trusting a reading more than
+      about half an hour old.
 
   k3s-cluster:
     verdict: down
