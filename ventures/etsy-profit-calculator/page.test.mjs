@@ -543,3 +543,11 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+// where-to-sell-calculator already hands an Etsy comparison into this page;
+// without a crawlable link back, a visitor who landed on Etsy first has no
+// path to the multi-channel ranking that owns the handoff. Amazon, Reverb,
+// and Shopify already close this loop; Etsy was the remaining gap with eBay.
+test('index links to the where-to-sell calculator', () => {
+  assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
+});
