@@ -69,3 +69,16 @@ test('the tool makes no network request', () => {
   assert.doesNotMatch(script, /\bfetch\(|XMLHttpRequest|navigator\.sendBeacon|new WebSocket/);
   assert.doesNotMatch(html, /<script[^>]+src=/);
 });
+
+// Closest sibling: same equipment-cost decision shape for an independent
+// operator, but pricing rental bookings rather than a lease buyout vs.
+// return-and-replace. Related-tool chrome rotates inside the subcategory, so
+// without an explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the equipment-rental-break-even sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/equipment-rental-break-even\/"/,
+    'index must link ../equipment-rental-break-even/ so crawlers reach the equipment rental calculator in one hop',
+  );
+  assert.match(html, /equipment rental break-even calculator/i);
+});
