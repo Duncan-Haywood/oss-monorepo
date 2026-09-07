@@ -26,7 +26,7 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 124
+      "tool_count": 125
     },
     {
       "id": "evidence",
@@ -47,22 +47,22 @@
       "tool_count": 12
     },
     {
-      "id": "more",
-      "name": "More free tools",
-      "url": "https://marisstella.dev/c/more/",
-      "tool_count": 8
-    },
-    {
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
-      "tool_count": 7
+      "tool_count": 12
     },
     {
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
       "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 6
+    },
+    {
+      "id": "more",
+      "name": "More free tools",
+      "url": "https://marisstella.dev/c/more/",
+      "tool_count": 2
     }
   ],
   "tools": [
@@ -534,7 +534,7 @@
       "slug": "atm-route-margin",
       "name": "ATM Route Margin Calculator — Price Each Placement",
       "url": "https://marisstella.dev/tools/atm-route-margin/",
-      "category": "More free tools",
+      "category": "Service business pricing & quotes",
       "description": "Free calculator for independent ATM route operators: find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.",
       "pages": 3
     },
@@ -670,7 +670,7 @@
       "slug": "custom-farm-rate-calculator",
       "name": "Custom Farm Rate Calculator — Price Custom Field Work Per Acre",
       "url": "https://marisstella.dev/tools/custom-farm-rate-calculator/",
-      "category": "More free tools",
+      "category": "Trade & contractor bids",
       "description": "Free calculator for custom farm operators: find the rate to charge per acre for combining, planting, spraying, baling, or tillage work, from your own machine speed, width, fuel, repairs, ownership cost, and labor — then check a season of jobs against an income goal.",
       "pages": 3
     },
@@ -718,7 +718,7 @@
       "slug": "dog-walking-route-pricing",
       "name": "Dog Walking & Pet Sitting Rate Calculator — Price Your Route",
       "url": "https://marisstella.dev/tools/dog-walking-route-pricing/",
-      "category": "More free tools",
+      "category": "Service business pricing & quotes",
       "description": "Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.",
       "pages": 2
     },
@@ -750,7 +750,7 @@
       "slug": "dumpster-rental-margin-calculator",
       "name": "Dumpster Rental Margin Calculator — Price a Roll-Off Job",
       "url": "https://marisstella.dev/tools/dumpster-rental-margin-calculator/",
-      "category": "More free tools",
+      "category": "Service business pricing & quotes",
       "description": "Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.",
       "pages": 3
     },
@@ -1174,7 +1174,7 @@
       "slug": "photo-booth-event-quote",
       "name": "Photo Booth Event Quote Calculator — Price a Booking",
       "url": "https://marisstella.dev/tools/photo-booth-event-quote/",
-      "category": "More free tools",
+      "category": "Service business pricing & quotes",
       "description": "Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.",
       "pages": 2
     },
@@ -1478,7 +1478,7 @@
       "slug": "vending-machine-route-margin",
       "name": "Vending Machine Route Profit Calculator — Price Each Location",
       "url": "https://marisstella.dev/tools/vending-machine-route-margin/",
-      "category": "More free tools",
+      "category": "Service business pricing & quotes",
       "description": "Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.",
       "pages": 3
     },
