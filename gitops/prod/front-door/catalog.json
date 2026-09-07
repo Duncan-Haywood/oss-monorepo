@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 204,
-  "collection_total": 204,
+  "served_here": 205,
+  "collection_total": 205,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -56,7 +56,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 8
+      "tool_count": 10
     },
     {
       "id": "logistics",
@@ -68,7 +68,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
+      "tool_count": 4
     }
   ],
   "tools": [
@@ -1140,7 +1140,7 @@
       "slug": "license-drift-check",
       "name": "License Drift Check — Did a Dependency's License Change Since Your Last Snapshot?",
       "url": "https://marisstella.dev/tools/license-drift-check/",
-      "category": "More free tools",
+      "category": "CI checks & developer gates",
       "description": "Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 2
     },
@@ -1215,6 +1215,14 @@
       "category": "Trade & contractor bids",
       "description": "Free calculator for personal trainers, salons, tutors, and therapists: work out a defensible no-show fee, see whether overbooking the empty chairs still beats collecting it, and copy a cancellation policy.",
       "pages": 4
+    },
+    {
+      "slug": "npm-lifecycle-script-check",
+      "name": "npm Lifecycle Script Check — Did a Dependency Just Start Running Code at Install Time?",
+      "url": "https://marisstella.dev/tools/npm-lifecycle-script-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "parking-lot-striping-bid-calculator",

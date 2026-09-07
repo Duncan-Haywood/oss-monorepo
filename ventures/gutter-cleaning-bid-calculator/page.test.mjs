@@ -34,3 +34,15 @@ test('the companion article answers the two-story question and stays crawlable',
   assert.match(sitemap, /gutter-cleaning-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /two-story-gutter-cleaning-cost\.html/);
 });
+
+// Closest sibling: same cleaning subcategory, but panes and travel rather than
+// linear feet and downspouts. Related-tool chrome rotates inside the subcategory,
+// so without an explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the window-cleaning-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/window-cleaning-bid-calculator\/"/,
+    'index must link ../window-cleaning-bid-calculator/ so crawlers reach the window calculator in one hop',
+  );
+  assert.match(html, /window cleaning bid calculator/i);
+});
