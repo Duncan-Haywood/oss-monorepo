@@ -12,6 +12,16 @@ test("evidence page can copy the generated record without leaving the browser", 
   assert.match(page, /Copy is unavailable\. Use Download \.txt instead/);
 });
 
+// Closest sibling tool: same axe-JSON → dated evidence job, for a government
+// ADA Title II site rather than a Shopify storefront. Related-tool chrome
+// rotates alphabetically inside the whole evidence category, so it never
+// offers this one-hop; without an explicit link a crawler on the Shopify
+// page reaches the Title II report only via the category index.
+test("page links one hop to the ADA Title II evidence sibling", () => {
+  assert.match(page, /href="\.\.\/ada-title-ii-evidence\/"/);
+  assert.match(page, /ADA Title II evidence report/);
+});
+
 test("an invalid scan clears the stale report and refuses to let Download/Copy ship it", () => {
   // Before this fix, invalid JSON (or a document that isn't an axe-core
   // export) set #error but left the previous scan's report in #report and
