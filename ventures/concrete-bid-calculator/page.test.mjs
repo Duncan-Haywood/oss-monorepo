@@ -153,3 +153,15 @@ test('index links one hop to the concrete-lifting-bid-calculator sibling', () =>
     'index must link ../concrete-lifting-bid-calculator/ so crawlers reach the lifting calculator in one hop',
   );
 });
+
+// Closest coating sibling: same site-work subcategory, but an epoxy /
+// polyaspartic garage floor rather than a new pour. Without a crawlable link
+// here, a crawler entering on the pour calculator never reaches the epoxy tool
+// in one hop.
+test('index links one hop to the epoxy-garage-floor-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/epoxy-garage-floor-bid-calculator\/"/,
+    'index must link ../epoxy-garage-floor-bid-calculator/ so crawlers reach the epoxy garage floor calculator in one hop',
+  );
+});
