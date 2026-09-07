@@ -51,3 +51,11 @@ test('index links one hop to the cam-reconciliation-check sibling', () => {
     'index must link ../cam-reconciliation-check/ so crawlers reach the CAM reconciliation calculator in one hop',
   );
 });
+
+test('index links one hop to the duplicate-payment-audit sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/duplicate-payment-audit\/"/,
+    'index must link ../duplicate-payment-audit/ so crawlers reach the duplicate payment audit tool in one hop',
+  );
+});

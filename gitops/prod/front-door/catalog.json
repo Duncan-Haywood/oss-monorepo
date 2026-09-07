@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 210,
-  "collection_total": 210,
+  "served_here": 211,
+  "collection_total": 211,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 7
+      "tool_count": 8
     },
     {
       "id": "logistics",
@@ -847,6 +847,14 @@
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.",
       "pages": 3
+    },
+    {
+      "slug": "duplicate-payment-audit",
+      "name": "Duplicate Payment Audit — Find Double Vendor Payments in Your AP Ledger",
+      "url": "https://marisstella.dev/tools/duplicate-payment-audit/",
+      "category": "More free tools",
+      "description": "Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.",
+      "pages": 1
     },
     {
       "slug": "egress-window-bid-calculator",

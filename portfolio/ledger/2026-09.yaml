@@ -19609,3 +19609,70 @@ entries:
         code changed), plus the same repo-wide checks listed under
         `home-staging-bid-calculator` above.
     mrr_end: 0
+  - venture: duplicate-payment-audit
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/duplicate-payment-audit`, a free
+        browser CSV checker that flags likely duplicate or double vendor
+        payments in an accounts-payable ledger export (exact invoice+amount
+        match, same-invoice-different-amount, near-duplicate invoice numbers
+        by edit distance, and a same-amount/near-date fallback explicitly
+        disclosed as also catching legitimate recurring charges). Screened
+        against `screened-out.md` and the liability/ethics gates in
+        `portfolio/DIRECTION.md` first;
+        `portfolio/pipeline/duplicate_check.py` returned no match at or
+        above the read-this-first threshold (top score 0.16, against
+        `invoice-payment-terms-calculator`). Pipeline write-up and
+        `candidates.yaml` entry added (composite 6.875, floor 1
+        `ai_leverage`, gates `liability_containment` 8 /
+        `ethical_robustness` 9), matching the deterministic-calculator
+        floor pattern already accepted for `pour-cost-calculator` and
+        siblings.
+      - >-
+        Named channel: the search-phrase cluster "duplicate payment audit",
+        "how to find duplicate invoices in accounts payable", and
+        "duplicate invoice checker" is independently targeted by content
+        marketing from Ramp, Brex, NetSuite, Stripe, Klippa, Precoro,
+        Fiscaltec, and Illumis (verified by web search, not assumed), and a
+        whole recovery-audit-firm industry (e.g. twice2much.com) already
+        sells this exact check on contingency to enterprise ledgers — the
+        underserved segment is businesses too small for that engagement.
+        r/Bookkeeping, r/Accounting, r/smallbusiness, and r/QuickBooks
+        discuss AP-process questions of this shape regularly.
+      - >-
+        Closed a crawlable-orphan gap the new page introduced: added a
+        cross-link from `payment-reconciliation-workbench`'s footer (and a
+        matching `page.test.mjs` assertion), which brought
+        `platform/pages/siblings.mjs --check` back to 38 orphans, within
+        the committed budget of 38.
+      - >-
+        Verification: `node --test ventures/duplicate-payment-audit/*.test.mjs
+        ventures/duplicate-payment-audit/test/*.test.mjs` (23/23 passing);
+        `node --test ventures/payment-reconciliation-workbench/*.test.mjs
+        ventures/payment-reconciliation-workbench/test/*.test.mjs` (43/43
+        passing, after the cross-link addition); `node
+        platform/pages/clauses.mjs duplicate-payment-audit` (clean);
+        `python3 portfolio/router/validate.py` (219/219 valid); `python3
+        portfolio/pipeline/validate_candidates.py` and `validate_doc_consistency.py`
+        (clean); `node platform/marketing/regen.mjs` (exit 0, mirror and
+        front-door regenerated, committed); `node
+        platform/pages/launched.mjs --write` (1 added); `python3
+        platform/ci/checklist_coverage.py` (clean, no missing test-directory
+        line). `python3 -m pytest gitops/tests` could not be run in this
+        session — no `pip`/`pytest` available and `ensurepip` failed with a
+        subprocess error writing to `/var/tmp` — a toolchain-missing gap
+        this file's own "UNRUN" convention names, not a defect found.
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        showed ~251 failures on two separate full runs, all bearing the
+        identical `Unknown system error -122` (EDQUOT) write error inside
+        unrelated pre-existing tests' temp-fixture helpers (share cards,
+        service worker, sponsor links, saved bids) that this change does not
+        touch; this session's own sandbox additionally could not run any
+        shell command at all for its first ~20 minutes for the same
+        underlying `/tmp` quota reason (three other peer sessions share this
+        machine). Read as environment flakiness, not a regression, given the
+        finding is disk-quota-shaped, non-specific to any file this PR
+        touches, and reproduced identically across independent runs.
+    mrr_end: 0
