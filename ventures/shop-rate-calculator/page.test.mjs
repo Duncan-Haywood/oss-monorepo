@@ -250,3 +250,15 @@ test('every published page carries Open Graph tags', () => {
     assert.match(source, /<meta property="og:description" content="[^"]+">/, `${name} is missing og:description`);
   }
 });
+
+// Closest sibling: same rate-from-your-own-cost-structure shape, but a
+// per-acre field rate rather than a shop's hourly labor rate. Without a
+// crawlable link here, a crawler entering on the shop rate calculator never
+// reaches the custom farm rate calculator in one hop.
+test('index links one hop to the custom-farm-rate-calculator sibling', () => {
+  assert.match(
+    page('index.html'),
+    /href="\.\.\/custom-farm-rate-calculator\/"/,
+    'index must link ../custom-farm-rate-calculator/ so crawlers reach the custom farm rate calculator in one hop',
+  );
+});

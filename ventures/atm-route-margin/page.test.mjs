@@ -144,3 +144,16 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+// Closest sibling: same unattended-vs-visited route margin shape for an
+// independent operator, but a service visit rather than a machine placement.
+// Without a crawlable link here, a crawler entering on the ATM route margin
+// calculator never reaches the dog walking route pricing calculator in one
+// hop.
+test('index links one hop to the dog-walking-route-pricing sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/dog-walking-route-pricing\/"/,
+    'index must link ../dog-walking-route-pricing/ so crawlers reach the dog walking route pricing calculator in one hop',
+  );
+});

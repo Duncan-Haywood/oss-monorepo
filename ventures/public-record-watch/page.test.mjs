@@ -101,3 +101,15 @@ test("index links every secondary HTML page, including the Visualping comparison
     );
   }
 });
+
+// Closest sibling: same before-and-after change detection shape, but a
+// consent browser trace rather than a public register snapshot. Without a
+// crawlable link here, a crawler entering on Public-Record Watch never
+// reaches the consent change record in one hop.
+test("index links one hop to the consent-change-record sibling", () => {
+  assert.match(
+    page,
+    /href="\.\.\/consent-change-record\/"/,
+    "index must link ../consent-change-record/ so crawlers reach the consent change record in one hop",
+  );
+});

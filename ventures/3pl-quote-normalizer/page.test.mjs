@@ -348,3 +348,16 @@ test('kitting page compares 3PL assembly, pre-kit, and skipping the bundle', asy
   assert.match(sitemap, /should-i-pay-the-3pl-to-kit\.html/);
   assert.match(robots, /Sitemap:/);
 });
+
+// Closest sibling: same monthly-cost-normalization shape, but a cloud storage
+// bill rather than a fulfillment quote. Without a crawlable link here, a
+// crawler entering on the 3PL quote normalizer never reaches the cloud
+// egress calculator in one hop.
+test('index links one hop to the cloud-egress-calculator sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/cloud-egress-calculator\/"/,
+    'index must link ../cloud-egress-calculator/ so crawlers reach the cloud egress calculator in one hop',
+  );
+});

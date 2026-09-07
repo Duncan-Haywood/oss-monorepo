@@ -73,3 +73,16 @@ test('an invalid visit input hides stale results instead of leaving them next to
   assert.match(body, /el\('price'\)\.hidden = true/, 'the price hero is not hidden on a rejected input');
   assert.match(body, /el\('errors'\)\.hidden = false/, 'the error message is never shown');
 });
+
+// Closest sibling: same visited-vs-unattended route margin shape for an
+// independent operator, but a machine placement rather than a service visit.
+// Without a crawlable link here, a crawler entering on the dog walking route
+// pricing calculator never reaches the ATM route margin calculator in one
+// hop.
+test('index links one hop to the atm-route-margin sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/atm-route-margin\/"/,
+    'index must link ../atm-route-margin/ so crawlers reach the ATM route margin calculator in one hop',
+  );
+});

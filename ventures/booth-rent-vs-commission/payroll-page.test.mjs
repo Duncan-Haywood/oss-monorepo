@@ -96,3 +96,15 @@ test('the defaults shown on the page still produce a booth win after tax', () =>
   assert.equal(result.afterTax.winner, 'booth');
   assert.ok(result.afterTax.wedgeWeekly > 0);
 });
+
+// Closest sibling: same "price the gig, not just the sticker" shape for an
+// independent operator, but a one-off event booking rather than an ongoing
+// chair. Without a crawlable link here, a crawler entering on the booth rent
+// comparison never reaches the photo booth quote calculator in one hop.
+test('index links one hop to the photo-booth-event-quote sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/photo-booth-event-quote\/"/,
+    'index must link ../photo-booth-event-quote/ so crawlers reach the photo booth quote calculator in one hop',
+  );
+});
