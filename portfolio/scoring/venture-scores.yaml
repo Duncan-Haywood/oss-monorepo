@@ -4257,6 +4257,51 @@ ventures:
       attestation, or compliance claim. The lockfile never leaves the
       machine.
 
+  - slug: npm-lifecycle-script-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a package gained a
+      preinstall/install/postinstall/prepare script is decided by reading the
+      lockfile's own fields and diffing two snapshots for a change in
+      presence -- deterministic, not a model judgment. There is nothing to
+      infer.
+    basis: >-
+      Graduated 2026-09-07 (#3856) per portfolio/pipeline/README.md's
+      "archetype itself" section: a free CLI + browser tool that lists every
+      package running an install-time lifecycle script in a package-lock.json
+      and diffs two snapshots to flag which packages gained one since the
+      last check -- the mechanism behind the ua-parser-js (2021), coa/rc
+      (2021), and Shai-Hulud (2025) npm supply-chain attacks, which npm audit
+      does not catch. Same shape as `license-drift-check` and
+      `ai-crawler-access-check`: a standard-library-only classifier over data
+      the user already has, scored on this file's six-dimension rubric to
+      keep coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`. Autonomous ops 10 / gross margin
+      10: the browser page diffs pasted text client-side and the CLI reads
+      only local files, no network call either way, so serving one more user
+      costs a static file. Distribution 5, not higher: real event-driven
+      demand from four dated incidents (confirmed by web search rather than
+      assumed) but not yet a distribution channel proven to convert, same as
+      every other new checker in this family at graduation.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a deterministic lockfile diff (which packages gained
+      or lost a lifecycle script), never a malware verdict, a "this package
+      is safe" claim, or a compliance attestation. Nothing pasted or read
+      leaves the browser or the machine running the CLI.
+
   - slug: cra-evidence-desk
     scores:
       ai_leverage: 1
