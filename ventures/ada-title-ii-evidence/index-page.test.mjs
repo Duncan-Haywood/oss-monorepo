@@ -31,6 +31,16 @@ test("page names the WCAG 2.1 AA standard and links to the deadline lookup", () 
   assert.match(page, /href="\.\/deadline\.html"/);
 });
 
+// Closest sibling tool: same axe-JSON → dated evidence job, for a Shopify
+// storefront rather than a government site. Related-tool chrome rotates
+// alphabetically inside the whole evidence category, so it never offers
+// this one-hop; without an explicit link a crawler on the Title II page
+// reaches the Shopify report only via the category index.
+test("page links one hop to the Shopify accessibility evidence sibling", () => {
+  assert.match(page, /href="\.\.\/shopify-a11y-evidence\/"/);
+  assert.match(page, /Shopify accessibility evidence report/);
+});
+
 test("page carries the no-warranty clause and a working sponsor link", () => {
   assert.match(page, /no warranty/i);
   assert.match(page, /github\.com\/sponsors\/Duncan-Haywood/);
