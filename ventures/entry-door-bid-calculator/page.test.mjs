@@ -93,3 +93,15 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same openings subcategory, but a garage-door / spring
+// ticket rather than a pedestrian entry opening. Without a crawlable link
+// here, a crawler entering on the entry-door calculator never reaches the
+// garage-door tool in one hop — same one-way orphan class as #3709 / #3769 / #3778.
+test('index links one hop to the garage-door-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/garage-door-bid-calculator\/"/,
+    'index must link ../garage-door-bid-calculator/ so crawlers reach the garage-door calculator in one hop',
+  );
+});

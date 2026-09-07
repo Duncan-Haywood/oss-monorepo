@@ -9,7 +9,7 @@
   <link rel="canonical" href="how-to-set-least-privilege-permissions-for-github-actions.html">
   <meta property="og:title" content="How to set least-privilege permissions for GitHub Actions">
   <meta property="og:description" content="Start from permissions: contents: read at the workflow level, then add only the one scope a specific job needs. Here is the pattern and how to check it.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How to set least-privilege permissions for GitHub Actions","acceptedAnswer":{"@type":"Answer","text":"Set permissions: contents: read at the workflow level, then add the one extra scope a specific job needs directly on that job -- for example pull-requests: write only on the job that comments on a PR -- rather than granting every job the broader set."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How to set least-privilege permissions for GitHub Actions","acceptedAnswer":{"@type":"Answer","text":"Set permissions: contents: read at the workflow level, then add the one extra scope a specific job needs directly on that job — for example pull-requests: write only on the job that comments on a PR — rather than granting every job the broader set."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
@@ -23,6 +23,7 @@
 <body>
   <p><a href="./">← Actions Permissions Check</a></p>
   <h1>How to set least-privilege permissions for GitHub Actions</h1>
+  <p class="lede">Set <code>permissions: contents: read</code> at the workflow level, then add the one extra scope a specific job needs directly on that job — for example <code>pull-requests: write</code> only on the job that comments on a PR — rather than granting every job the broader set.</p>
   <p>Most workflows never mention <code>permissions:</code> at all:</p>
   <pre><code>name: ci
 on: pull_request_target
