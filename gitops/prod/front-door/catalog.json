@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 200,
-  "collection_total": 200,
+  "served_here": 201,
+  "collection_total": 201,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
+      "tool_count": 6
     },
     {
       "id": "ci",
@@ -1111,6 +1111,14 @@
       "category": "Trade & contractor bids",
       "description": "Price low-voltage landscape lighting from fixture mix, fixtures-only versus new-system versus existing-add-on, trench and soil, transformer size, and extras — plus the walk-away price a $150 / light special cannot see.",
       "pages": 3
+    },
+    {
+      "slug": "license-drift-check",
+      "name": "License Drift Check — Did a Dependency's License Change Since Your Last Snapshot?",
+      "url": "https://marisstella.dev/tools/license-drift-check/",
+      "category": "More free tools",
+      "description": "Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "locksmith-bid-calculator",

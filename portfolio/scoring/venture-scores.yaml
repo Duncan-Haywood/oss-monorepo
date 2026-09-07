@@ -7280,3 +7280,69 @@ ventures:
       to overenroll past a safe ratio. Nothing entered leaves the browser
       and nothing is saved between sessions. The disclaimer is explicit that
       the tool does not replace the operator's own state licensing agency.
+  - slug: license-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a license changed is
+      decided by a case-insensitive string comparison between two snapshots
+      the user supplies; the family label (permissive/copyleft/source-
+      available) is a static keyword lookup against public SPDX-adjacent
+      strings, not a model judgment. There is nothing to infer.
+    basis: >-
+      Screened and graduated 2026-09-07 per
+      portfolio/pipeline/README.md's "archetype itself" section: a free
+      CLI + browser tool that diffs two point-in-time snapshots of a
+      dependency tree's declared licenses and reports exactly which
+      packages' license changed, were added, or were removed since the
+      last snapshot. Same shape as `ai-crawler-access-check` and
+      `pinned-actions-check`: a standard-library-only classifier over data
+      the user already has, scored on this file's six-dimension rubric to
+      keep coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: the browser page diffs
+      snapshots the visitor pastes and the CLI reads only local files (its
+      own `package.json` scan makes no network call at all) — no hosting,
+      no per-user cost.
+      Time to revenue 5: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 3: the diff itself is a few dozen lines any developer
+      could write in an afternoon, and several commercial license-scanning
+      tools (FOSSA, Snyk, license-checker) already report a dependency's
+      current license. What is not already bundled for free elsewhere is
+      the specific point-in-time-diff framing (what changed, not what is)
+      paired with the four dated, sourced relicensing incidents that make
+      the risk concrete rather than hypothetical.
+      Distribution 5: unlike this portfolio's usual "reasoned from known
+      community behavior, no live internet access" caveat, this channel
+      claim rests on a live web search performed at graduation that
+      confirmed neither Dependabot's nor Renovate's own feature set
+      includes license-change detection, and independently verified the
+      date and outcome of each of the four cited relicensing events
+      (MongoDB 2018, Elasticsearch 2021, Terraform 2023, Redis 2024) against
+      multiple sources. Scored at parity with the sibling dev tools rather
+      than higher, because a well-sourced *historical* channel claim is
+      still not a measured *current* search-volume or community-thread
+      figure — that remains unmeasured, per `kill_criteria`.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool reports a factual string difference between two
+      snapshots the user supplies (or the CLI reads from local files with
+      no network call), makes no legal or compliance claim, and states
+      explicitly that the license-family label is an informational keyword
+      match rather than a legal opinion. It never recommends accepting or
+      rejecting a license change — that decision, and verifying the actual
+      license text, stays the user's.
