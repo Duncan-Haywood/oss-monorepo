@@ -93,3 +93,16 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same drain/plumbing shop, but a sewer line replacement
+// (open-cut / bursting / CIPP) rather than a camera or hydro-jet clear.
+// Related-tool chrome rotates inside the trades category, so without an
+// explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the sewer-line-replace-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/sewer-line-replace-bid-calculator\/"/,
+    'index must link ../sewer-line-replace-bid-calculator/ so crawlers reach the replacement calculator in one hop',
+  );
+  assert.match(html, /sewer line replacement bid calculator/i);
+});
