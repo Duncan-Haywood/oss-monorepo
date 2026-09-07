@@ -104,11 +104,37 @@ export function reviewItems(result) {
   return items;
 }
 
+/**
+ * `variance` and `monthlyVariance` are the one pair of figures here that can
+ * be negative -- and a perfectly reconciled statement (modeled share billed
+ * to the exact cent) routinely lands them a fraction of a cent either side
+ * of zero from floating-point subtraction, not from an actual shortfall. A
+ * plain `.toFixed(2)` still prints that residual's sign -- `(-0.002).toFixed(2)`
+ * is `"-0.00"` -- which reads as "you are down money" on a worksheet whose
+ * whole point is telling a tenant whether they are.
+ *
+ * Two fixes in one, because a naive rewrite of one reintroduces the other:
+ * rounding to cents first and comparing to `0` (not `< 0`) catches -0 as well
+ * as a genuine sub-cent residual (`-0 === 0` in JS), giving the printed
+ * figure the same `±0.005` tolerance `reviewItems` already applies to the
+ * checklist wording. And the sign has to sit outside the `$`, on the whole
+ * returned string, rather than inside it from interpolating a signed number
+ * straight after a literal `$` in the caller's template (`` $${(-500).toFixed(2)} ``
+ * prints `"$-500.00"`) -- the same defect `check_money_sign.py` guards named
+ * `money`-shaped formatters against, reached here by an inline call this
+ * function's own name doesn't match.
+ */
+function moneyText(n) {
+  const cents = Math.round(n * 100);
+  const sign = cents < 0 ? '-' : '';
+  return `${sign}$${(Math.abs(cents) / 100).toFixed(2)}`;
+}
+
 export function summary(result) {
   const grossUpLines = result.grossUpApplied
     ? [`Gross-up applied: variable expenses $${result.variableExpenses.toFixed(2)} at ${result.actualOccupancyPercent.toFixed(1)}% occupancy grossed to ${result.targetOccupancyPercent.toFixed(1)}%, adding $${result.grossUpAdjustment.toFixed(2)}`, `Effective annual expenses used in the model: $${result.effectiveExpenses.toFixed(2)}`]
     : [];
-  return [`CAM reconciliation worksheet`, `Tenant area share: ${(result.share * 100).toFixed(2)}%`, ...grossUpLines, `Modeled tenant share: $${result.modeledShare.toFixed(2)}`, `Net billed after credits: $${result.netBilled.toFixed(2)}`, `Variance (modeled less billed): $${result.variance.toFixed(2)}`, `Monthly equivalent: $${result.monthlyVariance.toFixed(2)}`, '', 'Review checklist:', ...reviewItems(result).map((item) => `- ${item}`), '', 'This is a math worksheet, not a lease interpretation or payment demand.'].join('\n');
+  return [`CAM reconciliation worksheet`, `Tenant area share: ${(result.share * 100).toFixed(2)}%`, ...grossUpLines, `Modeled tenant share: $${result.modeledShare.toFixed(2)}`, `Net billed after credits: $${result.netBilled.toFixed(2)}`, `Variance (modeled less billed): ${moneyText(result.variance)}`, `Monthly equivalent: ${moneyText(result.monthlyVariance)}`, '', 'Review checklist:', ...reviewItems(result).map((item) => `- ${item}`), '', 'This is a math worksheet, not a lease interpretation or payment demand.'].join('\n');
 }
 
 export function reviewRecord(result) {

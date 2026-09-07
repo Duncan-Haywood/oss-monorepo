@@ -621,12 +621,41 @@ test("generatePolicyText always ends with the non-warranty disclaimer", () => {
 
 test("buildShareUrl encodes supported inputs without server state", () => {
   const url = buildShareUrl({ currency: "EUR", price: "75", bookingsPerWeek: "20", noShowRatePct: "8", noticeHours: "24", feePercent: "100", enforcementRatePct: "70", depositPercent: "50", businessName: "Riverside & Co", serviceName: "training session", collectionMethod: "invoice", ignored: "secret" }, "https://example.test/calculator");
-  assert.equal(url, "https://example.test/calculator?currency=EUR&price=75&bookingsPerWeek=20&noShowRatePct=8&noticeHours=24&feePercent=100&enforcementRatePct=70&depositPercent=50&businessName=Riverside+%26+Co&serviceName=training+session&collectionMethod=invoice");
+  assert.equal(url, "https://example.test/calculator#currency=EUR&price=75&bookingsPerWeek=20&noShowRatePct=8&noticeHours=24&feePercent=100&enforcementRatePct=70&depositPercent=50&businessName=Riverside+%26+Co&serviceName=training+session&collectionMethod=invoice");
   assert.equal(url.includes("ignored"), false);
 });
 
+// The point of the fragment is that the payload never reaches a server, so
+// this asserts the absence directly rather than trusting the shape above:
+// anything after `?` is sent in the request line and in a later Referer
+// header, and a named business's booking economics must not be in either.
+test("buildShareUrl puts nothing in the query string", () => {
+  const url = buildShareUrl({ price: "75", businessName: "Riverside & Co" }, "https://example.test/calculator");
+  assert.equal(new URL(url).search, "");
+  assert.equal(url.includes("?"), false);
+  assert.ok(new URL(url).hash.includes("businessName"));
+});
+
+test("buildShareUrl returns a bare address when there is nothing to share", () => {
+  assert.equal(buildShareUrl({}, "https://example.test/calculator"), "https://example.test/calculator");
+});
+
 test("readShareValues returns only supported parameters", () => {
+  assert.deepEqual(readShareValues("https://example.test/#price=75&feePercent=100&unknown=bad"), { price: "75", feePercent: "100" });
+});
+
+// Links copied before this tool moved to the fragment are already out there.
+test("readShareValues still opens a legacy query-string link", () => {
   assert.deepEqual(readShareValues("https://example.test/?price=75&feePercent=100&unknown=bad"), { price: "75", feePercent: "100" });
+});
+
+test("readShareValues prefers the fragment when a link carries both", () => {
+  assert.deepEqual(readShareValues("https://example.test/?price=10#price=75"), { price: "75" });
+});
+
+test("buildShareUrl and readShareValues round-trip", () => {
+  const raw = { price: "75", businessName: "Riverside & Co", collectionMethod: "invoice" };
+  assert.deepEqual(readShareValues(buildShareUrl(raw, "https://example.test/calculator")), raw);
 });
 
 test("index.html's embedded JSON-LD blocks are valid JSON", () => {

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why is my GitHub Actions check red in 3 seconds with no output?</title>
+  <meta name="description" content="Every check on a PR fails in a few seconds with an empty body: that is the signature of GitHub never assigning the job a runner, not a real test failure. Here is the one field that proves it.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="why-is-my-github-actions-check-red-in-seconds.html">
+  <meta property="og:title" content="Why is my GitHub Actions check red in 3 seconds with no output?">
+  <meta property="og:description" content="The checks list can't tell you. The run's own runner_id field can: 0 means no runner was ever assigned, so no step ever ran.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is my GitHub Actions check red in 3 seconds with no output?","acceptedAnswer":{"@type":"Answer","text":"That pattern is not your code. It is the signature of a job GitHub never assigned a runner to: the account's included Actions minutes are spent, a spending limit was hit, there is a payment problem, or Actions has been disabled outright. GitHub's UI does not say any of that on the checks tab — it just shows red, the same red a real failure shows."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Actions runner starvation check</a></p>
+  <h1>Why is my GitHub Actions check red in 3 seconds with no output?</h1>
+  <p>You push a commit or open a PR. Every check goes red within a handful of seconds. There is no log to open, no failing assertion, no stack trace — the output body is empty. It happens on a change that could not plausibly break six different workflows at once, including ones that touch files you never edited.</p>
+  <p>That pattern is not your code. It is the signature of a job GitHub never assigned a runner to: the account's included Actions minutes are spent, a spending limit was hit, there is a payment problem, or Actions has been disabled outright. GitHub's UI does not say any of that on the checks tab — it just shows red, the same red a real failure shows.</p>
+  <h2>Why you can't tell by how fast it failed</h2>
+  <p>A real job can fail in three seconds too — a syntax error, or a test suite's first assertion failing before it does anything expensive. Duration looks identical in both cases, which is exactly why it is the wrong signal to trust, in either direction: it will make you "fix" code that was never broken, and just as easily wave through a real regression because it also failed fast and got blamed on "CI being CI."</p>
+  <h2>The field that actually decides</h2>
+  <p>Every job GitHub Actions reports through its API carries a <code>runner_id</code>. A job that was actually scheduled onto a machine has a real, nonzero id. A job GitHub never got to has <code>runner_id: 0</code> and an empty <code>runner_name</code> — proof no runner was ever assigned, which means no step in the job could have run, which means the failure cannot be about anything the job would have tested.</p>
+  <pre><code>gh api repos/OWNER/REPO/actions/runs/RUN_ID/jobs | jq '.jobs[] | {name, runner_id, runner_name}'</code></pre>
+  <p>If every job in that output shows <code>"runner_id": 0</code>, none of those checks are telling you anything about your change. If they show a real id, the failure is real and worth debugging normally.</p>
+  <p class="note">Paste that same JSON into the <a href="./">Actions Runner Starvation Check</a> page for a plain verdict instead of reading the fields by eye, or run the zero-dependency <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-runner-starvation-check/check.py" rel="noopener">check.py</a> CLI in a script so it can decide for you: <code>python3 check.py --run RUN_ID</code> exits 1 the moment any job was starved.</p>
+  <h2>What this does not tell you</h2>
+  <p>Only that a runner was or was not assigned — not why your account stopped getting them. GitHub's own run-timing endpoint reports zero billable milliseconds for private repositories regardless of what actually ran, so it is no help attributing the cause either. Exhausted minutes, a spending limit, a payment problem, and Actions being disabled all look identical from the Actions API; that distinction is on your GitHub billing page, not something any tool reading the jobs API can recover.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. They are not a substitute for reading GitHub's own billing and Actions usage pages. Verify before relying on the output.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded.</p>
+  </footer>
+</body>
+</html>

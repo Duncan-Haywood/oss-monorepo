@@ -87,7 +87,7 @@ k3s back up.
 
 ## The switch
 
-258 of the 260 `runs-on` lines across 225 workflows now read this. The other
+303 of the 305 `runs-on` lines across 265 workflows now read this. The other
 two are the Docker-dependent jobs `gitops/tests/test_ci_runner.py`'s
 `DOCKER_DEPENDENT_JOBS` names and pins to `ubuntu-latest` instead (they need a
 Docker daemon the self-hosted pod does not have):
@@ -104,6 +104,26 @@ is the point of routing through one variable rather than editing every
 workflow file twice.
 
 `gitops/tests/test_ci_runner.py` fails if a workflow hard-codes a runner again.
+
+**Adding a workflow job makes the sentence above stale, and that is a command,
+not an edit:**
+
+```
+python3 gitops/ci/sync_readme_counts.py          # rewrite it to match the tree
+python3 gitops/ci/sync_readme_counts.py --check  # or just report drift, exit 1
+```
+
+Commit the result alongside the workflow change.
+`test_readme_runs_on_count_matches_reality` has fired four times now (#2713,
+#2740, #3516, #3517) and every time a session hand-retyped three integers —
+twice spending a whole PR on it, #3516 and #3517 hours apart on 2026-09-06,
+because a workflow landed while the first was still open. The guard was right
+each time; what was missing was that the number is derivable, so the fix should
+not be arithmetic done by hand. The script counts the `runs-on` values that
+literally are the switch expression, while the test subtracts
+`DOCKER_DEPENDENT_JOBS`; the two derivations stay independent on purpose, and a
+third test asserts they agree, so an allowlist that drifts from the workflows
+fails instead of moving both numbers together.
 
 ## Turning it on
 

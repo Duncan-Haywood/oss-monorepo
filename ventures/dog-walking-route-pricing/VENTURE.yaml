@@ -1,0 +1,31 @@
+name: dog-walking-route-pricing
+description: Free browser calculator for independent dog walkers and pet sitters to price a walk, drop-in visit, or overnight stay from time, drive, mileage, extra pets, and overhead, then check a client list against a monthly income goal.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent dog walkers and pet sitters will use a per-visit calculator that prices drive time, extra pets, and overnight on-call hours, since a flat per-walk rate undercharges route time and overnight exposure.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers asking how much to charge for dog walking or pet sitting are underserved by generic hourly guesses because route drive time, multi-pet surcharges, and overnight on-call time change the real economics.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators who price one visit will also want to see whether their whole recurring client list clears a monthly income goal, not just whether one visit clears a margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dog-walking-route-pricing/
+  analytics: null

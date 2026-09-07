@@ -21,6 +21,7 @@
     "featureList": "All-in cost per mile, deadhead-adjusted break-even loaded rate, factoring on an offered rate, weekly and annual profit, target take-home rate, detention layover and lumper comparison, copyable load summary"
   }
   </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do owner operators calculate cost per mile?","acceptedAnswer":{"@type":"Answer","text":"Add every mile the truck moves that week — loaded and empty. Divide fuel, per-mile reserves, and the weekly share of the truck note, insurance, and permits by those total miles. That is all-in cost per mile. Then divide the same weekly cost by loaded miles only to get the loaded rate that covers the empty ones."}},{"@type":"Question","name":"How does deadhead affect a trucking rate?","acceptedAnswer":{"@type":"Answer","text":"Revenue is paid only on loaded miles. Cost is incurred on every mile. A 20% empty week means the loaded rate must cover 25% more cost than the all-in CPM. A $2.00 loaded offer on that week is $1.60 of revenue per total mile before factoring."}},{"@type":"Question","name":"Does this calculator use a different fuel mileage for loaded and empty miles?","acceptedAnswer":{"@type":"Answer","text":"No — it takes one “Average MPG” figure and divides it into every mile the truck moved that week, loaded and empty combined (fuel gallons = total miles ÷ MPG). It does not model the real gap between loaded and unladen fuel economy. At the starting figures — 2,250 total miles at 6.2 MPG, $4.20 diesel — that is $1,524.19 of fuel for the week, regardless of how the 1,800 loaded and 450 empty miles split it. If your logbook shows loaded and empty MPG separately, enter the mileage weighted for the week’s actual mix (total gallons actually burned ÷ total miles run), not your best-case unladen number, or the fuel line will understate cost on a week with a lot of loaded miles."}},{"@type":"Question","name":"What loaded rate should I accept?","acceptedAnswer":{"@type":"Answer","text":"This page does not tell you what to accept. It reports the loaded rate that covers the costs you entered, after deadhead and after any factoring percent you set. Compare an offer to that number. Verify every figure against your own fuel receipts and notes before you book a load."}},{"@type":"Question","name":"How much does factoring actually cost on a load?","acceptedAnswer":{"@type":"Answer","text":"Factoring takes its percent off gross revenue before the money settles, not off profit. On the starting figures — 1,800 loaded miles at a $2.00 offer, $3,600 gross — 3% factoring is a $108 fee, leaving $3,492 net from the miles. The offered rate itself doesn’t change; the calculator’s “effective loaded rate” ($1.94/mi at those figures) is what you actually settle for, and that’s the number to compare against break-even, not the rate on the rate confirmation."}},{"@type":"Question","name":"Does an unreimbursed lumper fee change the cost per mile?","acceptedAnswer":{"@type":"Answer","text":"No — it’s added to the week’s cost as a flat dollar amount, not spread across miles. “Lumper you paid” minus “Lumper reimbursed” becomes a straight addition to weekly cost regardless of how many miles were run that week. At the starting figures, a $75 lumper the broker never reimburses is $75 straight off the week, on top of fuel, reserves, and fixed cost."}},{"@type":"Question","name":"How much does a short week raise cost per mile?","acceptedAnswer":{"@type":"Answer","text":"Fixed costs — the truck note, insurance, permits — are billed monthly and this calculator converts them to a weekly figure by dividing by 52÷12 weeks, then spreads that over total miles run. Fewer miles in the week means the same dollar figure divides over less distance. At the starting figures ($5,550/month fixed, about $1,281/week) run over 2,250 total miles, fixed cost alone is about $0.57/mi; the same $1,281 spread over a 1,500-mile week would be about $0.85/mi — the truck note doesn’t get cheaper because the week was slow."}},{"@type":"Question","name":"How many loaded miles does it take to break even at an offered rate?","acceptedAnswer":{"@type":"Answer","text":"“Loaded miles to cover this week at offer” divides the week’s cost, minus any detention/layover that’s already been factored in, by the settled effective rate — the offered rate after factoring. At the starting figures, a $2.00/mi offer settles to $1.94/mi after 3% factoring, and it takes roughly 1,706 loaded miles against the week’s cost (after the $291 of factored accessorials) to break even. The starting 1,800 loaded miles clears that, leaving around $183 for the week."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -154,6 +155,7 @@
       </table>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy week summary</button>
+        <button type="button" id="copyShareLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -163,7 +165,7 @@
 
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
-    <p>Generic “cost per mile” pages often divide monthly bills by loaded miles and stop. The decision an owner-operator actually faces is whether <strong>this week’s empty miles and this settlement’s factoring</strong> still leave the posted rate above cost. <a href="deadhead-miles.html">How deadhead miles cut a loaded rate</a> walks through that in search-query words. See also: <a href="vs-atbs.html">this calculator vs. ATBS</a>, for when to reach for a free instant calculator and when to hire a paid bookkeeping service.</p>
+    <p>Generic “cost per mile” pages often divide monthly bills by loaded miles and stop. The decision an owner-operator actually faces is whether <strong>this week’s empty miles and this settlement’s factoring</strong> still leave the posted rate above cost. <a href="deadhead-miles.html">How deadhead miles cut a loaded rate</a> walks through that in search-query words. See also: <a href="vs-atbs.html">this calculator vs. ATBS</a>, for when to reach for a free instant calculator and when to hire a paid bookkeeping service, and <a href="vs-dat-rateview.html">this calculator vs. DAT RateView</a>, for market rate versus your own break-even.</p>
     <p>It does not tell you which load to book, what a broker should pay, or what your truck is worth. The gap between the posted rate and the break-even loaded rate is arithmetic on the numbers you typed.</p>
   </section>
 
@@ -191,12 +193,14 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. It does not tell you what rate to accept or what a lane should pay. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Miles, fuel prices, the truck note, and offered rates stay on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your numbers. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Driving a personal vehicle for a delivery or rideshare app instead? The <a href="../gig-driver-net-pay-calculator/">gig driver net pay calculator</a> turns one session&rsquo;s gross app pay into net pay per hour and per mile after gas and vehicle wear — nothing uploaded.</p>
     <p>Free and open source. If it kept you off a losing load, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateWeek, compareAccessorials } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
 
     const FIELD_IDS = [
       'loadedMiles', 'emptyMiles', 'mpg', 'dieselPrice',
@@ -364,6 +368,41 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    // Restoring a shared link sets each field's value directly rather than
+    // going through readInput()'s string coercion, and skips any id the
+    // link did not carry so the recipient's own page defaults stand.
+    function applyShared(incoming) {
+      for (const id of FIELD_IDS) {
+        if (id in incoming) el(id).value = incoming[id];
+      }
+      if ('factorAccessorials' in incoming) el('factorAccessorials').checked = incoming.factorAccessorials;
+    }
+
+    function shareUrl() {
+      const { origin, pathname } = window.location;
+      return `${origin}${pathname}#${encodeInputs(readInput())}`;
+    }
+
+    async function copyShareLink() {
+      const text = shareUrl();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('share_link_copied');
+      el('summaryStatus').textContent = 'Link copied — the numbers travel in the link, not to a server';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
     FIELD_IDS.forEach(id => {
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => {
@@ -393,7 +432,19 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyShareLink').addEventListener('click', () => {
+      copyShareLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
 
+    // A shared week arrives in the fragment, which browsers never send to a
+    // server. `search` is accepted too, so a link that lost its # on the way
+    // through a messaging app still opens on the sender's numbers.
+    const incoming = decodeInputs(window.location.hash || window.location.search);
+    if (Object.keys(incoming).length > 0) {
+      applyShared(incoming);
+      count('shared_link_opened');
+      el('summaryStatus').textContent = 'Opened from a shared link — verify every figure against your own fuel receipts and notes.';
+    }
     update();
   </script>
 </body>

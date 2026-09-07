@@ -1,3 +1,20 @@
+/**
+ * The `calculateTrueUp` inputs, in the form's own ids. Single-sourced here so
+ * a field added to the form is shareable the day it ships rather than
+ * silently dropped by an encoder that never learned about it. Also the exact
+ * set `usage.mjs`'s `SCENARIO_FIELDS` persists locally.
+ *
+ * `renewalDate` and `noticeDays` are deliberately NOT in this list -- they
+ * are session-only for the *saved* scenario (a renewal date from last quarter
+ * would be actively wrong reappearing on a later, unrelated visit) -- but as
+ * of 2026-09-06 `share.mjs` carries both anyway, on its own field lists
+ * alongside this one. A share link describes the *same* renewal the sender is
+ * looking at right now, not a future one, so the staleness argument above
+ * does not apply to it, and the recipient needs `renewalDate`/`noticeDays` to
+ * see the same notice-deadline verdict the sender saw.
+ */
+export const INPUT_FIELDS = Object.freeze(['purchased', 'used', 'price', 'months', 'overageRate', 'seatMinimum']);
+
 export function calculateTrueUp({ seatsPurchased, seatsUsed, monthlyPrice, monthsRemaining = 12, overageRatePct = 0, seatMinimum = 0 }) {
   const purchased = Number(seatsPurchased);
   const used = Number(seatsUsed);

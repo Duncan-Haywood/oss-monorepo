@@ -1,0 +1,78 @@
+name: license-drift-check
+description: Free tool that diffs two point-in-time snapshots of a dependency tree's declared licenses (npm, pip, cargo, go) and reports exactly which packages' license changed, were added, or were removed since the last snapshot -- the change Dependabot and Renovate open a PR for but never flag on its own -- with a matching zero-dependency Node CLI usable as a CI gate.
+stage: prototype
+
+owner: duncan
+
+# Not a pipeline candidate write-up, and not a trade-bid calculator: same
+# archetype as ventures/actions-runner-starvation-check and
+# ventures/ai-crawler-access-check (developer/CI checker + browser tool), the
+# shape portfolio/pipeline/README.md's "archetype itself" section (2026-09-07)
+# argues for over a 142nd <trade>-bid-calculator, since 141 of 200 ventures
+# already share that one shape with zero recorded visitors between them.
+#
+# duplicate_check.py scored every existing venture, screened-out.md row, and
+# pipeline candidate below 0.10 for "license-drift checker: diffs two
+# point-in-time snapshots of a dependency tree's declared licenses (npm/pip/
+# cargo/go) and flags any package whose license changed since the last
+# recorded snapshot, for a CI gate, with no account or upload" -- nothing
+# close to the 0.45 review bar. Read against the closest existing ventures by
+# eye as well, not just the score: dns-configuration-evidence diffs DNS
+# resolver *answers*, not license fields; mcp-supply-chain-watch monitors MCP
+# servers a customer has already connected, not a dependency tree's licenses;
+# vendor-change-watch/vendor-change-evidence watch a vendor's own ToS/privacy
+# *web pages*, not package metadata; coverage-drop-check and
+# actions-injection-check are both CI checkers but on coverage XML and
+# workflow YAML respectively, sharing no data model or logic with this one.
+# None of them diff a dependency's license across two points in time.
+#
+# Distribution channel this was picked for: this is not "searchable, like the
+# other 141" -- it is a real, dated, event-driven demand. Four widely used
+# open-source projects relicensed away from a permissive/weak-copyleft
+# license in a way that blindsided their existing users via a routine
+# version bump: MongoDB -> SSPL (2018-10-16), Elasticsearch/Kibana -> SSPL /
+# Elastic License (2021-01-14, AWS forked as OpenSearch within three months),
+# Terraform -> BUSL-1.1 (2023-08-10, the OpenTF Manifesto gathered 33,000+
+# GitHub stars within a month and produced the OpenTofu fork, now a CNCF
+# project), and Redis -> SSPLv1/RSALv2 (2024-03-20, forked as Valkey under the
+# Linux Foundation within days, backed by AWS/Google Cloud/Oracle). Each event
+# is well-documented (see README sources) and each produced a large, motivated
+# audience of developers who lived through being blindsided once and are the
+# first visitors this is aimed at -- via the search phrases "detect license
+# change dependency", "license drift npm", "renovate license change
+# detection", and "dependabot license change" (confirmed by search on
+# 2026-09-07 that neither Dependabot's nor Renovate's own feature set
+# includes license-change detection -- both watch versions and
+# vulnerabilities, not the license field), and via any team that lived
+# through one of the four named events directly and now wants the gate this
+# tool provides so it cannot happen to them silently again.
+hypotheses:
+  - claim: A developer or platform team that was blindsided once by a dependency relicensing (Terraform/BUSL, Redis/SSPL, Elasticsearch/SSPL, MongoDB/SSPL, or a smaller one) will search for a way to make sure it cannot happen again silently, and will wire the CLI into their own CI as a gate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A maintainer doing routine dependency review will prefer a one-command license diff over manually re-reading each updated package's LICENSE file, since the report names exactly which packages changed and which didn't.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only text pasted into
+  # it, in the visitor's own browser, and the CLI reads only local files with
+  # no network call at all. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/license-drift-check/
+  analytics: null

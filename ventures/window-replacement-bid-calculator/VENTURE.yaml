@@ -28,5 +28,5 @@ kill_criteria:
   - Contractors report that the United-Inches-and-story model is more work than their existing method without changing the price they would have bid.
   - The starting unit prices prove so far from real distributor quotes that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/window-replacement-bid-calculator/
   analytics: null

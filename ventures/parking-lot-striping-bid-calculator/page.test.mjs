@@ -208,3 +208,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest asphalt-shop sibling: sealcoat often precedes striping, and the
+// sealcoat calculator's stall field is only an add-on — not a full marking
+// takeoff. Without a crawlable link here, a crawler entering on the striping
+// calculator never reaches the sealcoat tool in one hop.
+test('index links one hop to the asphalt-sealcoat-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/asphalt-sealcoat-bid-calculator\/"/,
+    'index must link ../asphalt-sealcoat-bid-calculator/ so crawlers reach the sealcoat calculator in one hop',
+  );
+  assert.match(html, /asphalt sealcoating bid calculator/i);
+});

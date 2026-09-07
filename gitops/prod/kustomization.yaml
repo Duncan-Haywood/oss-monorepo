@@ -125,20 +125,20 @@ configMapGenerator:
       # silently stays at its fallback height -- a failure with no symptom
       # anywhere we can see it.
       - pf-embed-host.js=front-door/pf-embed-host.js
-      # The seven category browse pages. Same reason as everything above for
+      # The eight category browse pages. Same reason as everything above for
       # riding in this ConfigMap: they are served from the document root (the
       # `^/c/(?<cat>…)/?$` block in `front-door/default.conf` rewrites
       # `/c/trades/` to `/c__trades.html`), and two ConfigMaps cannot mount at
       # one `mountPath`.
       #
       # Listed one line per file rather than generated, unlike `front-door-tools/`,
-      # because the set is seven and changes only when a category gains or
+      # because the set is eight and changes only when a category gains or
       # loses its last mirrored tool — a generated nested kustomization would
       # be more machinery than the thing it manages. `front-door.test.mjs`
       # asserts this list against what the generator writes, so a category
       # added without a line here fails CI rather than going dark.
       #
-      # ~136 KB together, the largest being `c__trades.html` at ~55 KB for 116
+      # ~148 KB together, the largest being `c__trades.html` at ~55 KB for 116
       # tools. Measured with `kustomize build gitops/prod`, the serialised
       # object goes from ~350 KB to 487 KiB against the 1 MiB ceiling; the
       # ceiling test in `front-door.test.mjs` covers the whole generated set,
@@ -146,17 +146,18 @@ configMapGenerator:
       #
       # Well past the 262144-byte annotation cap that makes the
       # `ServerSideApply=true` above load-bearing rather than decoration —
-      # these seven keys roughly double the margin by which that is true.
+      # these eight keys roughly double the margin by which that is true.
       - c__trades.html=front-door/c__trades.html
       - c__evidence.html=front-door/c__evidence.html
       - c__marketplace.html=front-door/c__marketplace.html
       - c__backoffice.html=front-door/c__backoffice.html
       - c__services.html=front-door/c__services.html
       - c__logistics.html=front-door/c__logistics.html
+      - c__ci.html=front-door/c__ci.html
       - c__more.html=front-door/c__more.html
       # The About and press-kit page, served from the document root by the
       # `^/about/?$` block in `front-door/default.conf`. Same ConfigMap for the
-      # same reason as the seven above; ~9 KB, and unlike them it is not
+      # same reason as the eight above; ~9 KB, and unlike them it is not
       # conditional on any category having mirrored tools, so it is always
       # present.
       - about.html=front-door/about.html
@@ -208,7 +209,7 @@ configMapGenerator:
       # is on disk nowhere, so `try_files` would stat a missing file and 404
       # the whole comparison layer behind a config that reads correctly.
       #
-      # Listed one line per file rather than generated, matching the seven
+      # Listed one line per file rather than generated, matching the eight
       # `c__<id>.html` pages above, and with the same guard: `front-door.mjs`
       # sweeps a `vs__*.html.gz` whose product drops below two comparisons, and
       # `front-door.test.mjs` asserts this list against what the generator
@@ -229,6 +230,8 @@ configMapGenerator:
       - vs__paintscout.html.gz=front-door/vs__paintscout.html.gz
       - vs__servicecore.html.gz=front-door/vs__servicecore.html.gz
       - vs__servicemonster.html.gz=front-door/vs__servicemonster.html.gz
+      - vs__crest-capital-s-lease-calculator.html.gz=front-door/vs__crest-capital-s-lease-calculator.html.gz
+      - vs__workiz.html.gz=front-door/vs__workiz.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified rental operators use the calculator twice within 90 days.
   - Users do not report finding an underpriced booking or changing a utilization assumption within 90 days.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/equipment-rental-break-even/
   analytics: null

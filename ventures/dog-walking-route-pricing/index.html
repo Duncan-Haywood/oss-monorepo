@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dog Walking &amp; Pet Sitting Rate Calculator — Price Your Route</title>
+<meta name="description" content="Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Dog Walking &amp; Pet Sitting Rate Calculator">
+<meta property="og:description" content="Stop guessing at a flat per-walk rate. Price one visit from time, drive, mileage, extra pets, and overhead, then see whether your whole route hits your income goal.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Dog Walking & Pet Sitting Rate Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a dog walk, drop-in visit, or overnight pet-sitting stay from labor time, drive time, mileage, extra-pet surcharges, overhead, and target margin, and rolls a client list up into monthly route revenue."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does drive time count as billable time if I'm not with a dog yet?","acceptedAnswer":{"@type":"Answer","text":"Because it is time you cannot spend on another visit or anything else that pays. A route of five stops with ten minutes of driving between each one spends nearly an hour a day just driving — leave that out of the price and every visit is quietly subsidizing the commute to the next one."}},{"@type":"Question","name":"Why is an overnight priced with on-call hours instead of just the minutes I'm actually up and working?","acceptedAnswer":{"@type":"Answer","text":"An overnight stay commits your whole night to one client even during the hours nothing goes wrong — you cannot book another job, sleep at home, or leave. Pricing only the arrival, walk, and departure minutes treats being on call as free, which is why a flat per-night rate that ignores it usually undercharges the job with the most exposure."}},{"@type":"Question","name":"Why does the calculator gross up the price for a payment processing fee instead of just subtracting it from what I planned to charge?","acceptedAnswer":{"@type":"Answer","text":"If a payment app takes 3% and you quote the pre-fee number, you net 3% less than you planned on every single visit. Grossing the price up so the fee comes out of the client's payment, not your margin, is the only way the number you typed as your target margin is the number you actually keep."}},{"@type":"Question","name":"Does anything about my clients or route get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the client names and prices you type into the route section are never saved anywhere — they exist only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#2b1d12;background:#fdf3e7}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e7c9a3;border-radius:16px;padding:20px;box-shadow:0 8px 24px #5a381208;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #edd9bb;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a5a20;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9b98c;border-radius:8px;font:inherit;background:#fffdfa}.result{background:#8a3d1f;color:#fff;border-color:#8a3d1f;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6b563f}.result .note{color:#f6dcc9}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#8a5a20}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #d9b98c;background:#fff;cursor:pointer;color:#2b1d12}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR INDEPENDENT DOG WALKERS &amp; PET SITTERS</p><h1>Price the visit, then price the route.</h1><p class="lede">A flat "$20 a walk" rate ignores drive time, extra dogs, overnight on-call hours, and what your app takes in fees. This free calculator prices one visit from your real time and costs, then rolls your whole client list up into a monthly number you can check against your income goal.</p></header>
+
+<main class="layout">
+<section><h2>Price one visit</h2>
+<fieldset><legend>Visit</legend><div class="fields">
+<label>On-site minutes (walk / drop-in)<input id="visitMinutes" type="number" min="0" step="1" value="30"></label>
+<label>Drive minutes to/from this stop<input id="driveMinutes" type="number" min="0" step="1" value="10"></label>
+<label>Round-trip miles for this stop<input id="mileage" type="number" min="0" step="0.1" value="4"></label>
+<label>Mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.67"></label>
+<label>Target hourly rate ($/hr)<input id="targetHourlyRate" type="number" min="0" step="0.5" value="24"></label>
+<label>Number of pets this visit<input id="petCount" type="number" min="1" step="1" value="1"></label>
+<label>Extra fee per additional pet<input id="additionalPetFee" type="number" min="0" step="0.5" value="6"></label>
+<label>Special-needs fee (meds, senior, puppy)<input id="specialNeedsFee" type="number" min="0" step="0.5" value="0"></label>
+</div></fieldset>
+<fieldset><legend>Overnight (leave nights at 0 for a walk or drop-in)</legend><div class="fields">
+<label>Overnight nights<input id="overnightNights" type="number" min="0" step="1" value="0"></label>
+<label>Active minutes per night<input id="overnightActiveMinutes" type="number" min="0" step="1" value="45"></label>
+<label>On-call hours billed per night<input id="overnightOnCallHours" type="number" min="0" step="0.5" value="2"></label>
+</div></fieldset>
+<fieldset><legend>Fees &amp; overhead</legend><div class="fields">
+<label>Holiday / last-minute surcharge (%)<input id="holidaySurchargePct" type="number" min="0" max="200" step="1" value="0"></label>
+<label>Payment processing fee (%)<input id="paymentProcessingFeePct" type="number" min="0" max="99.9" step="0.1" value="0"></label>
+<label>Monthly overhead (insurance, app, supplies)<input id="monthlyOverhead" type="number" min="0" step="1" value="45"></label>
+<label>Expected visits per month<input id="expectedVisitsPerMonth" type="number" min="0" step="1" value="60"></label>
+<label>Target margin (%)<input id="targetMarginPct" type="number" min="0" max="99.9" step="1" value="15"></label>
+</div></fieldset>
+</section>
+
+<section class="result" aria-live="polite"><h2>Price for this visit</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="price" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>On-site + drive + on-call time</dt><dd id="hoursOut"></dd>
+<dt>Labor</dt><dd id="laborOut"></dd>
+<dt>Mileage</dt><dd id="mileageOut"></dd>
+<dt>Extra-pet fee</dt><dd id="petOut"></dd>
+<dt>Overhead allocated</dt><dd id="overheadOut"></dd>
+<dt>Margin</dt><dd id="marginOut"></dd>
+<dt>Holiday surcharge</dt><dd id="holidayOut"></dd>
+<dt>Processing fee</dt><dd id="processingOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not a market rate. It does not add taxes, bad debt, or slow seasons unless you fold those into overhead yourself.</p>
+</section>
+</main>
+
+<section><h2>Your route this month</h2><p class="note">Add each recurring client's price per visit and visits per week. Blank or zero-price rows are ignored. Nothing you type here is saved or uploaded — refreshing the page clears it.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Client</th><th>Price / visit</th><th>Visits / week</th></tr></thead><tbody id="clientRows">
+<tr><td>1</td><td><input class="clientPrice" data-row="1" aria-label="Client 1 price per visit in dollars" type="number" min="0" step="0.5" value="20"></td><td><input class="clientVisits" data-row="1" aria-label="Client 1 visits per week" type="number" min="0" step="1" value="5"></td></tr>
+<tr><td>2</td><td><input class="clientPrice" data-row="2" aria-label="Client 2 price per visit in dollars" type="number" min="0" step="0.5" value="35"></td><td><input class="clientVisits" data-row="2" aria-label="Client 2 visits per week" type="number" min="0" step="1" value="2"></td></tr>
+<tr><td>3</td><td><input class="clientPrice" data-row="3" aria-label="Client 3 price per visit in dollars" type="number" min="0" step="0.5" value=""></td><td><input class="clientVisits" data-row="3" aria-label="Client 3 visits per week" type="number" min="0" step="1" value=""></td></tr>
+<tr><td>4</td><td><input class="clientPrice" data-row="4" aria-label="Client 4 price per visit in dollars" type="number" min="0" step="0.5" value=""></td><td><input class="clientVisits" data-row="4" aria-label="Client 4 visits per week" type="number" min="0" step="1" value=""></td></tr>
+<tr><td>5</td><td><input class="clientPrice" data-row="5" aria-label="Client 5 price per visit in dollars" type="number" min="0" step="0.5" value=""></td><td><input class="clientVisits" data-row="5" aria-label="Client 5 visits per week" type="number" min="0" step="1" value=""></td></tr>
+<tr><td>6</td><td><input class="clientPrice" data-row="6" aria-label="Client 6 price per visit in dollars" type="number" min="0" step="0.5" value=""></td><td><input class="clientVisits" data-row="6" aria-label="Client 6 visits per week" type="number" min="0" step="1" value=""></td></tr>
+</tbody></table></div>
+<div class="fields" style="margin-top:14px">
+<label>Weeks per month (average)<input id="weeksPerMonth" type="number" min="1" step="0.01" value="4.33"></label>
+<label>Target monthly income<input id="targetMonthlyIncome" type="number" min="0" step="10" value="2000"></label>
+</div>
+<p id="routeErrors" class="err" role="alert" hidden></p>
+<dl>
+<dt>Clients counted</dt><dd id="routeClients"></dd>
+<dt>Visits per month</dt><dd id="routeVisits"></dd>
+<dt>Average price / visit</dt><dd id="routeAverage"></dd>
+<dt>Monthly route revenue</dt><dd id="routeRevenue"></dd>
+<dt>Gap to income goal</dt><dd id="routeGap"></dd>
+<dt>Extra visits/month to close it</dt><dd id="routeExtra"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your visit inputs and client list are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>estimate</code>, <code>route-check</code>) so we can tell whether the calculator gets used — no names, prices, or route content are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does drive time count as billable time if I'm not with a dog yet?</h3><p>Because it is time you cannot spend on another visit or anything else that pays. A route of five stops with ten minutes of driving between each one spends nearly an hour a day just driving &mdash; leave that out of the price and every visit is quietly subsidizing the commute to the next one.</p>
+<h3>Why is an overnight priced with on-call hours instead of just the minutes I'm actually up and working?</h3><p>An overnight stay commits your whole night to one client even during the hours nothing goes wrong &mdash; you cannot book another job, sleep at home, or leave. Pricing only the arrival, walk, and departure minutes treats being on call as free, which is why a flat per-night rate that ignores it usually undercharges the job with the most exposure.</p>
+<h3>Why does the calculator gross up the price for a payment processing fee instead of just subtracting it from what I planned to charge?</h3><p>If a payment app takes 3% and you quote the pre-fee number, you net 3% less than you planned on every single visit. Grossing the price up so the fee comes out of the client's payment, not your margin, is the only way the number you typed as your target margin is the number you actually keep.</p>
+<h3>Does anything about my clients or route get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the client names and prices you type into the route section are never saved anywhere &mdash; they exist only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<p class="note">New to setting rates? Read the guide: <a href="./how-much-to-charge-for-a-dog-walk.html">how much to charge for a dog walk</a>.</p>
+<p class="note"><a href="./vs-rover.html">This calculator vs. Rover — pricing your own route vs. a marketplace listing</a></p>
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not evaluate whether an animal is fit to be walked or boarded, does not screen clients, and does not replace your own judgment, contract, or insurance.</p><p>Pricing an unattended machine route rather than a service visit? The <a href="../atm-route-margin/">ATM route margin calculator</a> finds real monthly profit per placement after the surcharge split, processor fees, and vault cash cost of capital &mdash; nothing uploaded.</p><p>MIT licensed. If it helped you price the next route, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculate, computeRouteRevenue, incomeGap, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const VISIT_IDS = Object.keys(DEFAULTS);
+let counted = false;
+let routeCounted = false;
+
+function visitInputs() { return Object.fromEntries(VISIT_IDS.map(id => [id, el(id).value])); }
+
+function updateVisit(count = false) {
+  try {
+    const r = calculate(visitInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('price').hidden = false;
+    el('price').textContent = money(r.finalPrice);
+    el('rateLine').textContent = `about ${money(r.effectiveHourlyRate)}/hr across ${r.hoursBilled.toFixed(2)} billed hours`;
+    el('hoursOut').textContent = `${r.hoursBilled.toFixed(2)} hr`;
+    el('laborOut').textContent = money(r.laborCost);
+    el('mileageOut').textContent = money(r.mileageCost);
+    el('petOut').textContent = money(r.petSurcharge);
+    el('overheadOut').textContent = money(r.overheadPerVisit);
+    el('marginOut').textContent = money(r.marginAmount);
+    el('holidayOut').textContent = money(r.holidayAmount);
+    el('processingOut').textContent = money(r.processingFeeAmount);
+    if (count && !counted) { recordEvent('estimate'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('price').hidden = true;
+    for (const id of ['rateLine', 'hoursOut', 'laborOut', 'mileageOut', 'petOut', 'overheadOut', 'marginOut', 'holidayOut', 'processingOut']) el(id).textContent = '';
+  }
+}
+
+function updateRoute(count = false) {
+  try {
+    const clients = [];
+    for (let row = 1; row <= 6; row++) {
+      const priceEl = document.querySelector(`.clientPrice[data-row="${row}"]`);
+      const visitsEl = document.querySelector(`.clientVisits[data-row="${row}"]`);
+      const price = parseFloat(priceEl.value);
+      const visits = parseFloat(visitsEl.value);
+      if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(visits) || visits <= 0) continue;
+      clients.push({ price, visitsPerWeek: visits });
+    }
+    const weeksPerMonth = parseFloat(el('weeksPerMonth').value);
+    const route = computeRouteRevenue(clients, Number.isFinite(weeksPerMonth) && weeksPerMonth > 0 ? weeksPerMonth : undefined);
+    const targetMonthlyIncome = parseFloat(el('targetMonthlyIncome').value) || 0;
+    const gap = incomeGap(targetMonthlyIncome, route.monthlyRevenue, route.averagePrice);
+    el('routeErrors').hidden = true; el('routeErrors').textContent = '';
+    el('routeClients').textContent = String(route.clientCount ? clients.length : 0);
+    el('routeVisits').textContent = route.totalVisitsPerMonth.toFixed(1);
+    el('routeAverage').textContent = money(route.averagePrice);
+    el('routeRevenue').textContent = money(route.monthlyRevenue);
+    el('routeGap').textContent = gap.meetsTarget ? 'Goal met' : money(gap.gap);
+    el('routeExtra').textContent = gap.meetsTarget ? '0' : (gap.additionalVisitsNeeded === null ? 'add a priced client' : String(gap.additionalVisitsNeeded));
+    if (count && !routeCounted) { recordEvent('route-check'); routeCounted = true; }
+  } catch (e) {
+    el('routeErrors').textContent = e.message; el('routeErrors').hidden = false;
+    for (const id of ['routeClients', 'routeVisits', 'routeAverage', 'routeRevenue', 'routeGap', 'routeExtra']) el(id).textContent = '';
+  }
+}
+
+VISIT_IDS.forEach(id => el(id).addEventListener('input', () => updateVisit(true)));
+document.querySelectorAll('.clientPrice, .clientVisits').forEach(input => input.addEventListener('input', () => updateRoute(true)));
+el('weeksPerMonth').addEventListener('input', () => updateRoute(true));
+el('targetMonthlyIncome').addEventListener('input', () => updateRoute(true));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+updateVisit(false);
+updateRoute(false);
+</script>
+</body></html>

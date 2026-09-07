@@ -103,18 +103,64 @@ toward *running in public* ranks with feature work here, not below it:
   paragraph above as current spends itself on a path that is inert. There is a
   second route that is downstream of neither the cluster nor an Actions runner:
   `platform/pages/publish-branch.sh` builds the site here and commits it to an
-  orphan `gh-pages` branch, ready for a branch-source Pages flip the owner has
-  not yet made. Both routes, and how stale the staged artifact is, are reported
+  orphan `gh-pages` branch.
+
+  **That route is LIVE, measured 2026-09-06 — this is the one to use.** GitHub
+  serves `gh-pages`, so pushing that branch *is* a deploy to a public URL.
+  Proof rather than inference: GitHub's own managed builder
+  `dynamic/pages/pages-build-deployment` ran on the branch and succeeded (runs
+  34011996382, 34012041708), and a managed Pages build is triggered only by a
+  push to the configured source. Both ran while Actions runners were starved,
+  so this route does not spend the metered allowance either. Read the current
+  state from `python3 platform/ci/pages_state.py` -- its `deployed` row -- not
+  from this paragraph.
+
+  **Because it is live, refreshing it is part of shipping, not an afterthought.**
+  `gh-pages` is a committed artifact: nothing rebuilds it when `main` moves, so
+  a merge that touches a served surface leaves the live site behind with no
+  error anywhere to say so. If your run merges such a change, finish the job:
+
+      python3 platform/ci/pages_state.py --require-current   # exits 1 if stale
+      CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
+      python3 platform/ci/pages_state.py --require-current   # must exit 0 now
+
+  The flag exists because the prose version of this instruction did not hold:
+  CLAUDE.md had carried it for a day when a session that had read it still left
+  the snapshot stale. Do not treat a green `--require-current` as optional
+  paperwork -- it is the difference between a merged asset and a published one.
+  It never publishes for you, and a docs-only merge passes it without a
+  republish, so running it costs nothing when there is nothing to do.
+
+  **And a third, added 2026-09-06: `gitops/prod/host/`.** Host mode for the
+  *site*, completing the set `gitops/agents/host/` (this worker) and
+  `gitops/ci/host/` (the Actions runner) had already started — nginx and a
+  systemd timer on the box, no k3s, no Argo, no runner. Unlike the `gh-pages`
+  snapshot it **pulls**: the timer fetches `main` every ten minutes and
+  rebuilds only if it moved, fail-closed on `check.mjs`, so a merge to `main`
+  is the deploy again. If you land product code, that is the route that will
+  carry it. Do not rebuild it, and do not add an owner ask for it — all three
+  host-mode paths are blocked on the same one (`HETZNERSSHKEY` holds a public
+  key) and on nothing else. Both routes, and how stale the staged artifact is, are reported
   by `python3 platform/ci/publish_surface.py` — read that rather than either
   this file or `CLAUDE.md`, both of which are prose about a live configuration
   and go stale silently. `portfolio/ledger/infra_state.yaml` carries the dated
   readings and the command to re-measure each; a reading older than its
   staleness window is *unknown*, never "up".
 
-  If you land product code while every route is down, restage the artifact
-  (`CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`) so
-  what is staged matches what you shipped. Nothing about that publishes: it
-  stages a branch, and enabling Pages stays the owner's decision.
+  **So: if you land product code, run
+  `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+  before you finish.** A committed artifact does not rebuild itself and nothing
+  else refreshes it while runners are down, so that command is the difference
+  between the live site and `main`. Treat it as part of shipping, not as
+  cleanup.
+
+  **This paragraph used to end "Nothing about that publishes: it stages a
+  branch, and enabling Pages stays the owner's decision."** That was true when
+  written and is now false in the direction that matters -- the push reaches
+  users. It is left visible because the mistake is the reusable part: it was a
+  correct reading of the *script* restated as a claim about the *site*, and
+  nothing re-ran when the world changed. Prefer `pages_state.py` to any
+  sentence in this file, `CLAUDE.md` included; a tool re-reads, prose does not.
 - **CI/CD.** The checks are the only thing standing between a stale branch and
   a silent revert. Repairing a broken workflow, or the self-hosted runner stack
   in `gitops/ci/`, protects every future merge.

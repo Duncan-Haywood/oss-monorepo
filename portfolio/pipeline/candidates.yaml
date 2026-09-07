@@ -105,9 +105,11 @@ candidates:
   - slug: quote-margin-check
     name: Quote margin check
     doc: candidates/quote-margin-check.md
-    verdict: build-now
+    verdict: graduated
     graduate_as: venture
     host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/quote-margin-check
     scores:
       ai_leverage: 3
       autonomous_ops: 9
@@ -155,7 +157,7 @@ candidates:
   - slug: eaa-remediation-pipeline
     name: EAA remediation pipeline
     doc: candidates/eaa-remediation-pipeline.md
-    verdict: build-now
+    verdict: graduated
     graduate_as: product-line
     host_venture: local-site-studio
     initiated: 2026-08-24
@@ -690,9 +692,11 @@ candidates:
   - slug: consent-change-record
     name: Consent change record
     doc: candidates/consent-change-record.md
-    verdict: build-now
+    verdict: graduated
     graduate_as: venture
     host_venture: null
+    initiated: 2026-08-26
+    initiated_path: ventures/consent-change-record
     scores:
       ai_leverage: 7
       autonomous_ops: 7
@@ -743,9 +747,11 @@ candidates:
   - slug: mls-photo-spec-preflight
     name: MLS photo spec preflight
     doc: candidates/mls-photo-spec-preflight.md
-    verdict: build-now
+    verdict: graduated
     graduate_as: product-line
     host_venture: real-estate-agent-photo-app
+    initiated: 2026-08-24
+    initiated_path: ventures/real-estate-agent-photo-app
     scores:
       ai_leverage: 7
       autonomous_ops: 8
@@ -778,13 +784,17 @@ candidates:
   - slug: shopify-permission-drift
     name: Shopify app-permission drift record
     doc: candidates/shopify-permission-drift.md
-    verdict: build-now
+    verdict: graduated
     verdict_changed: >-
       probe -> build-now, 2026-08-24. The first vertical slice is usable
       without Shopify credentials: operators can compare customer-authorized
       exports locally before any platform-scope or hosting dependency is taken.
+      build-now -> graduated, 2026-09-06: ventures/shopify-permission-drift
+      already exists and ships this slice.
     graduate_as: venture
     host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/shopify-permission-drift
     scores:
       ai_leverage: 7
       autonomous_ops: 8
@@ -912,5 +922,190 @@ candidates:
     floor: 1
     floor_dimension: ai_leverage
     mitigation: Keep date arithmetic and exports deterministic; label the queue as planning evidence and require users to verify each award agreement.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: dog-walking-route-pricing
+    name: Dog walking & pet sitting route pricing calculator
+    doc: candidates/dog-walking-route-pricing.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-06
+    initiated_path: ventures/dog-walking-route-pricing
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: atm-route-margin
+    name: ATM route margin calculator
+    doc: candidates/atm-route-margin.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-06
+    initiated_path: ventures/atm-route-margin
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: vending-machine-route-margin
+    name: Vending machine route profit calculator
+    doc: candidates/vending-machine-route-margin.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-06
+    initiated_path: ventures/vending-machine-route-margin
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: dumpster-rental-margin-calculator
+    name: Dumpster rental margin calculator
+    doc: candidates/dumpster-rental-margin-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-06
+    initiated_path: ventures/dumpster-rental-margin-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: custom-farm-rate-calculator
+    name: Custom farm rate calculator
+    doc: candidates/custom-farm-rate-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-06
+    initiated_path: ventures/custom-farm-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+
+  - slug: locksmith-bid-calculator
+    name: Locksmith bid calculator
+    doc: candidates/locksmith-bid-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-06
+    initiated_path: ventures/locksmith-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every output as a pricing planning floor rather than a quote the tool issues on the locksmith's behalf; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: fire-extinguisher-inspection-route-margin
+    name: Fire extinguisher inspection route margin calculator
+    doc: candidates/fire-extinguisher-inspection-route-margin.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-06
+    initiated_path: ventures/fire-extinguisher-inspection-route-margin
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: pour-cost-calculator
+    name: Pour cost calculator
+    doc: candidates/pour-cost-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-07
+    initiated_path: ventures/pour-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every input as a user-supplied bottle cost or pour size; measure repeat use before adding any integration, POS connection, or AI-assisted feature.
     first_experiment_days: 14
     first_experiment_budget_usd: 0

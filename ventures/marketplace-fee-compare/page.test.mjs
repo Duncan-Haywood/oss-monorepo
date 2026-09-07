@@ -128,7 +128,7 @@ test("the own-store demand caveat is in the markup, not only in prose", () => {
   assert.match(prose, /A marketplace fee buys buyers/);
 });
 
-test("every channel and the excluded one link to their deep calculator", () => {
+test("every channel and every excluded channel link to their deep calculator", () => {
   for (const channel of [...CHANNELS, ...EXCLUDED_CHANNELS]) {
     assert.ok(
       scriptSource.includes("../${escapeHtml(channel.deepTool)}/"),
@@ -139,6 +139,10 @@ test("every channel and the excluded one link to their deep calculator", () => {
   assert.equal(
     (scriptSource.match(/\.\.\/\$\{escapeHtml\(channel\.deepTool\)\}\//g) ?? []).length,
     2,
+  );
+  assert.ok(
+    EXCLUDED_CHANNELS.some((c) => c.deepTool === "whatnot-seller-payout"),
+    "Whatnot must be in EXCLUDED_CHANNELS so the hub generates its deep link",
   );
 });
 
@@ -232,5 +236,41 @@ test("the sharing FAQ answer matches between JSON-LD and the visible section", (
   assert.ok(
     prose.includes(answer.replace(/\s+/g, " ")),
     "the JSON-LD answer text must also be visible on the page",
+  );
+});
+
+// where-to-sell-calculator ranks the same one-item shape after returns and
+// shelf time (and covers Reverb / a local sale). Without a crawlable reverse
+// link, a crawler entering here never reaches that sibling hub — same
+// one-way orphan class as #3639 / #3650 / #3658.
+test("index links to the related where-to-sell calculator", () => {
+  assert.match(
+    markup,
+    /href="\.\.\/where-to-sell-calculator\/"/,
+    "index must link ../where-to-sell-calculator/ so crawlers can reach the returns/shelf-time ranking",
+  );
+});
+
+test("visible FAQ explains why Whatnot is excluded", () => {
+  assert.match(markup, /Why is Whatnot not in the comparison\?/);
+  assert.match(prose, /livestream auction/i);
+});
+
+// #3682's commit message says it closed the crawlable orphan to the Whatnot
+// payout calculator. What it actually shipped into the static HTML was FAQ
+// prose naming the tool; the only href to it is written by `calc.mjs` at
+// runtime, from `EXCLUDED_CHANNELS[].deepTool`. A crawler that does not
+// execute JavaScript therefore never followed it, and
+// `whatnot-seller-payout` stayed the one-way orphan the commit set out to
+// close — while `whatnot-seller-payout/index.html` had linked back here
+// statically the whole time.
+//
+// Found by `node platform/pages/siblings.mjs`, which counts static hrefs only
+// and so cannot be satisfied by a mention or by a link a script assembles.
+test("index links statically to the Whatnot payout calculator", () => {
+  assert.match(
+    markup,
+    /href="\.\.\/whatnot-seller-payout\/"/,
+    "index must carry a static ../whatnot-seller-payout/ href — a runtime-built link is invisible to a crawler",
   );
 });

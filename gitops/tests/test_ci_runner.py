@@ -11,15 +11,30 @@ workflow onto it.
 
 from __future__ import annotations
 
+import importlib.util
 import re
 from pathlib import Path
 
+import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parent
 CI = ROOT / "ci"
 WORKFLOWS = REPO / ".github" / "workflows"
+
+
+def _load(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+# The updater for the count sentence asserted below. Loaded by path because
+# gitops/ci/ is a manifest directory, not an importable package.
+_sync = _load("sync_readme_counts", CI / "sync_readme_counts.py")
 
 RUNS_ON = "${{ vars.CI_RUNNER || 'ubuntu-latest' }}"
 
@@ -108,17 +123,67 @@ def test_readme_runs_on_count_matches_reality() -> None:
         r"(\d+) of the (\d+) `runs-on` lines across (\d+) workflows", readme
     )
     assert match, "README's runs-on count sentence not found or reworded"
+    # Name the fix in the failure itself. This assertion has fired four times
+    # (#2713, #2740, #3516, #3517) and each time a session hand-retyped three
+    # integers, twice burning a whole PR on it -- #3516 and #3517 hours apart on
+    # 2026-09-06, because a workflow landed while the first was open. The number
+    # is derivable, so the failure should hand over the command rather than the
+    # arithmetic.
+    fix = "run `python3 gitops/ci/sync_readme_counts.py` and commit the result"
     assert int(match.group(1)) == switch_count, (
         f"README claims {match.group(1)} runs-on lines read the switch, "
-        f"actual count is {switch_count}"
+        f"actual count is {switch_count} -- {fix}"
     )
     assert int(match.group(2)) == total_runs_on, (
         f"README claims {match.group(2)} total runs-on lines, "
-        f"actual count is {total_runs_on}"
+        f"actual count is {total_runs_on} -- {fix}"
     )
     assert int(match.group(3)) == len(workflows), (
-        f"README claims {match.group(3)} workflows, actual count is {len(workflows)}"
+        f"README claims {match.group(3)} workflows, "
+        f"actual count is {len(workflows)} -- {fix}"
     )
+
+
+def test_sync_readme_counts_agrees_with_the_allowlist_derivation() -> None:
+    # The two derivations are deliberately independent: the test above subtracts
+    # DOCKER_DEPENDENT_JOBS (a hand-maintained allowlist), while the script counts
+    # the `runs-on` values that literally are the switch expression. Sharing a
+    # constant would have let the allowlist drift from the workflows with both
+    # numbers moving together and nothing noticing. Assert they agree instead --
+    # a disagreement means the allowlist names a job that no longer opts out, or
+    # misses one that does.
+    workflows = sorted(WORKFLOWS.glob("*.yml"))
+    total_runs_on = sum(
+        len(yaml.safe_load(p.read_text()).get("jobs") or {}) for p in workflows
+    )
+    expected = (total_runs_on - len(DOCKER_DEPENDENT_JOBS), total_runs_on, len(workflows))
+    assert _sync.counts() == expected, (
+        "sync_readme_counts.counts() disagrees with the DOCKER_DEPENDENT_JOBS "
+        "derivation -- the allowlist and the workflow tree have drifted apart"
+    )
+
+
+def test_sync_readme_counts_repairs_drift_and_is_idempotent(tmp_path) -> None:
+    # The whole point of the script is that a stale sentence is a command away
+    # from correct. Prove it on a scratch copy: a wrong sentence is detected,
+    # rewritten to the real numbers, and a second run changes nothing.
+    readme = CI / "README.md"
+    original = readme.read_text()
+    reads_switch, total, count = _sync.counts()
+
+    stale = _sync.SENTENCE.sub("1 of the 2 `runs-on` lines across 3 workflows", original, count=1)
+    assert stale != original, "failed to construct a stale sentence to repair"
+
+    repaired = _sync.rewrite(stale, reads_switch, total, count)
+    assert repaired == original, "rewriting a stale sentence did not reproduce the README"
+    assert _sync.rewrite(repaired, reads_switch, total, count) == repaired, "not idempotent"
+
+
+def test_sync_readme_counts_reports_a_reworded_sentence_rather_than_guessing() -> None:
+    # If someone rewords the sentence, the script must say so loudly. Silently
+    # writing nothing would leave the guard above failing with no way to fix it.
+    with pytest.raises(SystemExit):
+        _sync.rewrite("no count sentence here", 1, 2, 3)
 
 
 _PYTHON_NEEDLE = re.compile(r"\b(python3?|pip3?)\b")
@@ -290,6 +355,48 @@ def test_setup_python_jobs_install_the_modules_they_import() -> None:
                         f"{path.name}:{name} imports `{module}` but no pip install provides it"
                     )
     assert not failures, "\n".join(failures)
+
+
+def test_host_mode_runner_version_matches_in_cluster_pin() -> None:
+    # gitops/ci/host/README.md and bootstrap/scripts/install-github-runner-host.sh
+    # both claim the host-mode runner installs "the same version
+    # gitops/ci/runner.yaml runs in-cluster, so the two paths behave
+    # identically" -- but until this test, that claim was two independent
+    # hand-written pins (an image tag here, a shell variable there) with
+    # nothing tying them together. gitops/ci/README.md already documents the
+    # one-line fix for when GitHub deprecates a runner version ("bump the tag
+    # in runner.yaml"), which updates only the in-cluster path and would leave
+    # the host-mode installer silently registering a stale runner under a
+    # comment claiming parity -- the same "a copied rule goes stale instead of
+    # being imported" shape CLAUDE.md already records paying for twice (168
+    # tools became 169 the same way). This test fails the moment the two pins
+    # disagree, rather than waiting for GitHub to start warning on one runner
+    # and not the other.
+    runner_yaml = (CI / "runner.yaml").read_text()
+    image_match = re.search(
+        r"image:\s*ghcr\.io/actions/actions-runner:([0-9.]+)", runner_yaml
+    )
+    assert image_match, "gitops/ci/runner.yaml's runner image tag not found or reworded"
+    cluster_version = image_match.group(1)
+
+    installer = (
+        REPO / "bootstrap" / "scripts" / "install-github-runner-host.sh"
+    ).read_text()
+    host_match = re.search(
+        r'RUNNER_VERSION="\$\{RUNNER_HOST_VERSION:-([0-9.]+)\}"', installer
+    )
+    assert host_match, (
+        "install-github-runner-host.sh's RUNNER_VERSION default not found or reworded"
+    )
+    host_version = host_match.group(1)
+
+    assert host_version == cluster_version, (
+        f"host-mode runner pins {host_version} (bootstrap/scripts/"
+        f"install-github-runner-host.sh) but the in-cluster pod "
+        f"(gitops/ci/runner.yaml) pins {cluster_version} -- bump both together, "
+        "and re-verify RUNNER_TARBALL_SHA256 in the installer against the new "
+        "release's own \"SHA-256 Checksums\" section before committing."
+    )
 
 
 def test_the_switch_defaults_to_github_hosted() -> None:

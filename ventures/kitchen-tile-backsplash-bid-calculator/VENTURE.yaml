@@ -40,5 +40,5 @@ kill_criteria:
   - Contractors report that splitting wall, pattern, and extras is more work than their existing per-SF method without changing the price they would have bid.
   - The starting hours and tile rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/kitchen-tile-backsplash-bid-calculator/
   analytics: null

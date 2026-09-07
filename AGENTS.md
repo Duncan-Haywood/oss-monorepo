@@ -1,7 +1,19 @@
 # Agent instructions
 
-Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first. That is the
-company strategy; this file is how to execute it in this repo.
+Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first — if your brief
+is "set direction" for the fleet, start with its "Before rewriting this brief
+again" note: that exact brief was already re-answered three times in three
+hours immediately before that note was added, and none of the three shipped
+a venture. Otherwise, or once that check clears, start with its
+"North star" section for the six-point version (deploy what's built, new
+ventures rank first as the owner's standing preference, donations only, keep
+customers happy by shipping working/honest products, market the products
+within the fair-use rules — enforced automatically in CI, not a manual
+re-derivation — and legal exposure is the one hard stop), then its "Owner
+direction, relayed again" section right after for the five-minute version of
+the same brief with today's numbers attached, and its "Fast scan for what
+should this session do" checklist right after that. This file is how to
+execute that strategy in this repo.
 
 ## Your job
 
@@ -33,6 +45,48 @@ Prefer products that:
 venture on `main` still has no public URL, that deploy is the next task.
 See [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) "Current priority".
 Do not open a second `deploy-settings` ask.
+
+**As of 2026-09-06 the primary deploy (GitHub Pages) is done and confirmed
+current** — `deploy-settings` is granted, ~175 products are live at
+`https://duncan-haywood.github.io/monorepo-projects/`, and the standing job
+is just keeping the snapshot fresh (`python3 platform/ci/pages_state.py`,
+then `platform/pages/publish-branch.sh` if stale). With distribution solved,
+default to reading [`portfolio/usage/usage.yaml`](portfolio/usage/README.md)
+first and improving a product with an actual signal, over adding depth to
+one that has had a fair run at zero. See `portfolio/DIRECTION.md`
+"What changes now that distribution is solved" for the full priority order,
+including when a new venture is and isn't the better use of the session.
+
+**Before copying a feature onto a venture just because a sibling venture has
+it** (a share link, a save slot, an export format), check that venture's row
+in `portfolio/usage/usage.yaml`. As of 2026-09-06, 55 of 185 ventures had a
+`share.mjs` added this way with zero usage signal on any of them to justify
+it, while new, non-duplicative niches are always welcome. See
+`portfolio/DIRECTION.md` "The fleet-parity trap, and where new ventures
+actually stand" — a new venture or a real discoverability fix now outranks a
+parity feature on a product nobody has visited yet.
+
+**New ventures now rank first, not last, and the pipeline's `build-now`
+queue is genuinely empty** (added 2026-09-06) — five candidates that had
+already shipped were still marked unbuilt in `candidates.yaml` (a
+`session_gate.py` misdirection risk, now fixed). The next new-venture
+session screens a fresh niche against `portfolio/pipeline/screened-out.md`
+and the liability/ethics gates, not the queue. Run
+`python3 portfolio/pipeline/duplicate_check.py "<one-line niche description>"`
+first — at 199 ventures, most a `<trade>-bid-calculator` shape, eyeballing
+that list is no longer reliable (added 2026-09-07). See `portfolio/DIRECTION.md`
+"Owner direction, 2026-09-06" for the full read, including why legal
+exposure (not speed) is still the one hard stop.
+
+**Raise the bar on graduating the next one, not just the count** (added
+2026-09-06, North star point 2) — 195 ventures now exist with zero confirmed
+visitors anywhere in `usage/usage.yaml`. Before graduating a fresh niche,
+name where its first real visitor comes from (a specific forum, subreddit,
+or search phrase with real volume), the same evidence `PRODUCT_PLAYBOOK.md`
+§1 already asks for. And do not read the fleet-wide `usage.yaml` zero as
+"nobody wants these" — GitHub Pages, the route actually serving, self-reports
+nothing, so right now that field is unmeasured, not measured-and-zero; see
+`portfolio/DIRECTION.md` North star point 2 for the full correction.
 
 Use traditional software patterns. Add AI where it clearly helps; do not
 AI-wrap by default.
@@ -200,7 +254,10 @@ product PR?"
 1. **Liability disclaimers** — no advice-of-record, no compliance warranties,
    and no SLA on hosted URLs. Copy the wording from
    [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) §5b; it goes in the README
-   *and* somewhere the user sees it (footer, about, `--help`).
+   *and* somewhere the user sees it (footer, about, `--help`). A page that
+   names a specific competitor (`vs-<competitor>.html`) needs a second,
+   separate disclaimer — §5f, nominative fair use plus a "not affiliated
+   with" line — checked by `node platform/pages/clauses.mjs <slug>`.
 2. **Usage stats** — anonymous events only (feature used, page viewed), never
    people: no PII, no IPs, no content, no analytics vendor. Rules and the file
    readings land in: [`portfolio/usage/`](portfolio/usage/README.md).

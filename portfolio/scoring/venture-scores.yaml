@@ -5698,6 +5698,41 @@ ventures:
       Starting densities are labelled ballpark figures rather than a tariff,
       and nothing the user enters leaves the browser.
 
+  - slug: kdp-royalty-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on
+      rates the author pastes from their own KDP dashboard, and adding
+      inference would only make exclusive-versus-wide less checkable.
+    basis: >-
+      Graduated on 2026-09-07 as a browser-local KDP exclusive-versus-wide
+      royalty calculator. Amazon's official royalty calculator (account
+      required) prices one format and does not put KU page-reads next to
+      other-store volume. Defensibility 3: the 70/35 and print-cost shape
+      is public, but the same-window exclusive/wide total plus KU-pages-
+      to-match-one-sale is the piece authors keep rebuilding in
+      spreadsheets. Distribution 7: "kdp royalty calculator" and
+      "how many KU pages equal one sale" are named-intent author queries,
+      with a first-visitor channel on r/selfpublish and r/KDP.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: every rate is an author-typed input, the output is arithmetic
+      not a recommendation to enroll or leave KDP Select, and nothing
+      the user enters leaves the browser. The vs- page uses nominative
+      fair use plus a not-affiliated line.
+
   - slug: pressure-washing-bid-calculator
     scores:
       ai_leverage: 1
@@ -6142,3 +6177,1643 @@ ventures:
       cameras may point, whether audio may be recorded, and how long footage
       may be kept are legal questions it does not answer. Nothing entered
       leaves the browser.
+
+  - slug: card-processing-fee-audit
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The value is an arithmetic split of
+      one statement into pass-through and markup, and the whole point is that
+      a merchant can re-derive it in front of a processor. An inferred figure
+      would be exactly the thing the page argues against: a confident number
+      the merchant cannot defend when challenged.
+    basis: >-
+      Scored 2026-09-06, filling a coverage gap rather than at graduation —
+      this venture shipped without a score row, which is what
+      `score_ventures.py --check` exists to catch. Defensibility 4, one below
+      the trade bid calculators: interchange and assessment tables are
+      published, so the model is closer to the marketplace-fee tools that
+      restate a fee schedule than to the access-hours calculators that encode
+      how an operator actually loses a day. The band-with-a-stated-reason
+      framing is a real differentiator against processor lead-gen pages, but
+      it is presentation rather than a moat. Distribution 6, below the trade
+      calculators: "what is a good effective rate for card processing" carries
+      strong commercial intent, but the SERP is owned by processors buying
+      that intent, which is a harder room than "how much to charge to install
+      gutter guards".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the merchant's own statement figures,
+      reported as an estimated band, never a recommended processor, a
+      negotiation guarantee, or a representation of any named processor's
+      actual pricing. Nothing entered leaves the browser.
+
+  - slug: dog-walking-route-pricing
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — route drive time,
+      per-pet surcharge, and overnight on-call hours priced as hours rather
+      than as a flat visit fee — and that is arithmetic an operator has to be
+      able to re-derive for a client.
+    basis: >-
+      Scored 2026-09-06 to fill a missing row, not at graduation. Defensibility
+      5, with the trade bid calculators: charging route drive time and
+      overnight on-call exposure is the thing a flat per-walk rate cannot see,
+      which is the same shape as the moving calculator's access hours.
+      Distribution 7: "how much to charge for dog walking" and "pet sitting
+      rates" are lower-volume than marketplace-fee queries and the category
+      carries a strong free-advice norm, but the searcher is an operator
+      setting a rate rather than a consumer comparing prices.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the walker's own inputs, never a
+      recommended rate, an insurance or bonding opinion, or a worker
+      classification determination. The vs-rover comparison cites Rover's own
+      published fee schedule and makes no derogatory claim. Nothing entered
+      leaves the browser.
+
+  - slug: equipment-lease-buyout-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is converting two paths to a comparable
+      cost per month of use and naming the break-even payoff price — a
+      calculation the lessee needs to be able to restate to a lessor, which an
+      inferred number would undermine rather than strengthen.
+    basis: >-
+      Scored 2026-09-06 to fill a missing row. Defensibility 5: naming a
+      break-even buyout price, and costing the replacement path all-in
+      including removal and downtime, is a real model rather than a restated
+      schedule — a lessor's own payoff quote is deliberately not comparable to
+      anything, and this makes it comparable. Distribution 6, below the trade
+      calculators: "equipment lease buyout calculator" is a low-volume query,
+      but each searcher is facing a four- or five-figure decision with a
+      deadline, so intent is far above the volume.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the lessee's own figures, never tax,
+      accounting, or legal advice, never a lease-term interpretation, and
+      never a recommendation to buy out or return. Useful-life and downtime
+      figures are the user's own inputs. Nothing entered leaves the browser.
+
+  - slug: pet-grooming-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — size and coat
+      against matting condition and add-on time, as loaded labour hours — and
+      it is arithmetic a groomer has to be able to justify to an owner who
+      thinks the quote is high.
+    basis: >-
+      Scored 2026-09-06 to fill a missing row. Defensibility 5, with the trade
+      bid calculators: pricing matting condition and coat type as time is what
+      generic per-breed price lists cannot do, and it is the case where a
+      groomer most often undercharges. Distribution 7: "how much to charge for
+      dog grooming" and "matted dog grooming price" are steady operator
+      queries against a SERP of consumer price-guide content rather than of
+      tools, though the category's free-advice norm is strong.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the groomer's own inputs, never a
+      recommended price, an animal-health or handling opinion, or a judgement
+      about whether a matted coat should be shaved. Nothing entered leaves the
+      browser.
+
+  - slug: vending-machine-route-margin
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — commission split,
+      card fees, shrink, drive time, and machine amortization netted against
+      gross sales per stop — and it is arithmetic an operator has to be able
+      to re-derive when deciding to keep or drop a location.
+    basis: >-
+      Graduated 2026-09-06 and scored the same day, which is the point: the
+      four ventures scored immediately above this one shipped with no score
+      row at all, and this one would have too had `score_ventures.py --check`
+      not been added to CLAUDE.md's merge checklist in the same commit.
+      Defensibility 5, with the trade bid calculators: netting commission and
+      shrink per stop is what a generic markup calculator cannot do, and it is
+      the case where a route operator most often keeps an unprofitable
+      location. Distribution 6: "vending machine route profit" and "vending
+      commission calculator" are lower-volume than the trades, and the
+      category's SERP carries a heavy business-opportunity marketing norm that
+      a free tool has to cut through.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended commission rate, a location-agreement interpretation, or a
+      claim about what a route will earn. Nothing entered leaves the browser.
+
+  - slug: atm-route-margin
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — surcharge revenue
+      split (percentage and/or flat placement fee), a per-transaction
+      processor fee, and vault cash modeled as a cost of capital, netted
+      against surcharge revenue per location — and it is arithmetic an
+      operator has to be able to re-derive when deciding to keep or drop a
+      placement.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check` (added to CLAUDE.md's merge checklist after
+      `vending-machine-route-margin` shipped without a score row). Same shape
+      as this portfolio's other route-pricing calculators
+      (`pool-route-pricing`, `dog-walking-route-pricing`,
+      `vending-machine-route-margin`), scored the same way. Defensibility 5:
+      the surcharge-split/processor-fee/vault-cash arithmetic is specific to
+      this buyer and not modeled by a generic profit calculator, and it is the
+      case where a route operator most often keeps an unprofitable placement.
+      Distribution 6: "atm route profit calculator" is a narrow, low-volume
+      search term with no incumbent free tool built around this exact
+      arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended surcharge amount, a placement-agreement interpretation, or a
+      claim about what a route will earn. The tool never touches a live
+      transaction, card data, or cash-handling compliance. Nothing entered
+      leaves the browser.
+  - slug: dumpster-rental-margin-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — a rental price built
+      to cover an included weight allowance rather than the estimated job
+      weight, and a per-ton overage fee checked against the operator's own
+      tipping fee rather than trusted at face value — and it is arithmetic an
+      operator has to be able to re-derive before quoting a job.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. Same shape as this portfolio's other
+      route/rate calculators (`atm-route-margin`, `vending-machine-route-
+      margin`, `custom-farm-rate-calculator`), scored the same way, applied to
+      a genuinely different buyer: a roll-off dumpster rental operator pricing
+      a container rental from a weight allowance and a separately billed
+      overage fee, distinct from `junk-removal-bid-calculator`'s
+      hauler-prices-the-whole-job-from-estimated-tonnage model. Defensibility
+      5: the allowance/overage-cost-floor arithmetic is specific to this buyer
+      and not modeled by a generic per-size rate card or dispatch/billing
+      software built for a rental company's back office rather than the
+      pre-quote pricing decision. Distribution 6: "dumpster rental pricing
+      calculator" and "roll off overage fee" are narrow, low-volume search
+      terms with no incumbent free interactive tool built around this exact
+      arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      waste-management recommendation, a market-rate determination, or a
+      rental/disposal agreement interpretation. The tool never touches a live
+      transaction or anyone else's data. Nothing entered leaves the browser.
+
+  - slug: custom-farm-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — field capacity from
+      speed, width and field efficiency, fuel and repairs scaled by hours for
+      the job, and the machine's own annual ownership cost spread over hours
+      actually used — and it is arithmetic an operator has to be able to
+      re-derive when deciding what to charge a customer.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. Same shape as this portfolio's other
+      route/rate calculators (`shop-rate-calculator`, `atm-route-margin`,
+      `vending-machine-route-margin`), scored the same way, applied to a
+      genuinely different buyer: a custom farm operator pricing field work
+      from a machine's field capacity and ownership economics rather than a
+      route of fixed placements. Defensibility 5: the field-capacity/
+      ownership-cost arithmetic is specific to this buyer and not modeled by
+      a generic markup calculator or a published custom rate survey, which
+      reports someone else's cost structure rather than this operator's own.
+      Distribution 6: "custom farming rate calculator" and "custom combine
+      rate calculator" are narrow, low-volume search terms with no incumbent
+      free interactive tool built around this exact arithmetic, but volume is
+      unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never an
+      agronomic recommendation, a market-rate determination, or a
+      custom-farming agreement interpretation. The tool never touches a live
+      transaction or anyone else's data. Nothing entered leaves the browser.
+
+  - slug: photo-booth-event-quote
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — setup/teardown time
+      added to the booked hours, travel, attendant labor, and an
+      unlimited-print package's print-cost share of the price — and it is
+      arithmetic an operator has to be able to re-derive before agreeing to a
+      booking.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. Same event-rental quote shape as
+      `portable-restroom-event-quote`, scored the same way: a flat package
+      price hides committed time (setup, teardown, drive) and a
+      volume-dependent cost line (print consumables here; pump-outs and
+      mileage there), and the incumbent is a Saturday-special guess rather
+      than a free page that itemizes both. Defensibility 5: the
+      setup/teardown-plus-travel time model and the print-cost-share risk
+      flag are specific to this buyer, not modeled by a generic profit
+      calculator or an event-booking platform's built-in pricing field.
+      Distribution 7: "photo booth rental pricing" and "how much to charge
+      for a photo booth" are narrow, real search terms bought by an operator
+      building a package list, with no incumbent free tool built around this
+      arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended booking price, a venue/vendor contract interpretation, or a
+      guarantee of actual attendance or print volume. The tool never touches
+      a live payment, a guest's photo, or personal data of any kind. Nothing
+      entered leaves the browser.
+
+  - slug: vehicle-wrap-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — material priced from
+      a waste-inclusive square footage rather than the vehicle's bare surface
+      area, and an install-hours estimate scaled by a complexity multiplier
+      rather than a single flat installed rate — and it is arithmetic a shop
+      owner has to be able to re-derive before sending a quote.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. Same shape as this portfolio's other
+      job-pricing calculators built around one buyer-specific cost trap
+      (`dumpster-rental-margin-calculator`'s overage rate vs. tipping fee,
+      `epoxy-garage-floor-bid-calculator`'s coating system selection),
+      applied to a niche with no existing venture: an independent vehicle
+      wrap/graphics shop pricing a full or partial vinyl wrap. Defensibility
+      5: the waste-factor-vs-bare-area material gap and the complexity-scaled
+      labor estimate are specific to this buyer and not modeled by a generic
+      per-square-foot rate card or a sign shop's job-costing software built
+      for invoicing rather than the pre-quote pricing decision. Distribution
+      6: "vehicle wrap cost calculator" and "how much to charge for a car
+      wrap" are narrow, real search terms an installer types before quoting,
+      with no incumbent free interactive tool built around this exact
+      arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own figures, never a
+      warranty on film adhesion or durability, a vehicle-condition
+      determination, or a design/trademark clearance opinion. The tool never
+      touches a live transaction or anyone else's data. Nothing entered
+      leaves the browser.
+
+  - slug: locksmith-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — an after-hours
+      premium applied to billed time only (never to parts), and a minimum
+      service charge floor compared against the calculated price — and it is
+      arithmetic a mobile locksmith has to be able to re-derive before
+      quoting a call on the phone.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. A fresh niche (not in
+      `portfolio/pipeline/screened-out.md`, not an existing `ventures/`
+      directory) rather than a queued pipeline candidate, per
+      `portfolio/DIRECTION.md`'s 2026-09-06 direction that a genuinely new,
+      gate-cleared niche competes on equal footing with the (currently empty)
+      `build-now` queue. Same per-job trade-calculator shape as
+      `appliance-repair-quote-calculator` and `notary-trip-quote`, scored the
+      same way. Defensibility 5: the after-hours-premium-on-time-only and
+      minimum-charge-floor arithmetic is specific to this trade and not
+      modeled by a generic service-call or trade-bid calculator, and it is
+      the exact pair of mechanics a phone-quote guess most often gets wrong.
+      Distribution 6: "locksmith service call pricing" and "how much should a
+      locksmith charge" are narrow, real search terms bought by an operator
+      pricing a call, with no incumbent free interactive tool built around
+      this exact arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended price, a locksmith license/bond verification, or a
+      determination about a specific lock, fob, or vehicle. The tool never
+      touches a live transaction or anyone else's data. Nothing entered
+      leaves the browser.
+  - slug: fire-extinguisher-inspection-route-margin
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — recharge,
+      hydrostatic-test, and replacement materials cost netted against their
+      own fees at each site's own incidence rate, plus an annual (not
+      monthly) visit cadence matching NFPA 10's certified-maintenance
+      requirement — and it is arithmetic a technician has to be able to
+      re-derive when deciding whether a site is worth keeping.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. Same shape as this portfolio's other
+      route/rate calculators (`atm-route-margin`, `vending-machine-route-
+      margin`, `custom-farm-rate-calculator`), scored the same way, applied
+      to a genuinely different buyer: an independent fire-extinguisher and
+      life-safety inspection route operator pricing a certified-maintenance
+      visit from three distinct service types (recharge, hydro-test,
+      replacement), each with its own incidence rate, fee, and materials
+      cost. Defensibility 5: the three-service-type materials split and the
+      annual-visit cadence are specific to this buyer and not modeled by a
+      generic profit calculator or by inspection-scheduling/compliance-
+      recordkeeping SaaS built for scheduling rather than the pre-visit
+      pricing decision. Distribution 6: "fire extinguisher inspection route
+      pricing" and "fire extinguisher service pricing calculator" are
+      narrow, low-volume search terms with no incumbent free tool built
+      around this exact arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the technician's own figures, never
+      a determination that an extinguisher or site passes inspection, and
+      never a claim about NFPA 10 or any other fire-code compliance status.
+      The tool never touches a live inspection or anyone else's data.
+      Nothing entered leaves the browser.
+  - slug: ice-dam-removal-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — a per-linear-foot
+      rate card checked against this job's own largely-fixed dispatch cost
+      (breakEvenRatePerFoot), an emergency/storm-dispatch premium applied to
+      billed time only, and a minimum service charge floor — arithmetic an
+      ice dam removal contractor has to be able to re-derive before quoting
+      a short call on the phone.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. A fresh niche (not in
+      `portfolio/pipeline/screened-out.md`, not an existing `ventures/`
+      directory) rather than a queued pipeline candidate, per
+      `portfolio/DIRECTION.md`'s 2026-09-06 direction that a genuinely new,
+      gate-cleared niche competes on equal footing with the (currently empty)
+      `build-now` queue. Same per-job trade-calculator shape as
+      `locksmith-bid-calculator` and `dumpster-rental-margin-calculator`,
+      scored the same way. Defensibility 5: the break-even-rate-per-foot
+      check against a largely fixed dispatch cost is specific to this trade's
+      cost structure and not modeled by a generic bid or service-call
+      calculator, and it is the exact mechanic a short-job phone quote most
+      often gets wrong. Distribution 6: "ice dam removal cost" and "ice dam
+      removal pricing" are narrow, real seasonal search terms bought by an
+      operator pricing a storm-response call, with no incumbent free
+      interactive tool built around this exact arithmetic, but volume is
+      unmeasured and highly seasonal.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended price, a roofing or structural assessment, or a
+      determination about ice-dam prevention. The tool never touches a live
+      transaction or anyone else's data, and it is not a safety or
+      fall-protection assessment. Nothing entered leaves the browser.
+
+  - slug: home-staging-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — separating the
+      included-term staging price from the furniture package's own monthly
+      carrying cost, an extension-fee-vs-carrying-cost check
+      (maxExtensionMonthsBeforeLoss), and an actual-time-on-market
+      reconciliation once a listing sells — arithmetic a stager has to be
+      able to re-derive before quoting a job or discounting an extension.
+    basis: >-
+      Graduated and scored 2026-09-07 (#3580 added the venture without a
+      score row; `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py` both fail coverage until every
+      `VENTURE.yaml` has one, so this closes that gap in the same PR as
+      unrelated pipeline-tooling work rather than leaving `main` red). Same
+      per-job trade-calculator shape as `locksmith-bid-calculator` and
+      `dumpster-rental-margin-calculator`, scored the same way.
+      Defensibility 5: separating the included-term price from the
+      furniture package's ongoing carrying cost, and flagging an extension
+      fee priced below that carrying cost, is specific to a rental-package
+      staging business and not modeled by a generic hourly or flat-rate
+      service-pricing calculator. Distribution 6: "home staging pricing
+      calculator" and "staging extension fee" are narrow, real search terms
+      an independent stager (not a franchise with a warehouse team) would
+      type, with no incumbent free interactive tool built around the
+      carrying-cost split, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the stager's own figures, never a
+      recommended price or a claim about how long a listing will take to
+      sell. The tool never touches a live transaction or anyone else's
+      data; nothing entered leaves the browser and nothing is saved between
+      sessions.
+  - slug: pour-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — pricing a
+      spirit/modifier/mixer recipe from each ingredient's own bottle cost
+      and pour size, comparing the result to an operator-set pour cost
+      target, and separately turning a stated over-pour on the primary
+      spirit into a weekly and annual dollar figure across the operator's
+      own drink volume — arithmetic a bar or restaurant beverage program
+      has to be able to re-derive before pricing a menu.
+    basis: >-
+      Graduated and scored 2026-09-07 as `portfolio/pipeline/candidates/
+      pour-cost-calculator.md` (build-now, composite 6.875 on that
+      rubric's eight dimensions including the liability and ethics gates).
+      Scored here on this file's six-dimension rubric to keep coverage
+      complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`, the same day the venture
+      shipped, in the same PR as the code. Same deterministic-calculator
+      shape as `locksmith-bid-calculator`, `dumpster-rental-margin-
+      calculator`, and `home-staging-bid-calculator`, scored the same way.
+      Defensibility 5: the over-pour-cost-over-a-year framing, applied to a
+      per-ingredient recipe cost rather than a flat percentage assumption,
+      is specific to a beverage program's own recipe and volume and is not
+      modeled by any generic margin or fee calculator on this site.
+      Distribution 6: "pour cost calculator," "liquor cost calculator," and
+      "how to calculate pour cost" are real, recurring search terms with
+      existing commercial and blog-embedded calculators but no free-
+      standing, private one built around the over-pour-cost check
+      specifically, and r/bartenders / r/TendingBar are a named,
+      no-cost channel — but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on bottle costs, pour sizes, and
+      prices the operator types in, never a recommended menu price, an
+      alcohol-service determination, or a claim about any specific
+      bartender. The tool never touches a live transaction, a POS, or
+      anyone else's data; nothing entered leaves the browser and nothing is
+      saved between sessions.
+
+  - slug: actions-permissions-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic reading of one YAML key. A workflow either declares a
+      `permissions:` block or it does not; there is nothing to infer, and a
+      model in the path would make the verdict less reproducible.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags
+      GitHub Actions workflows and jobs running with no explicit
+      `permissions:` block (so they inherit the repository or organization
+      default GITHUB_TOKEN scope) or with `permissions: write-all`. Third of
+      the three checkers covering GitHub's "Security hardening for GitHub
+      Actions" guidance, and orthogonal to both siblings: `pinned-actions-check`
+      asks *which* code runs (a mutable @tag on a `uses:` line),
+      `actions-injection-check` asks *whose input* runs (a pwn-request
+      checkout or an interpolated `github.event` expression), and this asks
+      *what the token may do* while it runs. A workflow can pass either
+      sibling and still hand a compromised step write access to the whole
+      repository. Same standard-library-only classifier + browser port +
+      parity-tested shape, scored on this file's six-dimension rubric to keep
+      coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the page
+      classifies text the visitor pastes and the CLI reads local files, so
+      marginal cost per use is zero and there is no server to operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities, since usage rather than payment is the
+      current-phase metric.
+      Defensibility 3: one point below `actions-injection-check` and level
+      with the weaker end of the family, deliberately. The rule is a single
+      YAML key lookup — the most trivially copied of the three — and unlike
+      the pwn-request explainer there is no hard-to-write background piece a
+      searcher is really buying. What little there is sits in pairing each
+      finding with the minimal scope that would replace it.
+      Distribution 5: "github actions permissions write-all" and "least
+      privilege GITHUB_TOKEN" are real, narrow developer search terms, and
+      GitHub's own guidance recommends exactly this practice. Not scored
+      higher: no dedicated demand event of the kind
+      `actions/checkout` v7 gave its sibling, no existing developer-tool
+      distribution channel in this portfolio, and volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only linter over the user's own workflow text. It makes no
+      network call in either implementation, needs no token, and nothing the
+      visitor pastes leaves the device. It reports on a defender's own
+      configuration and has no capability to scan anyone else's repository.
+      The page states that a clean scan is not a security audit — a declared
+      `permissions:` block can still be wider than a job needs, which this
+      does not judge — so there is no advice-of-record or compliance claim.
+  - slug: actions-self-hosted-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic reading of two YAML keys (`on:` and `runs-on:`) already
+      present in the workflow file on disk. There is nothing to infer: a
+      job either declares the literal `self-hosted` label under one of four
+      named triggers or it does not.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags
+      GitHub Actions jobs running on a `self-hosted` runner label inside a
+      workflow triggered by `pull_request`, `pull_request_target`,
+      `workflow_run`, or `issue_comment` — GitHub's own documented reason not
+      to use self-hosted runners on a public repository. Fifth of the
+      `actions-*-check` family and orthogonal to all four siblings:
+      `pinned-actions-check` asks *which* code runs (a mutable @tag),
+      `actions-injection-check` asks *whose input* runs (a pwn-request
+      checkout or an interpolated expression), `actions-permissions-check`
+      asks *what the token may do*, `actions-cache-poisoning-check` asks
+      *what a compromised job can plant for later*, and this asks *who gets
+      to make a job run in the first place, and on whose machine*. Same
+      standard-library-only classifier + browser port + parity-tested shape,
+      scored on this file's six-dimension rubric to keep coverage complete
+      for `score_ventures.py --check` and `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the page
+      classifies text the visitor pastes and the CLI reads local files, so
+      marginal cost per use is zero and there is no server to operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities, since usage rather than payment is the
+      current-phase metric.
+      Defensibility 4: level with `pinned-actions-check` rather than at the
+      family floor — the classification rule itself (two YAML keys) is
+      simple, but the four-trigger risk taxonomy and the already-written
+      explanation of why `pull_request_target`/`workflow_run` differ from
+      plain `pull_request` is a background piece a searcher is buying, not
+      just a lookup.
+      Distribution 5: "self-hosted runner public repository security" is
+      GitHub's own documented warning, and the OpenSSF Scorecard project's
+      `Dangerous-Workflow` check flags the same condition on public
+      repositories at scale, giving a second, concrete route to a
+      Scorecard-flagged maintainer searching for a fix — the same kind of
+      channel `actions-permissions-check` names for its Token-Permissions
+      half of the same project. Not scored higher: no dedicated demand
+      event, no existing developer-tool distribution channel in this
+      portfolio, and volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only linter over the user's own workflow text. It makes no
+      network call in either implementation, needs no token, and nothing the
+      visitor pastes leaves the device. It reports on a defender's own
+      configuration and has no capability to scan anyone else's repository.
+      The page states that a clean scan is not a claim the self-hosted
+      infrastructure is safe — it does not evaluate runner groups, network
+      segmentation, or how the machine itself is hardened — so there is no
+      advice-of-record or compliance claim.
+  - slug: actions-runner-starvation-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic classification of one field (`runner_id`) already
+      present in GitHub's own Actions API response. There is nothing to
+      infer: a job either got a runner or it did not.
+    basis: >-
+      Graduated 2026-09-07 (#3615) as a free dev-tool CLI/browser check that
+      tells a developer whether a red GitHub Actions check is a real failure
+      or a job GitHub never assigned a runner to, from the run's own
+      `runner_id` field. Same shape as `npm-deployment-evidence` and
+      `repository-branch-hygiene`: a standard-library-only classifier over
+      data the user already has, scored on this file's six-dimension rubric
+      to keep coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page and the Python CLI both run entirely on data the visitor pastes
+      or already has locally, so marginal cost per use is zero and there is
+      no server to operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like the portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the classification rule itself is one field compare
+      that any developer could write in a few lines; what is not trivially
+      copied is having already written and published the explanation of
+      *why* duration and empty output mislead, which is the actual value a
+      searcher is buying. Unmeasured beyond that, hence not scored higher.
+      Distribution 5: "why is my GitHub Actions check red" and "GitHub
+      Actions runner_id 0" are real, narrow developer search terms with no
+      dedicated free tool answering them today, but this portfolio has no
+      existing developer-tool distribution channel and volume is
+      unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool never fetches anything on the user's behalf and never
+      asks for a token — the user pastes JSON they already fetched with
+      their own credentials, so their token and their run data never leave
+      their own machine or session. The output is a classification of a
+      public API field, not a security or compliance verdict.
+  - slug: ada-title-ii-evidence
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A deadline lookup (population and entity type against two published
+      dates) and an axe-core JSON formatter split by whether a tag is in the
+      WCAG 2.1 AA set the DOJ rule adopts. Both are exact, checkable rules
+      against a cited source; a model would only add hallucination risk to
+      a legal-date lookup.
+    basis: >-
+      Graduated 2026-09-07 as a free deadline lookup and browser-local WCAG
+      2.1 AA evidence report for state/local government and special-district
+      (school, water, fire, transit) webmasters ahead of ADA Title II's April
+      2027/2028 compliance dates (DOJ interim final rule, Federal Register
+      2026-07663, verified via web search before writing this up). Same
+      evidence-desk shape as cra-evidence-desk, scored on the same
+      six-dimension rubric; distinct buyer (US government IT/webmaster, not
+      a software vendor) and distinct regulation (US ADA Title II /
+      28 CFR 35.200, not the EU CRA). Confirmed against
+      `portfolio/pipeline/duplicate_check.py` before writing this up — no
+      match above 0.14, including against shopify-a11y-evidence and
+      eaa-remediation-pipeline, the two nearest existing accessibility
+      write-ups.
+      Time to revenue 6: no direct revenue path beyond the standard
+      voluntary GitHub Sponsors link; scored like the portfolio's other
+      free-forever evidence tools rather than assumed lower, since usage
+      itself is the current-phase metric.
+      Defensibility 4: paid overlay and monitoring vendors (accessiBe,
+      Siteimprove, Level Access) already sell government-focused
+      accessibility tracking; what is not already free is a two-question
+      deadline answer plus a report that separates the legally required
+      WCAG 2.1 AA findings from best-practice extras, rather than one
+      undifferentiated rule list.
+      Distribution 5: the DOJ's compliance-date extension (April 2026) is
+      recent enough that "ADA title II deadline for my city" is an active,
+      narrow search a webmaster has reason to run right now, but this
+      portfolio has no existing government-buyer channel and volume specific
+      to this tool is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a plain-language read of a cited, publicly published
+      federal rule and a formatted record of a supplied automated test —
+      never a compliance determination, a filing, or advice given on the
+      entity's behalf. No data leaves the browser; nothing is scraped.
+  - slug: flaky-test-finder
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Flaky-vs-broken is decided by
+      counting pass/fail occurrences per test across the reports a developer
+      already has — an inferred, model-based guess would be strictly worse
+      than the deterministic comparison, and would reintroduce exactly the
+      kind of uncertainty the tool exists to remove.
+    basis: >-
+      Same shape as ventures/actions-runner-starvation-check: a developer
+      CLI/browser tool, not the trade-calculator archetype that dominates the
+      catalogue (portfolio/pipeline/README.md's archetype-saturation note).
+      Scored on this file's six-dimension rubric at graduation, same session.
+      Time to revenue 5: developers reading a red CI check are a strong
+      free-utility-norm audience with no purchase moment at the point of use,
+      slightly below the sibling venture's 6 because flaky-test tooling
+      already has funded commercial competitors (Launchable, BuildPulse) that
+      have spent marketing budget training the audience to expect a paid,
+      account-based product — a small headwind this free, no-signup tool has
+      to work against rather than benefit from.
+      Defensibility 3, the lowest score in this file: the classification rule
+      is trivial (compare pass/fail per test name across files) and, unlike
+      the sibling venture's narrow, undocumented-elsewhere GitHub-Actions-
+      specific insight, "flaky tests" is a well-covered space with existing
+      free plugins (pytest-rerunfailures, jest-junit-adjacent scripts) and
+      paid SaaS already solving adjacent versions of this problem. What is
+      not already available for free: a zero-account, framework-agnostic
+      tool that works from the one format (JUnit XML) nearly every test
+      runner already emits, entirely client-side.
+      Distribution 5: "flaky test detector", "why is my test flaky in CI",
+      and "pytest flaky test" are real, established developer search terms —
+      evidenced by existing free plugins, paid vendors' own blog content, and
+      built-in flaky-test features in Azure DevOps and CircleCI, all found
+      via a live web search this session rather than assumed — but this
+      portfolio has no existing developer-tool distribution channel and
+      volume specific to this free tool is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool classifies test reports the developer already generated
+      and pasted or pointed the CLI at — it fetches nothing on their behalf,
+      asks for no token, and makes no claim about the cause of a failure or
+      the quality of their code, only whether a named test's outcome flipped
+      across the given runs. Nothing is uploaded; the CLI makes no network
+      call at all.
+
+  - slug: coverage-drop-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. A coverage drop is decided by
+      subtracting two line rates the developer already has — a model-based
+      guess about "whether this PR is risky" would be strictly worse than
+      the arithmetic, and would reintroduce the uncertainty the tool exists
+      to remove.
+    basis: >-
+      Same shape as ventures/flaky-test-finder: a developer CLI/browser
+      tool, not the trade-calculator archetype that dominates the catalogue
+      (portfolio/pipeline/README.md's archetype-saturation note). Scored on
+      this file's six-dimension rubric at graduation, same session.
+      Time to revenue 5: developers staring at a coverage number they do
+      not trust are a strong free-utility-norm audience with no purchase
+      moment at the point of use. Codecov/Coveralls have spent marketing
+      budget training the audience to expect a paid, account-based product
+      — a headwind this free, no-signup tool has to work against, and also
+      the reason a local delta check has a named channel (Stack Overflow
+      "fail the build if code coverage decreases", "codecov alternative
+      without uploading") rather than a hoped-for one.
+      Defensibility 3: the comparison is subtraction. What is not already
+      available for free without an account is a zero-upload, format-
+      agnostic (Cobertura + JaCoCo) delta that treats a 92% → 81% walk as
+      a failure even when both numbers sit above a --cov-fail-under floor.
+      Distribution 5: the search phrases above are established developer
+      questions, evidenced by years of Stack Overflow answers pointing at
+      Codecov and by pytest-cov's own --cov-fail-under docs, but this
+      portfolio has no existing developer-tool distribution channel and
+      volume specific to this free tool is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool subtracts two coverage reports the developer already
+      generated and pasted or pointed the CLI at — it fetches nothing on
+      their behalf, asks for no token, and makes no claim about code
+      quality or what coverage they "should" have, only whether the line
+      rate went down between the two files. Nothing is uploaded; the CLI
+      makes no network call at all.
+
+  - slug: whatnot-seller-payout
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model
+      — commission on the hammer, processing on the checkout total, the
+      published $1,500 category cap, and the charge-vs-bake-vs-eat
+      shipping split — that is arithmetic, and adding inference would
+      only make the result less checkable.
+    basis: >-
+      Graduated 2026-09-07 as a browser-local Whatnot live-seller payout
+      calculator. Scored with tiktok-shop-fee-calculator (composite
+      6.833): same single-channel fee shape, same defensibility 5
+      (processing-on-checkout and the $1,500 cap are the decision a
+      headline “8%” page hides), distribution 8 because “whatnot seller
+      fees” and “whatnot fee calculator” are high-intent seller queries
+      with named communities (r/whatnot, r/whatnotapp) and no
+      overlapping venture in the portfolio (duplicate_check.py top score
+      0.23). Not a trade bid calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the seller's own inputs, never a
+      recommended start price, a claim about Whatnot's live schedule, or
+      tax advice. Presets are labelled starting points from a published
+      help article. Nothing the user enters leaves the browser.
+
+  - slug: ai-crawler-access-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Which crawlers are allowed or
+      blocked is decided by parsing robots.txt against a fixed algorithm
+      (longest matching rule wins, ties go to Allow) and a curated list of
+      publicly documented bot tokens — a model-based guess about "is this
+      site AI-friendly" would be strictly worse than reading the file the
+      site owner actually wrote.
+    basis: >-
+      Graduated as part of issue #3665's new-venture lane. Same shape as
+      ventures/flaky-test-finder and ventures/coverage-drop-check: a
+      developer/webmaster CLI+browser checker, not the trade-calculator
+      archetype that dominates the catalogue (portfolio/pipeline/README.md's
+      archetype-saturation note). Scored on this file's six-dimension
+      rubric at graduation, same session.
+      Autonomous ops 10 / gross margin 10: the browser page classifies text
+      the visitor pastes and the CLI fetches only the one domain it is
+      given (or reads local files) — no hosting, no per-user cost.
+      Time to revenue 5: site owners and SEO practitioners deciding whether
+      to block AI training crawlers are a free-utility-norm audience with
+      no purchase moment at the point of use, scored like this portfolio's
+      other free-forever dev/webmaster utilities.
+      Defensibility 3: the robots.txt matching algorithm itself is Google's
+      own published rule, not proprietary insight. What is not already
+      bundled for free elsewhere is the specific pairing of a curated,
+      15-token AI-crawler list with that exact matching algorithm plus a
+      structural llms.txt check, in one paste with no account.
+      Distribution 5: "block GPTBot robots.txt", "llms.txt checker", and
+      "AI crawler access audit" are real, active SEO/webmaster community
+      search phrases (r/TechSEO, r/SEO, r/webdev, webmaster forums) as of
+      this tool's build, evidenced by ongoing public discussion of AI-bot
+      blocking — but this session had no live internet access to pull a
+      current search-volume number, so the phrases are reasoned from known
+      community behavior, not a verified traffic figure, and this
+      portfolio has no existing developer-tool distribution channel.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool only reports what a robots.txt or llms.txt file says —
+      it fetches nothing except the one domain the user names (or reads
+      local/pasted text), asks for no token, scrapes no personal data, and
+      makes no claim that any crawler will actually honor the directives it
+      reports. It is explicit that robots.txt is a request, not an
+      enforcement or compliance mechanism.
+  - slug: pinned-actions-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic regex classification of a `uses:` line already present
+      in the workflow YAML on disk. There is nothing to infer: a ref is
+      either a 40-character commit SHA or it is not.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags
+      third-party GitHub Actions referenced by a mutable tag or branch
+      instead of a pinned commit SHA, printing the `git ls-remote` command
+      to look up the SHA rather than resolving it itself. Same shape as
+      `actions-runner-starvation-check` and `repository-branch-hygiene`: a
+      standard-library-only classifier over data the user already has,
+      scored on this file's six-dimension rubric to keep coverage complete
+      for `score_ventures.py --check` and `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page classifies YAML the visitor pastes and the CLI reads only local
+      files, so marginal cost per use is zero and there is no server to
+      operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the classification rule is a handful of lines any
+      developer could write; what is not trivially copied is the paired
+      CLI/browser port with a byte-identical parity test and the
+      already-written explanation of *why* the risk is real (the
+      `tj-actions/changed-files` incident), which is the actual value a
+      searcher is buying. Unmeasured beyond that, hence not scored higher.
+      Distribution 5: "pin github action to commit sha" and "github actions
+      supply chain security" are real, narrow developer search terms
+      sharpened by a real, well-known incident, with no dedicated
+      stay-entirely-local free tool answering them today, but this
+      portfolio has no existing developer-tool distribution channel and
+      volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network calls anywhere in either
+      implementation — it classifies workflow YAML already on the user's
+      disk or pasted into the browser, asks for no token, and never fetches
+      or resolves anything on the user's behalf. A mutable finding prints
+      the exact `git ls-remote` command so the lookup and the decision to
+      pin stay entirely the user's. It makes no security or compliance
+      claim: a clean scan means references are pinned to a commit SHA, not
+      that the repository is secure.
+  - slug: actions-injection-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over workflow YAML already on disk or
+      pasted into the browser: a checkout step's ref under a privileged
+      trigger, or a run: step's shell text containing an untrusted
+      ${{ github.event.* }} expression. There is nothing to infer.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags
+      pull_request_target/workflow_run "pwn request" checkouts of an
+      untrusted ref, and run: steps that interpolate untrusted
+      ${{ github.event.* }} expressions into a shell command (script
+      injection). Same shape as `pinned-actions-check` and
+      `actions-runner-starvation-check`: a standard-library-only classifier
+      over data the user already has, scored on this file's six-dimension
+      rubric to keep coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page classifies YAML the visitor pastes and the CLI reads only local
+      files, so marginal cost per use is zero and there is no server to
+      operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the classification rules are a handful of documented
+      regex/AST-shaped checks any developer could write; what is not
+      trivially copied is the paired CLI/browser port with a shared
+      classifier module, a parity test, and the already-written explanation
+      of why each pattern is dangerous (GitHub's own pwn-request and script-
+      injection guidance), which is the actual value a searcher is buying.
+      Unmeasured beyond that, hence not scored higher.
+      Distribution 5: "github actions pwn request" and "github actions
+      script injection" are real, narrow developer search terms tied to a
+      well-documented risk class, with no dedicated stay-entirely-local
+      free tool answering them today, but this portfolio has no existing
+      developer-tool distribution channel and volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network calls anywhere in either
+      implementation — it classifies workflow YAML already on the user's
+      disk or pasted into the browser, asks for no token, and never fetches
+      or resolves anything on the user's behalf. It makes no security or
+      compliance claim: a clean scan means these two specific, documented
+      patterns are absent, not that the workflow is secure overall.
+  - slug: actions-cache-poisoning-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over workflow YAML already on disk or
+      pasted into the browser: an actions/cache (or actions/cache/save) step
+      under a pull_request_target/workflow_run trigger, or a restore-keys
+      field on actions/cache or actions/cache/restore. There is nothing to
+      infer.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags an
+      actions/cache write reachable from a fork-triggered
+      pull_request_target/workflow_run job, and an unscoped restore-keys
+      fallback that can adopt a colliding entry -- the two patterns behind
+      the TanStack Router cache-poisoning incident (May 2026). Same shape as
+      `actions-injection-check`, `actions-permissions-check`, and
+      `pinned-actions-check`: a standard-library-only classifier over data
+      the user already has, scored on this file's six-dimension rubric to
+      keep coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page classifies YAML the visitor pastes and the CLI reads only local
+      files, so marginal cost per use is zero and there is no server to
+      operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the classification rules are a handful of documented
+      regex-shaped checks any developer could write; what is not trivially
+      copied is the paired CLI/browser port with a shared classifier module,
+      a parity test, and the already-written explanation of why each pattern
+      is dangerous (the TanStack incident, AdnaneKhan's ActionsCacheBlasting
+      research, Hive Security's writeup), which is the actual value a
+      searcher is buying. Unmeasured beyond that, hence not scored higher.
+      Distribution 5: a dated, named incident (TanStack Router, May 2026)
+      gives this a concrete recent-news hook none of its siblings had at
+      launch, but this portfolio has no existing developer-tool distribution
+      channel and volume is unmeasured, so scored level with the family
+      rather than above it.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network calls anywhere in either
+      implementation — it classifies workflow YAML already on the user's
+      disk or pasted into the browser, asks for no token, and never fetches
+      or resolves anything on the user's behalf. It makes no security or
+      compliance claim: a clean scan means these two specific, documented
+      patterns are absent, not that the workflow or its cache usage is safe
+      overall.
+  - slug: childcare-tuition-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — the operator's own
+      child:staff ratio and staffing cost drive a per-seat break-even and an
+      empty-seat cost at every occupancy level, arithmetic a director has to
+      be able to re-derive before setting tuition or deciding whether a drop
+      in enrollment still covers the room.
+    basis: >-
+      Graduated 2026-09-07 as a free, browser-only pricing calculator for
+      childcare center directors and family child care providers, scored on
+      this file's six-dimension rubric to keep coverage complete for
+      `score_ventures.py --check` and `portfolio/router/test_allocate.py`.
+      Same per-job/per-room trade-calculator shape as
+      `home-staging-bid-calculator` and `dumpster-rental-margin-calculator`,
+      scored the same way.
+      Autonomous ops 10 / gross margin 10: every calculation runs in the
+      visitor's own browser from numbers they type; serving one more visitor
+      costs a static file and nothing else.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever calculators rather than assumed lower, since usage itself
+      (not payment) is the current-phase metric.
+      Defensibility 5: pricing a classroom from the operator's own ratio and
+      staffing cost — rather than a hardcoded state licensing ratio that
+      varies by state and age group and goes stale in a committed file — and
+      reporting the empty-seat cost at every occupancy level is specific to
+      this niche and not modeled by a generic hourly or per-unit
+      service-pricing calculator. Distribution 6: "daycare tuition
+      calculator" and "how to price daycare tuition" are narrow, real search
+      terms with a named first channel (r/daycare, r/ECEProfessionals), but
+      volume is unmeasured and this portfolio has no existing childcare
+      distribution channel.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended price, a claim about a state's licensed ratio, or advice
+      to overenroll past a safe ratio. Nothing entered leaves the browser
+      and nothing is saved between sessions. The disclaimer is explicit that
+      the tool does not replace the operator's own state licensing agency.
+  - slug: license-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a license changed is
+      decided by a case-insensitive string comparison between two snapshots
+      the user supplies; the family label (permissive/copyleft/source-
+      available) is a static keyword lookup against public SPDX-adjacent
+      strings, not a model judgment. There is nothing to infer.
+    basis: >-
+      Screened and graduated 2026-09-07 per
+      portfolio/pipeline/README.md's "archetype itself" section: a free
+      CLI + browser tool that diffs two point-in-time snapshots of a
+      dependency tree's declared licenses and reports exactly which
+      packages' license changed, were added, or were removed since the
+      last snapshot. Same shape as `ai-crawler-access-check` and
+      `pinned-actions-check`: a standard-library-only classifier over data
+      the user already has, scored on this file's six-dimension rubric to
+      keep coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: the browser page diffs
+      snapshots the visitor pastes and the CLI reads only local files (its
+      own `package.json` scan makes no network call at all) — no hosting,
+      no per-user cost.
+      Time to revenue 5: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 3: the diff itself is a few dozen lines any developer
+      could write in an afternoon, and several commercial license-scanning
+      tools (FOSSA, Snyk, license-checker) already report a dependency's
+      current license. What is not already bundled for free elsewhere is
+      the specific point-in-time-diff framing (what changed, not what is)
+      paired with the four dated, sourced relicensing incidents that make
+      the risk concrete rather than hypothetical.
+      Distribution 5: unlike this portfolio's usual "reasoned from known
+      community behavior, no live internet access" caveat, this channel
+      claim rests on a live web search performed at graduation that
+      confirmed neither Dependabot's nor Renovate's own feature set
+      includes license-change detection, and independently verified the
+      date and outcome of each of the four cited relicensing events
+      (MongoDB 2018, Elasticsearch 2021, Terraform 2023, Redis 2024) against
+      multiple sources. Scored at parity with the sibling dev tools rather
+      than higher, because a well-sourced *historical* channel claim is
+      still not a measured *current* search-volume or community-thread
+      figure — that remains unmeasured, per `kill_criteria`.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool reports a factual string difference between two
+      snapshots the user supplies (or the CLI reads from local files with
+      no network call), makes no legal or compliance claim, and states
+      explicitly that the license-family label is an informational keyword
+      match rather than a legal opinion. It never recommends accepting or
+      rejecting a license change — that decision, and verifying the actual
+      license text, stays the user's.
+  - slug: gig-driver-net-pay-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on a
+      session's own gross pay, mileage, and cost inputs — a net-pay,
+      per-hour, per-mile, and tax-reserve computation — and adding
+      inference would only make the result less checkable against the
+      driver's own numbers.
+    basis: >-
+      Graduated 2026-09-07 as a browser-local net-pay calculator for
+      DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers. Distinct
+      from delivery-app-margin-calculator (the restaurant's side of a
+      delivery order) and owner-operator-cpm-calculator (a commercial
+      trucking cost-per-mile): this is the gig driver's own session,
+      turning gross app pay into net pay after gas, maintenance, and a
+      prorated insurance share, plus a self-employment tax reserve and a
+      target-take-home solver. Scored at parity with
+      delivery-app-margin-calculator on defensibility (4): the wedge is
+      combining gross pay, per-mile vehicle cost, and a tax reserve in one
+      pass rather than the single-purpose mileage-deduction calculators
+      already free elsewhere, but none of those three components is
+      individually hard to build. Distribution 8: "how much should I set
+      aside for gig driving taxes" and "is doordash worth it after gas"
+      are high-intent queries with a same-session decision attached.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the driver's own entered figures
+      — never a recommendation to accept or decline a specific delivery
+      offer, and never tax or legal advice. The tax-reserve figure is
+      labelled a rough set-aside estimate, not a filing number, and
+      nothing entered leaves the browser.
+  - slug: dependency-confusion-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over pip/npm configuration already on
+      disk or pasted into the browser: a --extra-index-url flag, or an
+      unscoped npm dependency name alongside a private-registry .npmrc.
+      There is nothing to infer.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags
+      pip --extra-index-url usage and an unscoped npm dependency name
+      behind a private registry -- the two configuration shapes behind the
+      2021 dependency-confusion incidents (Alex Birsan's research against
+      Apple, Microsoft, PayPal, Netflix, Uber, and Tesla). Same shape and
+      rubric as `actions-cache-poisoning-check`, `actions-injection-check`,
+      and `pinned-actions-check`: a standard-library-only classifier over
+      data the user already has.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page classifies text the visitor pastes and the CLI reads only local
+      files, so marginal cost per use is zero and there is no server to
+      operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the two configuration patterns are individually
+      well known (pip's own docs name the --extra-index-url risk; npm's
+      own guidance recommends scoping); what is not trivially copied is
+      the paired CLI/browser port with a shared classifier module, a
+      parity test, and the already-written explanation tied to a specific,
+      well-documented incident class (Birsan's 2021 research), which is
+      the actual value a searcher is buying.
+      Distribution 5: a well-known, citable incident class gives this a
+      concrete search hook ("dependency confusion check"), but this
+      portfolio has no existing developer-tool distribution channel and
+      volume is unmeasured, so scored level with the family rather than
+      above it.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network calls anywhere in either
+      implementation — it classifies pip/npm configuration already on the
+      user's disk or pasted into the browser, and never queries a package
+      registry on the user's behalf. It makes no security or compliance
+      claim: a clean scan means these two specific, documented patterns
+      are absent, not that the user's supply chain is safe overall. The
+      npm check is deliberately over-inclusive (it flags already-public
+      names too, since it cannot check registry claim status without a
+      network call) and says so in its own docstring, README, and the
+      page's FAQ, rather than presenting an unverifiable claim as a
+      confirmed finding.
+  - slug: npm-lifecycle-script-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a package runs a
+      preinstall/install/postinstall/prepare script, and whether that
+      changed since the last snapshot, is decided by parsing
+      package-lock.json and package.json fields directly — a factual
+      diff, not a model judgment. The handful of risk-tag keywords
+      (piping a download into a shell, an obvious network call,
+      obfuscated code) are a static keyword match the tool's own copy
+      calls non-exhaustive, not an inferred verdict.
+    basis: >-
+      Screened and graduated 2026-09-07 per portfolio/pipeline/README.md's
+      "archetype itself" section: same shape as license-drift-check and
+      the actions-*-check family — a free CLI + browser tool that diffs
+      two point-in-time snapshots of a dependency tree and reports
+      exactly what changed, scored on this file's six-dimension rubric to
+      keep coverage complete for score_ventures.py --check and
+      portfolio/router/test_allocate.py. duplicate_check.py scored the
+      closest existing venture (actions-cache-poisoning-check) at 0.13,
+      well below the 0.45 flag bar. Autonomous ops 10 / gross margin 10:
+      the browser page parses only text pasted into it and the CLI reads
+      only local files, so serving one more user costs a static file and
+      needs no human review of any output. Distribution 6, a point above
+      license-drift-check's 5: the ua-parser-js (2021), coa/rc (2021),
+      and Shai-Hulud (2025, plus a 2025-11 second wave) npm
+      supply-chain incidents used exactly this mechanism, are the
+      subject of incident write-ups from Unit 42, Sysdig, Wiz,
+      Securelist, Datadog Security Labs, Zscaler, and Checkmarx, and
+      npm audit's own documentation confirms it has no mechanism to
+      flag a new or changed lifecycle script — real, dated, event-driven
+      search demand ("npm audit postinstall script", "shai-hulud check
+      my dependencies") rather than an evergreen query.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive — it flags a well-documented
+      supply-chain risk pattern in the user's own dependency tree for
+      the user to review, never a claim that a specific package is
+      malicious. Makes no network call of any kind (never queries npm),
+      uploads nothing, and says so plainly in its own FAQ.
+  - slug: vscode-extension-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. `snapshot`/`diff` decide drift by
+      parsing each installed extension's own package.json fields directly —
+      a factual diff of activation events, dependencies, and entry points,
+      not a model judgment — and `check`'s marketplace-delisting flag is a
+      plain existence lookup against the public Marketplace API.
+    basis: >-
+      Screened and graduated 2026-09-07 per portfolio/pipeline/README.md's
+      "archetype itself" section: same point-in-time snapshot-diff shape as
+      license-drift-check, npm-lifecycle-script-check, and the
+      actions-*-check family, scored on this file's six-dimension rubric to
+      keep coverage complete for score_ventures.py --check and
+      portfolio/router/test_allocate.py. duplicate_check.py scored every
+      existing venture, screened-out row, and pipeline candidate below 0.12
+      for this idea. Autonomous ops 10 / gross margin 10: `snapshot` and
+      `diff` read only the local extensions directory and the browser page
+      parses only pasted text, so serving one more user costs a static file;
+      `check`'s Marketplace lookup runs from the user's own machine against
+      a public API this project pays nothing to serve. Distribution 6: the
+      GlassWorm campaign (ongoing since 2026-01-31, 72+ malicious Open VSX
+      extensions) and the Nx Console VS Code Marketplace compromise
+      (2026-05-18, credential-stealing trojanized build, covered by
+      TheHackerNews and multiple security vendors) are real, dated,
+      event-driven incidents that leave developers searching "vscode
+      extension supply chain" or "is my vscode extension safe" in their
+      aftermath, and neither VS Code nor the Marketplace notifies an
+      existing installer when a trusted extension is later pulled.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive — it diffs the user's own installed
+      extensions and flags exactly what changed for the user to review,
+      never a claim that a specific extension is malicious. The only network
+      call (`check`, CLI-only) is a plain lookup of an extension id already
+      installed on the user's own machine against the public Marketplace
+      API; it uploads no file contents and says so in its own FAQ.
+
+  - slug: 3d-print-price-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally absent. The tool solves
+      price*(1-fee%)-cost=price*margin% directly from filament, electricity,
+      printer-depreciation and failed-print-rate inputs the user supplies —
+      arithmetic a maker can re-derive by hand, which is the point.
+    basis: >-
+      Graduated 2026-09-07 as a free, browser-only pricing calculator for
+      makers selling 3D-printed parts on Etsy/Shopify/craft fairs. The wedge
+      over the common "3x filament cost" rule of thumb is accounting for
+      electricity, printer wear, a realistic failed-print rate, and a
+      marketplace fee that is a percentage of price rather than a flat cost.
+      Distribution 6: named to r/3dprintbusiness and r/functionalprint, where
+      "how do you price your prints" is a recurring thread with no pinned
+      free calculator as of graduation — a real but narrower audience than a
+      contractor-trade calculator's search volume. Defensibility 3: the
+      arithmetic itself is not hard to replicate; the maker-specific input
+      set (failed-print rate, percentage-of-price marketplace fee) is the
+      only differentiation. `duplicate_check.py` scored the closest existing
+      venture (`shopify-fee-calculator`) at 0.16, well under the 0.45 bar.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: pure arithmetic on numbers the user supplies, no advice-of-record
+      positioning, no account, no upload, and a break-even/pricing disclaimer
+      matching the rest of the bid-calculator family.
+
+  - slug: food-truck-event-margin-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally absent from the arithmetic core: the calculator
+      solves a cost-plus-margin quote directly from prep/travel time, staff
+      labor, food cost per guest, and a turnout-risk model, all inputs the
+      operator supplies and can re-derive by hand.
+    basis: >-
+      Graduated 2026-09-07 as a free, browser-only price calculator for
+      independent food truck and trailer operators pricing a private event,
+      catering, or festival booking. Same rubric as its closest siblings,
+      photo-booth-event-quote and portable-restroom-event-quote: a flat
+      per-unit price (per head, per print, per unit-day) hides committed
+      prep/travel time and a turnout- or volume-driven cost that a flat
+      price does not track. Distribution 6: no named channel measurement
+      yet (unlike photo-booth-event-quote's differentiated positioning
+      against an incumbent), but the niche (independent food truck
+      operators pricing one-off catering/event bookings, as distinct from
+      daily route service) is real and underserved by free tools.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: pure arithmetic on numbers the user supplies, no advice-of-
+      record positioning (it does not determine health-department or
+      permit requirements), no account, nothing uploaded — every field
+      runs in the browser only.

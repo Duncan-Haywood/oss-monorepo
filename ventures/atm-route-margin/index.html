@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ATM Route Margin Calculator — Price Each Placement</title>
+<meta name="description" content="Free calculator for independent ATM route operators: find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="ATM Route Margin Calculator">
+<meta property="og:description" content="Stop judging a placement by transaction count alone. Find real monthly profit after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"ATM Route Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds true monthly profit for one ATM location after the location's surcharge commission split and/or flat placement fee, per-transaction processor fees, vault cash cost of capital, refill labor and travel, and machine cost, and rolls a list of locations up into monthly route profit."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the location's cut come out of the surcharge before anything else?","acceptedAnswer":{"@type":"Answer","text":"Because that is how nearly every ATM placement agreement is written — the location owner is paid a percentage of the surcharge revenue, a flat monthly fee, or both, regardless of your own costs. This calculator charges that split (or flat fee) to a visit before the processor fee, vault cash cost, or your own labor."}},{"@type":"Question","name":"Why is vault cash treated as a cost at all — isn't it just my own money sitting in the machine?","acceptedAnswer":{"@type":"Answer","text":"It is your money, which is exactly why it has a cost: cash loaded into a machine cannot earn a return anywhere else, and if a cash-servicing company loads it for you, they charge for holding it. This calculator applies an annual cost-of-capital rate to your average cash balance so that cost shows up next to the surcharge revenue it makes possible, instead of disappearing as \"my own cash, no cost.\""}},{"@type":"Question","name":"Why is the processor fee a flat amount per transaction instead of a percentage like a card fee?","acceptedAnswer":{"@type":"Answer","text":"Because that is how ATM processing is actually billed — a fixed fee per withdrawal to route and settle it through the network, not a percentage of the surcharge. Modeling it as a percentage would understate the cost on a machine with a low surcharge and overstate it on one with a high surcharge."}},{"@type":"Question","name":"Does anything about my locations or transaction counts get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#12241f;background:#eef6f2}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #bfe0d1;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a3f2c08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #d3ecdf;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1c7a52;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #a9d8c2;border-radius:8px;font:inherit;background:#fbfffd}.result{background:#0f5c3c;color:#fff;border-color:#0f5c3c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4c6a5d}.result .note{color:#cdeadd}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#1c7a52}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #a9d8c2;background:#fff;cursor:pointer;color:#12241f}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR INDEPENDENT ATM ROUTE OPERATORS</p><h1>Transaction count lies. Profit per placement doesn't.</h1><p class="lede">A machine that "did 220 withdrawals this month" can still be losing you money once the location's cut, processor fees, and the cost of the cash sitting in it come out. This free calculator finds real monthly profit for one location, then rolls your whole route up into a number you can check against your income goal.</p><p class="lede">Evaluating a new placement offer before you have a machine running? See <a href="is-this-atm-placement-worth-it.html">is this ATM placement worth it?</a> for a worked example of how a withdrawal-count pitch can still lose money. Shopping for a new processor instead? See <a href="vs-atm-depot.html">this calculator vs. ATM Depot's Profit Calculator</a>.</p></header>
+
+<main class="layout">
+<section><h2>Price one location</h2>
+<fieldset><legend>Transactions &amp; surcharge</legend><div class="fields">
+<label>Withdrawals per month<input id="monthlyWithdrawals" type="number" min="0" step="1" value="220"></label>
+<label>Surcharge fee ($/withdrawal)<input id="surchargeFee" type="number" min="0" step="0.05" value="2.75"></label>
+<label>Location commission (%)<input id="locationCommissionPct" type="number" min="0" max="100" step="1" value="40"></label>
+<label>Location flat fee ($/month)<input id="locationFlatFee" type="number" min="0" step="1" value="0"></label>
+<label>Processor fee ($/transaction)<input id="processingFeePerTxn" type="number" min="0" step="0.01" value="0.30"></label>
+</div></fieldset>
+<fieldset><legend>Vault cash</legend><div class="fields">
+<label>Cost of capital, annual (%)<input id="cashCostAnnualRatePct" type="number" min="0" max="100" step="0.5" value="8"></label>
+<label>Average cash load ($)<input id="averageCashLoad" type="number" min="0" step="50" value="3000"></label>
+</div></fieldset>
+<fieldset><legend>Refill visits &amp; travel</legend><div class="fields">
+<label>Refill visits per month<input id="refillVisitsPerMonth" type="number" min="0" step="1" value="4"></label>
+<label>Minutes on-site per visit<input id="refillMinutes" type="number" min="0" step="1" value="15"></label>
+<label>Round-trip drive minutes<input id="driveMinutes" type="number" min="0" step="1" value="25"></label>
+<label>Round-trip miles<input id="mileage" type="number" min="0" step="0.1" value="10"></label>
+<label>Mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.67"></label>
+<label>Target hourly rate ($/hr)<input id="targetHourlyRate" type="number" min="0" step="0.5" value="25"></label>
+<label>Armored transport cost ($/visit)<input id="armoredCostPerVisit" type="number" min="0" step="1" value="0"></label>
+</div></fieldset>
+<fieldset><legend>Machine</legend><div class="fields">
+<label>Machine monthly cost (lease/amortized + telecom)<input id="machineMonthlyCost" type="number" min="0" step="1" value="60"></label>
+</div></fieldset>
+</section>
+
+<section class="result" aria-live="polite"><h2>Profit for this location</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="profit" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Gross surcharge revenue</dt><dd id="surchargeOut"></dd>
+<dt>Location commission / flat fee</dt><dd id="commissionOut"></dd>
+<dt>Processor fees</dt><dd id="processingOut"></dd>
+<dt>Vault cash cost of capital</dt><dd id="cashCostOut"></dd>
+<dt>Mileage</dt><dd id="mileageOut"></dd>
+<dt>Armored transport</dt><dd id="armoredOut"></dd>
+<dt>Your labor</dt><dd id="laborOut"></dd>
+<dt>Profit margin</dt><dd id="marginOut"></dd>
+<dt>Profit per withdrawal</dt><dd id="perTxnOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not add taxes, insurance, cash-in-transit shortage risk, or a slow-season adjustment unless you fold those into machine cost or target rate yourself.</p>
+</section>
+</main>
+
+<section><h2>Your route this month</h2><p class="note">For each location, run it through the calculator above and enter its projected monthly profit here. Blank or zero rows are ignored. Nothing you type here is saved or uploaded — refreshing the page clears it.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Location</th><th>Monthly profit ($)</th></tr></thead><tbody id="locationRows">
+<tr><td>1</td><td><input class="locationProfit" data-row="1" aria-label="Location 1 monthly profit in dollars" type="number" step="1" value="124"></td></tr>
+<tr><td>2</td><td><input class="locationProfit" data-row="2" aria-label="Location 2 monthly profit in dollars" type="number" step="1" value="58"></td></tr>
+<tr><td>3</td><td><input class="locationProfit" data-row="3" aria-label="Location 3 monthly profit in dollars" type="number" step="1" value=""></td></tr>
+<tr><td>4</td><td><input class="locationProfit" data-row="4" aria-label="Location 4 monthly profit in dollars" type="number" step="1" value=""></td></tr>
+<tr><td>5</td><td><input class="locationProfit" data-row="5" aria-label="Location 5 monthly profit in dollars" type="number" step="1" value=""></td></tr>
+<tr><td>6</td><td><input class="locationProfit" data-row="6" aria-label="Location 6 monthly profit in dollars" type="number" step="1" value=""></td></tr>
+</tbody></table></div>
+<div class="fields" style="margin-top:14px">
+<label>Target monthly income<input id="targetMonthlyIncome" type="number" min="0" step="10" value="1200"></label>
+</div>
+<p id="routeErrors" class="err" role="alert" hidden></p>
+<dl>
+<dt>Locations counted</dt><dd id="routeLocations"></dd>
+<dt>Total monthly route profit</dt><dd id="routeTotal"></dd>
+<dt>Average profit / location</dt><dd id="routeAverage"></dd>
+<dt>Gap to income goal</dt><dd id="routeGap"></dd>
+<dt>Additional locations to close it</dt><dd id="routeExtra"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your transaction figures and location list are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>location-priced</code>, <code>route-check</code>) so we can tell whether the calculator gets used — no locations, fees, or transaction counts are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does the location's cut come out of the surcharge before anything else?</h3><p>Because that is how nearly every ATM placement agreement is written &mdash; the location owner is paid a percentage of the surcharge revenue, a flat monthly fee, or both, regardless of your own costs. This calculator charges that split (or flat fee) to a visit before the processor fee, vault cash cost, or your own labor.</p>
+<h3>Why is vault cash treated as a cost at all &mdash; isn't it just my own money sitting in the machine?</h3><p>It is your money, which is exactly why it has a cost: cash loaded into a machine cannot earn a return anywhere else, and if a cash-servicing company loads it for you, they charge for holding it. This calculator applies an annual cost-of-capital rate to your average cash balance so that cost shows up next to the surcharge revenue it makes possible, instead of disappearing as "my own cash, no cost."</p>
+<h3>Why is the processor fee a flat amount per transaction instead of a percentage like a card fee?</h3><p>Because that is how ATM processing is actually billed &mdash; a fixed fee per withdrawal to route and settle it through the network, not a percentage of the surcharge. Modeling it as a percentage would understate the cost on a machine with a low surcharge and overstate it on one with a high surcharge.</p>
+<h3>Does anything about my locations or transaction counts get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere &mdash; it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a location placement agreement, process a live transaction, or replace your own contract, insurance, or accountant.</p><p>Pricing vending machines on the same kind of unattended machine route instead of ATM placements? The <a href="../vending-machine-route-margin/">vending machine route margin calculator</a> finds real profit per location after commission, card fees, shrink, drive time, and machine cost &mdash; nothing uploaded.</p><p>Pricing a service route of visits rather than machine placements? The <a href="../dog-walking-route-pricing/">dog walking &amp; pet sitting rate calculator</a> prices a walk, drop-in, or overnight from drive time, extra pets, and overhead, then rolls a client list up into monthly route revenue &mdash; nothing uploaded.</p><p>MIT licensed. If it helped you decide which placements to keep, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculate, computeRouteProfit, incomeGap, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const VISIT_IDS = Object.keys(DEFAULTS);
+let counted = false;
+let routeCounted = false;
+
+function visitInputs() { return Object.fromEntries(VISIT_IDS.map(id => [id, el(id).value])); }
+
+function updateVisit(count = false) {
+  try {
+    const r = calculate(visitInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('profit').hidden = false;
+    el('profit').textContent = money(r.netProfit);
+    el('rateLine').textContent = r.effectiveHourlyRate === null
+      ? 'no refill/drive time entered'
+      : `about ${money(r.effectiveHourlyRate)}/hr after all costs across ${r.laborHours.toFixed(2)} hrs this month`;
+    el('surchargeOut').textContent = money(r.grossSurcharge);
+    el('commissionOut').textContent = money(r.commissionAmount);
+    el('processingOut').textContent = money(r.processingCost);
+    el('cashCostOut').textContent = money(r.cashCost);
+    el('mileageOut').textContent = money(r.mileageCost);
+    el('armoredOut').textContent = money(r.armoredCost);
+    el('laborOut').textContent = money(r.laborCost);
+    el('marginOut').textContent = r.profitMarginPct === null ? '—' : `${r.profitMarginPct.toFixed(1)}%`;
+    el('perTxnOut').textContent = r.perTransactionProfit === null ? '—' : money(r.perTransactionProfit);
+    if (count && !counted) { recordEvent('location-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('profit').hidden = true;
+    for (const id of ['rateLine', 'surchargeOut', 'commissionOut', 'processingOut', 'cashCostOut', 'mileageOut', 'armoredOut', 'laborOut', 'marginOut', 'perTxnOut']) el(id).textContent = '';
+  }
+}
+
+function updateRoute(count = false) {
+  try {
+    const locations = [];
+    for (let row = 1; row <= 6; row++) {
+      const profitEl = document.querySelector(`.locationProfit[data-row="${row}"]`);
+      const profit = parseFloat(profitEl.value);
+      if (!Number.isFinite(profit) || profit === 0) continue;
+      locations.push({ monthlyProfit: profit });
+    }
+    const route = computeRouteProfit(locations);
+    const targetMonthlyIncome = parseFloat(el('targetMonthlyIncome').value) || 0;
+    const gap = incomeGap(targetMonthlyIncome, route.totalMonthlyProfit, route.averageProfitPerLocation);
+    el('routeErrors').hidden = true; el('routeErrors').textContent = '';
+    el('routeLocations').textContent = String(route.locationCount);
+    el('routeTotal').textContent = money(route.totalMonthlyProfit);
+    el('routeAverage').textContent = money(route.averageProfitPerLocation);
+    el('routeGap').textContent = gap.meetsTarget ? 'Goal met' : money(gap.gap);
+    el('routeExtra').textContent = gap.meetsTarget ? '0' : (gap.additionalLocationsNeeded === null ? 'add a profitable location' : String(gap.additionalLocationsNeeded));
+    if (count && !routeCounted) { recordEvent('route-check'); routeCounted = true; }
+  } catch (e) {
+    el('routeErrors').textContent = e.message; el('routeErrors').hidden = false;
+    for (const id of ['routeLocations', 'routeTotal', 'routeAverage', 'routeGap', 'routeExtra']) el(id).textContent = '';
+  }
+}
+
+VISIT_IDS.forEach(id => el(id).addEventListener('input', () => updateVisit(true)));
+document.querySelectorAll('.locationProfit').forEach(input => input.addEventListener('input', () => updateRoute(true)));
+el('targetMonthlyIncome').addEventListener('input', () => updateRoute(true));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+updateVisit(false);
+updateRoute(false);
+</script>
+</body></html>

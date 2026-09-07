@@ -112,9 +112,24 @@ const only = onlySlugs();
 // A skip line is not a pass. If a venture adds a share control under a fourth
 // spelling, it lands in the skip list too, so treat a page you know has a link
 // appearing there as a bug in this list.
+//
+// `copyShareLink` was exactly that gap, found 2026-09-06 while adding a share
+// link to `cloud-egress-calculator`: this file reported `skip … no copy-link
+// control` for that page, and the same probe against `owner-operator-cpm-calculator`
+// -- shipped weeks earlier with a real, tested share link -- skipped
+// identically. `seller-net-sheet` carries the same id. All three encode real
+// form state in the URL and none of them had ever been round-tripped by this
+// check.
+//
+// `copyScenario` (`tiktok-shop-fee-calculator`) was found the same day by
+// grepping every venture's markup for a share-shaped button rather than
+// waiting to trip over the next one by hand: its own click handler writes
+// `scenarioLink()` -- a real URL-encoded link -- to the clipboard, and this
+// file had never once round-tripped it.
 const COPY_CONTROLS = ['button#copyShare', 'button#copyLink', 'button#shareLink',
   'button#share', 'button#pf-link-copy', 'button#share-link',
-  'button#copy-share-link', 'button#shareResult', 'button#copy-share'];
+  'button#copy-share-link', 'button#shareResult', 'button#copy-share',
+  'button#copyShareLink', 'button#copyScenario'];
 
 // Fields no link should carry, and no comparison should demand.
 //

@@ -74,12 +74,215 @@ So when `ci_starvation.py` says starvation, run these before merging, and say
 in the PR what they said:
 
 ```
+python3 platform/ci/checklist_coverage.py  # fails if a line below is missing
 node platform/marketing/regen.mjs        # then commit whatever it rewrites
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
 node --test platform/proposal/*.test.mjs
+node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
 node --test ventures/<slug>/*.test.mjs
-python3 -m pytest gitops/tests -q        # only if you touched gitops/ or platform/ci/
+python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
+(cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
+(cd platform/ci/agent_review && python3 -m unittest test_review)
+python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
+python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
+python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
+python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches
+python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now?
 ```
+
+**That last line is not optional, and it is the one this block was missing
+until 2026-09-07.** Every line above it runs *tests*. `portfolio-validate.yml`
+also runs eight **validators** that no test file imports — `router/validate.py`,
+`front-door-tools.mjs --headroom`, `pipeline/validate_doc_consistency.py`,
+`pipeline/validate_candidates.py`, `probes/validate_probe_index.py`,
+`pipeline/score_sensitivity.py`, `scoring/score_ventures.py --check`,
+`usage/validate_usage.py` — and they check the thing tests cannot: whether the
+*committed data* still agrees with itself across files.
+
+Measured 2026-09-07: `main` was red on `validate_doc_consistency.py` and had
+been for at least a day. Two real inconsistencies, one of them a README row
+whose own cell said `Appended out of composite order ... to avoid renumbering
+the table`. Nothing caught it because Actions was starved, so CI never ran the
+validator, and this block — the list a session actually follows during a
+starvation window — ran every test in the repo and not one validator. The
+guard was correct, current, and shouting into an empty room.
+
+Prefer `run_workflow_locally.py` to pasting those eight commands here. It reads
+the workflow files and runs their `run:` steps, so it cannot go stale the way a
+hand-copied list does — which is the same import-don't-restate lesson this file
+records twice against the front-door mirror, and once already against
+`platform/proposal/`.
+
+**`--tree` was added 2026-09-07, and the reason is that `--for-changes` cannot
+answer the question this section is actually about.** It selects workflows by
+your *diff*, so on a clean checkout of `main` it prints `No files differ from
+origin/main; nothing to verify` and exits 0 — correct for "is my change sound?"
+and useless for "is `main` green?". Every guard in this file was therefore
+still, in one specific sense, only ever run by someone who happened to be
+changing something.
+
+Measured the same day: `scoring/score_ventures.py --check` was red on `main`
+and had been across five merges. #3615 graduated
+`actions-runner-starvation-check` without a row in `venture-scores.yaml`, and
+`--check` fails by design when the scored set and the set of `VENTURE.yaml`
+files disagree. Actions has been starved since 2026-09-04
+(`ci_starvation.py --run 34089278449`: `runner_id: 0`, 3s, no steps), so CI
+never ran it; four later merges each verified their own diff, correctly, and
+none of those diffs touched scoring. That is the third instance of this exact
+shape in ten days — 2026-08-29's two red steps, 2026-09-07's
+`validate_doc_consistency.py`, now this — and all three were found by a session
+that happened to look rather than by anything that asks.
+
+`--tree` asks. It ignores the diff and runs every workflow in
+`VERIFICATION_ONLY` against the checkout as it stands, so a red `main` is one
+command rather than a coincidence. It sweeps that list and not the whole
+directory on purpose: a sweep is the mode most likely to be run unattended,
+which is exactly where a deploying or branch-deleting step would arrive
+unnoticed. Run it after `git fetch origin main && git reset --hard origin/main`
+to read `main` itself, or on your branch to check the tree you are about to
+push. An empty selection exits 1 — "nothing ran" must never read as a pass.
+
+(`pip install pytest` first in a web session — the image has Python but not
+pytest, so that `gitops/tests` line exits `No module named pytest` rather than
+failing any test. Do not read that as a clean run. The `platform/ci` line needs
+no pytest — those suites are `unittest`.)
+
+**That parenthesis is no longer the only thing standing between a session and
+a wrong reading of `main` (changed 2026-09-07).** It warns about the raw
+`node --test`/`pytest` lines above, and `run_workflow_locally.py` — the line
+this block tells you to prefer, precisely because a hand-copied list goes
+stale — had the same hole and no warning at all. Measured that day, twice on
+the same clean checkout of `main` minutes apart, with nothing between the two
+runs but `pip install pytest`:
+
+```
+portfolio-validate.yml: 55/60 run: step(s) passed, 5 failed
+portfolio-validate.yml: 60/60 run: step(s) passed
+```
+
+All five said `No module named pytest`; `main` was green both times. The tool
+already exempted a failing *install* step from the verdict, on the stated
+grounds that reporting it as a failure "trains a reader to ignore the result"
+— and then rendered the five steps downstream of that install as ordinary
+`FAILED`, indistinguishable from an assertion failure in the repository. This
+is the same shape as the starvation signature the section above describes: a
+red that means "nothing ran" wearing the costume of a red that means "your
+code is broken."
+
+A step that cannot find its interpreter, module, or binary is now reported as
+**`UNRUN`** — named, counted as not run, listed with what to install, and
+never left reading as green. It does not fail the sweep, because a sandbox
+without pytest is not a defect in `main`. What it is *not* is a licence to
+ignore the line: an `UNRUN` step still owes an answer, and the summary says
+so. Install what it names and re-run before you claim the tree is green.
+
+The one discrimination that matters: a module the repository itself supplies
+(`No module named pages_state`) stays `FAILED`. That is not a missing tool —
+it is the documented `platform/ci` working-directory trap, and calling it
+"toolchain missing" would bury the defect the check exists to surface.
+
+**If your change touches markup a user types into, run the browser checks too —
+one `npm install` is the whole barrier, and sessions have been treating it as
+impossible** (added 2026-09-06):
+
+```
+python3 platform/ci/browser_state.py               # has anyone run these lately?
+npm install --no-save playwright@1.56.0 axe-core   # both in ONE command
+python3 platform/ci/browser_checks.py --only <slug>
+```
+
+**Ask the first line before you decide the other two are someone else's job**
+(added 2026-09-07). A whole-site run takes 20-30 minutes and printed its
+verdict to a terminal that then went away, so nothing in the tree said whether
+it had ever happened — which left every session choosing between spending the
+30 minutes again and skipping, and this file already records which one gets
+picked. `browser_state.py` reports, per check, the date and commit it last
+passed at, and whether anything under `ventures/`, `platform/pages/` or
+`platform/marketing/` has moved since. A docs or ledger merge does not stale a
+reading; a change to a rendered surface does. Add `--record` to a full
+`browser_checks.py` run to write the reading — it refuses a `--only` run and a
+run with skips, because a reading that laundered either into "the catalogue
+passed" would be worse than no reading at all.
+
+`platform/ci/browser_checks.py` already does the hard parts — it builds into a
+temp dir, proves with a sentinel token that the port is not answering a stale
+build, and finds the Chromium the image ships at `/opt/pw-browsers` on its own.
+What no session had, and what kept every one of them writing *"no Playwright in
+this environment, so the browser-only checks were not run"* in its limitations
+section (PR #3525 included), is the install line above. Two traps in it:
+`playwright@1.56.0` is the release matching the preinstalled build 1194 — 1.55
+wants 1187 and 1.57 wants 1200, and either fails at launch and invites you to
+run `npx playwright install`, which downloads a second browser tree and can
+exhaust a session's disk allowance. And `npm install --no-save X` prunes a
+package a previous `--no-save` added, so installing the two separately
+uninstalls the first and the next run fails with `ERR_MODULE_NOT_FOUND` for a
+package you watched install.
+
+This is not a nice-to-have. The first full `contrast.mjs` run in this
+repository's history, on 2026-09-06, found **48 critical axe `label` violations
+across three live products** — 24 route-table inputs with no accessible name,
+announced to a screen reader as `edit, number` and nothing else.
+`checklist_coverage`, `guide-coverage`, `clauses`, `check.mjs` and 1139 passing
+`node --test` assertions were all green at the time, because not one of them
+looks at accessible names. The checks had been in the tree, correct and unrun,
+for the whole life of the catalogue — the same "a guard nobody runs is worth
+less than no guard" defect recorded above for `platform/proposal/`, reached
+from a fifth direction, and the only one of them that was shipping a live
+accessibility failure to real users the entire time.
+
+**The first line was added 2026-09-06, to stop the second block from going
+stale the same way three times.** `platform/proposal/`, then
+`platform/privacy/` and `platform/webcheck/`, were each added to this list only
+after a guard in an un-enumerated directory had already gone unrun — most
+sharply `platform/proposal/term-ids.test.mjs`, red on `main` for days while
+five sessions each shipped the bug it exists to catch and each recorded a
+clean local run, because the list they ran did not name it. The lines above
+name each directory literally rather than with a glob that would auto-discover
+a new one, so a sixth `platform/<new-thing>/*.test.mjs` directory is exactly
+as invisible to this checklist as the third one was, until someone thinks to
+run `find . -name '*.test.mjs' -not -path './ventures/*'` by hand and notices.
+`checklist_coverage.py` is that command turned into a check: it fails, naming
+the missing line, the moment a new test directory outruns this list, instead
+of waiting for the bug the missing line would have caught. If it fails, add
+the line it prints in the same commit that added the tests.
+
+**The `gitops/tests` condition was widened on 2026-09-05, because "only if you
+touched `gitops/`" reads as "only if you meant to".** Giving a venture a public
+page touches nothing under `gitops/` by hand — but `regen.mjs` then rewrites
+several hundred files there, and `test_manifests.py` carries the mirrored-tool
+count typed out in four places (`infra/OWNER_CHECKLIST.md`,
+`gitops/prod/usage/aggregate.py`, and twice in
+`gitops/prod/front-door/default.conf`). So **every venture that gains a browser
+surface fails that suite until those four are updated**, and #3407 merged red
+on it: the two traps compounded, the condition read as not-applicable and the
+missing pytest made the check look clean. Fixed forward in #3408. If you ship a
+venture page, run this line — the condition is about what your commit contains,
+never about what you edited on purpose.
+
+**The `platform/ci` line was added 2026-09-05, and it is the same defect as
+`platform/proposal/`, arrived at from a third direction.** The line above it
+already said "only if you touched `gitops/` or **`platform/ci/`**" — so the
+list *named* the directory and then sent you to run a different one's tests.
+`platform/ci/` holds 15 `unittest` modules, and they guard the tools every
+session here leans on to decide what is true: `ci_starvation.py` (is this red
+check real?), `pages_state.py` and `publish_surface.py` (is there a route to
+a user?), `public_surface.py` (does a hostname answer?). A session that edits
+one of those and follows the list runs `gitops/tests` and never executes a
+single guard on the thing it just changed.
+
+CI does run all 15 (`portfolio-validate.yml` and four sibling workflows, one
+`python3 -m unittest <module>` step each), which is why this stayed invisible
+— and is exactly why it matters *now*: while runners are starved, CI running
+them is the same as nothing running them.
+
+Two traps, both measured rather than recalled. `python3 -m pytest platform/ci`
+from the repo root **fails collection** — these modules `import pages_state`,
+`import review` and so on by bare name, so they only resolve with
+`platform/ci` as the working directory, which is why the line above `cd`s.
+And grepping the workflows for `test_foo.py` finds nothing, because the steps
+invoke the *module* (`python3 -m unittest test_foo`); a coverage check by
+filename reports all 15 unrun, which is wrong. Verified 2026-09-05: all 15
+pass locally.
 
 The first line is the one that keeps being skipped, and it is the one that
 decides whether a page you shipped is reachable. A red check you have
@@ -103,13 +306,60 @@ guard, add the directory it lives in here in the same commit — a test nobody
 runs is worth less than no test, because it also tells the next session the
 ground is covered.
 
+**`platform/privacy/` and `platform/webcheck/` were added the same day, by
+enumerating instead of remembering.** Not because either was red — both pass,
+31 assertions between them — but because the paragraph above had just been
+written about `platform/proposal/` and the obvious next question, *what else is
+outside the list?*, had not been asked. `find . -name '*.test.mjs' -not -path
+'./ventures/*'` answers it in one command and returned five directories against
+the three the list named. The privacy suite is the one that matters: it guards
+the claim every tool's page makes about the visitor's data never leaving the
+device, which is the portfolio's central promise and the one whose quiet
+breakage would be least visible in a diff.
+
+That is the cheap version of this lesson, and it generalises past this list. A
+guard going unrun is not usually discovered by a session noticing it is
+missing — nobody notices an absence — it is discovered by the bug it should
+have caught, months later. Enumerate the ground instead of recalling it; the
+command is faster than the recollection and it cannot be honestly wrong.
+
 **After you merge a change that touches a served surface, refresh the
 published snapshot** (added 2026-09-05):
 
 ```
-python3 platform/ci/pages_state.py                  # says whether it is stale
+python3 platform/ci/pages_state.py --require-current   # exits 1 if it is stale
 CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
+python3 platform/ci/pages_state.py --require-current   # and 0 once you have
 ```
+
+**If that middle line refuses with "publishing backwards", another session
+published while you were building** (added 2026-09-06). Do exactly what it
+says — `git fetch origin main && git reset --hard origin/main`, then re-run —
+and do not reach for `ALLOW_REGRESSION=1`, which exists for a deliberate
+rollback and nothing else. The refusal is new because the failure it catches
+was measured that day: two sessions overlapped, one published the merge that
+had just landed, and the other, still holding the previous commit, force-pushed
+a second later and took a just-shipped venture off the live site. Nothing went
+red — `pages_state.py` reported `stale` afterwards, which reads as "nobody has
+published yet", not "somebody undid a publish". With up to 4 distinct sessions
+inside a 15-minute window here (`session_gate.py`), that overlap is the
+ordinary case.
+
+**`--require-current` was added 2026-09-06, and the reason is that the
+paragraph you are reading did not work.** This section has said "refresh the
+snapshot" since 2026-09-05, and on 2026-09-06 the snapshot was found stale
+anyway — built from `1afe50c5` while `main` was at `565cc635` — by a session
+that had read it. A reminder competes with everything else in a long file; an
+exit code does not. The flag prints the same report and then fails, naming the
+one command that fixes it, so a stale snapshot stops being something you have
+to remember to look for. Bare `pages_state.py` is unchanged and still exits 0
+on a stale snapshot: that answers "is this route worth having?", which is a
+different question, and folding the two together would make a green run mean
+two things.
+
+It never publishes for you. Publishing rewrites a branch, which is not
+something a check should do as a side effect — so the gate reports and you run
+the second line.
 
 The runner-free deploy route serves the `gh-pages` branch, which is a
 committed artifact rather than a build: **nothing rebuilds it when `main`
@@ -123,6 +373,27 @@ This matters most on the day it stops being theoretical. If the owner has
 flipped Settings → Pages → `gh-pages`, a stale snapshot is not a staging
 detail — it is the live site silently lagging `main`, with no error anywhere
 to say so. Refreshing costs about a minute and needs no credential.
+
+**Keep doing it by hand while runners are starved, but it is no longer the
+only thing standing between `main` and the branch** (added 2026-09-06).
+`.github/workflows/publish-pages-branch.yml` runs exactly the command above on
+every push to `main` that touches `ventures/**` or `platform/pages/**`. Two
+things to know about it, because both are deliberate:
+
+- **It pushes nothing until the owner sets `PAGES_BRANCH_PUBLISH` to `true`.**
+  CLAUDE.md's "Automation" rule forbids adding an unattended workflow that
+  pushes commits without owner approval, so the gate is the approval, exactly
+  as `PAGES_ENABLED` gates the `deploy-pages` route in `portfolio-pages.yml`.
+  With it unset the workflow still builds the site and runs `check.mjs`
+  against the artifact, so a dead link the copy step introduces turns a merge
+  red instead of reaching a crawler.
+- **It needs a runner**, so during a starvation window it does nothing at all
+  and the manual command above is still the only route. That is the honest
+  limit: this closes the drift hole from the day runners return, not today.
+
+The snapshot was found stale again on 2026-09-06 (built from `1afe50c5` while
+`main` was at `565cc635`) — one merge behind, by a session that had read this
+section. That is the argument for automating it rather than restating it.
 
 **Merge yourself after CI is green:**
 
@@ -160,7 +431,53 @@ candidate list. Either:
 2. Build a `build-now` candidate (`session_gate.py` names the top one), or
 3. Graduate and build a new niche not in `screened-out.md`.
 
-> **MEASURED 2026-09-04: nothing is served. Read this before anything below.**
+> **SUPERSEDED IN PART, 2026-09-06: the catalogue IS served. Read this first.**
+>
+> All 175 products are built, deployed and being served by GitHub Pages at
+> **https://duncan-haywood.github.io/monorepo-projects/** — Pages serves the
+> `gh-pages` branch that `platform/pages/publish-branch.sh` writes.
+> Proof rather than inference: GitHub's own managed builder
+> `dynamic/pages/pages-build-deployment` ran on that branch and concluded
+> `success` (runs 34011996382 and 34012041708), and a managed Pages build is
+> triggered *only* by a push to the configured source. Both completed while
+> Actions runners were starved, so this route does not spend the metered
+> allowance. `deploy-settings` is granted; do not rank it, and do not describe
+> the portfolio as having no public URL.
+>
+> **Stated exactly, because the failure being corrected here is overclaiming.**
+> What is measured is that GitHub *deployed* the branch. What is not measured
+> is an unauthenticated HTTP 200: no session can fetch it — the agent egress
+> proxy answers `403 to CONNECT` for `github.io` — and a Pages site can in
+> principle be access-controlled rather than public. That last step is one
+> logged-out page load by the owner, and `github-pages-origin` in
+> `infra_state.yaml` stays `unknown` until someone takes it. "Deployed" is a
+> great deal more than the "dark" this file has been asserting, and it is not
+> the same as "a stranger has read it".
+>
+> **What is still down is `marisstella.dev`** — the k3s cluster, everything in
+> the block below, and it is all still accurate about *that* origin. The two
+> were run together because the repository assumed a single origin; they are
+> two, and only one of them is dark.
+>
+> **The standing job this creates.** A committed artifact does not rebuild
+> itself and nothing refreshes it while runners are down, so after any merge
+> that touches a served surface, run
+> `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`.
+> That command is now the difference between the live site and `main`.
+>
+> **And the lesson, which is why the block below is kept rather than deleted.**
+> Every sentence in it was a correct reading of the manifests and the API on
+> the day it was taken, restated as a claim about what a visitor receives —
+> and then nothing re-ran when the world changed. The 2026-09-05 Pages reading
+> made it worse by reasoning from an *absence* (no `dynamic/pages/` workflow
+> listed), and an absence goes stale in silence. Prefer a reading taken from
+> something *present*: a run has an id, a conclusion and a date. Ask
+> `python3 platform/ci/pages_state.py` and read its `deployed` row rather than
+> trusting any prose here, this correction included.
+>
+> ---
+>
+> **MEASURED 2026-09-04 (about `marisstella.dev`): nothing is served.**
 >
 > Every claim in this section was derived from the manifests. On 2026-09-04 the
 > hostnames were asked directly, from a GitHub runner, over real DNS and real

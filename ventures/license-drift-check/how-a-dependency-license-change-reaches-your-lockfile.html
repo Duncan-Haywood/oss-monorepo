@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How a Dependency's License Change Reaches Your Lockfile</title>
+  <meta name="description" content="Why Dependabot and Renovate don't flag a license change, how to generate a license snapshot for npm, pip, and Go, and how to wire the free license-drift-check CLI into CI as a gate.">
+  <link rel="canonical" href="./how-a-dependency-license-change-reaches-your-lockfile.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is colloquial \"BSL\" the same license as SPDX BSL-1.0?","acceptedAnswer":{"@type":"Answer","text":"No, and mixing them up runs in both directions. Colloquial \"BSL\" almost always means the source-available Business Source License (SPDX BUSL-1.1), the one Terraform, Sentry, and CockroachDB use. SPDX BSL-1.0 is the unrelated, fully permissive Boost Software License."}},{"@type":"Question","name":"Does this tool decide whether a license change is compliant or safe to accept?","acceptedAnswer":{"@type":"Answer","text":"No. It reports that a package's license string differs from a snapshot you captured earlier, and buckets the before and after into a public, well-known family as a skim aid. Whether a given change is acceptable for your project is a decision for you or your counsel, not this tool."}},{"@type":"Question","name":"Can I use this if my project isn't on npm?","acceptedAnswer":{"@type":"Answer","text":"Yes. The diff engine reads a generic JSON array of {name, version, license} objects, or CSV with a name/version/license header, so pip-licenses, go-licenses, and cargo-license output all work with the commands above — only the snapshot command that scans node_modules directly is npm-specific."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to License Drift Check</a></p>
+  <h1>How a dependency's license change reaches your lockfile</h1>
+
+  <p>Nobody chooses to accept a relicense. It arrives as a version bump: an
+  automated PR from Dependabot or Renovate, or a routine <code>npm update</code>,
+  carrying release notes about performance and bug fixes — and, unannounced in
+  the diff a reviewer actually reads, a different license field in the new
+  version's own <code>package.json</code>.</p>
+
+  <h2>Why Dependabot and Renovate don't catch it</h2>
+  <p>Both tools solve a different problem well: they watch a registry for a
+  newer version and open a pull request with the version delta, changelog, and
+  a compatibility signal. Neither diffs the <em>license</em> field between the
+  version you have and the version they're proposing — it isn't part of what
+  either was built to compare. A license change rides along inside an
+  otherwise-routine version PR with nothing calling it out.</p>
+
+  <h2>Four times this actually happened</h2>
+  <table>
+    <thead><tr><th>Project</th><th>From</th><th>To</th><th>Date</th></tr></thead>
+    <tbody>
+      <tr><td>MongoDB Server</td><td>AGPL-3.0</td><td>SSPL-1.0</td><td>2018-10-16</td></tr>
+      <tr><td>Elasticsearch &amp; Kibana</td><td>Apache-2.0</td><td>SSPL-1.0 / Elastic License</td><td>2021-01-14</td></tr>
+      <tr><td>Terraform</td><td>MPL-2.0</td><td>BUSL-1.1</td><td>2023-08-10</td></tr>
+      <tr><td>Redis</td><td>BSD-3-Clause</td><td>SSPLv1 / RSALv2</td><td>2024-03-20</td></tr>
+    </tbody>
+  </table>
+  <p>Each of these is a widely used dependency, not an obscure one. The
+  Terraform change alone drove the OpenTF Manifesto to more than 33,000 GitHub
+  stars within a month and produced OpenTofu; the Redis change produced Valkey,
+  forked and backed by the Linux Foundation within days. None of that
+  visibility retroactively protected the projects that had already merged the
+  version bump before anyone noticed.</p>
+
+  <h2>Generating a snapshot per ecosystem</h2>
+  <p><strong>Node / npm</strong> — reads each installed package's own
+  <code>package.json</code>, no network call:</p>
+  <pre>node cli.mjs snapshot --out baseline.json</pre>
+  <p><strong>Python</strong> — <a href="https://pypi.org/project/pip-licenses/" rel="noopener">pip-licenses</a>
+  already emits JSON; this reshapes its field names to match:</p>
+  <pre>pip-licenses --format=json | \
+  jq '[.[] | {name: .Name, version: .Version, license: .License}]' \
+  > baseline.json</pre>
+  <p><strong>Go</strong> — <a href="https://github.com/google/go-licenses" rel="noopener">go-licenses</a>
+  emits a header-less <code>import path,license URL,license name</code> CSV,
+  which the tool reads directly (the last column is used as the license):</p>
+  <pre>go-licenses csv ./... > baseline.csv</pre>
+  <p><strong>Rust</strong> — <a href="https://github.com/onur/cargo-license" rel="noopener">cargo-license</a>'s
+  JSON already uses <code>name</code>/<code>version</code>/<code>license</code>:</p>
+  <pre>cargo license --json > baseline.json</pre>
+
+  <h2>Wiring it into CI as a gate</h2>
+  <p>Commit a reviewed baseline snapshot once, then compare against it on every
+  PR that touches the lockfile:</p>
+  <pre>- name: Check for dependency license drift
+  run: |
+    npm ci
+    node ventures/license-drift-check/cli.mjs snapshot --out /tmp/current.json
+    node ventures/license-drift-check/cli.mjs diff license-baseline.json /tmp/current.json</pre>
+  <p>The command exits non-zero the moment any package's license changed
+  since the baseline, and 0 on a clean run or a change you've explicitly
+  accepted with <code>--ignore</code>. Nothing here decides whether a given
+  change is acceptable — it makes the change visible in the one place code
+  review already happens, instead of silent inside a version bump.</p>
+
+  <h2>What the family label does and doesn't mean</h2>
+  <p>Each license is bucketed into <strong>permissive</strong>,
+  <strong>copyleft</strong>, or <strong>source-available</strong> by matching
+  well-known keywords in the license string — a skim aid, not a legal
+  determination. The one mix-up worth naming explicitly: colloquial "BSL"
+  almost always means the source-available <em>Business Source License</em>
+  (SPDX <code>BUSL-1.1</code>, the one Terraform, Sentry, and CockroachDB use)
+  — not the fully permissive <em>Boost Software License</em>
+  (SPDX <code>BSL-1.0</code>). The tool disambiguates on the version digit;
+  read the actual license text before relying on either label.</p>
+
+  <h2>Common questions</h2>
+  <h3>Is colloquial "BSL" the same license as SPDX BSL-1.0?</h3>
+  <p>No, and mixing them up runs in both directions. Colloquial "BSL" almost always means the source-available Business Source License (SPDX BUSL-1.1), the one Terraform, Sentry, and CockroachDB use. SPDX BSL-1.0 is the unrelated, fully permissive Boost Software License.</p>
+  <h3>Does this tool decide whether a license change is compliant or safe to accept?</h3>
+  <p>No. It reports that a package's license string differs from a snapshot you captured earlier, and buckets the before and after into a public, well-known family as a skim aid. Whether a given change is acceptable for your project is a decision for you or your counsel, not this tool.</p>
+  <h3>Can I use this if my project isn't on npm?</h3>
+  <p>Yes. The diff engine reads a generic JSON array of {name, version, license} objects, or CSV with a name/version/license header, so pip-licenses, go-licenses, and cargo-license output all work with the commands above — only the snapshot command that scans node_modules directly is npm-specific.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents report
+    a factual difference between two snapshots you supply. Nothing here is
+    legal advice about any license, and the family labels are an informational
+    keyword match, not a legal opinion. Verify with counsel before relying on
+    it. <a href="./">Back to the tool</a>.</p>
+  </footer>
+</body>
+</html>

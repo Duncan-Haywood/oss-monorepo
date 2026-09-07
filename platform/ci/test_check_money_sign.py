@@ -90,6 +90,68 @@ class FindingsIn(unittest.TestCase):
         self.assert_clean("const label = (value) => `$${value} each`;")
         self.assert_clean("el('total').textContent = `$${total}`;")
 
+    # The spellings that guard *before* interpolating. Until 2026-09-07 the
+    # patterns required the arrow body to open with the template literal, so
+    # every one of these read as clean -- measured on four live files, two of
+    # which were rendering a reachable negative ("$-1.46" for a 400-page
+    # paperback's per-copy net, and a negative `revenueChange` after a price
+    # rise). The blind spot is worse than a plain miss: kdp-royalty-calculator
+    # shipped the unguarded spelling in `calc.mjs` and the guarded one in
+    # `index.html`, so the venture failed CI on the copy nobody looks at while
+    # the copy on screen stayed wrong and unreported.
+    def test_flags_a_formatter_that_guards_before_interpolating(self):
+        self.assert_flagged(
+            "const money = (n) => (Number.isFinite(n) ? `$${n.toFixed(2)}` : 'not available');"
+        )
+        self.assert_flagged(
+            "const money = (value) => value == null ? 'add a price' : `$${value.toFixed(2)}`;"
+        )
+        self.assert_flagged(
+            "const money=n=>Number.isFinite(n)?`$${n.toFixed(2)}`:'not available';"
+        )
+        self.assert_flagged(
+            "function money(value) {\n"
+            "  return value == null ? 'add a price' : `$${value.toFixed(2)}`;\n"
+            "}",
+            name="calc.mjs",
+        )
+
+    def test_passes_a_guarded_formatter_that_signs_correctly(self):
+        # The same four repaired. A guard that flagged these too would make the
+        # fix unreachable, which is the failure mode the module docstring calls
+        # "gets deleted rather than obeyed".
+        self.assert_clean(
+            "const money = (n) => {\n"
+            "  if (!Number.isFinite(n)) return 'not available';\n"
+            "  const text = `$${Math.abs(n).toFixed(2)}`;\n"
+            "  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;\n"
+            "};"
+        )
+        self.assert_clean(
+            "function money(value) {\n"
+            "  if (value == null) return 'add a price';\n"
+            "  const text = `$${Math.abs(value).toFixed(2)}`;\n"
+            "  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;\n"
+            "}",
+            name="calc.mjs",
+        )
+        # Already correct in the tree: the sign is outside the symbol already,
+        # spelled with a Unicode minus.
+        self.assert_clean(
+            "const money = (value) => (value < 0 ? `−$${Math.abs(value).toFixed(2)}` "
+            ": `$${value.toFixed(2)}`);"
+        )
+
+    def test_reports_one_finding_per_formatter(self):
+        # Both the original patterns and the body scan match the unguarded
+        # arrow spelling. It is one defect and must be named once.
+        found = list(
+            guard.findings_in(
+                self.write("one.html", "const money = (n) => `$${n.toFixed(2)}`;")
+            )
+        )
+        self.assertEqual(len(found), 1)
+
 
 class TheRepository(unittest.TestCase):
     def test_no_venture_source_signs_inside_the_symbol(self):

@@ -7,7 +7,7 @@
   <meta name="description" content="Price a sewer camera inspection or hydro-jet from extra footage past the included run, cleanout versus toilet pull, roots and grease, hose distance from the truck, and a camera warranty pass — not a published $149 drain special. See the walk-away number before you match a cheaper cable quote.">
   <meta property="og:title" content="Hydro-Jet and Sewer Camera Bid Calculator">
   <meta property="og:description" content="A 50-foot cable from an existing cleanout is not the same job as a 140-foot main with a toilet pull, roots, and a camera pass. Bid the footage and the access.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hydro-Jet and Sewer Camera Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Camera versus cable versus hydro-jet versus combo hours, extra footage past the included run, existing cleanout versus toilet pull versus new cleanout versus roof vent, roots and grease, hose distance from the truck, second line, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hydro-Jet and Sewer Camera Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Camera versus cable versus hydro-jet versus combo hours, extra footage past the included run, existing cleanout versus toilet pull versus new cleanout versus roof vent, roots and grease, hose distance from the truck, second line, walk-away price, proposed-price margin check, copyable customer-facing bid summary, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a toilet pull or new cleanout cost more than an existing cleanout job?","acceptedAnswer":{"@type":"Answer","text":"Access is priced as its own line because getting into the line changes the labor before the machine ever starts running: pulling and resetting a toilet, or cutting in a new cleanout, adds real hours a job that already has a cleanout doesn't need. Match the access option to what's actually on site rather than assuming every job starts the same way."}},{"@type":"Question","name":"Why does a “$149 drain special” price so much lower than this tool's number?","acceptedAnswer":{"@type":"Answer","text":"A flat brochure price usually covers a short run from an existing cleanout with no roots, no grease, and no camera pass — extra footage past the included run, roots, grease, hose distance from the truck, and a camera warranty pass all add hours the flat price never counted. Enter your actual line feet and conditions to see what the special would need to charge to still be profitable."}},{"@type":"Question","name":"Does the camera pass replace a real sewer inspection or a home-sale scope report?","acceptedAnswer":{"@type":"Answer","text":"No. This prices your labor and equipment time for running a camera, not a certified inspection report, a real-estate condition disclosure, or a code determination about the line's condition. Whatever the camera finds is still something you (or a licensed inspector) has to interpret and document separately."}},{"@type":"Question","name":"Is the footage-included assumption accurate for my trucks?","acceptedAnswer":{"@type":"Answer","text":"The included footage and hose-run figures are common ballpark starting points, not a manufacturer spec for your specific jet unit or cable machine. Replace them with what your actual equipment carries so the “extra footage” charge kicks in at the right point."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a2a32; background: #e6eef1; }
@@ -227,6 +227,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -285,8 +286,9 @@
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not plumbing, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your footage, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your footage, wages, costs, or prices.</p>
     <p>Related: <a href="how-much-to-charge-for-hydro-jetting.html">How much to charge for hydro-jetting</a>. Wondering how this compares to a field-service platform? <a href="vs-jobber.html">This calculator vs. Jobber</a>.</p>
+    <p>Pricing a sewer line replacement instead of a camera or hydro-jet clear? The <a href="../sewer-line-replace-bid-calculator/">sewer line replacement bid calculator</a> prices open-cut, pipe bursting, or CIPP lining — nothing uploaded.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -299,6 +301,9 @@
       suggestedAccessKit,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -479,6 +484,71 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyLink() {
+      // The proposal panel's five terms are not part of the arithmetic, so
+      // share.mjs never carried them and the recipient reopened the bid at
+      // this venture's defaults -- a different deposit and validity window
+      // under a headline price that matched to the cent. They ride beside the
+      // payload in `pfterms`, which decodeInputs never sees.
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      // A term too long to ride in the link is named to the sender rather
+      // than dropped silently -- the whole failure mode here is a recipient
+      // who cannot tell that something stayed behind.
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only the ids share.mjs
+     * re-validates against calc.mjs's own presets are ever written back into
+     * the form, so a crafted fragment cannot set anything this page does not
+     * already ask for.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied first: a link carrying only the terms is still worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+      for (const id of SELECT_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FIELD_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FLAG_IDS) {
+        if (fromUrl[id] !== undefined) el(id).checked = fromUrl[id];
+      }
+      // A work/access change never overwrites a restored rate: mark the
+      // rates a preset suggests as already "edited", the same guard the form
+      // itself sets when a shop types over the suggestion.
+      [...SUGGESTED_WORK_IDS, ...SUGGESTED_ACCESS_IDS].forEach((id) => {
+        if (fromUrl[id] !== undefined) el(id).dataset.edited = '1';
+      });
+    }
+
     presets.addEventListener('change', () => {
       const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       if (!job) return;
@@ -523,7 +593,11 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
 
+    restoreShare();
     update();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------

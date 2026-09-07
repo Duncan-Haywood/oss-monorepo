@@ -19,7 +19,7 @@
     <label>Proposed monthly price<input id="proposedPrice" type="number" min="0" step="0.01" value="25"></label>
     <label>Monthly fixed costs<input id="monthlyCosts" type="number" min="0" step="0.01" value="500"></label>
   </div><p class="note">Use your own observed churn and costs to pressure-test the scenarios. This tool does not predict customer behavior.</p></section>
-  <section id="result" aria-live="polite"><h2>Price-change readout</h2><p id="errors" class="warn" role="alert" hidden></p><div id="headline" class="hero"></div><div id="subhead"></div><dl><dt>Current monthly revenue</dt><dd id="currentRevenue"></dd><dt>Proposed revenue before churn</dt><dd id="proposedRevenue"></dd><dt>Revenue change before churn</dt><dd id="revenueChange"></dd><dt>Subscribers at revenue break-even</dt><dd id="breakEvenCustomers"></dd></dl><h2>Churn scenarios</h2><table><thead><tr><th>Churn</th><th>Subscribers left</th><th>Contribution</th></tr></thead><tbody id="scenarios"></tbody></table><p id="status" class="note" role="status" aria-live="polite"></p></section></main>
+  <section id="result" aria-live="polite"><h2>Price-change readout</h2><p id="errors" class="warn" role="alert" hidden></p><div id="headline" class="hero"></div><div id="subhead"></div><dl><dt>Current monthly revenue</dt><dd id="currentRevenue"></dd><dt>Proposed revenue before churn</dt><dd id="proposedRevenue"></dd><dt>Revenue change before churn</dt><dd id="revenueChange"></dd><dt>Subscribers at revenue break-even</dt><dd id="breakEvenCustomers"></dd></dl><h2>Churn scenarios</h2><table><thead><tr><th>Churn</th><th>Subscribers left</th><th>Contribution</th></tr></thead><tbody id="scenarios"></tbody></table><p><button type="button" id="copyShareLink">Copy share link</button></p><p id="status" class="note" role="status" aria-live="polite"></p></section></main>
   <section id="faq" style="max-width:960px;margin:18px auto 0">
     <h2>Common questions</h2>
 
@@ -59,8 +59,8 @@
   </section>
   <footer><label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. We count only anonymous feature events in local storage, and you can turn that off above. Do Not Track and Global Privacy Control disable counting automatically.</p><p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
   <script type="module">
-    import { calculateImpact } from './calc.mjs'; import { recordUsage } from './usage.mjs';
-    const ids=['customers','currentPrice','proposedPrice','monthlyCosts']; const $=id=>document.getElementById(id); const money=n=>Number.isFinite(n)?`$${n.toFixed(2)}`:'not available';
+    import { calculateImpact } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs } from './share.mjs';
+    const ids=['customers','currentPrice','proposedPrice','monthlyCosts']; const $=id=>document.getElementById(id); const money=n=>{if(!Number.isFinite(n))return 'not available';const t=`$${Math.abs(n).toFixed(2)}`;return n<0&&/[1-9]/.test(t)?`-${t}`:t;};
     function render(count=true){const errorsEl=$('errors');const headline=$('headline');try{const input=Object.fromEntries(ids.map(id=>[id,$(id).value]));const r=calculateImpact(input);errorsEl.hidden=true;errorsEl.textContent='';headline.hidden=false;headline.textContent=`${r.maxChurnRate.toFixed(1)}%`;headline.className=`hero ${r.revenueChange>=0?'good':'warn'}`;$('subhead').textContent=r.revenueChange>=0?'maximum churn before revenue falls':'this price change lowers revenue before churn';$('currentRevenue').textContent=money(r.currentRevenue);$('proposedRevenue').textContent=money(r.proposedRevenue);$('revenueChange').textContent=money(r.revenueChange);$('breakEvenCustomers').textContent=Number.isFinite(r.breakEvenCustomers)?r.breakEvenCustomers.toFixed(1):'not achievable';$('scenarios').replaceChildren(...r.scenarios.map(s=>{const row=document.createElement('tr');[`${s.churn}%`,s.customers.toFixed(1),money(s.contribution)].forEach(v=>row.insertCell().textContent=v);return row;}));if(count)recordUsage('calculation',$('usageOptOut').checked);}catch(e){
       // A rejected input (a negative number, non-numeric text) must not leave
       // the last valid readout on screen next to an easy-to-miss error --
@@ -71,5 +71,28 @@
       errorsEl.textContent=e.message;errorsEl.hidden=false;headline.hidden=true;$('subhead').textContent='';$('currentRevenue').textContent='';$('proposedRevenue').textContent='';$('revenueChange').textContent='';$('breakEvenCustomers').textContent='';$('scenarios').replaceChildren();
     }}
     ids.forEach(id=>$(id).addEventListener('input',()=>render())); $('usageOptOut').addEventListener('change',()=>render(false)); render(false);
+
+    // Shareable link. Every field the calculation reads rides in the URL
+    // fragment, which browsers never send to a server — the numbers travel
+    // in the link the same way they never leave this page today.
+    async function copyShareLink(){
+      const text=`${location.origin}${location.pathname}#${encodeInputs(Object.fromEntries(ids.map(id=>[id,$(id).value])))}`;
+      try{await navigator.clipboard.writeText(text);}catch{window.prompt('Copy this share link:',text);}
+      $('status').textContent='Link copied — the numbers travel in the link, not to a server';
+      recordUsage('share_link_copied',$('usageOptOut').checked);
+      setTimeout(()=>{$('status').textContent='';},2500);
+    }
+    $('copyShareLink').addEventListener('click',()=>{copyShareLink();});
+
+    // A shared scenario arrives in the fragment; `search` is accepted too, so
+    // a link that lost its # on the way through a messaging app still opens
+    // on the sender's numbers.
+    const incoming=decodeInputs(location.hash||location.search);
+    if(Object.keys(incoming).length>0){
+      for(const id of ids){if(id in incoming)$(id).value=incoming[id];}
+      render(false);
+      recordUsage('shared_link_opened',$('usageOptOut').checked);
+      $('status').textContent='Opened from a shared link — verify every figure against your own numbers.';
+    }
   </script>
 </body></html>

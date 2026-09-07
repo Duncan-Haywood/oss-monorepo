@@ -16,10 +16,13 @@
  *   - some channels bundle payment processing into the commission (eBay's
  *     final value fee), others bill it separately (Etsy Payments).
  *
- * `commissionRate`, `paymentRate` and `adRate` all apply to the order total
- * (item price + shipping charged), which is how the major marketplaces
- * compute them. A seller whose channel differs can zero one field and fold the
- * rate into another.
+ * `paymentRate` and `adRate` apply to the order total (item price + shipping
+ * charged). `commissionRate` does too by default (`commissionBase: "order"`),
+ * which is how eBay, Etsy and Amazon compute their selling fees. Reverb is
+ * the exception: its selling fee applies to the item price only
+ * (`commissionBase: "item"`), matching `ventures/reverb-fee-calculator`. A
+ * seller whose channel differs can zero one field and fold the rate into
+ * another.
  */
 
 export const CHANNEL_PRESETS = [
@@ -86,6 +89,45 @@ export const CHANNEL_PRESETS = [
     sellThroughPct: 55,
     daysToSell: 28,
     listingRenewalDays: 0,
+  },
+  {
+    id: "reverb",
+    label: "Reverb (musical gear)",
+    note: "Off by default because it only applies to instruments and audio gear — turn it on if that is what you sell. Reverb bills the selling fee on the item price only (not on shipping charged) and payment processing separately, which is why the processor rate is not zero here the way it is for eBay. Sell-through and days to sell are illustrative starting points, not a claim about Reverb velocity.",
+    // Matches ventures/reverb-fee-calculator's own defaults (5% selling fee
+    // on the item price, 3.19% + $0.49 Reverb Payments on the order total, as
+    // of September 2026). Two tools in one portfolio printing different fee
+    // assumptions for the same marketplace is a credibility problem, so
+    // `channel-parity.test.mjs` asserts these stay equal by importing that
+    // calculator's defaults rather than restating them — including that the
+    // selling fee is charged on the item, not on shipping.
+    commissionRate: 5,
+    commissionBase: "item",
+    paymentRate: 3.19,
+    paymentFixed: 0.49,
+    perListingFee: 0,
+    monthlyFee: 0,
+    // Bumps are optional and priced per listing rather than as a rate, so they
+    // are left at zero here; the dedicated calculator is where that decision
+    // gets made (it has a whole page on whether a bump pays for itself).
+    adRate: 0,
+    // Illustrative return assumptions. Gear buyers inspect on arrival and
+    // Reverb's protection means a rejected item usually comes back; the fee is
+    // normally refunded with it.
+    returnRate: 6,
+    returnShippingCost: 18,
+    resellableRate: 90,
+    feeRefundRate: 100,
+    // A Reverb listing does not expire on a cycle, so there is no renewal to
+    // charge — but gear is a considered purchase and sits longer than a
+    // general-marketplace item of the same price.
+    sellThroughPct: 50,
+    daysToSell: 35,
+    listingRenewalDays: 0,
+    // Off until the seller says this is gear: enabled by default it would add
+    // a channel most sellers cannot list on to every comparison, and a channel
+    // that does not apply is noise in a ranking, not information.
+    enabled: false,
   },
   {
     id: "own-store",
@@ -254,13 +296,23 @@ export function calculateChannel(channel, shared = {}) {
   }
 
   const revenue = price + shippingCharged;
-  const percentRate = (commissionRate + paymentRate + adRate) / 100;
+  // Most marketplaces take the selling fee on the order total. Reverb takes
+  // it on the item price only; payment processing still runs on the order.
+  // Splitting the two bases is what keeps this page's Reverb row equal to
+  // `reverb-fee-calculator` when shipping charged is non-zero.
+  const commissionBase = channel.commissionBase === "item" ? "item" : "order";
+  const orderRatePct = paymentRate + adRate + (commissionBase === "order" ? commissionRate : 0);
+  const itemRatePct = commissionBase === "item" ? commissionRate : 0;
+  const orderRate = orderRatePct / 100;
+  const itemRate = itemRatePct / 100;
+  const percentRate = orderRate + itemRate;
   if (percentRate >= 1) {
     throw new Error(`${label}: commission, payment and ad rates add up to 100% or more of the order`);
   }
 
+  const commissionBaseAmount = commissionBase === "item" ? price : revenue;
   const fees = {
-    commission: (revenue * commissionRate) / 100,
+    commission: (commissionBaseAmount * commissionRate) / 100,
     payment: (revenue * paymentRate) / 100 + paymentFixed,
     ads: (revenue * adRate) / 100,
     listing: perListingFee,
@@ -277,6 +329,13 @@ export function calculateChannel(channel, shared = {}) {
   // Cash that must be recovered before any percentage fee is covered. Used for
   // both break-even and the price that reaches a given profit.
   const fixedCash = paymentFixed + perListingFee + subscriptionShare + cashInvested;
+  // profit = price*(1 - orderRate - itemRate) + shippingCharged*(1 - orderRate) - fixedCash
+  // Collapses to the familiar fixedCash/(1 - percentRate) - shippingCharged
+  // whenever commission also runs on the order (itemRate === 0).
+  const priceCoeff = 1 - orderRate - itemRate;
+  const breakEvenPrice = priceCoeff > 0
+    ? Math.max(0, (fixedCash - shippingCharged * (1 - orderRate)) / priceCoeff)
+    : null;
   // Profit already carries the amortized plan share. Adding it back answers
   // "how many whole sales of this item recover the monthly fee?" — 0 when
   // there is no plan, null when the unit economics cannot recover it.
@@ -305,22 +364,25 @@ export function calculateChannel(channel, shared = {}) {
   const expectedProfit = (1 - returnedShare) * profit + returnedShare * returnedProfit;
   const returnDrag = profit - expectedProfit;
 
-  // expectedProfit is linear in revenue, so break-even and a target expected
-  // profit have a closed form. When the return rate is zero this collapses
-  // to the sold-sale break-even already on `breakEvenPrice`.
+  // expectedProfit is linear in the item price once shipping charged is held
+  // constant, so break-even and a target expected profit have a closed form.
+  // Commission-on-item (Reverb) and commission-on-order (everyone else) both
+  // land in the same shape: priceCoeff for the sold sale, and the weighted
+  // revCoeff below once returns are folded in. When the return rate is zero
+  // this collapses to the sold-sale break-even already on `breakEvenPrice`.
   const listingAndSub = fees.listing + fees.subscription;
-  const revCoeff = (1 - returnedShare) * (1 - percentRate)
-    - returnedShare * (1 - feeRefundShare) * percentRate;
-  const expectedConstant = (1 - returnedShare) * (-paymentFixed - listingAndSub - cashInvested)
+  const revCoeff = (1 - returnedShare) * priceCoeff
+    - returnedShare * (1 - feeRefundShare) * (itemRate + orderRate);
+  const expectedConstant = (1 - returnedShare) * (shippingCharged * (1 - orderRate) - fixedCash)
     + returnedShare * (
       -listingAndSub
-      - paymentFixed * (1 - feeRefundShare)
+      - (1 - feeRefundShare) * (orderRate * shippingCharged + paymentFixed)
       - spentRegardless
       - returnShippingCost
       - unsellableLoss
     );
   const expectedBreakEvenPrice = revCoeff > 0
-    ? Math.max(0, -expectedConstant / revCoeff - shippingCharged)
+    ? Math.max(0, -expectedConstant / revCoeff)
     : null;
 
   // ---------------------------------------------------------------------
@@ -449,7 +511,7 @@ export function calculateChannel(channel, shared = {}) {
     monthlyProfit: expectedMonthlySales >= 1
       ? profit * expectedMonthlySales
       : -unamortizedMonthlyFee,
-    breakEvenPrice: Math.max(0, fixedCash / (1 - percentRate) - shippingCharged),
+    breakEvenPrice,
     daysToSell,
     // Cash this sale leaves you per day it sits unsold. Null when the seller
     // has not given a pace — inventing one would rank channels on a guess
@@ -472,7 +534,10 @@ export function calculateChannel(channel, shared = {}) {
     priceForProfit(targetProfit) {
       const target = Number(targetProfit);
       if (!Number.isFinite(target)) throw new Error("Target profit must be a number");
-      return Math.max(0, (fixedCash + target) / (1 - percentRate) - shippingCharged);
+      if (priceCoeff <= 0) {
+        throw new Error(`${label}: target profit cannot be solved at these fee rates`);
+      }
+      return Math.max(0, (fixedCash + target - shippingCharged * (1 - orderRate)) / priceCoeff);
     },
     /**
      * Item price this channel needs so the *expected* keep after returns
@@ -485,7 +550,7 @@ export function calculateChannel(channel, shared = {}) {
       if (revCoeff <= 0) {
         throw new Error(`${label}: expected profit cannot be solved at these return and fee rates`);
       }
-      return Math.max(0, (target - expectedConstant) / revCoeff - shippingCharged);
+      return Math.max(0, (target - expectedConstant) / revCoeff);
     },
   };
 }

@@ -16,9 +16,29 @@ arithmetic and layout in the browser, like everything else here.
 
 ## Adopted by
 
-**All 102 bid calculators**, and the list is no longer worth keeping by
+**All bid calculators**, and the list is no longer worth keeping by
 hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
-ready, and what is blocked.
+ready, and what is blocked. As of 2026-09-07 that is 112 adopted, 0 blocked.
+
+The last holdout was **`home-staging`** (`home-staging-bid-calculator`,
+graduated in #3580, unblocked in the same session that added this line). It
+priced the job inline from individual `el(...)` reads rather than through the
+`readInput()` / `calculate*(readInput())` pair `inspect()` looks for, so the
+generator had nothing to anchor on. The page was given those two conventions
+(and a `count()` helper), a `trades.json` entry was added, and it adopted
+cleanly. One thing the fix also turned up worth recording here rather than in
+a venture-specific note: `.result{position:sticky}` sits in the same
+`main.layout` grid as everything `adopt.mjs` inserts before `</main>`, and a
+site-wide `section:not(.result){grid-column:1/-1}` rule left `.result` alone
+in its own row with no sibling tall enough to make the sticky positioning do
+anything — except that a positioned element with `z-index:auto` still paints
+above later non-positioned siblings in the same stacking context, so the
+inert sticky box silently intercepted clicks on the printed proposal's button
+once it scrolled into the same screen position. Any other venture built on
+this same `.layout`/`.result` template would hit the identical defect the
+moment something is added after `.result` inside `<main>` — the fix was
+dropping the now-pointless `position:sticky` from `.result`, not touching the
+generated proposal markup.
 
 **And two ventures that are not bid calculators at all**, `translator-project-quote`
 (2026-09-03) and `notary-trip-quote` (2026-09-05). The second is written up under

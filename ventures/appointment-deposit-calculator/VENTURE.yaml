@@ -1,9 +1,13 @@
 name: appointment-deposit-calculator
-description: Free browser calculator for small service businesses that sets an appointment deposit, shows cash secured and balance due, compares a year of revenue with and without the deposit against their no-show rate to show whether it pays for itself and at what break-even booking rate, and drafts a clear deposit and cancellation policy.
+description: Free browser calculator for small service businesses that sets an appointment deposit, shows cash secured and balance due, compares a year of revenue with and without the deposit against their no-show rate to show whether it pays for itself and at what break-even booking rate, and drafts a clear deposit and cancellation policy. A dedicated tattoo-shop page (tattoo-deposit-and-touchup-calculator.html) adds touch-up-specific math the generic recurring-appointment model cannot answer -- whether a given client's touch-up falls inside the shop's free window, and what it costs by percent, flat fee, or hourly rate once that window has closed.
 stage: prototype
 owner: duncan
 hypotheses:
   - claim: Small appointment businesses will use a deposit calculator to choose a service-specific upfront amount and copy its policy draft into their booking workflow.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Independent tattoo artists and shops will use a dedicated deposit-and-touch-up calculator, distinct from the generic appointment-deposit tool, because their real friction is a single-client touch-up decision (is this specific client still inside my free window, and what do they owe if not) rather than an annual recurring-booking model. Searched from r/TattooArtists, tattoo-industry business forums, and Facebook shop-owner groups, and via search terms like "tattoo touch up pricing" and "tattoo deposit policy calculator".
     status: untested
     checked: null
     evidence: customer-contact
@@ -31,5 +35,5 @@ kill_criteria:
   - No return usage or organic referral signal within 60 days of public deployment.
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/
   analytics: null

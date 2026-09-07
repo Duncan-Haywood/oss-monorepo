@@ -11,6 +11,19 @@ test('the tracker links to its GrantHub comparison page and is listed in the sit
   assert.match(sitemap, /vs-granthub\.html/);
 });
 
+// Closest sibling: same nonprofit grant-deadline job, plus application tracking
+// and a late-report writer-cost comparison. Related-tool chrome rotates inside
+// the whole evidence category, so without an explicit one-hop a crawler on this
+// page reaches that tool only via /c/evidence/.
+test('index links one hop to the grant-deadline-tracker sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/grant-deadline-tracker\/"/,
+    'index must link ../grant-deadline-tracker/ so crawlers reach the deadline tracker in one hop',
+  );
+  assert.match(html, /grant deadline tracker/i);
+});
+
 test('the vs-GrantHub comparison page names what each tool is for, disclaims affiliation, and carries the standard disclaimer', () => {
   assert.match(granthubSeo, /<title>This tracker vs\. GrantHub/);
   assert.match(granthubSeo, /name="description"/);

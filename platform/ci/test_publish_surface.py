@@ -73,6 +73,45 @@ class Detection(unittest.TestCase):
         # would mark retail-pilot-intel live on a run whose deploy job skipped.
         self.assertIsNone(ps.publish_marker({"uses": "actions/upload-pages-artifact@v3"}))
 
+    # `platform/pages/publish-branch.sh` is the only entry in PUBLISH_COMMANDS
+    # that is a path inside this repository, so a plain substring match also
+    # hits steps that merely name the file. These four pin the discrimination.
+
+    def test_running_the_branch_publisher_is_publishing(self):
+        step = {
+            "run": "./platform/pages/publish-branch.sh",
+            "env": {"CONFIRM": "publish-pages-branch", "PUSH": "1"},
+        }
+        self.assertEqual(ps.publish_marker(step), "runs 'publish-branch.sh'")
+
+    def test_shellchecking_the_branch_publisher_is_not_publishing(self):
+        # The real shape from hetzner-gitops-ci.yml's `scripts` job: the path
+        # is an argument to a linter. Before the CONFIRM check, adding the
+        # script to PUBLISH_COMMANDS reclassified that whole workflow as
+        # `live` -- a false claim that every merge to main publishes the site.
+        step = {
+            "run": (
+                "pip install shellcheck-py\n"
+                "shellcheck bootstrap/preflight.sh \\\n"
+                "  platform/pages/publish-branch.sh\n"
+            )
+        }
+        self.assertIsNone(ps.publish_marker(step))
+
+    def test_the_branch_publisher_with_push_off_is_not_publishing(self):
+        # It builds and runs check.mjs but transmits nothing. Counting it
+        # would print its `if:` gate as the condition under which the site
+        # goes live -- the negation of the real one.
+        step = {
+            "run": "./platform/pages/publish-branch.sh",
+            "env": {"CONFIRM": "publish-pages-branch", "PUSH": "0"},
+        }
+        self.assertIsNone(ps.publish_marker(step))
+
+    def test_an_inline_confirm_token_still_counts(self):
+        step = {"run": "CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh"}
+        self.assertEqual(ps.publish_marker(step), "runs 'publish-branch.sh'")
+
 
 GATED = """
 on:
@@ -798,13 +837,48 @@ class PagesBranchRendering(unittest.TestCase):
         self.assertIn("7 commit(s) behind", out)
         self.assertIn("publish-branch.sh", out)
 
-    def test_current_still_says_staged_not_served(self):
+    def test_current_does_not_claim_the_artifact_is_served(self):
         # A fresh artifact is the easiest thing to misread as a live site, and
-        # this repository has made exactly that mistake before.
+        # this repository has made exactly that mistake before. That is still
+        # the thing being guarded.
         out = ps.render_pages_branch(
             {"branch": "gh-pages", "state": "current", "source": SOURCE, "behind": 0}
         )
-        self.assertIn("Staged, not served", out)
+        self.assertNotIn("is served", out)
+        self.assertNotIn("is live", out)
+
+    def test_current_does_not_claim_the_artifact_is_UNserved_either(self):
+        # The other half, and the one that actually went wrong. This assertion
+        # used to be `assertIn("Staged, not served", out)`: a guard against
+        # overclaiming, written as a hard-coded claim in the opposite
+        # direction. On 2026-09-06 GitHub's managed builder ran on `gh-pages`
+        # and succeeded -- which happens only for the configured Pages source
+        # -- so the branch was served and `deploy-settings` granted, while this
+        # renderer went on printing "Staged, not served: enabling Pages is the
+        # account owner's decision" to every session that ran it.
+        #
+        # Cost of that direction: a duplicate owner ask for a switch already
+        # flipped, and a granted delivery route ranked as blocking. Neither
+        # claim belongs in a tool that reads only git and the manifests, so
+        # pin the absence of both and pin the pointer to the tool that does
+        # measure it.
+        out = ps.render_pages_branch(
+            {"branch": "gh-pages", "state": "current", "source": SOURCE, "behind": 0}
+        )
+        self.assertNotIn("Staged, not served", out)
+        self.assertNotIn("not served", out)
+        self.assertIn("not visible from here", out)
+        self.assertIn("pages_state.py", out)
+
+    def test_behind_also_refuses_both_claims_and_names_the_measuring_tool(self):
+        # The same block is printed for `behind`, where the pull toward
+        # "therefore it is dark" is strongest: a stale artifact says nothing
+        # about whether the site is up, only about what it would serve.
+        out = ps.render_pages_branch(
+            {"branch": "gh-pages", "state": "behind", "source": SOURCE, "behind": 7}
+        )
+        self.assertNotIn("not served", out)
+        self.assertIn("pages_state.py", out)
 
     def test_the_survey_is_absent_from_the_pinned_snapshot(self):
         # Pinning a value that moves on every merge would make --check cry wolf.

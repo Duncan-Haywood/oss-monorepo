@@ -33,7 +33,13 @@ export function findUsageModules(root = VENTURES) {
       if (entry === "node_modules" || entry.startsWith(".")) continue;
       const full = join(dir, entry);
       if (statSync(full).isDirectory()) walk(full);
-      else if (entry === "usage.mjs") found.push(full);
+      // Almost every venture names its tracker usage.mjs, but a handful load
+      // it as a classic (non-module) <script src="usage.js"> and pair it with
+      // a require()-based node --test suite, so it is written as CommonJS and
+      // named usage.js instead. Both make the same footer promise, so both
+      // must be driven here — see CLAUDE.md on what a filename convention
+      // nobody enforced already cost twice.
+      else if (entry === "usage.mjs" || entry === "usage.js") found.push(full);
     }
   };
   walk(root);

@@ -189,7 +189,26 @@ PUBLISH_COMMANDS = (
     "aws s3 cp",
     "gcloud app deploy",
     "gcloud run deploy",
+    # This repository's own publisher, and the one route here that reaches an
+    # audience without `actions/deploy-pages`. `platform/pages/publish-branch.sh`
+    # force-pushes the built site to the `gh-pages` branch, which GitHub serves
+    # directly when Settings -> Pages -> Source is "Deploy from a branch".
+    #
+    # It is listed for the same reason the `gitops/` Argo surface had to be
+    # taught to this tool (see the header): a merge that reaches users through
+    # a mechanism this list does not name is reported as publishing *nothing*,
+    # and that answer is indistinguishable from a workflow that genuinely
+    # publishes nothing. The script only pushes when invoked with `PUSH=1`, so
+    # a step that runs it with `PUSH=0` is a build-and-verify and is classified
+    # by its own `if:` gate like any other.
+    "publish-branch.sh",
 )
+
+# `platform/pages/publish-branch.sh` refuses to run without this, because it
+# rewrites a branch. That makes it a reliable marker of a step that actually
+# invokes the script, as opposed to one that merely names the file -- see
+# `publish_marker`.
+CONFIRM_TOKEN = "publish-pages-branch"
 
 CLASSIFICATIONS = ("live", "gated", "dispatch", "none")
 
@@ -265,8 +284,41 @@ def publish_marker(step) -> str | None:
     run = step.get("run")
     if isinstance(run, str):
         for command in PUBLISH_COMMANDS:
-            if command in run:
-                return f"runs {command!r}"
+            if command not in run:
+                continue
+            # `publish-branch.sh` is the one entry here that is a path in this
+            # repository rather than a third-party command, so a bare substring
+            # match also hits steps that merely *name* the file. Two checks
+            # narrow it to a step that actually publishes, and both come from
+            # the script's own contract rather than from how it happens to be
+            # spelled today:
+            #
+            # 1. It refuses to run without `CONFIRM=publish-pages-branch`, so a
+            #    step that does not set that token cannot be running it. This
+            #    is what separates a real invocation from the `shellcheck`
+            #    step in `hetzner-gitops-ci.yml`, which passes the path as an
+            #    argument to a linter -- without this, adding the script to
+            #    this list reclassified that whole workflow as `live`, i.e. a
+            #    false claim that every merge to main publishes the site.
+            # 2. It transmits nothing unless invoked with `PUSH=1`. A step
+            #    running it with `PUSH=0` is a build-and-verify, and reporting
+            #    that as a publisher would print its `if:` gate as the
+            #    condition under which the site goes live -- for the verify
+            #    half of a two-step publisher, the *negation* of the real one.
+            #
+            # Both read literals only. An expression this tool cannot evaluate
+            # leaves the step classified as a publisher, which is the safe
+            # direction to be wrong in.
+            if command == "publish-branch.sh":
+                env = step.get("env") or {}
+                confirm = f"{CONFIRM_TOKEN}" in run or str(
+                    env.get("CONFIRM", "")
+                ).strip() == CONFIRM_TOKEN
+                if not confirm:
+                    continue
+                if str(env.get("PUSH", "")).strip() == "0":
+                    continue
+            return f"runs {command!r}"
     return None
 
 
@@ -832,11 +884,35 @@ def render_pages_branch(row) -> str:
         out.append(f"  - built from {row['source'][:9]}, which is {behind} commit(s) behind `{DEFAULT_BRANCH}`.")
         out.append("    Serving it would serve the repository as of that commit, not as of now.")
         out.append("    Re-run platform/pages/publish-branch.sh to restage it.")
-    # Said in both cases, because a current artifact is still not a served one,
-    # and this tool has no way to tell whether the Settings switch is on.
+    # Said in both cases, because staleness and servedness are different
+    # questions and this tool can only answer the first.
+    #
+    # This block used to assert the second one anyway: "Staged, not served:
+    # enabling Pages is the account owner's decision". That was written to stop
+    # a fresh artifact being misread as a live site -- a mistake this repository
+    # really had made -- and it was true when written. It became false on
+    # 2026-09-06, when GitHub's own managed builder ran on `gh-pages` and
+    # succeeded, which happens only for the configured Pages source. So the
+    # branch IS served and `deploy-settings` IS granted, while this tool went on
+    # telling every session the opposite.
+    #
+    # The bug is not the stale date, it is the shape: a tool that reads git and
+    # the manifests, and never the Pages API, stated a conclusion about the
+    # Pages API. Guarding against overclaiming by hard-coding the *negative*
+    # claim is still a claim, and it fails in the more expensive direction --
+    # it invites a duplicate owner ask for a switch already flipped, and ranks
+    # a granted route as blocking. So this now says what it can see and names
+    # the tool that measures the rest, rather than answering for it.
     out.append("")
-    out.append("  Staged, not served: enabling Pages is the account owner's decision")
-    out.append(f"  (Settings -> Pages -> Source 'Deploy from a branch' -> {PAGES_BRANCH} / root).")
+    out.append("  Whether this artifact is actually SERVED is not visible from here:")
+    out.append("  this tool reads git and the manifests, never the Pages API. A fresh")
+    out.append("  artifact is not evidence of a live site, and a stale one is not")
+    out.append("  evidence of a dark one. Ask the tool that measures it:")
+    out.append("")
+    out.append("      python3 platform/ci/pages_state.py      # read its `deployed` row")
+    out.append("")
+    out.append("  If that reports the branch is not the Pages source, the owner's flip is")
+    out.append(f"  Settings -> Pages -> Source 'Deploy from a branch' -> {PAGES_BRANCH} / root.")
     return "\n".join(out)
 
 

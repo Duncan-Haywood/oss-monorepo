@@ -34,3 +34,136 @@ test('the docs page is listed in the sitemap', () => {
   const sitemap = page('sitemap.xml');
   assert.ok(sitemap.includes('how-to-bid-tree-removal.html'), 'the docs page is missing from the sitemap');
 });
+
+// ---------------------------------------------------------------------------
+// Shareable bid link
+//
+// #3367 gave this venture its own share.mjs and a BID_SPEC covering the
+// per-tree rows, but shipped with no test reading index.html to hold the two
+// together. That is exactly the shape of the recorded defect share.mjs's own
+// header describes happening five times already: a hand-written allowlist
+// and the form's real fields silently diverging, so a shared link carries a
+// cheaper, less hazardous stop than the one actually priced. These guards
+// close that gap rather than re-implement the feature, which already shipped.
+const scriptMatch = index.match(/<script type="module">([\s\S]*)<\/script>\s*<\/body>/);
+const scriptSource = scriptMatch ? scriptMatch[1] : '';
+const declaredIds = new Set([...index.matchAll(/\bid="([\w-]+)"/g)].map(m => m[1]));
+
+// Returns the declaration at `opener` up to the close of its first bracketed
+// body, so a `{...}` object and an `[...]` array both work.
+function bodyOf(source, opener) {
+  const start = source.indexOf(opener);
+  assert.notEqual(start, -1, `could not find ${opener} in the script`);
+  const first = source.slice(start).search(/[[{]/);
+  assert.notEqual(first, -1, `${opener} has no bracketed body`);
+  const open = source[start + first];
+  const close = open === '[' ? ']' : '}';
+  let depth = 0;
+  for (let i = start + first; i < source.length; i += 1) {
+    if (source[i] === open) depth += 1;
+    else if (source[i] === close) {
+      depth -= 1;
+      if (depth === 0) return source.slice(start, i + 1);
+    }
+  }
+  throw new Error(`unbalanced ${open}${close} after ${opener}`);
+}
+
+test('the module script survives parsing', () => {
+  assert.notEqual(scriptSource, '', 'the module script was not found; the page structure changed');
+  assert.match(scriptSource, /calculateBid/);
+});
+
+test('save-and-share is wired to the page', () => {
+  assert.match(scriptSource, /from '\.\/share\.mjs'/, 'share.mjs is not imported');
+  // The bid rides in the URL fragment, never the query string. A query
+  // string is sent in the request line a server logs and in the `Referer`
+  // header a later off-site click carries; a fragment is sent in neither. On
+  // a page that promises nothing you type is uploaded, that is the
+  // difference between the claim holding and not.
+  assert.match(scriptSource, /\$\{query \? `#\$\{query\}` : ''\}/,
+    'the bid link must be built as a URL fragment (#), not a query string (?)');
+  assert.ok(!/`\?\$\{query\}`/.test(scriptSource),
+    'the bid link must not be built with a query string');
+  assert.match(scriptSource, /search: location\.hash/,
+    'the bid must be restored from the fragment, matching how the link is built');
+  for (const name of ['encodeBid', 'saveBid', 'clearBid', 'restoreBid']) {
+    assert.match(scriptSource, new RegExp(`\\b${name}\\b`), `${name} is imported but never used`);
+  }
+  for (const id of ['copyLink', 'clearSaved', 'restoreNote']) {
+    assert.ok(declaredIds.has(id), `missing #${id}`);
+  }
+});
+
+test('every tree field the row reads is a field the bid link carries', () => {
+  const read = [...bodyOf(scriptSource, 'function readTreeRows(').matchAll(/^\s*(\w+):/gm)].map(m => m[1]);
+  const spec = bodyOf(scriptSource, 'const BID_SPEC =');
+  assert.match(spec, /rows:/, 'BID_SPEC carries no rows, so a shared link would drop every tree');
+  const carried = [...spec.matchAll(/key: '(\w+)'/g)].map(m => m[1]);
+  const dropped = read.filter(key => !carried.includes(key));
+  assert.deepEqual(
+    dropped,
+    [],
+    `readTreeRows() reads ${dropped.join(', ')} but BID_SPEC's rows do not carry them; `
+      + 'a shared link would price a different stop than the sender saw',
+  );
+  // The tree's flags (near a structure, near power, a dead hazard, grind the
+  // stump) each change the hours calc.mjs charges for that tree, so a link
+  // that dropped one would reopen a cheaper, less hazardous job than the one
+  // actually priced.
+  for (const key of ['name', 'species', 'dbhInches', 'heightFeet', 'access', 'haul',
+    'nearStructure', 'nearPower', 'deadHazard', 'grindStump']) {
+    assert.ok(carried.includes(key), `the tree row does not carry ${key}`);
+  }
+  // The tree's name is free text a contractor types, not one of a fixed list
+  // of presets, so it has to travel as text rather than a validated choice —
+  // a `choice` field here would silently drop every custom label.
+  assert.match(spec, /key: 'name', kind: 'text'/, 'the tree label is not carried as free text');
+});
+
+test('every cost field the calculator reads is in BID_SPEC.numbers', () => {
+  const costIds = [...bodyOf(scriptSource, 'const COST_IDS =').matchAll(/'(\w+)'/g)].map(m => m[1]);
+  const spec = bodyOf(scriptSource, 'const BID_SPEC =');
+  assert.match(spec, /numbers: COST_IDS/, 'BID_SPEC does not carry COST_IDS directly, so the two can drift');
+  assert.ok(costIds.length > 0);
+});
+
+// The featureList and FAQ answer both used to describe a page that could not
+// yet share or save a bid. #3367 shipped the feature without updating either,
+// so the schema.org markup a search engine or an AI answer engine reads was
+// stale the moment it merged — silently wrong rather than absent, which is
+// the harder version of the defect to notice.
+test('the featureList and FAQ answer describe the share/save feature that now exists', () => {
+  assert.match(index, /shareable bid link/i, 'featureList does not mention the share link');
+  assert.match(index, /saved stop that reopens/i, 'featureList does not mention the local draft save');
+  // Both copies of the privacy FAQ answer (the FAQPage JSON-LD and the
+  // visible <section id="faq"> paragraph) need the update, not just one —
+  // a search engine and an AI answer engine each read a different one of
+  // the two, and #3367 shipped the button without updating either.
+  assert.ok(index.includes('Is my bid data uploaded anywhere?'));
+  const jsonLdAnswer = /"Is my bid data uploaded anywhere\?","acceptedAnswer":\{"@type":"Answer","text":"([^"]*(?:\\.[^"]*)*)"\}/
+    .exec(index);
+  assert.ok(jsonLdAnswer, 'the FAQPage JSON-LD entry for this question is missing');
+  assert.match(jsonLdAnswer[1], /Copy bid link/, 'the JSON-LD privacy answer does not mention the share link');
+  assert.match(jsonLdAnswer[1], /saves? to this browser|saved.*next visit/i,
+    'the JSON-LD privacy answer does not mention the local draft save');
+  const visibleFaq = index.slice(index.indexOf('<section id="faq">'));
+  const visibleAnswer = /Is my bid data uploaded anywhere\?<\/h3>\s*<p>([\s\S]*?)<\/p>/.exec(visibleFaq);
+  assert.ok(visibleAnswer, 'the visible FAQ paragraph for this question is missing');
+  assert.match(visibleAnswer[1], /Copy bid link/, 'the visible privacy answer does not mention the share link');
+  assert.match(visibleAnswer[1], /saves? to this browser|saved.*next visit/i,
+    'the visible privacy answer does not mention the local draft save');
+});
+
+// Closest outdoor sibling: same property-maintenance job, but a lawn care
+// route stop rather than a tree removal. Related-tool chrome rotates inside
+// the landscape subcategory, so without an explicit one-hop a crawler on this
+// page may never land on that tool.
+test('index links one hop to the lawn-care-bid-calculator sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/lawn-care-bid-calculator\/"/,
+    'index must link ../lawn-care-bid-calculator/ so crawlers reach the lawn calculator in one hop',
+  );
+  assert.match(index, /lawn care bid calculator/i);
+});

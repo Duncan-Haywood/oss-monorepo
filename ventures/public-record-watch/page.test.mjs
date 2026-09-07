@@ -84,3 +84,32 @@ test("every .html file in the venture is reachable from the sitemap", () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
   }
 });
+
+// Regression: vs-visualping.html lived in the sitemap and linked back to the
+// tool, but the index only linked the how-do-i-track FAQ page — so a crawler
+// that entered on the product never reached the comparison page that answers
+// the "vs Visualping" search. Same shape as a missing handoff link.
+test("index links every secondary HTML page, including the Visualping comparison", () => {
+  const dir = new URL("./", import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    if (name === "index.html") continue;
+    assert.match(
+      page,
+      new RegExp(name.replace(/\./g, "\\.")),
+      `index.html must link ${name} so crawlers can reach it from the product`,
+    );
+  }
+});
+
+// Closest sibling: same before-and-after change detection shape, but a
+// consent browser trace rather than a public register snapshot. Without a
+// crawlable link here, a crawler entering on Public-Record Watch never
+// reaches the consent change record in one hop.
+test("index links one hop to the consent-change-record sibling", () => {
+  assert.match(
+    page,
+    /href="\.\.\/consent-change-record\/"/,
+    "index must link ../consent-change-record/ so crawlers reach the consent change record in one hop",
+  );
+});

@@ -86,6 +86,29 @@ export const HANDOFFS = [
     },
   },
   {
+    channel: 'reverb',
+    slug: 'reverb-fee-calculator',
+    label: 'Reverb fee & profit calculator',
+    // What it adds: the decisions this page prices as one flat channel — an
+    // offer to accept or counter, whether a bump pays for itself, Safe
+    // Shipping against self-insuring a claim, consigning to a shop instead of
+    // listing, eating the postage versus charging it, and what a return
+    // actually costs once the fee refund is counted.
+    //
+    // The field names line up one-for-one, which is not luck: both tools were
+    // written for the same shape of item. `packagingCost` is the one exception
+    // — Reverb's calculator has no packaging input because gear packing (a
+    // case, foam, a double box) is not a flat per-order cost there, so it
+    // belongs in the general `otherCost` bucket rather than being dropped.
+    fields: {
+      price: 'price',
+      shippingCharged: 'shippingCharged',
+      shippingCost: 'shippingCost',
+      itemCost: 'itemCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
+  {
     channel: 'own-store',
     slug: 'shopify-fee-calculator',
     label: 'Shopify fee & profit calculator',

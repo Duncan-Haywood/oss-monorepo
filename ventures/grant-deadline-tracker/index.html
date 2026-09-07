@@ -43,6 +43,7 @@
     <h1>Stop missing grant reports.</h1>
     <p class="lede">Track applications and funder reporting deadlines, see how much of each award remains, and take a clean CSV into your next finance meeting.</p>
     <p class="fine"><a href="when-is-my-next-grant-report-due.html">When is my next grant report due?</a> · <a href="should-i-hire-a-grant-writer-to-file-this-report.html">Should I hire a grant writer to file this report?</a> · <a href="vs-instrumentl.html">vs. Instrumentl</a></p>
+    <p class="fine">Managing several awarded grants by reporting interval? The <a href="../grant-reporting-tracker/">grant reporting tracker</a> turns award dates and intervals into an exportable review queue with restricted balances — nothing uploaded.</p>
   </header>
   <div class="grid">
     <section class="card">
@@ -186,8 +187,10 @@
         <button type="button" class="secondary" id="fill-risk">Fill from first overdue or soon grant</button>
         <button type="button" id="price-risk">Compare cash at risk</button>
         <button type="button" class="secondary" id="copyRiskNote">Copy a board-ready note</button>
+        <button type="button" class="secondary" id="copyRiskLink">Copy shareable link</button>
       </div>
       <p id="riskMessage" role="alert"></p>
+      <p id="riskShareStatus" class="hint" role="status" aria-live="polite"></p>
     </form>
     <div class="summary">
       <div class="stat"><strong id="riskAtRisk">$0</strong>Cash at risk if late</div>
@@ -229,6 +232,7 @@
     <p><strong>Use it safely.</strong> This is a planning record, not a grant compliance determination or filing service. Review dates and amounts against the funder's award documents.</p>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>&ldquo;Copy shareable link&rdquo; encodes the cash-at-risk fields into the URL fragment rather than sending them anywhere &mdash; the fragment is never included in any network request, so nothing leaves your browser when you share it, but only share the link with people you trust with those figures.</p>
     <p>Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing never changes what the tool does.</p>
     <label><input id="usage-off" type="checkbox"> Turn off anonymous local usage counting</label>
   </footer>
@@ -236,6 +240,8 @@
 <script type="module">
   import { SAMPLE_GRANTS, compareLateReport, csvReport, icsCalendar, lateReportNote, loadGrants, nextDueFromInterval, removeGrant, summarize } from "./calc.mjs";
   import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+  import { encodeInputs, decodeInputs } from "./share.mjs";
+  const riskShareIds = ["riskAward", "riskSpent", "riskInstallment", "riskRenewal", "riskClawback", "riskDue", "edHours", "edRate", "writerHours", "writerRate"];
 
   const $ = (id) => document.getElementById(id);
   const key = "grant-deadline-tracker:draft";
@@ -459,10 +465,36 @@
       $("riskMessage").textContent = "This browser blocked clipboard access. Select the note below and copy it yourself.";
     }
   });
-  ["riskAward", "riskSpent", "riskInstallment", "riskRenewal", "riskClawback", "riskDue", "edHours", "edRate", "writerHours", "writerRate"].forEach((id) => {
+  riskShareIds.forEach((id) => {
     $(id).addEventListener("change", () => renderRisk({ count: true }));
   });
+  $("copyRiskLink").addEventListener("click", async () => {
+    const hash = encodeInputs(Object.fromEntries(riskShareIds.map((id) => [id, $(id).value])));
+    const url = `${location.origin}${location.pathname}#${hash}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      $("riskShareStatus").textContent = "Link copied — opening it recalculates this same comparison.";
+      countUsage("risk_share_link_copied");
+    } catch {
+      $("riskShareStatus").textContent = "This browser blocked clipboard access. Copy this link yourself: " + url;
+    }
+  });
+
+  // A shared "cash at risk" scenario arrives in the fragment, which browsers
+  // never send to a server or log in a Referer header. `search` is accepted
+  // too, in case a link loses its # going through a messaging app that
+  // rewrites URLs. Decoded before the first renderRisk() call below, ahead
+  // of the HTML's own default values, so the recipient sees the sender's
+  // numbers on first paint rather than the defaults briefly flashing first.
+  const sharedRisk = decodeInputs(location.hash || location.search);
+  for (const [id, value] of Object.entries(sharedRisk)) {
+    if ($(id)) $(id).value = value;
+  }
   renderRisk();
+  if (Object.keys(sharedRisk).length > 0) {
+    $("riskShareStatus").textContent = "Opened from a shared link — verify every number before relying on it.";
+    countUsage("risk_shared_link_opened");
+  }
 
   $("usage-off").checked = !usageAllowed();
   $("usage-off").addEventListener("change", (e) => setUsageEnabled(!e.target.checked));

@@ -598,7 +598,7 @@
           <label for="${id}-name" class="a-name-wrap"><span class="lbl">Name this space</span><input class="a-name" id="${id}-name" type="text" maxlength="80" autocomplete="off" spellcheck="false"></label>
         </div>
         <label for="${id}-sqft"><span class="lbl">Cleanable sq ft</span><input class="a-sqft" id="${id}-sqft" type="number" min="0" step="10"></label>
-        <label for="${id}-rate"><span class="lbl">Sq ft cleaned per hour</span><input class="a-rate" id="${id}-rate" type="number" min="1" step="50"></label>
+        <label for="${id}-rate"><span class="lbl">Sq ft cleaned per hour</span><input class="a-rate" id="${id}-rate" type="number" min="1" step="any"></label>
         <label for="${id}-freq"><span class="lbl">Cleans per week</span><input class="a-freq" id="${id}-freq" type="number" min="0" max="21" step="1"></label>
         <button type="button" class="remove">Remove<span class="lbl"> this space</span></button>`;
 
@@ -722,7 +722,7 @@
         <label for="${id}-type"><span class="lbl">Project type</span><select class="p-type" id="${id}-type">${PROJECT_OPTIONS}</select></label>
         <label class="custom-name" for="${id}-name"><span class="lbl">Project name</span><input class="p-name" id="${id}-name" type="text" maxlength="80" placeholder="e.g. West wing windows"></label>
         <label for="${id}-sqft"><span class="lbl">Project sq ft</span><input class="p-sqft" id="${id}-sqft" type="number" min="0" step="10"></label>
-        <label for="${id}-rate"><span class="lbl">Sq ft per hour</span><input class="p-rate" id="${id}-rate" type="number" min="1" step="10"></label>
+        <label for="${id}-rate"><span class="lbl">Sq ft per hour</span><input class="p-rate" id="${id}-rate" type="number" min="1" step="any"></label>
         <label for="${id}-passes"><span class="lbl">Coats / passes</span><input class="p-passes" id="${id}-passes" type="number" min="0" max="12" step="1"></label>
         <label for="${id}-mat"><span class="lbl">Materials $</span><input class="p-mat" id="${id}-mat" type="number" min="0" step="1"></label>
         <button type="button" class="remove">Remove<span class="lbl"> this project</span></button>`;

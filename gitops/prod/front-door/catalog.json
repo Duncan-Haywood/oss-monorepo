@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 174,
-  "collection_total": 174,
+  "served_here": 210,
+  "collection_total": 210,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -26,43 +26,49 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 116
+      "tool_count": 125
     },
     {
       "id": "evidence",
       "name": "Compliance checks & evidence records",
       "url": "https://marisstella.dev/c/evidence/",
-      "tool_count": 18
+      "tool_count": 20
     },
     {
       "id": "marketplace",
       "name": "Marketplace seller tools",
       "url": "https://marisstella.dev/c/marketplace/",
-      "tool_count": 12
-    },
-    {
-      "id": "backoffice",
-      "name": "Back-office money & contracts",
-      "url": "https://marisstella.dev/c/backoffice/",
-      "tool_count": 11
+      "tool_count": 14
     },
     {
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
-      "tool_count": 6
+      "tool_count": 13
+    },
+    {
+      "id": "backoffice",
+      "name": "Back-office money & contracts",
+      "url": "https://marisstella.dev/c/backoffice/",
+      "tool_count": 13
+    },
+    {
+      "id": "ci",
+      "name": "CI checks & developer gates",
+      "url": "https://marisstella.dev/c/ci/",
+      "tool_count": 12
+    },
+    {
+      "id": "more",
+      "name": "More free tools",
+      "url": "https://marisstella.dev/c/more/",
+      "tool_count": 7
     },
     {
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
       "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 6
-    },
-    {
-      "id": "more",
-      "name": "More free tools",
-      "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
     }
   ],
   "tools": [
@@ -102,7 +108,7 @@
       "slug": "tender-bid-readiness",
       "name": "Tender Bid Readiness Checker for Small Contractors",
       "url": "https://marisstella.dev/tools/tender-bid-readiness/",
-      "category": "More free tools",
+      "category": "Trade & contractor bids",
       "description": "Paste a public tender and get a fast bid-readiness checklist for deadlines, bonds, insurance, certifications, questions, and submission instructions. Runs privately in your browser.",
       "pages": 3
     },
@@ -136,7 +142,7 @@
       "url": "https://marisstella.dev/tools/saas-seat-true-up/",
       "category": "Back-office money & contracts",
       "description": "Calculate unused SaaS seats and avoidable renewal spend privately in your browser. No account or upload required.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "cam-reconciliation-check",
@@ -144,7 +150,7 @@
       "url": "https://marisstella.dev/tools/cam-reconciliation-check/",
       "category": "Back-office money & contracts",
       "description": "Free CAM reconciliation calculator for small commercial landlords and tenants. Check area-share math, credits, billed charges, and variance privately in your browser.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "appliance-repair-quote-calculator",
@@ -184,7 +190,7 @@
       "url": "https://marisstella.dev/tools/owner-operator-cpm-calculator/",
       "category": "Logistics, freight & cloud cost",
       "description": "Free owner-operator CPM calculator: fuel, truck note, insurance, and deadhead miles in one week. See all-in cost per mile and the loaded rate that actually covers the empty ones.",
-      "pages": 4
+      "pages": 5
     },
     {
       "slug": "chargeback-evidence-packet",
@@ -271,8 +277,8 @@
       "name": "Reverb Fee Calculator — Offer vs List, Cash vs Consign",
       "url": "https://marisstella.dev/tools/reverb-fee-calculator/",
       "category": "Marketplace seller tools",
-      "description": "See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, whether consigning or taking a shop cash offer still beats listing it yourself, and how big a partial refund still beats taking a return.",
-      "pages": 9
+      "description": "See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether it is worth taking now versus waiting for a better one, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, whether consigning or taking a shop cash offer still beats listing it yourself, and how big a partial refund still beats taking a return.",
+      "pages": 10
     },
     {
       "slug": "3pl-quote-normalizer",
@@ -280,7 +286,7 @@
       "url": "https://marisstella.dev/tools/3pl-quote-normalizer/",
       "category": "Logistics, freight & cloud cost",
       "description": "Compare a third-party logistics quote with in-house fulfillment costs, minimum monthly spend, and true cost per order.",
-      "pages": 13
+      "pages": 14
     },
     {
       "slug": "freight-accessorial-auditor",
@@ -456,7 +462,7 @@
       "url": "https://marisstella.dev/tools/roofing-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential reroof from roof squares, pitch, waste, and tear-off layers — labor, material, dump, overhead, and the walk-away number. Free, runs in your browser.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "painting-bid-calculator",
@@ -491,12 +497,76 @@
       "pages": 3
     },
     {
+      "slug": "3d-print-price-calculator",
+      "name": "3D Print Price Calculator — Price a Print for Etsy or Shopify",
+      "url": "https://marisstella.dev/tools/3d-print-price-calculator/",
+      "category": "More free tools",
+      "description": "Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you're charging.",
+      "pages": 1
+    },
+    {
+      "slug": "actions-cache-poisoning-check",
+      "name": "GitHub Actions Cache Poisoning Check — Fork-Writable Cache & restore-keys",
+      "url": "https://marisstella.dev/tools/actions-cache-poisoning-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find actions/cache steps reachable from pull_request_target/workflow_run, and restore-keys fallbacks that can adopt a poisoned prefix match. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "actions-injection-check",
+      "name": "GitHub Actions Injection Check — Pwn Requests & Script Injection",
+      "url": "https://marisstella.dev/tools/actions-injection-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run 'pwn request' checkouts and shell script-injection from untrusted ${{ github.event }} expressions. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "actions-permissions-check",
+      "name": "Actions Permissions Check — Does Your GITHUB_TOKEN Use Least Privilege?",
+      "url": "https://marisstella.dev/tools/actions-permissions-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "actions-runner-starvation-check",
+      "name": "Actions Runner Starvation Check — Is Your Red CI Even Real?",
+      "url": "https://marisstella.dev/tools/actions-runner-starvation-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "actions-self-hosted-exposure-check",
+      "name": "Actions Self-Hosted Exposure Check — Is Your Self-Hosted Runner Exposed to Forks?",
+      "url": "https://marisstella.dev/tools/actions-self-hosted-exposure-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub's own docs warn against on public repos. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "ada-title-ii-evidence",
+      "name": "ADA Title II Website Accessibility Evidence Report",
+      "url": "https://marisstella.dev/tools/ada-title-ii-evidence/",
+      "category": "Compliance checks & evidence records",
+      "description": "Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.",
+      "pages": 2
+    },
+    {
+      "slug": "ai-crawler-access-check",
+      "name": "AI Crawler Access Check — Which AI Bots Does Your robots.txt Block?",
+      "url": "https://marisstella.dev/tools/ai-crawler-access-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "ai-engineering-academy",
       "name": "Free Electronics Calculators — AI Engineering Academy",
       "url": "https://marisstella.dev/tools/ai-engineering-academy/",
       "category": "More free tools",
       "description": "A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.",
-      "pages": 11
+      "pages": 12
     },
     {
       "slug": "appointment-deposit-calculator",
@@ -504,7 +574,7 @@
       "url": "https://marisstella.dev/tools/appointment-deposit-calculator/",
       "category": "Back-office money & contracts",
       "description": "Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.",
-      "pages": 4
+      "pages": 5
     },
     {
       "slug": "artificial-turf-bid-calculator",
@@ -528,6 +598,14 @@
       "url": "https://marisstella.dev/tools/asphalt-sealcoat-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a sealcoating job from square feet, coats, oil spots, crack fill, and the drive — not a cents-per-foot special. See gallons, walk-away price, and margin before you quote.",
+      "pages": 3
+    },
+    {
+      "slug": "atm-route-margin",
+      "name": "ATM Route Margin Calculator — Price Each Placement",
+      "url": "https://marisstella.dev/tools/atm-route-margin/",
+      "category": "Service business pricing & quotes",
+      "description": "Free calculator for independent ATM route operators: find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.",
       "pages": 3
     },
     {
@@ -579,6 +657,14 @@
       "pages": 3
     },
     {
+      "slug": "card-processing-fee-audit",
+      "name": "Card Processing Fee Audit — Split Your Statement Into Interchange and Markup",
+      "url": "https://marisstella.dev/tools/card-processing-fee-audit/",
+      "category": "Back-office money & contracts",
+      "description": "Read five numbers off your merchant statement and see how much of your card processing bill is network interchange you cannot negotiate and how much is processor markup you can. Free, private, runs in your browser.",
+      "pages": 3
+    },
+    {
       "slug": "carpet-cleaning-bid-calculator",
       "name": "Carpet Cleaning Bid Calculator — Price the Stop, Not Room",
       "url": "https://marisstella.dev/tools/carpet-cleaning-bid-calculator/",
@@ -592,6 +678,14 @@
       "url": "https://marisstella.dev/tools/carpet-install-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a carpet install from floor yards, stairs, stretch-in versus glue-down versus carpet tile, patterned waste, and extras — plus the walk-away price a $2-a-yard special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "childcare-tuition-calculator",
+      "name": "Daycare Tuition Calculator",
+      "url": "https://marisstella.dev/tools/childcare-tuition-calculator/",
+      "category": "More free tools",
+      "description": "Free daycare and childcare tuition calculator. Price a classroom from your own child:staff ratio, staffing cost, and overhead, and see what an empty seat actually costs you at every occupancy level.",
       "pages": 3
     },
     {
@@ -627,6 +721,14 @@
       "pages": 3
     },
     {
+      "slug": "coverage-drop-check",
+      "name": "Coverage Drop Check — Did This PR Lower Line Coverage?",
+      "url": "https://marisstella.dev/tools/coverage-drop-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.",
+      "pages": 3
+    },
+    {
       "slug": "cra-evidence-desk",
       "name": "CRA Evidence Desk — free SBOM vs advisory matcher for EU software vendors",
       "url": "https://marisstella.dev/tools/cra-evidence-desk/",
@@ -648,6 +750,14 @@
       "url": "https://marisstella.dev/tools/crown-molding-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential crown-molding install from linear feet, corners, paint-grade versus stain-grade, simple cove versus colonial versus built-up, ceiling and height, and extras — plus the walk-away price an $8/ft special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "custom-farm-rate-calculator",
+      "name": "Custom Farm Rate Calculator — Price Custom Field Work Per Acre",
+      "url": "https://marisstella.dev/tools/custom-farm-rate-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for custom farm operators: find the rate to charge per acre for combining, planting, spraying, baling, or tillage work, from your own machine speed, width, fuel, repairs, ownership cost, and labor — then check a season of jobs against an income goal.",
       "pages": 3
     },
     {
@@ -683,11 +793,27 @@
       "pages": 4
     },
     {
+      "slug": "dependency-confusion-check",
+      "name": "Dependency Confusion Check — pip --extra-index-url & Unscoped npm Names",
+      "url": "https://marisstella.dev/tools/dependency-confusion-check/",
+      "category": "More free tools",
+      "description": "Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.",
+      "pages": 2
+    },
+    {
       "slug": "dns-configuration-evidence",
       "name": "DNS Change Evidence — Free Before/After DNS Record Report",
       "url": "https://marisstella.dev/tools/dns-configuration-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.",
+      "pages": 3
+    },
+    {
+      "slug": "dog-walking-route-pricing",
+      "name": "Dog Walking & Pet Sitting Rate Calculator — Price Your Route",
+      "url": "https://marisstella.dev/tools/dog-walking-route-pricing/",
+      "category": "Service business pricing & quotes",
+      "description": "Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.",
       "pages": 3
     },
     {
@@ -712,6 +838,14 @@
       "url": "https://marisstella.dev/tools/duct-cleaning-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an air-duct cleaning job from extra systems, extra vents, extra stories, crawl access, and a coil clean — not a published $99 whole-house special. See the walk-away number before you match a cheaper ranch quote.",
+      "pages": 3
+    },
+    {
+      "slug": "dumpster-rental-margin-calculator",
+      "name": "Dumpster Rental Margin Calculator — Price a Roll-Off Job",
+      "url": "https://marisstella.dev/tools/dumpster-rental-margin-calculator/",
+      "category": "Service business pricing & quotes",
+      "description": "Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.",
       "pages": 3
     },
     {
@@ -755,6 +889,14 @@
       "pages": 4
     },
     {
+      "slug": "equipment-lease-buyout-calculator",
+      "name": "Equipment Lease Buyout Calculator — Buy Out vs. Return and Replace",
+      "url": "https://marisstella.dev/tools/equipment-lease-buyout-calculator/",
+      "category": "Back-office money & contracts",
+      "description": "Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.",
+      "pages": 4
+    },
+    {
       "slug": "equipment-rental-break-even",
       "name": "Equipment Rental Break-Even Calculator",
       "url": "https://marisstella.dev/tools/equipment-rental-break-even/",
@@ -768,7 +910,7 @@
       "url": "https://marisstella.dev/tools/ev-charger-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential Level 2 EV charger install from the circuit, the run, the trench, and the panel work — not a flat hang fee. See labor hours, voltage drop, the walk-away price, and why a detached garage is a different job.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "exterior-painting-bid-calculator",
@@ -779,11 +921,27 @@
       "pages": 3
     },
     {
+      "slug": "fire-extinguisher-inspection-route-margin",
+      "name": "Fire Extinguisher Inspection Route Margin Calculator",
+      "url": "https://marisstella.dev/tools/fire-extinguisher-inspection-route-margin/",
+      "category": "Service business pricing & quotes",
+      "description": "Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.",
+      "pages": 3
+    },
+    {
       "slug": "fireplace-insert-bid-calculator",
       "name": "Fireplace Insert Bid Calculator — Liner, Hearth, Stack",
       "url": "https://marisstella.dev/tools/fireplace-insert-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a fireplace-insert install from fuel, liner footage, hearth, gas run, dedicated circuit, surround, and stack height — not a published $2,499-installed gas special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "flaky-test-finder",
+      "name": "Flaky Test Finder — Which Tests Flipped Between CI Runs?",
+      "url": "https://marisstella.dev/tools/flaky-test-finder/",
+      "category": "CI checks & developer gates",
+      "description": "Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.",
       "pages": 3
     },
     {
@@ -803,6 +961,14 @@
       "pages": 3
     },
     {
+      "slug": "food-truck-event-margin-calculator",
+      "name": "Food Truck Event & Catering Margin Calculator — Price a Booking",
+      "url": "https://marisstella.dev/tools/food-truck-event-margin-calculator/",
+      "category": "More free tools",
+      "description": "Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you're already considering against the breakeven.",
+      "pages": 2
+    },
+    {
       "slug": "foundation-repair-bid-calculator",
       "name": "Foundation Repair Bid Calculator — Access, Depth, Straps",
       "url": "https://marisstella.dev/tools/foundation-repair-bid-calculator/",
@@ -816,7 +982,7 @@
       "url": "https://marisstella.dev/tools/freelance-retainer-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a freelance retainer from capacity and costs, then see whether it still beats hourly when the client uses half the block, the full block, or more. Free and private in your browser.",
-      "pages": 7
+      "pages": 8
     },
     {
       "slug": "french-drain-bid-calculator",
@@ -843,6 +1009,14 @@
       "pages": 4
     },
     {
+      "slug": "gig-driver-net-pay-calculator",
+      "name": "Gig Driver Net Pay Calculator — What You Keep After Gas",
+      "url": "https://marisstella.dev/tools/gig-driver-net-pay-calculator/",
+      "category": "More free tools",
+      "description": "Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session's gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.",
+      "pages": 2
+    },
+    {
       "slug": "gravel-driveway-bid-calculator",
       "name": "Gravel Driveway Bid Calculator — Price It by the Yard",
       "url": "https://marisstella.dev/tools/gravel-driveway-bid-calculator/",
@@ -864,7 +1038,7 @@
       "url": "https://marisstella.dev/tools/gutter-guard-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a gutter guard install from extra stories, extra lineal feet, extra miters, extra downspouts, a clean-first pass, fascia repair, and steep-roof access — not a published $8/foot leaf-filter special. See the walk-away number before you match a cheaper screen quote.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "gutter-install-bid-calculator",
@@ -899,6 +1073,14 @@
       "pages": 6
     },
     {
+      "slug": "home-staging-bid-calculator",
+      "name": "Home Staging Bid Calculator — Price a Vacant Listing",
+      "url": "https://marisstella.dev/tools/home-staging-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for independent home stagers: price a vacant-listing staging job from the included term, furniture carrying cost, crew labor, and mileage, then check whether your extension fee actually covers your own carrying cost before a slow listing erases the margin.",
+      "pages": 4
+    },
+    {
       "slug": "hood-cleaning-bid-calculator",
       "name": "Kitchen Hood Cleaning Bid Calculator — Exhaust Price",
       "url": "https://marisstella.dev/tools/hood-cleaning-bid-calculator/",
@@ -912,6 +1094,14 @@
       "url": "https://marisstella.dev/tools/hot-tub-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a hot-tub install from size, access path, circuit footage, pad, haul-away, and crane — not a published $499-delivery-and-setup special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "ice-dam-removal-bid-calculator",
+      "name": "Ice Dam Removal Bid Calculator — Price a Steam Removal Job",
+      "url": "https://marisstella.dev/tools/ice-dam-removal-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for independent ice dam removal contractors: price a job from linear feet of roof edge, crew size, an emergency/storm premium, and a minimum service charge, then check whether your per-foot rate card actually covers this job's largely fixed cost before a short call quietly loses money.",
       "pages": 3
     },
     {
@@ -952,6 +1142,14 @@
       "url": "https://marisstella.dev/tools/junk-removal-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a junk removal job from material weight and the landfill ticket: cubic yards, pounds per yard, dump fee per ton, special item fees, labor, travel, and the walk-away number.",
+      "pages": 4
+    },
+    {
+      "slug": "kdp-royalty-calculator",
+      "name": "KDP Royalty Calculator — KU Page Reads vs Going Wide",
+      "url": "https://marisstella.dev/tools/kdp-royalty-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "See what a Kindle book keeps on KDP exclusive (paid sales plus Kindle Unlimited page reads) versus going wide. Paperback print cost, 70% vs 35% ebook, and Ingram wholesale are boxes you type from your own dashboard. Free, runs in your browser.",
       "pages": 3
     },
     {
@@ -969,6 +1167,22 @@
       "category": "Trade & contractor bids",
       "description": "Price low-voltage landscape lighting from fixture mix, fixtures-only versus new-system versus existing-add-on, trench and soil, transformer size, and extras — plus the walk-away price a $150 / light special cannot see.",
       "pages": 3
+    },
+    {
+      "slug": "license-drift-check",
+      "name": "License Drift Check — Did a Dependency's License Change Since Your Last Snapshot?",
+      "url": "https://marisstella.dev/tools/license-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "locksmith-bid-calculator",
+      "name": "Locksmith Bid Calculator — Price a Service Call",
+      "url": "https://marisstella.dev/tools/locksmith-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for mobile locksmiths: price one service call — lockout, rekey, lock install, or fob programming — with the after-hours premium and minimum service charge built in, then check whether today's calls hit your income goal.",
+      "pages": 5
     },
     {
       "slug": "marketplace-fee-compare",
@@ -1035,6 +1249,14 @@
       "pages": 4
     },
     {
+      "slug": "npm-lifecycle-script-check",
+      "name": "npm Lifecycle Script Check — Did a Dependency Just Start Running Code at Install Time?",
+      "url": "https://marisstella.dev/tools/npm-lifecycle-script-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "parking-lot-striping-bid-calculator",
       "name": "Parking Lot Striping Bid Calculator — Price to Stripe It",
       "url": "https://marisstella.dev/tools/parking-lot-striping-bid-calculator/",
@@ -1083,6 +1305,30 @@
       "pages": 3
     },
     {
+      "slug": "pet-grooming-bid-calculator",
+      "name": "Pet Grooming Bid Calculator — Price a Dog or Cat Groom",
+      "url": "https://marisstella.dev/tools/pet-grooming-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free pet grooming price calculator: size, coat, matting, add-ons, and mobile travel go into one transparent quote with break-even and target-margin price.",
+      "pages": 3
+    },
+    {
+      "slug": "photo-booth-event-quote",
+      "name": "Photo Booth Event Quote Calculator — Price a Booking",
+      "url": "https://marisstella.dev/tools/photo-booth-event-quote/",
+      "category": "Service business pricing & quotes",
+      "description": "Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.",
+      "pages": 3
+    },
+    {
+      "slug": "pinned-actions-check",
+      "name": "Pinned Actions Check — Are Your GitHub Actions Pinned to a Commit SHA?",
+      "url": "https://marisstella.dev/tools/pinned-actions-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "plantation-shutter-bid-calculator",
       "name": "Plantation Shutter Bid Calculator — Price to Install It",
       "url": "https://marisstella.dev/tools/plantation-shutter-bid-calculator/",
@@ -1115,12 +1361,20 @@
       "pages": 3
     },
     {
+      "slug": "pour-cost-calculator",
+      "name": "Pour Cost Calculator",
+      "url": "https://marisstella.dev/tools/pour-cost-calculator/",
+      "category": "Service business pricing & quotes",
+      "description": "Free pour cost calculator for bars and restaurants: price a cocktail from your own bottle costs and pour sizes, see the liquor cost percentage against your target, and find out what over-pouring is really costing you a year. Nothing leaves your browser.",
+      "pages": 4
+    },
+    {
       "slug": "pressure-washing-bid-calculator",
       "name": "Pressure Washing Bid Calculator — Price the Drive",
       "url": "https://marisstella.dev/tools/pressure-washing-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a pressure washing or soft-wash job from each surface's production rate, plus drive time, setup, chemicals, and a minimum job. See the after-travel hourly and the walk-away number before you send the quote.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "print-atelier",
@@ -1128,7 +1382,7 @@
       "url": "https://marisstella.dev/tools/print-atelier/",
       "category": "Compliance checks & evidence records",
       "description": "Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before you pay for a proof. Runs entirely in your browser — artwork is never uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "quote-margin-check",
@@ -1152,7 +1406,7 @@
       "url": "https://marisstella.dev/tools/real-estate-agent-photo-app/",
       "category": "Compliance checks & evidence records",
       "description": "Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser — nothing is uploaded. Download a dated evidence record before you deliver.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "retainage-cashflow-calculator",
@@ -1184,7 +1438,7 @@
       "url": "https://marisstella.dev/tools/security-camera-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an IP security camera install from the drops, the cable, and the labour — and check the three things a camera bid gets wrong: days of recording the drives actually hold, PoE load against the switch budget, and runs past the 328 ft Ethernet limit.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "septic-pumping-bid-calculator",
@@ -1342,7 +1596,7 @@
       "slug": "tender-radar",
       "name": "Tender Radar",
       "url": "https://marisstella.dev/tools/tender-radar/",
-      "category": "More free tools",
+      "category": "Trade & contractor bids",
       "description": "Filter a public tender CSV by trade, minimum value, and deadline. Free, private browser tool for small contractors. Nothing is uploaded.",
       "pages": 3
     },
@@ -1371,12 +1625,44 @@
       "pages": 3
     },
     {
+      "slug": "vehicle-wrap-bid-calculator",
+      "name": "Vehicle Wrap Bid Calculator — Price a Wrap Install",
+      "url": "https://marisstella.dev/tools/vehicle-wrap-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for independent vehicle wrap and graphics shops: price a full or partial wrap from vehicle surface area, material waste factor, install complexity, and labor, then see exactly what a waste-blind quote loses on every job.",
+      "pages": 3
+    },
+    {
+      "slug": "vending-machine-route-margin",
+      "name": "Vending Machine Route Profit Calculator — Price Each Location",
+      "url": "https://marisstella.dev/tools/vending-machine-route-margin/",
+      "category": "Service business pricing & quotes",
+      "description": "Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.",
+      "pages": 4
+    },
+    {
+      "slug": "vendor-change-watch",
+      "name": "Vendor Change Watch — See What Changed in a Vendor's Terms",
+      "url": "https://marisstella.dev/tools/vendor-change-watch/",
+      "category": "Compliance checks & evidence records",
+      "description": "Paste a vendor's terms, privacy policy, or subprocessor page. Come back later, paste it again, and get a section-by-section diff of what changed. Runs in your browser; nothing is uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "vinyl-liner-bid-calculator",
       "name": "Vinyl Liner Bid Calculator — Price to Replace a Liner",
       "url": "https://marisstella.dev/tools/vinyl-liner-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential vinyl pool liner from the liner square feet a water-surface special cannot see, the hopper, the stairs, and the track — plus walk-away price and proposed-price margin check.",
       "pages": 3
+    },
+    {
+      "slug": "vscode-extension-drift-check",
+      "name": "VS Code Extension Drift Check — Did an Extension You Trust Just Change What It Does?",
+      "url": "https://marisstella.dev/tools/vscode-extension-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check. A CLI-only command also checks whether an extension still resolves on the VS Code Marketplace. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "walk-in-shower-bid-calculator",
@@ -1419,6 +1705,14 @@
       "pages": 3
     },
     {
+      "slug": "whatnot-seller-payout",
+      "name": "Whatnot Seller Payout Calculator — Keep After 8% + Processing",
+      "url": "https://marisstella.dev/tools/whatnot-seller-payout/",
+      "category": "Marketplace seller tools",
+      "description": "Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.",
+      "pages": 3
+    },
+    {
       "slug": "wheelchair-ramp-bid-calculator",
       "name": "Wheelchair Ramp Bid Calculator — ADA Slope, Landings, Rails",
       "url": "https://marisstella.dev/tools/wheelchair-ramp-bid-calculator/",
@@ -1431,14 +1725,14 @@
       "name": "Where to Sell Calculator — eBay vs Etsy vs Amazon",
       "url": "https://marisstella.dev/tools/where-to-sell-calculator/",
       "category": "Marketplace seller tools",
-      "description": "Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, your own store, and a local sale.",
-      "pages": 5
+      "description": "Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, Reverb, your own store, and a local sale.",
+      "pages": 6
     },
     {
       "slug": "which-job-first",
       "name": "Which Job First? Free Pairwise Job Priority Ranker for Contractors",
       "url": "https://marisstella.dev/tools/which-job-first/",
-      "category": "More free tools",
+      "category": "Trade & contractor bids",
       "description": "Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.",
       "pages": 3
     },

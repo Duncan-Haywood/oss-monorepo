@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified cleaning operators use it twice within 90 days.
   - Users need supplier catalog integrations before the arithmetic changes a purchasing or bid decision.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/cleaning-dilution-calculator/
   analytics: null

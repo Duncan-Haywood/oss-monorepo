@@ -180,6 +180,27 @@ class ZipTests(ArtifactFixtureCase):
         self.assertEqual(result["result"], INTACT)
         self.assertEqual(result["members_checked"], 3)
 
+    def test_duplicate_names_check_each_entries_own_bytes(self) -> None:
+        path = self.dir / "duplicates.zip"
+        with zipfile.ZipFile(path, "w", zipfile.ZIP_STORED) as archive:
+            archive.writestr("backup.txt", b"first backup")
+            with self.assertWarns(UserWarning):
+                archive.writestr("backup.txt", b"second backup")
+            first = archive.infolist()[0]
+        intact = inspect_artifact(path)
+        self.assertEqual(intact["result"], INTACT)
+        self.assertEqual(intact["members_checked"], 2)
+
+        # Damage only the earlier entry. Looking up both members by filename
+        # reads the final (healthy) entry twice and misses this CRC failure.
+        data = bytearray(path.read_bytes())
+        payload_offset = first.header_offset + 30 + len(first.filename.encode())
+        data[payload_offset] ^= 0xFF
+        path.write_bytes(data)
+        result = inspect_artifact(path)
+        self.assertEqual(result["result"], CORRUPT)
+        self.assertIn("backup.txt", result["detail"])
+
     def test_truncated_zip_is_corrupt(self) -> None:
         result = inspect_artifact(_truncate(self._zip("good.zip")))
         self.assertEqual(result["result"], CORRUPT)

@@ -93,3 +93,16 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same deck-contractor job, but a new build rather than a
+// stain / seal. The form hint already names "a new deck build" without linking,
+// and related-tool chrome rotates inside the carpentry subcategory, so without
+// an explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the deck-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/deck-bid-calculator\/"/,
+    'index must link ../deck-bid-calculator/ so crawlers reach the build calculator in one hop',
+  );
+  assert.match(html, /deck bid calculator/i);
+});

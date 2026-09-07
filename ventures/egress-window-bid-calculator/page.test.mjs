@@ -284,3 +284,15 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same openings subcategory, but above-grade replacement
+// rather than a basement egress cut. Without a crawlable link here, a crawler
+// entering on the egress calculator never reaches the replacement tool in one
+// hop — same one-way orphan class as #3709 / #3729 / #3743.
+test('index links one hop to the window-replacement-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/window-replacement-bid-calculator\/"/,
+    'index must link ../window-replacement-bid-calculator/ so crawlers reach the replacement calculator in one hop',
+  );
+});

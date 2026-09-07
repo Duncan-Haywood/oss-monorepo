@@ -9,6 +9,13 @@ month. Then it asks the question a fee table cannot: **how often does it
 actually sell there**, and what is one listing worth per month of shelf once
 you count that.
 
+**Reverb** is a sixth channel, switched off until you turn it on. It only
+applies to musical instruments and audio gear, and a channel a seller cannot
+list on is noise in a ranking rather than information. Its fee assumptions are
+not restated here — `channel-parity.test.mjs` imports them from
+[`../reverb-fee-calculator`](../reverb-fee-calculator/) and fails if the two
+tools ever quote the same marketplace differently.
+
 It runs entirely in the browser: static ES modules, no build step, no
 dependencies, no server, no account, no API key.
 
@@ -166,8 +173,13 @@ tool sits unused and the comparison ends at a ranking nobody acts on.
 
 So under the verdict, every channel that has a dedicated calculator **and** can
 accept inputs from a link gets a "keep going with this item" link, built from
-what is on screen. Today that is eBay and Etsy; a channel gains one the day its
-calculator learns to read a link.
+what is on screen. Today that is eBay, Etsy, Amazon, Reverb and an own store
+(Shopify); a channel gains one the day its calculator learns to read a link.
+
+The handoff now runs both ways for Reverb: `../reverb-fee-calculator/`
+carries its own item back into this page with Reverb already switched on
+(`to-where-to-sell.mjs` there), so a seller who lands on the Reverb
+calculator first is not stuck retyping to compare channels either.
 
 Two details that are not obvious:
 

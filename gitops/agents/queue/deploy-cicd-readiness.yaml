@@ -20,11 +20,22 @@
 # the first window after an owner flips the governor on is the most
 # valuable quota this fleet will ever spend.
 #
-# The portfolio has 169 finished tools and no public URL, so the delivery
-# path is worth more per run than anything else here -- but only the parts
-# an agent can actually finish. The credential steps are owner-only and
-# already queued; this item exists to keep the code half complete and
-# correct so that nothing but the flip is missing when it comes.
+# The portfolio's delivery path is worth more per run than anything else
+# here -- but only the parts an agent can actually finish. The credential
+# steps are owner-only and already queued; this item exists to keep the code
+# half complete and correct so that nothing but the flip is missing when it
+# comes.
+#
+# CORRECTED 2026-09-06. This comment read "169 finished tools and no public
+# URL". The second half is no longer true: GitHub Pages serves the `gh-pages`
+# branch, measured by its own managed builder running on that branch and
+# succeeding (runs 34011996382, 34012041708), so the catalogue has a public
+# URL and `deploy-settings` is granted. The line is corrected rather than
+# deleted because a *ranking argument* resting on "no public URL" would go on
+# being made from it -- and the argument survives anyway: keeping the snapshot
+# fresh after every merge is now the delivery work, since a committed artifact
+# does not rebuild itself. Ask `platform/ci/pages_state.py`, never this
+# comment.
 id: deploy-cicd-readiness
 repo: Duncan-Haywood/monorepo-projects
 ref: main
@@ -41,6 +52,37 @@ prompt: |
   here is GitOps: Argo CD syncs `gitops/` from `main`, so a correct
   manifest merged to `main` is the deploy. You have no cluster access and
   must not attempt any.
+
+  **Read that last paragraph as conditional, not as today's state.** As of
+  2026-09-06 the cluster is down (`:6443` refused on both boxes), so a
+  manifest merged to `main` syncs nothing and "the deploy" deploys
+  nothing. A run that treats it as current spends itself on an inert path.
+  Re-measure before believing either way --
+  `portfolio/ledger/infra_state.yaml` carries the dated readings and the
+  command behind each, and a reading past its staleness window is
+  *unknown*, never "up".
+
+  What is *not* downstream of the cluster is host mode: the same work
+  installed onto a box's own systemd, which is where this repository's
+  execution capacity actually lives right now. There are three, and they
+  are siblings by design -- read the one nearest your change before
+  starting, because between them they already cover most of what "fix the
+  delivery path" used to mean here:
+
+  - `gitops/agents/host/` -- the Codex worker (this fleet's own scheduler)
+  - `gitops/ci/host/`     -- a self-hosted GitHub Actions runner
+  - `gitops/prod/host/`   -- **serving the catalogue itself**: nginx plus a
+    ten-minute pull-and-rebuild timer, fail-closed on `check.mjs`, so a
+    merge to `main` is the deploy again with neither a runner nor the
+    cluster in the path
+
+  Do not rebuild any of those. If you extend one, extend it where it is;
+  if you find a defect in one, that is an excellent pick for this item.
+  All three are blocked on the same single owner action and no other --
+  `HETZNERSSHKEY` holds a public key, so nothing installs until it is
+  rotated. Do not add a second ask for it, and do not treat it as a reason
+  to skip work: the code half being complete is what makes that one
+  rotation buy a served catalogue instead of only a diagnosis.
 
   Pick ONE concrete, finishable defect or gap in the delivery path and fix
   it. Candidates, best first:
@@ -104,11 +146,38 @@ prompt: |
   confirm it is almost certainly already there. Pick a different gap
   instead.
 
-  Verify before you open anything: `python3 -m pytest gitops/tests -q`,
-  plus `kubeconform` or `kustomize build` on any manifest you touched if
-  the repo's own CI runs them. Record exactly what you ran and what it
-  said. A check that fails in 3-6 seconds with `runner_id: 0` is the known
-  Actions outage, not your regression.
+  Verify before you open anything. **The maintained list is the block in
+  CLAUDE.md under "Ship without review ceremony" -- read it there and run
+  it, rather than treating the lines below as the whole set.** This item
+  used to restate a two-command subset here, which is the same
+  restate-instead-of-import defect CLAUDE.md records twice against the
+  front-door mirror: a frozen copy cannot learn, and on 2026-09-05 that
+  list gained `platform/ci/`, `platform/proposal/`, `platform/privacy/`
+  and `platform/webcheck/` while this prompt went on naming two commands.
+
+  Two of those matter specifically to *this* item, because they guard the
+  code it is most likely to touch:
+
+    python3 -m pytest gitops/tests -q
+    (cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
+
+  The second is the one this prompt was missing outright, and candidate 2
+  above sends every run straight at it: `platform/ci/` holds the 15
+  `unittest` modules guarding `ci_starvation.py`, `pages_state.py`,
+  `publish_surface.py`, `public_surface.py` and `validate_workflows.py` --
+  the tools this repo uses to decide whether a red check is real and
+  whether a route to a user exists. A run that edits one of those and
+  follows the old two-line list executed no guard on the thing it just
+  changed. Note the `cd`: those modules import each other by bare name, so
+  `pytest platform/ci` from the repo root fails collection.
+
+  Add `kubeconform` or `kustomize build` on any manifest you touched.
+  Record exactly what you ran and what it said. A check that fails in 3-6
+  seconds with `runner_id: 0` is the known Actions outage, not your
+  regression -- confirm with
+  `python3 platform/ci/ci_starvation.py --run <id>`. While runners are
+  starved, CI running these suites is the same as nothing running them,
+  which is why the local run is the real gate rather than a formality.
 
   Open the PR, note what you verified, and merge it yourself once sound,
   per this repo's no-review-gate rule. Make the smallest correct change.

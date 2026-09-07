@@ -2,6 +2,7 @@
 """Unit tests for the local workflow runner."""
 from __future__ import annotations
 
+import argparse
 import io
 import contextlib
 import os
@@ -329,6 +330,139 @@ class Execute(unittest.TestCase):
                          "failed")
 
 
+class ToolchainMissing(unittest.TestCase):
+    """A step that could not find its tools did not run the check it makes.
+
+    The measured case this class exists for: on 2026-09-07 `--tree` reported
+    `55/60 ... 5 failed` and then `60/60` on the same clean checkout of
+    `main`, minutes apart, with nothing between the runs but
+    `pip install pytest`. All five said `No module named pytest`. Reading the
+    first as a red `main` is the failure being prevented.
+    """
+
+    def run_one(self, command, workdir="."):
+        step = runner.Step("j", "n", command, workdir)
+        runner.execute(step, timeout=60)
+        return step
+
+    def test_an_absent_python_module_is_unrun_not_failed(self):
+        step = self.run_one("python3 -m pytest_absent_xyz --version")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing, "pytest_absent_xyz")
+
+    def test_an_absent_binary_is_unrun_not_failed(self):
+        step = self.run_one("definitely-not-a-real-binary-xyz --version")
+        self.assertEqual(step.status, "unrun")
+
+    def test_an_absent_node_module_is_unrun_not_failed(self):
+        step = self.run_one(
+            "node -e \"require('playwright-absent-xyz')\"")
+        self.assertEqual(step.status, "unrun")
+
+    def test_a_module_this_repo_provides_is_a_real_failure(self):
+        """The discrimination the whole class turns on.
+
+        `platform/ci`'s suites import by bare name and resolve only with
+        `platform/ci` as the working directory -- CLAUDE.md records that
+        `python3 -m pytest platform/ci` from the root fails collection for
+        exactly this reason. Classifying that as a missing toolchain would
+        bury the defect the check exists to surface.
+        """
+        step = self.run_one("python3 -c 'import pages_state'")
+        self.assertEqual(step.status, "failed",
+                         "pages_state.py is in platform/ci; not a missing tool")
+
+    def test_a_repo_module_missing_from_the_wrong_cwd_is_still_a_failure(self):
+        step = self.run_one("python3 -c 'import pages_state'",
+                            workdir="platform/marketing")
+        self.assertEqual(step.status, "failed")
+
+    def test_an_ordinary_assertion_failure_is_untouched(self):
+        step = self.run_one("python3 -c 'assert False, \"real defect\"'")
+        self.assertEqual(step.status, "failed")
+
+    def test_a_failing_install_is_still_classified_as_setup_first(self):
+        """SETUP is checked before this, and must stay that way: an install
+        that fails because a package is absent is the setup class, not a
+        step that owes an answer."""
+        step = self.run_one(
+            "pip install nothing-here-at-all-xyz 2>&1; "
+            "echo 'No module named nothing_here'; exit 1")
+        self.assertEqual(step.status, "setup-failed")
+
+
+class CredentialMissing(unittest.TestCase):
+    """The same "did not run" class, reached by an absent credential.
+
+    Added 2026-09-07 with `pages-freshness-ci.yml`, the first verification-only
+    workflow here whose check cannot run without a token. Left in the `failed`
+    class it would have reported `main` as red in every sandbox without one,
+    which is the costume-of-a-real-failure problem `ToolchainMissing` exists to
+    prevent, one credential further along.
+    """
+
+    def run_one(self, command, workdir="."):
+        step = runner.Step("j", "n", command, workdir)
+        runner.execute(step, timeout=60)
+        return step
+
+    def test_the_real_tool_with_no_token_is_unrun_not_failed(self):
+        """The measured case, run against the tool itself rather than a fake."""
+        step = runner.Step(
+            "j", "n", "python3 platform/ci/pages_state.py --require-current", ".")
+        step.env = {"GH_TOKEN": "", "GITHUB_TOKEN": ""}
+        runner.execute(step, timeout=120)
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing_kind, "credential")
+
+    def test_a_named_unset_token_is_unrun(self):
+        step = self.run_one("echo 'GH_TOKEN is not set' >&2; exit 2")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing, "GH_TOKEN")
+        self.assertEqual(step.missing_kind, "credential")
+
+    def test_a_rejected_token_is_a_real_failure(self):
+        """The discrimination this class turns on.
+
+        A token that is present and refused is a real result -- burying it here
+        would hide exactly what a session most needs to see. Only an explicit
+        statement that a named credential is *absent* is classified as unrun.
+        """
+        step = self.run_one(
+            "echo 'HTTP 401: Bad credentials' >&2; exit 1")
+        self.assertEqual(step.status, "failed")
+
+    def test_a_generic_permission_error_is_a_real_failure(self):
+        step = self.run_one(
+            "echo 'Resource not accessible by integration' >&2; exit 1")
+        self.assertEqual(step.status, "failed")
+
+    def test_an_ordinary_variable_being_unset_is_not_a_credential(self):
+        """`PAGE_URL is not set` is a step output, not a credential."""
+        step = self.run_one("echo 'PAGE_URL is not set' >&2; exit 1")
+        self.assertEqual(step.status, "failed")
+
+    def test_a_missing_tool_still_reports_as_a_tool(self):
+        step = self.run_one("python3 -m absent_module_xyz")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing_kind, "tool")
+
+
+class StatusMark(unittest.TestCase):
+    """Every status the executor can set must be printable.
+
+    On 2026-09-07 it was not: the mark table was written out twice and the
+    single-workflow path was not updated when `unrun` was added, so running one
+    workflow by name died with `KeyError: 'unrun'` the first time a step hit
+    that status. One table now, and this asserts it stays complete.
+    """
+
+    def test_every_status_the_executor_sets_has_a_mark(self):
+        for status in ("ok", "failed", "skipped", "refused",
+                       "setup-failed", "unrun"):
+            self.assertIn(status, runner.STATUS_MARK)
+
+
 class Report(unittest.TestCase):
     def report(self, steps, uses_skipped=(), forced=False):
         out = io.StringIO()
@@ -366,6 +500,35 @@ class Report(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("SETUP", out)
         self.assertIn("deps", out)
+
+    def test_an_unrun_step_is_not_a_failure_and_not_green(self):
+        step = self.done("unrun", "pytest-step")
+        step.missing = "pytest"
+        code, out = self.report([self.done("ok"), step])
+        self.assertEqual(code, 0, "a missing tool is not the repository's fault")
+        self.assertIn("UNRUN", out)
+        self.assertIn("pytest-step", out)
+        self.assertIn("Not a green check", out,
+                      "it still owes an answer; it must not read as passing")
+
+    def test_an_unrun_step_names_what_to_install(self):
+        step = self.done("unrun", "s")
+        step.missing = "pytest"
+        _, out = self.report([step])
+        self.assertIn("pytest", out)
+
+    def test_an_unrun_step_is_counted_as_not_run_rather_than_passed(self):
+        step = self.done("unrun", "s")
+        step.missing = "pytest"
+        _, out = self.report([self.done("ok"), step])
+        self.assertIn("1/1 run: step(s) passed", out)
+        self.assertIn("(1 not run)", out)
+
+    def test_a_real_failure_alongside_an_unrun_step_still_fails(self):
+        step = self.done("unrun", "s")
+        step.missing = "pytest"
+        code, _ = self.report([step, self.done("failed", "real")])
+        self.assertEqual(code, 1)
 
 
 class AgainstThisRepository(unittest.TestCase):
@@ -544,6 +707,53 @@ class ReadOnlyJobs(unittest.TestCase):
                   - run: echo "${{ secrets.TOKEN }}"
         """))
 
+    def test_the_github_token_is_the_one_secret_that_does_not_hold(self):
+        """Narrowed 2026-09-07, and pinned here so the narrowing is not silent.
+
+        `secrets.GITHUB_TOKEN` is minted per run rather than held by the owner,
+        and every session here already has the same value in `GH_TOKEN`, so it
+        has an honest local stand-in where no other secret does. The capability
+        question it used to stand in for is answered directly by
+        `_grants_write` on the declared permissions -- see the two tests below,
+        which are what keep this exception from widening into a hole.
+        """
+        self.assertTrue(self.read_only("""
+            permissions:
+              contents: read
+            jobs:
+              a:
+                steps:
+                  - run: python3 x.py
+                    env:
+                      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        """))
+
+    def test_another_secret_still_holds_even_beside_the_github_token(self):
+        self.assertFalse(self.read_only("""
+            permissions:
+              contents: read
+            jobs:
+              a:
+                steps:
+                  - run: python3 x.py
+                    env:
+                      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                      HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
+        """))
+
+    def test_a_github_token_job_that_grants_write_is_still_held(self):
+        """The exception is about the credential, never about the capability."""
+        self.assertFalse(self.read_only("""
+            permissions:
+              contents: write
+            jobs:
+              a:
+                steps:
+                  - run: python3 x.py
+                    env:
+                      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        """))
+
     def test_a_writing_job_is_held_without_holding_its_read_only_sibling(self):
         allowed, held = runner.read_only_jobs(workflow("""
             permissions:
@@ -588,7 +798,14 @@ class ReadOnlyJobs(unittest.TestCase):
                         "the build job must still carry the test step")
 
     def test_no_auto_run_job_in_the_repo_can_write_or_read_a_secret(self):
-        """Whole-repository sweep: the gate must hold across all 218 files."""
+        """Whole-repository sweep: the gate must hold across all 218 files.
+
+        Read the secret half as "reads a secret other than `GITHUB_TOKEN`"
+        since 2026-09-07 -- `_mentions_secret` excludes that one name, for the
+        reasons its docstring gives. The write half is unnarrowed and is what
+        actually bounds an auto-run job: the three `ReadOnlyJobs` tests above
+        pin both sides of that exception.
+        """
         for name in sorted(os.listdir(runner.WORKFLOWS)):
             if not name.endswith((".yml", ".yaml")):
                 continue
@@ -637,6 +854,71 @@ class ForChanges(unittest.TestCase):
 
     def test_naming_nothing_at_all_is_refused(self):
         self.assertEqual(runner.main([]), 2)
+
+
+class Tree(unittest.TestCase):
+    """`--tree`: is this checkout green, independent of any diff?
+
+    The mode exists because `--for-changes` on a clean `main` correctly
+    reports "nothing to verify", which left no way to ask whether `main`
+    itself was green -- and `score_ventures.py --check` stayed red across
+    five merges as a result, invisible because Actions was starved.
+    """
+
+    def selected(self):
+        return runner.pick_workflows(
+            lambda name, _wf: name in runner.VERIFICATION_ONLY)
+
+    def test_it_selects_every_verification_only_workflow(self):
+        selected, held = self.selected()
+        seen = {name for name, *_ in selected} | {name for name, *_ in held}
+        # Not a subset assertion: a workflow silently dropping out of the
+        # sweep is exactly the failure this mode was built to stop, and a
+        # subset check would pass while it happened.
+        self.assertEqual(seen, set(runner.VERIFICATION_ONLY))
+
+    def test_it_ignores_the_diff_entirely(self):
+        # The point of the mode. `selects()` gates --for-changes on the
+        # paths filter; this must reach the same workflows with no diff.
+        selected, _ = self.selected()
+        self.assertIn("portfolio-validate.yml", {n for n, *_ in selected})
+
+    def test_the_sweep_runs_the_step_that_was_red_on_main(self):
+        # score_ventures.py --check is the concrete regression: merged red
+        # in #3615 and unnoticed. If it ever leaves this workflow, the
+        # sweep stops covering the case it was built for, and this fails.
+        selected, _ = self.selected()
+        workflow = next(wf for name, wf, _ in selected
+                        if name == "portfolio-validate.yml")
+        steps, _ = runner.collect(workflow)
+        self.assertTrue(
+            any("score_ventures.py --check" in s.run for s in steps),
+            "the whole-tree sweep no longer runs score_ventures.py --check")
+
+    def test_it_never_sweeps_a_workflow_that_is_not_verification_only(self):
+        # A sweep is the mode most likely to be run unattended, so this is
+        # the boundary that matters most. branch-cleanup.yml deletes
+        # branches.
+        selected, held = self.selected()
+        seen = {name for name, *_ in selected} | {name for name, *_ in held}
+        self.assertNotIn("branch-cleanup.yml", seen)
+
+    def test_tree_with_a_workflow_name_is_refused(self):
+        self.assertEqual(runner.main(["portfolio-validate.yml", "--tree"]), 2)
+
+    def test_tree_with_for_changes_is_refused(self):
+        self.assertEqual(runner.main(["--tree", "--for-changes"]), 2)
+
+    def test_an_empty_selection_fails_rather_than_reporting_a_pass(self):
+        # "Nothing ran" must never exit 0: that is the reading this
+        # repository is worst at noticing, and an unattended sweep is
+        # where it would do the most damage.
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner._run_selected(
+                argparse.Namespace(list=False, timeout=1), [], [])
+        self.assertEqual(code, 1)
+        self.assertIn("nothing was verified", out.getvalue().lower())
 
 
 if __name__ == "__main__":

@@ -55,6 +55,12 @@ covered directly.
 
 - No backend of ours. The browser calls `api.github.com` for the repo you
   typed. Nothing about the scanned repo is sent anywhere else by this tool.
+- "Copy link to this result" puts the repo name in the page's own URL
+  fragment (after `#`), which browsers never include in an HTTP request —
+  opening the link re-runs the scan in the recipient's browser rather than
+  fetching anything from us. Only public repos can be scanned in the first
+  place, so the link exposes nothing a visit to the repo's own GitHub page
+  would not.
 - Usage counting follows `portfolio/usage/README.md`: aggregate event names
   and a day, kept local-first in your `localStorage`. Honor Do Not Track and
   Global Privacy Control. The page has an opt-out. We never store which repo

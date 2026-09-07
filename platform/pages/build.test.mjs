@@ -68,6 +68,8 @@ import {
   CHROME_MODULE_FILE,
   renderHubSitemap,
   renderLlmsTxt,
+  toolProseName,
+  listProse,
   renderCatalog,
   externalCallExceptions,
   surfaceExternalFetchHosts,
@@ -77,15 +79,30 @@ import {
   COMPARISON_FILE_PATTERN,
   comparisonSubject,
   comparisonSubjectKey,
+  comparisonText,
   comparisonProductGroups,
   comparisonProductSlug,
   discoverComparisons,
   groupComparisons,
   renderComparePage,
   renderCompareProductPage,
+  renderCategoryPage,
+  GUIDES_PATH,
+  isGuidePage,
+  guidePageMeta,
+  discoverGuides,
+  groupGuidesByCategory,
+  renderGuidesPage,
+  sponsorsNote,
+  SPONSORS_URL,
+  SPONSOR_CLICK_EVENT,
+  SPONSOR_LINK_ATTR,
+  markSponsorLinks,
+  renderChromeModule,
 } from './build.mjs';
-import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
+import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
+import { decodeEntities } from './entities.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
 // pin its transcription line by line now compare against the definitions
 // themselves. See "the hub validates a saved bid with the tested definition".
@@ -662,13 +679,13 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Five trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, the comparison index, catalog.json, the
-  // sitemap and the Atom feed — so the count is tools plus those. A sixth,
-  // "Source", used to point at this repository's GitHub URL; the repository is
-  // private, so that link 404s for every real visitor and was removed rather
-  // than left false.
-  assert.equal(bullets.length, surfaces.length + 5);
+  // Six trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the comparison index, the guides index,
+  // catalog.json, the sitemap and the Atom feed — so the count is tools plus
+  // those. A seventh, "Source", used to point at this repository's GitHub URL;
+  // the repository is private, so that link 404s for every real visitor and was
+  // removed rather than left false.
+  assert.equal(bullets.length, surfaces.length + 6);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -1241,7 +1258,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 7, 'the six named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 8, 'the seven named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1264,6 +1281,11 @@ test("socialCardFileFor names a file under the category's own id, not its title"
 test('tools that belong to a named category are not left in the catch-all', () => {
   assert.equal(categoryFor('tiktok-shop-fee-calculator').id, 'marketplace');
   assert.equal(categoryFor('delivery-app-margin-calculator').id, 'marketplace');
+  assert.equal(categoryFor('kdp-royalty-calculator').id, 'marketplace');
+  // Whatnot's retail fee ranking already deep-links this payout tool; leaving
+  // it in "More free tools" hid it from every seller already reading the
+  // marketplace section that names it.
+  assert.equal(categoryFor('whatnot-seller-payout').id, 'marketplace');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
   assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');
@@ -1272,6 +1294,41 @@ test('tools that belong to a named category are not left in the catch-all', () =
   // meet those two fields would never see it.
   assert.equal(categoryFor('shop-rate-calculator').id, 'trades');
   assert.equal(subcategoryFor('shop-rate-calculator').id, 'trades-paid');
+  // Four browser+CLI developer checks sat in the catch-all as a coherent
+  // group — starved-runner triage, coverage delta, flaky-test classification,
+  // AI-crawler robots.txt audit — while related-tool chrome mixed them with
+  // Sponsor Ready. A maintainer browsing for a CI gate never saw the section.
+  assert.equal(categoryFor('actions-runner-starvation-check').id, 'ci');
+  assert.equal(categoryFor('coverage-drop-check').id, 'ci');
+  assert.equal(categoryFor('flaky-test-finder').id, 'ci');
+  assert.equal(categoryFor('ai-crawler-access-check').id, 'ci');
+  // `license-drift-check` graduated 2026-09-07 and landed in the catch-all
+  // because the rule enumerates families by prefix and its slug starts a new
+  // one — it names what it diffs rather than what it reads. Same shape as the
+  // rest: a browser-local checker plus a matching CLI, run against a
+  // dependency tree the maintainer already has.
+  assert.equal(categoryFor('license-drift-check').id, 'ci');
+});
+
+// Found 2026-09-06: five more tools sat in the catch-all for the same reason —
+// each is a sibling of a tool already filed in a named section, under a slug
+// no keyword there caught. `equipment-lease-buyout-calculator` is the same
+// cost-per-month-of-use decision as `equipment-rental-break-even`, just ending
+// in `-calculator` rather than `-break-even`. `card-processing-fee-audit` is
+// the same after-the-sale statement reconciliation as this section's other
+// tools, for a card processor's bill. `tender-bid-readiness`, `tender-radar`
+// and `which-job-first` are read by the same contractor deciding whether and
+// what to bid as `contractor-bid-readiness`, already in "Getting paid & job
+// margin" — none of their slugs start with a trade-bid keyword.
+test('a contractor pre-bid tool and a statement-reconciliation tool are not left in the catch-all either', () => {
+  assert.equal(categoryFor('equipment-lease-buyout-calculator').id, 'backoffice');
+  assert.equal(categoryFor('card-processing-fee-audit').id, 'backoffice');
+  assert.equal(categoryFor('tender-bid-readiness').id, 'trades');
+  assert.equal(subcategoryFor('tender-bid-readiness').id, 'trades-paid');
+  assert.equal(categoryFor('tender-radar').id, 'trades');
+  assert.equal(subcategoryFor('tender-radar').id, 'trades-paid');
+  assert.equal(categoryFor('which-job-first').id, 'trades');
+  assert.equal(subcategoryFor('which-job-first').id, 'trades-paid');
 });
 
 // A cutting planner for woodworkers and sign shops spent its whole life filed
@@ -2126,6 +2183,120 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
   assert.deepEqual([...script.matchAll(/https?:\/\/[^'"\s]+/g)].map((m) => m[0]), []);
 });
 
+/**
+ * Runs the real shared chrome file against a stub DOM and returns what it
+ * wrote, plus a way to click something.
+ *
+ * A string match on `renderChromeModule()` cannot tell a counter that fires
+ * from one whose selector never matches, and the selector is the whole of this
+ * feature: the marker attribute and the handler are written in two different
+ * functions and nothing but a real match holds them together. So the script is
+ * executed rather than read.
+ */
+function chromeCounter({ slug = 'etsy-profit-calculator', navigator = {}, stored = {} } = {}) {
+  let click = null;
+  const store = new Map(Object.entries(stored).map(([k, v]) => [k, JSON.stringify(v)]));
+  const localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, v),
+  };
+  const document = {
+    readyState: 'complete',
+    querySelector: () => (slug === null ? null : { getAttribute: () => slug }),
+    addEventListener: (type, fn) => { if (type === 'click') click = fn; },
+    // The scroll-accessibility half of the same file sweeps these; it is not
+    // what this test is about, so it is given an empty page to find nothing in.
+    getElementsByTagName: () => [],
+    body: { getElementsByTagName: () => [] },
+  };
+  new Function('navigator', 'localStorage', 'document', 'addEventListener', 'getComputedStyle',
+    renderChromeModule())(
+    navigator, localStorage, document, () => {}, () => ({ overflowX: 'visible' }),
+  );
+  return {
+    counts: () => JSON.parse(store.get('portfolio-hub-usage') || '{}'),
+    // `matches` is the set of selectors this element should answer `closest`
+    // for -- the stand-in for where it sits in the real page.
+    clickOn: (...matches) => click?.({ target: { closest: (sel) => (matches.includes(sel) ? {
+      getAttribute: () => 'roofing-bid-calculator',
+    } : null) } }),
+    clicked: () => click !== null,
+  };
+}
+
+test('a click on the sponsor link is counted, under the same rules as every other event', async () => {
+  const marker = `[${SPONSOR_LINK_ATTR}]`;
+
+  const page = chromeCounter();
+  assert.ok(page.clicked(), 'the counter registered no click listener at all');
+  assert.equal(page.counts()[SPONSOR_CLICK_EVENT], undefined, 'nothing is counted before a click');
+  page.clickOn(marker);
+  assert.equal(page.counts()[SPONSOR_CLICK_EVENT], 1);
+  page.clickOn(marker);
+  assert.equal(page.counts()[SPONSOR_CLICK_EVENT], 2, 'a second click is a second count');
+  assert.equal(page.counts()['tool_viewed:etsy-profit-calculator'], 1,
+    'and the view it is read against is still counted once, not once per click');
+
+  // The two halves of the delegate are independent: the cross-tool link was
+  // there first and a sponsor click must not be read as one, or the denominator
+  // moves every time the numerator does.
+  const other = chromeCounter();
+  other.clickOn('[data-pf-to]');
+  assert.equal(other.counts()[SPONSOR_CLICK_EVENT], undefined);
+  assert.equal(other.counts()['cross_tool_click:roofing-bid-calculator'], 1);
+
+  // A click on neither -- the ordinary case, since most clicks on these pages
+  // land on a number field.
+  const idle = chromeCounter();
+  idle.clickOn();
+  assert.deepEqual(Object.keys(idle.counts()).filter((k) => k !== 'last_day'),
+    ['tool_viewed:etsy-profit-calculator']);
+
+  // Every off switch that silences the other two events silences this one,
+  // because it is the same guarded block and not a second counter beside it.
+  for (const [why, options] of [
+    ['Do Not Track', { navigator: { doNotTrack: '1' } }],
+    ['Global Privacy Control', { navigator: { globalPrivacyControl: true } }],
+    ['the hub opt-out', { stored: { 'portfolio-hub-optout': 1 } }],
+  ]) {
+    const off = chromeCounter(options);
+    off.clickOn(marker);
+    assert.equal(off.counts()[SPONSOR_CLICK_EVENT], undefined, `${why} did not silence the count`);
+  }
+});
+
+test('the sponsor link is marked wherever it was written, and marking it twice changes nothing', async () => {
+  const link = `<a href="${SPONSORS_URL}">Sponsoring on GitHub</a>`;
+  const marked = markSponsorLinks(link);
+  assert.match(marked, new RegExp(`<a href="${SPONSORS_URL}" ${SPONSOR_LINK_ATTR}>`));
+  assert.equal(markSponsorLinks(marked), marked, 'a second pass double-tagged the anchor');
+
+  // Attributes the venture already wrote survive, and an anchor that is not the
+  // sponsor link is left completely alone -- including the LICENSE link that
+  // sits beside it in most of these footers.
+  assert.match(
+    markSponsorLinks(`<a class="x" href="${SPONSORS_URL}" rel="noopener">S</a>`),
+    /<a class="x" href="[^"]+" rel="noopener" data-pf-sponsor>/,
+  );
+  const unrelated = '<a href="LICENSE">MIT</a><a href="https://github.com/other">other</a>';
+  assert.equal(markSponsorLinks(unrelated), unrelated);
+
+  // And on the built site: the tool pages the chrome wraps, plus the four kinds
+  // of page it does not, each of which renders its own sponsor line.
+  for (const parts of [
+    ['etsy-profit-calculator', 'index.html'],
+    ['index.html'],
+    ['about', 'index.html'],
+  ]) {
+    const html = await read(...parts);
+    const sponsorAnchors = [...html.matchAll(/<a\b[^>]*href="[^"]*\/sponsors\/[^"]*"[^>]*>/g)];
+    assert.ok(sponsorAnchors.length > 0, `${parts.join('/')} renders no sponsor link at all`);
+    for (const [tag] of sponsorAnchors) {
+      assert.ok(tag.includes(SPONSOR_LINK_ATTR), `${parts.join('/')} has an uncountable sponsor link: ${tag}`);
+    }
+  }
+});
+
 test('a page carries no inline chrome script or stylesheet, only links to the shared ones', async () => {
   // The extraction this replaced: 2.75 KB of CSS and 1.66 KB of JS were written
   // into all 442 published pages -- 1.9 MiB of the built site, and the same
@@ -2341,8 +2512,11 @@ test('no injected script carries a template literal across a line break', async 
 
 test('the injected scripts ship without their prose', async () => {
   // ~19 KB of unminified source sat on each of 234 pages and again in the
-  // opt-in offline bundle, which has a fixed 16 MB budget. Stripping the
-  // comment lines and the indentation is worth ~976 KB across the bundle.
+  // opt-in offline bundle. Stripping the comment lines and the indentation is
+  // worth ~976 KB of raw bytes across the bundle. (This used to cite "a fixed
+  // 16 MB budget"; the bundle is now held to 8 MB gzipped in transit and
+  // 64 MB on disk, so the saving is smaller against the budget that binds
+  // than the raw figure suggests -- prose compresses well.)
   const band = await read('pf-jobs.js');
   assert.ok(band.includes('var SLUG'), 'the shared saved-bids script was not written');
   const commentLines = band.split('\n').filter((line) => line.trim().startsWith('//'));
@@ -2762,6 +2936,7 @@ test('the offline bundle stays small enough to fetch on mobile data', async () =
     const buf = await fs.readFile(path.join(outDir, asset));
     bytes += (await gzip(buf, { level: 9 })).length;
   }
+  assert.equal(bytes, offline.bundleBytes, 'addOfflineSupport reported a different gzipped total than a fresh count');
   // Raw bytes stopped being the right proxy once the catalog passed ~180
   // tools: it hit 16.8 MB against a 16 MB ceiling that was itself already a
   // bump from an original 8 MB, and bumping the number a second time repeats
@@ -2775,6 +2950,48 @@ test('the offline bundle stays small enough to fetch on mobile data', async () =
   // "transferred" in its network panel, not the uncompressed size on disk.
   // Measured 2026-09-05: gzip brings the 16.8 MB raw bundle down to 5.2 MB.
   assert.ok(bytes < 8 * 1024 * 1024, `gzipped offline bundle is ${(bytes / 1e6).toFixed(1)} MB`);
+});
+
+test('the hub tells a visitor the real offline size, not a stale guess', async () => {
+  // The button said "about 3 MB" from ~30 tools onward while the catalog
+  // grew to 174 and the real (gzipped) fetch reached 5.2 MB -- a visitor on
+  // limited mobile data, exactly who this feature is for, was told a number
+  // with no relationship to what they would actually pay. The label is now
+  // computed from the same gzipped bytes the test above measures, so it
+  // cannot drift from reality again.
+  const { offline } = await site();
+  const hub = await read('index.html');
+  assert.ok(!hub.includes('{{OFFLINE_BUNDLE_SIZE}}'), 'the size placeholder was never patched in');
+  assert.ok(!/about 3 MB/.test(hub), 'the old hardcoded size is still here');
+  const label = offlineBundleSizeLabel(offline.bundleBytes);
+  assert.ok(hub.includes(`about ${label}`), `hub does not show the real offline size (${label})`);
+});
+
+test('the saved catalogue fits in a browser origin cache quota', async () => {
+  const { outDir, offline } = await site();
+  let onDisk = 0;
+  for (const asset of offline.bundle) {
+    if (asset.endsWith('/')) continue;
+    onDisk += (await fs.stat(path.join(outDir, asset))).size;
+  }
+  // The companion to the transfer budget above, and the reason both exist:
+  // moving that assertion to gzipped bytes was right, but it left the bundle
+  // with no ceiling on uncompressed size at all, and the two are different
+  // costs paid by different resources. Cache Storage keeps responses
+  // decompressed, so this is what the save-all button occupies of the
+  // origin's quota on the device -- a phone low on space can have the whole
+  // catalogue evicted, which is the one failure mode that would break the
+  // offline promise silently, on the jobsite, after the download succeeded.
+  //
+  // Deliberately loose. Browsers grant an origin a share of free disk running
+  // to hundreds of MB, and at 16.8 MB the catalogue has room to roughly
+  // quadruple. This is a tripwire for a binary landing in the bundle by
+  // accident -- an image, a font, a .zip -- which compresses badly enough to
+  // show up here long before it moves the gzipped figure much.
+  assert.ok(
+    onDisk < 64 * 1024 * 1024,
+    `the saved catalogue would occupy ${(onDisk / 1e6).toFixed(1)} MB on the device`,
+  );
 });
 
 test('the manifest is installable: real icons, standalone, scoped to the site', async () => {
@@ -3680,7 +3897,12 @@ test('a category holding a documented external-call exception says so, not "noth
         `${category.id} files ${exceptions.map((x) => x.title).join(', ')} but its count line reads "${count}"`,
       );
       for (const x of exceptions) {
-        assert.ok(count.includes(x.title), `${category.id}'s count line omits ${x.title}: "${count}"`);
+        // The *prose* name, not the raw title: eight catalogue titles carry an
+        // em-dash tagline that would swallow the conjunction in this list. See
+        // `toolProseName`. The claim being pinned is unchanged — every
+        // exception is still named on the line that makes the privacy claim.
+        const name = toolProseName(x.title);
+        assert.ok(count.includes(name), `${category.id}'s count line omits ${name}: "${count}"`);
       }
     } else {
       assert.equal(
@@ -3830,7 +4052,11 @@ test('the About page lede states the device-privacy claim honestly, with any doc
   assert.ok(!lede.includes('nothing you type into them is uploaded anywhere'), 'lede still makes the old unconditional claim');
   if (exceptions.length) {
     for (const x of exceptions) {
-      assert.ok(lede.includes(x.title), `lede has an exception but does not name ${x.title}: "${lede}"`);
+      // Prose name rather than raw title, for the reason in `toolProseName`:
+      // the lede is a sentence, and a title carrying its own em-dash tagline
+      // makes a two-tool exception list unreadable as two tools.
+      const name = toolProseName(x.title);
+      assert.ok(lede.includes(name), `lede has an exception but does not name ${name}: "${lede}"`);
     }
   } else {
     assert.match(lede, /never leave their device/);
@@ -3933,17 +4159,19 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the categories, About and /compare/, and nothing else', () => {
+test('the hub sitemap holds the hub, the categories, About, /compare/ and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  // About and the comparison index are hub-level pages belonging to no venture,
-  // so this sitemap is the only one that can carry either.
+  // About, the comparison index and the guides index are hub-level pages
+  // belonging to no venture, so this sitemap is the only one that can carry
+  // any of them.
   assert.deepEqual(locs, [
     BASE,
     `${BASE}c/marketplace/`,
     `${BASE}c/trades/`,
     `${BASE}about/`,
     `${BASE}${COMPARE_PATH}`,
+    `${BASE}${GUIDES_PATH}`,
   ]);
 
   // Called with no categories it still emits a valid urlset naming the hub —
@@ -3963,6 +4191,9 @@ test('tools whose audience browses a section are filed in it', async () => {
     // Airbnb vs Vrbo is two marketplaces' fee schedules on one booking, which
     // is the marketplace section's job, not a service quote.
     'str-host-payout-calculator': ['marketplace', null],
+    // Whatnot livestream payout is the same marketplace-seller job; slug starts
+    // with the storefront name the marketplace rule now catches.
+    'whatnot-seller-payout': ['marketplace', null],
     'notary-trip-quote': ['services', null],
     'booth-rent-vs-commission': ['services', null],
     'translator-project-quote': ['services', null],
@@ -4137,8 +4368,11 @@ test('the venture tree still has comparison pages, and every one names a product
   for (const entry of entries) {
     const surface = surfaces.find((s) => s.slug === entry.slug);
     const html = await fs.readFile(path.join(surface.sourceDir, entry.file), 'utf8');
+    // Normalised on both sides — see `comparisonText`. `entry.subject` has
+    // already had its entities decoded, so `html.includes` was asking the page
+    // to carry the heading a second time in raw form.
     assert.ok(
-      html.includes(entry.subject),
+      comparisonText(html).includes(entry.subject),
       `"${entry.subject}" is not text ${entry.slug}/${entry.file} contains`,
     );
   }
@@ -4200,6 +4434,186 @@ test('renderComparePage links every entry, disclaims, and counts itself honestly
   // And only for the products that have one. `Widget` is compared by a single
   // tool, so no page is generated for it and a link would be a 404.
   assert.ok(!html.includes('compare/widget/'), 'a single-tool product must not be linked a page');
+});
+
+test('isGuidePage lists the pages beside a tool and nothing already indexed elsewhere', () => {
+  assert.ok(isGuidePage('how-much-to-charge-to-replace-a-boiler.html'));
+  assert.ok(isGuidePage('sensitivity.html'));
+  // The tool's own entry page is on the hub, its category page and llms.txt.
+  assert.ok(!isGuidePage('index.html'));
+  // A nested `index.html` is a second *tool*, not a guide —
+  // `ai-engineering-academy/555-timer-calculator/` is an entry point.
+  assert.ok(!isGuidePage('555-timer-calculator/index.html'));
+  // A comparison page has `/compare/`, which is about the product it names and
+  // does that job better than a trade-grouped list would.
+  assert.ok(!isGuidePage('vs-jobber.html'));
+  assert.ok(!isGuidePage('sitemap.xml'));
+  // ...but a page that merely starts with the letters is not a comparison.
+  assert.ok(isGuidePage('vsat-link-budget.html'));
+});
+
+test('guidePageMeta takes a guide’s label from the page’s own words, or drops it', () => {
+  const withH1 = guidePageMeta(
+    '<title>How much to charge to replace a boiler | Site</title>' +
+      '<meta name="description" content="Worked example, in pounds.">' +
+      '<h1>How much to charge to replace a boiler</h1>',
+  );
+  assert.equal(withH1.label, 'How much to charge to replace a boiler');
+  assert.equal(withH1.description, 'Worked example, in pounds.');
+  // The site-name suffix the build appends is not part of the answer.
+  assert.equal(
+    guidePageMeta('<title>Deadhead miles | Free small-business calculators</title>').label,
+    'Deadhead miles',
+  );
+  // Entities are decoded, so an index entry reads as the author wrote it.
+  assert.equal(guidePageMeta('<h1>Airbnb&rsquo;s host fee</h1>').label, 'Airbnb’s host fee');
+  // A page with neither is dropped rather than labelled from its filename.
+  assert.equal(guidePageMeta('<p>nothing here</p>'), null);
+});
+
+test('discoverGuides reads what shipped, and groupGuidesByCategory puts the deepest tool first', async () => {
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-guides-'));
+  const page = (h1, description) =>
+    `<html><head><title>${h1} | Site</title><meta name="description" content="${description}"></head><body><h1>${h1}</h1></body></html>`;
+
+  await fs.mkdir(path.join(outDir, 'ebay-fee-calculator'), { recursive: true });
+  await fs.writeFile(path.join(outDir, 'ebay-fee-calculator', 'index.html'), page('Tool', 'x'));
+  await fs.writeFile(path.join(outDir, 'ebay-fee-calculator', 'vs-x.html'), page('vs X', 'x'));
+  await fs.writeFile(path.join(outDir, 'ebay-fee-calculator', 'b.html'), page('B question', 'Bee.'));
+  await fs.writeFile(path.join(outDir, 'ebay-fee-calculator', 'a.html'), page('A question', 'Ay.'));
+  await fs.mkdir(path.join(outDir, 'deck-bid-calculator'), { recursive: true });
+  await fs.writeFile(path.join(outDir, 'deck-bid-calculator', 'index.html'), page('Tool', 'x'));
+  await fs.writeFile(path.join(outDir, 'deck-bid-calculator', 'c.html'), page('C question', 'See.'));
+  // A tool with no guide page contributes no empty block.
+  await fs.mkdir(path.join(outDir, 'shop-rate-calculator'), { recursive: true });
+  await fs.writeFile(path.join(outDir, 'shop-rate-calculator', 'index.html'), page('Tool', 'x'));
+
+  const surfaces = [
+    { slug: 'deck-bid-calculator', title: 'Deck Bid Calculator', description: 'Decks.' },
+    { slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator', description: 'Fees.' },
+    { slug: 'shop-rate-calculator', title: 'Shop Rate Calculator', description: 'Rates.' },
+    // A surface with no directory in the artifact must not throw.
+    { slug: 'never-published', title: 'Never Published', description: '' },
+  ];
+  const groups = await discoverGuides(surfaces, outDir);
+
+  assert.deepEqual(
+    groups.map((g) => [g.slug, g.items.map((i) => i.file)]),
+    [
+      ['deck-bid-calculator', ['c.html']],
+      ['ebay-fee-calculator', ['a.html', 'b.html']],
+    ],
+    'entry pages, comparison pages and guide-less tools are all excluded',
+  );
+  assert.equal(groups[1].items[0].label, 'A question');
+  assert.equal(groups[1].items[0].description, 'Ay.');
+
+  const byCategory = groupGuidesByCategory(groups);
+  const marketplace = byCategory.find((s) => s.category.id === 'marketplace');
+  const trades = byCategory.find((s) => s.category.id === 'trades');
+  assert.ok(marketplace && trades, 'both categories present');
+  assert.deepEqual(marketplace.tools.map((t) => t.slug), ['ebay-fee-calculator']);
+  assert.deepEqual(trades.tools.map((t) => t.slug), ['deck-bid-calculator']);
+});
+
+test('the built tree still has guide pages, and every label is text its own page carries', async () => {
+  // The gap this guards is `discoverGuides` going quiet — the same failure
+  // `discoverComparisons` has its own test for. It also enforces the mandate's
+  // absolute limit at the source: every word the index prints has to be text
+  // the page it links to actually contains, because an index may restate what
+  // a venture author wrote and may not add a claim of its own.
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-guides-real-'));
+  const surfaces = (await discoverSurfaces(path.join(REPO_ROOT, 'ventures'))).slice(0, 6);
+  for (const surface of surfaces) {
+    await fs.cp(surface.sourceDir, path.join(outDir, surface.slug), { recursive: true });
+  }
+  const groups = await discoverGuides(
+    surfaces.map((s) => ({ ...s, title: s.slug, description: '' })),
+    outDir,
+  );
+  assert.ok(groups.length > 0, 'no guide pages discovered in the first six ventures');
+  for (const group of groups) {
+    for (const item of group.items) {
+      const html = await fs.readFile(path.join(outDir, group.slug, item.file), 'utf8');
+      assert.ok(
+        decodeEntities(html.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').includes(item.label),
+        `"${item.label}" is not text ${group.slug}/${item.file} contains`,
+      );
+    }
+  }
+});
+
+test('renderGuidesPage links every guide, disclaims, and counts itself honestly', () => {
+  const item = (file, label) => ({ slug: 'ebay-fee-calculator', file, label, title: label, description: 'Short.' });
+  const groups = [
+    {
+      slug: 'ebay-fee-calculator',
+      title: 'eBay Fee Calculator',
+      description: 'Fees.',
+      category: categoryFor('ebay-fee-calculator'),
+      items: [item('a.html', 'A question'), item('b.html', 'B question')],
+    },
+    {
+      slug: 'deck-bid-calculator',
+      title: 'Deck Bid Calculator',
+      description: 'Decks.',
+      category: categoryFor('deck-bid-calculator'),
+      items: [{ ...item('c.html', 'C question'), slug: 'deck-bid-calculator' }],
+    },
+  ];
+  const surfaces = [
+    { slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator' },
+    { slug: 'deck-bid-calculator', title: 'Deck Bid Calculator' },
+  ];
+  const html = renderGuidesPage({ groups, surfaces, categoryGroups: [], baseUrl: 'https://example.test/' });
+
+  for (const group of groups) {
+    for (const entry of group.items) {
+      assert.ok(
+        html.includes(`href="../${entry.slug}/${entry.file}"`),
+        `${entry.slug}/${entry.file} is not linked`,
+      );
+    }
+    // And the tool itself, so the guide sits next to the calculator that
+    // answers the same question with the reader's own numbers.
+    assert.ok(html.includes(`href="../${group.slug}/"`), `${group.slug} is not linked`);
+  }
+  // Counts derived rather than written down.
+  assert.match(html, /3 pages across 2 tools/);
+  assert.match(html, /No warranty/);
+  assert.ok(html.includes(`<link rel="canonical" href="https://example.test/${GUIDES_PATH}">`));
+  // Usage tracking, on the same terms as every other page here.
+  assert.ok(html.includes('data-pf-slug="guides"'));
+  // And no third-party anything: /about/ promises there are none.
+  assert.ok(!/src="https?:\/\//.test(html));
+  assert.ok(!/href="https?:\/\/fonts\./.test(html));
+  // The index says only what the pages it links already say.
+  assert.ok(html.includes('adds no'), 'the index must say it adds nothing of its own');
+});
+
+test('the guides index is in the hub sitemap and named in llms.txt', () => {
+  // Both halves of "found at all": a page in no sitemap is built, deployed and
+  // never crawled, and a surface missing from llms.txt is invisible to an
+  // assistant. Measured 2026-09-07, before this page existed: 0 of the 173
+  // question-shaped guide pages appeared anywhere in llms.txt.
+  assert.ok(renderHubSitemap(BASE, ['marketplace']).includes(`${BASE}${GUIDES_PATH}`));
+
+  const surfaces = [
+    { slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator', description: 'Fees.', fullDescription: 'Fees.' },
+  ];
+  const groups = [
+    {
+      slug: 'ebay-fee-calculator',
+      title: 'eBay Fee Calculator',
+      description: 'Fees.',
+      category: categoryFor('ebay-fee-calculator'),
+      items: [{ slug: 'ebay-fee-calculator', file: 'a.html', label: 'A question', title: 'A', description: '' }],
+    },
+  ];
+  assert.match(renderLlmsTxt(surfaces, BASE, [], groups), /- \[Guides\]/);
+  assert.match(renderLlmsTxt(surfaces, BASE, [], groups), /1 plain-English pages/);
+  // A build with no guide pages must not advertise an empty index.
+  assert.ok(!renderLlmsTxt(surfaces, BASE, [], []).includes('[Guides]'));
 });
 
 test('a product slug is URL-safe and matches what the apex nginx capture allows', () => {
@@ -4339,4 +4753,178 @@ test('the built site publishes /compare/, links it, and lists it in the sitemap'
   assert.ok(llms.includes(`https://example.test/${COMPARE_PATH}`), 'llms.txt must name /compare/');
 
   await fs.rm(out, { recursive: true, force: true });
+});
+
+test('the built site publishes /guides/, links it, and lists it in the sitemap', async () => {
+  // The end-to-end half of the guides index: the three places a page has to
+  // appear before anyone reaches it — a link a visitor can click, a sitemap
+  // entry a crawler follows, and an llms.txt line an assistant reads. Before
+  // this page existed the guide pages had none of the three, only their own
+  // tool's entry page.
+  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'guides-'));
+  const ventures = path.join(out, 'ventures');
+  const mk = async (slug, files) => {
+    await fs.mkdir(path.join(ventures, slug), { recursive: true });
+    for (const [name, body] of Object.entries(files)) {
+      await fs.writeFile(path.join(ventures, slug, name), body);
+    }
+  };
+  const page = (title, body) =>
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>` +
+    `<meta name="description" content="A free calculator that does arithmetic in your browser."></head>` +
+    `<body>${body}<p>No warranty: this is an estimate, not advice.</p></body></html>`;
+  await mk('alpha-calculator', {
+    'index.html': page(
+      'Alpha Calculator',
+      '<h1>Alpha Calculator</h1><a href="how-much-to-charge.html">How much to charge</a>',
+    ),
+    'how-much-to-charge.html': page('How much to charge', '<h1>How much to charge</h1>'),
+    // A comparison page belongs to /compare/, not here.
+    'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
+  });
+
+  const dist = path.join(out, 'dist');
+  await buildSite({
+    venturesDir: ventures,
+    outDir: dist,
+    baseUrl: 'https://example.test/',
+    log: () => {},
+    disableWorker: true,
+  });
+
+  const guides = await fs.readFile(path.join(dist, GUIDES_PATH, 'index.html'), 'utf8');
+  assert.ok(guides.includes('href="../alpha-calculator/how-much-to-charge.html"'));
+  assert.ok(guides.includes('How much to charge'), 'the page’s own heading is the entry');
+  assert.ok(
+    !guides.includes('vs-jobber.html'),
+    'a comparison page has /compare/ and must not be listed twice',
+  );
+
+  const hub = await fs.readFile(path.join(dist, 'index.html'), 'utf8');
+  assert.ok(hub.includes(`href="${GUIDES_PATH}"`), 'the hub must link /guides/');
+
+  const hubSitemap = await fs.readFile(path.join(dist, 'sitemap-hub.xml'), 'utf8');
+  assert.ok(hubSitemap.includes(`<loc>https://example.test/${GUIDES_PATH}</loc>`));
+
+  const llms = await fs.readFile(path.join(dist, 'llms.txt'), 'utf8');
+  assert.ok(llms.includes(`https://example.test/${GUIDES_PATH}`), 'llms.txt must name /guides/');
+
+  await fs.rm(out, { recursive: true, force: true });
+});
+
+// The hub pages are where a stranger from a search query lands first, and until
+// 2026-09-06 they were the only user-facing pages on the published site with no
+// sponsors line: 698 of 721 pages carried one, and the 23 that did not were
+// `404.html`, `offline.html`, the six category hubs and the fifteen comparison
+// pages. That is backwards — a visitor could read a whole "vs ServiceTitan"
+// comparison and never learn the tools are free and supportable.
+//
+// `portfolio/DIRECTION.md` names keeping every product's own half of the
+// donation ask correct as the agent-doable part of `funding-sponsors-live`,
+// while the owner decision it waits on stays owner-only.
+test('every hub page carries the optional-support line', () => {
+  const surfaces = [
+    { slug: 'a-calculator', title: 'A Calculator' },
+    { slug: 'b-calculator', title: 'B Calculator' },
+  ];
+  const entry = (subject, slug, title) => ({
+    subject,
+    subjectKey: comparisonSubjectKey(subject),
+    slug,
+    file: `vs-${subject.toLowerCase()}.html`,
+    title,
+    description: 'Does the arithmetic for a job.',
+  });
+  const groups = groupComparisons([
+    entry('Jobber', 'a-calculator', 'A Calculator'),
+    entry('Jobber', 'b-calculator', 'B Calculator'),
+  ]);
+  const baseUrl = 'https://example.test/';
+
+  const category = categoryFor('a-calculator');
+  const categoryItems = surfaces.map((s) => ({ ...s, description: 'Does the arithmetic.' }));
+  const categoryGroups = [{ category, items: categoryItems }];
+
+  const pages = {
+    'compare hub': renderComparePage({ groups, surfaces, categoryGroups: [], baseUrl }),
+    'compare product page': renderCompareProductPage({
+      group: groups[0],
+      surfaces,
+      baseUrl,
+    }),
+    'category hub': renderCategoryPage({
+      category,
+      items: categoryItems,
+      groups: categoryGroups,
+      baseUrl,
+    }),
+  };
+
+  for (const [name, html] of Object.entries(pages)) {
+    assert.ok(
+      html.includes(SPONSORS_URL),
+      `${name} does not link the Sponsors profile`,
+    );
+    assert.ok(
+      html.includes(sponsorsNote()),
+      `${name} does not carry the optional-support line verbatim`,
+    );
+    // PRODUCT_PLAYBOOK.md §6: the ask lives in the footer, never in front of a
+    // feature. If it ever renders outside the footer that is a product defect,
+    // not a copy tweak.
+    const footer = html.slice(html.lastIndexOf('<footer'));
+    assert.ok(
+      footer.includes(sponsorsNote()),
+      `${name} carries the line outside its footer`,
+    );
+  }
+});
+
+test('the sponsors line is honest about what refusing costs', () => {
+  // The one claim this sentence makes is that declining changes nothing about
+  // the product. That has to stay true of the copy as well as the code: a
+  // donation ask that overstates itself is worse than none at all.
+  assert.match(sponsorsNote(), /optional and changes nothing/);
+  assert.ok(!/must|required|unlock|premium|pro\b/i.test(sponsorsNote()));
+});
+
+test('toolProseName drops a trailing tagline so a name reads as one item in a sentence', () => {
+  // The eight catalogue titles that use the `Name — what it does` convention.
+  assert.equal(
+    toolProseName('DNS Change Evidence — prove what a DNS change actually did'),
+    'DNS Change Evidence',
+  );
+  assert.equal(toolProseName('Which Job First? — rank your job list'), 'Which Job First?');
+  // An en dash is the same convention.
+  assert.equal(toolProseName('Cut List Optimizer – compare sheet sizes'), 'Cut List Optimizer');
+
+  // A title with no tagline is returned unchanged.
+  assert.equal(toolProseName('Sponsor Ready'), 'Sponsor Ready');
+
+  // A hyphen is NOT this pattern: tool names legitimately contain one, and
+  // trimming there would rename the tool rather than unwrap it.
+  assert.equal(toolProseName('Before/After DNS - Record Report'), 'Before/After DNS - Record Report');
+  assert.equal(toolProseName('Break-Even Calculator'), 'Break-Even Calculator');
+
+  // Degenerate input must not produce an empty name in the middle of a sentence.
+  assert.equal(toolProseName('— tagline only'), '— tagline only');
+  assert.equal(toolProseName(''), '');
+  assert.equal(toolProseName(null), '');
+});
+
+test('the privacy exception sentence names each tool as a distinct list item', () => {
+  // The regression this guards: `listProse` joined two titles with "and", and
+  // the first title carried an em-dash tagline, so the sentence read
+  // "except on DNS Change Evidence — prove what a DNS change actually did and
+  // Sponsor Ready" -- in which a reader cannot tell where the first tool ends.
+  // This is the portfolio's central claim about a visitor's data, so it has to
+  // be unambiguous on the About page, in llms.txt, and in the per-page
+  // disclaimer that ships on all 765 pages.
+  const named = [
+    toolProseName('DNS Change Evidence — prove what a DNS change actually did'),
+    toolProseName('Sponsor Ready'),
+  ];
+  const prose = listProse(named);
+  assert.equal(prose, 'DNS Change Evidence and Sponsor Ready');
+  assert.ok(!prose.includes('—'), 'no tagline may survive into the exception list');
 });

@@ -16,6 +16,8 @@ import {
   ILLUSTRATED_BUMP_DEFAULT,
   compareReturnResolution,
   returnResolutionNote,
+  compareWaitForBetterOffer,
+  waitForBetterOfferNote,
 } from './calc.mjs';
 
 test('Reverb at the default list price keeps the published worked example', () => {
@@ -23,11 +25,11 @@ test('Reverb at the default list price keeps the published worked example', () =
   assert.equal(result.revenue, 875);
   assert.equal(result.fees.marketplace, 40);
   assert.equal(result.fees.gives, 0);
-  assert.equal(result.fees.payment, 25.675);
+  assert.equal(result.fees.payment, 28.4025);
   assert.equal(result.fees.bump, 0);
-  assert.equal(result.fees.total, 65.675);
-  assert.equal(Number(result.profit.toFixed(3)), 284.325);
-  assert.equal(Number(result.margin.toFixed(2)), 32.49);
+  assert.equal(result.fees.total, 68.4025);
+  assert.equal(Number(result.profit.toFixed(3)), 281.597);
+  assert.equal(Number(result.margin.toFixed(2)), 32.18);
 });
 
 test('marketplace fee is on the item; payment is on item plus shipping', () => {
@@ -55,14 +57,14 @@ test('Reverb Gives and a bump are cash out of this sale', () => {
   }, 800);
   assert.equal(result.fees.gives, 4);
   assert.equal(result.fees.bump, 12);
-  assert.equal(Number(result.profit.toFixed(3)), 268.325);
+  assert.equal(Number(result.profit.toFixed(3)), 265.597);
 });
 
-test('a $720 offer leaves $73.68 on the table versus the $800 list', () => {
+test('a $720 offer leaves $73.45 on the table versus the $800 list', () => {
   const comparison = compareOfferToList(REVERB_DEFAULTS);
-  assert.equal(Number(comparison.list.profit.toFixed(3)), 284.325);
-  assert.equal(Number(comparison.offer.profit.toFixed(3)), 210.645);
-  assert.equal(Number(comparison.leaveOnTable.toFixed(2)), 73.68);
+  assert.equal(Number(comparison.list.profit.toFixed(3)), 281.597);
+  assert.equal(Number(comparison.offer.profit.toFixed(3)), 208.149);
+  assert.equal(Number(comparison.leaveOnTable.toFixed(2)), 73.45);
   assert.equal(comparison.offerStillPays, true);
 });
 
@@ -70,7 +72,7 @@ test('Reverb at list still beats eBay at the same $800 on the default rates', ()
   const comparison = compareReverbToEbay(REVERB_DEFAULTS, 800);
   assert.equal(comparison.ebay.fees.finalValue, 115.9375);
   assert.equal(Number(comparison.ebay.profit.toFixed(4)), 233.7625);
-  assert.equal(Number(comparison.reverbExtra.toFixed(4)), 50.5625);
+  assert.equal(Number(comparison.reverbExtra.toFixed(4)), 47.835);
 });
 
 test('the crossover offer matches eBay list cash on Reverb', () => {
@@ -95,7 +97,7 @@ test('including $75 of shipping in an $800 list costs 5% more marketplace fee', 
   assert.equal(comparison.included.fees.marketplace, 43.75);
   assert.equal(comparison.extraMarketplaceOnIncluded, 3.75);
   assert.equal(comparison.extraGivesOnIncluded, 0);
-  assert.equal(Number(comparison.included.profit.toFixed(3)), 280.575);
+  assert.equal(Number(comparison.included.profit.toFixed(3)), 277.847);
   assert.equal(Number(comparison.rows[1].vsBuyerPays.toFixed(2)), -3.75);
   assert.equal(comparison.winner, 'buyerPays');
 });
@@ -105,9 +107,9 @@ test('local pickup drops postage both ways and loses the shipping charged', () =
   assert.equal(comparison.pickup.salePrice, 800);
   assert.equal(comparison.pickup.revenue, 800);
   assert.equal(comparison.pickup.fees.marketplace, 40);
-  assert.equal(comparison.pickup.fees.payment, 23.5);
-  assert.equal(comparison.pickup.profit, 276.5);
-  assert.equal(Number(comparison.rows[2].vsBuyerPays.toFixed(3)), -7.825);
+  assert.equal(comparison.pickup.fees.payment, 26.009999999999998);
+  assert.equal(comparison.pickup.profit, 273.99);
+  assert.equal(Number(comparison.rows[2].vsBuyerPays.toFixed(3)), -7.607);
 });
 
 test('the included list that matches buyer-pays cash recovers the extra marketplace line', () => {
@@ -127,15 +129,15 @@ test('buyer-pays and included match when shipping charged is already zero', () =
   assert.equal(comparison.winner, 'pickup');
 });
 
-test('absorbing the label keeps the $800 list and leaves $69.08 versus including shipping', () => {
+test('absorbing the label keeps the $800 list and leaves $68.86 versus including shipping', () => {
   const comparison = compareShippingPaths(REVERB_DEFAULTS);
   assert.equal(comparison.absorbed.salePrice, 800);
   assert.equal(comparison.absorbed.revenue, 800);
   assert.equal(comparison.absorbed.fees.marketplace, 40);
-  assert.equal(comparison.absorbed.fees.payment, 23.5);
-  assert.equal(comparison.absorbed.profit, 211.5);
-  assert.equal(Number(comparison.rows[3].vsBuyerPays.toFixed(3)), -72.825);
-  assert.equal(Number(comparison.absorbVsIncluded.toFixed(3)), -69.075);
+  assert.equal(comparison.absorbed.fees.payment, 26.009999999999998);
+  assert.equal(comparison.absorbed.profit, 208.99);
+  assert.equal(Number(comparison.rows[3].vsBuyerPays.toFixed(3)), -72.607);
+  assert.equal(Number(comparison.absorbVsIncluded.toFixed(3)), -68.857);
   assert.ok(comparison.absorbed.profit < comparison.included.profit);
 });
 
@@ -156,9 +158,9 @@ test('Safe Shipping at the default $80 quote costs $15 more label than the $65 o
   assert.equal(comparison.safeLabel, 80);
   assert.equal(comparison.extraLabelCost, 15);
   assert.equal(comparison.usedIllustratedQuote, false);
-  assert.equal(Number(comparison.safe.profit.toFixed(3)), 269.325);
+  assert.equal(Number(comparison.safe.profit.toFixed(3)), 266.597);
   assert.equal(comparison.expectedClaim, 9);
-  assert.equal(Number(comparison.ownExpectedProfit.toFixed(3)), 275.325);
+  assert.equal(Number(comparison.ownExpectedProfit.toFixed(3)), 272.597);
   assert.equal(Number(comparison.breakEvenLossRatePct.toFixed(2)), 3.33);
   assert.equal(comparison.winner, 'ownExpected');
   assert.equal(comparison.safePays, false);
@@ -182,7 +184,7 @@ test('the extra label is worth it once the claim rate crosses the break-even', (
 
   const above = compareSafeShipping({ ...REVERB_DEFAULTS, unprotectedLossRatePct: 4 });
   assert.equal(above.expectedClaim, 18);
-  assert.equal(Number(above.ownExpectedProfit.toFixed(3)), 266.325);
+  assert.equal(Number(above.ownExpectedProfit.toFixed(3)), 263.597);
   assert.equal(above.winner, 'safeShipping');
   assert.equal(above.safePays, true);
 });
@@ -201,7 +203,7 @@ test('rejects an unprotected claim rate above 100%', () => {
   assert.throws(() => compareSafeShipping({ ...REVERB_DEFAULTS, unprotectedLossRatePct: 101 }), /at most 100/);
 });
 
-test('a 30% shop cut on an $800 sale leaves $174.33 less than listing it yourself', () => {
+test('a 30% shop cut on an $800 sale leaves $171.60 less than listing it yourself', () => {
   const comparison = compareConsignment(REVERB_DEFAULTS);
   assert.equal(comparison.selfList.profit, calculateReverbSale(REVERB_DEFAULTS, 800).profit);
   assert.equal(comparison.shopSalePrice, 800);
@@ -210,12 +212,12 @@ test('a 30% shop cut on an $800 sale leaves $174.33 less than listing it yoursel
   assert.equal(comparison.shopPayout, 560);
   assert.equal(comparison.consignProfit, 110);
   assert.equal(comparison.cashProfit, 70);
-  assert.equal(Number(comparison.rows[1].vsSelfList.toFixed(2)), -174.33);
-  assert.equal(Number(comparison.rows[2].vsSelfList.toFixed(2)), -214.33);
+  assert.equal(Number(comparison.rows[1].vsSelfList.toFixed(2)), -171.6);
+  assert.equal(Number(comparison.rows[2].vsSelfList.toFixed(2)), -211.6);
   assert.equal(comparison.winner, 'selfList');
-  assert.equal(Number(comparison.breakEvenConsignmentRatePct.toFixed(2)), 8.21);
-  assert.equal(Number(comparison.breakEvenShopSalePrice.toFixed(2)), 1049.04);
-  assert.equal(Number(comparison.breakEvenShopCash.toFixed(2)), 734.33);
+  assert.equal(Number(comparison.breakEvenConsignmentRatePct.toFixed(2)), 8.55);
+  assert.equal(Number(comparison.breakEvenShopSalePrice.toFixed(2)), 1045.14);
+  assert.equal(Number(comparison.breakEvenShopCash.toFixed(2)), 731.6);
   assert.equal(comparison.shopSaleCanMatch, true);
 });
 
@@ -236,11 +238,11 @@ test('a 15% shop cut still loses to list but beats the $720 Reverb offer', () =>
   assert.equal(comparison.consignProfit, 230);
   assert.equal(comparison.winner, 'selfList');
   assert.ok(comparison.vsOffer > 0);
-  assert.equal(Number(comparison.vsOffer.toFixed(2)), 19.36);
+  assert.equal(Number(comparison.vsOffer.toFixed(2)), 21.85);
 });
 
 test('taking $800 cash today ties listing yourself after Reverb costs on the default rates', () => {
-  const comparison = compareConsignment({ ...REVERB_DEFAULTS, shopCashOffer: 734.325 });
+  const comparison = compareConsignment({ ...REVERB_DEFAULTS, shopCashOffer: 731.5975 });
   assert.ok(Math.abs(comparison.cashProfit - comparison.selfList.profit) < 1e-9);
 });
 
@@ -261,10 +263,10 @@ test('a $0 bump fee is illustrated at $3 so the table is not the same sale twice
 
 test('a $3 bump only pays if it gets you from the $720 offer to the $800 list', () => {
   const comparison = compareBump(REVERB_DEFAULTS);
-  assert.equal(Number(comparison.offerNoBump.profit.toFixed(3)), 210.645);
-  assert.equal(Number(comparison.listWithBump.profit.toFixed(3)), 281.325);
+  assert.equal(Number(comparison.offerNoBump.profit.toFixed(3)), 208.149);
+  assert.equal(Number(comparison.listWithBump.profit.toFixed(3)), 278.597);
   assert.equal(comparison.bumpPaysIfYouReachList, true);
-  assert.equal(Number(comparison.cashBumpSavesVsOfferIfYouReachList.toFixed(2)), 70.68);
+  assert.equal(Number(comparison.cashBumpSavesVsOfferIfYouReachList.toFixed(2)), 70.45);
   assert.equal(Number(comparison.rows[1].vsOfferNoBump.toFixed(2)), -3);
   assert.ok(comparison.listWithBump.profit > comparison.offerNoBump.profit);
   assert.ok(comparison.offerWithBump.profit < comparison.offerNoBump.profit);
@@ -275,7 +277,7 @@ test('the extra offer that covers a bump recovers the bump after percentage fees
   const atCover = calculateReverbSale({ ...REVERB_DEFAULTS, bumpFee: comparison.bump }, comparison.offerThatCoversBump);
   assert.ok(Math.abs(atCover.profit - comparison.offerNoBump.profit) < 1e-9);
   assert.ok(comparison.offerThatCoversBump > 720);
-  assert.equal(Number(comparison.extraSaleToCoverBump.toFixed(4)), Number((3 / 0.921).toFixed(4)));
+  assert.equal(Number(comparison.extraSaleToCoverBump.toFixed(4)), Number((3 / 0.9181).toFixed(4)));
 });
 
 test('a typed bump replaces the $3 illustration', () => {
@@ -283,18 +285,18 @@ test('a typed bump replaces the $3 illustration', () => {
   assert.equal(comparison.bump, 12);
   assert.equal(comparison.usedTypedBump, true);
   assert.equal(comparison.offerWithBump.fees.bump, 12);
-  assert.equal(Number(comparison.listWithBump.profit.toFixed(3)), 272.325);
+  assert.equal(Number(comparison.listWithBump.profit.toFixed(3)), 269.597);
   assert.equal(comparison.bumpPaysIfYouReachList, true);
 });
 
 test('consignmentNote names the default worked example without telling you to consign', () => {
   const note = consignmentNote(compareConsignment(REVERB_DEFAULTS));
-  assert.match(note, /Listing it yourself on Reverb still leaves \$174\.33 more/);
+  assert.match(note, /Listing it yourself on Reverb still leaves \$171\.60 more/);
   assert.match(note, /30% shop cut/);
   assert.match(note, /\$520\.00 cash offer/);
-  assert.match(note, /8\.21%/);
-  assert.match(note, /\$1049\.04/);
-  assert.match(note, /\$734\.33/);
+  assert.match(note, /8\.55%/);
+  assert.match(note, /\$1045\.14/);
+  assert.match(note, /\$731\.60/);
   assert.doesNotMatch(note, /you should|recommend|must consign/i);
 });
 
@@ -302,24 +304,24 @@ test('the return path prices three legs of freight, not one', () => {
   const comparison = compareReturnResolution(REVERB_DEFAULTS);
   // Out at $65, back at $75, out again at $65 on the relist.
   assert.equal(comparison.freightOnReturnPath, 205);
-  assert.equal(Number(comparison.returnPosition.toFixed(3)), 34.849);
-  assert.equal(Number(comparison.saleStandsPosition.toFixed(3)), 284.325);
-  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), 249.48);
+  assert.equal(Number(comparison.returnPosition.toFixed(3)), 31.174);
+  assert.equal(Number(comparison.saleStandsPosition.toFixed(3)), 281.597);
+  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), 250.42);
 });
 
 test('the fee credit on a refund covers the percentages only, never the fixed line', () => {
   const comparison = compareReturnResolution(REVERB_DEFAULTS);
-  // 5% of $800 plus 2.9% of $875 is $65.375 of the $65.675 charged; the
-  // $0.30 per-order fee is the rest and no refund returns it, at any
+  // 5% of $800 plus 3.19% of $875 is $67.9125 of the $68.4025 charged; the
+  // $0.49 per-order fee is the rest and no refund returns it, at any
   // feeRefundOnReturnPct — it is added back in full, never scaled by the
   // refund rate.
-  assert.equal(Number((comparison.percentFeeRate * 875).toFixed(3)), 65.375);
-  assert.equal(Number(comparison.unrefundedFees.toFixed(3)), Number((65.375 * 0.39 + 0.3).toFixed(3)));
+  assert.equal(Number((comparison.percentFeeRate * 875).toFixed(3)), 67.912);
+  assert.equal(Number(comparison.unrefundedFees.toFixed(3)), Number((67.9125 * 0.39 + 0.49).toFixed(3)));
 });
 
 test('the break-even partial refund exactly ties taking the return', () => {
   const comparison = compareReturnResolution(REVERB_DEFAULTS);
-  assert.equal(Number(comparison.breakEvenPartialRefund.toFixed(2)), 261.39);
+  assert.equal(Number(comparison.breakEvenPartialRefund.toFixed(2)), 262.87);
   const atBreakEven = compareReturnResolution({
     ...REVERB_DEFAULTS,
     partialRefund: comparison.breakEvenPartialRefund,
@@ -338,7 +340,7 @@ test('a refund a dollar either side of break-even lands on the expected side', (
 
 test('the default $150 concession beats the return and full-refund-and-keep does not', () => {
   const comparison = compareReturnResolution(REVERB_DEFAULTS);
-  assert.equal(Number(comparison.partialPosition.toFixed(2)), 141.16);
+  assert.equal(Number(comparison.partialPosition.toFixed(2)), 138.7);
   assert.ok(comparison.partialPosition > comparison.returnPosition);
   assert.ok(comparison.rows[3].position < comparison.returnPosition);
   assert.equal(comparison.winner, 'sale');
@@ -351,7 +353,7 @@ test('a relist that fetches the original price still loses the freight and the r
   assert.equal(Number(comparison.relistHaircut.toFixed(2)), 0);
   // Nothing given up on the price, and the return still costs the two extra
   // legs of freight, the second prep, and the unrefunded processing.
-  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), Number((65 + 75 + 10 + 65.375 * 0.39 + 0.3).toFixed(2)));
+  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), Number((65 + 75 + 10 + 67.9125 * 0.39 + 0.49).toFixed(2)));
 });
 
 test('a relist price of $0 prices the piece as coming back unsellable', () => {
@@ -361,7 +363,7 @@ test('a relist price of $0 prices the piece as coming back unsellable', () => {
   assert.equal(comparison.relist, null);
   // No second sale means no third leg of freight either.
   assert.equal(comparison.freightOnReturnPath, 140);
-  assert.equal(Number(comparison.returnPosition.toFixed(3)), Number((-(65 + 75 + 10 + 65.375 * 0.39 + 0.3) - 450).toFixed(3)));
+  assert.equal(Number(comparison.returnPosition.toFixed(3)), Number((-(65 + 75 + 10 + 67.9125 * 0.39 + 0.49) - 450).toFixed(3)));
   assert.ok(comparison.breakEvenRefundCappedByOrder);
 });
 
@@ -375,15 +377,15 @@ test('a bump fee already spent is never credited back on a return, at any refund
     Number((withBump.unrefundedFees - withoutBump.unrefundedFees).toFixed(3)),
     15,
   );
-  assert.equal(Number(withBump.unrefundedFees.toFixed(3)), 40.796);
+  assert.equal(Number(withBump.unrefundedFees.toFixed(3)), 41.976);
 });
 
-test('a full fee refund still leaves the $0.30 fixed fee unrefunded', () => {
+test('a full fee refund still leaves the $0.49 fixed fee unrefunded', () => {
   const comparison = compareReturnResolution({ ...REVERB_DEFAULTS, feeRefundOnReturnPct: 100 });
   // The 100% refund rate applies only to the percentage fees; the fixed
   // per-order payment fee is never refund-linked, so it alone remains.
-  assert.equal(Number(comparison.unrefundedFees.toFixed(3)), 0.3);
-  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), Number((65 + 75 + 10 + 73.68 + 0.3).toFixed(2)));
+  assert.equal(Number(comparison.unrefundedFees.toFixed(3)), 0.49);
+  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), Number((65 + 75 + 10 + 73.45 + 0.49).toFixed(2)));
   assert.ok(comparison.breakEvenPartialRefund > 0);
 });
 
@@ -404,11 +406,11 @@ test('the return comparison refuses a refund larger than the order', () => {
 
 test('returnResolutionNote names the ceiling without telling you what to do', () => {
   const note = returnResolutionNote(compareReturnResolution(REVERB_DEFAULTS));
-  assert.match(note, /Taking the return costs \$249\.48/);
+  assert.match(note, /Taking the return costs \$250\.42/);
   assert.match(note, /\$205\.00 of freight over three legs/);
-  assert.match(note, /\$25\.80 of fees no refund gives back/);
-  assert.match(note, /\$73\.68 given up on the relist/);
-  assert.match(note, /partial refund up to \$261\.39/);
+  assert.match(note, /\$26\.98 of fees no refund gives back/);
+  assert.match(note, /\$73\.45 given up on the relist/);
+  assert.match(note, /partial refund up to \$262\.87/);
   assert.doesNotMatch(note, /you should|we recommend|must refund/i);
 });
 
@@ -427,4 +429,75 @@ test('returnResolutionNote counts two legs of freight when nothing goes back out
   assert.doesNotMatch(note, /three legs/);
   assert.match(note, /comes back unsellable/);
   assert.match(note, /Even refunding the whole \$875\.00 order/);
+});
+
+// Every comparison above treats "wait for list" as a sure thing. It is not:
+// declining an offer buys a chance of list, not list itself, and the
+// realistic alternative if that chance doesn't land is usually another
+// offer near (or below) the one already in hand.
+test('on the worked example, taking the $720 offer beats a 30% chance of list against a $680 fallback', () => {
+  const comparison = compareWaitForBetterOffer(REVERB_DEFAULTS);
+  assert.equal(Number(comparison.takeOfferNow.profit.toFixed(3)), 208.149);
+  assert.equal(Number(comparison.eventualList.profit.toFixed(3)), 281.597);
+  assert.equal(Number(comparison.eventualFallback.profit.toFixed(3)), 171.426);
+  assert.equal(Number(comparison.expectedWaitProfit.toFixed(4)), 204.4771);
+  assert.equal(Number(comparison.vsWaiting.toFixed(2)), 3.67);
+  assert.equal(comparison.waitingWins, false);
+  assert.equal(comparison.winner, 'takeNow');
+  assert.equal(Number(comparison.breakEvenProbPct.toFixed(2)), 33.33);
+});
+
+test('waiting wins once the typed probability clears the break-even chance', () => {
+  const base = compareWaitForBetterOffer(REVERB_DEFAULTS);
+  const above = compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitProbListPct: base.breakEvenProbPct + 5 });
+  const below = compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitProbListPct: base.breakEvenProbPct - 5 });
+  assert.equal(above.waitingWins, true);
+  assert.equal(above.winner, 'wait');
+  assert.equal(below.waitingWins, false);
+  assert.equal(below.winner, 'takeNow');
+});
+
+test('the fallback price defaults to the offer price when not typed', () => {
+  const comparison = compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitFallbackPrice: undefined });
+  assert.equal(comparison.fallbackPrice, REVERB_DEFAULTS.offerPrice);
+  assert.equal(comparison.eventualFallback.profit, comparison.takeOfferNow.profit);
+});
+
+test('breakEvenProbPct is null when list and the fallback pay the same, since no probability can move the answer', () => {
+  const comparison = compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitFallbackPrice: REVERB_DEFAULTS.price });
+  assert.equal(comparison.breakEvenProbPct, null);
+});
+
+test('rejects a chance of reaching list above 100%', () => {
+  assert.throws(() => compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitProbListPct: 101 }), /at most 100/);
+});
+
+test('waitForBetterOfferNote states which side wins, the crossover chance, and gives no advice', () => {
+  const note = waitForBetterOfferNote(compareWaitForBetterOffer(REVERB_DEFAULTS));
+  assert.match(note, /30\.00% chance/);
+  assert.match(note, /\$680\.00/);
+  assert.match(note, /\$720\.00 offer now still leaves \$3\.67 more/);
+  assert.match(note, /break-even chance of eventually reaching list is 33\.33%/);
+  assert.doesNotMatch(note, /you should|we recommend/i);
+});
+
+test('waitForBetterOfferNote flips its lead sentence when waiting wins', () => {
+  const comparison = compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitProbListPct: 90 });
+  const note = waitForBetterOfferNote(comparison);
+  assert.match(note, /waiting leaves \$[\d.]+ more in expectation than taking the \$720\.00 offer now/);
+});
+
+test('waitForBetterOfferNote names an always-wins edge without a false crossover', () => {
+  // A fallback above list-price profit makes waiting win regardless of the
+  // odds of reaching list — even a 0% chance still beats the offer, since
+  // the guaranteed fallback alone already does.
+  const comparison = compareWaitForBetterOffer({
+    ...REVERB_DEFAULTS,
+    waitProbListPct: 0,
+    waitFallbackPrice: REVERB_DEFAULTS.price,
+    price: 900,
+  });
+  assert.ok(comparison.breakEvenProbPct <= 0 || comparison.breakEvenProbPct === null);
+  const note = waitForBetterOfferNote(comparison);
+  assert.match(note, /Even a 0% chance of reaching list still beats the offer/);
 });

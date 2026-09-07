@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vendor Change Watch — See What Changed in a Vendor's Terms</title>
+  <meta name="description" content="Paste a vendor's terms, privacy policy, or subprocessor page. Come back later, paste it again, and get a section-by-section diff of what changed. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="See exactly what changed in a vendor's terms">
+  <meta property="og:description" content="A word-level, source-linked diff of a vendor page between two captures. Local-only, free, no account.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vendor Change Watch","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Capture a vendor's terms, privacy, subprocessor or security page and get a section-level, word-level diff when it changes. Runs entirely in the browser; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can't this fetch the vendor's page for me?","acceptedAnswer":{"@type":"Answer","text":"Browsers refuse cross-origin reads of another site's pages, so nothing served from here can fetch acme.example's terms on your behalf without a server in the middle — and that server would see every URL you watch. Rather than run it, this page asks you to paste. The CLI above does fetch, on your own machine, where no third party is involved."}},{"@type":"Question","name":"Does the text I paste leave my browser?","acceptedAnswer":{"@type":"Answer","text":"No. Parsing, storage and diffing all happen in this page. Captures are kept in this browser's local storage on your own device and are never uploaded; “Delete all captures” removes them."}},{"@type":"Question","name":"Does a detected change mean the vendor broke a commitment?","acceptedAnswer":{"@type":"Answer","text":"No. This reports what changed in the text you captured, with the source URL and both timestamps. It is not legal advice, does not review contracts, and does not assert that a vendor is or is not compliant with anything. You decide what a change means."}},{"@type":"Question","name":"Why does the first capture not show a diff?","acceptedAnswer":{"@type":"Answer","text":"There is nothing to compare it against. A first capture is reported as captured, never as “unchanged” — a check with no basis for comparison must not look like stability. Paste the page again later and the second capture produces the report."}},{"@type":"Question","name":"What counts as a section?","acceptedAnswer":{"@type":"Answer","text":"Text is grouped under the nearest preceding heading. Pasted HTML uses its real h1–h6 headings; pasted plain text treats a short standalone line above a paragraph as a heading. Anything before the first heading is grouped under (page)."}},{"@type":"Question","name":"Is this the same as the command-line tool?","acceptedAnswer":{"@type":"Answer","text":"It shares the diff logic and the exact status vocabulary — observed, inconclusive and unknown mean the same thing in both. The CLI adds the part a browser cannot do: it fetches the pages you configure on a schedule from your own machine, so you are not the one remembering to check."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1c3f5f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1c3f5f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1c3f5f10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: 4px; }
+    input[type=text], input[type=url] { width: 100%; box-sizing: border-box; padding: 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; font-size: .92rem; }
+    textarea { width: 100%; min-height: 190px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f6f8b; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #1c3f5f; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #1c3f5f; }
+    .verdict.change { color: #9a3412; }
+    .verdict.caution { color: #7c5e10; }
+    .status-pill { display: inline-block; font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: #e3e9ef; color: #1c3f5f; }
+    .status-pill.observed { background: #dcefe4; color: #14532d; }
+    .status-pill.inconclusive { background: #fdf0d5; color: #7c5e10; }
+    .status-pill.unknown { background: #fde8e8; color: #9a3412; }
+    .change { border-left: 4px solid #d5dbe3; padding: 4px 0 4px 14px; margin: 16px 0; }
+    .change.added { border-left-color: #14532d; }
+    .change.removed { border-left-color: #9a3412; }
+    .change.changed { border-left-color: #1f6f8b; }
+    .diff { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .9rem; line-height: 1.7; word-break: break-word; }
+    ins { background: #d6f0de; color: #14532d; text-decoration: none; padding: 1px 2px; border-radius: 3px; }
+    del { background: #fbdcd6; color: #9a3412; padding: 1px 2px; border-radius: 3px; }
+    .watch { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid #e6eaf0; font-size: .92rem; }
+    .watch:last-child { border-bottom: 0; }
+    .watch button { padding: 5px 10px; margin: 0; font-size: .8rem; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    @media (max-width: 760px) { body { padding: 16px; } .grid, .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">VENDOR CHANGE WATCH · RUNS IN YOUR BROWSER</p>
+    <h1>See exactly what changed in a vendor's terms.</h1>
+    <p>A vendor edits its subprocessor list, stretches a retention window, or shortens the notice period it owes you — and the only signal is a “last updated” date. Paste the page here to capture it. Paste it again next month and this page shows you the clause that moved, word by word, with the source URL and both timestamps on the report.</p>
+    <p class="note">Nothing is uploaded and there is no account. Captures stay in this browser, on this device.</p>
+  </header>
+
+  <section class="card">
+    <h2>Capture a page</h2>
+    <div class="fields">
+      <div>
+        <label for="vendor">Vendor</label>
+        <input id="vendor" type="text" placeholder="Acme SaaS" autocomplete="off">
+      </div>
+      <div>
+        <label for="page-type">Page type</label>
+        <input id="page-type" type="text" placeholder="terms, privacy, subprocessors…" autocomplete="off" list="page-types">
+        <datalist id="page-types">
+          <option value="terms"></option><option value="privacy"></option>
+          <option value="subprocessors"></option><option value="security"></option>
+          <option value="dpa"></option><option value="sla"></option>
+        </datalist>
+      </div>
+      <div>
+        <label for="page-url">Source URL</label>
+        <input id="page-url" type="url" placeholder="https://acme.example/legal/terms" autocomplete="off">
+      </div>
+    </div>
+    <label for="content">Page text — select all on the vendor's page and paste it here (HTML works too)</label>
+    <textarea id="content" spellcheck="false" placeholder="Paste the vendor's terms, privacy policy, subprocessor list or security page…"></textarea>
+    <p>
+      <button type="button" id="capture">Capture this version</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear-form">Clear form</button>
+    </p>
+    <p class="note" id="status">Fill in the vendor, page type and source URL, paste the page, and capture. Your first capture of a page is stored, not diffed — there is nothing to compare it to yet.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Report</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="note" id="report-meta"></p>
+    <div id="changes"></div>
+    <p>
+      <button type="button" id="copy-markdown">Copy report as Markdown</button>
+      <button type="button" class="secondary" id="download-json">Download report JSON</button>
+    </p>
+    <p class="note" id="copy-status"></p>
+  </section>
+
+  <section class="card">
+    <h2>Watchlist <span class="note" id="watch-count"></span></h2>
+    <p class="note">Pages you have captured in this browser. Two captures are kept per page — the pair a diff needs. Re-capture a page to compare it against the one before.</p>
+    <div id="watches"></div>
+    <p>
+      <button type="button" class="secondary" id="clear-watches">Delete all captures</button>
+      <button type="button" class="secondary" id="optout">Turn usage counting off</button>
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>Watch them automatically instead</h2>
+    <p>This page needs you to remember to come back. The command-line version of the same tool does not: it fetches the pages you configure on <em>your</em> machine, on whatever schedule you already run — cron, launchd, a CI job — and prints the same report. Same diff logic, same three statuses.</p>
+    <pre class="diff"><code>pip install -e ventures/vendor-change-watch
+
+vendor-watch add --vendor "Acme SaaS" \
+  --url https://acme.example/legal/subprocessors --type subprocessors
+vendor-watch check</code></pre>
+    <p class="note">A failed or blocked fetch is reported as <code>inconclusive</code>, never as “no change”. Everything lives under <code>~/.vendor-watch</code> — delete the directory to delete all of it — and <code>VENDOR_WATCH_NO_TELEMETRY=1</code> turns off even the local counters. Run <code>vendor-watch --help</code> for the full command set.</p>
+  </section>
+
+  <section class="card">
+    <h2>What this answers</h2>
+    <ul>
+      <li><strong>Which clause actually moved?</strong> Changes are grouped under the heading they happened in, and shown word by word rather than as two walls of prose.</li>
+      <li><strong>Did they add a subprocessor?</strong> A heading that appears in the newer capture and not the older one is reported as <em>added</em>, with its text.</li>
+      <li><strong>Can I put this in a ticket?</strong> The Markdown report carries the vendor, the page type, the source URL and both capture timestamps, so the evidence travels with the finding.</li>
+      <li><strong>What it does not answer:</strong> whether a change matters, whether it breaches your contract, or whether the vendor is compliant with anything. It reports text, and you decide.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why can't this fetch the vendor's page for me?</h3>
+    <p>Browsers refuse cross-origin reads of another site's pages, so nothing served from here can fetch <code>acme.example</code>'s terms on your behalf without a server in the middle — and that server would see every URL you watch. Rather than run it, this page asks you to paste. The CLI above does fetch, on your own machine, where no third party is involved.</p>
+    <h3>Does the text I paste leave my browser?</h3>
+    <p>No. Parsing, storage and diffing all happen in this page. Captures are kept in this browser's local storage on your own device and are never uploaded; “Delete all captures” removes them.</p>
+    <h3>Does a detected change mean the vendor broke a commitment?</h3>
+    <p>No. This reports what changed in the text you captured, with the source URL and both timestamps. It is <strong>not legal advice</strong>, does not review contracts, and does not assert that a vendor is or is not compliant with anything. You decide what a change means.</p>
+    <h3>Why does the first capture not show a diff?</h3>
+    <p>There is nothing to compare it against. A first capture is reported as <em>captured</em>, never as “unchanged” — a check with no basis for comparison must not look like stability. Paste the page again later and the second capture produces the report.</p>
+    <h3>What counts as a section?</h3>
+    <p>Text is grouped under the nearest preceding heading. Pasted HTML uses its real <code>h1</code>–<code>h6</code> headings; pasted plain text treats a short standalone line above a paragraph as a heading. Anything before the first heading is grouped under <code>(page)</code>.</p>
+    <h3>Is this the same as the command-line tool?</h3>
+    <p>It shares the diff logic and the exact status vocabulary — <code>observed</code>, <code>inconclusive</code> and <code>unknown</code> mean the same thing in both. The CLI adds the part a browser cannot do: it fetches the pages you configure on a schedule from your own machine, so you are not the one remembering to check.</p>
+    <p class="note">Already using a general-purpose page watcher? See <a href="./vs-changedetection-io.html">this tool vs. changedetection.io</a>.</p>
+    <p class="note">Already holding two dated JSON snapshots of the same vendor page? The <a href="../vendor-change-evidence/">vendor change evidence</a> tool compares a before and after snapshot into a portable review record — nothing uploaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, compliance, procurement, or security advice, and it does not replace a qualified professional or a real contract review. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use, including reliance on a report that showed no change or on a change it did not detect.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your reports and run the CLI yourself.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>page_captured</code>, <code>report_built</code>, <code>example_loaded</code>, <code>report_copied</code>, <code>report_downloaded</code>) are counted only in local storage and can be deleted with the button above. Do Not Track and Global Privacy Control are honoured.</p>
+    <p class="support">Free and open source. If it caught a vendor change before it mattered, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { makeSnapshot, buildReport, wordDiff, summarize, markdownReport } from "./diff.mjs";
+    import { saveSnapshot, listWatches, getSnapshots, removeWatch, clearAll, describeWatch } from "./store.mjs";
+    import { EXAMPLE_VENDOR, EXAMPLE_URL, EXAMPLE_TYPE, EXAMPLE_BEFORE, EXAMPLE_AFTER } from "./examples.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const storage = (() => {
+      try {
+        return window.localStorage;
+      } catch {
+        return null; // blocked cookies / private mode: the page still diffs, it just cannot remember
+      }
+    })();
+
+    const els = {
+      vendor: $("#vendor"), type: $("#page-type"), url: $("#page-url"), content: $("#content"),
+      status: $("#status"), reportCard: $("#report-card"), verdict: $("#verdict"),
+      meta: $("#report-meta"), changes: $("#changes"), watches: $("#watches"),
+      watchCount: $("#watch-count"), copyStatus: $("#copy-status"),
+    };
+
+    let lastReport = null;
+
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const when = (iso) => {
+      const d = new Date(iso);
+      return Number.isNaN(d.getTime()) ? String(iso) : d.toLocaleString();
+    };
+
+    function renderDiff(before, after) {
+      return wordDiff(before || "", after || "")
+        .map((part) => {
+          const text = escapeHtml(part.text);
+          if (part.kind === "added") return `<ins>${text}</ins>`;
+          if (part.kind === "removed") return `<del>${text}</del>`;
+          return text;
+        })
+        .join(" ");
+    }
+
+    function renderReport(report) {
+      lastReport = report;
+      els.reportCard.hidden = false;
+      els.copyStatus.textContent = "";
+
+      const pill = `<span class="status-pill ${report.status}">${report.status}</span>`;
+      const ctx = report.context || {};
+
+      if (report.status !== "observed") {
+        els.verdict.className = "verdict caution";
+        els.verdict.textContent = summarize(report);
+        els.meta.innerHTML = `${pill} ${escapeHtml(ctx.vendor || "")} — ${escapeHtml(ctx.page_type || "")}`;
+        els.changes.innerHTML = `<p class="note">A check that cannot be completed is reported as <strong>${report.status}</strong> rather than as “no change”, so a failed comparison never reads as stability.</p>`;
+        return;
+      }
+
+      const changed = report.changes.length > 0;
+      els.verdict.className = changed ? "verdict change" : "verdict";
+      els.verdict.textContent = summarize(report);
+      els.meta.innerHTML = `${pill} ${escapeHtml(ctx.vendor || "")} — ${escapeHtml(ctx.page_type || "")} · `
+        + `<a href="${escapeHtml(report.source_url)}" rel="noopener nofollow">${escapeHtml(report.source_url)}</a> · `
+        + `${escapeHtml(when(report.before_captured_at))} → ${escapeHtml(when(report.after_captured_at))}`;
+
+      if (!changed) {
+        els.changes.innerHTML = `<p class="note">No section-level differences between these two captures. That is not proof the page never changed in between — only that these two captures match.</p>`;
+        return;
+      }
+
+      els.changes.innerHTML = report.changes.map((change) => {
+        const heading = escapeHtml(change.heading);
+        if (change.change === "added") {
+          return `<div class="change added"><h3>${heading} — added</h3><div class="diff"><ins>${escapeHtml(change.after)}</ins></div></div>`;
+        }
+        if (change.change === "removed") {
+          return `<div class="change removed"><h3>${heading} — removed</h3><div class="diff"><del>${escapeHtml(change.before)}</del></div></div>`;
+        }
+        return `<div class="change changed"><h3>${heading} — changed</h3><div class="diff">${renderDiff(change.before, change.after)}</div></div>`;
+      }).join("");
+    }
+
+    function renderWatches() {
+      const watches = listWatches(storage);
+      els.watchCount.textContent = watches.length ? `· ${watches.length} page${watches.length === 1 ? "" : "s"}` : "";
+      if (!storage) {
+        els.watches.innerHTML = `<p class="note">This browser is blocking local storage, so captures cannot be remembered between visits. The diff still works — capture twice in one sitting, or use the CLI.</p>`;
+        return;
+      }
+      if (!watches.length) {
+        els.watches.innerHTML = `<p class="note">No captures yet. Capture a page above and it will appear here.</p>`;
+        return;
+      }
+      els.watches.innerHTML = watches.map((w) => {
+        const latest = w.snapshots[w.snapshots.length - 1];
+        const ready = w.snapshots.length > 1;
+        return `<div class="watch">
+          <span><strong>${escapeHtml(w.vendor)}</strong> — ${escapeHtml(w.pageType)}<br>
+            <span class="note">${w.snapshots.length} capture${w.snapshots.length === 1 ? "" : "s"} · latest ${escapeHtml(when(latest.captured_at))}${ready ? "" : " · needs a second capture to diff"}</span></span>
+          <span>
+            ${ready ? `<button type="button" data-diff="${escapeHtml(w.id)}">Show report</button>` : ""}
+            <button type="button" class="secondary" data-forget="${escapeHtml(w.id)}">Forget</button>
+          </span>
+        </div>`;
+      }).join("");
+    }
+
+    $("#capture").addEventListener("click", () => {
+      const vendor = els.vendor.value.trim();
+      const pageType = els.type.value.trim();
+      const pageUrl = els.url.value.trim();
+      const content = els.content.value;
+
+      if (!vendor || !pageType || !pageUrl) {
+        els.status.innerHTML = `<span class="error">Vendor, page type and source URL are all needed — they are what makes a report evidence rather than a diff.</span>`;
+        return;
+      }
+      if (!content.trim()) {
+        els.status.innerHTML = `<span class="error">Paste the page text before capturing.</span>`;
+        return;
+      }
+
+      const snapshot = makeSnapshot({ vendor, pageUrl, pageType, content });
+      if (!snapshot.sections.length) {
+        els.status.innerHTML = `<span class="error">Nothing readable was found in that paste — it may be markup with no text, or an empty selection.</span>`;
+        return;
+      }
+
+      const saved = saveSnapshot(storage, snapshot);
+      record("page_captured");
+      renderWatches();
+
+      if (!saved.stored) {
+        els.status.innerHTML = saved.reason === "quota"
+          ? `<span class="error">This browser's storage is full, so the capture was not kept. Delete some captures below and try again.</span>`
+          : `<span class="error">This browser is blocking local storage, so the capture was not kept between visits.</span>`;
+      }
+
+      if (!saved.previous) {
+        els.reportCard.hidden = true;
+        if (saved.stored) {
+          els.status.textContent = `First capture of ${vendor} — ${pageType} stored. There is nothing to compare it to yet; paste the page again later and this will show what changed.`;
+        }
+        return;
+      }
+
+      renderReport(buildReport(saved.previous, snapshot));
+      record("report_built");
+      els.status.textContent = `Compared against the previous capture of ${vendor} — ${pageType}.`;
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    els.watches.addEventListener("click", (event) => {
+      const diffId = event.target.getAttribute?.("data-diff");
+      const forgetId = event.target.getAttribute?.("data-forget");
+      if (diffId) {
+        const snapshots = getSnapshots(storage, diffId);
+        if (snapshots.length > 1) {
+          renderReport(buildReport(snapshots[snapshots.length - 2], snapshots[snapshots.length - 1]));
+          record("report_built");
+          els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+      if (forgetId) {
+        removeWatch(storage, forgetId);
+        const { vendor, pageType } = describeWatch(forgetId);
+        els.status.textContent = `Forgot every capture of ${vendor} — ${pageType}.`;
+        renderWatches();
+      }
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      // Show the finished thing rather than half of it: build both captures so a
+      // first-time reader sees a real report, not an empty "come back later".
+      const before = makeSnapshot({
+        vendor: EXAMPLE_VENDOR, pageUrl: EXAMPLE_URL, pageType: EXAMPLE_TYPE,
+        content: EXAMPLE_BEFORE, capturedAt: new Date(Date.now() - 30 * 864e5).toISOString(),
+      });
+      const after = makeSnapshot({
+        vendor: EXAMPLE_VENDOR, pageUrl: EXAMPLE_URL, pageType: EXAMPLE_TYPE, content: EXAMPLE_AFTER,
+      });
+      els.vendor.value = EXAMPLE_VENDOR;
+      els.type.value = EXAMPLE_TYPE;
+      els.url.value = EXAMPLE_URL;
+      els.content.value = EXAMPLE_AFTER;
+      renderReport(buildReport(before, after));
+      record("example_loaded");
+      els.status.textContent = "Worked example: the same subprocessor page 30 days apart. Nothing was stored — capture it to keep it.";
+    });
+
+    $("#clear-form").addEventListener("click", () => {
+      els.vendor.value = ""; els.type.value = ""; els.url.value = ""; els.content.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Cleared. Captures in the watchlist below are untouched.";
+    });
+
+    $("#copy-markdown").addEventListener("click", async () => {
+      if (!lastReport) return;
+      const markdown = markdownReport(lastReport);
+      try {
+        await navigator.clipboard.writeText(markdown);
+        els.copyStatus.textContent = "Report copied as Markdown.";
+      } catch {
+        els.copyStatus.textContent = "Clipboard is unavailable here — use “Download report JSON” instead.";
+      }
+      record("report_copied");
+    });
+
+    $("#download-json").addEventListener("click", () => {
+      if (!lastReport) return;
+      const blob = new Blob([`${JSON.stringify(lastReport, null, 2)}\n`], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const ctx = lastReport.context || {};
+      a.href = url;
+      a.download = `vendor-change-${(ctx.vendor || "report").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      record("report_downloaded");
+      els.copyStatus.textContent = "Report downloaded.";
+    });
+
+    $("#clear-watches").addEventListener("click", () => {
+      clearAll(storage);
+      renderWatches();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Every capture has been deleted from this browser.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    renderWatches();
+  </script>
+</body>
+</html>

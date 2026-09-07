@@ -95,6 +95,19 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.doesNotMatch(seo, /<textarea/i);
 });
 
+// Closest sibling: same asphalt shop, but a sealcoat (coats / oil spots /
+// crack fill) rather than an overlay, mill-and-overlay, or full-depth pave.
+// Related-tool chrome rotates inside the trades category, so without an
+// explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the asphalt-sealcoat-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/asphalt-sealcoat-bid-calculator\/"/,
+    'index must link ../asphalt-sealcoat-bid-calculator/ so crawlers reach the sealcoat calculator in one hop',
+  );
+  assert.match(html, /asphalt sealcoating bid calculator/i);
+});
+
 // The saved-and-shared bid is only trustworthy if it carries every field the
 // calculator reads. This repo has already shipped the opposite once: a
 // `share.mjs` kept its own hand-written field list, the form grew two fields
@@ -198,4 +211,30 @@ test('every select the visitor can set travels as a validated choice', () => {
       `select #${id} is not in CHOICE_IDS, so a shared link would carry it unvalidated or not at all`,
     );
   }
+});
+
+// Closest sibling: same asphalt-contractor trade, but coats and crack fill
+// on existing pavement rather than hot-mix paving. Related-tool chrome
+// rotates inside the trades category, so without an explicit one-hop a
+// crawler on this page may never land on that tool.
+test('index links one hop to the asphalt-sealcoat-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/asphalt-sealcoat-bid-calculator\/"/,
+    'index must link ../asphalt-sealcoat-bid-calculator/ so crawlers reach the sealcoat calculator in one hop',
+  );
+  assert.match(html, /asphalt sealcoating bid calculator/i);
+});
+
+// Same Concrete / masonry / site-work subcategory: a gravel driveway bid is
+// the nearest alternate surface for a shop that already paved in asphalt.
+// Related-tool chrome rotates alphabetically, so without an explicit one-hop
+// a crawler on this page may never land on that tool.
+test('index links one hop to the gravel-driveway-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/gravel-driveway-bid-calculator\/"/,
+    'index must link ../gravel-driveway-bid-calculator/ so crawlers reach the gravel calculator in one hop',
+  );
+  assert.match(html, /gravel driveway bid calculator/i);
 });

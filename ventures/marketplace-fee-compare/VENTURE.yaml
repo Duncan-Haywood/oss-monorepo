@@ -31,5 +31,5 @@ kill_criteria:
   - Fewer than three qualified multi-channel sellers run a comparison twice within 90 days.
   - Sellers report the headline-rate model is too coarse to act on and go straight to the per-channel calculators instead.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/marketplace-fee-compare/
   analytics: null

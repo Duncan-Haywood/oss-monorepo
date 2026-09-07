@@ -99,6 +99,7 @@
   </section>
 
   <footer>
+    <p>Reviewing a finished job's estimate against actuals rather than ranking what to take next? The <a href="../job-margin-variance/">job cost variance calculator</a> compares hours and costs after the work is complete &mdash; nothing uploaded.</p>
     <p><strong>No warranty.</strong> This tool is free and as-is. It is not financial, legal, or business advice and does not replace your own judgement. A ranking here reflects only the answers you gave it; you are responsible for reviewing it before acting on it, and for the commitments you make. The authors accept no liability for loss or damage arising from its use.</p>
     <p>Free and open source. If it helped you settle what to tackle first, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
     <p><a href="vs-jobber.html">How this compares to Jobber</a></p>
@@ -261,7 +262,12 @@
     try {
       const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
       if (saved && Array.isArray(saved.items) && saved.items.length >= 2 && !isComplete(saved)) state = saved;
-    } catch { /* a damaged saved session just starts fresh */ }
-    render();
+      render();
+    } catch {
+      // A saved object can parse successfully but still contain a damaged
+      // comparison. Recover even when rendering that comparison fails.
+      state = null;
+      render();
+    }
   }
 </script></body></html>

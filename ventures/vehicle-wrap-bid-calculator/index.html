@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vehicle Wrap Bid Calculator — Price a Wrap Install</title>
+<meta name="description" content="Free calculator for independent vehicle wrap and graphics shops: price a full or partial wrap from vehicle surface area, material waste factor, install complexity, and labor, then see exactly what a waste-blind quote loses on every job.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Vehicle Wrap Bid Calculator">
+<meta property="og:description" content="A wrap priced from the vehicle's bare surface area, not the material a roll actually loses to curves and cuts, quietly underquotes every job. Find the real numbers before you send the estimate.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vehicle Wrap Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Waste-inclusive material pricing, install complexity multiplier, rush fee, actual roll usage check, printable customer proposal with scope, deposit split, price-held date and signature line","description":"Browser-local calculator that prices a vehicle wrap install from surface area, material waste factor, laminate, install complexity, and labor, flags the loss from quoting material at bare surface area instead of what the roll actually consumes, and checks real roll usage against the quote's breakeven."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the calculator price material from a waste-inclusive square footage instead of the vehicle's bare surface area?","acceptedAnswer":{"@type":"Answer","text":"Because that is what actually gets bought and consumed. Wrap film comes off a roll, and cutting around mirrors, door handles, pillars, and compound curves wastes a real share of every roll — typically 15-30% depending on the vehicle. Pricing material at the bare surface area quotes the vehicle, not the roll, and under-buys the job every time."}},{"@type":"Question","name":"What happens if I quote material at the bare surface area and ignore the waste factor?","acceptedAnswer":{"@type":"Answer","text":"You still have to buy and consume the waste-inclusive material to actually cover the vehicle, so the gap between the two prices comes straight out of the job's margin — the calculator reports that gap directly as the waste-blind loss per job."}},{"@type":"Question","name":"Why is there a separate complexity multiplier for install hours?","acceptedAnswer":{"@type":"Answer","text":"A flat panel — a box truck side, a straight fleet van — installs much faster per square foot than a sedan or SUV with mirrors, handles, and compound curves. A single flat installed rate per square foot underprices labor on the harder vehicle every time; the multiplier keeps that difference visible instead of averaging it away."}},{"@type":"Question","name":"Does anything about my costs or roll usage get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#161c22;background:#eef2f6}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #cfd9e3;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0d243c08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #e3e9ef;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#175a8c;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #b7c7d6;border-radius:8px;font:inherit;background:#fdfeff}.result{background:#0f3a5c;color:#fff;border-color:#0f3a5c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#516475}.result .note{color:#cfe0ee}.err{color:#ffd9a6;font-weight:700}.warn{background:#fff4e0;border:1px solid #f0c987;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#0a2740;border-color:#3b8bc9;color:#c9e6ff}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #b7c7d6;background:#fff;cursor:pointer;color:#161c22}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+/* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5c5854; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #0f3a5c; --pr-accent: #8a5a22;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style></head>
+<body>
+<header><p>FOR INDEPENDENT VEHICLE WRAP &amp; GRAPHICS SHOPS</p><h1>The roll decides your material cost, not the vehicle.</h1><p class="lede">A wrap coverage chart tells you the vehicle's bare surface area — but vinyl gets bought and consumed by the linear foot off a 60&Prime; roll, and cutting around mirrors, handles, pillars, and compound curves wastes a real share of every roll. This free calculator prices a wrap from that waste-inclusive material total, then shows exactly what a bare-surface-area quote loses on every job, and lets you plug in the real roll usage once the install is done.</p></header>
+
+<main class="layout">
+<section><h2>Price one wrap</h2>
+<fieldset><legend>Vehicle &amp; material</legend><div class="fields">
+<label>Vehicle surface area (sq ft)<input id="vehicleSurfaceAreaSqFt" type="number" min="1" step="1" value="250"></label>
+<label>Material waste factor (%)<input id="wasteFactorPct" type="number" min="0" step="1" value="20"></label>
+<label>Vinyl cost ($/sq ft used)<input id="vinylCostPerSqFt" type="number" min="0" step="0.01" value="2.75"></label>
+<label>Laminate cost ($/sq ft used, 0 if none)<input id="laminateCostPerSqFt" type="number" min="0" step="0.01" value="0.75"></label>
+</div></fieldset>
+<fieldset><legend>Install labor</legend><div class="fields">
+<label>Install rate (sq ft/hour, flat panel)<input id="installRateSqFtPerHour" type="number" min="1" step="1" value="12"></label>
+<label>Complexity multiplier<input id="complexityMultiplier" type="number" min="1" step="0.05" value="1.25"></label>
+<label>Installer pay ($/hr)<input id="installerHourlyRate" type="number" min="0" step="1" value="35"></label>
+<label>Old wrap removal hours<input id="removalHours" type="number" min="0" step="0.25" value="0"></label>
+</div></fieldset>
+<fieldset><legend>Fees, overhead &amp; margin</legend><div class="fields">
+<label>Design/proof fee ($)<input id="designFee" type="number" min="0" step="1" value="150"></label>
+<label>Rush fee (%)<input id="rushFeePct" type="number" min="0" step="1" value="0"></label>
+<label>Overhead (% of direct cost)<input id="overheadRate" type="number" min="0" step="1" value="12"></label>
+<label>Target margin (%)<input id="targetMargin" type="number" min="0" max="99" step="1" value="35"></label>
+<label>Other flat cost ($)<input id="otherCostFlat" type="number" min="0" step="1" value="0"></label>
+</div></fieldset>
+</section>
+
+<section class="result" aria-live="polite"><h2>Price to quote</h2><p id="errors" class="err" role="alert" hidden></p>
+<!-- The family's highlight promise. `platform/pages/build.mjs` injects the
+     shared invalid-field runtime only into pages that print this exact
+     sentence (`invalid.mjs`'s HIGHLIGHT_PROMISE), and the runtime finds the
+     message by taking this label's previousElementSibling — which is why it
+     sits immediately after #errors and holds no other text. This form carries
+     24 numeric inputs; without it a rejected value is a sentence with no way
+     to find the box it is about. -->
+<p id="errorsLabel" class="note" hidden>check the highlighted input</p>
+<div id="price" class="big">$0.00</div><p id="coverageLine" class="note"></p>
+<dl>
+<dt>Material (vinyl + laminate)</dt><dd id="materialOut"></dd>
+<dt>Install labor</dt><dd id="laborOut"></dd>
+<dt>Removal labor</dt><dd id="removalOut"></dd>
+<dt>Overhead</dt><dd id="overheadOut"></dd>
+<dt>Breakeven cost</dt><dd id="breakEvenOut"></dd>
+<dt>Profit</dt><dd id="profitOut"></dd>
+<dt>Price with rush</dt><dd id="priceWithRushOut"></dd>
+</dl>
+<p id="wasteWarning" class="warn" hidden></p>
+<p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not add sales tax, insurance, or a warranty policy unless you fold those into other cost yourself.</p>
+</section>
+<!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Overland Wrap &amp; Graphics LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Full wrap on one mid-size sedan in cast vinyl with laminate&#10;Design proof and one revision round included"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Bodywork, dent repair, or paint correction before install&#10;Removal of a wrap installed by another shop unless quoted separately"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Vehicle should arrive clean and free of wax or silicone-based products for the film to bond properly."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+<section><h2>Check actual roll usage</h2><p class="note">Install's done? Enter the vinyl actually consumed off the roll (and actual install hours, if different) to see the real profit this job left, instead of the waste-factor estimate.</p>
+<div class="fields">
+<label>Actual vinyl used (sq ft)<input id="actualVinylSqFtUsed" type="number" min="0" step="1" value=""></label>
+<label>Actual install hours (optional)<input id="actualInstallHours" type="number" min="0" step="0.25" value=""></label>
+</div>
+<p id="actualErrors" class="err" role="alert" hidden></p>
+<dl id="actualResult" hidden>
+<dt>Material cost</dt><dd id="actualMaterialOut"></dd>
+<dt>Install labor cost</dt><dd id="actualLaborOut"></dd>
+<dt>Total cost</dt><dd id="actualTotalCostOut"></dd>
+<dt>Profit</dt><dd id="actualProfitOut"></dd>
+<dt>Margin</dt><dd id="actualMarginOut"></dd>
+<dt>Below breakeven?</dt><dd id="actualBelowOut"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your job details, prices, and roll usage are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>quote-priced</code>, <code>material-check-run</code>) so we can tell whether the calculator gets used — no job details, prices, or material amounts are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does the calculator price material from a waste-inclusive square footage instead of the vehicle's bare surface area?</h3><p>Because that is what actually gets bought and consumed. Wrap film comes off a roll, and cutting around mirrors, door handles, pillars, and compound curves wastes a real share of every roll — typically 15-30% depending on the vehicle. Pricing material at the bare surface area quotes the vehicle, not the roll, and under-buys the job every time.</p>
+<h3>What happens if I quote material at the bare surface area and ignore the waste factor?</h3><p>You still have to buy and consume the waste-inclusive material to actually cover the vehicle, so the gap between the two prices comes straight out of the job's margin — the calculator reports that gap directly as the waste-blind loss per job.</p>
+<h3>Why is there a separate complexity multiplier for install hours?</h3><p>A flat panel — a box truck side, a straight fleet van — installs much faster per square foot than a sedan or SUV with mirrors, handles, and compound curves. A single flat installed rate per square foot underprices labor on the harder vehicle every time; the multiplier keeps that difference visible instead of averaging it away.</p>
+<h3>Does anything about my costs or roll usage get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<p><a href="how-much-to-charge-for-a-vehicle-wrap.html">Guide: how much to charge for a vehicle wrap, and why bare surface area underquotes the job</a> &middot; <a href="vs-shopvox.html">This calculator vs. ShopVOX</a></p>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a vehicle's actual surface area, predict real roll waste, or replace your own supplier quote, insurance, or accountant.</p><p>MIT licensed. If it helped you price a job, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculateQuote, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const FIELD_IDS = Object.keys(DEFAULTS);
+let counted = false;
+let actualCounted = false;
+
+function readInput() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+function count(event) { recordEvent(event); }
+
+function updateQuote(shouldCount = false) {
+  try {
+    const r = calculateQuote(readInput());
+    el('errors').hidden = true; el('errors').textContent = ''; el('errorsLabel').hidden = true; el('price').hidden = false;
+    el('price').textContent = money(r.price);
+    el('coverageLine').textContent = `Covers ${el('vehicleSurfaceAreaSqFt').value} sq ft of vehicle (${r.effectiveVinylSqFt.toFixed(0)} sq ft of material) at ${r.marginPct.toFixed(0)}% margin`;
+    el('materialOut').textContent = money(r.materialCost);
+    el('laborOut').textContent = money(r.installLaborCost);
+    el('removalOut').textContent = money(r.removalLaborCost);
+    el('overheadOut').textContent = money(r.overhead);
+    el('breakEvenOut').textContent = money(r.breakEvenPrice);
+    el('profitOut').textContent = money(r.profit);
+    el('priceWithRushOut').textContent = money(r.priceWithRush);
+    if (r.wasteRiskTight) {
+      el('wasteWarning').hidden = false;
+      el('wasteWarning').textContent = `Quoting material at the bare ${el('vehicleSurfaceAreaSqFt').value} sq ft surface area instead of the ${r.effectiveVinylSqFt.toFixed(0)} sq ft the ${el('wasteFactorPct').value}% waste factor actually consumes would price this job at ${money(r.priceIfWasteIgnored)} — ${money(r.wasteBlindLossPerJob)} short of what it really costs to cover the vehicle.`;
+    } else {
+      el('wasteWarning').hidden = true;
+    }
+    if (shouldCount && !counted) { count('quote-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('errorsLabel').hidden = false; el('price').hidden = true;
+    el('wasteWarning').hidden = true;
+    for (const id of ['coverageLine', 'materialOut', 'laborOut', 'removalOut', 'overheadOut', 'breakEvenOut', 'profitOut', 'priceWithRushOut']) el(id).textContent = '';
+  }
+}
+
+function updateActual(shouldCount = false) {
+  const raw = el('actualVinylSqFtUsed').value;
+  if (raw === '') {
+    el('actualResult').hidden = true;
+    el('actualErrors').hidden = true; el('actualErrors').textContent = '';
+    return;
+  }
+  try {
+    const r = calculateQuote({ ...readInput(), actualVinylSqFtUsed: raw, actualInstallHours: el('actualInstallHours').value });
+    el('actualErrors').hidden = true; el('actualErrors').textContent = '';
+    el('actualResult').hidden = false;
+    el('actualMaterialOut').textContent = money(r.actual.materialCost);
+    el('actualLaborOut').textContent = money(r.actual.installLaborCost);
+    el('actualTotalCostOut').textContent = money(r.actual.totalCost);
+    el('actualProfitOut').textContent = money(r.actual.profit);
+    el('actualMarginOut').textContent = r.actual.marginPct === null ? '—' : `${r.actual.marginPct.toFixed(1)}%`;
+    el('actualBelowOut').textContent = r.actual.belowBreakEven ? 'Yes — below breakeven' : 'No';
+    if (shouldCount && !actualCounted) { count('material-check-run'); actualCounted = true; }
+  } catch (e) {
+    el('actualErrors').textContent = e.message; el('actualErrors').hidden = false;
+    el('actualResult').hidden = true;
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { updateQuote(true); updateActual(false); }));
+el('actualVinylSqFtUsed').addEventListener('input', () => updateActual(true));
+el('actualInstallHours').addEventListener('input', () => updateActual(true));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+updateQuote(false);
+updateActual(false);
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'vehicle-wrap-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Vinyl wrap adhesion depends on paint condition and surface prep; it is not a paint-correction, dent, or rust repair, and film life varies with climate, garaging, and care.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Wrap {vehicleSurfaceAreaSqFt~0} sq ft of vehicle surface in cast vinyl film",
+        {
+          "line": "Apply a protective laminate over the full wrap",
+          "when": "laminateCostPerSqFt"
+        },
+        {
+          "line": "Remove and dispose of the existing wrap or graphics before installing",
+          "when": "removalHours"
+        },
+        "Design, proof, and prepare a print-ready file for your approval before production",
+        "Install, seal edges, and post-heat for a durable finish; leave the vehicle clean"
+      ];
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, result).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.price,
+        jobTitle: scopeLines(['Vehicle wrap — {vehicleSurfaceAreaSqFt~0} sq ft'], result)[0] || 'Vehicle wrap',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateQuote(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateQuote(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+</script>
+</body></html>

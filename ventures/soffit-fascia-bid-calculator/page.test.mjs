@@ -199,3 +199,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same roofing envelope trade, but a skylight cut-in or
+// replace rather than eave wrap/replace. Related-tool chrome rotates inside
+// the subcategory, so without an explicit one-hop a crawler on this page may
+// never land on that tool.
+test('index links one hop to the skylight-install-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/skylight-install-bid-calculator\/"/,
+    'index must link ../skylight-install-bid-calculator/ so crawlers reach the skylight install calculator in one hop',
+  );
+  assert.match(html, /skylight install bid calculator/i);
+});

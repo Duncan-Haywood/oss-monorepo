@@ -113,8 +113,57 @@ export function extractAppRecords(payload) {
   return null;
 }
 
+/**
+ * GraphQL enums whose action segment contains underscores. Splitting on the
+ * last "_" invents a different REST topic (CUSTOMERS_DATA_REQUEST →
+ * customers_data/request instead of customers/data_request) and makes an
+ * unchanged GraphQL vs REST inventory look like webhook drift.
+ */
+const GRAPHQL_TOPIC_REST = {
+  APP_SCOPES_UPDATE: "app/scopes_update",
+  APP_SUBSCRIPTIONS_APPROACHING_CAPPED_AMOUNT: "app_subscriptions/approaching_capped_amount",
+  AUDIT_EVENTS_ADMIN_API_ACTIVITY: "audit_events/admin_api_activity",
+  CUSTOMERS_DATA_REQUEST: "customers/data_request",
+  CUSTOMERS_PURCHASING_SUMMARY: "customers/purchasing_summary",
+  DISCOUNTS_REDEEMCODE_ADDED: "discounts/redeemcode_added",
+  DISCOUNTS_REDEEMCODE_REMOVED: "discounts/redeemcode_removed",
+  FULFILLMENT_ORDERS_CANCELLATION_REQUEST_ACCEPTED: "fulfillment_orders/cancellation_request_accepted",
+  FULFILLMENT_ORDERS_CANCELLATION_REQUEST_REJECTED: "fulfillment_orders/cancellation_request_rejected",
+  FULFILLMENT_ORDERS_CANCELLATION_REQUEST_SUBMITTED: "fulfillment_orders/cancellation_request_submitted",
+  FULFILLMENT_ORDERS_FULFILLMENT_REQUEST_ACCEPTED: "fulfillment_orders/fulfillment_request_accepted",
+  FULFILLMENT_ORDERS_FULFILLMENT_REQUEST_REJECTED: "fulfillment_orders/fulfillment_request_rejected",
+  FULFILLMENT_ORDERS_FULFILLMENT_REQUEST_SUBMITTED: "fulfillment_orders/fulfillment_request_submitted",
+  FULFILLMENT_ORDERS_FULFILLMENT_SERVICE_FAILED_TO_COMPLETE: "fulfillment_orders/fulfillment_service_failed_to_complete",
+  FULFILLMENT_ORDERS_HOLD_RELEASED: "fulfillment_orders/hold_released",
+  FULFILLMENT_ORDERS_LINE_ITEMS_PREPARED_FOR_LOCAL_DELIVERY: "fulfillment_orders/line_items_prepared_for_local_delivery",
+  FULFILLMENT_ORDERS_LINE_ITEMS_PREPARED_FOR_PICKUP: "fulfillment_orders/line_items_prepared_for_pickup",
+  FULFILLMENT_ORDERS_ORDER_ROUTING_COMPLETE: "fulfillment_orders/order_routing_complete",
+  FULFILLMENT_ORDERS_PLACED_ON_HOLD: "fulfillment_orders/placed_on_hold",
+  FULFILLMENT_ORDERS_SCHEDULED_FULFILLMENT_ORDER_READY: "fulfillment_orders/scheduled_fulfillment_order_ready",
+  INVENTORY_SHIPMENTS_ADD_ITEMS: "inventory_shipments/add_items",
+  INVENTORY_SHIPMENTS_MARK_IN_TRANSIT: "inventory_shipments/mark_in_transit",
+  INVENTORY_SHIPMENTS_RECEIVE_ITEMS: "inventory_shipments/receive_items",
+  INVENTORY_SHIPMENTS_REMOVE_ITEMS: "inventory_shipments/remove_items",
+  INVENTORY_SHIPMENTS_UPDATE_ITEM_QUANTITIES: "inventory_shipments/update_item_quantities",
+  INVENTORY_SHIPMENTS_UPDATE_TRACKING: "inventory_shipments/update_tracking",
+  INVENTORY_TRANSFERS_ADD_ITEMS: "inventory_transfers/add_items",
+  INVENTORY_TRANSFERS_READY_TO_SHIP: "inventory_transfers/ready_to_ship",
+  INVENTORY_TRANSFERS_REMOVE_ITEMS: "inventory_transfers/remove_items",
+  INVENTORY_TRANSFERS_UPDATE_ITEM_QUANTITIES: "inventory_transfers/update_item_quantities",
+  ORDERS_PARTIALLY_FULFILLED: "orders/partially_fulfilled",
+  ORDERS_RISK_ASSESSMENT_CHANGED: "orders/risk_assessment_changed",
+  ORDERS_SHOPIFY_PROTECT_ELIGIBILITY_CHANGED: "orders/shopify_protect_eligibility_changed",
+  PRODUCT_FEEDS_FULL_SYNC: "product_feeds/full_sync",
+  PRODUCT_FEEDS_FULL_SYNC_FINISH: "product_feeds/full_sync_finish",
+  PRODUCT_FEEDS_INCREMENTAL_SYNC: "product_feeds/incremental_sync",
+  REVERSE_DELIVERIES_ATTACH_DELIVERABLE: "reverse_deliveries/attach_deliverable",
+  VARIANTS_IN_STOCK: "variants/in_stock",
+  VARIANTS_OUT_OF_STOCK: "variants/out_of_stock",
+};
+
 export function canonicalizeTopic(topic) {
   if (!topic || topic.includes("/")) return topic;
+  if (GRAPHQL_TOPIC_REST[topic]) return GRAPHQL_TOPIC_REST[topic];
   if (topic === topic.toUpperCase() && topic.includes("_")) {
     const index = topic.lastIndexOf("_");
     return `${topic.slice(0, index).toLowerCase()}/${topic.slice(index + 1).toLowerCase()}`;
@@ -204,7 +253,8 @@ export function normalizeApp(app) {
     webhooks: present ? stringList(webhooks, "webhooks", id) : [],
   };
   if (declared !== undefined) record.declared_scopes = stringList(declared, "declared_scopes", id);
-  if (!present) record.webhook_coverage = "absent";
+  // A normalized capture uses [] for omitted webhooks; preserve that uncertainty.
+  if (!present || app.webhook_coverage === "absent") record.webhook_coverage = "absent";
   else record.webhook_coverage = "complete";
   return record;
 }

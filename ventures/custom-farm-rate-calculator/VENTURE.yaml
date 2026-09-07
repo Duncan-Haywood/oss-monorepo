@@ -1,0 +1,31 @@
+name: custom-farm-rate-calculator
+description: Free browser calculator for custom farm operators to price one field job (combining, planting, spraying, baling, or tillage) from their own machine's field capacity, fuel, repairs, and ownership cost, then check a season of jobs against an income goal.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Custom farm operators will use a per-job rate calculator built from their own machine's field capacity, fuel, repairs, and ownership cost, since a published custom rate survey reports someone else's cost structure, not theirs.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers asking how to calculate a custom farming rate or price custom combining are underserved by generic markup calculators because field capacity, fuel burn, and machine ownership cost spread over annual hours change the real economics.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators who price one job will also want to see whether a season of jobs clears an income goal, not just whether one job clears a margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/custom-farm-rate-calculator/
+  analytics: null

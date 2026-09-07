@@ -222,19 +222,95 @@ This is a build task and it ships with v0, not later:
       artifact, queue the one-line ask, ship the product regardless: search and
       AI discovery do not need anyone's permission.
 
-## 6. Money: not yet
+### f. If the page names a competitor
+
+Naming a specific commercial product to explain what your tool is and isn't
+("this calculator vs. ServiceMonster") is normal here — 173 pages across the
+portfolio do it, and it is good SEO: it answers the comparison question a
+searcher actually types. It is also the one piece of marketing copy in this
+playbook that names someone else's trademark, so it carries its own two rules,
+not just the disclaimer in §5b.
+
+1. **Nominative fair use only.** Name the product solely to describe what it
+   is and what your free tool is not — never in a way a reader could take as
+   affiliation, endorsement, or sponsorship. Say so explicitly:
+
+   > Not affiliated with, endorsed by, or sponsored by **[Product]**.
+   > **[Product]** is a trademark of its owner, named here only to describe
+   > what this tool is and is not.
+
+   `node platform/pages/clauses.mjs <slug>` fails the build if a
+   `vs-<competitor>.html` page lacks this. If the page genuinely compares
+   against a generic role rather than a named product or company — "your
+   title company's net sheet" is nobody's trademark — add it to
+   `COMPARISON_DISCLAIMER_EXEMPT` in `platform/pages/clauses.mjs` with why,
+   rather than writing a disclaimer about a party that doesn't exist.
+
+2. **Facts only, sourced, comparative rather than derogatory.** What the
+   competitor's product does, cite its own public documentation or marketing.
+   State it plainly rather than guessing or inferring reviews you haven't
+   read. Never claim it is bad, broken, or a bad value — the honest and legally
+   safer framing is "different job": what it does, what the free tool does,
+   and when each is the right answer. A comparison that reads as an attack
+   rather than a fact sheet is a defamation and false-advertising exposure
+   for a page that costs nothing to make safe instead.
+
+## 6. Money: donations only, and most of it already ships
 
 No checkout, no card fields, no billing code, no merchant of record, not even
 disabled. That is on the owner-only list in
 [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) because it needs a bank
-account and a tax identity.
+account and a tax identity. `python3 platform/ci/check_no_payment_code.py`
+enforces this fleet-wide in CI — see "Legal guardrails" in `DIRECTION.md` for
+the two pre-existing exceptions it currently allows and why adding a third
+needs a decision-queue row first, not a code review comment.
 
-The one thing that may exist is GitHub Sponsors, via `.github/FUNDING.yml`
-pointing at the owner's account, once the owner has enabled it (queued as the
-`funding-sponsors-live` decision, PR #839 — read the queue with
-`python3 portfolio/ledger/decision_queue.py`; do not open a second one). No
-third-party donation links, and never in front of a feature — a donation prompt
-lives in the README and the footer, nowhere a user has to pass through.
+**Two separate things exist here — do not conflate them:**
+
+1. **A per-product `github.com/sponsors/<owner>` link in the footer or about
+   section.** This is agent-decidable, needs no owner action, and now ships
+   on **all 185 ventures** (excluding two `NOT-A-VENTURE` scaffolding
+   directories): 181 already carried it as of 2026-09-06, and the last four
+   app-shaped ventures — `local-site-studio`, `photo-editing`,
+   `quick-pick-survey`, `retail-pilot-intel` — were closed the same day by
+   adding the link to each app's own layout/footer component. Add it the
+   same way when you ship a new product.
+2. **The native repo-level GitHub "Sponsor this project" button**, via
+   `.github/FUNDING.yml`, which is a separate, owner-only account-ownership
+   decision (queued as `funding-sponsors-live`, PR #839 — read the queue with
+   `python3 portfolio/ledger/decision_queue.py`; do not open a second one). It
+   was merged once and reverted the same day (#862), so the safe state on
+   `main` today is no `FUNDING.yml`. This only adds a second entry point on
+   top of links that already work — it is not what turns donations on.
+
+**Corrected 2026-09-06, same day: the link ships everywhere, and clicks on it
+are now counted everywhere too — automatically, not venture by venture.**
+This section used to read as a per-venture backlog item ("wire a `click`
+listener into each venture's own `usage.mjs`"). That was overtaken a commit
+later (#3511): `platform/pages/build.mjs`'s `markSponsorLinksIn` tags every
+Sponsors anchor on every published page — tool, hub, category, and comparison
+— across all 186 ventures, and the shared `pf-site.js` chrome those pages
+already load counts a click into `portfolio-hub-usage` under the literal event
+`sponsor_link_clicked`. See
+[`portfolio/usage/README.md`](portfolio/usage/README.md) "Wired the same day,
+on the published site, in one place rather than 186."
+
+**Do not hand-wire a second listener into a venture's own `usage.mjs` for
+this** — the build already covers the published site, and adding one anyway
+is the fleet-parity trap described in `portfolio/DIRECTION.md`, not new
+signal. The one legitimate reason to wire it in a venture's own code: that
+venture's `index.html` is meant to be opened outside the published build (a
+local clone, an offline copy), where the shared chrome never loads. That is
+rare and worth naming explicitly rather than assuming.
+
+Like every other counter in this portfolio, the click is `localStorage`-only
+and never transmits — it is now *countable* on the visitor's own device, not
+yet *counted for us*. Reading the aggregate back is the same open problem
+`portfolio/usage/README.md` already describes for the rest of the fleet, not
+something a venture's own PR can close.
+
+No third-party donation links, and never in front of a feature — a donation
+prompt lives in the README and the footer, nowhere a user has to pass through.
 
 What "free for now" is buying: usage data, which is the only evidence we have
 about which product deserves more time. Design so that turning payment on later
@@ -250,13 +326,20 @@ Ship when every line is true:
 - [ ] LICENSE, disclaimer, and privacy line are in the README **and** the
       product.
 - [ ] Usage counting is in, and off-switchable.
+- [ ] The sponsor link is present and reads `github.com/sponsors/Duncan-Haywood`
+      (§6) — the `sponsor_link_clicked` counter itself needs no per-venture
+      wiring: the published-site build counts every Sponsors anchor
+      automatically (§6). Only wire it in the venture's own `usage.mjs` if the
+      venture is meant to be opened outside that build (a local clone, an
+      offline copy).
 - [ ] Discoverability checklist above is done.
 - [ ] The venture's tests and linter pass, and you ran the product itself.
 - [ ] The §5b **no-warranty** clause is on every page the venture publishes,
-      not just the calculator — `node platform/pages/clauses.mjs <slug>`. The
-      venture's own CI runs this, so it fails on the PR rather than on `main`.
-      (The no-SLA clause is injected by the Pages build and is not yours to
-      carry; see §5b.)
+      not just the calculator, and any `vs-<competitor>.html` page carries the
+      §5f **not-affiliated** trademark disclaimer — `node
+      platform/pages/clauses.mjs <slug>` checks both. The venture's own CI runs
+      this, so it fails on the PR rather than on `main`. (The no-SLA clause is
+      injected by the Pages build and is not yours to carry; see §5b.)
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.

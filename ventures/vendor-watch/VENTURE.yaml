@@ -8,6 +8,17 @@ hypotheses:
   - claim: Practitioners who check a watched vendor page once will come back and re-check the same URL later without being prompted or reminded.
     status: untested
     checked: null
+    note: >-
+      2026-09-05: added an in-page "Recheck due" badge (src/lib/recheck.ts)
+      that flags and surfaces a watched entry 30+ days past its last
+      snapshot, since nothing on the page previously prompted a return visit
+      at all -- the claim above could not fail because there was no page
+      behavior to fail it. This does not confirm or refute the claim; it is a
+      passive in-page cue on an already-open page, not an outbound
+      notification, so "comes back unprompted" is still the thing being
+      measured. Worth separating in any future analysis: a repeat check
+      driven by this badge is a different signal from one where the visitor
+      remembered on their own.
     evidence: customer-contact
   - claim: checkUrl() always labels a failed or non-2xx fetch as inconclusive rather than unchanged, and a failed fetch never overwrites the last good snapshot (so a later successful fetch of unchanged content still reports unchanged, not changed).
     status: supported

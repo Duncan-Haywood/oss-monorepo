@@ -345,8 +345,17 @@ def binary_paths(merge_base: str, head: str) -> set[str]:
     shard is not an edge case here: `platform/marketing/front-door-tools.mjs`
     commits one alongside almost every venture change, so any PR touching a
     mirrored venture's `index.html` carries one.
+
+    `--no-renames` matters: without it, numstat abbreviates a renamed binary
+    pair to a common-prefix path like `dir/{old.gz => new.gz}`, while the
+    `--name-only` call in `evaluate()` that this set is diffed against prints
+    the real new path -- so the two never match, the binary path leaks past
+    `skip`, and `base_tree_lines` crashes decoding it as UTF-8. Observed on
+    `agent/claude/issue-3821`: a mirror shard renamed from
+    `actions-injection-check__LICENSE.gz` to
+    `actions-cache-poisoning-check__LICENSE.gz` reached this exact crash.
     """
-    out = _git("diff", "--numstat", f"{merge_base}..{head}")
+    out = _git("diff", "--no-renames", "--numstat", f"{merge_base}..{head}")
     paths: set[str] = set()
     for line in out.splitlines():
         parts = line.split("\t", 2)

@@ -8,6 +8,45 @@ hypotheses and ventures with runnable software over blocked
 `customer-contact` hypotheses until a product exists to show users. See
 [`../DIRECTION.md`](../DIRECTION.md).
 
+## Corrected 2026-09-06: `links.production` was stale fleet-wide, and it was the thing this tool's whole "blocked" verdict rests on
+
+Every one of the 195 `ventures/*/VENTURE.yaml` files carried `links:
+production: null` as of this session — including the 186 whose static page
+`platform/pages/build.mjs` has been building into the GitHub Pages artifact
+for weeks, and which `portfolio/DIRECTION.md` and
+`python3 platform/ci/pages_state.py` already confirm are live at
+`https://duncan-haywood.github.io/monorepo-projects/<slug>/`. This tool reads
+`links.production` as the one signal that decides whether a
+`customer-contact` hypothesis is `BLOCKED` (see "Dispatchable vs. blocked"
+below), so a null field that should have said "published two weeks ago" was
+reporting **0 of 194 ventures dispatchable** — the entire fleet, including
+the two highest-merit ventures in the whole scored set — every time a session
+ran `allocate.py` to decide what to work on.
+
+Fixed by setting `links.production` to the venture's actual `<base>/<slug>/`
+URL for every slug `node platform/pages/build.mjs --out=<dir>` actually
+produced a page for — read from the builder's own output, not
+re-derived from a copied include/exclude list (see `CLAUDE.md`'s
+`venturePageRoot` story for why that specific shortcut has cost live product
+twice already). That is 186 of the 195 ventures. Of the other 9 — `ai-first-markets`,
+`garmin-world-traveler-watchface`, `local-site-studio`, `photo-editing`,
+`photos-import-tools`, `quick-pick-survey`, `retail-pilot-intel`,
+`vendor-watch`, `world-clock-widget` — none has a static page the builder
+produces, so all 9 correctly kept `links.production: null`. `ubuntu-agent-server`
+is a tenth non-static directory (the headless agent box) but carries no
+`VENTURE.yaml` at all, so it was never in the router's input and this fix
+does not touch it. `ai-first-markets` is further excluded from the router's
+ranking entirely as `NOT-A-VENTURE`, per "The one judgment call" below, so
+only 8 show up as `BLOCKED` in `allocate.py`'s table.
+
+`allocate.py` now reports **186 of 194 ventures dispatchable**. Read the
+sections below for how the tool reasons about that split; do not read their
+worked examples ("0 of 11", "9 of 11 ventures ... blocked on a single
+decision, publishing") as today's numbers — they describe an 11-venture
+portfolio from 2026-08-20, long before this one grew to 195 and long before
+GitHub Pages went live, and are kept as the reasoning trail, not a live
+reading. Run `python3 portfolio/router/allocate.py` for the current one.
+
 ## Why this is not a pure ROI maximizer
 
 The obvious design — rank ventures by return and spend on the top one — is a

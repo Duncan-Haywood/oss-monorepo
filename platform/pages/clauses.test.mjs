@@ -8,7 +8,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { NO_SLA_PATTERN } from './build.mjs';
-import { NO_WARRANTY, collectPages, missingClauses, unknownVenture } from './clauses.mjs';
+import {
+  NO_WARRANTY,
+  NOT_AFFILIATED,
+  collectPages,
+  missingClauses,
+  unknownVenture,
+} from './clauses.mjs';
 
 // A footer with the hosting clause and no warranty paragraph: the inverse of
 // the failure that kept recurring, and the one injection does not cover.
@@ -99,16 +105,23 @@ test('a slug narrows the walk to one venture', async () => {
 test('a venture with no browser surface yields no pages rather than throwing', async () => {
   // Venture CI passes its slug unconditionally, including for CLIs and
   // libraries. Throwing there would turn those workflows red for no defect.
-  // `vendor-change-watch` is a real venture that ships no browser surface --
-  // this used to be asserted with a made-up slug, which is the conflation the
+  // The fixture must be a real venture that ships no browser surface -- this
+  // used to be asserted with a made-up slug, which is the conflation the
   // `known` flag below exists to undo.
   //
-  // It was `cra-evidence-desk` until 2026-09-03, when that venture gained a
-  // `site/` and stopped being an example of the case. That is the hazard of
-  // picking the fixture from the live tree, and it is still the right trade:
-  // the alternative is a slug that cannot go stale because it never described
-  // anything real, which is exactly what this test was fixed away from.
-  const { pages, surfaces, known } = await collectPages({ slug: 'vendor-change-watch' });
+  // Twice now the fixture has been a venture that later grew one, and the test
+  // failed on the day someone shipped product: `cra-evidence-desk` gained a
+  // `site/` on 2026-09-03, and `vendor-change-watch` -- a CLI -- gained an
+  // `index.html` on 2026-09-05. Both were picked because they had no page
+  // *yet*, which is a fact about the day rather than about the venture.
+  //
+  // So the fixture is now a venture that cannot acquire a browser surface at
+  // all: `garmin-world-traveler-watchface` is a Connect IQ watchface, built
+  // from `manifest.xml` and Monkey C in `source/`, and it has no web target to
+  // ship even in principle. Keep that property when changing it -- a native-only
+  // venture (a watchface, a Swift app) is stable here; a CLI is not, because a
+  // CLI growing a browser page is a thing this portfolio actively does.
+  const { pages, surfaces, known } = await collectPages({ slug: 'garmin-world-traveler-watchface' });
   assert.deepEqual(surfaces, []);
   assert.deepEqual(pages, []);
   assert.equal(known, true);
@@ -149,4 +162,62 @@ test('an unknown venture exits non-zero while saying nothing was measured', () =
   assert.equal(code, 1);
   assert.match(lines.join('\n'), /no such venture/);
   assert.match(lines.join('\n'), /Nothing was measured/);
+});
+
+// PRODUCT_PLAYBOOK.md 5f: a vs-<competitor> page names a trademark, so it has
+// to disclose it isn't that product's own page.
+
+test('a vs- page with no disclaimer is reported missing not-affiliated', () => {
+  assert.deepEqual(missingClauses([['calc/vs-jobber.html', BOTH]]), [
+    { page: 'calc/vs-jobber.html', clause: 'not-affiliated' },
+  ]);
+});
+
+test('a vs- page carrying the disclaimer reports nothing', () => {
+  const withDisclaimer = `${BOTH}\n<p>Not affiliated with Jobber.</p>`;
+  assert.deepEqual(missingClauses([['calc/vs-jobber.html', withDisclaimer]]), []);
+});
+
+test('an ordinary page with no vs- filename is never checked for the disclaimer', () => {
+  // BOTH carries no disclaimer at all; only the no-warranty clause applies.
+  assert.deepEqual(missingClauses([['calc/index.html', BOTH]]), []);
+});
+
+test('the exempt generic comparison page is not flagged even with no disclaimer', () => {
+  assert.deepEqual(
+    missingClauses([['seller-net-sheet/vs-title-company-net-sheet.html', BOTH]]),
+    [],
+  );
+});
+
+test('the not-affiliated pattern matches the wordings ventures actually use', () => {
+  for (const wording of [
+    'Not affiliated with ServiceMonster.',
+    'not affiliated with, endorsed by, or sponsored by ServiceMonster',
+    'This site is NOT AFFILIATED WITH Jobber in any way.',
+  ]) {
+    assert.ok(NOT_AFFILIATED.test(wording), `not matched: ${wording}`);
+  }
+});
+
+test('the not-affiliated pattern does not match a page that never disclaims', () => {
+  for (const wording of [
+    'Compare against ServiceMonster and Jobber before you decide.',
+    'Best-effort hosting, no SLA.',
+  ]) {
+    assert.ok(!NOT_AFFILIATED.test(wording), `wrongly matched: ${wording}`);
+  }
+});
+
+test('every vs- page in the real venture tree carries the disclaimer or is exempt', async () => {
+  const { pages } = await collectPages();
+  const comparisonPages = pages.filter(([page]) => /(?:^|\/)vs-[^/]+\.html$/i.test(page));
+
+  // A silently-empty filter would make the assertion below free.
+  assert.ok(comparisonPages.length > 100, `only ${comparisonPages.length} comparison page(s) found`);
+  assert.deepEqual(
+    missingClauses(comparisonPages).filter((m) => m.clause === 'not-affiliated'),
+    [],
+    'a vs-<competitor> page is missing its trademark disclaimer; run `node platform/pages/clauses.mjs`',
+  );
 });

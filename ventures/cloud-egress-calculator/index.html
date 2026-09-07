@@ -98,6 +98,7 @@
     <p id="annualImpact" class="small"></p>
     <p id="breakEven" class="small"></p>
     <button id="copySummary" type="button">Copy decision summary</button>
+    <button id="copyShareLink" type="button">Copy share link</button>
     <button id="export" type="button">Download private review JSON</button>
     <span id="exportStatus" class="small" role="status" aria-live="polite"></span>
   </section>
@@ -120,12 +121,14 @@
   <footer class="small">
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or technical advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Normalizing a fulfillment quote instead of a cloud storage bill? The <a href="../3pl-quote-normalizer/">3PL quote normalizer</a> puts a third-party logistics quote's receiving, storage, pick-and-pack, shipping, returns, and minimums on the same monthly basis as your in-house cost &mdash; nothing uploaded.</p>
     <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
   </footer>
 </main>
 <script type="module">
   import { compareScenarios, decisionSummary, reviewRecord, parseEgressTiers } from "./calc.mjs";
   import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+  import { encodeInputs, decodeInputs } from "./share.mjs";
 
   const $ = (id) => document.getElementById(id);
   const ids = ["storage", "requests", "egress", "aStorage", "aRequests", "aEgress", "aFree", "aTiers", "bStorage", "bRequests", "bEgress", "bFree", "bTiers"];
@@ -287,6 +290,50 @@
       $("exportStatus").textContent = error.message;
     }
   });
+
+  // Every field the share link carries, read raw the way `encodeInputs`
+  // expects — plain strings, not the `+value` coercion the calculation
+  // functions above use, so a blank field encodes as "blank" rather than 0.
+  function readShareInput() {
+    const out = {};
+    for (const id of ids.concat(["aName", "bName"])) out[id] = $(id).value;
+    return out;
+  }
+
+  // Restoring a shared link sets each field's value directly and skips any id
+  // the link did not carry, so the recipient's own page defaults stand for
+  // whatever the sender left alone.
+  function applyShared(incoming) {
+    for (const id of ids.concat(["aName", "bName"])) {
+      if (id in incoming) $(id).value = incoming[id];
+    }
+  }
+
+  function shareUrl() {
+    const { origin, pathname } = window.location;
+    return `${origin}${pathname}#${encodeInputs(readShareInput())}`;
+  }
+
+  $("copyShareLink").addEventListener("click", async () => {
+    try {
+      await copyText(shareUrl());
+      $("exportStatus").textContent = "Link copied — the rates travel in the link, not to a server";
+      countUsage("share_link_copied");
+    } catch (error) {
+      $("exportStatus").textContent = error?.message || "Clipboard unavailable.";
+    }
+  });
+
+  // A shared comparison arrives in the fragment, which browsers never send to
+  // a server. `search` is accepted too, so a link that lost its # on the way
+  // through a messaging app still opens on the sender's rates.
+  const incomingShare = decodeInputs(window.location.hash || window.location.search);
+  if (Object.keys(incomingShare).length > 0) {
+    applyShared(incomingShare);
+    calculate();
+    countUsage("shared_link_opened");
+    $("exportStatus").textContent = "Opened from a shared link — verify every rate before relying on it.";
+  }
 </script>
 </body>
 </html>

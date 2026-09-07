@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What is a "pwn request" in GitHub Actions?</title>
+  <meta name="description" content="A pull_request_target or workflow_run workflow runs with your repo's secrets even though a stranger's fork raised the event. Here is exactly how a pwn request works, and how to check your own workflows for it.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="what-is-a-pwn-request-in-github-actions.html">
+  <meta property="og:title" content="What is a pwn request in GitHub Actions?">
+  <meta property="og:description" content="pull_request_target runs with your secrets, but the event is raised by a fork. Checking out that fork's head and building it is how a pwn request works.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a \"pwn request\" in GitHub Actions?","acceptedAnswer":{"@type":"Answer","text":"pull_request, the ordinary PR trigger, runs with a read-only token and no repository secrets — safe even against a hostile fork, because there is nothing valuable for the fork's code to reach. pull_request_target exists for the cases that need more: commenting on the PR, labeling it, or building it with real credentials. It runs in the context of the base repository, with the base repository's secrets and a privileged GITHUB_TOKEN — but the event that triggers it is still raised by whoever opened the pull request, who might be a stranger."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .88rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Actions Injection Check</a></p>
+  <h1>What is a "pwn request" in GitHub Actions?</h1>
+  <p><code>pull_request</code>, the ordinary PR trigger, runs with a read-only token and no repository secrets — safe even against a hostile fork, because there is nothing valuable for the fork's code to reach. <code>pull_request_target</code> exists for the cases that need more: commenting on the PR, labeling it, or building it with real credentials. It runs in the context of the <em>base</em> repository, with the base repository's secrets and a privileged <code>GITHUB_TOKEN</code> — but the event that triggers it is still raised by whoever opened the pull request, who might be a stranger.</p>
+  <p>By itself that is fine: <code>actions/checkout</code> under <code>pull_request_target</code> checks out the <em>base</em> branch by default, not the fork. The danger is one line away:</p>
+  <pre><code>- uses: actions/checkout@v4
+  with:
+    ref: ${{ github.event.pull_request.head.sha }}</code></pre>
+  <p>That explicit <code>ref:</code> pulls the fork's own commit into the checkout — a natural thing to write if the goal is "build and test the PR's actual changes". If a later step runs <code>npm install</code>, a Makefile, or anything else from that checkout, it runs the fork's code with the base repository's secrets. <code>workflow_run</code> has the identical shape: it runs privileged, in response to a workflow that a fork's push already triggered.</p>
+  <h2>Why is it called a "pwn request"?</h2>
+  <p>Coined by security researchers describing exactly this pattern: the pull request itself is the exploit delivery mechanism. An attacker needs no special access — opening a pull request is the interaction the workflow is designed to respond to. GitHub's own security guidance ("Keeping your GitHub Actions and workflows secure, Part 1: Preventing pwn requests") documents the shape and the fix at length, and it was significant enough that <code>actions/checkout</code> v7 (June 2026) started refusing to fetch fork PR code in <code>pull_request_target</code> and <code>workflow_run</code> workflows by default.</p>
+  <h2>The fix</h2>
+  <ul>
+    <li>Prefer plain <code>pull_request</code> for anything that only needs to build and test the PR's code — it is unprivileged by design, so there is nothing to steal.</li>
+    <li>If you genuinely need <code>pull_request_target</code>'s privileges (posting a comment, applying a label), do not check out the fork's code in that same job. Split the work: an unprivileged <code>pull_request</code> workflow builds and tests, uploads its results as an artifact; a separate <code>pull_request_target</code> job only downloads and acts on that artifact, never the fork's source.</li>
+    <li>Upgrade to <code>actions/checkout</code> v7 or later, which refuses the common form of this pattern by default.</li>
+  </ul>
+  <h2>Check your own workflows</h2>
+  <p><a href="./">Paste your workflow YAML into Actions Injection Check</a> to find every <code>pull_request_target</code>/<code>workflow_run</code> checkout of an untrusted ref across every workflow file at once, or run the CLI in your own repository:</p>
+  <pre><code>python3 check.py --fail-on-risk</code></pre>
+  <p class="note">That exits with a nonzero status if any workflow has this pattern (or the related script-injection pattern) — wire it into your own CI to block a newly-added one before it merges.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean a workflow is secure — only that this one documented pattern was not found.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded, and the tool makes no network calls of its own.</p>
+  </footer>
+</body>
+</html>

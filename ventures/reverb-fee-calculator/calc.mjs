@@ -32,6 +32,8 @@ export const INPUT_FIELDS = [
   'feeRefundOnReturnPct',
   'relistPrice',
   'partialRefund',
+  'waitProbListPct',
+  'waitFallbackPrice',
 ];
 
 // When the seller has not quoted a Safe Shipping label yet, show own-label
@@ -50,8 +52,8 @@ export const REVERB_DEFAULTS = {
   itemCost: 450,
   otherCost: 10,
   marketplaceRate: 5,
-  paymentRate: 2.9,
-  paymentFixed: 0.3,
+  paymentRate: 3.19,
+  paymentFixed: 0.49,
   givesRate: 0,
   bumpFee: 0,
   meetupCost: 0,
@@ -64,6 +66,8 @@ export const REVERB_DEFAULTS = {
   feeRefundOnReturnPct: 61,
   relistPrice: 720,
   partialRefund: 150,
+  waitProbListPct: 30,
+  waitFallbackPrice: 680,
 };
 
 function number(value, name, fallback) {
@@ -79,8 +83,8 @@ function saleInputs(input, salePrice) {
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
   const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
-  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
-  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 3.19);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.49);
   const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
   const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
   if (marketplaceRate + paymentRate + givesRate >= 100) {
@@ -181,8 +185,8 @@ export function offerThatMatchesEbayList(input) {
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
   const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
-  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
-  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 3.19);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.49);
   const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
   const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
   const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
@@ -255,8 +259,8 @@ function includedListThatMatchesBuyerPays(input, targetProfit) {
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
   const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
-  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
-  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 3.19);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.49);
   const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
   const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
   const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
@@ -486,7 +490,7 @@ export function compareReturnResolution(input, salePrice = input?.price) {
   const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
   const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
   const itemCost = number(input.itemCost, 'What you paid for the item', 0);
-  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.49);
   const returnShippingCost = number(input.returnShippingCost, 'Return shipping you pay', 0);
   const relistPrice = number(input.relistPrice, 'Relist price', 0);
   const partialRefund = number(input.partialRefund, 'Partial refund', 0);
@@ -616,7 +620,7 @@ export const ILLUSTRATED_BUMP_DEFAULT = 3;
 
 function keepRateOnItem(input) {
   const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
-  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 3.19);
   const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
   const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
   if (keepRate <= 0) throw new Error('Combined percentage fees must stay below 100%');
@@ -668,4 +672,91 @@ export function compareBump(input) {
     rows,
     winner: leaders.length === 1 ? leaders[0].id : 'tie',
   };
+}
+
+// Every other comparison in this file treats "wait for list" as a sure
+// thing. It is not: an inbox that filled with one lowball fills with more,
+// and a seller who declines an offer does not get a guaranteed sale at list
+// in return — they get a *chance* of list and otherwise the realistic
+// alternative, which is usually another offer near (or below) the one
+// already in hand. That is the actual decision a lowball forces: certain
+// cash now against a probability-weighted cash later. Pricing it needs one
+// more input than any comparison above — a probability — because no fee
+// schedule on either side changes what "maybe" is worth.
+//
+// waitProbListPct is a number the seller supplies, not a market statistic
+// this tool tracks: how often gear like this, at this asking price, on this
+// platform, has actually reached list for them. waitFallbackPrice is what a
+// second offer realistically looks like if list is not reached — it is not
+// required to be lower than the offer in hand, but defaulting it there
+// would hide the downside a "just hold out" instinct usually discounts.
+export function compareWaitForBetterOffer(input, salePrice = input?.price) {
+  const listPrice = number(salePrice, 'List price');
+  const offerPrice = number(input.offerPrice, 'Offer price', listPrice);
+  const probListPct = number(input.waitProbListPct, 'Probability of eventually reaching list', 30);
+  const fallbackPrice = number(input.waitFallbackPrice, 'Expected price if you do not reach list', offerPrice);
+  if (probListPct > 100) throw new Error('Probability of eventually reaching list must be at most 100%');
+
+  const takeOfferNow = calculateReverbSale(input, offerPrice);
+  const eventualList = calculateReverbSale(input, listPrice);
+  const eventualFallback = calculateReverbSale(input, fallbackPrice);
+
+  const probList = probListPct / 100;
+  const expectedWaitProfit = probList * eventualList.profit + (1 - probList) * eventualFallback.profit;
+  const vsWaiting = takeOfferNow.profit - expectedWaitProfit;
+  const waitingWins = expectedWaitProfit > takeOfferNow.profit;
+
+  // The probability of reaching list that ties expected waiting profit to
+  // taking the offer now — below it, taking the offer wins on average;
+  // above it, waiting does. `null` when list and the fallback pay the same,
+  // since no probability can move the answer; otherwise left unclamped on
+  // purpose, so a value below 0% or above 100% still tells the truth (one
+  // side wins regardless of how the odds are set) rather than being
+  // rounded into a false crossover.
+  const spread = eventualList.profit - eventualFallback.profit;
+  const breakEvenProbPct = Math.abs(spread) > 1e-9
+    ? (takeOfferNow.profit - eventualFallback.profit) / spread * 100
+    : null;
+
+  const rows = [
+    { id: 'takeNow', label: 'Take the offer now', probability: 1, sale: takeOfferNow, expectedProfit: takeOfferNow.profit },
+    { id: 'reachList', label: 'Wait, eventually reach list', probability: probList, sale: eventualList, expectedProfit: eventualList.profit },
+    { id: 'settleFallback', label: 'Wait, eventually settle for less', probability: 1 - probList, sale: eventualFallback, expectedProfit: eventualFallback.profit },
+  ].map((row) => ({ ...row, vsTakeNow: row.expectedProfit - takeOfferNow.profit }));
+
+  return {
+    takeOfferNow,
+    eventualList,
+    eventualFallback,
+    probListPct,
+    fallbackPrice,
+    expectedWaitProfit,
+    vsWaiting,
+    waitingWins,
+    breakEvenProbPct,
+    rows,
+    winner: waitingWins ? 'wait' : 'takeNow',
+  };
+}
+
+export function waitForBetterOfferNote(comparison) {
+  const money = (value) => {
+    const format = (value) => `$${Number(value).toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
+  const pct = (value) => `${Number(value).toFixed(2)}%`;
+  const crossover = comparison.breakEvenProbPct === null
+    ? 'List and your typed fallback price pay the same here, so the odds of reaching list cannot change the answer.'
+    : comparison.breakEvenProbPct <= 0
+      ? 'Even a 0% chance of reaching list still beats the offer on these inputs — the fallback price alone already does.'
+      : comparison.breakEvenProbPct >= 100
+        ? 'Even a 100% chance of reaching list does not beat the offer on these inputs.'
+        : `The break-even chance of eventually reaching list is ${pct(comparison.breakEvenProbPct)}.`;
+  const offerMoney = money(comparison.takeOfferNow.salePrice);
+  const fallbackMoney = money(comparison.fallbackPrice);
+  if (comparison.waitingWins) {
+    return `At a ${pct(comparison.probListPct)} chance of eventually reaching list — else settling near ${fallbackMoney} — waiting leaves ${money(-comparison.vsWaiting)} more in expectation than taking the ${offerMoney} offer now. ${crossover}`;
+  }
+  return `At a ${pct(comparison.probListPct)} chance of eventually reaching list — else settling near ${fallbackMoney} — taking the ${offerMoney} offer now still leaves ${money(comparison.vsWaiting)} more in expectation than waiting. ${crossover}`;
 }

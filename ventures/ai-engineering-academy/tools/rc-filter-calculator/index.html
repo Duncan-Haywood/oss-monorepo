@@ -19,7 +19,7 @@
   "applicationCategory": "EducationalApplication",
   "operatingSystem": "Any (runs in a web browser)",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-  "description": "Free first-order RC and RL filter calculator: -3 dB cutoff frequency, angular cutoff, and time constant from components, plus a design mode that solves for the missing component and snaps it to a standard value. Runs entirely client-side."
+  "description": "Free first-order RC and RL filter calculator: -3 dB cutoff frequency, angular cutoff, and time constant from components, plus a design mode that solves for the missing component and snaps it to a standard value, and a shareable link that reopens the exact same filter. Runs entirely client-side."
 }
 </script>
 <script type="application/ld+json">
@@ -239,6 +239,10 @@
     </div>
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
+    <p style="margin-top:0.85rem">
+      <button type="button" id="copy-link" style="width:auto;padding:0.5rem 0.9rem">Copy share link</button>
+      <span id="copy-link-status" class="hint" role="status" aria-live="polite"></span>
+    </p>
   </section>
 
   <h2>Common questions</h2>
@@ -276,11 +280,13 @@
     <h2 id="privacy-heading">Privacy</h2>
     <p>
       Everything runs in your browser. Your inputs are never uploaded, and we
-      don't have accounts, tracking cookies, or an analytics vendor. This page
-      counts anonymous, local feature-use events (e.g. "a calculation was
-      run") in your own browser's <code>localStorage</code>, only to help this
-      project's maintainers tell whether the tool is used at all — nothing is
-      sent anywhere.
+      don't have accounts, tracking cookies, or an analytics vendor. The
+      "Copy share link" button encodes only the values and units you choose
+      into the address bar, and that link is never sent to us either. This
+      page counts anonymous, local feature-use events (e.g. "a calculation
+      was run") in your own browser's <code>localStorage</code>, only to help
+      this project's maintainers tell whether the tool is used at all —
+      nothing is sent anywhere.
       <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
         Turn off local usage counting
       </button>
@@ -297,6 +303,8 @@
       calculator</a>, and the
       <a href="../voltage-divider-calculator/">voltage divider
       calculator</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>
+      is optional and never changes what this tool does.
     </p>
   </footer>
 </main>
@@ -313,6 +321,7 @@
     formatTime,
   } from "./calc.mjs";
   import { recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { encodeInputs, decodeInputs, ENUM_FIELDS } from "./share.mjs";
 
   const $ = (id) => document.getElementById(id);
   const typeEl = $("type");
@@ -454,9 +463,86 @@
     el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => update(true));
   }
 
+  /** Every field a share link carries, read straight off the form. */
+  function readShareable() {
+    const values = {
+      type: typeEl.value,
+      mode: mode(),
+      'solve-for': solveForEl.value,
+    };
+    for (const id of ['r', 'r-unit', 'c', 'c-unit', 'l', 'l-unit', 'target', 'target-unit', 'dr', 'dr-unit', 'dc', 'dc-unit', 'dl', 'dl-unit']) {
+      values[id] = $(id).value;
+    }
+    return values;
+  }
+
+  async function copyLink() {
+    const encoded = encodeInputs(readShareable());
+    const url = `${location.origin}${location.pathname}${encoded ? `#${encoded}` : ''}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const fallback = document.createElement("textarea");
+      fallback.value = url;
+      fallback.setAttribute("readonly", "");
+      fallback.style.position = "fixed";
+      fallback.style.opacity = "0";
+      document.body.append(fallback);
+      fallback.select();
+      document.execCommand("copy");
+      fallback.remove();
+    }
+    // So the address bar itself carries the link the button just copied --
+    // reloading or bookmarking the page reopens the same filter.
+    history.replaceState(null, "", encoded ? `#${encoded}` : location.pathname);
+    recordEventSettled("link_copied");
+    $("copy-link-status").textContent = "Copied";
+    setTimeout(() => { $("copy-link-status").textContent = ""; }, 2500);
+  }
+
+  /**
+   * Restore a shared filter from the URL hash (or query string, for a link
+   * pasted somewhere that stripped the fragment). Every field is
+   * re-validated by share.mjs against this page's own option lists, so a
+   * crafted fragment cannot set anything the form does not already offer.
+   *
+   * The filter type is applied first, and `rebuildSolveOptions()` re-run
+   * immediately after: it decides which two components `solve-for` can name
+   * (capacitance-or-resistance for RC, inductance-or-resistance for RL), and
+   * `solve-for` itself is only applied once that rebuilt list is in place --
+   * otherwise a restored RL link's "inductance" choice would be silently
+   * rejected by the RC option list `rebuildSolveOptions()` had not yet
+   * replaced.
+   */
+  function restoreShare() {
+    const incoming = decodeInputs(window.location.hash || window.location.search);
+    if (ENUM_FIELDS.type.includes(incoming.type)) {
+      typeEl.value = incoming.type;
+      typeDesc.textContent = describeFilter(typeEl.value);
+      rebuildSolveOptions();
+    }
+    if (ENUM_FIELDS.mode.includes(incoming.mode)) {
+      const radio = document.querySelector(`input[name="mode"][value="${incoming.mode}"]`);
+      if (radio) radio.checked = true;
+    }
+    for (const id of ['r', 'r-unit', 'c', 'c-unit', 'l', 'l-unit', 'target', 'target-unit', 'dr', 'dr-unit', 'dc', 'dc-unit', 'dl', 'dl-unit']) {
+      if (incoming[id] !== undefined) $(id).value = incoming[id];
+    }
+    // Applied last, after the rebuilt option list matches the restored type
+    // -- see the note above. A value the current list does not offer is
+    // simply not one `.value =` can select, and the page's own default for
+    // that type stands.
+    if (incoming['solve-for'] !== undefined) solveForEl.value = incoming['solve-for'];
+  }
+
+  $("copy-link").addEventListener("click", () => {
+    copyLink().catch(() => { $("copy-link-status").textContent = "Copy failed; copy the address bar instead."; });
+  });
+
   // Initial paint.
   typeDesc.textContent = describeFilter(typeEl.value);
   rebuildSolveOptions();
+  restoreShare();
   syncMode();
 
   const usageToggle = $("usage-toggle");

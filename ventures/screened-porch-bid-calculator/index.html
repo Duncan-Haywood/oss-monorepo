@@ -8,7 +8,7 @@
   <meta property="og:title" content="Screened Porch Bid Calculator">
   <meta property="og:description" content="Bid the panels, the knee wall, and the roof — not the floor-square-foot coupon. See the margin before you send the price.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Screened Porch Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall-screen geometry, knee wall, existing/framed/screen roof, vinyl or beadboard ceiling, fiberglass/pet/hurricane mesh, 8/10/12 ft walls, walk-away price, proposed-price margin check, copyable customer-facing summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Screened Porch Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall-screen geometry, knee wall, existing/framed/screen roof, vinyl or beadboard ceiling, fiberglass/pet/hurricane mesh, 8/10/12 ft walls, walk-away price, proposed-price margin check, copyable customer-facing summary, shareable private bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a screen roof (lanai style) cost so much more than screening under an existing roof?","acceptedAnswer":{"@type":"Answer","text":"“Existing roof” only screens the walls of a porch that's already covered, while a screen roof frames and mesh-panels the entire top of the enclosure — a separate structure with its own hardware and span limits. The roof dropdown prices these as distinct scopes so a pool-cage-style quote isn't built off wall-only numbers."}},{"@type":"Question","name":"Does upgrading to hurricane or pet-resistant mesh actually change the bid much?","acceptedAnswer":{"@type":"Answer","text":"Yes, proportionally to your total screen square footage — both cost more per panel than standard fiberglass, and hurricane mesh is heavier and slower to install and tension correctly. Switch the mesh dropdown to see the material and labor difference on your actual dimensions rather than guessing at a flat upcharge."}},{"@type":"Question","name":"Does this tell me if my knee wall height or screen enclosure meets code?","acceptedAnswer":{"@type":"Answer","text":"No. Knee wall height, structural attachment, and enclosure permitting are set by local building code and vary by jurisdiction — this calculator prices the wall height and roof type you select, it does not verify compliance. Confirm requirements with your local building department before framing."}},{"@type":"Question","name":"Where do the starting spans and hours come from?","acceptedAnswer":{"@type":"Answer","text":"They're common ballpark figures used on residential screened-porch bids, not a building-code opinion, a permit, or an engineering stamp. Time your own crew on a job and replace the defaults in calc.mjs so future bids reflect how your shop actually builds."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
@@ -250,6 +250,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -305,7 +306,8 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a layout is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your spans, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your spans, wages, costs, or prices.</p>
+    <p>Pricing a glazed sunroom or three-season room instead of a screened porch? The <a href="../sunroom-bid-calculator/">sunroom bid calculator</a> prices glass walls, thermal floor, and insulated roof &mdash; nothing uploaded.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -331,6 +333,9 @@
       suggestedHeightKit,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -522,6 +527,72 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyLink() {
+      // The proposal panel's five terms are not part of the arithmetic, so
+      // they ride beside the payload in `pfterms`, which decodeInputs never
+      // sees. Leaving them out is what `platform/proposal/term-ids.test.mjs`
+      // exists to catch: they persist per device, and per-device persistence
+      // is exactly what the recipient does not have.
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      // A term too long to ride in the link is named to the sender rather
+      // than dropped silently -- the whole failure mode here is a recipient
+      // who cannot tell that something stayed behind.
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only FIELD_IDS and the
+     * three boolean flags -- each re-validated by share.mjs against
+     * calc.mjs's own presets -- are ever written back into the form, so a
+     * crafted fragment cannot set anything this page does not already ask
+     * for.
+     *
+     * KIT_ID fields restored from a link are marked "edited" so the startup
+     * applyMeshKit()/applyRoofKit()/applyCeilingKit()/applyHeightKit()/
+     * applyGeometryKits() calls below -- and any later preset or dimension
+     * change -- do not silently overwrite the sender's own numbers with a
+     * freshly computed suggestion.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied before the fields below: a link that carries only the terms
+      // is still a link worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+      for (const id of FIELD_IDS) {
+        if (fromUrl[id] === undefined) continue;
+        el(id).value = fromUrl[id];
+        if (KIT_IDS.has(id)) el(id).dataset.edited = '1';
+      }
+      for (const id of ['includeFan', 'includePermit', 'demoExisting']) {
+        if (fromUrl[id] !== undefined) el(id).checked = fromUrl[id];
+      }
+    }
+
     el('mesh').addEventListener('change', () => {
       applyMeshKit();
       count('bid_calculated');
@@ -602,7 +673,14 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Could not copy the link; copy the address bar.'; });
+    });
 
+    // Restored first, so a shared bid's own attachment, roof, ceiling, mesh,
+    // height, and rates -- each marked "edited" inside restoreShare() -- win
+    // over the kits the calls below would otherwise compute fresh.
+    restoreShare();
     applyMeshKit();
     applyRoofKit();
     applyCeilingKit();

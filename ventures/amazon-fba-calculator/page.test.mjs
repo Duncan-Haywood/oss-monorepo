@@ -681,3 +681,17 @@ test("every .html file in the venture is reachable from the sitemap", () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
   }
 });
+
+// where-to-sell-calculator already hands an Amazon comparison into this page;
+// without a crawlable link back, a visitor who landed on FBA first has no
+// path to the multi-channel ranking that owns the handoff.
+test("index links to the where-to-sell calculator", () => {
+  assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
+});
+
+// marketplace-fee-compare already deep-links here for FBA size tiers and
+// storage a headline referral rate cannot carry; without a crawlable link
+// back, a visitor on FBA never reaches the six-channel triage (#3637 class).
+test("index links to the marketplace fee comparison", () => {
+  assert.match(html, /href="\.\.\/marketplace-fee-compare\/"/);
+});

@@ -72,7 +72,7 @@
   <header><p>FOR MOBILE DETAILERS AND OWNER-OPERATORS</p><h1>Price the drive, not just the detail.</h1><p class="lede">Build a minimum quote that accounts for the whole stop — travel, setup, cleanup, loaded wage, miles, supplies, overhead, and card fees — before you promise a price.</p><p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge for mobile detailing?</a></p><p class="seo-link"><a href="./vs-mobiletechrx.html">This calculator vs. Mobile Tech RX</a></p></header>
   <main class="layout"><section><h2>Job assumptions</h2><div class="fields">
     <label>Proposed quote ($)<input id="targetPrice" type="number" min="0" step="1" value="180"></label>
-    <label>Hands-on hours<input id="laborHours" type="number" min="0.1" step="0.25" value="3"></label>
+    <label>Hands-on hours<input id="laborHours" type="number" min="0.1" step="any" value="3"></label>
     <label>Travel hours<input id="travelHours" type="number" min="0" step="0.25" value="0.75"></label>
     <label>Setup hours<input id="setupHours" type="number" min="0" step="0.25" value="0.25"></label>
     <label>Cleanup hours<input id="cleanupHours" type="number" min="0" step="0.25" value="0.25"></label>
@@ -86,7 +86,7 @@
     <label>Target margin (%)<input id="targetMargin" type="number" min="0" max="99.9" step="1" value="35"></label>
     <p id="claimHint" class="hint" aria-live="polite"></p>
   </div><p class="hint">Use your own vehicle rate, payment rate, and overhead allocation. The defaults are only a worked example. Fee and margin are both slices of the final price, so they can jointly claim the whole ticket.</p></section>
-  <section class="result" aria-live="polite"><h2>Quote check</h2><p id="errors" class="warning" role="alert" hidden></p><div id="contribution" class="big"></div><div id="caption">contribution after listed costs</div><dl><dt>Whole-stop hours</dt><dd id="totalHours"></dd><dt>Loaded hourly rate</dt><dd id="loadedLaborRate"></dd><dt>Loaded labor</dt><dd id="laborCost"></dd><dt>Travel cost</dt><dd id="travelCost"></dd><dt>Direct costs + travel</dt><dd id="directCosts"></dd><dt>Payment fee</dt><dd id="paymentFee"></dd><dt>Break-even quote</dt><dd id="breakEven"></dd><dt>Hourly on hands-on time</dt><dd id="effectiveHourly"></dd><dt>Hourly on the whole stop</dt><dd id="effectiveRate"></dd></dl><hr><h2>Price for your target</h2><p id="targetQuote"></p><div class="actions"><button id="reset" type="button">Reset example</button></div><p id="status" class="status note" role="status" aria-live="polite"></p><p class="note">This is arithmetic from your assumptions, not a promise of profit or a recommendation to accept a job.</p></section>
+  <section class="result" aria-live="polite"><h2>Quote check</h2><p id="errors" class="warning" role="alert" hidden></p><div id="contribution" class="big"></div><div id="caption">contribution after listed costs</div><dl><dt>Whole-stop hours</dt><dd id="totalHours"></dd><dt>Loaded hourly rate</dt><dd id="loadedLaborRate"></dd><dt>Loaded labor</dt><dd id="laborCost"></dd><dt>Travel cost</dt><dd id="travelCost"></dd><dt>Direct costs + travel</dt><dd id="directCosts"></dd><dt>Payment fee</dt><dd id="paymentFee"></dd><dt>Break-even quote</dt><dd id="breakEven"></dd><dt>Hourly on hands-on time</dt><dd id="effectiveHourly"></dd><dt>Hourly on the whole stop</dt><dd id="effectiveRate"></dd></dl><hr><h2>Price for your target</h2><p id="targetQuote"></p><div class="actions"><button id="reset" type="button">Reset example</button><button id="copyLink" type="button">Copy share link</button></div><p id="status" class="status note" role="status" aria-live="polite"></p><p class="note">This is arithmetic from your assumptions, not a promise of profit or a recommendation to accept a job.</p></section>
   <section id="faq"><h2>Common questions</h2>
     <h3>Why is the loaded labor cost $0 on the example, if the example books 3 labor hours?</h3>
     <p>The example's wage is set to $0 because it models an owner-operator: your own time isn't a separate line item, so the $128.52 contribution on the default $180 quote <em>is</em> your pay plus profit, not profit on top of a paid wage. Enter a real hourly wage here the moment you pay yourself a set rate or hire a second detailer &mdash; the burden percent then loads payroll taxes and insurance on top of it the same way it would for an employee.</p>
@@ -142,9 +142,12 @@
        the only thing on the page when it prints. -->
   <div id="proposalDoc" class="pr-shell" hidden></div>
 <!-- proposal:end -->
-  <footer class="footer"><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This free tool is not business, tax, financial, or professional advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p></footer>
+  <footer class="footer"><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This free tool is not business, tax, financial, or professional advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your hours, miles, wages, costs, or prices.</p><p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p></footer>
   <script type="module">
     import { calculateBid, claimNote, defaults } from './calc.mjs'; import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -172,8 +175,62 @@
     function persist(){ safe(() => localStorage.setItem('mobile-detailing-inputs', JSON.stringify(readInput()))); }
     function restore(){ const values = safe(() => JSON.parse(localStorage.getItem('mobile-detailing-inputs') || 'null')); if(values) ids.forEach(id => { if(values[id] !== undefined) el(id).value = values[id]; }); }
     function flash(text){ el('status').textContent = text; setTimeout(() => el('status').textContent = '', 3000); }
+
+    async function copyLink() {
+      // The proposal panel's five terms are not part of the arithmetic, so
+      // share.mjs never carried them and the recipient reopened the bid at
+      // this venture's defaults -- a different deposit and validity window
+      // under a headline that matched to the cent. They ride beside the
+      // payload in `pfterms`, which decodeInputs never sees.
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      // A term too long to ride in the link is named to the sender rather
+      // than dropped silently -- the whole failure mode here is a recipient
+      // who cannot tell that something stayed behind.
+      const leftBehind = overlongTermsNote(terms);
+      flash(leftBehind ? `Share link copied — ${leftBehind}` : 'Share link copied — deposit and terms included');
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only the ids share.mjs
+     * re-validates against calc.mjs's own defaults are ever written back into
+     * the form, so a crafted fragment cannot set anything this page does not
+     * already ask for. Runs after the device's own saved draft, so an
+     * explicitly shared link wins over a stale local draft.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied first: a link carrying only the terms is still worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+      ids.forEach(id => { if (fromUrl[id] !== undefined) el(id).value = fromUrl[id]; });
+    }
+
     restore(); ids.forEach(id => el(id).addEventListener('input', () => { update(); persist(); })); ids.forEach(id => el(id).addEventListener('change', () => update(true)));
-    el('reset').addEventListener('click', () => { safe(() => localStorage.removeItem('mobile-detailing-inputs')); history.replaceState(null,'',location.pathname); ids.forEach(id => el(id).value = defaults[id]); update(); flash('Reset to the worked example.'); }); update();
+    el('reset').addEventListener('click', () => { safe(() => localStorage.removeItem('mobile-detailing-inputs')); history.replaceState(null,'',location.pathname); ids.forEach(id => el(id).value = defaults[id]); update(); flash('Reset to the worked example.'); });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => flash('Copy failed; copy the address bar instead.'));
+    });
+    restoreShare(); update();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------
     //

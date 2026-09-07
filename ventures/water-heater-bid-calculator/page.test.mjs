@@ -166,3 +166,15 @@ test('the "how much to charge" SEO page exists, is linked from the calculator, a
   const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+// Closest sibling: same plumbing-shop job, but a softener install rather than a
+// heater swap. Without a crawlable link here, a crawler entering on the heater
+// calculator never reaches the softener tool in one hop — same one-way orphan
+// class as #3709 / #3729.
+test('index links one hop to the water-softener-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/water-softener-bid-calculator\/"/,
+    'index must link ../water-softener-bid-calculator/ so crawlers reach the softener calculator in one hop',
+  );
+});

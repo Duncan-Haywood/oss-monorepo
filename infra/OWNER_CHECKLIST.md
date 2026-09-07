@@ -3,6 +3,33 @@
 An agent can write this tree. It cannot mint accounts, money, or
 identities. Nothing here applies itself.
 
+## Where to keep what you type: [`infra/SECRETS.md`](SECRETS.md)
+
+Added 2026-09-06. Everything below assumes a credential ends up in an
+Actions secret or a sealed secret. Both are currently unreadable — an
+Actions secret needs a runner (`github-actions-runners: down`) and a
+sealed secret needs a cluster (`k3s-cluster: down`) — so the credentials
+have been locked inside the systems they were supposed to unlock.
+
+The store that is not:
+
+```bash
+bootstrap/scripts/load-secrets.sh --put HETZNERSSHKEY < ~/.ssh/<key>
+bootstrap/scripts/load-secrets.sh --put ARGOCD_REPO_TOKEN   # paste, Ctrl-D
+bootstrap/scripts/load-secrets.sh                           # what is present, no values
+```
+
+One mode-600 file per secret under `~/.config/marisstella/secrets`, on the
+machine that runs your agents, with an optional age-encrypted copy in
+`infra/secrets/` so a second machine is one key away rather than six pastes
+away. No runner, no cluster, no vendor, no network. It is also the only
+thing here that can tell you a stored key is the **public** half before you
+spend a dispatch finding out.
+
+Item 7's seals and the Actions secrets below are still worth doing — when
+the cluster and the runners are back, they make the recovery repeatable
+without a laptop. They are no longer the *only* copy, which is the change.
+
 ## The short version: two seals, one command
 
 **Changed 2026-09-01: this was "three seals" until CI came back on its
@@ -352,7 +379,56 @@ codes as exit 42 and a rejected credential as exit 43.
 
 ## Publish `tools.marisstella.dev` (the whole product portfolio)
 
-This is the shortest path from "174 finished tools nobody can reach" to a
+> **READ THIS FIRST — 2026-09-06. This section is about the origin that is
+> DOWN, and it is no longer the route to a public URL.**
+>
+> Two things changed under this section and neither one rewrote it, so every
+> paragraph below reads as if `marisstella.dev` were serving. It is not:
+>
+> - **The cluster is down.** `:6443` and `:443` refused on both boxes
+>   (`Outage triage` run 33889983086, 2026-09-04), corroborated 2026-09-06
+>   from your own browser — `https://marisstella.dev/` returns
+>   `ERR_CONNECTION_REFUSED`. So the "the domain is no longer dark" note
+>   directly below, and the mirror-count arithmetic after it, describe a
+>   front door nobody can currently open. Restoring it is the
+>   `hetzner-ssh-key-is-a-public-key` row in your decision queue, and it is
+>   the **only** unblocker here that depends on neither a runner nor the
+>   cluster (`:22` answers on both boxes).
+> - **A different origin went live.** GitHub Pages serves the `gh-pages`
+>   branch that `platform/pages/publish-branch.sh` writes. GitHub's own
+>   managed builder ran on that branch and succeeded (runs 34011996382,
+>   34012041708, 34056715531), and a managed Pages build fires only for the
+>   *configured source* — so the catalogue has a public URL today, without
+>   the cluster, without a runner, and without any step in this section:
+>   **https://duncan-haywood.github.io/monorepo-projects/**
+>
+> Ask `python3 platform/ci/pages_state.py` rather than trusting either this
+> box or the prose below it — it prints the live route, whether the snapshot
+> still matches `main`, and the URL to confirm.
+>
+> **The one flip that is worth your time here, and it is not Step 1.** The
+> `gh-pages` branch is a *committed artifact*: nothing rebuilds it when
+> `main` moves, so today the live site only stays current because a session
+> remembers to re-run the publish script after every merge. It has already
+> been found stale once (built from `1afe50c5` while `main` was at
+> `565cc635`). `.github/workflows/publish-pages-branch.yml` closes that hole
+> permanently — it runs exactly that script on every push to `main` that
+> touches a served surface — but it ships switched off, per CLAUDE.md's rule
+> that an unattended workflow must not push commits without your approval.
+> To arm it: **Settings → Secrets and variables → Actions → Variables → set
+> `PAGES_BRANCH_PUBLISH` to `true`.** Clearing the variable switches it back
+> off. It needs an Actions runner, so it does nothing until the metered
+> allowance resets (`github-actions-runners` in `infra_state.yaml`, down
+> since 2026-09-04) — which is exactly why it is worth setting *now* rather
+> than being remembered later: with it set, the drift hole closes by itself
+> on the day runners return.
+>
+> Step 1 below is still worth doing eventually — it buys the canonical
+> hostname and search indexability, which the mirrored copies deliberately
+> do not have. It is no longer what stands between the portfolio and a
+> reader.
+
+This is the shortest path from "175 finished tools nobody can reach" to a
 public URL, and every step in it is yours — none of it is waiting on an
 agent. `gitops/README.md` explains *why* each one exists; this is the
 order to type them in and how to tell each worked.
@@ -360,7 +436,7 @@ order to type them in and how to tell each worked.
 **Note what this section is and is not about, since 2026-09-02.** The
 domain itself is no longer dark: `marisstella.dev` and `www` already serve
 a front door with no owner action (see the `marisstella.dev` bullet under
-"You decide" below), and it mirrors 174 of the 174 tools directly. Step 1
+"You decide" below), and it mirrors 210 of the 210 tools directly. Step 1
 below no longer publishes any tool a stranger cannot already reach; what it
 buys is the canonical hostname and indexability.
 
@@ -402,8 +478,16 @@ it retires the mirror, serves the canonical host, and lets those pages be
 *indexed*, which the mirrored copies deliberately are not — but it is no
 longer the difference between a stranger reaching 53 tools and reaching
 169. Since the `ENTRY_OVERRIDES` fix above it is not a tool-count difference
-at all: the apex serves all 174. What Step 1 buys is the canonical host and
+at all: the apex serves all 210. What Step 1 buys is the canonical host and
 search.
+
+**Corrected 2026-09-07.** This sentence said "175" while the paragraph 40
+lines above it already said "198 of the 198" — the mirror kept growing
+(new ventures graduating with a static `index.html` from their first
+commit, same shape `test_mirrored_tool_count_matches_what_the_docs_claim`
+tracks) and this specific sentence was not one of the four the test already
+pinned, so it drifted silently and contradicted the rest of its own
+section. Added here rather than just fixed: the gap in the test, below.
 
 **Updated 2026-09-03, twice.** This paragraph said 159 until #2948
 (2026-09-02) raised the mirror to 162 — it updated the bullet two
@@ -522,7 +606,7 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `portfolio-site-repo` is sealed, so the redirect was live but led
   nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
   generated front-door page (positioning, one card per category, the
-  §5b clauses) plus a static mirror of 174 tools at `/tools/<slug>/`, both
+  §5b clauses) plus a static mirror of 210 tools at `/tools/<slug>/`, both
   held in kustomize ConfigMaps. Neither clones the repo at pod start, so
   neither needs the token, a runner, or a Pages flip — a merge to `main`
   is the deploy, same as everything else in this tree. No owner action;

@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home Staging Bid Calculator — Price a Vacant Listing</title>
+<meta name="description" content="Free calculator for independent home stagers: price a vacant-listing staging job from the included term, furniture carrying cost, crew labor, and mileage, then check whether your extension fee actually covers your own carrying cost before a slow listing erases the margin.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Home Staging Bid Calculator">
+<meta property="og:description" content="A staging price set for an included term can under-recover what the furniture package really costs to hold, and an extension fee priced below your own carrying cost loses money on every month a listing sits. Find the real numbers before you quote.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Home Staging Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a vacant-listing staging job from the included term, furniture carrying cost, crew labor, mileage, and equipment cost, flags an extension fee priced below the carrying cost, and checks the real profit once the listing's actual time on market is known."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the calculator price the staging job at the included term instead of how long I expect the listing to take?","acceptedAnswer":{"@type":"Answer","text":"Because that is what a staging agreement actually promises: a price for an included term, with anything beyond it billed separately as an extension. Pricing the base fee from your expected time-on-market instead would double-count carrying cost for months that are supposed to be billed as an extension, not baked into the sticker price."}},{"@type":"Question","name":"What happens if my extension fee is lower than my furniture carrying cost?","acceptedAnswer":{"@type":"Answer","text":"Every month the listing runs long then costs you more to keep that furniture package off the market than you charge the seller for it, so the fee meant to protect your margin instead erodes it — and the loss has no ceiling the longer the listing takes to sell. The calculator flags this directly and reports how many extension months would erase the job's entire built-in profit."}},{"@type":"Question","name":"Why is the design consultation fee treated as pure profit with no added cost?","acceptedAnswer":{"@type":"Answer","text":"Because in this model the consultation is billed once regardless of term length and adds no furniture, storage, or crew cost of its own. If your business does incur a real added cost for it (a second visit, printed materials), fold that into the flat other-cost field."}},{"@type":"Question","name":"Does anything about my job details get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#241a12;background:#f7f1ea}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e6d3ba;border-radius:16px;padding:20px;box-shadow:0 8px 24px #46270708;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #f0e3cd;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#9a5a12;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #dcb886;border-radius:8px;font:inherit;background:#fffdfa}.result{background:#5c3a0f;color:#fff;border-color:#5c3a0f}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6a5a46}.result .note{color:#eadcc6}.err{color:#ffd9a6;font-weight:700}.warn{background:#fff4e0;border:1px solid #f0c987;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#3f2808;border-color:#c98b3b;color:#ffe6b0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #dcb886;background:#fff;cursor:pointer;color:#241a12}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+/* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5c5854; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #5c3a0f; --pr-accent: #8a5a22;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style></head>
+<body>
+<header><p>FOR INDEPENDENT HOME STAGERS</p><h1>Time on market decides your margin, not the staging price.</h1><p class="lede">A staging quote covers an included term, but the furniture package keeps costing you storage, insurance, and wear for every month it sits in the house — and the market, not you, decides how long that is. This free calculator prices a job from that included term, then checks whether your extension fee even covers what an extra month costs you, and lets you plug in the real time on market once the listing sells. Already sending proposals through a CRM? See <a href="vs-honeybook.html">this calculator vs. HoneyBook</a> for what each tool is actually for.</p></header>
+
+<main class="layout">
+<section><h2>Price one staging job</h2>
+<fieldset><legend>Listing &amp; term</legend><div class="fields">
+<label>Rooms staged<input id="roomsStaged" type="number" min="1" step="1" value="4"></label>
+<label>Included term (months)<input id="includedTermMonths" type="number" min="0.5" step="0.5" value="2"></label>
+<label>Expected time on market (months)<input id="expectedTermMonths" type="number" min="0.5" step="0.5" value="3"></label>
+</div></fieldset>
+<fieldset><legend>Furniture &amp; extension</legend><div class="fields">
+<label>Furniture carrying cost ($/month, your cost)<input id="furnitureCarryingCostPerMonth" type="number" min="0" step="1" value="220"></label>
+<label>Extension fee ($/month charged to seller)<input id="extensionFeePerMonth" type="number" min="0" step="1" value="250"></label>
+</div></fieldset>
+<fieldset><legend>Crew, mileage &amp; consult</legend><div class="fields">
+<label>Crew hours (delivery + arrange + pickup)<input id="crewHours" type="number" min="0" step="0.25" value="6"></label>
+<label>Crew pay ($/hr)<input id="crewHourlyRate" type="number" min="0" step="1" value="30"></label>
+<label>Round-trip miles<input id="roundTripMiles" type="number" min="0" step="1" value="25"></label>
+<label>Mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.67"></label>
+<label>Equipment cost per job ($)<input id="equipmentCostPerJob" type="number" min="0" step="1" value="40"></label>
+<label>Design consultation fee ($)<input id="consultFlatFee" type="number" min="0" step="1" value="150"></label>
+</div></fieldset>
+<fieldset><legend>Overhead &amp; margin</legend><div class="fields">
+<label>Overhead (% of direct cost)<input id="overheadRate" type="number" min="0" step="1" value="10"></label>
+<label>Target margin (%)<input id="targetMargin" type="number" min="0" max="99" step="1" value="30"></label>
+<label>Other flat cost ($)<input id="otherCost" type="number" min="0" step="1" value="0"></label>
+</div></fieldset>
+</section>
+
+<section class="result" aria-live="polite"><h2>Staging price to quote</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="price" class="big">$0.00</div><p id="termLine" class="note"></p>
+<dl>
+<dt>Crew labor</dt><dd id="laborOut"></dd>
+<dt>Mileage</dt><dd id="mileageOut"></dd>
+<dt>Furniture at included term</dt><dd id="furnitureOut"></dd>
+<dt>Equipment</dt><dd id="equipmentOut"></dd>
+<dt>Overhead</dt><dd id="overheadOut"></dd>
+<dt>Breakeven at included term</dt><dd id="breakEvenOut"></dd>
+<dt>Profit at included term</dt><dd id="profitOut"></dd>
+</dl>
+<p id="termWarning" class="warn" hidden></p>
+<h3>If this listing takes as long as you expect</h3>
+<dl>
+<dt>Expected extension months</dt><dd id="expExtMonthsOut"></dd>
+<dt>Expected extension revenue</dt><dd id="expExtRevOut"></dd>
+<dt>Expected total revenue</dt><dd id="expRevenueOut"></dd>
+<dt>Expected total profit</dt><dd id="expProfitOut"></dd>
+<dt>Expected margin</dt><dd id="expMarginOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not add sales tax, insurance beyond your own carrying-cost figure, or a damage-and-replacement policy unless you fold those into other cost yourself.</p>
+</section>
+<!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Harborview Home Staging LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Stage 4 rooms for a 2-month included term&#10;Include a design consultation"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Storage or staging beyond the included term without an agreed extension&#10;Repair of damage found at pickup not caused by the crew"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Due in full before delivery."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="An extension fee applies for every month beyond the included term the listing remains on the market."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+<section><h2>Check a listing that already sold</h2><p class="note">Home closed or the listing withdrew? Enter the actual time on market (in months — days on market divided by 30) to see the real profit this job leaves, instead of the estimate.</p>
+<div class="fields">
+<label>Actual time on market (months)<input id="actualTermMonths" type="number" min="0" step="0.1" value=""></label>
+</div>
+<p id="actualErrors" class="err" role="alert" hidden></p>
+<dl id="actualResult" hidden>
+<dt>Extension months billed</dt><dd id="actualExtMonthsOut"></dd>
+<dt>Extension revenue</dt><dd id="actualExtRevOut"></dd>
+<dt>Furniture cost</dt><dd id="actualFurnitureOut"></dd>
+<dt>Total revenue</dt><dd id="actualRevenueOut"></dd>
+<dt>Profit</dt><dd id="actualProfitOut"></dd>
+<dt>Margin</dt><dd id="actualMarginOut"></dd>
+<dt>Below breakeven?</dt><dd id="actualBelowOut"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your job details, prices, and listing dates are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>quote-priced</code>, <code>term-checked</code>) so we can tell whether the calculator gets used — no job details, prices, or dates are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does the calculator price the staging job at the included term instead of how long I expect the listing to take?</h3><p>Because that is what a staging agreement actually promises: a price for an included term, with anything beyond it billed separately as an extension. Pricing the base fee from your expected time-on-market instead would double-count carrying cost for months that are supposed to be billed as an extension, not baked into the sticker price.</p>
+<h3>What happens if my extension fee is lower than my furniture carrying cost?</h3><p>Every month the listing runs long then costs you more to keep that furniture package off the market than you charge the seller for it, so the fee meant to protect your margin instead erodes it — and the loss has no ceiling the longer the listing takes to sell. The calculator flags this directly and reports how many extension months would erase the job's entire built-in profit.</p>
+<h3>Why is the design consultation fee treated as pure profit with no added cost?</h3><p>Because in this model the consultation is billed once regardless of term length and adds no furniture, storage, or crew cost of its own. If your business does incur a real added cost for it (a second visit, printed materials), fold that into the flat other-cost field.</p>
+<h3>Does anything about my job details get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<p class="note"><a href="./how-much-to-charge-for-home-staging.html">How much to charge for home staging</a> &mdash; the method, without a lead form: why a staging job is two costs wearing one price, and how to set an extension fee that clears what the furniture package costs you to carry. &middot; <a href="./vs-hutch.html">This calculator vs. Hutch — pricing one job vs. running a full furniture inventory</a></p>
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a staging or listing agreement, predict how long a home will take to sell, or replace your own contract, insurance, or accountant. It models a vacant-listing furniture package only — occupied-home staging consultations are priced differently and are not covered here.</p><p>Bidding a home elevator install instead of a staging job? The <a href="../home-elevator-bid-calculator/">home elevator bid calculator</a> prices a residential elevator from stops, travel, pneumatic vs. hydraulic vs. traction MRL, shaft type, cab material, and extras &mdash; nothing uploaded.</p><p>MIT licensed. If it helped you price a job, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculateQuote, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const FIELD_IDS = Object.keys(DEFAULTS);
+let counted = false;
+let actualCounted = false;
+
+function readInput() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+function count(event) { recordEvent(event); }
+
+function updateQuote(shouldCount = false) {
+  try {
+    const r = calculateQuote(readInput());
+    el('errors').hidden = true; el('errors').textContent = ''; el('price').hidden = false;
+    el('price').textContent = money(r.basePrice);
+    el('termLine').textContent = `Covers ${el('includedTermMonths').value} months and ${el('roomsStaged').value} rooms at ${r.baseMarginPct.toFixed(0)}% margin`;
+    el('laborOut').textContent = money(r.laborCost);
+    el('mileageOut').textContent = money(r.mileageCost);
+    el('furnitureOut').textContent = money(r.furnitureCostAtIncludedTerm);
+    el('equipmentOut').textContent = money(r.equipmentCostPerJob);
+    el('overheadOut').textContent = money(r.overhead);
+    el('breakEvenOut').textContent = money(r.breakEvenPrice);
+    el('profitOut').textContent = money(r.baseProfit);
+    el('expExtMonthsOut').textContent = r.expectedExtensionMonths.toFixed(2);
+    el('expExtRevOut').textContent = money(r.expectedExtensionRevenue);
+    el('expRevenueOut').textContent = money(r.expectedTotalRevenue);
+    el('expProfitOut').textContent = money(r.expectedProfit);
+    el('expMarginOut').textContent = r.expectedMarginPct === null ? '—' : `${r.expectedMarginPct.toFixed(1)}%`;
+    if (r.termRiskTight) {
+      el('termWarning').hidden = false;
+      el('termWarning').textContent = `Your extension fee ($${el('extensionFeePerMonth').value}/month) is below your furniture carrying cost ($${el('furnitureCarryingCostPerMonth').value}/month), and this listing is expected to run about ${r.expectedExtensionMonths.toFixed(2)} months past the included term. About ${r.maxExtensionMonthsBeforeLoss.toFixed(2)} extension months would erase this job's entire built-in profit — raise the extension fee above the carrying cost before quoting a listing like this.`;
+    } else {
+      el('termWarning').hidden = true;
+    }
+    if (shouldCount && !counted) { count('quote-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('price').hidden = true;
+    el('termWarning').hidden = true;
+    for (const id of ['termLine', 'laborOut', 'mileageOut', 'furnitureOut', 'equipmentOut', 'overheadOut', 'breakEvenOut', 'profitOut', 'expExtMonthsOut', 'expExtRevOut', 'expRevenueOut', 'expProfitOut', 'expMarginOut']) el(id).textContent = '';
+  }
+}
+
+function updateActual(shouldCount = false) {
+  const raw = el('actualTermMonths').value;
+  if (raw === '') {
+    el('actualResult').hidden = true;
+    el('actualErrors').hidden = true; el('actualErrors').textContent = '';
+    return;
+  }
+  try {
+    const r = calculateQuote({ ...readInput(), actualTermMonths: raw });
+    el('actualErrors').hidden = true; el('actualErrors').textContent = '';
+    el('actualResult').hidden = false;
+    el('actualExtMonthsOut').textContent = r.actual.extensionMonths.toFixed(2);
+    el('actualExtRevOut').textContent = money(r.actual.extensionRevenue);
+    el('actualFurnitureOut').textContent = money(r.actual.furnitureCost);
+    el('actualRevenueOut').textContent = money(r.actual.totalRevenue);
+    el('actualProfitOut').textContent = money(r.actual.profit);
+    el('actualMarginOut').textContent = r.actual.marginPct === null ? '—' : `${r.actual.marginPct.toFixed(1)}%`;
+    el('actualBelowOut').textContent = r.actual.belowBreakEven ? 'Yes — below breakeven' : 'No';
+    if (shouldCount && !actualCounted) { count('term-checked'); actualCounted = true; }
+  } catch (e) {
+    el('actualErrors').textContent = e.message; el('actualErrors').hidden = false;
+    el('actualResult').hidden = true;
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { updateQuote(true); updateActual(false); }));
+el('actualTermMonths').addEventListener('input', () => updateActual(true));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+updateQuote(false);
+updateActual(false);
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'home-staging-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. It is not a listing agreement, a guarantee of time on market, or a valuation of the property.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Deliver, arrange, and style a full furniture package across {roomsStaged} room{roomsStaged+s}",
+        "Hold the furniture package on site for the {includedTermMonths}-month included term",
+        {
+          "line": "Include a design consultation",
+          "when": "consultFlatFee"
+        },
+        "Pick up and remove the furniture package once the listing sells or the included term ends",
+        "A month-to-month extension is available beyond the included term at the rate quoted below"
+      ];
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, result).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.basePrice,
+        jobTitle: scopeLines(['Home staging — {roomsStaged} room{roomsStaged+s}, {includedTermMonths}-month included term'], result)[0] || 'Home staging — room, -month included term',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateQuote(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateQuote(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+</script>
+</body></html>

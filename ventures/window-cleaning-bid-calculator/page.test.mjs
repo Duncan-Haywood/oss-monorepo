@@ -100,3 +100,15 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same cleaning subcategory, but gutter runs and downspouts
+// rather than panes. Without a crawlable link here, a crawler entering on the
+// window calculator never reaches the gutter tool in one hop.
+test('index links one hop to the gutter-cleaning-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/gutter-cleaning-bid-calculator\/"/,
+    'index must link ../gutter-cleaning-bid-calculator/ so crawlers reach the gutter calculator in one hop',
+  );
+  assert.match(html, /gutter cleaning bid calculator/i);
+});

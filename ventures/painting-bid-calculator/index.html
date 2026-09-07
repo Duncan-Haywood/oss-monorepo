@@ -161,7 +161,7 @@
           <label>Prep hours <input id="prepHours" type="number" min="0" step="0.5" value="6"></label>
           <label>Setup &amp; cleanup hours <input id="setupHours" type="number" min="0" step="0.5" value="2"></label>
           <label>Paint price / gallon <input id="paintPrice" type="number" min="0" step="1" value="45"></label>
-          <label>Coverage (sq ft / gallon / coat) <input id="paintCoverage" type="number" min="1" step="10" value="350"></label>
+          <label>Coverage (sq ft / gallon / coat) <input id="paintCoverage" type="number" min="1" step="any" value="350"></label>
           <label>Paint waste (%) <input id="wastePercent" type="number" min="0" step="1" value="10"></label>
           <label>Travel &amp; mileage <input id="travelCost" type="number" min="0" step="1" value="40"></label>
           <label>Tape, plastic, other <input id="otherCost" type="number" min="0" step="1" value="35"></label>
@@ -303,6 +303,7 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A shareable link carries only the numbers you typed, inside the URL you copy. Usage counts are anonymous tallies of which features were used, stored locally, and never include your house, wages, costs, or prices.</p>
+    <p>Pricing an exterior elevation instead of interior rooms? The <a href="../exterior-painting-bid-calculator/">exterior painting bid calculator</a> prices stories, scrape and prime, and hard access &mdash; nothing uploaded.</p>
     <p>Related: <a href="./interior-painting-price-per-square-foot.html">why price-per-floor-square-foot bids lose money</a> &middot; <a href="./vs-paintscout.html">this calculator vs. PaintScout</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -368,7 +369,7 @@
       row.innerHTML = `
         <label for="${id}-type"><span class="lbl">Surface</span><select class="s-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
         <label for="${id}-qty"><span class="lbl">Quantity</span><input class="s-qty" id="${id}-qty" type="number" min="0" step="1"></label>
-        <label for="${id}-rate"><span class="lbl">Production rate</span><input class="s-rate" id="${id}-rate" type="number" min="0.05" step="0.25"></label>
+        <label for="${id}-rate"><span class="lbl">Production rate</span><input class="s-rate" id="${id}-rate" type="number" min="0.05" step="any"></label>
         <label for="${id}-coats"><span class="lbl">Coats</span><input class="s-coats" id="${id}-coats" type="number" min="1" step="1"></label>
         <button type="button" class="remove">Remove<span class="lbl"> this surface</span></button>`;
 
@@ -528,18 +529,34 @@
       } catch {
         saved = { costs: {}, surfaces: [] };
       }
-      const fromLink = decodeState(location.search || location.hash || '');
-      // The terms ride in the fragment even though this tool's own payload is a
-      // query string. A fragment is not sent in the request line a server logs,
-      // nor in the Referer header a later click carries, and a payment-terms
-      // clause is the painter's own wording — it does not belong in either.
-      applyTerms(decodeTerms(splitTerms(location.hash).terms), el);
+      // Everything rides in the fragment now, terms and numbers alike. The
+      // terms already did, for a reason spelled out here before: a fragment is
+      // not sent in the request line a server logs, nor in the Referer header
+      // a later click carries. That argument was never specific to wording —
+      // this tool's payload is the painter's labour rate, overhead, production
+      // rates and target margin, which is their cost structure. Splitting the
+      // two put the sentence and the numbers behind it on opposite sides of
+      // the same privacy boundary.
+      //
+      // `location.search` is still read so bids shared as `?...` links before
+      // this change keep opening to the sender's figures; nothing writes one.
+      const { payload, terms } = splitTerms(location.hash);
+      const fromLink = decodeState(payload || location.search || '');
+      applyTerms(decodeTerms(terms), el);
       const costs = { ...DEFAULT_COSTS, ...saved.costs, ...fromLink.costs };
       const surfaces = fromLink.surfaces.length ? fromLink.surfaces
         : saved.surfaces.length ? saved.surfaces
         : STARTING_SURFACES;
       applyCosts(costs);
       surfaces.forEach(addSurfaceRow);
+      // A bid opened from a pre-fragment `?` link still has the painter's
+      // costs in the query string, where every later request from this tab
+      // would resend them. Move them to the fragment once, in place, keeping
+      // whatever terms came in alongside.
+      if (location.search) {
+        const moved = withTerms(encodeState({ surfaces, costs }), readTerms(el));
+        history.replaceState(null, '', `${location.pathname}${moved ? `#${moved}` : ''}`);
+      }
     }
 
     el('addSurface').addEventListener('click', () => {
@@ -557,8 +574,11 @@
     el('shareLink').addEventListener('click', async () => {
       const query = encodeState({ surfaces: readSurfaces(), costs: readCosts() });
       const terms = readTerms(el);
-      const fragment = withTerms('', terms);
-      const url = `${location.origin}${location.pathname}?${query}${fragment ? `#${fragment}` : ''}`;
+      // `withTerms` appends the terms to the venture's own payload with `&`,
+      // which is exactly the shape `splitTerms` takes apart on the way back
+      // in — so both halves fit in the one fragment with no second separator.
+      const fragment = withTerms(query, terms);
+      const url = `${location.origin}${location.pathname}${fragment ? `#${fragment}` : ''}`;
       const leftBehind = overlongTermsNote(terms);
       try {
         await navigator.clipboard.writeText(url);
@@ -567,7 +587,7 @@
           : 'Link copied. It contains only the numbers in this form, your deposit and your terms.';
         count('share_copied');
       } catch {
-        history.replaceState(null, '', `?${query}${fragment ? `#${fragment}` : ''}`);
+        history.replaceState(null, '', `${location.pathname}${fragment ? `#${fragment}` : ''}`);
         el('shareStatus').textContent = 'Could not copy automatically — the address bar now holds the shareable link.';
       }
     });

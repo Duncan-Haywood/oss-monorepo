@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Equipment Lease Buyout Calculator — Buy Out vs. Return and Replace</title>
+  <meta name="description" content="Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Equipment lease buyout calculator">
+  <meta property="og:description" content="Buy out the lease or return the equipment and replace it? Compare true monthly cost, not just the payoff price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Equipment Lease Buyout Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Web","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why isn’t the buyout price alone enough to decide?","acceptedAnswer":{"@type":"Answer","text":"Because a price only means something next to what it buys. A $9,000 buyout is expensive on equipment worth $6,000 with a year of life left, and cheap on equipment that would cost $30,000 to replace and run for five more years. This tool divides the buyout price by the months of use you expect to get, and does the same for a replacement, so the two numbers are comparable on a common footing: cost per month of use."}},{"@type":"Question","name":"Where do I get the fair market value and useful-life numbers?","acceptedAnswer":{"@type":"Answer","text":"They are your own estimate, not a lookup this tool performs. For fair market value, a comparable listing (equipment dealer, auction result, or classifieds for the same make, model, and age) is usually close enough; a written appraisal is better if the number is large. For remaining useful life, your own maintenance history and how hard the equipment has been run matter more than its age on paper. Both numbers drive the verdict directly, so a rough guess in either one should be treated as a rough verdict."}},{"@type":"Question","name":"What is the break-even buyout price?","acceptedAnswer":{"@type":"Answer","text":"The buyout price at which paying it and returning-and-replacing cost exactly the same per month of use. It is the number worth negotiating against, not the figure on the payoff letter — a payoff letter is what the lessor wants, not what the equipment is worth to you. If the quoted buyout is above break-even, walking away is the cheaper path by this estimate; if it is below, paying it is."}},{"@type":"Question","name":"Why does the buyout price sometimes exceed fair market value?","acceptedAnswer":{"@type":"Answer","text":"Some leases set the buyout at a fixed schedule agreed at signing rather than at true fair market value, and a fixed schedule can drift well above what the equipment is actually worth by the time the option is exercised — especially on equipment that depreciates fast. If your lease says the buyout is supposed to be fair market value and the lessor’s number is well above a comparable listing, that is worth raising before paying it, not after."}},{"@type":"Question","name":"What does the replacement side of the comparison include?","acceptedAnswer":{"@type":"Answer","text":"The all-in cost of a comparable replacement — purchase price or the total of a new lease — plus removal or return cost (rigging, drayage, freight, or a lease-end reconditioning charge), plus any downtime cost while the swap happens. Leaving out removal and downtime is the most common way this comparison undercounts the cost of walking away, so both have their own fields rather than being folded into the replacement price."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The calculation runs entirely in your browser, there are no accounts, no cookies and no analytics vendor, and there is no network request in the page at all. A saved comparison stores only the numbers you typed and stays in this browser; reset deletes it. Lease terms and replacement costs are commercially sensitive, which is exactly why none of it leaves the page."}},{"@type":"Question","name":"Does this tool tell me what to do?","acceptedAnswer":{"@type":"Answer","text":"It reports which path this estimate says is cheaper per month of use, and by how much. It cannot weigh cashflow timing, whether a replacement is actually available on short notice, or how much a familiar machine and crew are worth compared to a new one — those are yours to weigh, and the verdict is a starting point for that conversation, not the end of it."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#16232b; --muted:#5b6a72; --paper:#f4f1ea; --accent:#1f5c6f; --warn:#8a4b1d; --line:#d6cfc2; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,sans-serif; }
+    main { max-width:1000px; margin:auto; padding:52px 20px 40px; }
+    .eyebrow { color:var(--accent); font-weight:800; letter-spacing:.12em; text-transform:uppercase; font-size:.75rem; }
+    h1 { max-width:720px; font:800 clamp(2.1rem,5.6vw,4.4rem)/1.0 Georgia,serif; margin:14px 0; }
+    .lede { max-width:660px; color:var(--muted); font-size:1.14rem; }
+    .grid { display:grid; grid-template-columns: minmax(280px,.9fr) 1.1fr; gap:24px; margin-top:34px; }
+    .panel { background:#fffdf8; border:1px solid var(--line); border-radius:18px; padding:24px; box-shadow:0 10px 30px #2b3a3010; }
+    label { display:block; font-weight:700; margin:15px 0 5px; }
+    input { width:100%; border:1px solid #b6ada0; border-radius:8px; padding:11px; font:inherit; background:white; }
+    button { border:0; border-radius:999px; background:var(--accent); color:white; padding:12px 20px; font-weight:800; cursor:pointer; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; } button.secondary { background:#4a5a60; }
+    .status { margin-top:10px; color:var(--muted); font-size:.9rem; }
+    #status { min-height:1.2em; }
+    .results { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+    .metric { background:#e9edf0; border-radius:12px; padding:16px; } .metric strong { display:block; font-size:1.55rem; } .metric span { color:var(--muted); font-size:.88rem; }
+    .callout { margin-top:18px; border-left:4px solid var(--accent); padding:12px 15px; background:#eaf2f5; }
+    .notes { margin-top:16px; padding-left:20px; } .notes li { margin-bottom:10px; color:var(--ink); }
+    fieldset { border:1px solid var(--line); border-radius:12px; padding:8px 16px 18px; margin:22px 0 0; } legend { font-weight:800; padding:0 6px; }
+    footer { color:var(--muted); font-size:.85rem; margin-top:32px; } a { color:inherit; }
+    @media (max-width:700px) { main { padding-top:30px; } .grid { grid-template-columns:1fr; } }
+    @media (max-width:400px) { .results { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body><main>
+  <div class="eyebrow">For anyone holding a lease-end payoff letter</div>
+  <h1>Buy out the lease, or return it and replace it?</h1>
+  <p class="lede">The payoff price alone does not answer the question. This compares the true cost per month
+    of use on both paths — buying out against returning and replacing — using the equipment's remaining
+    useful life and what a replacement actually costs.</p>
+  <p class="status">New to this decision? Read the guide: <a href="./should-i-buy-out-my-equipment-lease.html">should I buy out my equipment lease?</a></p>
+  <p class="status"><a href="./vs-crest-capital.html">This calculator vs. Crest Capital's lease calculator</a></p>
+
+  <section class="grid">
+    <form class="panel" id="form">
+      <h2>Your lease and replacement numbers</h2>
+      <label for="buyoutPrice">Lease buyout price ($)</label>
+      <input id="buyoutPrice" type="number" min="0" step="1" value="8000" required>
+
+      <label for="fairMarketValue">Estimated fair market value today ($)</label>
+      <input id="fairMarketValue" type="number" min="0" step="1" value="6000" required>
+      <p class="status">A comparable listing or appraisal, not the payoff letter's number.</p>
+
+      <label for="usefulLifeMonths">Months of useful life if you keep it</label>
+      <input id="usefulLifeMonths" type="number" min="1" step="1" value="24" required>
+
+      <fieldset>
+        <legend>If you return it instead</legend>
+        <label for="replacementCost">Cost of a comparable replacement ($)</label>
+        <input id="replacementCost" type="number" min="0" step="1" value="22000" required>
+        <label for="replacementLifeMonths">Replacement's expected useful life (months)</label>
+        <input id="replacementLifeMonths" type="number" min="1" step="1" value="60" required>
+        <label for="removalCost">Removal / return cost ($)</label>
+        <input id="removalCost" type="number" min="0" step="1" value="500" required>
+        <label for="downtimeDays">Expected downtime while swapping (days)</label>
+        <input id="downtimeDays" type="number" min="0" step="0.5" value="2" required>
+        <label for="dailyDowntimeCost">Cost of one day of downtime ($)</label>
+        <input id="dailyDowntimeCost" type="number" min="0" step="1" value="300" required>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit">Compare</button>
+        <button type="button" class="secondary" id="save">Save comparison</button>
+        <button type="button" class="secondary" id="reset">Reset</button>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </form>
+
+    <section class="panel" aria-live="polite">
+      <h2>Cost per month of use</h2>
+      <div class="results">
+        <div class="metric"><strong id="perMonthBuyout">$333.33</strong><span>buying out</span></div>
+        <div class="metric"><strong id="perMonthReplace">$385.00</strong><span>return and replace</span></div>
+        <div class="metric"><strong id="breakEven">$9,240.00</strong><span>break-even buyout price</span></div>
+        <div class="metric"><strong id="premium">33%</strong><span>buyout vs. fair market value</span></div>
+      </div>
+      <div class="callout" id="message"></div>
+      <ul class="notes" id="notes"></ul>
+    </section>
+  </section>
+
+  <section class="panel" id="faq">
+    <h2>Common questions</h2>
+
+    <h3>Why isn&rsquo;t the buyout price alone enough to decide?</h3>
+    <p>Because a price only means something next to what it buys. A $9,000 buyout is expensive on
+      equipment worth $6,000 with a year of life left, and cheap on equipment that would cost $30,000 to
+      replace and run for five more years. This tool divides the buyout price by the months of use you
+      expect to get, and does the same for a replacement, so the two numbers are comparable on a common
+      footing: cost per month of use.</p>
+
+    <h3>Where do I get the fair market value and useful-life numbers?</h3>
+    <p>They are your own estimate, not a lookup this tool performs. For fair market value, a comparable
+      listing (equipment dealer, auction result, or classifieds for the same make, model, and age) is
+      usually close enough; a written appraisal is better if the number is large. For remaining useful
+      life, your own maintenance history and how hard the equipment has been run matter more than its age
+      on paper. Both numbers drive the verdict directly, so a rough guess in either one should be treated
+      as a rough verdict.</p>
+
+    <h3>What is the break-even buyout price?</h3>
+    <p>The buyout price at which paying it and returning-and-replacing cost exactly the same per month of
+      use. It is the number worth negotiating against, not the figure on the payoff letter &mdash; a
+      payoff letter is what the lessor wants, not what the equipment is worth to you. If the quoted buyout
+      is above break-even, walking away is the cheaper path by this estimate; if it is below, paying it
+      is.</p>
+
+    <h3>Why does the buyout price sometimes exceed fair market value?</h3>
+    <p>Some leases set the buyout at a fixed schedule agreed at signing rather than at true fair market
+      value, and a fixed schedule can drift well above what the equipment is actually worth by the time
+      the option is exercised &mdash; especially on equipment that depreciates fast. If your lease says
+      the buyout is supposed to be fair market value and the lessor&rsquo;s number is well above a
+      comparable listing, that is worth raising before paying it, not after.</p>
+
+    <h3>What does the replacement side of the comparison include?</h3>
+    <p>The all-in cost of a comparable replacement &mdash; purchase price or the total of a new lease
+      &mdash; plus removal or return cost (rigging, drayage, freight, or a lease-end reconditioning
+      charge), plus any downtime cost while the swap happens. Leaving out removal and downtime is the
+      most common way this comparison undercounts the cost of walking away, so both have their own fields
+      rather than being folded into the replacement price.</p>
+
+    <h3>Is any of this uploaded?</h3>
+    <p>No. The calculation runs entirely in your browser, there are no accounts, no cookies and no
+      analytics vendor, and there is no network request in the page at all. A saved comparison stores
+      only the numbers you typed and stays in this browser; reset deletes it. Lease terms and replacement
+      costs are commercially sensitive, which is exactly why none of it leaves the page.</p>
+
+    <h3>Does this tool tell me what to do?</h3>
+    <p>It reports which path this estimate says is cheaper per month of use, and by how much. It cannot
+      weigh cashflow timing, whether a replacement is actually available on short notice, or how much a
+      familiar machine and crew are worth compared to a new one &mdash; those are yours to weigh, and the
+      verdict is a starting point for that conversation, not the end of it.</p>
+  </section>
+
+  <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+    kind, express or implied. It is not financial, accounting, or legal advice, and it does not replace
+    a qualified professional. <strong>You are responsible for reviewing and verifying its output before
+    relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum
+    extent permitted by law, the authors accept no liability for any loss or damage arising from its
+    use.<br><br>Fair market value and useful-life figures are your own estimates, not a lookup this tool
+    performs. Everything runs in your browser. Your data is never uploaded; there are no accounts,
+    cookies, or analytics vendors. A saved comparison stores only the numbers entered here and stays in
+    this browser &mdash; reset deletes it. Anonymous feature events are stored only in this browser and
+    can be disabled by <a href="#" id="disable">turning usage counting off</a>.
+    <p class="support">Free and open source. If it helped you negotiate a buyout, the
+      <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash;
+      <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+      optional and never changes what the tool does. Sizing a lease before you sign one instead? See how
+      this compares to <a href="vs-lendzero.html">Lendzero's lease calculator</a>.</p>
+    <p>Pricing bookings on equipment you already own instead of deciding a lease buyout? The
+      <a href="../equipment-rental-break-even/">equipment rental break-even calculator</a> finds a
+      sustainable booking price after ownership, delivery, cleaning, damage reserve, and idle-time
+      costs &mdash; nothing uploaded.</p></footer>
+</main><script type="module">
+  import { compareBuyout, verdictMessage, verdictNotes, formatMoney, formatPercent } from './calc.mjs';
+  import { recordEvent, disableUsage, saveScenario, loadScenario, clearScenario, SCENARIO_FIELDS } from './usage.mjs';
+
+  const form = document.querySelector('#form');
+  const example = {
+    buyoutPrice: 8000, fairMarketValue: 6000, usefulLifeMonths: 24,
+    replacementCost: 22000, replacementLifeMonths: 60, removalCost: 500,
+    downtimeDays: 2, dailyDowntimeCost: 300,
+  };
+  const read = id => document.querySelector(`#${id}`).value;
+  const values = () => Object.fromEntries(SCENARIO_FIELDS.map(id => [id, read(id)]));
+  const status = text => { document.querySelector('#status').textContent = text; };
+  const set = (id, text) => { document.querySelector(`#${id}`).textContent = text; };
+
+  function render(count = false) {
+    try {
+      const result = compareBuyout(values());
+      set('perMonthBuyout', formatMoney(result.costPerMonthBuyout));
+      set('perMonthReplace', formatMoney(result.costPerMonthReplace));
+      set('breakEven', formatMoney(result.breakEvenBuyoutPrice));
+      set('premium', result.premiumOverFairMarketValuePercent === null
+        ? '—'
+        : `${result.premiumOverFairMarketValue >= 0 ? '+' : ''}${formatPercent(result.premiumOverFairMarketValuePercent)}`);
+      set('message', verdictMessage(result));
+      const list = document.querySelector('#notes');
+      list.textContent = '';
+      for (const note of verdictNotes(result)) {
+        const item = document.createElement('li');
+        item.textContent = note;
+        list.append(item);
+      }
+      if (count) recordEvent('buyout_compared');
+    } catch (error) {
+      // A rejected input must not leave the previous comparison on screen
+      // beside a small error line -- every derived figure showing the last
+      // lease's numbers while the form holds this one's reads as the answer,
+      // and there is nothing on the page to say otherwise -- so clear them
+      // all and show the message in its own region.
+      for (const id of ['perMonthBuyout', 'perMonthReplace', 'breakEven', 'premium']) {
+        document.querySelector(`#${id}`).textContent = '';
+      }
+      document.querySelector('#notes').textContent = '';
+      document.querySelector('#message').textContent = error.message;
+    }
+  }
+
+  form.addEventListener('submit', event => { event.preventDefault(); render(true); });
+
+  document.querySelector('#save').addEventListener('click', () => {
+    if (saveScenario(null, values())) {
+      recordEvent('comparison_saved');
+      status('Comparison saved in this browser.');
+    } else {
+      status('This browser could not save the comparison. Check every field holds a number of zero or more.');
+    }
+  });
+
+  document.querySelector('#reset').addEventListener('click', () => {
+    for (const [id, value] of Object.entries(example)) document.querySelector(`#${id}`).value = value;
+    clearScenario();
+    render(false);
+    status('Reset to the example lease.');
+  });
+
+  document.querySelector('#disable').addEventListener('click', event => {
+    event.preventDefault();
+    disableUsage();
+    status('Usage counting is off in this browser.');
+  });
+
+  const saved = loadScenario();
+  if (saved) {
+    for (const id of SCENARIO_FIELDS) document.querySelector(`#${id}`).value = saved[id];
+    recordEvent('comparison_restored');
+    status('Saved comparison restored from this browser.');
+  }
+  render(false);
+</script></body></html>

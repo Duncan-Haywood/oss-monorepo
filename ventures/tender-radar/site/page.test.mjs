@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 
 test("page persists a local draft and can clear it", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
@@ -28,4 +28,30 @@ test("every FAQPage question/answer pair is also rendered as visible copy", asyn
     assert.ok(page.includes(entry.name), `question not visible on page: ${entry.name}`);
     assert.ok(page.includes(entry.acceptedAnswer.text), `answer not visible on page: ${entry.acceptedAnswer.text}`);
   }
+});
+
+// Regression: sitemap.xml listed only the index and missed both secondary
+// pages linked from it (which-tenders… and vs-govwin). Same incomplete
+// hand-authored sitemap class fixed fleet-wide in #3292.
+test("every .html file in the venture is reachable from the sitemap", async () => {
+  const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
+  const htmlFiles = (await readdir(new URL("./", import.meta.url))).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    if (name === "index.html" || name === "offline.html") continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+  }
+});
+
+// tender-bid-readiness already links here for CSV shortlist → paperwork
+// check (#3650). The SEO pages on this venture already deep-link out, but
+// without a crawlable link on the index a crawler entering on the product
+// hub never reaches the readiness checker in one hop — same one-way orphan
+// class as #3639 / #3650.
+test("index links to the related tender-bid-readiness checker", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    /href="\.\.\/tender-bid-readiness\/"/,
+    "index must link ../tender-bid-readiness/ so crawlers can reach the paperwork checker",
+  );
 });

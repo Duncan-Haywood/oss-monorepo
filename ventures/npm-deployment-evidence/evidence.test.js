@@ -78,6 +78,49 @@ test("rejects a lockfile that is not valid JSON", () => {
   assert.throws(() => buildReport("not json", "x.json"), /not valid JSON/);
 });
 
+test("names a yarn.lock instead of calling it invalid JSON", () => {
+  const yarn = "# yarn lockfile v1\n\nlodash@^4.0.0:\n  version \"4.17.21\"\n";
+  assert.throws(() => buildReport(yarn, "yarn.lock"), /yarn\.lock/);
+  assert.throws(() => buildReport(yarn, "yarn.lock"), /package-lock\.json/);
+  assert.doesNotMatch(
+    (() => { try { buildReport(yarn, "yarn.lock"); return ""; } catch (e) { return e.message; } })(),
+    /not valid JSON/,
+  );
+});
+
+test("names a pnpm-lock.yaml instead of calling it invalid JSON", () => {
+  const pnpm = "lockfileVersion: 5.4\n\nimporters:\n  .\n    dependencies:\n      lodash: 4.17.21\n";
+  assert.throws(() => buildReport(pnpm, "pnpm-lock.yaml"), /pnpm-lock\.yaml/);
+  assert.throws(() => buildReport(pnpm, "pasted.txt"), /pnpm-lock\.yaml/);
+});
+
+test("detects yarn from content even when the filename is generic", () => {
+  const yarn = "# yarn lockfile v1\n\nfoo@1.0.0:\n  version \"1.0.0\"\n";
+  assert.throws(() => buildReport(yarn, "lockfile.txt"), /yarn\.lock/);
+});
+
+test("package names that collide with Object properties still produce exportable reports", () => {
+  const text = JSON.stringify({
+    lockfileVersion: 3,
+    packages: {
+      "node_modules/constructor": { version: "1.0.0", dev: true },
+      "node_modules/parent/node_modules/constructor": { version: "2.0.0" },
+      "node_modules/__proto__": { version: "3.0.0", dev: true },
+      "node_modules/hasOwnProperty": { version: "4.0.0", dev: true },
+    },
+  });
+  const report = buildReport(text, "package-lock.json");
+  assert.equal(report.componentCount, 3);
+  assert.deepEqual(report.counts, { production: 1, "build-only": 2 });
+  const constructor = report.components.find((row) => row.name === "constructor");
+  assert.deepEqual(constructor.versions, ["1.0.0", "2.0.0"]);
+  assert.equal(constructor.locations.length, 2);
+  assert.equal(constructor.surface, "production");
+  assert.deepEqual(JSON.parse(toJson(report)), report);
+  assert.match(toMarkdown(report), /`constructor` \| 1.0.0, 2.0.0 \| production/);
+  assert.match(toMarkdown(report), /`__proto__` \| 3.0.0 \| build-only/);
+});
+
 test("rejects yarn/pnpm-shaped input (no lockfileVersion 2/3 packages map)", () => {
   const text = JSON.stringify({ lockfileVersion: 1, dependencies: {} });
   assert.throws(() => buildReport(text, "x.json"), /v2 or v3/);

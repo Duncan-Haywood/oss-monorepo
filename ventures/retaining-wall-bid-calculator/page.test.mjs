@@ -89,3 +89,16 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
+
+// Closest sibling: the same hardscape job: the wall exists to make a patio flat. Related-tool chrome rotates inside the
+// Concrete, masonry & site work subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the paver-patio-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/paver-patio-bid-calculator\/"/,
+    'index must link ../paver-patio-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /paver patio bid calculator/i);
+});

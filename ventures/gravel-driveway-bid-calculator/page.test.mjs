@@ -199,3 +199,15 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same driveway job, but hot-mix asphalt paving rather than
+// gravel. Related-tool chrome rotates inside the subcategory, so without an
+// explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the asphalt-driveway-pave-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/asphalt-driveway-pave-bid-calculator\/"/,
+    'index must link ../asphalt-driveway-pave-bid-calculator/ so crawlers reach the asphalt pave calculator in one hop',
+  );
+  assert.match(html, /asphalt driveway paving bid calculator/i);
+});

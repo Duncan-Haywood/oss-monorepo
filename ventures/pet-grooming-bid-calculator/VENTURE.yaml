@@ -1,0 +1,53 @@
+name: pet-grooming-bid-calculator
+description: Free browser calculator for independent and mobile dog/cat groomers to price a groom from size, coat, matting, add-ons, loaded labor, optional mobile travel, payment fees, and target margin.
+
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Independent and mobile groomers will return to a private calculator that turns size, coat, matting, and add-ons into a defensible minimum quote, since generic hourly tools do not price matted coats or large/giant breeds correctly.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers for dog grooming pricing and "how much to charge for matted dog" are underserved by generic per-breed price lists that ignore coat condition and add-on time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 10
+  protected: true
+
+# Liability containment: this tool prices a groom, it never assesses whether
+# an animal is fit to be groomed. A coat matted to the skin can hide skin
+# damage, sores, or infection that a shave-down can worsen, and needs a
+# veterinarian or vet tech rather than a bigger invoice; a fearful or
+# aggressive animal is a safety call for the groomer, not a pricing input.
+# The calculator lets a groomer select a matting-severity input that drives a
+# legitimate time/price surcharge (matted coats take longer to work through),
+# but refuses to turn a "severe" selection into a quote until the groomer has
+# explicitly checked a separate acknowledgment that they inspected the skin
+# and judged the animal safe to groom (see `calc.mjs`'s `severeMattingAck`
+# guard, the same shape as the fee+margin unreachable-target guard every bid
+# calculator in this portfolio already uses). The page, the README, and the
+# printed customer proposal all state plainly that this tool makes no
+# veterinary, animal-health, or animal-welfare determination, and that severe
+# matting or an unsafe animal should be referred out rather than priced in.
+mitigations:
+  - risk: A groomer (or this tool) treats a bigger matting surcharge as permission to push through a groom that is actually a welfare or safety referral.
+    containment: severe matting cannot be priced without an explicit, separate safety acknowledgment checkbox; the page, README, and printed proposal all state this tool makes no veterinary/animal-health/animal-welfare determination.
+
+kill_criteria:
+  - No return usage or organic referral signal within 60 days of publishing.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - The severe-matting acknowledgment is reported as being clicked through without groomers actually checking the animal, indicating the disclaimer does not contain the liability.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pet-grooming-bid-calculator/
+  analytics: null

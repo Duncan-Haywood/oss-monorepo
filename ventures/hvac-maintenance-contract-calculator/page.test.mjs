@@ -25,7 +25,7 @@ test('the Enter handler is attached to every id the calculation reads, not a har
   const trackedIds = idsDecl[1].match(/'([^']+)'/g).map((s) => s.slice(1, -1));
   assert.deepEqual(
     trackedIds,
-    ['visits', 'hours', 'rate', 'travel', 'parts', 'callbacks', 'callbackHours', 'callbackCost', 'overhead', 'margin', 'proposed'],
+    ['visits', 'hours', 'rate', 'travel', 'parts', 'callbacks', 'callbackHours', 'callbackCost', 'overhead', 'margin', 'proposed', 'pullThrough', 'cancelMonths'],
   );
   // The Enter handler loops over the same `ids` array used to build the
   // calculatePlan() call, so a field added to one is covered by the other
@@ -44,7 +44,7 @@ test('an invalid input hides stale results instead of leaving them next to a sil
   const catchBlock = scriptSource.match(/\} catch\(error\)\{([\s\S]*?)\n {4}\} \}/);
   assert.ok(catchBlock, 'calculate() catch block not found');
   const body = catchBlock[1];
-  for (const id of ['monthly', 'floor', 'annual', 'techHours', 'cost', 'effective', 'summary']) {
+  for (const id of ['monthly', 'floor', 'annual', 'techHours', 'cost', 'effective', 'payback', 'ptFloor', 'ptProfit', 'summary']) {
     assert.match(
       body,
       new RegExp(`\\$\\("${id}"\\)\\.textContent\\s*=\\s*''`),
@@ -55,7 +55,39 @@ test('an invalid input hides stale results instead of leaving them next to a sil
   assert.match(body, /errorsEl\.hidden\s*=\s*false/, 'the error message is never shown');
 });
 
+test('the cancellation banner is cleared with the rest of the stale result', () => {
+  // The cancellation exposure is the most alarming number on the page. Leaving
+  // it up beside a rejected input would read as a live verdict on figures the
+  // calculator has just refused.
+  const catchBlock = scriptSource.match(/\} catch\(error\)\{([\s\S]*?)\n {4}\} \}/);
+  assert.ok(catchBlock, 'calculate() catch block not found');
+  assert.match(catchBlock[1], /cancelNote\.hidden\s*=\s*true/);
+  assert.match(catchBlock[1], /ptFloorMetric"\)\.hidden\s*=\s*true/);
+});
+
+test('the optional retention inputs are genuinely optional on the page', () => {
+  // Both carry a placeholder rather than a value, so an untouched form prices
+  // the plan fee alone -- the behaviour every existing user already relies on.
+  assert.match(html, /<input id="pullThrough"[^>]*placeholder=/);
+  assert.match(html, /<input id="cancelMonths"[^>]*placeholder=/);
+  assert.equal(/<input id="pullThrough"[^>]*\svalue=/.test(html), false);
+  assert.equal(/<input id="cancelMonths"[^>]*\svalue=/.test(html), false);
+});
+
 test('disclaimer and usage tracking are still present', () => {
   assert.match(html, /No warranty\./);
   assert.match(scriptSource, /recordUsage\(localStorage,false,'plan_calculated'\)/);
+});
+
+// Closest MEP sibling: same subcategory, but a one-off appliance repair call
+// rather than a recurring HVAC maintenance plan. Related-tool chrome rotates
+// inside the subcategory, so without an explicit one-hop a crawler on this
+// page may never land on that tool.
+test('index links one hop to the appliance-repair-quote-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/appliance-repair-quote-calculator\/"/,
+    'index must link ../appliance-repair-quote-calculator/ so crawlers reach the appliance calculator in one hop',
+  );
+  assert.match(html, /appliance repair quote calculator/i);
 });

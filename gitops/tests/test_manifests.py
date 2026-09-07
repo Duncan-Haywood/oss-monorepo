@@ -476,6 +476,66 @@ def test_the_mandate_does_not_teach_the_retired_absent_ci_excuse() -> None:
     assert "check-runs" in mandate, "the endpoint that actually answers must be named"
 
 
+def test_queue_prompts_point_at_the_maintained_verification_list() -> None:
+    # Same defect as the test above, one level up. CLAUDE.md's "Ship without
+    # review ceremony" block is the maintained set of local checks -- the one
+    # that gets widened when a guard is found to be going unrun. Three queue
+    # prompts each restated a *subset* of it inline and then went stale
+    # against it, which is the restate-instead-of-import failure CLAUDE.md
+    # records twice against the front-door mirror ("168 became 169").
+    #
+    # Measured 2026-09-05, the same day that block gained four directories:
+    #   - deploy-cicd-readiness named `pytest gitops/tests` and kubeconform,
+    #     and never `platform/ci` -- although its own candidate 2 sends every
+    #     run at `.github/workflows/`, and `platform/ci/` holds the 15
+    #     unittest modules guarding ci_starvation/pages_state/publish_surface/
+    #     public_surface/validate_workflows. A run could edit the tool this
+    #     repo uses to decide whether a red check is real and execute no
+    #     guard on it.
+    #   - marketing-distribution and seo-discoverability-audit both ship page
+    #     surfaces and named neither `regen.mjs` nor
+    #     `platform/marketing/*.test.mjs` -- the generator and the guard whose
+    #     `missing from the commit` failure CLAUDE.md records costing live
+    #     product twice (#3256-#3258, #3324-#3326).
+    #
+    # This asserts the pointer rather than the contents, deliberately: pinning
+    # the command list here would create a fourth copy to go stale, which is
+    # the thing being fixed.
+    claude_md = (REPO / "CLAUDE.md").read_text()
+    assert "Ship without review ceremony" in claude_md, (
+        "the queue prompts point at this heading; renaming it orphans them"
+    )
+
+    # The guards each item is most likely to need, given what its own prompt
+    # sends a run at. Keyed by item id so a renamed file fails loudly.
+    required: dict[str, tuple[str, ...]] = {
+        "deploy-cicd-readiness": ("platform/ci",),
+        "marketing-distribution": ("regen.mjs", "platform/marketing"),
+        "seo-discoverability-audit": ("regen.mjs", "platform/marketing"),
+    }
+    seen: set[str] = set()
+
+    for path in sorted((AGENTS / "queue").glob("*.yaml")):
+        if path.name == "example.item.yaml":
+            continue
+        data = yaml.safe_load(path.read_text())
+        if not data.get("enabled"):
+            continue
+        prompt = data.get("prompt") or ""
+        if "erify" not in prompt:  # says nothing about verifying
+            continue
+        assert "CLAUDE.md" in prompt, (
+            f"{path.name} tells a run to verify without pointing at the "
+            "maintained list in CLAUDE.md, so its inline list can go stale"
+        )
+        for needle in required.get(data["id"], ()):
+            assert needle in prompt, f"{path.name} never names {needle}"
+        seen.add(data["id"])
+
+    missing = set(required) - seen
+    assert not missing, f"queue items disappeared or were disabled: {sorted(missing)}"
+
+
 def test_job_template_from_governor_hides_sa_token() -> None:
     # The live Job is built in Python; the CronJob (governor) DOES mount a token.
     cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())
@@ -1213,7 +1273,123 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # surface. Same shape as the three ventures above: its Python CLI stays
     # canonical and an `index.html` beside it made the venture mirrorable, so
     # the mirror and the total moved together and parity held.
-    total = 174  # `infra/OWNER_CHECKLIST.md`'s own "N of the 174 tools" wording.
+    # 175 since 2026-09-05, when `vendor-change-watch` gained a browser surface.
+    # The same shape as the four above and the fifth instance of it: a Python
+    # CLI that stays canonical, with an `index.html` beside it that makes the
+    # venture mirrorable, so the mirror and the total move together.
+    # That this keeps happening is the point — a CLI acquiring a page is a
+    # routine event here, not an exception, which is also why
+    # `platform/pages/clauses.test.mjs` stopped using a CLI as its fixture for
+    # "a venture with no browser surface" in the same change.
+    # 176 since 2026-09-06, when `pet-grooming-bid-calculator` shipped — a new
+    # venture with a static `index.html` from its first commit, entering the
+    # mirror and the total in the same change rather than closing a gap
+    # between them, the same shape as `which-job-first`.
+    # 177 since 2026-09-06, when `card-processing-fee-audit` shipped — a new
+    # venture with a static `index.html` from its first commit, so it entered
+    # the mirror and the total in the same change, the same shape as
+    # `pet-grooming-bid-calculator` above.
+    # 178 since 2026-09-06, when `equipment-lease-buyout-calculator` shipped —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 179 since 2026-09-06, when `dog-walking-route-pricing` shipped — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 180 since 2026-09-06, when `vending-machine-route-margin` shipped — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 181 since 2026-09-06, when `atm-route-margin` shipped — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 182 since 2026-09-06, when `photo-booth-event-quote` shipped — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 183 since 2026-09-06, when `custom-farm-rate-calculator` shipped — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 184 since 2026-09-06, when `dumpster-rental-margin-calculator` shipped —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 185 since 2026-09-06, when `vehicle-wrap-bid-calculator` shipped — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 186 since 2026-09-06, when `locksmith-bid-calculator` shipped — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 187 since 2026-09-06, when `fire-extinguisher-inspection-route-margin`
+    # shipped — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 188 since 2026-09-06, when `ice-dam-removal-bid-calculator` shipped —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 189 since 2026-09-06, when `home-staging-bid-calculator` shipped — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 190 since 2026-09-07, when `pour-cost-calculator` shipped — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 191 since 2026-09-07, when `actions-runner-starvation-check` graduated in
+    # #3615 — same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together. The venture PR
+    # updated neither this constant nor the four hand-typed counts below it, so
+    # `main` was red on this test for three merges; that is exactly the drift
+    # this test exists to catch, working as intended.
+    # 192 since 2026-09-07, when `flaky-test-finder` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 193 since 2026-09-07, when `coverage-drop-check` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 194 since 2026-09-07, when `kdp-royalty-calculator` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 195 since 2026-09-07, when `whatnot-seller-payout` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 196 since 2026-09-07, when `ai-crawler-access-check` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 197 since 2026-09-07, when `ada-title-ii-evidence` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 198 since 2026-09-07, when `pinned-actions-check` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 199 since 2026-09-07, when `actions-injection-check` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 200 since 2026-09-07, when `childcare-tuition-calculator` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 201 since 2026-09-07, when `actions-permissions-check` graduated.
+    # 202 since 2026-09-07, when `license-drift-check` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 203 since 2026-09-07, when `gig-driver-net-pay-calculator` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 204 since 2026-09-07, when `actions-cache-poisoning-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 205 since 2026-09-07, when `npm-lifecycle-script-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 206 since 2026-09-07, when `dependency-confusion-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 207 since 2026-09-07, when `actions-self-hosted-exposure-check`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 208 since 2026-09-07, when `vscode-extension-drift-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 209 since 2026-09-07, when `3d-print-price-calculator` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 210 since 2026-09-07, when `food-truck-event-margin-calculator`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    total = 210  # `infra/OWNER_CHECKLIST.md`'s own "N of the 210 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
@@ -1301,6 +1477,23 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     for value in conf_matches:
         assert int(value) == actual, (
             f"default.conf's comment claims {value} mirrored tools, actual is {actual}"
+        )
+
+    # A fifth count, found stale on 2026-09-07: `OWNER_CHECKLIST.md` restates
+    # the total a second time, in the "not a tool-count difference at all"
+    # paragraph explaining what sealing `portfolio-site-repo` buys once the
+    # mirror already carries everything. It said "175" for days while the
+    # "mirrors N of the N tools directly" sentence 40 lines above it (checked
+    # above) already said 198 -- two counts in the same document disagreeing,
+    # because this sentence was never one of the four this test pinned. Same
+    # failure mode as the rest of this test, caught the same way.
+    apex_serves_matches = re.findall(r"the apex serves all (\d+)", checklist)
+    assert apex_serves_matches, (
+        "OWNER_CHECKLIST.md's 'the apex serves all N' sentence not found or reworded"
+    )
+    for value in apex_serves_matches:
+        assert int(value) == actual, (
+            f"OWNER_CHECKLIST.md's 'apex serves all' claims {value} tools, actual is {actual}"
         )
 
 

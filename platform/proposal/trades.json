@@ -1392,6 +1392,28 @@
     },
     "disclaimerTail": "Residential elevators are governed by the elevator code and inspection regime in force locally; this is a price, not a code determination or an inspection."
   },
+  "home-staging-bid-calculator": {
+    "priceField": "basePrice",
+    "jobTitle": "Home staging — {roomsStaged} room{roomsStaged+s}, {includedTermMonths}-month included term",
+    "scope": [
+      "Deliver, arrange, and style a full furniture package across {roomsStaged} room{roomsStaged+s}",
+      "Hold the furniture package on site for the {includedTermMonths}-month included term",
+      {
+        "line": "Include a design consultation",
+        "when": "consultFlatFee"
+      },
+      "Pick up and remove the furniture package once the listing sells or the included term ends",
+      "A month-to-month extension is available beyond the included term at the rate quoted below"
+    ],
+    "placeholders": {
+      "companyName": "Harborview Home Staging LLC",
+      "scope": "Stage 4 rooms for a 2-month included term\nInclude a design consultation",
+      "exclusions": "Storage or staging beyond the included term without an agreed extension\nRepair of damage found at pickup not caused by the crew",
+      "paymentTerms": "Due in full before delivery.",
+      "notes": "An extension fee applies for every month beyond the included term the listing remains on the market."
+    },
+    "disclaimerTail": "It is not a listing agreement, a guarantee of time on market, or a valuation of the property."
+  },
   "hood-cleaning-bid-calculator": {
     "jobTitle": "Kitchen exhaust cleaning — {hoodCount~0} hood system{hoodCount+s}",
     "priceField": "jobPrice",
@@ -1842,6 +1864,52 @@
     },
     "disclaimerTail": "It is a maintenance schedule, not a turf health, agronomic, or irrigation assessment, and it does not guarantee the condition or appearance of the lawn.",
     "screenPriceSelector": "#monthly"
+  },
+  "locksmith-bid-calculator": {
+    "jobTitle": "Locksmith service call",
+    "priceField": "finalPrice",
+    "depositPercent": 0,
+    "fields": {
+      "laborMinutes": {
+        "number": "laborMinutes"
+      },
+      "travelMinutes": {
+        "number": "travelMinutes"
+      },
+      "partsSupplied": {
+        "number": "partsCost"
+      },
+      "emergencyApplied": {
+        "from": "emergencyCall"
+      }
+    },
+    "scope": [
+      {
+        "line": "{laborMinutes} minute{laborMinutes+s} of on-site labor to complete the job",
+        "when": "laborMinutes"
+      },
+      {
+        "line": "{travelMinutes} minute{travelMinutes+s} of round-trip travel to reach you",
+        "when": "travelMinutes"
+      },
+      {
+        "line": "After-hours or emergency response",
+        "when": "emergencyApplied"
+      },
+      {
+        "line": "Hardware supplied and fitted as needed for the job",
+        "when": "partsSupplied"
+      },
+      "Test all affected locks or hardware on completion and confirm normal operation"
+    ],
+    "placeholders": {
+      "companyName": "Bright Key Locksmith LLC",
+      "scope": "Respond to an after-hours lockout\nRekey the front and back door locks to one key",
+      "exclusions": "Safe opening or safe combination work\nAccess-control system programming beyond a single fob",
+      "paymentTerms": "Due in full on completion of the call.",
+      "notes": "Photo ID matching the service address may be requested before work begins."
+    },
+    "disclaimerTail": "It is not a determination of legal ownership or occupancy of the property, and it does not verify a locksmith license or bond."
   },
   "mobile-detailing-bid-calculator": {
     "jobTitle": "Mobile detailing — {laborHours~1} hour{laborHours+s} on site",
@@ -3695,5 +3763,108 @@
       },
       "Identification checked and the journal entry completed for each act"
     ]
+  },
+  "change-order-margin-calculator": {
+    "priceField": "targetPrice",
+    "screenPriceSelector": "#targetPrice",
+    "calcFn": "calculateChangeOrder",
+    "depositPercent": 0,
+    "jobTitle": "Change order — {changeTitle}",
+    "jobTitleFallback": "Change order",
+    "disclaimerTail": "This document prices the added scope only. It does not modify any other term of the underlying contract, does not itself constitute the contract's required change-order approval process, and does not determine whether the added work is owed under that contract.",
+    "labels": {
+      "heading": "Send the customer a written change order",
+      "intro": "The price above is for you. This is the page you print or save as a PDF and give the customer to approve before the added work begins — your details, theirs, what the change covers, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer’s details are never saved.",
+      "depositPercent": "Deposit (%) — leave at 0 to bill on completion",
+      "scope": "What this change order covers — one line each, edit freely",
+      "printButton": "Print change order / Save as PDF"
+    },
+    "placeholders": {
+      "clientName": "L. Bergstrom",
+      "clientAddress": "812 Chamberlain St",
+      "scope": "Added two exterior outlets on a dedicated 20A circuit",
+      "paymentTerms": "Due on completion of the added work, before it is folded into the next draw."
+    },
+    "fields": {
+      "changeTitle": {
+        "input": "title"
+      },
+      "materialsAmount": {
+        "number": "materials"
+      },
+      "subAmount": {
+        "number": "subcontractor"
+      }
+    },
+    "scope": [
+      "Change order: {changeTitle}",
+      {
+        "line": "{hours~2} additional labor hour(s) beyond the original scope",
+        "when": "hours"
+      },
+      {
+        "line": "Additional materials for the added scope",
+        "when": "materialsAmount"
+      },
+      {
+        "line": "Additional subcontracted work for the added scope",
+        "when": "subAmount"
+      },
+      {
+        "line": "{daysAdded~0} additional day(s) added to the project schedule, including extended site supervision and equipment",
+        "when": "daysAdded"
+      },
+      "Priced separately from, and not itself a change to, the underlying contract's other terms"
+    ]
+  },
+  "vehicle-wrap-bid-calculator": {
+    "jobTitle": "Vehicle wrap — {vehicleSurfaceAreaSqFt~0} sq ft",
+    "jobTitleFallback": "Vehicle wrap",
+    "scope": [
+      "Wrap {vehicleSurfaceAreaSqFt~0} sq ft of vehicle surface in cast vinyl film",
+      {
+        "line": "Apply a protective laminate over the full wrap",
+        "when": "laminateCostPerSqFt"
+      },
+      {
+        "line": "Remove and dispose of the existing wrap or graphics before installing",
+        "when": "removalHours"
+      },
+      "Design, proof, and prepare a print-ready file for your approval before production",
+      "Install, seal edges, and post-heat for a durable finish; leave the vehicle clean"
+    ],
+    "placeholders": {
+      "companyName": "Overland Wrap & Graphics LLC",
+      "scope": "Full wrap on one mid-size sedan in cast vinyl with laminate\nDesign proof and one revision round included",
+      "exclusions": "Bodywork, dent repair, or paint correction before install\nRemoval of a wrap installed by another shop unless quoted separately",
+      "notes": "Vehicle should arrive clean and free of wax or silicone-based products for the film to bond properly."
+    },
+    "disclaimerTail": "Vinyl wrap adhesion depends on paint condition and surface prep; it is not a paint-correction, dent, or rust repair, and film life varies with climate, garaging, and care."
+  },
+  "ice-dam-removal-bid-calculator": {
+    "jobTitle": "Ice dam removal — {edgeFeet} ft of roof edge",
+    "priceField": "quotedPrice",
+    "fields": {
+      "emergencyApplied": {
+        "from": "emergencyCall"
+      }
+    },
+    "scope": [
+      "Steam-clear {edgeFeet} linear ft of roof eave and valley of built-up ice",
+      {
+        "line": "Dispatched as a storm / after-hours priority call",
+        "when": "emergencyApplied"
+      },
+      "Crew and equipment on site to clear ice without damaging roofing, gutters, or siding",
+      "Walk the roof edge before and after to confirm the ice is cleared"
+    ],
+    "placeholders": {
+      "companyName": "North Ridge Ice Dam Removal LLC",
+      "scope": "Steam-clear the front and north-side eaves\nClear the valley above the garage",
+      "exclusions": "Roof shoveling or snow-load removal\nGutter or shingle repair",
+      "paymentTerms": "Due on completion of the call.",
+      "notes": "Weather may require rescheduling; we will call ahead."
+    },
+    "disclaimerTail": "It is not a roofing, structural, or ice-dam-prevention assessment, and it does not replace your own contract or insurance."
   }
 }

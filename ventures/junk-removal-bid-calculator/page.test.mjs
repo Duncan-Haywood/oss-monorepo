@@ -80,3 +80,16 @@ test('the landing copy names the search problem before the form', () => {
   assert.match(markup, /dump ticket/);
   assert.match(markup, /<title>Junk Removal Bid Calculator/);
 });
+
+// Closest cleaning sibling: same property clear-out, but a household move rather
+// than a landfill haul. Related-tool chrome rotates inside the cleaning
+// subcategory, so without an explicit one-hop a crawler on this page may never
+// land on that tool.
+test('index links one hop to the moving-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/moving-bid-calculator\/"/,
+    'index must link ../moving-bid-calculator/ so crawlers reach the moving calculator in one hop',
+  );
+  assert.match(html, /moving company bid calculator/i);
+});

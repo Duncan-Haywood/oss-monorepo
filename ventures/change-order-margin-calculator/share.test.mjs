@@ -66,3 +66,28 @@ test('SHARE_FIELDS includes the fields a dropped value would silently change', (
     assert.ok(SHARE_FIELDS.includes(key), `missing ${key}`);
   }
 });
+
+test('a shared link also carries the customer-proposal panel\'s deposit and terms', () => {
+  // Regression: the proposal panel (platform/proposal/adopt.mjs) writes a
+  // deposit percentage and three prose fields onto this page, and this
+  // module predates it. Without these in SHARE_FIELDS, a setter who priced a
+  // 50% deposit held for 15 days would send a link that reopens under this
+  // page's own defaults for the recipient -- same headline price, different
+  // money on acceptance, with nothing anywhere saying so.
+  // platform/proposal/term-ids.test.mjs asserts this list agrees with the
+  // panel's own TERM_IDS.
+  const withTerms = {
+    ...sample,
+    depositPercent: 50,
+    validDays: 15,
+    paymentTerms: 'Net 15 on completion',
+    proposalNotes: 'Work to begin once approved',
+    proposalExclusions: 'Permit fees',
+  };
+  const restored = decodeShare(encodeShare(withTerms));
+  assert.equal(restored.depositPercent, 50);
+  assert.equal(restored.validDays, 15);
+  assert.equal(restored.paymentTerms, 'Net 15 on completion');
+  assert.equal(restored.proposalNotes, 'Work to begin once approved');
+  assert.equal(restored.proposalExclusions, 'Permit fees');
+});

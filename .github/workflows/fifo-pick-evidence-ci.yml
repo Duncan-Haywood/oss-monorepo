@@ -51,3 +51,21 @@ jobs:
             echo "unexpected exit code $status" >&2
             exit 1
           fi
+
+  # Added 2026-09-07. The venture began as a Python CLI and later gained a
+  # browser page with its own `*.test.mjs` suites; this workflow was never
+  # widened, and no portfolio-wide workflow runs `node --test` inside a
+  # venture, so those assertions ran in no CI job at all. CLAUDE.md records
+  # "a CLI acquiring a page" as a routine event here, which is exactly why
+  # the gap is easy to miss. `validate_workflows.py` invariant 7 now fails
+  # when a venture ships `*.test.mjs` that no workflow runs.
+  page-test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run the page module tests
+        run: node --test

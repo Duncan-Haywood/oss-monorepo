@@ -74,6 +74,32 @@ const NO_SHARED_SHOP_RATES = {
     '("Operator hourly wage", $22), so rather than rename an id that reaches calc.mjs\'s ' +
     'input contract, its tests and every bid link already shared, SHOP_RATE_ALIASES maps ' +
     'the canonical field onto that id and the page carries the full set.',
+  'pet-grooming-bid-calculator':
+    'its "overhead" is dollars allocated to the job, not a percentage of direct cost, so the ' +
+    'overhead rate cannot be shared onto it. Its wage and burden do match -- spelled `wage` and ' +
+    '`burdenPercent` -- and its target margin already matches the canonical id directly, so it ' +
+    'now carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'vehicle-wrap-bid-calculator':
+    'its installer rate is a loaded rate -- wage and burden together, spelled `installerHourlyRate` ' +
+    '-- with no separate burden field, so hourlyWage and burdenRate cannot be shared onto it. Its ' +
+    'overhead and target margin already carry the canonical ids directly, so it carries two of the ' +
+    'four: see PARTIAL_SHOP_RATE_PAGES.',
+  'locksmith-bid-calculator':
+    'it prices time as one billed hourly rate rather than a separate crew wage and payroll ' +
+    'burden -- there is no `hourlyWage` or `burdenRate` concept on this page to alias. Its ' +
+    'overhead and target margin do match the canonical meaning exactly and are spelled ' +
+    '`overheadRate` and `targetMargin` directly, so it carries two of the four: see ' +
+    'PARTIAL_SHOP_RATE_PAGES.',
+  'ice-dam-removal-bid-calculator':
+    'its per-tech wage is spelled `crewHourlyRate` rather than `hourlyWage`, but means the same ' +
+    'raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its overhead and target margin already ' +
+    'match the canonical ids directly. It has no separate payroll-burden field at all, so it ' +
+    'carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'home-staging-bid-calculator':
+    'its per-tech wage is spelled `crewHourlyRate` rather than `hourlyWage`, but means the same ' +
+    'raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its overhead and target margin already ' +
+    'match the canonical ids directly. It has no separate payroll-burden field at all, so it ' +
+    'carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {

@@ -83,6 +83,16 @@ test('comparison page exposes a local CSV export', async () => {
   assert.match(page, /3pl-quote-comparison\.csv/);
 });
 
+test('comparison page offers a shareable link that restores from the URL fragment', async () => {
+  const page = await readFile(new URL('./compare.html', import.meta.url), 'utf8');
+  assert.match(page, /from "\.\/share\.mjs"/);
+  assert.match(page, /id="copyLink"/);
+  assert.match(page, /Copy comparison link/);
+  assert.match(page, /decodeShare\(location\.hash\)/);
+  assert.match(page, /encodeShare\(values\(\)\)/);
+  assert.match(page, /comparison_link_copied/);
+});
+
 test('calculator keeps input warnings in the copied report path', async () => {
   const script = await readFile(new URL('./calc.mjs', import.meta.url), 'utf8');
   assert.match(script, /Input warnings/);
@@ -301,11 +311,20 @@ test('negotiation page points back to the calculator’s own itemized brief', as
 
 test('inbound SEO page explains the container-fee arithmetic', async () => {
   const page = await readFile(new URL('./pallet-vs-carton-inbound.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(page, /\$10/);
   assert.match(page, /inbound.html/);
   assert.match(page, /not financial, tax, legal/);
   assert.match(sitemap, /pallet-vs-carton-inbound.html/);
+  // The explainer already linked back via inbound.html; the product index
+  // shipped without a crawlable link of its own, so a visitor (or crawler)
+  // on the tool never reached the search-phrase page in one hop.
+  assert.match(
+    index,
+    /href="\.\/pallet-vs-carton-inbound\.html"/,
+    'index must link the inbound SEO page so crawlers can reach it from the product',
+  );
 });
 
 test('kitting page compares 3PL assembly, pre-kit, and skipping the bundle', async () => {
@@ -328,4 +347,17 @@ test('kitting page compares 3PL assembly, pre-kit, and skipping the bundle', asy
   assert.match(index, /should-i-pay-the-3pl-to-kit\.html/);
   assert.match(sitemap, /should-i-pay-the-3pl-to-kit\.html/);
   assert.match(robots, /Sitemap:/);
+});
+
+// Closest sibling: same monthly-cost-normalization shape, but a cloud storage
+// bill rather than a fulfillment quote. Without a crawlable link here, a
+// crawler entering on the 3PL quote normalizer never reaches the cloud
+// egress calculator in one hop.
+test('index links one hop to the cloud-egress-calculator sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/cloud-egress-calculator\/"/,
+    'index must link ../cloud-egress-calculator/ so crawlers reach the cloud egress calculator in one hop',
+  );
 });

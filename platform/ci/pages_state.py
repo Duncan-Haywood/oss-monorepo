@@ -52,11 +52,32 @@ neither. It narrows an unknown; it does not close it.
 It does not enable Pages, and it could not: `PUT /repos/{owner}/{repo}/pages`
 is a publish-under-the-portfolio's-public-name action, which `CLAUDE.md`
 reserves for the owner. It also does not try `/pages`, `/environments` or
-`/deployments`: all three are refused before they reach GitHub by the agent
-egress proxy that Claude-on-the-web sessions run behind, and a tool whose
-central call 403s in the environment that most needs it is the failure mode
-`ci_starvation.py` had until it stopped requiring the `gh` CLI. Every call
-here is one the plain repository object answers.
+`/deployments`: all three 403 from a Claude-on-the-web session, and a tool
+whose central call 403s in the environment that most needs it is the failure
+mode `ci_starvation.py` had until it stopped requiring the `gh` CLI. Every
+call here is one the plain repository object answers.
+
+**They do not all 403 for the same reason, and this docstring said they did
+until it was measured on 2026-09-05.** Read the bodies, not just the status:
+
+    /pages         403  "not permitted through this proxy"   (agent egress proxy)
+    /environments  403  "not permitted through this proxy"   (agent egress proxy)
+    /deployments   403  "Resource not accessible by integration"  (GitHub: token scope)
+
+The first two never reach GitHub. The third does, and GitHub declines it —
+the session token simply lacks `deployments: read`. That distinction is worth
+keeping because it says which of these is *reachable in principle*, and
+`/deployments` is the interesting one: when Pages serves from a branch,
+GitHub records a `github-pages` environment deployment on it, so a caller
+that could read deployments would settle the open `source_note` question —
+branch route or Actions route — without the owner opening anything.
+
+This tool still must not depend on it, for the reason above: the answer has
+to come from a call that works in the environment that needs it. The place
+that *can* make it is a runner, where `secrets.GITHUB_TOKEN` carries the
+scope and no agent proxy sits in front of GitHub. That is a note for whoever
+extends the runner-side probe once runners are back — not a reason to add an
+owner ask, and not a call to add here.
 
 ## The freshness half
 
@@ -67,13 +88,58 @@ stale the moment `main` moves and nothing refreshes it. This tool reports the
 commit `gh-pages` was built from and whether that commit is still the tip of
 `main`, so "the flip is ready" and "the flip would publish a month-old
 catalogue" are distinguishable at a glance.
+
+## The source half — measured 2026-09-05, and it closes the open question
+
+Everything above this line was written believing the *source* question ("does
+Pages serve the `gh-pages` branch, or the Actions workflow?") was unreadable
+from a session. `source_note` said so in its own docstring, and the honest
+output was a URL for the owner to open in a browser.
+
+It is readable, and by a call this repository already makes on every
+`ci_starvation.py` run:
+
+    GET /repos/{owner}/{repo}/actions/workflows
+
+When Pages serves **from a branch**, GitHub creates and runs a managed
+workflow for it, and that workflow appears in this listing with the synthetic
+path `dynamic/pages/pages-build-deployment` — the same shape as the
+`dynamic/dependabot/...` and `dynamic/agents/...` entries this repository
+already carries. When Pages serves **from Actions**, no such workflow is
+created; the repository's own `portfolio-pages.yml` does the deploying.
+
+So the absent entry is the measurement. Run on 2026-09-05 against all 232
+workflows in this repository, the three `dynamic/` paths were
+`dynamic/agents/copilot-pull-request-reviewer`,
+`dynamic/dependabot/dependabot-updates` and `dynamic/dependabot/update-graph`.
+No `dynamic/pages/`. With `has_pages: true`, that says the source is Actions
+— which needs a runner, and the metered allowance is spent — so the site is
+dark for a reason one Settings dropdown fixes.
+
+**Why this counts as a measurement rather than an inference.** The failure
+mode it has to avoid is the one this file already reasons about: a branch
+source configured but never built would also show no workflow. That case is
+excluded here by the branch itself — a Pages branch source builds on every
+push to the branch it points at, and both candidate branches (`gh-pages` and
+the default branch) have taken pushes. `verdict_source` therefore withholds
+`actions` unless the publish branch actually exists with a commit, and
+reports `unknown` rather than guessing when it does not.
+
+**What it still does not prove.** That the site *serves*. `has_pages` is
+sticky and a workflow listing is not an HTTP 200 — the reading is about
+configuration, exactly as the plan verdict above is about billing. A stranger
+opening the URL remains the only proof of serving, and `public_surface.py`'s
+runner-side probe remains the credential-free way to get one.
 """
 
 import argparse
+import fnmatch
 import json
 import os
 import re
 import sys
+
+import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -87,8 +153,64 @@ import public_surface  # noqa: E402  (same shim)
 
 REPO_PATH = f"repos/{REPO_PLACEHOLDER}"
 BRANCH_PATH = f"repos/{REPO_PLACEHOLDER}/branches/{{branch}}"
+WORKFLOWS_PATH = (
+    f"repos/{REPO_PLACEHOLDER}/actions/workflows?per_page=100&page={{page}}"
+)
+# Runs of the managed builder, newest first. Filtered to the publish branch
+# server-side so a busy repository's run history cannot push the one that
+# matters off the first page.
+PAGES_RUNS_PATH = (
+    f"repos/{REPO_PLACEHOLDER}/actions/runs"
+    f"?branch={{branch}}&per_page=20&page=1"
+)
+# Files changed between the snapshot's source commit and the tip of the default
+# branch. GitHub caps the `files` array at 300 entries, which `read_changed_paths`
+# treats as "could not read" rather than as a short list -- see there.
+COMPARE_PATH = f"repos/{REPO_PLACEHOLDER}/compare/{{base}}...{{head}}"
 
 PUBLISH_BRANCH = "gh-pages"
+
+# The publishing workflow, read for its `paths:` filter rather than restated
+# here. That filter *is* the set of inputs `build.mjs` reads, and the repository
+# has now twice paid for a constant copied out of the file that owns it
+# (CLAUDE.md, "168 became 169"), so this parses the one source of truth and
+# `test_pages_state.py` asserts the file still parses.
+PUBLISH_WORKFLOW = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    ".github",
+    "workflows",
+    "publish-pages-branch.yml",
+)
+
+# GitHub's managed builder for a *branch*-sourced Pages site. It is not a file
+# in `.github/workflows/`; GitHub synthesises it and lists it under this path
+# prefix, the same way it lists `dynamic/dependabot/...`. Matching on the
+# prefix rather than the full name is deliberate — the leaf has been renamed
+# before (`pages-build-deployment` today), and any future managed Pages
+# builder still has to live under this namespace to be a Pages builder.
+PAGES_BUILDER_PREFIX = "dynamic/pages/"
+
+# How GitHub's managed builder reports a build it abandoned because a newer
+# push to the same branch overtook it. It is the *ordinary* outcome here, not
+# an error: `publish-branch.sh` force-pushes the whole snapshot, so two
+# sessions publishing minutes apart -- which CLAUDE.md records as the normal
+# case, up to 4 inside a 15-minute window -- reliably leave a `cancelled` run
+# behind the one that wins. Measured 2026-09-07: of runs 111-125 on this
+# branch, five concluded `cancelled` and every one of them was immediately
+# followed by a `success` on a newer commit.
+#
+# Reading it as a deploy failure is therefore not a rare race but a structural
+# false alarm, and it fires exactly where it does the most damage -- see
+# `verdict_deployment`.
+SUPERSEDED_CONCLUSION = "cancelled"
+
+# One guard against a silent misread. If GitHub ever stops listing *any*
+# `dynamic/` workflow through this endpoint — a scope change, a token that
+# sees only repository-defined workflows — then "no dynamic/pages/ entry"
+# would stop being evidence of anything, and this tool would report `actions`
+# on a repository serving happily from a branch. So the absence only counts
+# when some other dynamic workflow is visible to prove the namespace is.
+DYNAMIC_PREFIX = "dynamic/"
 
 # `publish-branch.sh` writes exactly this subject line, and the SHA in it is
 # the whole reason the freshness check can be done without a second API call.
@@ -135,6 +257,318 @@ def read_default_head(api, branch):
     return ((payload.get("commit") or {}).get("sha")) or None
 
 
+def build_input_patterns(path=PUBLISH_WORKFLOW):
+    """The `paths:` filter of the publishing workflow, or None if unreadable.
+
+    None means "I could not look", and `freshness` treats that the same way it
+    treats an unreadable comparison: as a reason to keep saying `stale`, never
+    as licence to call a snapshot current. The distinction matters because this
+    is the only thing standing between a real drift and a quiet pass.
+    """
+    try:
+        with open(path, encoding="utf-8") as handle:
+            document = yaml.safe_load(handle)
+    except (OSError, yaml.YAMLError):
+        return None
+    # `on:` is the YAML 1.1 boolean `True` once parsed, which is why this looks
+    # for both spellings rather than the obvious one.
+    triggers = document.get("on") if isinstance(document, dict) else None
+    if triggers is None and isinstance(document, dict):
+        triggers = document.get(True)
+    push = (triggers or {}).get("push") if isinstance(triggers, dict) else None
+    paths = (push or {}).get("paths") if isinstance(push, dict) else None
+    if not paths:
+        return None
+    return [str(pattern) for pattern in paths]
+
+
+def is_build_input(changed_path, patterns):
+    """Whether one changed file is an input the published artifact is built from."""
+    for pattern in patterns:
+        # `dir/**` is the only glob this filter uses, and it means the subtree.
+        if pattern.endswith("/**"):
+            if changed_path.startswith(pattern[:-2]):
+                return True
+        elif fnmatch.fnmatch(changed_path, pattern):
+            return True
+    return False
+
+
+def read_changed_paths(api, base, head):
+    """Files changed between two commits, or None when that cannot be trusted.
+
+    Returns None rather than a partial list when GitHub truncates the response.
+    The comparison endpoint caps `files` at 300 entries, and a truncated list
+    read as a complete one is exactly how a genuinely stale snapshot would be
+    waved through as current -- the failure this whole function exists to avoid
+    creating.
+    """
+    if not base or not head:
+        return None
+    try:
+        payload = api(COMPARE_PATH.replace("{base}", base).replace("{head}", head))
+    except RuntimeError:
+        return None
+    files = payload.get("files")
+    if not isinstance(files, list):
+        return None
+    if len(files) >= 300:
+        return None
+    return [str(entry.get("filename") or "") for entry in files]
+
+
+def read_workflow_paths(api):
+    """Every workflow path GitHub lists for this repository, or None.
+
+    None means the listing could not be read at all (no Actions scope, a
+    proxy refusal, a transport error). That is deliberately distinct from an
+    empty list: "I could not look" and "I looked and there are none" support
+    opposite conclusions in `verdict_source`, and collapsing them is how a
+    tool starts asserting things it did not measure.
+
+    Pages the listing rather than trusting the first 100. This repository has
+    232 workflows and the `dynamic/` entries sort wherever GitHub puts them,
+    so a single-page read could miss the one field this vote turns on.
+    """
+    paths = []
+    for page in range(1, 21):  # 2000 workflows is far past any real repository
+        try:
+            payload = api(WORKFLOWS_PATH.replace("{page}", str(page)))
+        except RuntimeError:
+            return None
+        batch = payload.get("workflows") or []
+        if not batch:
+            break
+        paths.extend(w.get("path") or "" for w in batch)
+        if len(batch) < 100:
+            break
+    return paths
+
+
+def read_pages_deployment(api, branch=PUBLISH_BRANCH):
+    """The most recent managed Pages build on `branch`, or None.
+
+    This is the strongest credential-free reading available, and it is
+    strictly stronger than `verdict_source`'s. That one asks whether GitHub
+    *lists* a branch builder, which establishes that some branch source is
+    configured but names no branch and proves no build ever happened. This
+    asks whether that builder has actually *run on this branch and
+    succeeded* -- which names the branch (a managed Pages build is triggered
+    only by a push to the configured source) and shows a real deployment of a
+    known commit.
+
+    The distinction is the one the module docstring left open: "configured"
+    and "deployed" are different claims, and the repository has been reading
+    the first as the second. It still is not an HTTP 200 -- a successful
+    deploy can still 404 for plan reasons -- but it moves the owner-facing
+    answer from "open this URL and tell us" to a measurement.
+    """
+    try:
+        payload = api(PAGES_RUNS_PATH.replace("{branch}", branch))
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+
+    latest = None
+    in_flight = None
+    last_success = None
+    for run in payload.get("workflow_runs") or []:
+        # `event: dynamic` and the synthetic path together are what mark this
+        # as GitHub's own builder rather than a repository workflow that
+        # happens to run on the same branch.
+        if not str(run.get("path", "")).startswith(PAGES_BUILDER_PREFIX):
+            continue
+        summary = {
+            "branch": run.get("head_branch"),
+            "conclusion": run.get("conclusion"),
+            "head_sha": (run.get("head_sha") or "")[:8],
+            "run_id": run.get("id"),
+            "updated_at": run.get("updated_at"),
+        }
+        if run.get("status") != "completed":
+            # A build that is still running says nothing about what is served
+            # *yet*, so it does not become the reading -- but it is carried,
+            # because "the answer below is about an older commit and a newer
+            # build is in flight" is a materially different statement from the
+            # same answer with nothing running.
+            if in_flight is None:
+                in_flight = summary
+            continue
+        if latest is None:
+            latest = summary
+        if last_success is None and run.get("conclusion") == "success":
+            last_success = summary
+        if latest is not None and last_success is not None:
+            break
+
+    if latest is None:
+        # No completed managed build on the branch. A first-ever build that is
+        # still running lands here and reads as `unknown`, which is the honest
+        # answer: nothing has deployed yet.
+        return None
+    latest["in_flight"] = in_flight
+    latest["last_success"] = last_success
+    return latest
+
+
+def verdict_deployment(deployment, publish):
+    """`(verdict, reason)` for whether GitHub has actually deployed the branch.
+
+    `served` is the only verdict that lets a session stop asking the owner to
+    flip a Settings dropdown, so it requires a *successful* completed run, not
+    merely a recent one: a build that failed is a configured source that is
+    serving whatever it served before.
+
+    It reads a `cancelled` build as supersession rather than as failure, and
+    that distinction is the whole reason this function was rewritten on
+    2026-09-07. It used to test `conclusion != "success"`, which folded
+    GitHub's ordinary "a newer push overtook this build" into the same bucket
+    as a broken deploy and reported `failed` -- "this snapshot did not
+    deploy" -- about a site that was serving perfectly.
+
+    Two things made that worse than an ordinary off-by-one. `read_pages_deployment`
+    skips a build that is still running and answers from the last *completed*
+    one, so during the seconds after a publish the reading falls through the
+    real build onto the superseded predecessor. And `publish-branch.sh` prints
+    this very report immediately after it force-pushes the branch -- so the
+    false alarm did not merely exist, it was rendered to the operator at the
+    one moment it was guaranteed to be wrong, and the autonomous worker is
+    pointed at the same row (`gitops/agents/workers/mandate.md`).
+
+    Measured on this repository: at 03:21 the row read `failed`, citing run
+    34079362071 (`cancelled`, superseded 11 seconds later); at 03:22 the same
+    command on the same commit read `served`, citing run 34079370768. A gate
+    whose verdict depends on when you ask is worse than no gate, because the
+    repository's own guidance says to prefer this row to any prose -- and this
+    file has twice recorded what a red signal nobody believes costs when the
+    failure is finally real.
+    """
+    if deployment is None:
+        return (
+            "unknown",
+            f"no completed `{PAGES_BUILDER_PREFIX}` run on `{PUBLISH_BRANCH}` is "
+            "visible, so nothing here says GitHub has built this branch",
+        )
+
+    in_flight = deployment.get("in_flight")
+    building = ""
+    if in_flight:
+        building = (
+            f" A newer build is in flight on {in_flight['head_sha']} "
+            f"(run {in_flight['run_id']}), so this reading is about the last "
+            f"build that finished, not about that one."
+        )
+
+    superseded = deployment["conclusion"] == SUPERSEDED_CONCLUSION
+    last_success = deployment.get("last_success")
+
+    if deployment["conclusion"] != "success" and not superseded:
+        return (
+            "failed",
+            f"GitHub's managed builder last ran on `{deployment['branch']}` at "
+            f"{deployment['head_sha']} and concluded `{deployment['conclusion']}` "
+            f"(run {deployment['run_id']}) -- the branch IS the Pages source, but "
+            f"this snapshot did not deploy.{building}",
+        )
+
+    if superseded and not last_success:
+        # Cancelled with nothing successful behind it. Not a failure, but
+        # nothing here shows a deploy either, so it must not read as `served`.
+        return (
+            "unknown",
+            f"the newest completed `{PAGES_BUILDER_PREFIX}` run on "
+            f"`{deployment['branch']}` was superseded (run "
+            f"{deployment['run_id']}, `{SUPERSEDED_CONCLUSION}`) and no "
+            f"successful build is visible behind it, so nothing here says this "
+            f"branch has ever deployed.{building}",
+        )
+
+    # Either the newest completed build succeeded, or it was superseded and an
+    # earlier one succeeded. In both cases a managed build *has* run to
+    # completion on this branch, which is what names the source.
+    served = last_success if superseded else deployment
+    note = ""
+    if superseded:
+        note = (
+            f" The newest completed build (run {deployment['run_id']}, "
+            f"{deployment['head_sha']}) was `{SUPERSEDED_CONCLUSION}` -- that is "
+            f"GitHub abandoning a build a newer push overtook, which is routine "
+            f"here and is not a deploy failure."
+        )
+
+    fresh = ""
+    if publish and publish.get("sha", "")[:8] != served["head_sha"]:
+        fresh = (
+            f" NOTE: `{PUBLISH_BRANCH}` has since moved to "
+            f"{publish['sha'][:8]}, which may not be deployed yet"
+        )
+    return (
+        "served",
+        f"GitHub's managed builder ran on `{served['branch']}` at "
+        f"{served['head_sha']} and succeeded (run {served['run_id']}, "
+        f"{served['updated_at']}). A managed Pages build is triggered only "
+        f"by a push to the configured source, so `{PUBLISH_BRANCH}` IS that "
+        f"source and this snapshot deployed. `deploy-settings` is already "
+        f"granted.{note}{building}{fresh}"
+    )
+
+
+def verdict_source(repo, publish, workflow_paths):
+    """Which source an already-configured Pages site serves from.
+
+    Returns `(verdict, reason)` where verdict is one of:
+
+      `branch`   -- GitHub's managed branch builder exists, so Pages is
+                    serving (or has served) from a branch. The queued
+                    `deploy-settings` ask is already granted.
+      `actions`  -- Pages is configured, the managed branch builder does not
+                    exist, and the publish branch does have commits that
+                    would have triggered one. The source is the Actions
+                    workflow, which needs a runner.
+      `unknown`  -- anything else, including every case where the evidence
+                    would have to be stretched to reach a verdict.
+
+    The asymmetry is on purpose. `branch` is a *positive* reading of a
+    workflow that is present; `actions` is a reading of an absence, so it
+    carries the two extra conditions above before it will fire.
+    """
+    if not repo["has_pages"]:
+        return "unknown", "no Pages site is configured, so it has no source"
+    if workflow_paths is None:
+        return (
+            "unknown",
+            "the Actions workflow listing could not be read (no Actions: read "
+            "scope, or the call was refused), and this vote is read from it",
+        )
+    if any(p.startswith(PAGES_BUILDER_PREFIX) for p in workflow_paths):
+        return (
+            "branch",
+            f"GitHub's managed `{PAGES_BUILDER_PREFIX}` builder is listed, "
+            "which it creates only for a branch-sourced Pages site",
+        )
+    if not any(p.startswith(DYNAMIC_PREFIX) for p in workflow_paths):
+        return (
+            "unknown",
+            f"no `{DYNAMIC_PREFIX}` workflow of any kind is listed, so this "
+            "listing is not showing GitHub's managed workflows and the "
+            f"absence of `{PAGES_BUILDER_PREFIX}` is not evidence",
+        )
+    if publish is None or not publish.get("sha"):
+        return (
+            "unknown",
+            f"no `{PUBLISH_BRANCH}` branch with a commit, so a branch source "
+            "may simply never have been built -- absence proves nothing yet",
+        )
+    return (
+        "actions",
+        f"Pages is configured but GitHub lists no `{PAGES_BUILDER_PREFIX}` "
+        f"builder, while `{PUBLISH_BRANCH}` has commits that would have "
+        "triggered one. The source is the Actions workflow, which needs a "
+        "runner the metered allowance no longer buys",
+    )
+
+
 def plan_verdict(repo):
     """One of `likely-up`, `unknown`, or `not-applicable`, with the reason.
 
@@ -165,8 +599,27 @@ def plan_verdict(repo):
     )
 
 
-def freshness(publish, head_sha):
-    """Whether the staged snapshot matches the tip of the default branch."""
+def freshness(publish, head_sha, changed_paths=None, patterns=None):
+    """Whether re-publishing would change what the site serves.
+
+    The question this answers used to be "was the snapshot built from the tip
+    of `main`?", which is a different and worse question. Measured 2026-09-06:
+    `main` was one docs-only commit ahead of the snapshot (#3452, touching
+    `AGENTS.md`, `portfolio/DIRECTION.md` and a ledger file), this reported
+    `stale`, and rebuilding produced a tree **byte-identical** to the published
+    one -- 2053 files, zero diff.
+
+    That false alarm is not free. It asks every session after a docs merge to
+    force-push an identical 2000-file artifact, which spends a managed Pages
+    build to change nothing; and a warning that cries wolf after every docs
+    merge is one the fleet learns to skim, which costs exactly on the day the
+    drift is real. So the comparison is now against the build's *inputs* --
+    the `paths:` filter of the workflow that publishes the branch, which is the
+    same set `build.mjs` reads.
+
+    Both unreadable cases (no comparison, no filter) keep the old `stale`
+    answer. An absent measurement must never read as a healthy one.
+    """
     if publish is None:
         return "absent", f"no `{PUBLISH_BRANCH}` branch: nothing is staged to serve"
     if not publish["built_from"]:
@@ -181,6 +634,22 @@ def freshness(publish, head_sha):
         head_sha[: len(publish["built_from"])]
     ):
         return "current", f"built from the tip of the default branch ({head_sha[:8]})"
+    if changed_paths is not None and patterns:
+        touched = [path for path in changed_paths if is_build_input(path, patterns)]
+        if not touched:
+            return (
+                "current",
+                f"built from {publish['built_from'][:8]} and the default branch is "
+                f"now at {head_sha[:8]}, but nothing changed since touches a path "
+                f"the site is built from ({', '.join(patterns)}) -- re-publishing "
+                "would produce the same tree",
+            )
+        return (
+            "stale",
+            f"built from {publish['built_from'][:8]}, but the default branch is now "
+            f"at {head_sha[:8]} and {len(touched)} changed file(s) feed the build "
+            f"(e.g. {touched[0]}) -- re-run publish-branch.sh",
+        )
     return (
         "stale",
         f"built from {publish['built_from'][:8]}, but the default branch is now "
@@ -188,8 +657,8 @@ def freshness(publish, head_sha):
     )
 
 
-def source_note(repo, base_url):
-    """What is actually left to do, given `has_pages`.
+def source_note(repo, base_url, source="unknown", source_reason=""):
+    """What is actually left to do, given `has_pages` and the source verdict.
 
     Why this is separate from `plan_verdict`
     ----------------------------------------
@@ -220,6 +689,14 @@ def source_note(repo, base_url):
     So the honest output is not a flip instruction. It is the one URL that
     settles it, which anyone with a browser can open in five seconds and no
     session running behind the proxy can.
+
+    **Superseded in part, 2026-09-05.** The paragraph above is right that
+    `/pages` is refused and that only a fetch proves *serving*. It was wrong
+    that nothing here can tell the two sources apart: the Actions workflow
+    listing does, and `verdict_source` now reads it. When that vote lands on
+    `branch` or `actions` this function says so and names the action; when it
+    lands on `unknown` it falls back to the URL, which is still the right
+    answer for a question nothing measured.
     """
     if not repo["has_pages"]:
         # Deliberately not a flip instruction. `has_pages: false` on a private
@@ -233,9 +710,38 @@ def source_note(repo, base_url):
             "question ahead of the switch is the plan: Settings -> Billing."
         )
     target = base_url or "the repository's github.io origin"
+
+    if source == "actions":
+        # The one case with a concrete, owner-sized action attached. Say the
+        # action, not the investigation -- this is the whole value of having
+        # measured the source rather than sending the owner to look.
+        return (
+            "Pages is configured, and its source is the ACTIONS workflow.\n"
+            f"    Measured: {source_reason}.\n"
+            "    THE FLIP (one dropdown, ~30 seconds, no secret to paste):\n"
+            f"      Settings -> Pages -> Source -> 'Deploy from a branch' -> "
+            f"'{PUBLISH_BRANCH}' / (root) -> Save\n"
+            "    That route needs no runner, no k3s cluster and no Hetzner "
+            "SSH key, so it is the only published-catalogue path that is not "
+            "downstream of an outage. Check the snapshot line above first: "
+            "the flip publishes whatever `gh-pages` holds right now.\n"
+            f"    Confirm afterwards by opening:  {target}"
+        )
+
+    if source == "branch":
+        return (
+            "Pages is configured and its source is a BRANCH.\n"
+            f"    Measured: {source_reason}.\n"
+            "    So `deploy-settings` is already granted and this catalogue "
+            "has a public URL. What is left is keeping the snapshot fresh -- "
+            "see the line above, and `platform/pages/publish-branch.sh` after "
+            "any merge that touches a served surface.\n"
+            f"    Confirm it serves by opening:  {target}"
+        )
+
     return (
         "Pages is ALREADY configured here (has_pages: true). What is unread is "
-        "which source it points at, and this session cannot read it -- the "
+        f"which source it points at: {source_reason or 'not measured'}. The "
         "/pages API path is refused by the agent egress proxy, and the "
         "runner-side probe that would answer it has never run on a real "
         "runner (added after run 33887885219; every dispatch since is "
@@ -257,8 +763,27 @@ def collect(api):
     # than restated here -- the copied-constant mistake CLAUDE.md records twice.
     base_url = public_surface.pages_base_url()
     verdict, reason = plan_verdict(repo)
-    fresh, fresh_reason = freshness(publish, head_sha)
+    # Only pay for the comparison when the cheap check would say `stale`: when
+    # the snapshot was built from the tip there is nothing to compare, and the
+    # docstring's promise that this reads without a second API call still holds
+    # for the common case.
+    changed_paths = None
+    patterns = None
+    if publish and publish.get("built_from") and head_sha:
+        if not head_sha.startswith(publish["built_from"]):
+            patterns = build_input_patterns()
+            if patterns:
+                changed_paths = read_changed_paths(api, publish["built_from"], head_sha)
+    fresh, fresh_reason = freshness(publish, head_sha, changed_paths, patterns)
+    source, source_reason = verdict_source(repo, publish, read_workflow_paths(api))
+    deployment = read_pages_deployment(api)
+    deployed, deployed_reason = verdict_deployment(deployment, publish)
     return {
+        "source": source,
+        "source_reason": source_reason,
+        "deployed": deployed,
+        "deployed_reason": deployed_reason,
+        "deployment": deployment,
         "private": repo["private"],
         "has_pages": repo["has_pages"],
         "default_branch": repo["default_branch"],
@@ -270,7 +795,7 @@ def collect(api):
         "snapshot": fresh,
         "snapshot_reason": fresh_reason,
         "pages_url": base_url,
-        "source_note": source_note(repo, base_url),
+        "source_note": source_note(repo, base_url, source, source_reason),
     }
 
 
@@ -283,6 +808,12 @@ def render(state):
         "",
         f"  plan              {state['plan_verdict']}",
         f"                    {state['plan_reason']}",
+        "",
+        f"  source            {state['source']}",
+        f"                    {state['source_reason']}",
+        "",
+        f"  deployed          {state['deployed']}",
+        f"                    {state['deployed_reason']}",
         "",
         f"  {PUBLISH_BRANCH} snapshot  {state['snapshot']}",
         f"                    {state['snapshot_reason']}",
@@ -299,8 +830,37 @@ def exit_code(state):
     `publish-branch.sh` re-run away and does not change whether the route
     exists, so folding it into the exit code would make a green run mean two
     different things.
+
+    `--require-current` is the other question, and it gets its own function
+    below rather than a flag threaded through this one, for exactly the reason
+    this docstring already gives.
     """
     return 0 if state["plan_verdict"] == "likely-up" else 1
+
+
+def freshness_exit_code(state):
+    """0 when the published snapshot is `current`, 1 when it is not.
+
+    A separate contract from `exit_code` on purpose. That one answers "is this
+    route worth having?", which is a question about configuration and barely
+    changes; this one answers "is the site a stranger reaches right now the
+    same as `main`?", which changes on every merge that touches a served
+    surface.
+
+    This exists because that second question had no gate at all. GitHub Pages
+    serves `gh-pages`, a *committed artifact*: nothing rebuilds it when `main`
+    moves, so the live site silently falls behind and there is no error
+    anywhere to say so. The documented remedy was a paragraph in CLAUDE.md
+    telling each session to re-run `publish-branch.sh` by hand -- and on
+    2026-09-06 the snapshot was found stale (built from `1afe50c5` while
+    `main` was at `565cc635`) by a session that had *read* that paragraph.
+    A guard nobody can forget beats a reminder everybody has already read.
+
+    Note what this deliberately does not do: it never publishes. It reports a
+    failure and names the one command that fixes it. Publishing rewrites a
+    branch, which is not something a check should do as a side effect.
+    """
+    return 0 if state["snapshot"] == "current" else 1
 
 
 def main(argv=None, api=None):
@@ -309,6 +869,14 @@ def main(argv=None, api=None):
     )
     parser.add_argument("--json", action="store_true", help="machine-readable")
     parser.add_argument("--repo", help="owner/name (default: origin remote)")
+    parser.add_argument(
+        "--require-current",
+        action="store_true",
+        help=(
+            "exit non-zero unless the published snapshot is `current`; use "
+            "after merging a change that touches a served surface"
+        ),
+    )
     args = parser.parse_args(argv)
 
     if api is None:
@@ -329,6 +897,26 @@ def main(argv=None, api=None):
         return 2
 
     print(json.dumps(state, indent=2) if args.json else render(state), end="")
+
+    if args.require_current:
+        code = freshness_exit_code(state)
+        if code:
+            # To stderr and spelled out: the caller is a verification step that
+            # may only surface the last line, and "stale" alone does not say
+            # what to do about it.
+            print(
+                f"\nFAIL: the published snapshot is '{state['snapshot']}', not "
+                "'current', so the live site is not serving what `main` "
+                "contains.\n"
+                f"  reason: {state['snapshot_reason']}\n"
+                "  fix:    CONFIRM=publish-pages-branch PUSH=1 "
+                "./platform/pages/publish-branch.sh\n"
+                "This needs no runner, no cluster and no credential beyond the "
+                "push you already have.",
+                file=sys.stderr,
+            )
+        return code
+
     return exit_code(state)
 
 

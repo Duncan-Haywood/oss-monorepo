@@ -1,0 +1,83 @@
+name: Checklist coverage
+
+# Fail when a test directory exists that CLAUDE.md's merge checklist does not
+# name -- `*.test.mjs` for the Node suites, `test_*.py` for the Python ones.
+#
+# ## Why this is its own workflow
+#
+# `platform/ci/checklist_coverage.py` has existed since 2026-09-06 and ran in
+# no workflow at all: it executed only when a session remembered to type it.
+# That is the same recall-shaped hole the script itself exists to close, left
+# open in the one place it was least visible -- the guard on the guard list.
+#
+# It could not simply be added as a step to `portfolio-validate.yml`, which is
+# where its unit tests live. That workflow's `paths:` filter is a
+# hand-maintained enumeration of about thirty entries, and it does not include
+# `CLAUDE.md`, nor any pattern that would match a *new* `platform/<thing>/` or
+# `portfolio/<thing>/` directory. So a step added there would have been gated
+# away from precisely the two changes it must catch:
+#
+#   1. someone edits the checklist in CLAUDE.md and drops a line;
+#   2. someone adds tests in a directory the checklist has never named.
+#
+# The triggers below are chosen for those two cases rather than inherited from
+# a list written for something else. `**/*.test.mjs` and `**/test_*.py` fire on
+# the test file itself, wherever in the tree it lands, which is the event that
+# actually creates the gap.
+#
+# ## Why it matters most when nothing else is running
+#
+# `portfolio-validate.yml` already runs `score_ventures.py --check`, which
+# would have caught the four shipped-but-unscored ventures #3514 found. It
+# never executed: Actions runners have been starved since 2026-09-04
+# (`platform/ci/ci_starvation.py`), so the local checklist in CLAUDE.md was the
+# only remaining defense -- and the checklist did not name the directory. A
+# guard nobody runs is worth less than no guard, because it also tells the next
+# session the ground is covered.
+#
+# This job is deliberately tiny (checkout, Python, one command) so it stays
+# affordable on a metered-minutes account, and it needs no secret.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "CLAUDE.md"
+      - "**/*.test.mjs"
+      - "**/test_*.py"
+      - "**/*_test.py"
+      - "pyproject.toml"
+      - "platform/ci/checklist_coverage.py"
+      - ".github/workflows/checklist-coverage.yml"
+  pull_request:
+    paths:
+      - "CLAUDE.md"
+      - "**/*.test.mjs"
+      - "**/test_*.py"
+      - "**/*_test.py"
+      - "pyproject.toml"
+      - "platform/ci/checklist_coverage.py"
+      - ".github/workflows/checklist-coverage.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Seconds in practice; the cap is here because every job needs one and an
+    # uncapped job on a metered account is a standing risk, not because this
+    # one is expected to come near it.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # No dependencies: the script is stdlib only, deliberately, so that this
+      # check cannot be the thing that breaks when an install step does.
+      - name: Check CLAUDE.md's merge checklist names every test directory
+        run: python3 platform/ci/checklist_coverage.py

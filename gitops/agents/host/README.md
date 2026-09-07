@@ -75,7 +75,8 @@ records against the queue item's damped score rather than against the box. The
 visible symptom was "that item keeps failing", not "this host cannot run the
 worker at all".
 
-The installer now refuses up front instead, before it writes anything:
+The installer asks up front instead, before it writes anything — and then
+supplies what is missing, from the distribution's own archive:
 
 ```bash
 apt-get update && apt-get install -y --no-install-recommends nodejs npm git curl tar
@@ -86,13 +87,49 @@ package (18.x) clears it and no separately-built Node is needed. A `node` that
 is present but older is refused the same way a missing one is — Ubuntu 22.04
 shipped 12.22, and `command -v node` succeeds there.
 
-`--check` reports the same thing without changing anything, and
-`ALLOW_MISSING_PREREQS=1` overrides the refusal for a box whose packages arrive
-by another route. The override silences the refusal, never the report.
+**It runs that line rather than only printing it** (changed 2026-09-06), and
+the reason is the way this script is actually reached. `restore-cluster.sh`
+invokes it over SSH, non-interactively, as step 9 of a recovery whose whole
+premise is *take this while you are already holding the key* — so on the fresh
+`ubuntu-24.04` that `infra/servers.tf:23` builds both boxes from, the owner's
+one-command recovery reached that step, correctly refused, and handed them the
+second trip they had just been told they would not need. Printing the command
+was accurate advice and it still cost the thing it was protecting.
+
+It stays a plain `apt-get` against Ubuntu's archive and must keep to that: no
+third-party repository, no added key, nothing downloaded and piped into a
+shell. That is what makes running it unattended reasonable. If a future
+prerequisite is not in the archive, refuse and say so rather than reaching for
+a NodeSource-style installer here.
+
+Two things it deliberately does **not** trust. Apt's exit code is not the
+answer — a package can install and still put nothing on `PATH` — so the
+prerequisites are **re-checked** afterwards and a second failure refuses, with
+the box untouched. And `--check` never installs anything; it is the read-only
+mode and stays that way.
+
+Three environment variables shape it:
+
+| | effect |
+|---|---|
+| *(default)* | install what is missing, re-check, refuse if still missing |
+| `SKIP_PREREQ_INSTALL=1` | report and refuse without touching the package manager — for a box under config management, where an `apt-get` would fight it |
+| `ALLOW_MISSING_PREREQS=1` | proceed even though the box cannot run the worker yet — for preparing a box whose packages arrive by another route afterwards |
+
+Neither override silences the report; the warnings still print.
 
 ## Install
 
-Run it on the box, as root, from a checkout of this repository.
+From your laptop, in one run — discovers the key that opens the box, copies
+the checkout, runs the installer, and hands over the credential, all in one
+script:
+
+```bash
+./bootstrap/scripts/setup-codex-host-from-laptop.sh              # full run
+./bootstrap/scripts/setup-codex-host-from-laptop.sh --check      # report only
+```
+
+Or by hand, on the box, as root, from a checkout of this repository:
 
 ```bash
 # on your laptop

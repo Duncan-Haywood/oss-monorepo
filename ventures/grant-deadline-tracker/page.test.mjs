@@ -29,6 +29,10 @@ test("the tracker page wires the late-report comparison without a build step", (
   assert.match(html, /id="fill-risk"/);
   assert.match(html, /late_report_compared/);
   assert.match(html, /late_report_note_copied/);
+  assert.match(html, /id="copyRiskLink"/);
+  assert.match(html, /risk_share_link_copied/);
+  assert.match(html, /risk_shared_link_opened/);
+  assert.match(html, /from "\.\/share\.mjs"/);
   assert.match(html, /should-i-hire-a-grant-writer-to-file-this-report\.html/);
   assert.match(html, /Best-effort hosting, no SLA/);
   assert.match(html, /GitHub Sponsors/);
@@ -85,6 +89,19 @@ test("the grant-writer landing page uses the same worked example the tests lock"
 test("the tracker links to its Instrumentl comparison page and is listed in the sitemap", () => {
   assert.match(html, /vs-instrumentl\.html/);
   assert.match(sitemap, /vs-instrumentl\.html/);
+});
+
+// Closest sibling: same nonprofit grant-reporting job, but it builds the
+// review queue from award dates and reporting intervals. Related-tool chrome
+// rotates inside the whole evidence category, so without an explicit one-hop
+// a crawler on this page reaches that tool only via /c/evidence/.
+test("index links one hop to the grant-reporting-tracker sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/grant-reporting-tracker\/"/,
+    "index must link ../grant-reporting-tracker/ so crawlers reach the reporting queue in one hop",
+  );
+  assert.match(html, /grant reporting tracker/i);
 });
 
 test("the vs-Instrumentl comparison page names what each tool is for, disclaims affiliation, and carries the standard disclaimer", () => {

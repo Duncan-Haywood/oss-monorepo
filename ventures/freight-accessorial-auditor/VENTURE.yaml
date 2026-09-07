@@ -27,5 +27,5 @@ kill_criteria:
   - Fewer than three shippers run two audits within 90 days.
   - Users cannot identify a real duplicate, overage, or clock mismatch on a supplied invoice.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/freight-accessorial-auditor/
   analytics: null

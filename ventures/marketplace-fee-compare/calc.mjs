@@ -151,14 +151,21 @@ export const CHANNELS = [
 export const CHANNEL_IDS = Object.freeze(CHANNELS.map((channel) => channel.id));
 
 /**
- * Faire is deliberately not in the comparison above.
+ * Faire and Whatnot are deliberately not in the comparison above.
  *
- * It is wholesale: the buyer is a shop buying at roughly half retail, on a
+ * Faire is wholesale: the buyer is a shop buying at roughly half retail, on a
  * commission and payout-timing structure that has no per-retail-order
  * equivalent. Putting it in a retail per-item table would produce a number that
  * looks comparable and is not — a brand would read "Faire nets least" when the
- * real question is volume per order and reorder rate. So it gets a pointer
- * instead of a row.
+ * real question is volume per order and reorder rate.
+ *
+ * Whatnot is a livestream auction: commission sits on the hammer and payment
+ * processing sits on the checkout total (item plus buyer-paid shipping and
+ * tax), with published category caps a flat retail referral rate cannot
+ * express. Ranking it beside six fixed-fee retail channels would produce a
+ * number that looks comparable and is not.
+ *
+ * Each gets a pointer instead of a row.
  */
 export const EXCLUDED_CHANNELS = [
   {
@@ -167,6 +174,13 @@ export const EXCLUDED_CHANNELS = [
     deepToolLabel: "Faire wholesale calculator",
     why:
       "Faire is wholesale, not retail: the buyer is a shop paying about half your retail price, and the economics turn on order size and reorders rather than one item. Comparing it here would be an unfair number rather than a useful one.",
+  },
+  {
+    label: "Whatnot (livestream auction)",
+    deepTool: "whatnot-seller-payout",
+    deepToolLabel: "Whatnot seller payout calculator",
+    why:
+      "Whatnot is a livestream auction, not a fixed-fee retail listing: commission is on the hammer and processing is on the checkout total (item plus buyer-paid shipping and tax), with category caps that do not map to one referral percentage. Comparing it here would be an unfair number rather than a useful one.",
   },
 ];
 

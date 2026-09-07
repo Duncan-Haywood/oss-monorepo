@@ -1,0 +1,63 @@
+name: actions-permissions-check
+description: "Free, read-only checker that scans a repository's GitHub Actions workflow files and flags every workflow or job with no explicit `permissions:` block (runs with the ambient repository/organization default GITHUB_TOKEN permissions) or with `permissions: write-all`, printing the exact fix for each finding."
+stage: prototype
+
+owner: duncan
+
+# Screened this session with `python3 portfolio/pipeline/duplicate_check.py
+# "GitHub Actions workflow least-privilege token permissions checker: flags
+# workflows missing a permissions block or granting write-all/broad scopes
+# beyond what jobs need"` -- top score 0.19 (pinned-actions-check), well
+# below the 0.45 read-this-first bar. Not a duplicate of pinned-actions-check
+# (that flags mutable @tag refs on `uses:` lines; this flags the token's own
+# permission scope, an orthogonal axis of the same hardening guidance) or
+# actions-injection-check (pwn-request checkouts and script injection, not
+# token scope). All three are the same documented GitHub "Security hardening
+# for GitHub Actions" guidance, each covering a different clause of it.
+#
+# Shape rationale: portfolio/pipeline/README.md's "archetype itself" section
+# found 141 of 200 ventures are <trade>-bid-calculator clones with zero
+# measured visitors, and told sessions to weigh a CLI/checker shape over a
+# 142nd calculator when there is no unusually strong named channel -- this
+# follows pinned-actions-check's and actions-runner-starvation-check's
+# precedent (a generalized dev-tool CLI + browser port + SEO landing page).
+#
+# Gate self-assessment: liability_containment and ethical_robustness are both
+# high -- mechanical, read-only linter with no advice-of-record, no
+# compliance claim, no data leaving the user's device, and no scraping. It
+# makes no network calls of its own anywhere in the code (check.py,
+# classify.mjs) and explicitly does not claim to know the repository's actual
+# default token setting -- the one thing it cannot see, it says it cannot
+# see. Comparable to pinned-actions-check and actions-injection-check, both
+# already graduated and live on this exact reasoning.
+hypotheses:
+  - claim: A maintainer who reads GitHub's "Security hardening for GitHub Actions" doc, or gets flagged by the OpenSSF Scorecard project's "Token-Permissions" check on a public repository, will run this after finding no existing tool that stays entirely local -- no upload, no API call, no token needed -- to find every workflow and job missing the fix at once.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A visitor arriving at pinned-actions-check or actions-injection-check for one hardening step will follow the cross-link in its footer to this tool for the token-permissions step, the same reciprocal-referral pattern already live between those two siblings.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will wire `check.py --fail-on-risk` into their own CI to block a newly-merged workflow that has no explicit permissions grant, the same way the sibling tools' CLI convention is meant to be used.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/actions-permissions-check/
+  analytics: null

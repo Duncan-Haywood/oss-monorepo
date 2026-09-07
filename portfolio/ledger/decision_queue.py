@@ -117,6 +117,46 @@ REQUIRED = {
 # implying the first is the one to do.
 OUTAGE = "outage"
 
+# Readings that, when they read `up`, mean a public origin is serving the
+# catalogue right now. Keyed by the `infra_state.yaml` reading; the value is
+# how to name that origin to the owner.
+#
+# Added 2026-09-06, because the banner below asserted the opposite of a
+# measurement this file already had. `render()` printed "OUTAGE: the public
+# surface is down. ... every other row here is downstream of a host answering
+# at all" whenever *any* row carried `outage: true` -- and on 2026-09-06
+# `github-pages-branch-route` read `up`, measured that same day: GitHub's own
+# managed builder ran on `gh-pages` and succeeded, which it does only for the
+# configured Pages source. 186 tools were being served while the queue told
+# the owner the catalogue was dark and that "reading no further is the correct
+# behaviour".
+#
+# That is expensive in the one currency this file spends. The banner's whole
+# job is to stop the owner reading further when reading further is waste; used
+# against a served catalogue it suppresses every other row, including the three
+# that move the revenue ceiling off $0. And it is the *exact* failure this
+# repository keeps paying for -- see CLAUDE.md, "MEASURED 2026-09-04" -- a
+# claim about what a visitor receives, derived once and then never re-asked,
+# going quietly wrong when the world moved underneath it. The correction there
+# was "a reading, never a claim"; this is that rule applied to the banner
+# itself, which had been exempt from it.
+#
+# Deliberately narrow. `github-pages-origin` -- an unauthenticated 200 from a
+# logged-out fetch -- is a *different* reading and is still `unknown`, because
+# no session can make that request (the egress proxy refuses `github.io`) and
+# a Pages site can in principle be access-controlled. So a `up` here downgrades
+# the banner from "the catalogue is dark" to "one origin is down and the other
+# is deployed"; it never promotes it to "a stranger has read it". Overclaiming
+# in that direction is the mirror of the bug being fixed and would be worse,
+# because it would stop the owner taking the thirty-second check that settles
+# it for good.
+PUBLIC_ORIGINS = {
+    "github-pages-branch-route": (
+        "GitHub Pages (the gh-pages branch, "
+        "duncan-haywood.github.io/monorepo-projects/)"
+    ),
+}
+
 # Optional. `requires: [<reading>, ...]` names shared infrastructure a restore
 # route needs to be *working* before granting it changes anything.
 #
@@ -205,6 +245,21 @@ def reading(name: str, infra: dict, today: dt.date) -> tuple[str, str]:
     return verdict, f"{name}: {verdict} ({stamp})"
 
 
+def serving_origins(infra: dict, today: dt.date) -> list[tuple[str, str]]:
+    """(reading name, owner-facing label) for every public origin measured up.
+
+    Uses `reading()`, so a stale measurement ages out to `unknown` and drops
+    out of this list. That direction matters more here than anywhere else in
+    the file: an un-re-measured origin must fall back to the outage banner,
+    never keep suppressing it on the strength of a reading nobody retook.
+    """
+    return [
+        (name, label)
+        for name, label in PUBLIC_ORIGINS.items()
+        if reading(name, infra, today)[0] == UP
+    ]
+
+
 def viability(d: dict, infra: dict, today: dt.date) -> tuple[str, list[str]]:
     """Can granting this row actually change anything today?
 
@@ -221,6 +276,35 @@ def viability(d: dict, infra: dict, today: dt.date) -> tuple[str, list[str]]:
     if UNKNOWN in verdicts:
         return UNKNOWN, reasons
     return UP, reasons
+
+
+def unmeasured_advice(unmeasured: list[dict]) -> list[str]:
+    """What an outage route with an *unmeasured* prerequisite is worth today.
+
+    Separated from the `down` case because the two warrant opposite advice.
+    A route whose infrastructure is down provably changes nothing, so telling
+    the owner to skip it is correct. A route nobody has measured might restore
+    the whole public surface, and the act of taking it is what settles the
+    question -- so the honest advice is "this is unverified and cheap", never
+    "this buys nothing".
+
+    Returns display lines, or [] when there is nothing unmeasured to say.
+    """
+    if not unmeasured:
+        return []
+    names = ", ".join(d["id"] for d in unmeasured)
+    plural = len(unmeasured) > 1
+    return [""] + wrap(
+        f"{names} {'are' if plural else 'is'} unverified rather than blocked: "
+        f"{'their' if plural else 'its'} prerequisite is unmeasured, not known "
+        "to be down. Nobody has established that "
+        f"{'they change' if plural else 'it changes'} nothing, and taking "
+        f"{'them' if plural else 'it'} is itself the measurement — cheaper "
+        "than any other way of settling it, and it may restore the surface "
+        f"outright. Worth trying before assuming {'they are' if plural else 'it is'} "
+        "wasted effort.",
+        72, "  ",
+    )
 
 
 def check(decisions: list[dict], infra: dict | None = None) -> list[str]:
@@ -419,15 +503,79 @@ def render(decisions: list[dict], today: dt.date, infra: dict | None = None) -> 
     # without ever asking it -- see REQUIRES above.
     live = [d for d in outage if viability(d, infra, today)[0] == UP]
     unusable = [d for d in outage if viability(d, infra, today)[0] != UP]
+    # `unusable` is two different states wearing one word, and the banner used
+    # to tell the owner the stronger of the two about both: "granting one of
+    # those today buys nothing, however cheap it looks." That is right for a
+    # `down` prerequisite -- a Pages deploy with no runner provably publishes
+    # nothing -- and wrong for an `unknown` one, which says only that nobody
+    # has measured it.
+    #
+    # It cost something real. On 2026-09-05 `deploy-settings`' only unmet
+    # prerequisite was `github-pages-plan: unknown`, while `pages_state.py`
+    # read the plan as `likely-up` (Pages configured on a PRIVATE repository,
+    # a combination the Free plan cannot produce) and the `gh-pages` snapshot
+    # as `current` at the tip of `main`. So the cheapest route to a public
+    # surface -- one dropdown, no credential, no runner, no cluster, and the
+    # only one not downstream of an outage -- was being described to the owner
+    # as buying nothing.
+    #
+    # The asymmetry that matters is that an unmeasured route is *self-*
+    # measuring: flipping the dropdown and opening the URL settles
+    # `github-pages-plan` for good in about thirty seconds. Taking it buys the
+    # measurement even in the case where it does not buy the surface, and
+    # there is no cheaper way to get that measurement -- the billing page is
+    # the only other route and it is equally the owner's to read.
+    #
+    # `viability()` itself is deliberately NOT changed: `unknown` must keep
+    # ranking as non-viable, because the 2026-08-30..09-04 "nothing is served"
+    # episode was exactly a silent prerequisite reading as a healthy one. This
+    # splits how the two are *described*, never whether an unmeasured route is
+    # allowed to count as working.
+    blocked_routes = [d for d in unusable if viability(d, infra, today)[0] == DOWN]
+    unmeasured = [d for d in unusable if viability(d, infra, today)[0] == UNKNOWN]
 
     if outage:
         ids = [d["id"] for d in outage]
+        serving = serving_origins(infra, today)
         out.append("")
-        if len(ids) == 1:
+        if serving:
+            # At least one origin is measured serving, so the catalogue is not
+            # dark and the rows below are NOT all downstream of the outage.
+            # Say which origin is down, and do not tell the owner to stop
+            # reading -- see PUBLIC_ORIGINS for what this cost when it did.
+            body = (
+                "PARTIAL OUTAGE: "
+                + ("one origin is" if len(ids) == 1 else f"{len(ids)} origins are")
+                + " down, but the catalogue is being served by "
+                + "; ".join(label for _, label in serving)
+                + ". So the rows below are NOT all waiting on this — read on. "
+                + ", ".join(ids)
+                + (" restores" if len(ids) == 1 else " restore")
+                + " the origin that is down."
+            )
+            out += wrap(body, 72, "  ")
+            # The distinction the fix must not blur: deployed is not fetched.
+            unconfirmed = [
+                n for n in ("github-pages-origin",)
+                if reading(n, infra, today)[0] != UP
+            ]
+            if unconfirmed:
+                out.append("")
+                out += wrap(
+                    "Not yet confirmed by a logged-out fetch ("
+                    + ", ".join(unconfirmed)
+                    + "): no session can make that request, so what is measured"
+                    " is that GitHub deployed the site, not that a stranger has"
+                    " read it. One logged-out page load settles it — the URL is"
+                    " in `python3 platform/ci/pages_state.py` under `next`.",
+                    72, "  ",
+                )
+        elif len(ids) == 1:
             body = (
                 f"OUTAGE: the public surface is down. {ids[0]} comes first; "
                 "every other row here is downstream of a host answering at all."
             )
+            out += wrap(body, 72, "  ")
         else:
             body = (
                 "OUTAGE: the public surface is down. "
@@ -438,7 +586,7 @@ def render(decisions: list[dict], today: dt.date, infra: dict | None = None) -> 
                 "different origin. Every other row here is downstream of "
                 "something answering at all."
             )
-        out += wrap(body, 72, "  ")
+            out += wrap(body, 72, "  ")
 
         # The old banner ended "Do the cheapest first." That is right only
         # while every route can actually be taken, so it is now said only in
@@ -446,25 +594,47 @@ def render(decisions: list[dict], today: dt.date, infra: dict | None = None) -> 
         if unusable and live:
             names = ", ".join(d["id"] for d in live)
             out.append("")
-            out += wrap(
+            body = (
                 "Not all of them work today. "
                 + str(len(live))
                 + " can be granted now and will change something: "
                 + names
-                + ". Do the cheapest of those. The rest are listed below with "
-                "what is blocking them — granting one of those today buys "
-                "nothing, however cheap it looks.",
-                72, "  ",
+                + ". Do the cheapest of those."
             )
+            if blocked_routes:
+                body += (
+                    " " + ", ".join(d["id"] for d in blocked_routes)
+                    + " cannot: the infrastructure each one needs is down"
+                    " (below), so granting it today buys nothing, however"
+                    " cheap it looks."
+                )
+            out += wrap(body, 72, "  ")
+            out += unmeasured_advice(unmeasured)
         elif unusable and not live:
             out.append("")
-            out += wrap(
-                "None of them works today: every route's own infrastructure "
-                "is down or unmeasured (below). The queue cannot rank its way "
-                "out of this — something has to be re-measured or repaired "
-                "before any of these flips changes what a stranger sees.",
-                72, "  ",
-            )
+            if blocked_routes and not unmeasured:
+                out += wrap(
+                    "None of them works today: every route's own "
+                    "infrastructure is down (below). The queue cannot rank "
+                    "its way out of this — something has to be repaired "
+                    "before any of these flips changes what a stranger sees.",
+                    72, "  ",
+                )
+            else:
+                # At least one route is merely unmeasured. Saying "none of
+                # them works" here would assert the thing that has not been
+                # checked, which is the failure this split exists to stop.
+                out += wrap(
+                    "None of them is confirmed to work today. "
+                    + (
+                        ", ".join(d["id"] for d in blocked_routes)
+                        + " is genuinely blocked (below). "
+                        if blocked_routes else ""
+                    )
+                    + "The rest are unmeasured, not known-broken — see below.",
+                    72, "  ",
+                )
+                out += unmeasured_advice(unmeasured)
         elif len(ids) > 1:
             out.append("")
             out += wrap(

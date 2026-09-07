@@ -13,7 +13,10 @@ const TEXT_MAX = 60; // matches the item-name input's maxlength in index.html
 
 export const NUMBER_FIELD_IDS = ['cash', 'weeklyIncome', 'collectionWeeks', 'weeklyCosts', 'weeks'];
 for (let index = 1; index <= ITEM_ROWS; index += 1) {
-  NUMBER_FIELD_IDS.push(`item${index}Amount`, `item${index}Week`);
+  // Repeat rides the same allowlist as Amount and Week -- a row missing here
+  // is a field that silently falls off a shared link, the exact drift class
+  // #2962 caused by omission from a select allowlist instead of a value check.
+  NUMBER_FIELD_IDS.push(`item${index}Amount`, `item${index}Week`, `item${index}Repeat`);
 }
 
 export const TEXT_FIELD_IDS = [];

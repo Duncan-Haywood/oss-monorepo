@@ -219,7 +219,7 @@ test('the incumbent-comparison page links back, names Reverb\'s own resources ho
 test('every published page carries Open Graph tags', () => {
   const dir = new URL('./', import.meta.url);
   const pages = readdirSync(dir).filter((name) => name.endsWith('.html'));
-  assert.ok(pages.length >= 9, 'expected at least the 9 known pages in this venture');
+  assert.ok(pages.length >= 10, 'expected at least the 10 known pages in this venture');
   for (const page of pages) {
     const source = readFileSync(new URL(page, dir), 'utf8');
     assert.match(source, /<meta property="og:title" content="[^"]+">/, `${page} is missing og:title`);
@@ -251,4 +251,11 @@ test('every worked-example sub-page carries a robots meta and a matching canonic
     assert.match(source, /<meta name="robots" content="index, follow">/, `${page} is missing a robots meta tag`);
     assert.match(source, new RegExp(`<link rel="canonical" href="${page.replace('.', '\\.')}"`), `${page} is missing (or has a mismatched) canonical link`);
   }
+});
+
+// where-to-sell-calculator already hands a Reverb comparison into this page;
+// without a crawlable link back, a visitor who landed on Reverb first has no
+// path to the multi-channel ranking that owns the handoff.
+test('index links to the where-to-sell calculator', () => {
+  assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
 });

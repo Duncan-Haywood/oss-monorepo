@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dumpster Rental Margin Calculator — Price a Roll-Off Job</title>
+<meta name="description" content="Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Dumpster Rental Margin Calculator">
+<meta property="og:description" content="A rental price set from an included weight allowance can lose money before the container is even full, and an overage rate priced below your tipping fee loses money on every extra ton. Find the real numbers before you quote.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Dumpster Rental Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a roll-off dumpster rental from the included weight allowance, tipping fee, driver labor, mileage, and equipment cost, flags an overage rate priced below the tipping fee, and checks a real scale ticket's weight against the quote's breakeven."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the calculator price the rental at the included weight allowance instead of the weight I expect the job to hit?","acceptedAnswer":{"@type":"Answer","text":"Because that is what the rental agreement actually promises: a price for up to the allowance, with anything over billed separately as overage. Pricing the base rental from your expected weight instead would double-count the disposal cost for tons that are supposed to be billed as overage, not baked into the sticker price."}},{"@type":"Question","name":"What happens if my overage rate is lower than my tipping fee?","acceptedAnswer":{"@type":"Answer","text":"Every ton over the allowance then costs you more to dispose of than you charge the customer for it, so the fee meant to protect your margin instead erodes it — and the loss has no ceiling as the load gets heavier. The calculator flags this directly and reports how many overage tons would erase the rental's entire built-in profit."}},{"@type":"Question","name":"Why show extra rental days as pure revenue with no added cost?","acceptedAnswer":{"@type":"Answer","text":"Because in this model a container sitting on a job site longer does not add disposal weight, labor, or mileage by itself — those are billed when the container is actually hauled. If your business does incur a real cost for a container sitting longer (a second unit tied up, a rental yard fee), fold that into the flat other-cost field."}},{"@type":"Question","name":"Does anything about my costs or a customer's scale ticket get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#241a12;background:#f7f1ea}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e6d3ba;border-radius:16px;padding:20px;box-shadow:0 8px 24px #46270708;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #f0e3cd;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#9a5a12;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #dcb886;border-radius:8px;font:inherit;background:#fffdfa}.result{background:#5c3a0f;color:#fff;border-color:#5c3a0f;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6a5a46}.result .note{color:#eadcc6}.err{color:#ffd9a6;font-weight:700}.warn{background:#fff4e0;border:1px solid #f0c987;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#3f2808;border-color:#c98b3b;color:#ffe6b0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #dcb886;background:#fff;cursor:pointer;color:#241a12}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR INDEPENDENT ROLL-OFF DUMPSTER RENTAL OPERATORS</p><h1>The scale ticket decides your margin, not the rental price.</h1><p class="lede">A rental quote covers an included weight allowance, but disposal is billed by the ton at the transfer station once the container actually comes back — and the customer's fill, not you, decides what it weighs. This free calculator prices a rental from that allowance, then checks whether your overage rate even covers what an extra ton costs you, and lets you plug in the real scale ticket once you have it.</p></header>
+
+<main class="layout">
+<section><h2>Price one rental</h2>
+<fieldset><legend>Container &amp; weight</legend><div class="fields">
+<label>Dumpster size (yards)<input id="dumpsterSizeYards" type="number" min="1" step="1" value="20"></label>
+<label>Included weight allowance (tons)<input id="includedWeightTons" type="number" min="0" step="0.1" value="2"></label>
+<label>Expected weight for this job (tons)<input id="expectedWeightTons" type="number" min="0" step="0.1" value="3"></label>
+<label>Tipping fee ($/ton, your cost)<input id="tippingFeePerTon" type="number" min="0" step="1" value="65"></label>
+<label>Overage rate ($/ton charged to customer)<input id="overageRatePerTon" type="number" min="0" step="1" value="75"></label>
+</div></fieldset>
+<fieldset><legend>Rental period</legend><div class="fields">
+<label>Included rental days<input id="includedRentalDays" type="number" min="1" step="1" value="7"></label>
+<label>Expected rental days<input id="expectedRentalDays" type="number" min="1" step="1" value="7"></label>
+<label>Extra day rate ($/day)<input id="extraDayRate" type="number" min="0" step="1" value="10"></label>
+</div></fieldset>
+<fieldset><legend>Labor, mileage &amp; equipment</legend><div class="fields">
+<label>Driver hours (delivery + pickup + dump run)<input id="driverHours" type="number" min="0" step="0.25" value="2"></label>
+<label>Driver pay ($/hr)<input id="driverHourlyRate" type="number" min="0" step="1" value="28"></label>
+<label>Round-trip miles<input id="roundTripMiles" type="number" min="0" step="1" value="30"></label>
+<label>Mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.67"></label>
+<label>Flat dump/gate fee ($)<input id="dumpFeeFlat" type="number" min="0" step="1" value="10"></label>
+<label>Equipment cost per haul ($)<input id="equipmentCostPerHaul" type="number" min="0" step="1" value="20"></label>
+</div></fieldset>
+<fieldset><legend>Overhead &amp; margin</legend><div class="fields">
+<label>Overhead (% of direct cost)<input id="overheadRate" type="number" min="0" step="1" value="10"></label>
+<label>Target margin (%)<input id="targetMargin" type="number" min="0" max="99" step="1" value="30"></label>
+<label>Other flat cost ($)<input id="otherCost" type="number" min="0" step="1" value="0"></label>
+</div></fieldset>
+</section>
+
+<section class="result" aria-live="polite"><h2>Rental price to quote</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="price" class="big">$0.00</div><p id="allowanceLine" class="note"></p>
+<dl>
+<dt>Driver labor</dt><dd id="laborOut"></dd>
+<dt>Mileage</dt><dd id="mileageOut"></dd>
+<dt>Disposal at allowance</dt><dd id="disposalOut"></dd>
+<dt>Equipment</dt><dd id="equipmentOut"></dd>
+<dt>Overhead</dt><dd id="overheadOut"></dd>
+<dt>Breakeven at allowance</dt><dd id="breakEvenOut"></dd>
+<dt>Profit at allowance</dt><dd id="profitOut"></dd>
+</dl>
+<p id="weightWarning" class="warn" hidden></p>
+<h3>If this job weighs what you expect</h3>
+<dl>
+<dt>Expected overage tons</dt><dd id="expOverageTonsOut"></dd>
+<dt>Expected overage revenue</dt><dd id="expOverageRevOut"></dd>
+<dt>Expected total revenue</dt><dd id="expRevenueOut"></dd>
+<dt>Expected total profit</dt><dd id="expProfitOut"></dd>
+<dt>Expected margin</dt><dd id="expMarginOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not add sales tax, insurance, or a swap/exchange policy unless you fold those into other cost yourself.</p>
+</section>
+</main>
+
+<section><h2>Check a real scale ticket</h2><p class="note">Container's back and weighed? Enter the actual ticket weight (and actual days on site, if different) to see the real profit this job leaves, instead of the estimate.</p>
+<div class="fields">
+<label>Actual weight ticket (tons)<input id="actualWeightTons" type="number" min="0" step="0.1" value=""></label>
+<label>Actual rental days (optional)<input id="actualRentalDays" type="number" min="0" step="1" value=""></label>
+</div>
+<p id="actualErrors" class="err" role="alert" hidden></p>
+<dl id="actualResult" hidden>
+<dt>Overage tons billed</dt><dd id="actualOverageTonsOut"></dd>
+<dt>Overage revenue</dt><dd id="actualOverageRevOut"></dd>
+<dt>Extra-day revenue</dt><dd id="actualExtraDayOut"></dd>
+<dt>Disposal cost</dt><dd id="actualDisposalOut"></dd>
+<dt>Total revenue</dt><dd id="actualRevenueOut"></dd>
+<dt>Profit</dt><dd id="actualProfitOut"></dd>
+<dt>Margin</dt><dd id="actualMarginOut"></dd>
+<dt>Below breakeven?</dt><dd id="actualBelowOut"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your job details, prices, and scale tickets are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>quote-priced</code>, <code>weight-ticket-checked</code>) so we can tell whether the calculator gets used — no job details, prices, or weights are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does the calculator price the rental at the included weight allowance instead of the weight I expect the job to hit?</h3><p>Because that is what the rental agreement actually promises: a price for up to the allowance, with anything over billed separately as overage. Pricing the base rental from your expected weight instead would double-count the disposal cost for tons that are supposed to be billed as overage, not baked into the sticker price.</p>
+<h3>What happens if my overage rate is lower than my tipping fee?</h3><p>Every ton over the allowance then costs you more to dispose of than you charge the customer for it, so the fee meant to protect your margin instead erodes it — and the loss has no ceiling as the load gets heavier. The calculator flags this directly and reports how many overage tons would erase the rental's entire built-in profit.</p>
+<h3>Why show extra rental days as pure revenue with no added cost?</h3><p>Because in this model a container sitting on a job site longer does not add disposal weight, labor, or mileage by itself — those are billed when the container is actually hauled. If your business does incur a real cost for a container sitting longer (a second unit tied up, a rental yard fee), fold that into the flat other-cost field.</p>
+<h3>Does anything about my costs or a customer's scale ticket get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<p><a href="why-your-overage-fee-might-be-losing-you-money.html">Guide: why your overage fee might be losing you money on every heavy load</a> &middot; <a href="./vs-jobber.html">This calculator vs. Jobber</a></p>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a rental agreement or disposal contract, predict actual load weight, or replace your own contract, insurance, or accountant.</p><p>MIT licensed. If it helped you price a job, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculateQuote, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const FIELD_IDS = Object.keys(DEFAULTS);
+let counted = false;
+let actualCounted = false;
+
+function fieldInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+function updateQuote(count = false) {
+  try {
+    const r = calculateQuote(fieldInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('price').hidden = false;
+    el('price').textContent = money(r.basePrice);
+    el('allowanceLine').textContent = `Covers up to ${el('includedWeightTons').value} tons and ${el('includedRentalDays').value} days at ${r.baseMarginPct.toFixed(0)}% margin`;
+    el('laborOut').textContent = money(r.laborCost);
+    el('mileageOut').textContent = money(r.mileageCost);
+    el('disposalOut').textContent = money(r.disposalCostAtAllowance);
+    el('equipmentOut').textContent = money(r.equipmentCostPerHaul);
+    el('overheadOut').textContent = money(r.overhead);
+    el('breakEvenOut').textContent = money(r.breakEvenPrice);
+    el('profitOut').textContent = money(r.baseProfit);
+    el('expOverageTonsOut').textContent = r.expectedOverageTons.toFixed(2);
+    el('expOverageRevOut').textContent = money(r.expectedOverageRevenue);
+    el('expRevenueOut').textContent = money(r.expectedTotalRevenue);
+    el('expProfitOut').textContent = money(r.expectedProfit);
+    el('expMarginOut').textContent = r.expectedMarginPct === null ? '—' : `${r.expectedMarginPct.toFixed(1)}%`;
+    if (r.weightRiskTight) {
+      el('weightWarning').hidden = false;
+      el('weightWarning').textContent = `Your overage rate ($${el('overageRatePerTon').value}/ton) is below your tipping fee ($${el('tippingFeePerTon').value}/ton), and this job is expected to go about ${r.expectedOverageTons.toFixed(2)} tons over the allowance. About ${r.maxOverageTonsBeforeLoss.toFixed(2)} overage tons would erase this rental's entire built-in profit — raise the overage rate above the tipping fee before quoting a job like this.`;
+    } else {
+      el('weightWarning').hidden = true;
+    }
+    if (count && !counted) { recordEvent('quote-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('price').hidden = true;
+    el('weightWarning').hidden = true;
+    for (const id of ['allowanceLine', 'laborOut', 'mileageOut', 'disposalOut', 'equipmentOut', 'overheadOut', 'breakEvenOut', 'profitOut', 'expOverageTonsOut', 'expOverageRevOut', 'expRevenueOut', 'expProfitOut', 'expMarginOut']) el(id).textContent = '';
+  }
+}
+
+function updateActual(count = false) {
+  const raw = el('actualWeightTons').value;
+  if (raw === '') {
+    el('actualResult').hidden = true;
+    el('actualErrors').hidden = true; el('actualErrors').textContent = '';
+    return;
+  }
+  try {
+    const r = calculateQuote({ ...fieldInputs(), actualWeightTons: raw, actualRentalDays: el('actualRentalDays').value });
+    el('actualErrors').hidden = true; el('actualErrors').textContent = '';
+    el('actualResult').hidden = false;
+    el('actualOverageTonsOut').textContent = r.actual.overageTons.toFixed(2);
+    el('actualOverageRevOut').textContent = money(r.actual.overageRevenue);
+    el('actualExtraDayOut').textContent = money(r.actual.extraDayRevenue);
+    el('actualDisposalOut').textContent = money(r.actual.disposalCost);
+    el('actualRevenueOut').textContent = money(r.actual.totalRevenue);
+    el('actualProfitOut').textContent = money(r.actual.profit);
+    el('actualMarginOut').textContent = r.actual.marginPct === null ? '—' : `${r.actual.marginPct.toFixed(1)}%`;
+    el('actualBelowOut').textContent = r.actual.belowBreakEven ? 'Yes — below breakeven' : 'No';
+    if (count && !actualCounted) { recordEvent('weight-ticket-checked'); actualCounted = true; }
+  } catch (e) {
+    el('actualErrors').textContent = e.message; el('actualErrors').hidden = false;
+    el('actualResult').hidden = true;
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { updateQuote(true); updateActual(false); }));
+el('actualWeightTons').addEventListener('input', () => updateActual(true));
+el('actualRentalDays').addEventListener('input', () => updateActual(true));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+updateQuote(false);
+updateActual(false);
+</script>
+</body></html>

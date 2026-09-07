@@ -246,3 +246,15 @@ test('a saved or shared bid carries no customer or business details', () => {
       `${field} would be written into the saved bid and its shareable link`);
   }
 });
+
+// Closest sibling: same roofing subcategory, but a low-slope membrane rather
+// than standing-seam / exposed-fastener panels. Without a crawlable link here,
+// a crawler entering on the metal calculator never reaches the flat-roof tool
+// in one hop — same one-way orphan class as #3709 / #3729 / #3743.
+test('index links one hop to the flat-roof-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/flat-roof-bid-calculator\/"/,
+    'index must link ../flat-roof-bid-calculator/ so crawlers reach the flat-roof calculator in one hop',
+  );
+});

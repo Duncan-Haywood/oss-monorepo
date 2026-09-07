@@ -266,6 +266,7 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, fuel, insurance, and dump costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your property, wages, costs, or prices. A share link encodes only the quote fields in the page&rsquo;s URL hash rather than sending anything to a server.</p>
+    <p>Pricing a tree removal on the same property instead of a mowing stop? The <a href="../tree-service-bid-calculator/">tree service bid calculator</a> prices DBH, access, haul, and stump grinding &mdash; nothing uploaded.</p>
     <p class="support">Free and open source. If it wins you a route, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -311,7 +312,7 @@
       row.innerHTML = `
         <label for="${id}-type"><span class="lbl">Service</span><select class="s-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
         <label for="${id}-qty"><span class="lbl">Quantity</span><input class="s-qty" id="${id}-qty" type="number" min="0" step="1"></label>
-        <label for="${id}-rate"><span class="lbl">Quantity per hour</span><input class="s-rate" id="${id}-rate" type="number" min="0.01" step="1"></label>
+        <label for="${id}-rate"><span class="lbl">Quantity per hour</span><input class="s-rate" id="${id}-rate" type="number" min="0.01" step="any"></label>
         <button type="button" class="remove">Remove<span class="lbl"> this service</span></button>`;
 
       const typeField = row.querySelector('.s-type');

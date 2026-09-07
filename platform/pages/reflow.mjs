@@ -32,6 +32,18 @@
 //      side by side need ~500px and the track never gives. 6 of the 39,
 //      `contractor-bid-readiness` worst at +38px.
 //
+// A third arrived later, on 2026-09-06, and is the reason this list is dated
+// rather than closed:
+//
+//   3. **A `<pre>` whose longest line does not fit.** `white-space: pre` is the
+//      element's default and forbids wrapping outright, so one long install
+//      command holds the document open at its own width.
+//      `vendor-change-watch` was 649px inside a 360px window — by then the only
+//      page of 720 still scrolling, which is why one page mattered enough to
+//      find. Note it already set `word-break: break-word` on that very block:
+//      breaking applies only where wrapping is permitted at all, so the source
+//      reads as though this were handled and the measurement says otherwise.
+//
 // What this file does about each
 // ------------------------------
 // **The table** is wrapped, at build time, in a `overflow-x:auto` box, so the
@@ -49,9 +61,16 @@
 // replace the *initial* `auto`, which is exactly the value that is wrong here.
 // A venture that deliberately set `min-width: 280px` on its cards keeps it.
 //
-// Neither is conditional on measuring the page. A wrapper around a table that
-// fits never scrolls, never takes a tab stop and is visually identical; a grid
-// that already reflows is not changed by being allowed to. That matters more
+// **The `<pre>`** is given `overflow-x:auto` the same way the table is, so the
+// block scrolls and the page does not. Scrolled rather than wrapped on purpose:
+// an install command has to stay copyable as one line. It needs no class and no
+// build pass — `<pre>` already means "preformatted" — so it applies to a
+// venture that has not been written yet.
+//
+// None of the three is conditional on measuring the page. A wrapper around a
+// table that fits never scrolls, never takes a tab stop and is visually
+// identical; a grid that already reflows is not changed by being allowed to; a
+// `<pre>` that fits gets no scrollbar. That matters more
 // than the saved bytes: the next calculator to land here gets both on the day
 // it ships, which is the failure mode this repository keeps re-learning — a
 // gate that only covers what was broken on the day it was written stops being a
@@ -208,6 +227,31 @@ export const REFLOW_CSS = `
 /* Paper has no viewport to scroll. The customer's proposal prints from these
    pages and every column of it has to be on the sheet. */
 @media print{.${TABLE_SCROLL_CLASS}{overflow-x:visible;box-shadow:none}}
+/* Cause (3): a <pre> whose longest line does not fit. white-space:pre is the
+   element's default and it forbids wrapping outright, so one long command holds
+   the whole document open at that width — and no word-break a venture wrote can
+   rescue it, because breaking only applies where wrapping is permitted at all.
+   That combination is why this looks fixed in the source and is not:
+   vendor-change-watch sets word-break:break-word on the very block that was
+   measured at 649px inside a 360px window on 2026-09-06 (sideways.mjs, the only
+   page of 720 still scrolling).
+
+   Scrolled rather than wrapped, which is the choice .pf-table-scroll makes
+   above and for the same reason: an install command has to stay copyable as one
+   line and a diff has to keep its columns, so re-flowing the text would trade a
+   layout bug for a correctness one. WCAG 1.4.10 allows exactly this — content
+   needing a two-dimensional layout may scroll, so long as the *page* does not.
+
+   No class to apply and no build pass to run: a <pre> is already the element
+   that means "preformatted", so the next venture to paste a command block is
+   covered on the day it ships rather than the day someone measures it. The
+   keyboard tab stop comes free, because SCROLL_A11Y_SCRIPT finds a scrolling
+   box by its computed overflow-x rather than by class. */
+:where(pre){overflow-x:auto;max-width:100%}
+/* Paper cannot scroll, so here the trade runs the other way: wrap the command
+   rather than crop it at the edge of the sheet. pre-wrap still preserves
+   every space and newline, so an indented block prints as written. */
+@media print{:where(pre){overflow-x:visible;white-space:pre-wrap}}
 /* Cause (2): a grid or flex track that will not shrink under its content. A
    grid item's automatic minimum size is its min-content width, so one <input>
    at its 20-character default, or one table the rule above just made

@@ -9,7 +9,7 @@ wrote down does not exist. Every venture already carries a `usage.mjs`, but all
 of them are deliberately `localStorage`-only: the count lives in the visitor's
 own browser and never leaves the device. That is the right default for a
 contractor's pricing, and it means that on the day `tools.marisstella.dev`
-goes live the portfolio still learns nothing about which of its 174 tools
+goes live the portfolio still learns nothing about which of its 175 tools
 anyone opened. `usage.yaml` would stay `null` forever.
 
 This closes that without asking the browser to transmit anything new. nginx
@@ -111,7 +111,7 @@ EMBED_PREFIX = "embed/"
 # key for the whole pod, not a path breakdown, because there is only ever one
 # path: that pod's nginx does `try_files /index.html =404`, so every request it
 # counts logs the same URI. A per-path split would be fiction." That was true
-# and is not any more. `front-door-tools.mjs` mirrors 174 complete ventures onto
+# and is not any more. `front-door-tools.mjs` mirrors 210 complete ventures onto
 # that same pod, so it now serves the front page *and* those tools, and folding
 # them all onto one key would recreate — inside this pod — exactly the
 # conflation this key was added to prevent: "did anyone find the portfolio" and

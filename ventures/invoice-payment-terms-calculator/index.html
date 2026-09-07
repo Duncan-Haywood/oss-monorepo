@@ -55,14 +55,16 @@
         <label>Annual carrying-cost rate (%) <input id="annualCarryRate" type="number" min="0" step="0.1" max="999.9" value="24"></label>
         <label>Share who take the discount (%) <input id="takeRatePct" type="number" min="0" max="100" step="1" value="100"></label>
         <label>Factor fee (%) <input id="factorFeePct" type="number" min="0" step="0.01" max="99.99" value="3"></label>
-        <label>Factor advance (%) <input id="advancePct" type="number" min="0.01" max="100" step="0.1" value="90"></label>
+        <label>Factor advance (%) <input id="advancePct" type="number" min="0.01" max="100" step="any" value="90"></label>
         <label>Reserve days <input id="reserveDays" type="number" min="0" step="1" value="35"></label>
       </div>
       <div class="actions" style="margin-top:14px">
         <button id="save" type="button">Save draft in this browser</button>
         <button id="load" type="button">Load saved draft</button>
+        <button id="copyShare" type="button">Copy shareable link</button>
       </div>
       <p id="draftStatus" class="note" role="status" aria-live="polite"></p>
+      <p id="shareStatus" class="note" role="status" aria-live="polite"></p>
     </section>
     <section class="result" aria-live="polite">
       <h2>Cash-flow readout</h2>
@@ -187,7 +189,7 @@
     <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice. It does not determine whether a late-fee term is permitted or enforceable, and it does not tell you to offer or withhold an early-pay discount or to factor an invoice. Verify the output and applicable rules with a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Everything runs in your browser. Your numbers are not uploaded. Anonymous feature counts stay local and can be disabled above. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p>Everything runs in your browser. Your numbers are not uploaded. Anonymous feature counts stay local and can be disabled above. &ldquo;Copy shareable link&rdquo; encodes every field on this page into the URL fragment rather than sending it anywhere &mdash; the fragment is never included in any network request, so nothing leaves your browser when you share it, but only share the link with people you trust with those figures. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
     import { calculateTerms, compareEarlyPay, compareFactor, compareTermsLandings, earlyPayNote, factorNote, projectSettlement, settlementNote, termsCopy } from './calc.mjs';
@@ -196,6 +198,7 @@
       depositSchedule, scheduleCopy, scheduleNote,
     } from './schedule.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
     const ids = ['amount','invoiceDate','termsDays','annualLateRate','graceDays','monthlyBurn','outstanding','earlyPayDays','earlyPayDiscountPct','annualCarryRate','takeRatePct','factorFeePct','advancePct','reserveDays','payRun','payRunDay','payRunWeekday'];
     // Schedule inputs are collected separately so a change here never re-counts
     // the single-invoice calculation as a use of the early-pay comparison.
@@ -394,6 +397,23 @@
         recordUsage(storage, $('usageOptOut').checked, 'draft_loaded');
       } catch { $('draftStatus').textContent = 'No valid saved draft found.'; }
     });
+    // Encodes every field the form reads — both the single-invoice section
+    // and the billing-schedule section below it — into the URL fragment,
+    // which browsers never send to a server or log in a Referer header, so
+    // a bookkeeper or client opens the exact same scenario rather than a
+    // screenshot of one.
+    $('copyShare').addEventListener('click', async () => {
+      const shareIds = [...ids, ...scheduleIds];
+      const hash = encodeInputs(Object.fromEntries(shareIds.map(id => [id, $(id).value])));
+      history.replaceState(null, '', `#${hash}`);
+      try {
+        await navigator.clipboard.writeText(location.href);
+        $('shareStatus').textContent = 'Link copied — opening it recalculates this same scenario.';
+        recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'share_link_copied');
+      } catch {
+        $('shareStatus').textContent = 'Could not copy automatically — the link is now in your address bar.';
+      }
+    });
     $('copy').addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText($('copyText').textContent);
@@ -408,8 +428,22 @@
       updateSchedules(false);
     });
     $('invoiceDate').value = new Date().toISOString().slice(0, 10);
+
+    // A shared scenario arrives in the fragment, which browsers never send
+    // to a server or log in a Referer header. `search` is accepted too, in
+    // case a link loses its # going through a messaging app that rewrites
+    // URLs. Unrecognised ids are skipped, so a field this page does not
+    // have yet cannot throw on `document.getElementById(id).value = …`.
+    const shared = decodeInputs(window.location.hash || window.location.search);
+    for (const [id, value] of Object.entries(shared)) {
+      if ($(id)) $(id).value = value;
+    }
     update(false);
     updateSchedules(false);
+    if (Object.keys(shared).length > 0) {
+      $('shareStatus').textContent = 'Opened from a shared link — verify every number before relying on it.';
+      recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'shared_link_opened');
+    }
   </script>
 </body>
 </html>
