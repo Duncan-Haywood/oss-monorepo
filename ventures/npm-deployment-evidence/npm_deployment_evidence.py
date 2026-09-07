@@ -25,10 +25,44 @@ def _package_name(path: str) -> str | None:
     return path.rsplit(marker, 1)[1] or None
 
 
+def _unsupported_lockfile_error(text: str, file_name: str | None = None) -> str | None:
+    """Name yarn/pnpm lockfiles instead of letting JSON.parse call them 'not valid JSON'."""
+    name = Path(file_name or "").name.lower()
+    head = (text or "")[:400]
+    looks_yarn = name == "yarn.lock" or head.lstrip().lower().startswith("# yarn") or "yarn lockfile v" in head.lower()
+    looks_pnpm = (
+        name in {"pnpm-lock.yaml", "pnpm-lock.yml"}
+        or ("lockfileVersion:" in head and "importers:" in head)
+    )
+    if looks_yarn:
+        return (
+            "This file is a yarn.lock. This tool only reads package-lock.json v2 or v3 "
+            "(npm 7+). Generate one with `npm install`, or keep using yarn's own audit tools."
+        )
+    if looks_pnpm:
+        return (
+            "This file is a pnpm-lock.yaml. This tool only reads package-lock.json v2 or v3 "
+            "(npm 7+). Generate one with `npm install`, or keep using pnpm's own audit tools."
+        )
+    return None
+
+
 def load_lockfile(path: Path) -> tuple[dict, dict[str, list[dict]]]:
-    raw = json.loads(path.read_text(encoding="utf-8"))
+    text = path.read_text(encoding="utf-8")
+    unsupported = _unsupported_lockfile_error(text, path.name)
+    if unsupported:
+        raise ValueError(unsupported)
+    try:
+        raw = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(
+            "That file is not valid JSON. Pass package-lock.json itself, not a different file."
+        ) from exc
     if raw.get("lockfileVersion") not in (2, 3) or not isinstance(raw.get("packages"), dict):
-        raise ValueError("package-lock.json v2 or v3 with a packages map is required")
+        raise ValueError(
+            "package-lock.json v2 or v3 with a packages map is required "
+            "(yarn.lock and pnpm-lock.yaml are not supported)"
+        )
     packages: dict[str, list[dict]] = {}
     for location, entry in raw["packages"].items():
         if not isinstance(entry, dict) or not entry.get("version"):
@@ -128,7 +162,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--usage-file", type=Path, help="optional local aggregate counter; no project data is recorded")
     parser.add_argument("--no-usage", action="store_true", help="disable local usage counting")
     args = parser.parse_args(argv)
-    report = build_report(args.lockfile)
+    try:
+        report = build_report(args.lockfile)
+    except (OSError, ValueError) as exc:
+        parser.error(str(exc))
     record_usage(None if args.no_usage else args.usage_file)
     output = json.dumps(report, indent=2, sort_keys=True) + "\n" if args.format == "json" else markdown(report)
     if args.output:
