@@ -204,7 +204,8 @@ export function normalizeApp(app) {
     webhooks: present ? stringList(webhooks, "webhooks", id) : [],
   };
   if (declared !== undefined) record.declared_scopes = stringList(declared, "declared_scopes", id);
-  if (!present) record.webhook_coverage = "absent";
+  // A normalized capture uses [] for omitted webhooks; preserve that uncertainty.
+  if (!present || app.webhook_coverage === "absent") record.webhook_coverage = "absent";
   else record.webhook_coverage = "complete";
   return record;
 }
