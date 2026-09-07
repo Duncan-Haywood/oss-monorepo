@@ -7228,3 +7228,55 @@ ventures:
       or resolves anything on the user's behalf. It makes no security or
       compliance claim: a clean scan means these two specific, documented
       patterns are absent, not that the workflow is secure overall.
+  - slug: childcare-tuition-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — the operator's own
+      child:staff ratio and staffing cost drive a per-seat break-even and an
+      empty-seat cost at every occupancy level, arithmetic a director has to
+      be able to re-derive before setting tuition or deciding whether a drop
+      in enrollment still covers the room.
+    basis: >-
+      Graduated 2026-09-07 as a free, browser-only pricing calculator for
+      childcare center directors and family child care providers, scored on
+      this file's six-dimension rubric to keep coverage complete for
+      `score_ventures.py --check` and `portfolio/router/test_allocate.py`.
+      Same per-job/per-room trade-calculator shape as
+      `home-staging-bid-calculator` and `dumpster-rental-margin-calculator`,
+      scored the same way.
+      Autonomous ops 10 / gross margin 10: every calculation runs in the
+      visitor's own browser from numbers they type; serving one more visitor
+      costs a static file and nothing else.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever calculators rather than assumed lower, since usage itself
+      (not payment) is the current-phase metric.
+      Defensibility 5: pricing a classroom from the operator's own ratio and
+      staffing cost — rather than a hardcoded state licensing ratio that
+      varies by state and age group and goes stale in a committed file — and
+      reporting the empty-seat cost at every occupancy level is specific to
+      this niche and not modeled by a generic hourly or per-unit
+      service-pricing calculator. Distribution 6: "daycare tuition
+      calculator" and "how to price daycare tuition" are narrow, real search
+      terms with a named first channel (r/daycare, r/ECEProfessionals), but
+      volume is unmeasured and this portfolio has no existing childcare
+      distribution channel.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended price, a claim about a state's licensed ratio, or advice
+      to overenroll past a safe ratio. Nothing entered leaves the browser
+      and nothing is saved between sessions. The disclaimer is explicit that
+      the tool does not replace the operator's own state licensing agency.

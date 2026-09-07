@@ -52,6 +52,39 @@ class ClassifyRunTests(unittest.TestCase):
         self.assertEqual(result["status"], "suspicious")
         self.assertIn("below the expected minimum", result["reasons"][0])
 
+    def test_undersized_artifact_reason_uses_human_readable_sizes(self):
+        # Regression: the shrink-alert / markdown paths were fixed to call
+        # format_bytes, but the undersized-artifact reason still dumped raw
+        # integers ("51200000000 bytes ... minimum of 60000000000"). That
+        # reason is what lands in a ticket when an operator copies the report.
+        record = run(
+            artifact={
+                "exists": True,
+                "size_bytes": 51_200_000_000,
+                "modified_at": "2026-08-24T02:58:00Z",
+            },
+            expected={"min_size_bytes": 60_000_000_000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "suspicious")
+        reason = result["reasons"][0]
+        self.assertIn("51.2 GB", reason)
+        self.assertIn("60.0 GB", reason)
+        self.assertNotIn("51200000000", reason)
+        self.assertNotIn("60000000000", reason)
+
+    def test_undersized_artifact_with_unknown_size_keeps_plain_wording(self):
+        record = run(
+            artifact={"exists": True, "size_bytes": None, "modified_at": "2026-08-24T02:58:00Z"},
+            expected={"min_size_bytes": 1_000_000},
+        )
+        result = classify_run(record)
+        self.assertEqual(result["status"], "suspicious")
+        reason = result["reasons"][0]
+        self.assertIn("an unknown number of bytes", reason)
+        self.assertIn("1.0 MB", reason)
+        self.assertNotIn("1000000", reason)
+
     def test_stale_artifact_reused_from_a_prior_run_is_suspicious(self):
         record = run(
             finished_at="2026-08-24T03:00:00Z",

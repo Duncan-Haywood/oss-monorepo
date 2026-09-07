@@ -93,3 +93,15 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same MEP subcategory, but a well-pump replacement rather
+// than a basement sump install. Without a crawlable link here, a crawler
+// entering on the sump calculator never reaches the well-pump tool in one
+// hop — same one-way orphan class as #3709 / #3729 / #3743.
+test('index links one hop to the well-pump-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/well-pump-bid-calculator\/"/,
+    'index must link ../well-pump-bid-calculator/ so crawlers reach the well-pump calculator in one hop',
+  );
+});
