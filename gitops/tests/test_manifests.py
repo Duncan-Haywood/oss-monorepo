@@ -1361,10 +1361,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 200 since 2026-09-07, when `childcare-tuition-calculator` graduated —
     # same shape again: a new venture with a static `index.html` from its
     # first commit, entering the mirror and the total together.
-    # 201 since 2026-09-07, when `license-drift-check` graduated — same shape
+    # 201 since 2026-09-07, when `actions-permissions-check` graduated.
+    # 202 since 2026-09-07, when `license-drift-check` graduated — same shape
     # again: a new venture with a static `index.html` from its first commit,
     # entering the mirror and the total together.
-    total = 201  # `infra/OWNER_CHECKLIST.md`'s own "N of the 201 tools" wording.
+    total = 202  # `infra/OWNER_CHECKLIST.md`'s own "N of the 202 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

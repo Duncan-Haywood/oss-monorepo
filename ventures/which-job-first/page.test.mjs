@@ -23,3 +23,15 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+// Closest sibling: same trades-paid subcategory, but reviewing a finished
+// job's estimate vs actuals rather than ranking what to take next. Without
+// a crawlable link here, a crawler entering on the ranker never reaches the
+// variance calculator in one hop.
+test('index links one hop to the job-margin-variance sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/job-margin-variance\/"/,
+    'index must link ../job-margin-variance/ so crawlers reach the variance calculator in one hop',
+  );
+});

@@ -6806,6 +6806,68 @@ ventures:
       anyone else's data; nothing entered leaves the browser and nothing is
       saved between sessions.
 
+  - slug: actions-permissions-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic reading of one YAML key. A workflow either declares a
+      `permissions:` block or it does not; there is nothing to infer, and a
+      model in the path would make the verdict less reproducible.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags
+      GitHub Actions workflows and jobs running with no explicit
+      `permissions:` block (so they inherit the repository or organization
+      default GITHUB_TOKEN scope) or with `permissions: write-all`. Third of
+      the three checkers covering GitHub's "Security hardening for GitHub
+      Actions" guidance, and orthogonal to both siblings: `pinned-actions-check`
+      asks *which* code runs (a mutable @tag on a `uses:` line),
+      `actions-injection-check` asks *whose input* runs (a pwn-request
+      checkout or an interpolated `github.event` expression), and this asks
+      *what the token may do* while it runs. A workflow can pass either
+      sibling and still hand a compromised step write access to the whole
+      repository. Same standard-library-only classifier + browser port +
+      parity-tested shape, scored on this file's six-dimension rubric to keep
+      coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the page
+      classifies text the visitor pastes and the CLI reads local files, so
+      marginal cost per use is zero and there is no server to operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities, since usage rather than payment is the
+      current-phase metric.
+      Defensibility 3: one point below `actions-injection-check` and level
+      with the weaker end of the family, deliberately. The rule is a single
+      YAML key lookup — the most trivially copied of the three — and unlike
+      the pwn-request explainer there is no hard-to-write background piece a
+      searcher is really buying. What little there is sits in pairing each
+      finding with the minimal scope that would replace it.
+      Distribution 5: "github actions permissions write-all" and "least
+      privilege GITHUB_TOKEN" are real, narrow developer search terms, and
+      GitHub's own guidance recommends exactly this practice. Not scored
+      higher: no dedicated demand event of the kind
+      `actions/checkout` v7 gave its sibling, no existing developer-tool
+      distribution channel in this portfolio, and volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only linter over the user's own workflow text. It makes no
+      network call in either implementation, needs no token, and nothing the
+      visitor pastes leaves the device. It reports on a defender's own
+      configuration and has no capability to scan anyone else's repository.
+      The page states that a clean scan is not a security audit — a declared
+      `permissions:` block can still be wider than a job needs, which this
+      does not judge — so there is no advice-of-record or compliance claim.
   - slug: actions-runner-starvation-check
     scores:
       ai_leverage: 1

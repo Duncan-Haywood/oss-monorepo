@@ -41,3 +41,4 @@ infra/*.tfvars
 /_site/
 /platform/pages/dist/
 /dist/
+.tmp/

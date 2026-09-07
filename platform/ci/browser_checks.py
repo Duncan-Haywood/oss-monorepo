@@ -447,21 +447,48 @@ def _count_html(dist: str | None) -> int | None:
     return total or None
 
 
-def _record_reading(names, only, base_url, dist) -> None:
-    """Write a passing full run to browser_state.json.
+def _built_at() -> str | None:
+    """HEAD right now, captured *before* the build so the reading can name it.
 
-    Refuses the two shapes that would make the file lie. A `--only` run
-    verified less than the catalogue -- the summary already stamps it
-    FILTERED for exactly that reason, and recording it would launder the
-    stamp away. A `--base-url` run trusted an origin this process did not
-    build and could place no sentinel in, so it cannot honestly be tied to
-    the commit this working tree is on, which is what staleness is computed
-    against.
+    A whole-site run takes 20-30 minutes, and `browser_state.record` used to
+    fill the reading's commit in from `head_commit()` at the moment it wrote
+    the file -- i.e. at the end. This repository runs up to four concurrent
+    sessions in a fifteen-minute window (`session_gate.py`) and merges into a
+    working tree constantly, so a `git merge` landing mid-run stamped the
+    reading with a commit whose changes no check had ever seen: coverage
+    claimed for pages built after the artifact under test was already on
+    disk. That is the same laundering `browser_state.py`'s refusals exist to
+    prevent, arriving through the one field nobody was looking at.
     """
-    if only:
-        print("not recorded: a --only run verifies less than the catalogue.",
-              file=sys.stderr)
-        return
+    try:
+        p = subprocess.run(("git", "-C", REPO_ROOT, "rev-parse", "HEAD"),
+                           capture_output=True, text=True)
+    except OSError:
+        return None
+    return p.stdout.strip() or None if p.returncode == 0 else None
+
+
+def _record_reading(names, only, base_url, dist, commit=None) -> None:
+    """Write a passing run to browser_state.json.
+
+    A full run is recorded as `scope: "full"` and is the only kind that can
+    establish coverage for a check.
+
+    A `--only` run is recorded as `scope: "ventures"` with the slugs it
+    named. That is not a relaxation of the FILTERED stamp -- it is what the
+    stamp means, written down. `browser_state.latest_full_for` will not let
+    a scoped reading serve as a base, so it can only ever top a full reading
+    up for the ventures it actually visited, which is the post-merge case
+    that used to cost 25 minutes or get skipped. Whole-site checks are
+    dropped from a scoped reading because `--only` does not scope them:
+    recording `journey` here would claim a narrative this run never ran
+    against the rest of the catalogue.
+
+    A `--base-url` run is still refused outright: it trusted an origin this
+    process did not build and could place no sentinel in, so it cannot
+    honestly be tied to the commit this working tree is on, which is what
+    staleness is computed against.
+    """
     if base_url:
         print("not recorded: --base-url trusts an origin this run did not build, "
               "so the reading\ncannot be tied to this tree's commit.", file=sys.stderr)
@@ -471,7 +498,31 @@ def _record_reading(names, only, base_url, dist) -> None:
     except ImportError:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         import browser_state
-    reading = browser_state.record(names, result="pass", pages=_count_html(dist))
+    # The reading names the commit the artifact was BUILT from, not HEAD at
+    # the moment of writing -- see `_built_at`. If they differ, the run is
+    # still honest about what it checked; it just does not get credit for
+    # whatever landed underneath it.
+    if commit and commit != browser_state.head_commit():
+        print(f"note: HEAD moved during this run; recording the commit the "
+              f"artifact was built from ({commit[:8]}).", file=sys.stderr)
+
+    if only:
+        scoped = [n for n in names if n not in browser_state.WHOLE_SITE_CHECKS]
+        dropped = [n for n in names if n in browser_state.WHOLE_SITE_CHECKS]
+        if dropped:
+            print(f"not recorded for {', '.join(dropped)}: --only does not scope "
+                  f"a whole-site check.", file=sys.stderr)
+        if not scoped:
+            return
+        reading = browser_state.record(scoped, result="pass", scope="ventures",
+                                       slugs=only, commit=commit)
+        where = os.path.relpath(browser_state.STATE, os.getcwd())
+        print(f"recorded (scoped): {', '.join(reading['checks'])} passing over "
+              f"{', '.join(reading['slugs'])} at {reading['commit'][:8]} → {where}")
+        return
+
+    reading = browser_state.record(names, result="pass", pages=_count_html(dist),
+                                   commit=commit)
     where = os.path.relpath(browser_state.STATE, os.getcwd())
     print(f"recorded: {', '.join(reading['checks'])} passing at "
           f"{reading['commit'][:8]} → {where}")
@@ -498,12 +549,15 @@ def main(argv=None) -> int:
                          "and ignores this. A filtered run is stamped FILTERED in "
                          "the summary and never reports as a full one.")
     ap.add_argument("--record", action="store_true",
-                    help="on a full, unskipped, passing run, write the reading to "
+                    help="on an unskipped, passing run, write the reading to "
                          "platform/ci/browser_state.json so the next session can "
                          "see when these last ran instead of re-running 30 minutes "
-                         "of checks or skipping them. Refused for --only and "
-                         "--base-url runs, which verify less or trust an origin "
-                         "this process did not build.")
+                         "of checks or skipping them. A full run is recorded as the "
+                         "catalogue reading; an --only run is recorded as a scoped "
+                         "reading over just those ventures, which tops a full "
+                         "reading up but can never stand in for one. Refused for "
+                         "--base-url runs, which trust an origin this process did "
+                         "not build.")
     args = ap.parse_args(argv)
 
     names = [c.strip() for c in args.checks.split(",") if c.strip()]
@@ -567,6 +621,10 @@ def main(argv=None) -> int:
               '  cd "$SCRATCH" && npm install axe-core\n'
               '  AXE="$SCRATCH/node_modules/axe-core/axe.min.js" ...',
               file=sys.stderr)
+
+    # Captured before the build, so a merge landing during the 20-30 minute
+    # run cannot make the reading claim pages no check ever saw.
+    built_at = _built_at()
 
     tmp = None
     httpd = None
@@ -690,7 +748,8 @@ def main(argv=None) -> int:
             return 2
         print(f"\nall {len(results)} browser checks passed against {base}{scope}")
         if args.record:
-            _record_reading(names, only, args.base_url, dist if not args.base_url else None)
+            _record_reading(names, only, args.base_url,
+                            dist if not args.base_url else None, commit=built_at)
         return 0
     finally:
         if httpd is not None:
