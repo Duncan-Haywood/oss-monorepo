@@ -93,3 +93,16 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same accessibility / aging-in-place trade, but a purchased
+// stair-lift rail and chair rather than ramp carpentry. Related-tool chrome
+// may never surface that pair, so without an explicit one-hop a crawler on
+// this page may never land on that tool.
+test('index links one hop to the stair-lift-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/stair-lift-bid-calculator\/"/,
+    'index must link ../stair-lift-bid-calculator/ so crawlers reach the stair-lift calculator in one hop',
+  );
+  assert.match(html, /stair lift bid calculator/i);
+});
