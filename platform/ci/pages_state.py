@@ -190,6 +190,20 @@ PUBLISH_WORKFLOW = os.path.join(
 # builder still has to live under this namespace to be a Pages builder.
 PAGES_BUILDER_PREFIX = "dynamic/pages/"
 
+# How GitHub's managed builder reports a build it abandoned because a newer
+# push to the same branch overtook it. It is the *ordinary* outcome here, not
+# an error: `publish-branch.sh` force-pushes the whole snapshot, so two
+# sessions publishing minutes apart -- which CLAUDE.md records as the normal
+# case, up to 4 inside a 15-minute window -- reliably leave a `cancelled` run
+# behind the one that wins. Measured 2026-09-07: of runs 111-125 on this
+# branch, five concluded `cancelled` and every one of them was immediately
+# followed by a `success` on a newer commit.
+#
+# Reading it as a deploy failure is therefore not a rare race but a structural
+# false alarm, and it fires exactly where it does the most damage -- see
+# `verdict_deployment`.
+SUPERSEDED_CONCLUSION = "cancelled"
+
 # One guard against a silent misread. If GitHub ever stops listing *any*
 # `dynamic/` workflow through this endpoint — a scope change, a token that
 # sees only repository-defined workflows — then "no dynamic/pages/ entry"
@@ -355,22 +369,47 @@ def read_pages_deployment(api, branch=PUBLISH_BRANCH):
         return None
     if not isinstance(payload, dict):
         return None
+
+    latest = None
+    in_flight = None
+    last_success = None
     for run in payload.get("workflow_runs") or []:
         # `event: dynamic` and the synthetic path together are what mark this
         # as GitHub's own builder rather than a repository workflow that
         # happens to run on the same branch.
         if not str(run.get("path", "")).startswith(PAGES_BUILDER_PREFIX):
             continue
-        if run.get("status") != "completed":
-            continue
-        return {
+        summary = {
             "branch": run.get("head_branch"),
             "conclusion": run.get("conclusion"),
             "head_sha": (run.get("head_sha") or "")[:8],
             "run_id": run.get("id"),
             "updated_at": run.get("updated_at"),
         }
-    return None
+        if run.get("status") != "completed":
+            # A build that is still running says nothing about what is served
+            # *yet*, so it does not become the reading -- but it is carried,
+            # because "the answer below is about an older commit and a newer
+            # build is in flight" is a materially different statement from the
+            # same answer with nothing running.
+            if in_flight is None:
+                in_flight = summary
+            continue
+        if latest is None:
+            latest = summary
+        if last_success is None and run.get("conclusion") == "success":
+            last_success = summary
+        if latest is not None and last_success is not None:
+            break
+
+    if latest is None:
+        # No completed managed build on the branch. A first-ever build that is
+        # still running lands here and reads as `unknown`, which is the honest
+        # answer: nothing has deployed yet.
+        return None
+    latest["in_flight"] = in_flight
+    latest["last_success"] = last_success
+    return latest
 
 
 def verdict_deployment(deployment, publish):
@@ -380,6 +419,30 @@ def verdict_deployment(deployment, publish):
     flip a Settings dropdown, so it requires a *successful* completed run, not
     merely a recent one: a build that failed is a configured source that is
     serving whatever it served before.
+
+    It reads a `cancelled` build as supersession rather than as failure, and
+    that distinction is the whole reason this function was rewritten on
+    2026-09-07. It used to test `conclusion != "success"`, which folded
+    GitHub's ordinary "a newer push overtook this build" into the same bucket
+    as a broken deploy and reported `failed` -- "this snapshot did not
+    deploy" -- about a site that was serving perfectly.
+
+    Two things made that worse than an ordinary off-by-one. `read_pages_deployment`
+    skips a build that is still running and answers from the last *completed*
+    one, so during the seconds after a publish the reading falls through the
+    real build onto the superseded predecessor. And `publish-branch.sh` prints
+    this very report immediately after it force-pushes the branch -- so the
+    false alarm did not merely exist, it was rendered to the operator at the
+    one moment it was guaranteed to be wrong, and the autonomous worker is
+    pointed at the same row (`gitops/agents/workers/mandate.md`).
+
+    Measured on this repository: at 03:21 the row read `failed`, citing run
+    34079362071 (`cancelled`, superseded 11 seconds later); at 03:22 the same
+    command on the same commit read `served`, citing run 34079370768. A gate
+    whose verdict depends on when you ask is worse than no gate, because the
+    repository's own guidance says to prefer this row to any prose -- and this
+    file has twice recorded what a red signal nobody believes costs when the
+    failure is finally real.
     """
     if deployment is None:
         return (
@@ -387,28 +450,67 @@ def verdict_deployment(deployment, publish):
             f"no completed `{PAGES_BUILDER_PREFIX}` run on `{PUBLISH_BRANCH}` is "
             "visible, so nothing here says GitHub has built this branch",
         )
-    if deployment["conclusion"] != "success":
+
+    in_flight = deployment.get("in_flight")
+    building = ""
+    if in_flight:
+        building = (
+            f" A newer build is in flight on {in_flight['head_sha']} "
+            f"(run {in_flight['run_id']}), so this reading is about the last "
+            f"build that finished, not about that one."
+        )
+
+    superseded = deployment["conclusion"] == SUPERSEDED_CONCLUSION
+    last_success = deployment.get("last_success")
+
+    if deployment["conclusion"] != "success" and not superseded:
         return (
             "failed",
             f"GitHub's managed builder last ran on `{deployment['branch']}` at "
             f"{deployment['head_sha']} and concluded `{deployment['conclusion']}` "
             f"(run {deployment['run_id']}) -- the branch IS the Pages source, but "
-            "this snapshot did not deploy",
+            f"this snapshot did not deploy.{building}",
         )
+
+    if superseded and not last_success:
+        # Cancelled with nothing successful behind it. Not a failure, but
+        # nothing here shows a deploy either, so it must not read as `served`.
+        return (
+            "unknown",
+            f"the newest completed `{PAGES_BUILDER_PREFIX}` run on "
+            f"`{deployment['branch']}` was superseded (run "
+            f"{deployment['run_id']}, `{SUPERSEDED_CONCLUSION}`) and no "
+            f"successful build is visible behind it, so nothing here says this "
+            f"branch has ever deployed.{building}",
+        )
+
+    # Either the newest completed build succeeded, or it was superseded and an
+    # earlier one succeeded. In both cases a managed build *has* run to
+    # completion on this branch, which is what names the source.
+    served = last_success if superseded else deployment
+    note = ""
+    if superseded:
+        note = (
+            f" The newest completed build (run {deployment['run_id']}, "
+            f"{deployment['head_sha']}) was `{SUPERSEDED_CONCLUSION}` -- that is "
+            f"GitHub abandoning a build a newer push overtook, which is routine "
+            f"here and is not a deploy failure."
+        )
+
     fresh = ""
-    if publish and publish.get("sha", "")[:8] != deployment["head_sha"]:
+    if publish and publish.get("sha", "")[:8] != served["head_sha"]:
         fresh = (
             f" NOTE: `{PUBLISH_BRANCH}` has since moved to "
             f"{publish['sha'][:8]}, which may not be deployed yet"
         )
     return (
         "served",
-        f"GitHub's managed builder ran on `{deployment['branch']}` at "
-        f"{deployment['head_sha']} and succeeded (run {deployment['run_id']}, "
-        f"{deployment['updated_at']}). A managed Pages build is triggered only "
+        f"GitHub's managed builder ran on `{served['branch']}` at "
+        f"{served['head_sha']} and succeeded (run {served['run_id']}, "
+        f"{served['updated_at']}). A managed Pages build is triggered only "
         f"by a push to the configured source, so `{PUBLISH_BRANCH}` IS that "
         f"source and this snapshot deployed. `deploy-settings` is already "
-        f"granted.{fresh}"
+        f"granted.{note}{building}{fresh}"
     )
 
 

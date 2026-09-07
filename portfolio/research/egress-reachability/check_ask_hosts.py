@@ -102,17 +102,14 @@ _FALLBACK_FILENAMES = {
 # loudly instead — the check stays red and prints the token — so incompleteness
 # here costs a session a minute, not a wasted owner decision.
 #
-# `accounts` and `create` joined on 2026-09-07, and they are a third reading
-# of the same token shape: not a hostname, not a filename, but a *method* on
-# an SDK. `print-atelier-stripe-checkout` (added 2026-09-06) names the two
-# Stripe calls it found undocumented as `stripe.checkout.sessions.create` and
-# `stripe.accounts`, which are dotted, backticked, and end in an alphabetic
-# label -- every test above accepts them, and the ask was right to write them
-# that way. Neither final label is delegated, so they meet this set's one
-# rule. `Portfolio validate` had been red on `main` on exactly this since the
-# ask landed, unseen because no runner has picked up a job here since
-# 2026-09-04 (`github-actions-runners` in `infra_state.yaml`) -- the same
-# invisibility the `auth.json` note above records, now on its second occasion.
+# `accounts` and `create` were added 2026-09-07 for a source this set had not
+# seen before: not a filename but a *code identifier*. `print-atelier-stripe-
+# checkout` quotes the SDK calls a session found in the venture --
+# `stripe.checkout.sessions.create` and `stripe.accounts` -- which are
+# lowercase, dotted and alphabetic-final, so every structural test above
+# accepts them as hostnames. They are method paths on a library object; no
+# such host exists and none could be probed. Neither is a delegated TLD, so
+# the one rule for editing this set holds.
 _NOT_TLDS = frozenset({
     "accounts", "cjs", "conf", "create", "csv", "html", "ini", "json",
     "lock", "log", "mjs", "png", "sql", "svg", "toml", "tsv", "txt",
@@ -149,21 +146,6 @@ PUBLICATION_HOSTS = {
     # platform/pages/build.mjs's DEFAULT_BASE_URL — the GitHub Pages origin
     # the same artifact would use if `deploy-settings` were ever granted.
     "duncan-haywood.github.io",
-    # The bare parent, added 2026-09-07. `deploy-settings` was rewritten on
-    # 2026-09-06 (#3556) once the Pages route measured live, and the new copy
-    # tells the owner why a session cannot confirm it for them: "the agent
-    # egress proxy answers `403 to CONNECT` for `github.io`". That sentence is
-    # about the *publication* origin, in the one direction this table cannot
-    # speak to — and the exemption above already covers the full hostname, so
-    # the row failed on the parent alone.
-    #
-    # Probing it is the actively-wrong fix the block comment above warns
-    # about, and here it would be worse than usual: `403 to CONNECT` really is
-    # what a session gets, so the probe would succeed at recording
-    # `egress_denied` for the host this portfolio *publishes the catalogue on*
-    # — filing the sandbox's own outbound limit in the table an egress ask
-    # reads as evidence against our own live origin.
-    "github.io",
     # infra/README.md: already resolves to the cpx52 for something else. Named
     # in asks only to say the deploy must not take it.
     "marisstella.dev",
@@ -173,6 +155,19 @@ PUBLICATION_HOSTS = {
     # `gitops/prod` hostnames together — omitting this one is the same gap
     # this set exists to close, one host short.
     "www.marisstella.dev",
+    # The bare suffix of the Pages origin above. `github-pages-origin` asks the
+    # owner for one logged-out page load and explains why no session can make
+    # it instead: "the proxy answers `403 to CONNECT` for `github.io`". That
+    # sentence *is* a measurement, and quoting it inside backticks is what put
+    # the token here — so the check read the report of a denial as an
+    # unmeasured host and went red on `main`, on the one row about the origin
+    # that is actually serving.
+    #
+    # Exempt for the same reason `duncan-haywood.github.io` is: it is the
+    # direction this portfolio publishes, not one it fetches from. Probing it
+    # would file a denial for our own publication target in the egress table,
+    # which the note above this set calls worse than not measuring.
+    "github.io",
 }
 
 

@@ -189,29 +189,6 @@ class AskHostExtraction(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertEqual(self.extract(f"see `{token}` for it"), set())
 
-    def test_sdk_method_calls_are_not_hosts(self):
-        """The third shape this extractor has mistaken for a hostname.
-
-        A filename (`auth.json`) and a version (`next@16.3.1`) each have their
-        own guard above. An SDK method call is dotted, backticked, and ends in
-        an alphabetic label, so it passes every one of them --
-        `print-atelier-stripe-checkout` names two real Stripe calls and turned
-        `Portfolio validate` red on `main` on 2026-09-06.
-        """
-        for token in ("stripe.accounts", "stripe.checkout.sessions.create"):
-            with self.subTest(token=token):
-                self.assertEqual(self.extract(f"real `{token}` calls"), set())
-
-    def test_the_publication_origin_is_exempt_by_its_parent_too(self):
-        """`deploy-settings` names the bare `github.io` when it explains why a
-        session cannot confirm the live site for the owner. Exempting only the
-        full hostname left the parent unmeasured, and the right answer is an
-        exemption rather than a probe: a probe would file this sandbox's own
-        outbound limit as evidence against the origin we publish on.
-        """
-        self.assertIn("github.io", check_ask_hosts.PUBLICATION_HOSTS)
-        self.assertIn("duncan-haywood.github.io", check_ask_hosts.PUBLICATION_HOSTS)
-
     def test_the_non_tld_set_never_swallows_a_real_cctld(self):
         """The trap the extension blocklist fell into the first time.
 
@@ -222,6 +199,22 @@ class AskHostExtraction(unittest.TestCase):
         delegated = {"md", "sh", "py", "io", "ai", "co", "so", "is", "it",
                      "me", "tv", "cc", "ws", "to", "gg", "dev", "app", "org"}
         self.assertEqual(check_ask_hosts._NOT_TLDS & delegated, set())
+
+    def test_sdk_method_paths_are_not_hosts(self):
+        """The third source of host-shaped tokens, after files and versions.
+
+        `print-atelier-stripe-checkout` quotes the calls a session found in
+        the venture. They are method paths on a library object -- lowercase,
+        dotted, alphabetic-final -- so every structural rule accepted them
+        and `Portfolio validate` went red on `main` asking for a verdict on a
+        host that cannot exist.
+        """
+        self.assertEqual(
+            self.extract(
+                "real `stripe.checkout.sessions.create` and `stripe.accounts` calls"
+            ),
+            set(),
+        )
 
     def test_versions_and_criteria_are_not_hosts(self):
         self.assertEqual(self.extract("`next@16.3.1` fixes `1.4.3`"), set())
@@ -258,6 +251,20 @@ class PublicationHostsAreNotEgress(unittest.TestCase):
 
     def test_the_pages_origin_is_not_demanded_either(self):
         self.assertEqual(self.extract("`duncan-haywood.github.io` is the base"), set())
+
+    def test_the_bare_pages_suffix_is_not_demanded_either(self):
+        """`github-pages-origin` quotes the denial that makes it an owner ask.
+
+        The row explains why no session can load the page itself: the proxy
+        answers `403 to CONNECT` for `github.io`. Quoting that measurement in
+        backticks is what made the checker demand a verdict for it -- so the
+        report of a denial read as an unmeasured host, and `main` went red on
+        the one row about the origin that is actually serving.
+        """
+        self.assertEqual(
+            self.extract("the proxy answers `403 to CONNECT` for `github.io`"),
+            set(),
+        )
 
     def test_the_exemption_is_not_a_blanket(self):
         """A third-party host in the very same sentence is still checked."""

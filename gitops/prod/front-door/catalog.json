@@ -456,7 +456,7 @@
       "url": "https://marisstella.dev/tools/roofing-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential reroof from roof squares, pitch, waste, and tear-off layers — labor, material, dump, overhead, and the walk-away number. Free, runs in your browser.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "painting-bid-calculator",
@@ -920,7 +920,7 @@
       "url": "https://marisstella.dev/tools/gutter-guard-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a gutter guard install from extra stories, extra lineal feet, extra miters, extra downspouts, a clean-first pass, fascia repair, and steep-roof access — not a published $8/foot leaf-filter special. See the walk-away number before you match a cheaper screen quote.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "gutter-install-bid-calculator",
@@ -1024,7 +1024,7 @@
       "url": "https://marisstella.dev/tools/junk-removal-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a junk removal job from material weight and the landfill ticket: cubic yards, pounds per yard, dump fee per ton, special item fees, labor, travel, and the walk-away number.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "kitchen-tile-backsplash-bid-calculator",
@@ -1224,7 +1224,7 @@
       "url": "https://marisstella.dev/tools/pressure-washing-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a pressure washing or soft-wash job from each surface's production rate, plus drive time, setup, chemicals, and a minimum job. See the after-travel hourly and the walk-away number before you send the quote.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "print-atelier",
