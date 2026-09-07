@@ -18598,3 +18598,70 @@ entries:
         artifact does not rebuild itself and no runner is available to do it:
         `pages_state.py --require-current` green afterwards.
     mrr_end: null
+  - venture: actions-runner-starvation-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "set direction" brief: `portfolio/DIRECTION.md`'s own
+        2026-09-07 note (added after three direction-only PRs restated the
+        same brief in three hours) says not to rewrite it again without a
+        genuine gap, and to spend the session on real work instead. Checked
+        `git log -- portfolio/DIRECTION.md AGENTS.md` -- last substantive
+        edit was ~3 hours prior, still current -- so did not touch it.
+      - >-
+        Screened a genuinely new venture rather than another trade
+        calculator. Counted `ventures/` directly: 141 of 200 existing
+        ventures are a `*-calculator`/`*-margin`/`*-pricing`/`*-route-*`
+        shape, zero of the 200 have ever recorded a nonzero visitor in
+        `usage/usage.yaml`. Rather than graduate a 201st instance of the
+        same archetype, generalized an already-built, already-tested
+        internal tool (`platform/ci/ci_starvation.py`, built during this
+        repo's own real CI-starvation incidents) into a standalone
+        developer-niche product: a free CLI + browser tool that tells
+        whether a red GitHub Actions check is a real failure or a job
+        GitHub never assigned a runner to, from the run's own `runner_id`
+        field. `duplicate_check.py` found no overlap before building.
+      - >-
+        Shipped `ventures/actions-runner-starvation-check`: `check.py` (a
+        generalized, repo-agnostic port of the internal tool, same
+        classify/report logic, 55 passing unittest cases carried over
+        verbatim), `classify.mjs` (the same logic ported to JS for an
+        in-browser, paste-the-JSON demo, 15 passing node --test cases),
+        `index.html` (disclaimer, privacy line, FAQPage/SoftwareApplication
+        JSON-LD, sponsor link, local-only usage counting) plus one
+        discoverability docs page answering the specific search question
+        ("why is my GitHub Actions check red in 3 seconds"), LICENSE,
+        robots.txt, sitemap.xml, VENTURE.yaml with named kill criteria.
+      - >-
+        Added a short, data-grounded note to `portfolio/pipeline/README.md`
+        (not `DIRECTION.md`, to avoid re-touching the file the anti-thrash
+        note is about) recommending future new-venture screening weigh
+        product-shape diversity given the 141/200 archetype-saturation
+        finding above, paired with this venture as the worked example --
+        per the same file's rule that a genuine gap is worth a small fix
+        only in the same PR as real work, never on its own.
+      - >-
+        Verification: `python3 -m unittest test_check -v` (55 pass),
+        `node --test classify.test.mjs` (15 pass), `node platform/pages/
+        clauses.mjs actions-runner-starvation-check` (both pages carry
+        required clauses), `python3 portfolio/router/validate.py` (all
+        VENTURE.yaml valid), `python3 portfolio/pipeline/
+        validate_doc_consistency.py` (clean), `python3 platform/ci/
+        check_no_payment_code.py` (clean). Ran the browser checks
+        (`PLAYWRIGHT=$(npm root)/playwright/index.js python3 platform/ci/
+        browser_checks.py --only actions-runner-starvation-check`) and
+        found and fixed two real defects before merging: a page that
+        linked to `check.py` as a same-directory href, which the
+        `front-door-tools.mjs` mirror does not serve (`.py` files are not
+        mirrored), silently dropping the whole venture from the published
+        catalogue/sitemap as a dead-link exclusion -- caught by
+        `explainIneligible()`, fixed by pointing the link at the GitHub
+        source instead; and a `sideways` (WCAG 1.4.10 reflow) failure from
+        an inline `<code>` element with a long unbroken URL, fixed with
+        `overflow-wrap: anywhere`. `node platform/marketing/regen.mjs` run
+        and both generators' output committed; confirmed the venture
+        actually appears in `gitops/prod/front-door/catalog.json`,
+        `sitemap.xml`, and the mirror shards after the fix, not just in
+        the tool-count total.
+    mrr_end: null

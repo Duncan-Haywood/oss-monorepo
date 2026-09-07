@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 190,
-  "collection_total": 190,
+  "served_here": 191,
+  "collection_total": 191,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 2
+      "tool_count": 3
     }
   ],
   "tools": [
@@ -489,6 +489,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a fence installation from posts, terminals, gates, tear-out, and digging conditions. See installed price per foot, effective hourly rate, and the walk-away number before you send the bid.",
       "pages": 3
+    },
+    {
+      "slug": "actions-runner-starvation-check",
+      "name": "Actions Runner Starvation Check — Is Your Red CI Even Real?",
+      "url": "https://marisstella.dev/tools/actions-runner-starvation-check/",
+      "category": "More free tools",
+      "description": "Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "ai-engineering-academy",
@@ -1288,7 +1296,7 @@
       "url": "https://marisstella.dev/tools/security-camera-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an IP security camera install from the drops, the cable, and the labour — and check the three things a camera bid gets wrong: days of recording the drives actually hold, PoE load against the switch budget, and runs past the 328 ft Ethernet limit.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "septic-pumping-bid-calculator",
