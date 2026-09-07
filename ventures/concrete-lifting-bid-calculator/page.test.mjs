@@ -93,3 +93,15 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same concrete trade, but a new pour rather than a
+// mudjacking/polyjacking lift. Without a crawlable link here, a crawler
+// entering on the lifting calculator never reaches the pour tool in one hop —
+// same one-way orphan class as #3709 / #3729 / #3743.
+test('index links one hop to the concrete-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/concrete-bid-calculator\/"/,
+    'index must link ../concrete-bid-calculator/ so crawlers reach the pour calculator in one hop',
+  );
+});
