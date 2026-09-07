@@ -248,3 +248,16 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
+
+// Closest sibling: same drain/plumbing shop, but a camera inspection or
+// hydro-jet clear rather than a line replacement. Related-tool chrome
+// rotates inside the trades category, so without an explicit one-hop a
+// crawler on this page may never land on that tool.
+test('index links one hop to the sewer-hydrojet-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/sewer-hydrojet-bid-calculator\/"/,
+    'index must link ../sewer-hydrojet-bid-calculator/ so crawlers reach the hydro-jet calculator in one hop',
+  );
+  assert.match(html, /hydro-jet and sewer camera bid calculator/i);
+});
