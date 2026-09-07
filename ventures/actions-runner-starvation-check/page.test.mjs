@@ -21,3 +21,16 @@ test('docs page links back to the tool', async () => {
   );
   assert.match(page, /href="\.\/"/);
 });
+
+// flaky-test-finder covers the next question after "did a runner run?": which
+// tests actually flipped. Without a crawlable link on this hub, a crawler
+// entering on starvation-check never reaches that sibling in one hop — same
+// one-way orphan class as #3639 / #3667.
+test('index links to the related flaky-test-finder', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/flaky-test-finder\/"/,
+    'index must link ../flaky-test-finder/ so crawlers can reach the JUnit flaky classifier',
+  );
+});
