@@ -14,10 +14,32 @@
 // fails with the real file rather than a hand-written approximation of it.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { checkPageIntegrity, parsePage, declaredIds, queriedIds } from './page-integrity.mjs';
+import { readHistoryBlob, isShallowClone } from './history-blob.mjs';
 
 const REPO = new URL('../../', import.meta.url).pathname;
+
+/**
+ * Read every revision of `path` these history-pinned tests need.
+ *
+ * Returns a Map rev -> content, or `null` after skipping the test when this
+ * clone is shallow and therefore does not carry the blobs. See history-blob.mjs
+ * for why a skip is right there and wrong in a full clone: in a full clone the
+ * read throws and the test fails, which is what should happen if the history
+ * these tests pin themselves to ever goes away.
+ */
+function readHistoryBlobs(t, revisions, path) {
+  const blobs = new Map();
+  for (const rev of revisions) {
+    const result = readHistoryBlob(REPO, rev, path);
+    if (!result.ok) {
+      t.skip(result.reason);
+      return null;
+    }
+    blobs.set(rev, result.content);
+  }
+  return blobs;
+}
 
 /** A minimal but realistic page in the shape the portfolio's products use. */
 function page({ body = '', script = '' } = {}) {
@@ -144,16 +166,14 @@ test('queriedIds ignores unrelated $ calls', () => {
   assert.deepEqual([...queriedIds("jQuery$('nope'); const a = obj.$('x');")], []);
 });
 
-test('catches the real defect at the revisions where it actually shipped', () => {
+test('catches the real defect at the revisions where it actually shipped', (t) => {
   // These are the commits in this repository's history, not a reconstruction.
   // The calculator was live and completely non-functional at the first three.
   const brokenRevisions = ['1a8feb3', 'a702ff4', '58d9b65'];
   const repaired = '4d4e6f0';
-  const read = (rev) =>
-    execFileSync('git', ['show', `${rev}:ventures/cut-list-optimizer/index.html`], {
-      cwd: REPO,
-      maxBuffer: 1 << 26,
-    }).toString();
+  const blobs = readHistoryBlobs(t, [...brokenRevisions, repaired], 'ventures/cut-list-optimizer/index.html');
+  if (!blobs) return;
+  const read = (rev) => blobs.get(rev);
 
   for (const rev of brokenRevisions) {
     const findings = checkPageIntegrity(read(rev));
@@ -218,14 +238,12 @@ test('a src-only script has no body to parse and passes', () => {
   assert.deepEqual(checkPageIntegrity(shell), []);
 });
 
-test('catches the 3PL syntax defect at the revision where it actually shipped', () => {
+test('catches the 3PL syntax defect at the revision where it actually shipped', (t) => {
   // Again the real blobs, not a reconstruction: the commit that repaired the
   // calculator and its parent, where the page was live and completely dead.
-  const read = (rev) =>
-    execFileSync('git', ['show', `${rev}:ventures/3pl-quote-normalizer/index.html`], {
-      cwd: REPO,
-      maxBuffer: 1 << 26,
-    }).toString();
+  const blobs = readHistoryBlobs(t, ['6ccd73c^', '6ccd73c'], 'ventures/3pl-quote-normalizer/index.html');
+  if (!blobs) return;
+  const read = (rev) => blobs.get(rev);
 
   const findings = checkPageIntegrity(read('6ccd73c^'));
   assert.ok(findings.length > 0, 'the shipped page did not parse and must be caught');
