@@ -1,6 +1,6 @@
 # Fire extinguisher inspection route margin calculator
 
-Scored 2026-09-06. Composite 6.875 · floor 1 (`ai_leverage`). Same deliberate
+Scored 2026-09-06. Composite 6.875 · floor 1 (ai_leverage). Same deliberate
 floor as this portfolio's other route-pricing calculators: the arithmetic is
 deterministic and there is no model in the loop, which is what keeps the
 per-user cost at zero and the output auditable by the technician who typed
