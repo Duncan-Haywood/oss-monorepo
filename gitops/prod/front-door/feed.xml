@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 193 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 194 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>KDP Royalty Calculator — KU Page Reads vs Going Wide</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/kdp-royalty-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/kdp-royalty-calculator</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">See what a Kindle book keeps on KDP exclusive (paid sales plus Kindle Unlimited page reads) versus going wide. Paperback print cost, 70% vs 35% ebook, and Ingram wholesale are boxes you type from your own dashboard. Free, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Pour Cost Calculator</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Forecast when invoices and recurring bills could create a cash shortfall for your small business, including one-off payments like a quarterly tax bill or an insurance renewal, and see which payment to move.</summary>
-  </entry>
-  <entry>
-    <title>Change Order Margin Calculator — Price the Added Work</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/change-order-margin-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/change-order-margin-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price a construction change order from loaded labor, materials, subs, schedule delay and overhead — and see what your contract&#39;s markup cap actually leaves you.</summary>
   </entry>
 </feed>

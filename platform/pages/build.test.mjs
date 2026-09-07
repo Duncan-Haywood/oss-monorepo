@@ -1280,6 +1280,7 @@ test("socialCardFileFor names a file under the category's own id, not its title"
 test('tools that belong to a named category are not left in the catch-all', () => {
   assert.equal(categoryFor('tiktok-shop-fee-calculator').id, 'marketplace');
   assert.equal(categoryFor('delivery-app-margin-calculator').id, 'marketplace');
+  assert.equal(categoryFor('kdp-royalty-calculator').id, 'marketplace');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
   assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');

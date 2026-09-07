@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>KDP Royalty Calculator — KU Page Reads vs Going Wide</title>
+  <meta name="description" content="See what a Kindle book keeps on KDP exclusive (paid sales plus Kindle Unlimited page reads) versus going wide. Paperback print cost, 70% vs 35% ebook, and Ingram wholesale are boxes you type from your own dashboard. Free, runs in your browser.">
+  <meta property="og:title" content="KDP royalty calculator: KU vs going wide">
+  <meta property="og:description" content="Compare 90 days exclusive on KDP Select against the same book sold wide. Every rate is a box you overwrite from your KDP dashboard.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"KDP Royalty Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"70% vs 35% ebook royalty, KU page-read versus paid sale, exclusive versus wide, KDP paperback print cost, Ingram wholesale net"}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #20232a; background: #eef3f0; }
+    body { max-width: 1100px; margin: auto; padding: 32px 18px; }
+    header { max-width: 720px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: 1; letter-spacing: -.05em; margin: 8px 0 16px; }
+    .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    section { background: #fff; border: 1px solid #ccd8d1; border-radius: 14px; padding: 22px; box-shadow: 0 8px 20px #19362a0c; }
+    h2 { font-size: 1.1rem; margin: 0 0 12px; }
+    .fields { display: grid; gap: 12px; }
+    label { display: grid; gap: 5px; font-weight: 650; font-size: .9rem; }
+    input, select { font: inherit; padding: 10px; border: 1px solid #aabbb2; border-radius: 7px; }
+    #result { background: #19382d; color: #f6fff9; border-color: #19382d; }
+    .hero { font-size: 2.2rem; font-weight: 800; letter-spacing: -.04em; margin: 10px 0; }
+    .good { color: #bff0c9; }
+    .warn { color: #ffd09c; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; }
+    dt, dd { margin: 0; }
+    dd { font-variant-numeric: tabular-nums; text-align: right; }
+    .note { font-size: .83rem; opacity: .82; line-height: 1.45; }
+    .warn-inline { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 22px; font-size: .83rem; }
+    a { color: #12594a; overflow-wrap: anywhere; }
+    #result a { color: #bff0c9; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FOR SELF-PUBLISHED AUTHORS · RUNS IN YOUR BROWSER</p>
+    <h1>What does this book keep exclusive versus wide?</h1>
+    <p>
+      Put one 90-day window through Kindle Direct Publishing paid sales, Kindle Unlimited page reads,
+      a KDP paperback, and the same book sold on other stores plus Ingram. The page reports the two
+      totals. It does not tell you to enroll or leave KDP Select.
+    </p>
+    <p>
+      <a href="should-i-enroll-this-book-in-kindle-unlimited.html">Should I enroll this book in Kindle Unlimited?</a>
+      ·
+      <a href="vs-amazon-kdp-royalty-calculator.html">This calculator vs. Amazon&rsquo;s KDP royalty calculator</a>
+    </p>
+  </header>
+
+  <main class="layout">
+    <section>
+      <h2>Your book and your rates</h2>
+      <div class="fields">
+        <label>eBook list price ($)
+          <input id="ebookList" type="number" inputmode="decimal" min="0" step="0.01" value="4.99">
+        </label>
+        <label>eBook royalty plan
+          <select id="ebookPlan">
+            <option value="70" selected>70% (minus delivery)</option>
+            <option value="35">35% (no delivery deduction)</option>
+          </select>
+        </label>
+        <label>File size (MB)
+          <input id="fileSizeMb" type="number" inputmode="decimal" min="0" step="0.1" value="2">
+        </label>
+        <label>Delivery cost per MB ($)
+          <input id="deliveryPerMb" type="number" inputmode="decimal" min="0" step="0.01" value="0.15">
+        </label>
+        <label>Paid ebook sales in the window
+          <input id="ebookPaidSales" type="number" inputmode="decimal" min="0" step="1" value="80">
+        </label>
+        <label>KU page reads in the window (KENP)
+          <input id="kenpReads" type="number" inputmode="decimal" min="0" step="1" value="12000">
+        </label>
+        <label>KENP rate from your KDP dashboard ($/page)
+          <input id="kenpRate" type="number" inputmode="decimal" min="0" step="0.0001" value="0.0045">
+        </label>
+        <label>Paperback list price ($)
+          <input id="paperbackList" type="number" inputmode="decimal" min="0" step="0.01" value="14.99">
+        </label>
+        <label>Paperback page count
+          <input id="paperbackPages" type="number" inputmode="decimal" min="0" step="1" value="280">
+        </label>
+        <label>Paperback ink
+          <select id="paperbackColor">
+            <option value="false" selected>Black and white</option>
+            <option value="true">Premium color</option>
+          </select>
+        </label>
+        <label>Paperback print cost override ($) — leave blank to use the starting formula
+          <input id="paperbackPrintOverride" type="number" inputmode="decimal" min="0" step="0.01" placeholder="from KDP preview">
+        </label>
+        <label>KDP paperback sales in the window
+          <input id="paperbackSales" type="number" inputmode="decimal" min="0" step="1" value="20">
+        </label>
+        <label>Other-store ebook sales if wide
+          <input id="otherStoreSales" type="number" inputmode="decimal" min="0" step="1" value="40">
+        </label>
+        <label>Other-store net per ebook sale ($)
+          <input id="otherStoreNet" type="number" inputmode="decimal" min="0" step="0.01" value="2.50">
+        </label>
+        <label>Ingram paperback sales if wide
+          <input id="ingramSales" type="number" inputmode="decimal" min="0" step="1" value="10">
+        </label>
+        <label>Ingram wholesale discount (0–1)
+          <input id="ingramWholesale" type="number" inputmode="decimal" min="0" max="1" step="0.01" value="0.40">
+        </label>
+        <label>Ingram print cost ($)
+          <input id="ingramPrintCost" type="number" inputmode="decimal" min="0" step="0.01" value="5.00">
+        </label>
+      </div>
+      <p class="note">
+        70% / 35%, the $2.99–$9.99 70% band, delivery per MB, and 60% paperback minus print
+        are starting points from Amazon&rsquo;s published KDP royalty help, not a live schedule.
+        Overwrite every box from your current KDP royalty report and print preview.
+        KENP rate changes monthly; paste this month&rsquo;s figure from your dashboard.
+      </p>
+    </section>
+
+    <section id="result" aria-live="polite">
+      <h2>90-day readout</h2>
+      <p id="errors" class="warn" role="alert" hidden></p>
+      <div id="headline" class="hero"></div>
+      <p id="subhead"></p>
+      <p id="planNote" class="note" hidden></p>
+      <dl>
+        <dt>eBook net per paid sale</dt><dd id="unitEbook"></dd>
+        <dt>KDP paperback print cost</dt><dd id="kdpPrint"></dd>
+        <dt>KDP paperback net per sale</dt><dd id="unitPaperback"></dd>
+        <dt>KU page-reads needed to match one paid sale</dt><dd id="pagesToMatchOneSale"></dd>
+        <dt>Exclusive total</dt><dd id="exclusive"></dd>
+        <dt>Wide total</dt><dd id="wide"></dd>
+        <dt>KU page-reads that would match the wide extras</dt><dd id="readsToMatchWide"></dd>
+      </dl>
+      <p class="note">
+        Exclusive is paid KDP ebooks + KU + KDP paperbacks. Wide is the same paid KDP ebooks
+        and KDP paperbacks, plus other-store ebooks and Ingram paperbacks, and no KU.
+        The two paths share the KDP paid-sale count on purpose: the decision this page
+        prices is the KU window versus the wide extras, not a forecast of how visibility changes.
+      </p>
+    </section>
+  </main>
+
+  <section id="faq" style="margin-top:18px">
+    <h2>Common questions</h2>
+
+    <h3>How many Kindle Unlimited page reads equal one paid sale?</h3>
+    <p>
+      On the starting example — a $4.99 ebook on the 70% plan with a 2&nbsp;MB file and
+      $0.15/MB delivery — one paid sale nets $3.193. At a $0.0045 KENP rate that is
+      709.6 Kindle Edition Normalized Pages. Your own list price, file size, plan, and
+      this month&rsquo;s KENP rate change that number; the readout updates as you type.
+    </p>
+
+    <h3>Does this tell me to enroll in KDP Select?</h3>
+    <p>
+      No. It reports two 90-day totals on the numbers you typed. Enrolling, leaving, or
+      staying in KDP Select is a contract decision you make against Amazon&rsquo;s current
+      terms, not a recommendation this page can make.
+    </p>
+
+    <h3>Why can the paperback line go negative?</h3>
+    <p>
+      KDP paperback royalty is a share of list minus printing cost. A short book on a
+      low list can have a print cost larger than that share. The page shows the negative
+      rather than hiding it, because that is the arithmetic Amazon&rsquo;s own print preview
+      is warning you about.
+    </p>
+
+    <h3>Is the print-cost formula the same as KDP&rsquo;s live preview?</h3>
+    <p>
+      No. The blank-override starting formula is a published-shape approximation
+      (a small fixed amount plus a per-page rate, B&amp;W or color) so the page has a
+      number before you paste one. KDP&rsquo;s own print preview, for your trim, paper,
+      ink, and marketplace, is the figure to paste into the override box.
+    </p>
+
+    <h3>What is left out?</h3>
+    <p>
+      Expanded distribution, hardcover, audiobook, VAT, currency conversion, ads,
+      returns, and any change in paid-sale volume from being in or out of KU.
+      Those are real, and they are not in this arithmetic. A later line can add
+      them; inventing them here would be a forecast wearing a calculator&rsquo;s clothes.
+    </p>
+  </section>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or publishing advice, and it does not replace a qualified professional or Amazon&rsquo;s own royalty reports. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. We count only anonymous feature events in local storage, and you can turn that off above. Do Not Track and Global Privacy Control disable counting automatically.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. <a href="LICENSE">LICENSE</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { compareExclusiveVsWide, exclusiveNote } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const ids = [
+      'ebookList', 'ebookPlan', 'fileSizeMb', 'deliveryPerMb', 'ebookPaidSales',
+      'kenpReads', 'kenpRate', 'paperbackList', 'paperbackPages', 'paperbackColor',
+      'paperbackPrintOverride', 'paperbackSales', 'otherStoreSales', 'otherStoreNet',
+      'ingramSales', 'ingramWholesale', 'ingramPrintCost',
+    ];
+    const $ = (id) => document.getElementById(id);
+    const money = (n) => (Number.isFinite(n) ? `$${n.toFixed(2)}` : 'not available');
+    const pages = (n) => (Number.isFinite(n) ? n.toFixed(1) : 'not available');
+
+    function inputs() {
+      const raw = Object.fromEntries(ids.map((id) => [id, $(id).value]));
+      raw.paperbackColor = raw.paperbackColor === 'true';
+      return raw;
+    }
+
+    function render(count = true) {
+      const errorsEl = $('errors');
+      const headline = $('headline');
+      const planNote = $('planNote');
+      try {
+        const r = compareExclusiveVsWide(inputs());
+        errorsEl.hidden = true;
+        errorsEl.textContent = '';
+        headline.hidden = false;
+        headline.textContent = r.exclusiveWins ? 'Exclusive is ahead' : 'Wide is ahead';
+        headline.className = `hero ${r.exclusiveWins ? 'good' : 'warn'}`;
+        $('subhead').textContent = exclusiveNote(r);
+        $('unitEbook').textContent = money(r.unitEbook);
+        $('kdpPrint').textContent = money(r.kdpPrint);
+        $('unitPaperback').textContent = money(r.unitPaperback);
+        $('pagesToMatchOneSale').textContent = pages(r.pagesToMatchOneSale);
+        $('exclusive').textContent = money(r.exclusive);
+        $('wide').textContent = money(r.wide);
+        $('readsToMatchWide').textContent = pages(r.readsToMatchWide);
+        const showPlan = r.usedSeventy && !r.seventyEligible;
+        planNote.hidden = !showPlan;
+        planNote.textContent = showPlan
+          ? 'The 70% plan is selected, but this list price is outside Amazon’s published $2.99–$9.99 70% band. Confirm the plan your dashboard actually pays before trusting the 70% line.'
+          : '';
+        if (count) recordUsage('royalty_compared', $('usageOptOut').checked);
+      } catch (e) {
+        errorsEl.textContent = e.message;
+        errorsEl.hidden = false;
+        headline.hidden = true;
+        $('subhead').textContent = '';
+        planNote.hidden = true;
+        planNote.textContent = '';
+        $('unitEbook').textContent = '';
+        $('kdpPrint').textContent = '';
+        $('unitPaperback').textContent = '';
+        $('pagesToMatchOneSale').textContent = '';
+        $('exclusive').textContent = '';
+        $('wide').textContent = '';
+        $('readsToMatchWide').textContent = '';
+      }
+    }
+
+    ids.forEach((id) => $(id).addEventListener('input', () => render()));
+    $('usageOptOut').addEventListener('change', () => render(false));
+    render(false);
+  </script>
+</body>
+</html>

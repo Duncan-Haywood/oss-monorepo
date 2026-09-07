@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 193,
-  "collection_total": 193,
+  "served_here": 194,
+  "collection_total": 194,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -35,6 +35,12 @@
       "tool_count": 19
     },
     {
+      "id": "marketplace",
+      "name": "Marketplace seller tools",
+      "url": "https://marisstella.dev/c/marketplace/",
+      "tool_count": 13
+    },
+    {
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
@@ -45,12 +51,6 @@
       "name": "Back-office money & contracts",
       "url": "https://marisstella.dev/c/backoffice/",
       "tool_count": 13
-    },
-    {
-      "id": "marketplace",
-      "name": "Marketplace seller tools",
-      "url": "https://marisstella.dev/c/marketplace/",
-      "tool_count": 12
     },
     {
       "id": "logistics",
@@ -1049,6 +1049,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a junk removal job from material weight and the landfill ticket: cubic yards, pounds per yard, dump fee per ton, special item fees, labor, travel, and the walk-away number.",
       "pages": 4
+    },
+    {
+      "slug": "kdp-royalty-calculator",
+      "name": "KDP Royalty Calculator — KU Page Reads vs Going Wide",
+      "url": "https://marisstella.dev/tools/kdp-royalty-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "See what a Kindle book keeps on KDP exclusive (paid sales plus Kindle Unlimited page reads) versus going wide. Paperback print cost, 70% vs 35% ebook, and Ingram wholesale are boxes you type from your own dashboard. Free, runs in your browser.",
+      "pages": 3
     },
     {
       "slug": "kitchen-tile-backsplash-bid-calculator",

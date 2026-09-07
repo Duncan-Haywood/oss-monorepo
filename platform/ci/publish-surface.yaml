@@ -380,6 +380,9 @@ workflows:
 - workflow: junk-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: kdp-royalty-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
   classification: none
   publishes: []
