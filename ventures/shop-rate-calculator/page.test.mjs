@@ -250,3 +250,16 @@ test('every published page carries Open Graph tags', () => {
     assert.match(source, /<meta property="og:description" content="[^"]+">/, `${name} is missing og:description`);
   }
 });
+
+// Closest sibling: mutual nearest match per `node platform/pages/siblings.mjs
+// --check` — this shop-labor rate calculator and the per-acre custom-farm
+// field-work rate calculator. Without a crawlable link here, a crawler
+// entering on the shop rate calculator never reaches the farm rate
+// calculator in one hop.
+test('index links one hop to the custom-farm-rate-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/custom-farm-rate-calculator\/"/,
+    'index must link ../custom-farm-rate-calculator/ so crawlers reach the custom farm rate calculator in one hop',
+  );
+});
