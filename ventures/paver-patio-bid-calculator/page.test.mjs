@@ -167,3 +167,16 @@ test('a share link is offered and the privacy claim names it', () => {
   assert.match(html, /Copy share link/);
   assert.match(markup, /share link encodes only the quote fields/i);
 });
+
+// Closest sibling: the same hardscape job: a patio cut into a slope needs the wall priced too. Related-tool chrome rotates inside the
+// Concrete, masonry & site work subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the retaining-wall-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/retaining-wall-bid-calculator\/"/,
+    'index must link ../retaining-wall-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /retaining wall bid calculator/i);
+});
