@@ -199,3 +199,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same interior-finish trade, but hang-and-finish drywall
+// rather than popcorn scrape-and-skim. Without a crawlable link here, a
+// crawler entering on the popcorn calculator never reaches the drywall tool
+// in one hop.
+test('index links one hop to the drywall-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/drywall-bid-calculator\/"/,
+    'index must link ../drywall-bid-calculator/ so crawlers reach the drywall calculator in one hop',
+  );
+  assert.match(html, /drywall bid calculator/i);
+});
