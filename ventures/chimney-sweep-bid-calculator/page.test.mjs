@@ -38,3 +38,17 @@ test('robots and sitemap let crawlers find both pages', () => {
   assert.match(sitemap, /chimney-sweep-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+// Closest sibling: same chimney trade, but insert install (liner, hearth,
+// stack) rather than a sweep (flue, stories, creosote). Related-tool chrome
+// may never surface that pair across subcategory boundaries, so without an
+// explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the fireplace-insert-bid-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/fireplace-insert-bid-calculator\/"/,
+    'index must link ../fireplace-insert-bid-calculator/ so crawlers reach the insert calculator in one hop',
+  );
+  assert.match(html, /fireplace insert bid calculator/i);
+});
