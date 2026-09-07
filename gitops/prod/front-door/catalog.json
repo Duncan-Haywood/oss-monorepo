@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 204,
-  "collection_total": 204,
+  "served_here": 205,
+  "collection_total": 205,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -68,7 +68,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
+      "tool_count": 6
     }
   ],
   "tools": [
@@ -775,6 +775,14 @@
       "category": "Marketplace seller tools",
       "description": "Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub. See net after commission, packaging, and extra labor — plus the menu price each app needs to match dine-in.",
       "pages": 4
+    },
+    {
+      "slug": "dependency-confusion-check",
+      "name": "Dependency Confusion Check — pip --extra-index-url & Unscoped npm Names",
+      "url": "https://marisstella.dev/tools/dependency-confusion-check/",
+      "category": "More free tools",
+      "description": "Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.",
+      "pages": 2
     },
     {
       "slug": "dns-configuration-evidence",
