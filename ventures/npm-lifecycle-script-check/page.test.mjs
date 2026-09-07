@@ -45,3 +45,14 @@ test('index links one hop to the license-drift-check sibling', async () => {
     'index must link ../license-drift-check/ so crawlers reach this tool in one hop from a sibling',
   );
 });
+
+// Reciprocal of vscode-extension-drift-check's own sibling-link test: keeps
+// that venture from shipping as a crawlable orphan with no inbound link.
+test('index links one hop to the vscode-extension-drift-check sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/vscode-extension-drift-check\/"/,
+    'index must link ../vscode-extension-drift-check/ so crawlers reach that tool in one hop',
+  );
+});

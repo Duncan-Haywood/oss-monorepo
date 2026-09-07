@@ -9,7 +9,7 @@
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
   "served_here": 208,
-  "collection_total": 207,
+  "collection_total": 208,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -56,7 +56,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 11
+      "tool_count": 12
     },
     {
       "id": "logistics",
@@ -68,7 +68,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 6
+      "tool_count": 5
     }
   ],
   "tools": [
@@ -495,14 +495,6 @@
       "category": "Trade & contractor bids",
       "description": "Price a fence installation from posts, terminals, gates, tear-out, and digging conditions. See installed price per foot, effective hourly rate, and the walk-away number before you send the bid.",
       "pages": 3
-    },
-    {
-      "slug": "3d-print-price-calculator",
-      "name": "3D Print Price Calculator — Price a Print for Etsy or Shopify",
-      "url": "https://marisstella.dev/tools/3d-print-price-calculator/",
-      "category": "More free tools",
-      "description": "Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you're charging.",
-      "pages": 1
     },
     {
       "slug": "actions-cache-poisoning-check",
@@ -1647,6 +1639,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a residential vinyl pool liner from the liner square feet a water-surface special cannot see, the hopper, the stairs, and the track — plus walk-away price and proposed-price margin check.",
       "pages": 3
+    },
+    {
+      "slug": "vscode-extension-drift-check",
+      "name": "VS Code Extension Drift Check — Did an Extension You Trust Just Change What It Does?",
+      "url": "https://marisstella.dev/tools/vscode-extension-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check. A CLI-only command also checks whether an extension still resolves on the VS Code Marketplace. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "walk-in-shower-bid-calculator",
