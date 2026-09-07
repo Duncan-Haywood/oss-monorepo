@@ -18991,3 +18991,76 @@ entries:
         local rather than trusting a
         third-party site with their workflow files.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        deploy-cicd-readiness pick: `test_mirrored_tool_count_matches_what_the_docs_claim`
+        in `gitops/tests/test_manifests.py` already pinned the mirrored-tool
+        count in four places (two sentences in `infra/OWNER_CHECKLIST.md`,
+        one comment in `gitops/prod/usage/aggregate.py`, two comments in
+        `gitops/prod/front-door/default.conf`). A fifth restatement in
+        `OWNER_CHECKLIST.md` -- "the apex serves all N" in the paragraph
+        explaining what sealing `portfolio-site-repo` now buys -- was never
+        one of the four, so it said "175" while a sentence 40 lines above it
+        already said "198 of the 198", contradicting itself in the document
+        the owner reads to decide what to do next. Fixed the prose and
+        extended the test to pin this sentence too (PR #3744, merged).
+        Verified: `python3 -m pytest gitops/tests -q` (490 passed, 25
+        skipped), `platform/ci`'s 15-module unittest suite (716 passed,
+        `agent_review.test_review` confirmed separately at 21 passed from
+        its own cwd), `checklist_coverage.py`, and the `portfolio-validate.yml`
+        validators (`score_ventures.py --check`, `validate_doc_consistency.py`,
+        `router/validate.py`, `validate_candidates.py`,
+        `validate_probe_index.py`, `validate_usage.py`) all clean. PR checks
+        read red with `runner_id: 0` on every job -- confirmed starvation via
+        `ci_starvation.py`, not a regression.
+    mrr_end: null
+  - venture: coverage-drop-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution candidate 2: added `vs-codecov.html`, a
+        comparison page against Codecov -- the household-name incumbent this
+        venture's own `VENTURE.yaml` already names as the wedge ("instead of
+        signing up for Codecov") and its `index.html` FAQ already mentioned
+        by name with no dedicated page. A genuinely new gap: this venture
+        graduated in #3649 (2026-09-07), after the 2026-09-02 sweep that
+        found the other three marketing-distribution candidates (embed
+        widget, category hubs, the about-page press kit) fully covered.
+        Facts about Codecov (the `codecov/patch`/`codecov/project` status
+        checks, the GitHub Action upload step, tokenless uploads for public
+        repos vs. a token/OIDC requirement for private ones, the optional
+        `codecov.yml`) were checked via web search against Codecov's own
+        documentation and the `codecov/codecov-action` repo; no pricing
+        figures are stated since `WebFetch` to Codecov's own pricing page was
+        blocked by this environment's egress policy and a wrong number would
+        be worse than none. Standard shape: no-warranty/best-effort-hosting
+        disclaimers, a nominative-fair-use "not affiliated with Codecov"
+        line (PRODUCT_PLAYBOOK.md 5f), an FAQPage JSON-LD block matching the
+        visible headings, linked from `index.html`, added to the venture's
+        own `sitemap.xml`. `node platform/marketing/regen.mjs` picked it up
+        into the front-door mirror and `/compare/` hub automatically via
+        `COMPARISON_FILE_PATTERN`. Also fixed forward, in the same PR: `main`
+        was separately red on `test_readme_runs_on_count_matches_reality`
+        (stale after #3750 added `sibling-links-ci.yml` without running
+        `gitops/ci/sync_readme_counts.py`) -- a mechanical one-command fix
+        that was blocking a clean `gitops/tests` run for any PR, not just
+        this one. Landed as PR #3756 (superseding #3751, which conflicted
+        after `main` moved twice on shared generated front-door-mirror files
+        in the few minutes it was open). Verified: venture's own
+        `node --test` (17 passed), `clauses.mjs coverage-drop-check` (3
+        pages, clauses ok), `regen.mjs` (no further drift after committing),
+        `python3 -m pytest gitops/tests -q` (490 passed, 25 skipped),
+        `platform/ci`'s unittest suite (716 passed), `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` (1155
+        passed), `build.mjs`+`check.mjs` (198 products, 8 category pages,
+        806 pages, no dead links), `checklist_coverage.py` and
+        `publish_surface.py --check` clean. PR checks read red with
+        `runner_id: 0` on every job -- confirmed starvation via
+        `ci_starvation.py`. Refreshed the `gh-pages` snapshot after merge
+        (`platform/ci/pages_state.py --require-current` now reports
+        `current`, built from the merge commit).
+    mrr_end: null
