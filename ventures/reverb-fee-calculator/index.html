@@ -291,13 +291,14 @@
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Comparing Reverb to other channels on the same item? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks Reverb against eBay, Etsy, Amazon and your own store side by side, and can hand these numbers into this page.</p>
+    <p>Comparing Reverb to other channels on the same item? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks Reverb against eBay, Etsy, Amazon and your own store side by side — it opens with this item's price, shipping and cost already filled in and Reverb switched on, no retyping. It can also hand numbers the other way, into this page.</p>
     <p>Free and open source. If it stopped you from taking a $720 offer that left $73 on the table, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
     import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, compareWaitForBetterOffer, waitForBetterOfferNote, compareShippingPaths, compareSafeShipping, compareConsignment, consignmentNote, compareBump, compareReturnResolution, returnResolutionNote } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
+    import { whereToSellUrl } from './to-where-to-sell.mjs';
 
     const field = id => document.getElementById(id);
     const money = (value) => {
@@ -439,6 +440,8 @@
         ? `The return is dearer than the whole order on these inputs, so no concession short of a full refund ties it.`
         : `Break-even concession is ${money(resolution.breakEvenPartialRefund)} — that is ${(resolution.breakEvenPartialRefund / resolution.sold.salePrice * 100).toFixed(1)}% of the ${money(resolution.sold.salePrice)} sale price. Your typed ${money(resolution.partialRefund)} leaves ${signed(resolution.rows[1].vsReturn)} against taking it back.`;
 
+      field('whereToSellLink').href = whereToSellUrl(inputs);
+
       safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
       const optedOut = field('usageOptOut').checked;
       recordUsage(undefined, optedOut, 'reverb_sale_calculated');
@@ -471,6 +474,11 @@
     });
     field('usageOptOut').addEventListener('change', () => {
       safe(() => localStorage.setItem('reverb-fee-usage-opt-out', field('usageOptOut').checked ? '1' : '0'));
+    });
+    field('whereToSellLink').addEventListener('click', () => {
+      // Records only that the handoff happened, never the item — this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      recordUsage(undefined, field('usageOptOut').checked, 'handoff_where_to_sell');
     });
 
     const fromLink = decodeInputs(location.hash || location.search);

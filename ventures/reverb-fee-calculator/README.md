@@ -172,6 +172,26 @@ channel), the Etsy profit calculator (listing credits and Plus), Amazon FBA
 (fulfillment and storage), and the where-to-sell ranker (a custom "other
 channel" row, not Reverb's offer-versus-list or shipping-packaging shape).
 
+## Comparing to other channels without retyping
+
+The footer's link to the
+[where-to-sell calculator](../where-to-sell-calculator/) carries this item's
+price, shipping and cost across and switches Reverb on there, so ranking it
+against eBay, Etsy, Amazon and an own store does not mean re-entering
+anything (`to-where-to-sell.mjs`). This is the reverse of that tool's own
+handoff, which already carried a comparison down into this page — until now
+the link only ran one way, so a seller who landed here first (from a search
+like "should I take this Reverb offer") had to retype the item to see it
+ranked against other channels.
+
+Only the numbers every channel shares travel — price, shipping charged,
+shipping paid, item cost, and the general-cost bucket. Reverb's own fee rates
+have no equivalent field on the where-to-sell side, so they are left out
+rather than guessed at; the receiving page prices Reverb from its own
+illustrative preset. `to-where-to-sell.test.mjs` decodes every link through
+that page's own decoder, so a change to its payload shape fails a test here
+instead of arriving as a wrong number there.
+
 ## Take the return, or refund part of it
 
 A buyer opens a case. The instinct is to treat this as "return or no
