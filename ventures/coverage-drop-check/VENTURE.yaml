@@ -1,0 +1,42 @@
+name: coverage-drop-check
+description: Free tool that compares two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and reports whether line coverage dropped and which files moved. A deterministic delta, not a floor such as --cov-fail-under, and not an upload to Codecov. Matching zero-dependency Python CLI for a CI gate.
+stage: prototype
+
+owner: duncan
+
+# Not a pipeline candidate write-up: same shape as
+# ventures/flaky-test-finder and ventures/actions-runner-starvation-check
+# (developer CLI/browser tool, not a trade calculator) -- see
+# portfolio/pipeline/README.md's archetype-saturation note. The visitor
+# channel is named, not assumed: developers already search Stack Overflow
+# for "fail the build if code coverage decreases" and "codecov alternative
+# without uploading", and already emit coverage.xml / jacoco.xml in CI.
+# The wedge is the delta (92% → 81% fails) versus a floor that would
+# still pass, locally, with no account.
+hypotheses:
+  - claim: A developer whose CI uses --cov-fail-under (or no coverage gate) will search for a way to fail a PR that dropped coverage and land on a tool that reads the two XML reports they already have, instead of signing up for Codecov.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team that already archives coverage.xml or jacoco.xml from main and from each PR will wire check.py into their own pipeline as a coverage-delta gate, since it needs no account and no upload.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring check.py into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/coverage-drop-check/
+  analytics: null
