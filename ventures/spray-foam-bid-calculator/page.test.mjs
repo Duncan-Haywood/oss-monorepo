@@ -110,3 +110,16 @@ test('the rim fields are guarded before they reach a function that throws', () =
   assert.ok(guard < body.indexOf('suggestedRimBf('), 'the guard must come before the call');
   assert.match(body, /rimLf < 0 \|\| rimHeight < 0 \|\| rimThickness < 0/);
 });
+
+// Closest sibling: same insulation trade, but blown-in attic bags / R-delta
+// rather than spray-foam board feet. Related-tool chrome rotates inside the
+// subcategory, so without an explicit one-hop a crawler on this page may never
+// land on that tool.
+test('index links one hop to the attic-insulation-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/attic-insulation-bid-calculator\/"/,
+    'index must link ../attic-insulation-bid-calculator/ so crawlers reach the blown-in attic calculator in one hop',
+  );
+  assert.match(html, /attic insulation bid calculator/i);
+});
