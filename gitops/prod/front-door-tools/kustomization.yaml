@@ -33,16 +33,16 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 554044 bytes
-#   portfolio-front-tools-1: 110 files, 553354 bytes
-#   portfolio-front-tools-2: 148 files, 555589 bytes
-#   portfolio-front-tools-3: 139 files, 552864 bytes
-#   portfolio-front-tools-4: 117 files, 553962 bytes
-#   portfolio-front-tools-5: 132 files, 554806 bytes
-#   portfolio-front-tools-6: 112 files, 553637 bytes
+#   portfolio-front-tools-0: 136 files, 554158 bytes
+#   portfolio-front-tools-1: 110 files, 553439 bytes
+#   portfolio-front-tools-2: 148 files, 555919 bytes
+#   portfolio-front-tools-3: 139 files, 553098 bytes
+#   portfolio-front-tools-4: 117 files, 554047 bytes
+#   portfolio-front-tools-5: 132 files, 555019 bytes
+#   portfolio-front-tools-6: 112 files, 553886 bytes
 #   portfolio-front-tools-7: 112 files, 556105 bytes
-#   portfolio-front-tools-8: 124 files, 556863 bytes
-#   portfolio-front-tools-9: 100 files, 544945 bytes
+#   portfolio-front-tools-8: 123 files, 549926 bytes
+#   portfolio-front-tools-9: 101 files, 552078 bytes
 #   portfolio-front-tools-10: 106 files, 541010 bytes
 #   portfolio-front-tools-11: 60 files, 303449 bytes
 #
@@ -1236,12 +1236,12 @@ configMapGenerator:
       - real-estate-agent-photo-app__usage.mjs.gz=real-estate-agent-photo-app__usage.mjs.gz
       - real-estate-agent-photo-app__vs-boxbrownie.html.gz=real-estate-agent-photo-app__vs-boxbrownie.html.gz
       - real-estate-agent-photo-app__why-was-my-listing-photo-rejected.html.gz=real-estate-agent-photo-app__why-was-my-listing-photo-rejected.html.gz
-      - retainage-cashflow-calculator__calc.mjs.gz=retainage-cashflow-calculator__calc.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - retainage-cashflow-calculator__calc.mjs.gz=retainage-cashflow-calculator__calc.mjs.gz
       - retainage-cashflow-calculator__index.html.gz=retainage-cashflow-calculator__index.html.gz
       - retainage-cashflow-calculator__share.mjs.gz=retainage-cashflow-calculator__share.mjs.gz
       - retainage-cashflow-calculator__should-i-take-partial-retainage-now.html.gz=retainage-cashflow-calculator__should-i-take-partial-retainage-now.html.gz
