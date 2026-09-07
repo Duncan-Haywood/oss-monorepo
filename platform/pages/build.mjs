@@ -371,7 +371,12 @@ const CATEGORY_RULES = [
     // `pool-route` above: a one-technician certified-maintenance route,
     // priced per visit and rolled up per route. It landed in the catch-all
     // only because its slug does not start with `pool-`.
-    test: (slug) => /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection)/.test(slug),
+    // `pour-cost-calculator` prices a menu item for a bar or restaurant
+    // beverage program the same way `notary-trip-quote` prices a visit and
+    // `booth-rent-vs-commission` prices a stall — a small service business
+    // turning its own costs into a customer-facing price, not a trade bid, a
+    // marketplace fee, or a back-office reconciliation.
+    test: (slug) => /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|pour-cost)/.test(slug),
   },
   {
     id: 'logistics',

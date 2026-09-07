@@ -33,17 +33,18 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556763 bytes
-#   portfolio-front-tools-1: 112 files, 553515 bytes
-#   portfolio-front-tools-2: 147 files, 550728 bytes
-#   portfolio-front-tools-3: 125 files, 556703 bytes
-#   portfolio-front-tools-4: 119 files, 555226 bytes
-#   portfolio-front-tools-5: 131 files, 549137 bytes
-#   portfolio-front-tools-6: 104 files, 554934 bytes
-#   portfolio-front-tools-7: 117 files, 556162 bytes
-#   portfolio-front-tools-8: 115 files, 555217 bytes
-#   portfolio-front-tools-9: 101 files, 556382 bytes
-#   portfolio-front-tools-10: 111 files, 555483 bytes
+#   portfolio-front-tools-0: 136 files, 556718 bytes
+#   portfolio-front-tools-1: 112 files, 553491 bytes
+#   portfolio-front-tools-2: 147 files, 550688 bytes
+#   portfolio-front-tools-3: 125 files, 556681 bytes
+#   portfolio-front-tools-4: 119 files, 555205 bytes
+#   portfolio-front-tools-5: 131 files, 549106 bytes
+#   portfolio-front-tools-6: 104 files, 554921 bytes
+#   portfolio-front-tools-7: 117 files, 556151 bytes
+#   portfolio-front-tools-8: 117 files, 552369 bytes
+#   portfolio-front-tools-9: 100 files, 555562 bytes
+#   portfolio-front-tools-10: 61 files, 311334 bytes
+#   portfolio-front-tools-11: 53 files, 263691 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1123,6 +1124,10 @@ configMapGenerator:
       - popcorn-ceiling-bid-calculator__index.html.gz=popcorn-ceiling-bid-calculator__index.html.gz
       - popcorn-ceiling-bid-calculator__usage.mjs.gz=popcorn-ceiling-bid-calculator__usage.mjs.gz
       - popcorn-ceiling-bid-calculator__vs-jobber.html.gz=popcorn-ceiling-bid-calculator__vs-jobber.html.gz
+      - pour-cost-calculator__calc.mjs.gz=pour-cost-calculator__calc.mjs.gz
+      - pour-cost-calculator__how-to-calculate-pour-cost.html.gz=pour-cost-calculator__how-to-calculate-pour-cost.html.gz
+      - pour-cost-calculator__index.html.gz=pour-cost-calculator__index.html.gz
+      - pour-cost-calculator__usage.mjs.gz=pour-cost-calculator__usage.mjs.gz
       - pressure-washing-bid-calculator__calc.mjs.gz=pressure-washing-bid-calculator__calc.mjs.gz
       - pressure-washing-bid-calculator__how-much-to-charge.html.gz=pressure-washing-bid-calculator__how-much-to-charge.html.gz
       - pressure-washing-bid-calculator__index.html.gz=pressure-washing-bid-calculator__index.html.gz
@@ -1210,13 +1215,13 @@ configMapGenerator:
       - shed-install-bid-calculator__index.html.gz=shed-install-bid-calculator__index.html.gz
       - shed-install-bid-calculator__usage.mjs.gz=shed-install-bid-calculator__usage.mjs.gz
       - shed-install-bid-calculator__vs-jobber.html.gz=shed-install-bid-calculator__vs-jobber.html.gz
-      - shop-rate-calculator__calc.mjs.gz=shop-rate-calculator__calc.mjs.gz
-      - shop-rate-calculator__index.html.gz=shop-rate-calculator__index.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shop-rate-calculator__calc.mjs.gz=shop-rate-calculator__calc.mjs.gz
+      - shop-rate-calculator__index.html.gz=shop-rate-calculator__index.html.gz
       - shop-rate-calculator__shop-rates.mjs.gz=shop-rate-calculator__shop-rates.mjs.gz
       - shop-rate-calculator__usage.mjs.gz=shop-rate-calculator__usage.mjs.gz
       - shop-rate-calculator__vs-servicetitan.html.gz=shop-rate-calculator__vs-servicetitan.html.gz
@@ -1315,14 +1320,14 @@ configMapGenerator:
       - sump-pump-bid-calculator__usage.mjs.gz=sump-pump-bid-calculator__usage.mjs.gz
       - sump-pump-bid-calculator__vs-servicetitan.html.gz=sump-pump-bid-calculator__vs-servicetitan.html.gz
       - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
-      - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
-      - sunroom-bid-calculator__index.html.gz=sunroom-bid-calculator__index.html.gz
-      - sunroom-bid-calculator__usage.mjs.gz=sunroom-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
+      - sunroom-bid-calculator__index.html.gz=sunroom-bid-calculator__index.html.gz
+      - sunroom-bid-calculator__usage.mjs.gz=sunroom-bid-calculator__usage.mjs.gz
       - sunroom-bid-calculator__vs-jobber.html.gz=sunroom-bid-calculator__vs-jobber.html.gz
       - tender-radar__calc.mjs.gz=tender-radar__calc.mjs.gz
       - tender-radar__draft.mjs.gz=tender-radar__draft.mjs.gz
@@ -1381,6 +1386,11 @@ configMapGenerator:
       - walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz=walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz
       - walk-in-tub-bid-calculator__index.html.gz=walk-in-tub-bid-calculator__index.html.gz
       - walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz=walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz
+  - name: portfolio-front-tools-11
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz=walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz
       - walk-in-tub-bid-calculator__usage.mjs.gz=walk-in-tub-bid-calculator__usage.mjs.gz
       - walk-in-tub-bid-calculator__vs-housecall-pro.html.gz=walk-in-tub-bid-calculator__vs-housecall-pro.html.gz

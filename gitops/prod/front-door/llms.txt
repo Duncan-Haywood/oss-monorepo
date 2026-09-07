@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 189 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 190 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 189 of them — and
+Every tool in the collection is listed below — all 190 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -201,6 +201,17 @@ page that hosts it.
 - [Shopify Fee Calculator — Payments vs PayPal vs Grow](https://marisstella.dev/tools/shopify-fee-calculator/): Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee. Then compare Basic, Grow, Advanced, and Plus at your monthly volume.
 - [Where to Sell Calculator — eBay vs Etsy vs Amazon](https://marisstella.dev/tools/where-to-sell-calculator/): Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, Reverb, your own store, and a local sale.
 
+## Service business pricing & quotes
+
+- [Pool Route Pricing Calculator — Price Weekly Accounts](https://marisstella.dev/tools/pool-route-pricing/): Price recurring pool service accounts after labor, drive time, chemicals, and overhead. Free private pool route pricing calculator for independent operators.
+- [Translator Project Quote Calculator](https://marisstella.dev/tools/translator-project-quote/): Free private translator quote calculator. Price new words, fuzzy matches, QA, DTP, rush work, and a minimum project fee in your browser.
+- [Porta Potty Event Quote Calculator — Restroom Rental Bid](https://marisstella.dev/tools/portable-restroom-event-quote/): Price a portable restroom (porta potty) event rental from days on site, pump-outs, and two round trips — not a Saturday headcount special. See walk-away price, price per unit-day, and a starting fleet estimate.
+- [Commercial Photography Licensing Quote Calculator](https://marisstella.dev/tools/commercial-photo-license-calculator/): Price commercial photography usage rights by channel, term, territory, and exclusivity. Free local-first quote worksheet for photographers.
+- [Mobile Notary & Loan Signing Fee Calculator](https://marisstella.dev/tools/notary-trip-quote/): Price a mobile notary appointment from mileage, drive time, print pages, witnesses and waiting — then test a signing service's flat offer against what you actually earn per hour after paper, toner and fuel.
+- [Booth Rent vs Commission Calculator](https://marisstella.dev/tools/booth-rent-vs-commission/): Free booth rent vs commission calculator for hair stylists, barbers, and nail techs. Compare take-home and hourly pay on your own book after rent, card fees, backbar, and unpaid hours.
+- [Fire Extinguisher Inspection Route Margin Calculator](https://marisstella.dev/tools/fire-extinguisher-inspection-route-margin/): Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.
+- [Pour Cost Calculator](https://marisstella.dev/tools/pour-cost-calculator/): Free pour cost calculator for bars and restaurants: price a cocktail from your own bottle costs and pour sizes, see the liquor cost percentage against your target, and find out what over-pouring is really costing you a year. Nothing leaves your browser.
+
 ## More free tools
 
 - [Sponsor Ready — free GitHub Sponsors readiness checklist](https://marisstella.dev/tools/sponsor-ready/): Free, no-signup checklist that scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors, and tells you exactly what to fix first.
@@ -211,16 +222,6 @@ page that hosts it.
 - [Dumpster Rental Margin Calculator — Price a Roll-Off Job](https://marisstella.dev/tools/dumpster-rental-margin-calculator/): Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.
 - [Photo Booth Event Quote Calculator — Price a Booking](https://marisstella.dev/tools/photo-booth-event-quote/): Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.
 - [Vending Machine Route Profit Calculator — Price Each Location](https://marisstella.dev/tools/vending-machine-route-margin/): Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.
-
-## Service business pricing & quotes
-
-- [Pool Route Pricing Calculator — Price Weekly Accounts](https://marisstella.dev/tools/pool-route-pricing/): Price recurring pool service accounts after labor, drive time, chemicals, and overhead. Free private pool route pricing calculator for independent operators.
-- [Translator Project Quote Calculator](https://marisstella.dev/tools/translator-project-quote/): Free private translator quote calculator. Price new words, fuzzy matches, QA, DTP, rush work, and a minimum project fee in your browser.
-- [Porta Potty Event Quote Calculator — Restroom Rental Bid](https://marisstella.dev/tools/portable-restroom-event-quote/): Price a portable restroom (porta potty) event rental from days on site, pump-outs, and two round trips — not a Saturday headcount special. See walk-away price, price per unit-day, and a starting fleet estimate.
-- [Commercial Photography Licensing Quote Calculator](https://marisstella.dev/tools/commercial-photo-license-calculator/): Price commercial photography usage rights by channel, term, territory, and exclusivity. Free local-first quote worksheet for photographers.
-- [Mobile Notary & Loan Signing Fee Calculator](https://marisstella.dev/tools/notary-trip-quote/): Price a mobile notary appointment from mileage, drive time, print pages, witnesses and waiting — then test a signing service's flat offer against what you actually earn per hour after paper, toner and fuel.
-- [Booth Rent vs Commission Calculator](https://marisstella.dev/tools/booth-rent-vs-commission/): Free booth rent vs commission calculator for hair stylists, barbers, and nail techs. Compare take-home and hourly pay on your own book after rent, card fees, backbar, and unpaid hours.
-- [Fire Extinguisher Inspection Route Margin Calculator](https://marisstella.dev/tools/fire-extinguisher-inspection-route-margin/): Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.
 
 ## Logistics, freight & cloud cost
 
