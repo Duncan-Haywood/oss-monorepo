@@ -20,7 +20,7 @@
     .fields { display: grid; gap: 12px; }
     label { display: grid; gap: 5px; font-weight: 650; font-size: .9rem; }
     input, select { font: inherit; padding: 10px; border: 1px solid #aabbb2; border-radius: 7px; }
-    #result { background: #19382d; color: #f6fff9; border-color: #19382d; }
+    .result { background: #19382d; color: #f6fff9; border-color: #19382d; }
     .hero { font-size: 2.2rem; font-weight: 800; letter-spacing: -.04em; margin: 10px 0; }
     .good { color: #bff0c9; }
     .warn { color: #ffd09c; }
@@ -31,7 +31,7 @@
     .warn-inline { color: #9a3412; font-weight: 600; }
     footer { margin-top: 22px; font-size: .83rem; }
     a { color: #12594a; overflow-wrap: anywhere; }
-    #result a { color: #bff0c9; }
+    .result a { color: #bff0c9; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -47,7 +47,7 @@
     <p>
       <a href="should-i-enroll-this-book-in-kindle-unlimited.html">Should I enroll this book in Kindle Unlimited?</a>
       ·
-      <a href="vs-amazon-kdp-royalty-calculator.html">This calculator vs. Amazon&rsquo;s KDP royalty calculator</a>
+      <a href="vs-amazon-kdp-royalty-calculator.html">This calculator vs. Amazon's KDP royalty calculator</a>
     </p>
   </header>
 
@@ -115,13 +115,13 @@
       </div>
       <p class="note">
         70% / 35%, the $2.99–$9.99 70% band, delivery per MB, and 60% paperback minus print
-        are starting points from Amazon&rsquo;s published KDP royalty help, not a live schedule.
+        are starting points from Amazon's published KDP royalty help, not a live schedule.
         Overwrite every box from your current KDP royalty report and print preview.
-        KENP rate changes monthly; paste this month&rsquo;s figure from your dashboard.
+        KENP rate changes monthly; paste this month's figure from your dashboard.
       </p>
     </section>
 
-    <section id="result" aria-live="polite">
+    <section id="result" class="result" aria-live="polite">
       <h2>90-day readout</h2>
       <p id="errors" class="warn" role="alert" hidden></p>
       <div id="headline" class="hero"></div>
@@ -153,13 +153,13 @@
       On the starting example — a $4.99 ebook on the 70% plan with a 2&nbsp;MB file and
       $0.15/MB delivery — one paid sale nets $3.193. At a $0.0045 KENP rate that is
       709.6 Kindle Edition Normalized Pages. Your own list price, file size, plan, and
-      this month&rsquo;s KENP rate change that number; the readout updates as you type.
+      this month's KENP rate change that number; the readout updates as you type.
     </p>
 
     <h3>Does this tell me to enroll in KDP Select?</h3>
     <p>
       No. It reports two 90-day totals on the numbers you typed. Enrolling, leaving, or
-      staying in KDP Select is a contract decision you make against Amazon&rsquo;s current
+      staying in KDP Select is a contract decision you make against Amazon's current
       terms, not a recommendation this page can make.
     </p>
 
@@ -167,15 +167,15 @@
     <p>
       KDP paperback royalty is a share of list minus printing cost. A short book on a
       low list can have a print cost larger than that share. The page shows the negative
-      rather than hiding it, because that is the arithmetic Amazon&rsquo;s own print preview
+      rather than hiding it, because that is the arithmetic Amazon's own print preview
       is warning you about.
     </p>
 
-    <h3>Is the print-cost formula the same as KDP&rsquo;s live preview?</h3>
+    <h3>Is the print-cost formula the same as KDP's live preview?</h3>
     <p>
       No. The blank-override starting formula is a published-shape approximation
       (a small fixed amount plus a per-page rate, B&amp;W or color) so the page has a
-      number before you paste one. KDP&rsquo;s own print preview, for your trim, paper,
+      number before you paste one. KDP's own print preview, for your trim, paper,
       ink, and marketplace, is the figure to paste into the override box.
     </p>
 
@@ -184,13 +184,13 @@
       Expanded distribution, hardcover, audiobook, VAT, currency conversion, ads,
       returns, and any change in paid-sale volume from being in or out of KU.
       Those are real, and they are not in this arithmetic. A later line can add
-      them; inventing them here would be a forecast wearing a calculator&rsquo;s clothes.
+      them; inventing them here would be a forecast wearing a calculator's clothes.
     </p>
   </section>
 
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
-    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or publishing advice, and it does not replace a qualified professional or Amazon&rsquo;s own royalty reports. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or publishing advice, and it does not replace a qualified professional or Amazon's own royalty reports. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. We count only anonymous feature events in local storage, and you can turn that off above. Do Not Track and Global Privacy Control disable counting automatically.</p>
     <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. <a href="LICENSE">LICENSE</a>.</p>
   </footer>
@@ -243,7 +243,7 @@
         const showPlan = r.usedSeventy && !r.seventyEligible;
         planNote.hidden = !showPlan;
         planNote.textContent = showPlan
-          ? 'The 70% plan is selected, but this list price is outside Amazon’s published $2.99–$9.99 70% band. Confirm the plan your dashboard actually pays before trusting the 70% line.'
+          ? 'The 70% plan is selected, but this list price is outside Amazon\'s published $2.99–$9.99 70% band. Confirm the plan your dashboard actually pays before trusting the 70% line.'
           : '';
         if (count) recordUsage('royalty_compared', $('usageOptOut').checked);
       } catch (e) {
