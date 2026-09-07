@@ -667,6 +667,12 @@
     <loc>https://marisstella.dev/tools/delivery-app-margin-calculator/vs-toast.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/dependency-confusion-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/dependency-confusion-check/what-is-dependency-confusion.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/dns-configuration-evidence/</loc>
   </url>
   <url>
@@ -1535,6 +1541,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/npm-deployment-evidence/which-npm-vulnerabilities-actually-reach-production.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/npm-lifecycle-script-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/npm-lifecycle-script-check/why-npm-audit-does-not-catch-a-malicious-install-script.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/owner-operator-cpm-calculator/</loc>
