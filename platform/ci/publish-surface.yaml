@@ -503,6 +503,9 @@ workflows:
 - workflow: photos-import-tools-ci.yml
   classification: none
   publishes: []
+- workflow: pinned-actions-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: plantation-shutter-bid-calculator-ci.yml
   classification: none
   publishes: []
