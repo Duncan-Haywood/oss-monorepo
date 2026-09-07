@@ -1383,7 +1383,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 208 since 2026-09-07, when `vscode-extension-drift-check` graduated —
     # same shape again: a new venture with a static `index.html` from its
     # first commit, entering the mirror and the total together.
-    total = 208  # `infra/OWNER_CHECKLIST.md`'s own "N of the 208 tools" wording.
+    # 209 since 2026-09-07, when `3d-print-price-calculator` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    total = 209  # `infra/OWNER_CHECKLIST.md`'s own "N of the 209 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
