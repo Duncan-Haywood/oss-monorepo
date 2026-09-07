@@ -68,6 +68,8 @@ import {
   CHROME_MODULE_FILE,
   renderHubSitemap,
   renderLlmsTxt,
+  toolProseName,
+  listProse,
   renderCatalog,
   externalCallExceptions,
   surfaceExternalFetchHosts,
@@ -3875,7 +3877,12 @@ test('a category holding a documented external-call exception says so, not "noth
         `${category.id} files ${exceptions.map((x) => x.title).join(', ')} but its count line reads "${count}"`,
       );
       for (const x of exceptions) {
-        assert.ok(count.includes(x.title), `${category.id}'s count line omits ${x.title}: "${count}"`);
+        // The *prose* name, not the raw title: eight catalogue titles carry an
+        // em-dash tagline that would swallow the conjunction in this list. See
+        // `toolProseName`. The claim being pinned is unchanged — every
+        // exception is still named on the line that makes the privacy claim.
+        const name = toolProseName(x.title);
+        assert.ok(count.includes(name), `${category.id}'s count line omits ${name}: "${count}"`);
       }
     } else {
       assert.equal(
@@ -4025,7 +4032,11 @@ test('the About page lede states the device-privacy claim honestly, with any doc
   assert.ok(!lede.includes('nothing you type into them is uploaded anywhere'), 'lede still makes the old unconditional claim');
   if (exceptions.length) {
     for (const x of exceptions) {
-      assert.ok(lede.includes(x.title), `lede has an exception but does not name ${x.title}: "${lede}"`);
+      // Prose name rather than raw title, for the reason in `toolProseName`:
+      // the lede is a sentence, and a title carrying its own em-dash tagline
+      // makes a two-tool exception list unreadable as two tools.
+      const name = toolProseName(x.title);
+      assert.ok(lede.includes(name), `lede has an exception but does not name ${name}: "${lede}"`);
     }
   } else {
     assert.match(lede, /never leave their device/);
@@ -4849,4 +4860,45 @@ test('the sponsors line is honest about what refusing costs', () => {
   // donation ask that overstates itself is worse than none at all.
   assert.match(sponsorsNote(), /optional and changes nothing/);
   assert.ok(!/must|required|unlock|premium|pro\b/i.test(sponsorsNote()));
+});
+
+test('toolProseName drops a trailing tagline so a name reads as one item in a sentence', () => {
+  // The eight catalogue titles that use the `Name — what it does` convention.
+  assert.equal(
+    toolProseName('DNS Change Evidence — prove what a DNS change actually did'),
+    'DNS Change Evidence',
+  );
+  assert.equal(toolProseName('Which Job First? — rank your job list'), 'Which Job First?');
+  // An en dash is the same convention.
+  assert.equal(toolProseName('Cut List Optimizer – compare sheet sizes'), 'Cut List Optimizer');
+
+  // A title with no tagline is returned unchanged.
+  assert.equal(toolProseName('Sponsor Ready'), 'Sponsor Ready');
+
+  // A hyphen is NOT this pattern: tool names legitimately contain one, and
+  // trimming there would rename the tool rather than unwrap it.
+  assert.equal(toolProseName('Before/After DNS - Record Report'), 'Before/After DNS - Record Report');
+  assert.equal(toolProseName('Break-Even Calculator'), 'Break-Even Calculator');
+
+  // Degenerate input must not produce an empty name in the middle of a sentence.
+  assert.equal(toolProseName('— tagline only'), '— tagline only');
+  assert.equal(toolProseName(''), '');
+  assert.equal(toolProseName(null), '');
+});
+
+test('the privacy exception sentence names each tool as a distinct list item', () => {
+  // The regression this guards: `listProse` joined two titles with "and", and
+  // the first title carried an em-dash tagline, so the sentence read
+  // "except on DNS Change Evidence — prove what a DNS change actually did and
+  // Sponsor Ready" -- in which a reader cannot tell where the first tool ends.
+  // This is the portfolio's central claim about a visitor's data, so it has to
+  // be unambiguous on the About page, in llms.txt, and in the per-page
+  // disclaimer that ships on all 765 pages.
+  const named = [
+    toolProseName('DNS Change Evidence — prove what a DNS change actually did'),
+    toolProseName('Sponsor Ready'),
+  ];
+  const prose = listProse(named);
+  assert.equal(prose, 'DNS Change Evidence and Sponsor Ready');
+  assert.ok(!prose.includes('—'), 'no tagline may survive into the exception list');
 });
