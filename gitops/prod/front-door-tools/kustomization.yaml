@@ -42,8 +42,8 @@
 #   portfolio-front-tools-6: 113 files, 548657 bytes
 #   portfolio-front-tools-7: 112 files, 556753 bytes
 #   portfolio-front-tools-8: 122 files, 554337 bytes
-#   portfolio-front-tools-9: 103 files, 556183 bytes
-#   portfolio-front-tools-10: 109 files, 554199 bytes
+#   portfolio-front-tools-9: 102 files, 556874 bytes
+#   portfolio-front-tools-10: 110 files, 554762 bytes
 #   portfolio-front-tools-11: 60 files, 303495 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1343,12 +1343,12 @@ configMapGenerator:
       - snow-removal-bid-calculator__how-much-to-charge.html.gz=snow-removal-bid-calculator__how-much-to-charge.html.gz
       - snow-removal-bid-calculator__index.html.gz=snow-removal-bid-calculator__index.html.gz
       - snow-removal-bid-calculator__share.mjs.gz=snow-removal-bid-calculator__share.mjs.gz
-      - snow-removal-bid-calculator__usage.mjs.gz=snow-removal-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - snow-removal-bid-calculator__usage.mjs.gz=snow-removal-bid-calculator__usage.mjs.gz
       - snow-removal-bid-calculator__vs-aspire.html.gz=snow-removal-bid-calculator__vs-aspire.html.gz
       - sod-install-bid-calculator__calc.mjs.gz=sod-install-bid-calculator__calc.mjs.gz
       - sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz=sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz

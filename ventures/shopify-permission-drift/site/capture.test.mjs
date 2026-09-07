@@ -30,6 +30,52 @@ test("normalizes the GraphQL appInstallations fixture", () => {
 test("canonicalizes GraphQL webhook enums without inventing topics", () => {
   assert.equal(canonicalizeTopic("APP_UNINSTALLED"), "app/uninstalled");
   assert.equal(canonicalizeTopic("orders/create"), "orders/create");
+  assert.equal(canonicalizeTopic("CUSTOMERS_DATA_REQUEST"), "customers/data_request");
+  assert.equal(canonicalizeTopic("CUSTOMERS_PURCHASING_SUMMARY"), "customers/purchasing_summary");
+  assert.equal(canonicalizeTopic("ORDERS_PARTIALLY_FULFILLED"), "orders/partially_fulfilled");
+  assert.equal(canonicalizeTopic("VARIANTS_OUT_OF_STOCK"), "variants/out_of_stock");
+});
+
+test("GraphQL compliance enums compare unchanged against REST inventory", () => {
+  const graphql = {
+    data: {
+      appInstallations: {
+        edges: [
+          {
+            node: {
+              app: { handle: "compliance-app" },
+              accessScopes: [{ handle: "read_customers" }],
+              webhookSubscriptions: {
+                edges: [
+                  { node: { topic: "CUSTOMERS_DATA_REQUEST" } },
+                  { node: { topic: "CUSTOMERS_REDACT" } },
+                  { node: { topic: "SHOP_REDACT" } },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    },
+    api_version: "2026-07",
+    captured_at: "2026-08-24T10:00:00Z",
+  };
+  const rest = {
+    captured_at: "2026-08-25T10:00:00Z",
+    api_version: "2026-07",
+    source: "rest",
+    authorization_state: "active",
+    apps: [
+      {
+        id: "compliance-app",
+        scopes: ["read_customers"],
+        webhooks: ["customers/data_request", "customers/redact", "shop/redact"],
+      },
+    ],
+  };
+  const before = normalizeExport(graphql);
+  assert.deepEqual(before.apps[0].webhooks, ["customers/data_request", "customers/redact", "shop/redact"]);
+  assert.deepEqual(normalizeExport(rest).apps[0].webhooks, before.apps[0].webhooks);
 });
 
 test("browser example dump matches the Python fixture shape", () => {
