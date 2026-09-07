@@ -886,7 +886,7 @@
       "url": "https://marisstella.dev/tools/flaky-test-finder/",
       "category": "CI checks & developer gates",
       "description": "Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "flat-roof-bid-calculator",
