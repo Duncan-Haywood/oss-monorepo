@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 202 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 203 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
   <updated>2026-09-07T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>GitHub Actions Cache Poisoning Check — Fork-Writable Cache &amp; restore-keys</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-cache-poisoning-check/"/>
+    <id>tag:marisstella.dev,2026:tool/actions-cache-poisoning-check</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Paste your GitHub Actions workflow YAML and find actions/cache steps reachable from pull_request_target/workflow_run, and restore-keys fallbacks that can adopt a poisoned prefix match. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
   <entry>
     <title>GitHub Actions Injection Check — Pwn Requests &amp; Script Injection</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-injection-check/"/>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price a blown-in attic insulation job from floor areas, existing versus target R-value, bag yield, air-sealing penetrations, and baffles — not a flat price per square foot. See bag count, walk-away price, and the margin a $1.50-a-foot special actually leaves.</summary>
-  </entry>
-  <entry>
-    <title>Automatic Driveway Gate Bid Calculator — Price Operators</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/automatic-driveway-gate-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/automatic-driveway-gate-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price an automatic driveway gate from single swing, dual swing, or slide: opening width, leaf material, columns, power, loops, and access — not a published $4,500 kit special. See the operators and the walk-away number.</summary>
   </entry>
 </feed>
