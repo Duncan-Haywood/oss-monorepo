@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tattoo Deposit &amp; Touch-Up Pricing Calculator</title>
+  <meta name="description" content="Free calculator for independent tattoo artists and shops: set a session deposit, check whether a client's touch-up falls inside your free window, price the touch-up by percent, flat fee, or hourly rate if it doesn't, and draft the policy.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/tattoo-deposit-and-touchup-calculator.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Tattoo Deposit & Touch-Up Pricing Calculator">
+  <meta property="og:description" content="Set a session deposit, check a touch-up against your free window, price it by percent, flat fee, or hourly rate, and draft the policy. Runs privately in your browser.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/appointment-deposit-calculator/tattoo-deposit-and-touchup-calculator.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tattoo Deposit & Touch-Up Pricing Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much deposit should a tattoo shop charge?","acceptedAnswer":{"@type":"Answer","text":"There is no single correct amount — shops commonly ask for a flat amount or a percentage of the estimated session price, often in the 20-50% range for custom work. This calculator turns whatever percentage you choose into a dollar deposit and the balance still due; it does not tell you what percentage to charge."}},{"@type":"Question","name":"Is a tattoo touch-up free?","acceptedAnswer":{"@type":"Answer","text":"That depends entirely on the shop's own policy, which this tool does not set for you. Many shops offer touch-ups free within a stated window after the original session (commonly a few months to a year) and charge for touch-ups requested after that window closes. Enter your own free-window length and how long ago the original session was, and the calculator reports which side of that window a specific client falls on."}},{"@type":"Question","name":"How should a tattoo shop price a touch-up once it is no longer free?","acceptedAnswer":{"@type":"Answer","text":"Three common approaches: a percentage of the original session price, a flat fee regardless of the original price, or the shop's hourly rate multiplied by the estimated touch-up time. This calculator supports all three and reports the dollar figure for whichever one the shop already uses — it does not recommend one approach over another."}}]}</script>
+</head>
+<body><main>
+  <p class="eyebrow"><a href="./">&larr; Appointment deposit calculator</a></p>
+  <header><p class="eyebrow">FOR TATTOO ARTISTS AND SHOPS</p><h1>Deposit and touch-up pricing, in one place.</h1><p class="intro">A tattoo deposit works the same way any service deposit does. What's different is the touch-up: most shops offer a free window after the original session, then charge for touch-ups after that. This calculator handles both — set the deposit, then check a specific client's touch-up against your free window and price it by percent, flat fee, or hourly rate if the window has closed.</p></header>
+  <section class="card"><h2>The session and your policy</h2><form id="tattoo-form">
+    <label>Currency <select name="currency"><option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option><option>AUD</option></select></label>
+    <label>Original session price <input name="price" type="number" min="0.01" step="0.01" value="400" required></label>
+    <label>Deposit percentage <input name="depositPercent" type="number" min="0" max="100" step="1" value="25" required><small>Common starting point: 20-50% for custom work. Adjust for your shop.</small></label>
+    <label>Free touch-up window (months) <input name="freeWindowMonths" type="number" min="0" step="0.5" value="6" required><small>How long after the original session a touch-up is free, under your policy.</small></label>
+    <label>Months since the original session <input name="monthsSinceSession" type="number" min="0" step="0.5" value="3" required><small>For this specific client — how long ago they got the piece done.</small></label>
+    <fieldset><legend>Touch-up pricing once the free window has closed</legend>
+      <label>Pricing method
+        <select name="pricingMode" id="pricing-mode">
+          <option value="percent">Percentage of original price</option>
+          <option value="flat">Flat fee</option>
+          <option value="hourly">Hourly rate &times; estimated hours</option>
+        </select>
+      </label>
+      <label data-mode="percent">Touch-up percentage <input name="touchupPercent" type="number" min="0" max="100" step="1" value="25"></label>
+      <label data-mode="flat" hidden>Flat touch-up fee <input name="touchupFlat" type="number" min="0" step="0.01" value="50"></label>
+      <div data-mode="hourly" hidden>
+        <label>Hourly rate <input name="hourlyRate" type="number" min="0.01" step="0.01" value="150"></label>
+        <label>Estimated touch-up hours <input name="touchupHours" type="number" min="0.01" step="0.25" value="0.5"></label>
+      </div>
+    </fieldset>
+    <fieldset><legend>Policy wording (optional)</legend><label>Shop name <input name="businessName" placeholder="e.g. Northside Ink"></label><label>Artist name <input name="artistName" placeholder="e.g. Jess"></label></fieldset>
+    <button type="submit">Calculate</button>
+  </form><p id="errors" class="error" role="alert" hidden></p></section>
+  <section id="results" class="card" aria-live="polite" hidden>
+    <h2>Deposit</h2>
+    <dl class="results"><div><dt>Deposit at booking</dt><dd id="deposit"></dd></div><div><dt>Balance due at session</dt><dd id="balance"></dd></div></dl>
+    <h2>This client's touch-up</h2>
+    <dl class="results"><div><dt>Free-window status</dt><dd id="window-status"></dd></div><div><dt>Full touch-up price (your pricing rule)</dt><dd id="touchup-full-price"></dd></div><div><dt>Amount due for this touch-up</dt><dd id="amount-due"></dd></div></dl>
+    <p id="touchup-note" class="note"></p>
+    <h2>Draft deposit &amp; touch-up policy</h2>
+    <textarea id="policy" aria-label="Draft deposit and touch-up policy" rows="9" readonly></textarea>
+    <button id="copy" type="button">Copy policy</button><span id="status" role="status"></span>
+    <p class="note"><button id="share-link" type="button" class="secondary">Copy share link</button> <span id="share-status" class="small" role="status" aria-live="polite"></span></p>
+    <p class="note">The share link stores this plan's numbers, including the shop and artist names, in the page's own URL — never sent to any server, but only share it with people you trust.</p>
+  </section>
+  <section class="card"><h2>Common questions</h2>
+    <h3>How much deposit should a tattoo shop charge?</h3>
+    <p>There is no single correct amount — shops commonly ask for a flat amount or a percentage of the estimated session price, often in the 20-50% range for custom work. This calculator turns whatever percentage you choose into a dollar deposit and the balance still due; it does not tell you what percentage to charge.</p>
+    <h3>Is a tattoo touch-up free?</h3>
+    <p>That depends entirely on the shop's own policy, which this tool does not set for you. Many shops offer touch-ups free within a stated window after the original session (commonly a few months to a year) and charge for touch-ups requested after that window closes. Enter your own free-window length and how long ago the original session was, and the calculator reports which side of that window a specific client falls on.</p>
+    <h3>How should a tattoo shop price a touch-up once it is no longer free?</h3>
+    <p>Three common approaches: a percentage of the original session price, a flat fee regardless of the original price, or the shop's hourly rate multiplied by the estimated touch-up time. This calculator supports all three and reports the dollar figure for whichever one the shop already uses — it does not recommend one approach over another.</p>
+  </section>
+  <footer><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p><p>Everything runs in your browser. Your data is never uploaded. We count only anonymous local feature events, never people, prices, or policy text, with an opt-out in this page. Counting also honors Do Not Track and Global Privacy Control. &ldquo;Copy share link&rdquo; encodes your inputs into this page's own URL fragment rather than sending them anywhere — the fragment is never included in any network request, so nothing leaves your browser when you share it.</p><label class="privacy"><input id="optout" type="checkbox"> Do not count my usage</label><p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change the calculator.</p></footer>
+</main><script type="module" src="tattoo-app.mjs"></script></body></html>
