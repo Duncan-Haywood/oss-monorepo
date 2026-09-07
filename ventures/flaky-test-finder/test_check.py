@@ -101,6 +101,22 @@ class ClassifyRuns(unittest.TestCase):
         self.assertEqual(by_class["pkg.A"], "stable")
         self.assertEqual(by_class["pkg.B"], "broken")
 
+    def test_delimiter_containing_identities_are_not_conflated(self):
+        cases = [
+            {"classname": "pkg::Suite", "name": "test_it", "outcome": "pass"},
+            {"classname": "pkg", "name": "Suite::test_it", "outcome": "fail"},
+            {"classname": "", "name": "pkg::Suite::test_it", "outcome": "skip"},
+        ]
+        rows = ftf.classify_runs([{"xml": junit(cases)}, {"xml": junit(cases)}])
+        self.assertEqual(len(rows), 3)
+        for case, verdict in zip(cases, ["stable", "broken", "skipped-only"]):
+            row = next(r for r in rows if r["classname"] == case["classname"])
+            self.assertEqual(row["name"], case["name"])
+            self.assertEqual(row["verdict"], verdict)
+            self.assertEqual(row["seen_in_runs"], 2)
+            self.assertEqual(row["passed"] + row["failed"] + row["skipped"], 2)
+        self.assertIn("1 test(s) failed every time", ftf.summarize(rows, 2))
+
     def test_surefire_flaky_failure_element_is_a_direct_signal(self):
         xml = """<testsuite>
           <testcase classname="t" name="test_x" time="0.2">
