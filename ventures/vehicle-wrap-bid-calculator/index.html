@@ -109,6 +109,14 @@
 </section>
 
 <section class="result" aria-live="polite"><h2>Price to quote</h2><p id="errors" class="err" role="alert" hidden></p>
+<!-- The family's highlight promise. `platform/pages/build.mjs` injects the
+     shared invalid-field runtime only into pages that print this exact
+     sentence (`invalid.mjs`'s HIGHLIGHT_PROMISE), and the runtime finds the
+     message by taking this label's previousElementSibling — which is why it
+     sits immediately after #errors and holds no other text. This form carries
+     24 numeric inputs; without it a rejected value is a sentence with no way
+     to find the box it is about. -->
+<p id="errorsLabel" class="note" hidden>check the highlighted input</p>
 <div id="price" class="big">$0.00</div><p id="coverageLine" class="note"></p>
 <dl>
 <dt>Material (vinyl + laminate)</dt><dd id="materialOut"></dd>
@@ -217,7 +225,7 @@ function count(event) { recordEvent(event); }
 function updateQuote(shouldCount = false) {
   try {
     const r = calculateQuote(readInput());
-    el('errors').hidden = true; el('errors').textContent = ''; el('price').hidden = false;
+    el('errors').hidden = true; el('errors').textContent = ''; el('errorsLabel').hidden = true; el('price').hidden = false;
     el('price').textContent = money(r.price);
     el('coverageLine').textContent = `Covers ${el('vehicleSurfaceAreaSqFt').value} sq ft of vehicle (${r.effectiveVinylSqFt.toFixed(0)} sq ft of material) at ${r.marginPct.toFixed(0)}% margin`;
     el('materialOut').textContent = money(r.materialCost);
@@ -235,7 +243,7 @@ function updateQuote(shouldCount = false) {
     }
     if (shouldCount && !counted) { count('quote-priced'); counted = true; }
   } catch (e) {
-    el('errors').textContent = e.message; el('errors').hidden = false; el('price').hidden = true;
+    el('errors').textContent = e.message; el('errors').hidden = false; el('errorsLabel').hidden = false; el('price').hidden = true;
     el('wasteWarning').hidden = true;
     for (const id of ['coverageLine', 'materialOut', 'laborOut', 'removalOut', 'overheadOut', 'breakEvenOut', 'profitOut', 'priceWithRushOut']) el(id).textContent = '';
   }
