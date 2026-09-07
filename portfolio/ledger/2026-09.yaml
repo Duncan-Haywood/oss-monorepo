@@ -19248,86 +19248,50 @@ entries:
         run before pushing -- this entry ships in the same PR as the code,
         not on its own.
     mrr_end: 0
-  - venture: actions-self-hosted-exposure-check
+  - venture: vscode-extension-drift-check
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-        Screened and graduated a new, genuinely non-duplicate niche per
-        `portfolio/pipeline/README.md`'s "archetype itself" section
-        (2026-09-07): a fifth `actions-*-check` GitHub Actions security
-        checker, orthogonal in mechanism to the four already live
-        (`actions-cache-poisoning-check`, `actions-injection-check`,
-        `actions-permissions-check`, `pinned-actions-check`). Those four ask
-        what a compromised step can do once it is running; this one asks who
-        gets to make a step run at all, and on whose machine: it flags every
-        job with `runs-on: self-hosted` inside a workflow triggered by
-        `pull_request`, `pull_request_target`, `workflow_run`, or
-        `issue_comment` -- GitHub's own documented reason not to use
-        self-hosted runners on a public repository.
-        `duplicate_check.py` scored the closest match (tied between
-        `actions-cache-poisoning-check` and `actions-injection-check`) at
-        0.14, well below the 0.45 read-this-first bar.
+        New venture graduated: a free, zero-dependency CLI + browser tool
+        that snapshots which VS Code (or Cursor/Windsurf/VSCodium)
+        extensions are installed and diffs two point-in-time snapshots to
+        flag exactly which ones changed activation surface, dependencies,
+        or entry point since the last check, plus a CLI-only live lookup
+        against the VS Code Marketplace to flag an installed extension that
+        no longer resolves there. Same snapshot-diff archetype as
+        `license-drift-check` and `npm-lifecycle-script-check`.
+        `duplicate_check.py` scored every existing venture, screened-out
+        row, and pipeline candidate below 0.12. Motivated by two dated,
+        event-driven supply-chain incidents (GlassWorm, ongoing since
+        2026-01-31; the Nx Console VS Code Marketplace compromise,
+        2026-05-18) that neither VS Code nor the Marketplace itself warns
+        an existing installer about.
       - >-
-        Channel evidence, not "it's searchable": this is literally the
-        condition GitHub's own "Security hardening for GitHub Actions" and
-        "About self-hosted runners" documentation warns against by name, and
-        the same category of risk the OpenSSF Scorecard project's
-        `Dangerous-Workflow` check flags on public repositories at scale --
-        a widely adopted, GitHub-recommended supply-chain scanner run
-        against hundreds of thousands of public repos, giving a
-        Scorecard-flagged maintainer a second, concrete search-driven route
-        to this tool beyond GitHub's own docs. Real, narrow developer search
-        terms: "self-hosted runner public repository security", "self-hosted
-        runner fork pull request risk".
+        This PR (originally #3902) was found on review to have silently
+        deleted the just-merged `actions-self-hosted-exposure-check`
+        venture (#3898) along with its CI workflow, mirror shards, score
+        row, and its reciprocal sibling link from
+        `actions-cache-poisoning-check` -- git's rename heuristic matched
+        the deleted venture's boilerplate LICENSE/robots.txt/sitemap.xml/
+        usage.mjs against the new venture's, which made a real deletion
+        read as an innocuous rename in the diff summary. Repaired rather
+        than merged as-is, per CLAUDE.md's "Duplicate Prs" guidance against
+        letting concurrent sessions silently destroy each other's shipped
+        work: restored the deleted venture, its workflow, and its sibling
+        link from `origin/main`, and added the missing `venture-scores.yaml`
+        row for this new venture (score_ventures.py --check had flagged
+        both slugs as unscored). Both ventures are now present and tested
+        together.
       - >-
-        Built and tested exactly on the established sibling shape: `check.py`
-        (zero-dependency, stdlib-only classifier reading `.github/workflows/`
-        from disk, `--format json` and `--fail-on-risk` for CI use) and
-        `classify.mjs` (byte-identical browser port, pinned to the CLI by a
-        parity test that shells out to `python3 check.py` on the same
-        fixture). 36 Python `unittest` assertions, 18 Node assertions in
-        `classify.test.mjs`, 11 in `page.test.mjs` -- 65 total, all passing.
-        A worked example on the browser page contrasts a fork-exposed
-        `pull_request`-triggered self-hosted job against a not-flagged
-        `schedule`-triggered one.
-      - >-
-        Closed the crawlable-orphan risk in the same commit rather than
-        waiting for a later "close orphan between X and Y" pass: added a
-        reciprocal link (and a `page.test.mjs`/`page.test.mjs` assertion on
-        each side) between this tool and `actions-cache-poisoning-check`, so
-        `node platform/pages/siblings.mjs --check` still reports 97 orphans
-        -- unchanged, not 98 -- against the committed budget.
-      - >-
-        Definition-of-done checklist run: `node platform/pages/clauses.mjs
-        actions-self-hosted-exposure-check` (no-warranty clause present on
-        both pages), `check_no_payment_code.py` (clean), `portfolio/router/
-        validate.py` (all VENTURE.yaml valid), `python3
-        portfolio/scoring/score_ventures.py --check` (entry added to
-        `venture-scores.yaml`), `node platform/marketing/regen.mjs` (mirror
-        + front-door regenerated; ran three times -- once before, once after
-        a post-regen JSON-LD/visible-copy wording fix caught by
-        `faq-visible.test.mjs`, and once more after merging `origin/main`,
-        which had gained two more ventures -- `npm-lifecycle-script-check`
-        and `dependency-confusion-check` -- while this session was building,
-        bringing the mirror to 207 tools), `node platform/pages/
-        launched.mjs --write` (entered the Atom feed), and the five
-        hand-typed mirror-count locations CLAUDE.md names
-        (`infra/OWNER_CHECKLIST.md` x3, `gitops/prod/usage/aggregate.py`,
-        `gitops/prod/front-door/default.conf` x2, `test_manifests.py`'s
-        pinned `total`) all reconciled to 207 across the three-way count
-        (this session's +1, plus the two that landed on `main` concurrently),
-        and `gitops/ci/sync_readme_counts.py` run after the new CI workflow
-        added a `runs-on:` line.
-      - >-
-        Full verification: `python3 -m pytest gitops/tests -q` (490 passed,
-        25 skipped), all 20 `platform/ci` unittest modules plus
-        `agent_review` (green), `node --test platform/marketing/*.test.mjs
-        platform/pages/*.test.mjs` (1169/1169 passed after the regen fix),
-        `platform/proposal|privacy|webcheck` suites (green), pipeline
-        validators (`validate_doc_consistency.py`, `validate_candidates.py`,
-        `probes/validate_probe_index.py`, `score_sensitivity.py`) unaffected
-        and clean, `usage/validate_usage.py` (195 products, 380 readings,
-        unaffected). `check_ledger_only.py` run before pushing -- this entry
-        ships in the same PR as the code, not on its own.
+        Verification after repair: `python3 -m unittest test_check -v`
+        (restored venture's CLI), `node --test` across both ventures' own
+        suites plus `actions-cache-poisoning-check` (reciprocal-link
+        assertion), `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1169 assertions), `python3 platform/ci/checklist_coverage.py`,
+        `python3 platform/ci/check_conflict_markers.py`, `python3
+        portfolio/router/validate.py`, `python3 portfolio/scoring/
+        score_ventures.py --check` (217 scores, all covered), `node
+        platform/pages/siblings.mjs --check`, `node platform/marketing/
+        regen.mjs`, and `python3 -m pytest gitops/tests -q`, all green.
     mrr_end: 0
