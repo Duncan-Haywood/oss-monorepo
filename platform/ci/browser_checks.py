@@ -370,6 +370,75 @@ def discover_playwright(env) -> str | None:
     return discover_module(env, os.path.join("playwright", "index.js"))
 
 
+def _build_number(path: str) -> int:
+    match = re.search(r"chromium(?:_headless_shell)?-(\d+)", path)
+    return int(match.group(1)) if match else -1
+
+
+def chrome_candidates(env) -> list[str]:
+    """Every Chromium in the browsers tree, best first. Pure path logic.
+
+    Two shapes live under `PLAYWRIGHT_BROWSERS_PATH`, and both can drive the
+    checks: the full browser (`chromium-*/chrome-linux/chrome`) and the
+    headless shell (`chromium_headless_shell-*/chrome-linux/headless_shell`),
+    which is the binary Playwright itself launches by default for
+    `headless: true` — which is the only mode any check here runs in.
+
+    Full builds are offered first because they are the more capable binary and
+    were the only ones this ever returned. The shell is a fallback rather than
+    an equal: it is the right answer only when the full build will not start.
+    Within each shape the newest build wins, so a stale tree left by an older
+    install does not win on alphabetical order.
+
+    Ordering is all this decides. Which candidate is actually usable is
+    settled by launching it — see `chrome_launches`.
+    """
+    root = env.get("PLAYWRIGHT_BROWSERS_PATH")
+    if not root or not os.path.isdir(root):
+        return []
+
+    def matches(*patterns: str) -> list[str]:
+        found = [
+            path
+            for pattern in patterns
+            for path in glob.glob(os.path.join(root, pattern))
+            if os.access(path, os.X_OK)
+        ]
+        return sorted(set(found), key=_build_number, reverse=True)
+
+    return [
+        *matches("chromium-*/chrome-linux/chrome", "chromium/chrome-linux/chrome"),
+        *matches("chromium_headless_shell-*/chrome-linux/headless_shell"),
+    ]
+
+
+def chrome_launches(env, path: str) -> bool:
+    """Whether Playwright can actually start this binary and open a page.
+
+    A file that exists and is executable is not evidence that it runs. The
+    binaries under a browsers tree are built against the host they shipped
+    for, and a mismatch shows up as a launch that dies on a signal rather
+    than as a missing file — so the only honest test is to launch it.
+    """
+    spec = env.get("PLAYWRIGHT") or "playwright"
+    probe = (
+        "const p = await import(process.argv[1]);"
+        "const chromium = p.chromium ?? p.default?.chromium;"
+        "const b = await chromium.launch({ executablePath: process.argv[2] });"
+        "await (await b.newPage()).setContent('<p>probe</p>');"
+        "await b.close();"
+    )
+    try:
+        proc = subprocess.run(
+            ["node", "--input-type=module", "-e", probe, spec, path],
+            cwd=REPO_ROOT, env=env, timeout=120,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        return False
+    return proc.returncode == 0
+
+
 def discover_chrome(env) -> str | None:
     """A Chromium already on this machine, when `CHROME_PATH` was not given.
 
@@ -385,35 +454,31 @@ def discover_chrome(env) -> str | None:
     All this does is fill it in when the answer is discoverable, so the
     override stays available for the case where it is not.
 
-    Returns None when the caller already chose, or when nothing was found —
-    both mean "change nothing", and a launch failure then reports itself.
+    **It launches each candidate before offering it (changed 2026-09-07), and
+    the reason is that guessing here fails in the shape this repository keeps
+    paying for: a wrong answer that reads as a broken catalogue.** Measured
+    that day, on the image these sessions run on: the full
+    `chromium-1194/chrome-linux/chrome` dies on SIGTRAP the moment Playwright
+    connects to it, while `chromium_headless_shell-1194` — the build the old
+    code documented an exclusion for — starts and renders fine, and so does a
+    bare `chromium.launch()` with no `executablePath` at all. So this filled
+    in the one binary on the box that does not work, and all seven checks came
+    back `FAILED` with a stack trace about a closed target. Nothing in that
+    output says "your browser will not start"; it reads exactly like the
+    catalogue being broken, which is the reading that costs a session its run.
+
+    Returns None when the caller already chose, when nothing was found, or
+    when nothing found will start. All three mean "change nothing" — and the
+    last is not a dead end, because Playwright's own default resolution still
+    gets its turn, which on that same image is a resolution that works.
     """
     if env.get("CHROME_PATH") or env.get("CHROMIUM_PATH"):
         return None  # an explicit choice always wins
 
-    root = env.get("PLAYWRIGHT_BROWSERS_PATH")
-    if not root or not os.path.isdir(root):
-        return None
-
-    # The full browser, never `chromium_headless_shell-*`: the checks drive a
-    # real page, and the shell build is a different binary with a different
-    # name under the same tree.
-    found = [
-        path
-        for pattern in ("chromium-*/chrome-linux/chrome", "chromium/chrome-linux/chrome")
-        for path in glob.glob(os.path.join(root, pattern))
-        if os.access(path, os.X_OK)
-    ]
-    if not found:
-        return None
-
-    def build_number(path: str) -> int:
-        match = re.search(r"chromium-(\d+)", path)
-        return int(match.group(1)) if match else -1
-
-    # Newest build when a machine carries several, so a stale tree left by an
-    # older install does not win on alphabetical order.
-    return max(found, key=build_number)
+    for path in chrome_candidates(env):
+        if chrome_launches(env, path):
+            return path
+    return None
 
 
 def run_check(name: str, base: str, env, timeout: int) -> tuple[int, str]:
@@ -606,6 +671,13 @@ def main(argv=None) -> int:
     if chrome:
         env["CHROME_PATH"] = chrome
         print(f"Using the Chromium already here: {chrome}")
+    elif not (env.get("CHROME_PATH") or env.get("CHROMIUM_PATH")) and chrome_candidates(env):
+        # Said out loud, because the alternative is seven identical stack
+        # traces about a closed target and no hint that the browser, rather
+        # than the catalogue, is what did not work.
+        print("Note: a Chromium is present but would not launch, so the checks will use\n"
+              "Playwright's own resolution instead. If they now fail to start at all,\n"
+              "that is the browser and not these pages — set CHROME_PATH to override.")
 
     # Only when `contrast` is actually being run: this is the one search that
     # shells out to npm, and no other check reads AXE.
