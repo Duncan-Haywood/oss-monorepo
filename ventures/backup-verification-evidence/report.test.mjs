@@ -34,6 +34,48 @@ test("classifyRun matches the Python verified path for a healthy artifact", () =
   assert.equal(result.status, "verified");
 });
 
+test("classifyRun formats undersized-artifact reasons with human-readable sizes", () => {
+  // Same regression as the Python suite: the shrink-alert / markdown paths
+  // already called formatBytes, but the undersized-artifact reason still
+  // dumped raw integers into the string an operator copies into a ticket.
+  const result = classifyRun({
+    tool: "pg_dump",
+    exit_code: 0,
+    started_at: "2026-08-24T03:00:00Z",
+    finished_at: "2026-08-24T03:04:00Z",
+    artifact: {
+      exists: true,
+      size_bytes: 51_200_000_000,
+      modified_at: "2026-08-24T03:03:59Z",
+    },
+    expected: { min_size_bytes: 60_000_000_000 },
+  });
+  assert.equal(result.status, "suspicious");
+  assert.match(result.reasons[0], /51\.2 GB/);
+  assert.match(result.reasons[0], /60\.0 GB/);
+  assert.equal(result.reasons[0].includes("51200000000"), false);
+  assert.equal(result.reasons[0].includes("60000000000"), false);
+});
+
+test("classifyRun keeps plain wording when the artifact size is unknown", () => {
+  const result = classifyRun({
+    tool: "pg_dump",
+    exit_code: 0,
+    started_at: "2026-08-24T03:00:00Z",
+    finished_at: "2026-08-24T03:04:00Z",
+    artifact: {
+      exists: true,
+      size_bytes: null,
+      modified_at: "2026-08-24T03:03:59Z",
+    },
+    expected: { min_size_bytes: 1_000_000 },
+  });
+  assert.equal(result.status, "suspicious");
+  assert.match(result.reasons[0], /an unknown number of bytes/);
+  assert.match(result.reasons[0], /1\.0 MB/);
+  assert.equal(result.reasons[0].includes("1000000"), false);
+});
+
 test("classifyRun requires an integrity read when asked, even if exit code and size are fine", () => {
   const result = classifyRun(TREND_EXAMPLE_NIGHTS[0], { requireIntegrity: true });
   assert.equal(result.status, "inconclusive");

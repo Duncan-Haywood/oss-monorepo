@@ -118,8 +118,12 @@ export function classifyRun(record, { requireIntegrity = false } = {}) {
   const sizeBytes = artifact.size_bytes;
   const minSize = expected.min_size_bytes;
   if (minSize != null && (sizeBytes == null || sizeBytes < minSize)) {
+    // Same shape as the shrink-alert / markdown paths: never dump a raw
+    // byte count into a reason the operator copies into a ticket.
+    const sizeLabel =
+      sizeBytes == null ? "an unknown number of bytes" : formatBytes(sizeBytes);
     reasons.push(
-      `artifact is ${sizeBytes == null ? "an unknown number of" : sizeBytes} bytes, below the expected minimum of ${minSize}`,
+      `artifact is ${sizeLabel}, below the expected minimum of ${formatBytes(minSize)}`,
     );
   }
 
