@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>License Drift Check — Did a Dependency's License Change Since Your Last Snapshot?</title>
+  <meta name="description" content="Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Did a dependency's license just change under you?">
+  <meta property="og:description" content="Diff two license snapshots and get a deterministic list of exactly which packages changed license, added, or were removed — no account, no upload, the same check Terraform, Redis, Elastic, and MongoDB users wish they'd had.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"License Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Diffs two point-in-time snapshots of a dependency tree's declared licenses (npm, pip, cargo, go) and reports exactly which packages changed license, were added, or were removed since the last recorded snapshot. Runs entirely in the browser or as a zero-dependency Node CLI usable as a CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn't Dependabot or Renovate already catch this?","acceptedAnswer":{"@type":"Answer","text":"They watch for new versions and open a pull request with the version delta and release notes. Neither diffs the license field between what you had and what you're about to get, so a routine version bump can carry a license change straight into a merged PR with nothing flagging it."}},{"@type":"Question","name":"Is this legal advice about whether a license change matters to me?","acceptedAnswer":{"@type":"Answer","text":"No. It reports a factual difference — the license string changed from A to B — and buckets each into a public, well-known family (permissive, copyleft, source-available) as a skim aid, not a legal opinion. Whether a specific change matters to your specific use is a question for you or your counsel."}},{"@type":"Question","name":"Is my dependency data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the snapshots you paste entirely in your own browser and never sends them anywhere. The CLI reads only local files — no network call, ever."}},{"@type":"Question","name":"What format do the snapshots need to be in?","acceptedAnswer":{"@type":"Answer","text":"A JSON array of {name, version, license} objects — exactly what node cli.mjs snapshot writes from a local node_modules folder — or plain CSV with a name/version/license header, which is what pip-licenses --format=json (via a one-line jq conversion) or go-licenses csv already produce. See the docs page for exact commands per ecosystem."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 700px) { .cols { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input[type="text"] { font: inherit; border: 1px solid #cdd5df; border-radius: 6px; padding: 7px 10px; width: 280px; max-width: 100%; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.permissive { background: #dcefe4; color: #14532d; }
+    .pill.copyleft { background: #fef3c7; color: #92400e; }
+    .pill.source-available { background: #fde8e8; color: #7f1d1d; }
+    .pill.unclear, .pill.unknown { background: #e6eaf0; color: #55606f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LICENSE DRIFT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Did a dependency's license just change under you?</h1>
+    <p>Paste a baseline snapshot (last known-good) and a current snapshot of your dependency tree's declared licenses, and this reports exactly which packages' <em>license</em> changed since then — not their version, their license. Terraform (→ BUSL-1.1, 2023), Redis (→ SSPL/RSAL, 2024), Elasticsearch (→ SSPL, 2021), and MongoDB (→ SSPL, 2018) all relicensed a widely used open-source project this way, and a routine dependency bump is exactly how each change reached an existing user.</p>
+    <p class="note">Nothing is uploaded. The text you paste is parsed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your baseline and current snapshots</h2>
+    <div class="cols">
+      <div>
+        <label for="baseline-input">Baseline (last known-good)</label>
+        <textarea id="baseline-input" spellcheck="false" placeholder='[{"name":"left-pad","version":"1.3.0","license":"MIT"}]'></textarea>
+      </div>
+      <div>
+        <label for="current-input">Current (this PR / this install)</label>
+        <textarea id="current-input" spellcheck="false" placeholder='[{"name":"left-pad","version":"1.3.0","license":"MIT"}]'></textarea>
+      </div>
+    </div>
+    <label for="ignore-input">Ignore these package names (comma-separated, optional — an accepted change you don't want flagged again)</label>
+    <input type="text" id="ignore-input" placeholder="left-pad, is-odd">
+    <p>
+      <button type="button" id="check">Compare</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What changed</h2>
+    <p id="summary"></p>
+    <div id="changed-block" hidden>
+      <h3>License changed</h3>
+      <table>
+        <thead><tr><th>Package</th><th>Before</th><th>After</th><th>Versions</th></tr></thead>
+        <tbody id="changed-rows"></tbody>
+      </table>
+    </div>
+    <div id="added-block" hidden>
+      <h3>Added (new dependency)</h3>
+      <table>
+        <thead><tr><th>Package</th><th>Version</th><th>License</th></tr></thead>
+        <tbody id="added-rows"></tbody>
+      </table>
+    </div>
+    <div id="removed-block" hidden>
+      <h3>Removed</h3>
+      <table>
+        <thead><tr><th>Package</th><th>Version</th><th>License</th></tr></thead>
+        <tbody id="removed-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one file — and it can capture a snapshot from your local <code>node_modules</code> directly (a browser cannot read your filesystem):</p>
+    <pre class="cmd">node cli.mjs snapshot --out baseline.json          # commit this once, after review
+npm ci                                             # ...time passes, dependencies update...
+node cli.mjs snapshot --out current.json
+node cli.mjs diff baseline.json current.json       # human-readable, exit 1 if anything changed
+node cli.mjs diff baseline.json current.json --json
+node cli.mjs diff baseline.json current.json --ignore left-pad,is-odd</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only local files: no network call, ever.</p>
+  </section>
+
+  <section class="card">
+    <h2>Four times this actually happened</h2>
+    <table>
+      <thead><tr><th>Project</th><th>From</th><th>To</th><th>Date</th><th>What followed</th></tr></thead>
+      <tbody id="events-rows"></tbody>
+    </table>
+    <p class="note">More: <a href="how-a-dependency-license-change-reaches-your-lockfile.html">why Dependabot and Renovate don't catch this, and how to wire the CLI into CI</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why doesn't Dependabot or Renovate already catch this?</h3>
+    <p>They watch for new versions and open a pull request with the version delta and release notes. Neither diffs the license field between what you had and what you're about to get, so a routine version bump can carry a license change straight into a merged PR with nothing flagging it.</p>
+    <h3>Is this legal advice about whether a license change matters to me?</h3>
+    <p>No. It reports a factual difference — the license string changed from A to B — and buckets each into a public, well-known family (permissive, copyleft, source-available) as a skim aid, not a legal opinion. Whether a specific change matters to your specific use is a question for you or your counsel.</p>
+    <h3>What format do the snapshots need to be in?</h3>
+    <p>A JSON array of <code>{name, version, license}</code> objects — exactly what <code>node cli.mjs snapshot</code> writes from a local <code>node_modules</code> folder — or plain CSV with a name/version/license header, which is what <code>pip-licenses --format=json</code> (via a one-line <code>jq</code> conversion) or <code>go-licenses csv</code> already produce. See the docs page for exact commands per ecosystem.</p>
+    <h3>Is my dependency data uploaded anywhere?</h3>
+    <p>No. The browser page parses the snapshots you paste entirely in your own browser and never sends them anywhere. The CLI reads only local files — no network call, ever.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports a factual difference between two snapshots you supply — it is not legal advice about any license, and the family label (permissive/copyleft/source-available) is a keyword-based, informational categorization, not a legal opinion about a specific license's terms or your specific use. It does not replace reading the actual license text or a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass over your CI: <a href="../actions-injection-check/">Actions Injection Check</a> scans your GitHub Actions workflow YAML for pwn-request checkouts and script-injection holes — the same "one paste, deterministic finding" shape as this tool, for a different attack surface.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSnapshot, diffSnapshots, summarizeDiff, classifyLicenseFamily, KNOWN_RELICENSE_EVENTS } from "./engine.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      baseline: $("#baseline-input"), current: $("#current-input"), ignore: $("#ignore-input"),
+      status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      changedBlock: $("#changed-block"), changedRows: $("#changed-rows"),
+      addedBlock: $("#added-block"), addedRows: $("#added-rows"),
+      removedBlock: $("#removed-block"), removedRows: $("#removed-rows"),
+      eventsRows: $("#events-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    els.eventsRows.innerHTML = KNOWN_RELICENSE_EVENTS.map((e) => `<tr>
+      <td><strong>${escapeHtml(e.project)}</strong></td>
+      <td><code>${escapeHtml(e.from)}</code></td>
+      <td><code>${escapeHtml(e.to)}</code></td>
+      <td>${escapeHtml(e.date)}</td>
+      <td>${escapeHtml(e.note)}</td>
+    </tr>`).join("");
+
+    function pill(family) {
+      return `<span class="pill ${family}">${family.replace("-", " ")}</span>`;
+    }
+
+    function renderReport() {
+      let baseline, current;
+      try {
+        baseline = parseSnapshot(els.baseline.value);
+        current = parseSnapshot(els.current.value);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      if (!baseline.length && !current.length) {
+        els.status.innerHTML = `<span class="error">Paste a baseline and current snapshot first (or load the worked example).</span>`;
+        return;
+      }
+      const ignore = els.ignore.value.split(",").map((s) => s.trim()).filter(Boolean);
+      const result = diffSnapshots(baseline, current, { ignore });
+      const { status, text } = summarizeDiff(result);
+      els.status.textContent = "";
+      els.summary.innerHTML = status === "changed" ? `<span class="changed">${escapeHtml(text)}</span>` : `<span class="ok">${escapeHtml(text)}</span>`;
+
+      els.changedBlock.hidden = result.changed.length === 0;
+      els.changedRows.innerHTML = result.changed.map((c) => `<tr>
+        <td><strong>${escapeHtml(c.name)}</strong></td>
+        <td><code>${escapeHtml(c.beforeLicense)}</code> ${pill(c.beforeFamily)}</td>
+        <td><code>${escapeHtml(c.afterLicense)}</code> ${pill(c.afterFamily)}</td>
+        <td>${escapeHtml(c.beforeVersion || "?")} → ${escapeHtml(c.afterVersion || "?")}</td>
+      </tr>`).join("");
+
+      els.addedBlock.hidden = result.added.length === 0;
+      els.addedRows.innerHTML = result.added.map((a) => `<tr>
+        <td>${escapeHtml(a.name)}</td><td>${escapeHtml(a.version || "?")}</td>
+        <td><code>${escapeHtml(a.license)}</code> ${pill(a.family)}</td>
+      </tr>`).join("");
+
+      els.removedBlock.hidden = result.removed.length === 0;
+      els.removedRows.innerHTML = result.removed.map((r) => `<tr>
+        <td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.version || "?")}</td>
+        <td><code>${escapeHtml(r.license)}</code> ${pill(r.family)}</td>
+      </tr>`).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    const EXAMPLE_BASELINE = JSON.stringify([
+      { name: "left-pad", version: "1.3.0", license: "MIT" },
+      { name: "stable-lib", version: "2.1.0", license: "Apache-2.0" },
+      { name: "infra-tool", version: "1.9.0", license: "MPL-2.0" },
+      { name: "old-helper", version: "0.4.0", license: "ISC" },
+    ], null, 2);
+    const EXAMPLE_CURRENT = JSON.stringify([
+      { name: "left-pad", version: "1.3.0", license: "MIT" },
+      { name: "stable-lib", version: "2.2.0", license: "Apache-2.0" },
+      { name: "infra-tool", version: "2.0.0", license: "BUSL-1.1" },
+      { name: "new-dependency", version: "1.0.0", license: "SSPL-1.0" },
+    ], null, 2);
+
+    $("#load-example").addEventListener("click", () => {
+      els.baseline.value = EXAMPLE_BASELINE;
+      els.current.value = EXAMPLE_CURRENT;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.baseline.value = "";
+      els.current.value = "";
+      els.ignore.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>
