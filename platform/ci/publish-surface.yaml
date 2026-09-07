@@ -647,6 +647,9 @@ workflows:
 - workflow: shopify-permission-drift-ci.yml
   classification: none
   publishes: []
+- workflow: sibling-links-ci.yml
+  classification: none
+  publishes: []
 - workflow: siding-bid-calculator-ci.yml
   classification: none
   publishes: []
