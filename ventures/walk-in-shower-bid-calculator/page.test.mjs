@@ -308,3 +308,16 @@ test('a saved or shared bid carries no customer or business details', () => {
       `${field} would be written into the saved bid and its shareable link`);
   }
 });
+
+// Closest sibling: same bathroom-remodel job, but a walk-in tub with a door
+// rather than a tiled wet-area shower. Related-tool chrome rotates inside the
+// bathroom subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the walk-in-tub-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/walk-in-tub-bid-calculator\/"/,
+    'index must link ../walk-in-tub-bid-calculator/ so crawlers reach the tub calculator in one hop',
+  );
+  assert.match(html, /walk-in tub bid calculator/i);
+});
