@@ -432,6 +432,51 @@ def run_check(name: str, base: str, env, timeout: int) -> tuple[int, str]:
     return proc.returncode, tail
 
 
+def _count_html(dist: str | None) -> int | None:
+    """HTML files in the built artifact, for the reading's `pages` field.
+
+    Counted from the tree rather than parsed out of a check's own output:
+    every check words its total differently, and a regex over seven message
+    formats is a maintenance bill for a number that is only ever context.
+    """
+    if not dist or not os.path.isdir(dist):
+        return None
+    total = 0
+    for _root, _dirs, files in os.walk(dist):
+        total += sum(1 for f in files if f.endswith(".html"))
+    return total or None
+
+
+def _record_reading(names, only, base_url, dist) -> None:
+    """Write a passing full run to browser_state.json.
+
+    Refuses the two shapes that would make the file lie. A `--only` run
+    verified less than the catalogue -- the summary already stamps it
+    FILTERED for exactly that reason, and recording it would launder the
+    stamp away. A `--base-url` run trusted an origin this process did not
+    build and could place no sentinel in, so it cannot honestly be tied to
+    the commit this working tree is on, which is what staleness is computed
+    against.
+    """
+    if only:
+        print("not recorded: a --only run verifies less than the catalogue.",
+              file=sys.stderr)
+        return
+    if base_url:
+        print("not recorded: --base-url trusts an origin this run did not build, "
+              "so the reading\ncannot be tied to this tree's commit.", file=sys.stderr)
+        return
+    try:
+        import browser_state
+    except ImportError:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import browser_state
+    reading = browser_state.record(names, result="pass", pages=_count_html(dist))
+    where = os.path.relpath(browser_state.STATE, os.getcwd())
+    print(f"recorded: {', '.join(reading['checks'])} passing at "
+          f"{reading['commit'][:8]} → {where}")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -452,6 +497,13 @@ def main(argv=None) -> int:
                          "minute instead of 25. `journey` is a whole-site narrative "
                          "and ignores this. A filtered run is stamped FILTERED in "
                          "the summary and never reports as a full one.")
+    ap.add_argument("--record", action="store_true",
+                    help="on a full, unskipped, passing run, write the reading to "
+                         "platform/ci/browser_state.json so the next session can "
+                         "see when these last ran instead of re-running 30 minutes "
+                         "of checks or skipping them. Refused for --only and "
+                         "--base-url runs, which verify less or trust an origin "
+                         "this process did not build.")
     args = ap.parse_args(argv)
 
     names = [c.strip() for c in args.checks.split(",") if c.strip()]
@@ -629,8 +681,16 @@ def main(argv=None) -> int:
         if skipped:
             ran = len(results) - len(skipped)
             print(f"\nthe {ran} check(s) that ran passed against {base}{scope}")
+            # Deliberately not recorded. A skip is the outcome this repository
+            # is worst at noticing, and writing it down beside the passes is
+            # how "nothing was verified" becomes "verified" one session later.
+            if args.record:
+                print("not recorded: a run with skips says nothing about the "
+                      "checks that did not run.", file=sys.stderr)
             return 2
         print(f"\nall {len(results)} browser checks passed against {base}{scope}")
+        if args.record:
+            _record_reading(names, only, args.base_url, dist if not args.base_url else None)
         return 0
     finally:
         if httpd is not None:
