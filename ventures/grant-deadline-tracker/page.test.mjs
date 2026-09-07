@@ -91,6 +91,19 @@ test("the tracker links to its Instrumentl comparison page and is listed in the 
   assert.match(sitemap, /vs-instrumentl\.html/);
 });
 
+// Closest sibling: same nonprofit grant-reporting job, but it builds the
+// review queue from award dates and reporting intervals. Related-tool chrome
+// rotates inside the whole evidence category, so without an explicit one-hop
+// a crawler on this page reaches that tool only via /c/evidence/.
+test("index links one hop to the grant-reporting-tracker sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/grant-reporting-tracker\/"/,
+    "index must link ../grant-reporting-tracker/ so crawlers reach the reporting queue in one hop",
+  );
+  assert.match(html, /grant reporting tracker/i);
+});
+
 test("the vs-Instrumentl comparison page names what each tool is for, disclaims affiliation, and carries the standard disclaimer", () => {
   assert.match(instrumentlSeo, /<title>This tracker vs\. Instrumentl/);
   assert.match(instrumentlSeo, /name="description"/);
