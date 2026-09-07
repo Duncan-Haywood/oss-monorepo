@@ -106,6 +106,13 @@ VERIFICATION_ONLY = {
     # against `validate_doc_consistency.py` and `score_ventures.py --check`.
     # It reads the venture tree and asserts a count; it writes nothing.
     "sibling-links-ci.yml",
+    # Added 2026-09-07 with the workflow itself, and `--tree` is the whole
+    # point of it: the question "is the live site serving what `main`
+    # contains?" is a question about the tree, not about a diff, and while
+    # Actions is starved no runner asks it at all. It reads the repository
+    # object and a compare over the API and writes nothing -- in particular it
+    # never publishes, which is why it is a check and not a fixer.
+    "pages-freshness-ci.yml",
 }
 
 # Commands that change something outside this working tree. A verification
@@ -127,6 +134,23 @@ MUTATING = [
 
 EXPRESSION = re.compile(r"\$\{\{")
 
+# How each step status prints in the live progress line. One definition rather
+# than one per call site: it was two, and the second was not updated when
+# `unrun` was added on 2026-09-07, so running a single workflow by name -- the
+# documented way to check one thing -- died with `KeyError: 'unrun'` the first
+# time a step hit that status. Found 2026-09-07 by the first workflow here
+# whose step can legitimately be `unrun` on a developer's machine. Same
+# restate-instead-of-import defect CLAUDE.md records twice against the
+# front-door mirror, in eleven lines of dictionary literal.
+STATUS_MARK = {
+    "ok": "ok",
+    "failed": "FAIL",
+    "skipped": "skip",
+    "refused": "refuse",
+    "setup-failed": "setup",
+    "unrun": "UNRUN",
+}
+
 # A `${{ vars.X }}` in an `env:` block is the one expression this tool *can*
 # evaluate honestly, because the repository state it stands for is knowable:
 # an unset repository variable is the empty string, and every workflow here is
@@ -147,6 +171,35 @@ EXPRESSION = re.compile(r"\$\{\{")
 # a step output has no unset-state meaning at all -- the post-deploy
 # `PAGE_URL` check is exactly that, and must stay skipped.
 VARS_EXPRESSION = re.compile(r"\$\{\{\s*vars\.([A-Za-z_][A-Za-z0-9_]*)\s*\}\}")
+
+# `${{ secrets.GITHUB_TOKEN }}` is the one exception to the paragraph above,
+# added 2026-09-07 with `pages-freshness-ci.yml`, and it is an exception on a
+# narrow and checkable ground: it is not an owner-held secret. Actions mints it
+# per run, and every session here already holds the same thing in `GH_TOKEN` --
+# so unlike `secrets.HETZNERSSHKEY`, this one has a real local equivalent that
+# can be substituted rather than blanked.
+#
+# Blanking it would still be wrong, for exactly the reason the block above
+# gives, so this does not blank. It substitutes the ambient token when there is
+# one, and when there is not it leaves the variable empty and lets the step
+# fail on its own terms -- which `CREDENTIAL_MISSING` then classifies as
+# `unrun` rather than as a red `main`. Both outcomes are honest; neither
+# reports a check as passed that did not run.
+#
+# It stays keyed to this one literal name. Any other `secrets.X` keeps the
+# skip: substituting a value this tool cannot know would run the step against
+# the wrong credential, which is worse than not running it.
+GITHUB_TOKEN_EXPRESSION = re.compile(r"\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}")
+
+
+def ambient_github_token() -> str:
+    """The repository token this environment already holds, or "".
+
+    Read in the same order `platform/ci/pages_state.py` and
+    `platform/ci/ci_starvation.py` read it, so a workflow step verified here
+    sees exactly what those tools would see if run by hand.
+    """
+    return os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
 
 # GitHub Actions runs a Linux `run:` step under bash, and workflows here rely
 # on that: `portfolio-pages.yml` opens a step with `set -euo pipefail`, which
@@ -203,6 +256,39 @@ TOOLCHAIN_MISSING = (
     re.compile(r"Error \[ERR_MODULE_NOT_FOUND\][^\n]*'([^']+)'"),
     re.compile(r"^(?:.*: )?([\w.@/+-]+): command not found"),
     re.compile(r"command not found: ([\w.@/+-]+)"),
+)
+
+# The same "did not run" class, reached from the other direction: a step whose
+# check needs a credential this environment does not have.
+#
+# Added 2026-09-07 with `pages-freshness-ci.yml`, which is the first
+# verification-only workflow here whose check cannot run without one --
+# `pages_state.py` reads the repository object and the managed Pages builder's
+# run history, and exits 2 saying so when neither `GH_TOKEN` nor
+# `GITHUB_TOKEN` is set. Left in the `failed` class it would have reported
+# `main` as red in every sandbox without a token, which is precisely the
+# costume-of-a-real-failure problem the block above was written about. Adding
+# a check that lies when it cannot authenticate would have cost more than the
+# check is worth.
+#
+# The discrimination that keeps this honest is the same one that keeps
+# `_provided_by_repo` honest: match only a tool's *explicit* statement that a
+# named credential is absent, never a generic authorization failure. A 401
+# from GitHub stays `failed` -- a token that is present and rejected is a real
+# result, and burying it here would hide the thing a session most needs to
+# see. So both patterns require the line to name an env var in credential
+# shape AND to say it is unset.
+CREDENTIAL_MISSING = (
+    # "neither GH_TOKEN nor GITHUB_TOKEN is set"
+    re.compile(
+        r"neither (\$?[A-Z][A-Z0-9_]*(?:TOKEN|KEY|SECRET|PASSWORD|CREDENTIALS))\b"
+        r"[^\n]*? nor \$?[A-Z][A-Z0-9_]*\b[^\n]*? is (?:set|present|available)"
+    ),
+    # "GH_TOKEN is not set", "$ARGOCD_REPO_TOKEN is unset/empty/missing/required"
+    re.compile(
+        r"\$?\b([A-Z][A-Z0-9_]*(?:TOKEN|KEY|SECRET|PASSWORD|CREDENTIALS))\b"
+        r" is (?:not set|unset|empty|missing|required)"
+    ),
 )
 
 
@@ -289,6 +375,23 @@ def missing_toolchain(output, cwd: str) -> str | None:
     return None
 
 
+def missing_credential(output) -> str | None:
+    """The credential a failing step said was absent, or None.
+
+    Kept separate from `missing_toolchain` rather than folded into it because
+    the two classes need different advice -- one is `pip install`, the other is
+    `export`, and a report that told a reader to install `GH_TOKEN` would be
+    worse than one that said nothing. Both land in the same `unrun` status:
+    what they have in common is that the check never executed.
+    """
+    for line in output:
+        for pattern in CREDENTIAL_MISSING:
+            found = pattern.search(line.strip())
+            if found:
+                return found.group(1).lstrip("$")
+    return None
+
+
 class Step:
     """One `run:` step, with where and how it should be executed."""
 
@@ -299,9 +402,13 @@ class Step:
         self.workdir = workdir
         self.status = "pending"   # ok | failed | unrun | skipped | refused
         self.reason = ""
-        # Set on an `unrun` step: the module or binary that was not found, so
-        # the report can name what to install rather than only that it failed.
+        # Set on an `unrun` step: the module, binary or credential that was not
+        # found, so the report can name what to supply rather than only that it
+        # failed. `missing_kind` decides whether the advice is "install" or
+        # "set" -- telling a reader to install `GH_TOKEN` would be worse than
+        # saying nothing at all.
         self.missing = ""
+        self.missing_kind = "tool"
         self.seconds = 0.0
         self.tail = []
         # env: entries to add for this step. Populated only from `vars.`
@@ -369,9 +476,14 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
             for key, value in raw_env.items():
                 resolved, hits = VARS_EXPRESSION.subn("", value)
                 if hits:
-                    step.env[key] = resolved
                     step.unset_vars.extend(
                         m.group(1) for m in VARS_EXPRESSION.finditer(value))
+                # See GITHUB_TOKEN_EXPRESSION: substitute the ambient token, or
+                # leave it empty and let the step say so for itself.
+                resolved, token_hits = GITHUB_TOKEN_EXPRESSION.subn(
+                    ambient_github_token(), resolved)
+                if hits or token_hits:
+                    step.env[key] = resolved
             env_text = " ".join(step.env.get(k, v) for k, v in raw_env.items())
             if (EXPRESSION.search(command) or EXPRESSION.search(str(workdir))
                     or EXPRESSION.search(env_text)):
@@ -483,7 +595,22 @@ def _grants_write(node) -> bool:
 
 
 def _mentions_secret(node) -> bool:
-    return "secrets." in yaml.safe_dump(node, default_flow_style=False)
+    """Whether this node reads a secret this tool has no honest stand-in for.
+
+    `secrets.GITHUB_TOKEN` is excluded, for the reason GITHUB_TOKEN_EXPRESSION
+    gives at length: it is minted per run rather than held by the owner, every
+    session here already has the same token in `GH_TOKEN`, and the capability
+    question it used to stand in for is answered directly and better by
+    `_grants_write` on the declared `permissions` block. A job that reads it
+    under `contents: read` can do nothing this tool should hold back.
+
+    Every other `secrets.X` still holds the job. The substitution above knows
+    one literal name; a job reading any other secret would run here against a
+    credential this tool cannot supply, and guessing is worse than not running.
+    """
+    dumped = yaml.safe_dump(node, default_flow_style=False)
+    dumped = re.sub(r"\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}", "", dumped)
+    return "secrets." in dumped
 
 
 def read_only_jobs(workflow: dict) -> tuple[set, list[tuple[str, str]]]:
@@ -606,6 +733,12 @@ def execute(step: Step, timeout: int) -> None:
         step.missing = absent
         step.reason = (f"`{absent}` is not installed here, so this step never "
                        "ran the check it exists to make")
+    elif (uncredentialed := missing_credential(output)) is not None:
+        step.status = "unrun"
+        step.missing = uncredentialed
+        step.missing_kind = "credential"
+        step.reason = (f"`{uncredentialed}` is not set here, so this step "
+                       "never ran the check it exists to make")
     else:
         step.status = "failed"
         step.reason = f"exit {done.returncode}"
@@ -633,9 +766,17 @@ def report(name, steps, uses_skipped, forced) -> int:
     if unrun:
         # Name the fix rather than leaving the reader to derive it. The whole
         # point of the class is that these steps still owe an answer.
-        print("        Install the missing tool(s) and re-run; until then "
-              "these steps have verified nothing:")
-        print("          " + ", ".join(sorted({s.missing for s in unrun})))
+        tools = sorted({s.missing for s in unrun if s.missing_kind == "tool"})
+        creds = sorted({s.missing for s in unrun
+                        if s.missing_kind == "credential"})
+        if tools:
+            print("        Install the missing tool(s) and re-run; until then "
+                  "these steps have verified nothing:")
+            print("          " + ", ".join(tools))
+        if creds:
+            print("        Set the missing credential(s) and re-run; until "
+                  "then these steps have verified nothing:")
+            print("          " + ", ".join(creds))
 
     for step in setup_failed:
         print(f"SETUP   {step.label}: {step.reason}")
@@ -770,10 +911,8 @@ def _run_selected(args, selected, held, absent=()) -> int:
               f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)")
         for step in steps:
             execute(step, args.timeout)
-            mark = {"ok": "ok", "failed": "FAIL", "skipped": "skip",
-                    "refused": "refuse", "setup-failed": "setup",
-                    "unrun": "UNRUN"}[step.status]
-            print(f"  [{mark:6}] {step.label} ({step.seconds:.1f}s)")
+            print(f"  [{STATUS_MARK[step.status]:6}] {step.label} "
+                  f"({step.seconds:.1f}s)")
         if report(name, steps, uses_skipped, False) != 0:
             failures.append(name)
 
@@ -864,9 +1003,8 @@ def main(argv=None) -> int:
           f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)")
     for step in steps:
         execute(step, args.timeout)
-        mark = {"ok": "ok", "failed": "FAIL", "skipped": "skip",
-                "refused": "refuse", "setup-failed": "setup"}[step.status]
-        print(f"  [{mark:6}] {step.label} ({step.seconds:.1f}s)")
+        print(f"  [{STATUS_MARK[step.status]:6}] {step.label} "
+              f"({step.seconds:.1f}s)")
 
     return report(name, steps, uses_skipped, args.force)
 
