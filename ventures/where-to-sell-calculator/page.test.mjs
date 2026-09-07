@@ -409,3 +409,15 @@ test('the footer lists every channel that has a handoff deep tool', () => {
     );
   }
 });
+
+// marketplace-fee-compare covers Walmart and TikTok Shop in the same
+// one-item ranking shape; this page does not. Without a crawlable reverse
+// link, a crawler entering here never reaches that sibling hub — same
+// one-way orphan class as #3639 / #3650 / #3658.
+test('index links to the related marketplace fee compare hub', () => {
+  assert.match(
+    html,
+    /href="\.\.\/marketplace-fee-compare\/"/,
+    'index must link ../marketplace-fee-compare/ so crawlers can reach the Walmart/TikTok headline-fee ranking',
+  );
+});
