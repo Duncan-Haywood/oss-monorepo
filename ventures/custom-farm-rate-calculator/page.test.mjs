@@ -135,10 +135,11 @@ test('every .html file in the venture is reachable from the sitemap', () => {
   }
 });
 
-// Closest sibling: same rate-from-your-own-cost-structure shape, but a shop's
-// hourly labor rate rather than a per-acre field rate. Without a crawlable
-// link here, a crawler entering on the custom farm rate calculator never
-// reaches the shop rate calculator in one hop.
+// Closest sibling: mutual nearest match per `node platform/pages/siblings.mjs
+// --check` — this per-acre custom-farm field-work rate calculator and the
+// hourly shop-labor rate calculator. Without a crawlable link here, a
+// crawler entering on the farm rate calculator never reaches the shop rate
+// calculator in one hop.
 test('index links one hop to the shop-rate-calculator sibling', () => {
   assert.match(
     html,

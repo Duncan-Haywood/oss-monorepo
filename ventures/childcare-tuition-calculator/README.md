@@ -8,7 +8,7 @@ Serve this directory with `python3 -m http.server` before opening the page (ES m
 
 The target user is a childcare center director or family child care provider setting or reviewing classroom tuition. The tool deliberately never asserts a child:staff ratio or a room's licensed capacity -- those vary by state, by age group, and change over time, so a committed table of them would go stale the moment a state updated its rules. Instead it takes the operator's own numbers and does the arithmetic, the same non-advice framing this portfolio already uses for `pour-cost-calculator` and `music-lesson-break-even`. Generic tuition or day-rate calculators price a single child; this tool prices the classroom as a whole and holds staffing cost fixed as occupancy changes, which is what actually determines whether a room is profitable.
 
-Organic acquisition targets r/daycare and r/ECEProfessionals threads about tuition pricing, enrollment, and classroom budgets, plus the search phrases "daycare tuition calculator," "how to price daycare tuition," and "childcare break even calculator."
+Organic acquisition targets r/daycare and r/ECEProfessionals threads about tuition pricing, enrollment, and classroom budgets, plus the search phrases "daycare tuition calculator," "how to price daycare tuition," and "childcare break even calculator." A [comparison page](vs-procare.html) positions the calculator against Procare Solutions -- a paid childcare management platform that bills at a rate a center already set, rather than deriving one -- for searches that land on "procare tuition calculator" or similar.
 
 ## Privacy, usage, and cost
 
