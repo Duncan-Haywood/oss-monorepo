@@ -385,7 +385,14 @@ def test_every_published_tool_is_reachable_by_slug_for() -> None:
         known = (
             {t["slug"] for t in tools}
             | {f"c/{c['id']}" for c in catalog["categories"]}
-            | {"_hub", "about", "compare", "404", "offline"}
+            # `guides` is the deliberate edit this comment asks for: the guides
+            # index (`build.mjs`'s `GUIDES_PATH`) is a top-level page the build
+            # writes about the site, so `slug_for` gives it a row of its own,
+            # exactly as it does for `about` and `compare`. That row is wanted
+            # — whether an informational query sends anyone to the index is the
+            # question the page exists to answer — so it is named here rather
+            # than folded onto the hub.
+            | {"_hub", "about", "compare", "guides", "404", "offline"}
         )
         for page in sorted(out.rglob("*.html")):
             uri = "/" + page.relative_to(out).as_posix()
