@@ -64,6 +64,23 @@ Overlap is checked in both directions. A candidate that duplicates one of the
 eight ideas in `ventures/ai-first-markets/src/data/ideas.ts`, or an existing
 venture, is screened out and recorded in [screened-out.md](screened-out.md).
 
+**Run the check before writing the check by hand.** At 199 `ventures/`
+directories, most of them a `<trade>-bid-calculator` shape, eyeballing this
+list is no longer reliable — see `duplicate_check.py`'s own module docstring
+for the near-duplicate that scored as unrelated under a naive word-overlap
+metric before this existed:
+
+```
+python3 portfolio/pipeline/duplicate_check.py "one-line description of the niche"
+```
+
+It scores the proposed niche against every venture description (including
+product lines), every `screened-out.md` row, the eight `ai-first-markets`
+ideas, and every existing pipeline candidate, and exits 1 with the closest
+matches printed when the top score clears the "read this before you write a
+candidate" bar. It is lexical overlap, not meaning — a low score is evidence
+of novelty, not proof — so read the top matches it prints either way.
+
 ## Scoring
 
 Eight dimensions, 0–10. The first six are the same dimensions

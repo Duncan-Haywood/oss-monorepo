@@ -87,6 +87,19 @@ document.
    nobody has visited — see "The fleet-parity trap" below — and sourcing
    one is real product work, not meta-work to defer.
 
+   **Added 2026-09-07: run `python3 portfolio/pipeline/duplicate_check.py
+   "<one-line niche description>"` before writing a candidate up.** At 199
+   ventures, most a `<trade>-bid-calculator` shape, eyeballing
+   `screened-out.md` and the `ventures/` listing by hand is no longer
+   reliable — that is the same failure this file's own duplicate-PR and
+   fleet-parity sections describe for other lists, arrived at from the
+   pipeline-intake side. It scores the proposed niche against every venture
+   description, `screened-out.md` row, `ai-first-markets` idea, and pipeline
+   candidate, and exits 1 with the closest matches when one clears the "read
+   this first" bar. It is lexical overlap, not a channel check, so it
+   doesn't replace the visitor-source requirement above — it just catches a
+   near-duplicate before a session spends the rest of it writing one up.
+
    **Read "zero in `usage.yaml`" as "unmeasured," not "unwanted," on the
    route that is actually live (added 2026-09-06).** GitHub Pages is what a
    stranger reaches today, and it self-reports nothing; every per-venture

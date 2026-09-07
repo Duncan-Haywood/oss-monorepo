@@ -17759,3 +17759,228 @@ entries:
         platform/marketing + platform/pages tests re-verified green after
         the rebase onto main. `checklist_coverage.py` clean.
     mrr_end: null
+  - venture: home-staging-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a `vs-hutch.html` competitor-comparison page, following the
+        pattern already merged for dog-walking-route-pricing (vs-Rover) and
+        locksmith-bid-calculator (vs-Jobber/vs-Housecall-Pro/vs-Workiz).
+        Named competitor: Hutch (hutchstaging.com), a real, paid,
+        account-based inventory and project management platform built
+        specifically for home staging businesses -- the closest thing this
+        niche has to an established SaaS incumbent. Positioned honestly
+        against it: Hutch tracks a furniture catalogue and coordinates a
+        team across concurrent jobs on a paid monthly account; this
+        calculator has no inventory, no accounts, and no team features --
+        it only prices one job and checks whether an extension fee covers
+        the furniture package's own carrying cost, free and browser-local.
+      - >-
+        Outbound access to hutchstaging.com is blocked from this session
+        (the same egress limit vs-rover.html's own test documents for
+        rover.com), and the two independent secondary sources found for
+        Hutch's pricing disagreed with each other ($99/mo vs $149/mo per
+        different aggregators), so the page states an approximate
+        $100-$150/month range attributed by name to those third-party
+        directories (StageCore's own comparison page, the WifiTalents
+        aggregator) rather than asserting a single figure as a confirmed
+        reading of Hutch's own site -- and a dedicated test asserts every
+        dollar figure on the page sits near that hedge, not just near a
+        citation link.
+      - >-
+        Wired into the existing pipeline rather than treated as a one-off:
+        linked from index.html next to the footer (matching the sibling
+        vs- pages' placement), added to the venture's sitemap.xml, and
+        picked up automatically by `platform/marketing/regen.mjs` --
+        front-door-tools.mjs mirrored the new page as its own ConfigMap
+        entry, and front-door.mjs added Hutch to the portfolio-wide
+        `/compare/` hub's single-comparison list (it is compared by only
+        this one tool today, so it did not clear the multi-tool grouping
+        threshold for its own dedicated `/compare/hutch` page -- expected
+        and correct given only one venture names it).
+      - >-
+        Added vs-hutch.test.mjs (14 tests) mirroring vs-rover.test.mjs's
+        structure: disclaimer text, non-affiliation statement, FAQ schema
+        matching visible headings, sitemap/index wiring, and the
+        pricing-hedge proximity check described above. Verified: 51/51
+        tests green in ventures/home-staging-bid-calculator (37 existing +
+        14 new). Ran the full CLAUDE.md starvation-window checklist after
+        `regen.mjs`: `checklist_coverage.py` clean; 1140/1140
+        platform/marketing + platform/pages tests green; 490/490
+        gitops/tests pytest green; all 15 platform/ci unittest modules
+        green (including agent_review's test_review, 21/21);
+        `pages_state.py` reported the gh-pages snapshot already current
+        against this branch's parent commit before this change, so it
+        will need a republish after merge per CLAUDE.md.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, owner brief emphasized deployment/CI-CD
+        priority, marketing-material deployment on the Hetzner VMs, and
+        setting up Codex CLI on the Hetzner VM. Drained the collaborative-work
+        phase first: 0 open PRs (`list_pull_requests`, `search_pull_requests`
+        both confirm). Ran `supersede_check.py` against every non-`main`
+        branch this session could enumerate (271 total: 20 hand-picked by
+        name/recency plus a background sweep of the remaining 243, one of
+        which timed out at 90s and was not retried) -- every branch checked
+        was either an identical-merge SUPERSEDED verdict or, for the small
+        number the line-scanner flagged NOT SUPERSEDED
+        (`atm-route-margin`, `marketing/locksmith-bid-calculator-vs-jobber`,
+        `marketing/vs-rover-dog-walking-route-pricing`,
+        `tree-service-bid-share-link`, `gitops/regen-front-door-mirror`),
+        manual content comparison against `main` showed each one a stale
+        draft main had already overtaken with an independently-shipped,
+        equal-or-better version (accessible aria-labels, a different vendor
+        comparison page, the same share.mjs verbatim) -- confirming, from a
+        different sampling method, the same emptiness a same-day sibling
+        session already recorded for a 232-branch sample. No branch needed a
+        new PR; nothing was closed or deleted (no PR existed on any of them
+        to close, and branch deletion was out of scope for what was asked).
+      - >-
+        Confirmed the CI/CD and Codex-on-Hetzner infrastructure the owner
+        asked about already exists and is fully tested:
+        `gitops/agents/host/` (Codex worker as a systemd timer, reusing
+        `governor.py`'s budget/backoff logic unchanged),
+        `gitops/ci/host/` (self-hosted GitHub Actions runner as a systemd
+        service), and `gitops/prod/host/` (the portfolio site served from
+        the control-plane box's own nginx) all read `up`/tested in
+        `portfolio/ledger/infra_state.yaml`'s `codex-host-mode` row, with
+        one-command installers already written
+        (`bootstrap/scripts/setup-codex-host-from-laptop.sh`,
+        `bootstrap/restore-cluster.sh` with `WITH_CODEX_HOST=1`/
+        `WITH_GITHUB_RUNNER_HOST=1`/`WITH_PORTFOLIO_SITE_HOST=1`). All three
+        routes -- and therefore both "deploy marketing materials on
+        Hetzner" and "run Codex CLI on Hetzner" -- are blocked on the exact
+        same single owner-only action already ranked #1 in
+        `decision_queue.py` (`hetzner-ssh-key-is-a-public-key`: the
+        `HETZNERSSHKEY` secret holds a public key, and rotating it needs the
+        owner's own machine, per that row's `do:` instructions). No
+        duplicate ask was added. Re-measured CI: still starved
+        (`ci_starvation.py --run 34067672134`/`34067672073`/`34067672063`,
+        all `runner_id: 0`, 3s, no steps, on checks triggered by the
+        `main` merge immediately before this session started) -- consistent
+        with `infra_state.yaml`'s 2026-09-04..09-06 readings, so the
+        expectation stays a 2026-10-01 allowance reset. The live deploy
+        route (`gh-pages` branch / GitHub Pages) was current against `main`
+        at session start (`pages_state.py`: snapshot built from `main`'s own
+        tip) with no republish owed at that point.
+      - >-
+        Since the Hetzner-dependent asks were already fully built and
+        correctly queued, and the PR/branch queue was empty, did the
+        highest-value reachable work: (1) found the same real, pre-existing
+        CI break on `main` that a concurrent sibling session (#3588) also
+        found and fixed a few minutes into this one --
+        `portfolio/scoring/venture-scores.yaml` had no merit-score entry for
+        `home-staging-bid-calculator` (graduated by an earlier sibling
+        session, #3580), failing
+        `portfolio/scoring/test_score_ventures.py::test_committed_scores_are_valid`
+        and `portfolio/router/test_allocate.py::test_real_scores_file_covers_every_real_venture`
+        -- wrote the same fix independently (composite 6.333, same six
+        dimensions), then on merging found #3588 had already landed an
+        equivalent entry first and kept theirs rather than carrying a
+        redundant duplicate score row. (2) Shipped a second comparison page
+        for the same venture,
+        `vs-honeybook.html` (HoneyBook: a real, well-documented CRM/
+        proposal/invoicing platform used by home stagers, confirmed via
+        WebSearch against honeybook.com's own business-type page and a
+        staging-industry blog post recommending it -- no dollar figure
+        stated for it, same discipline as every other `vs-*.html` page in
+        this repo, since its pricing page is not reachable from this
+        session's sandboxed egress). A concurrent sibling session shipped
+        `vs-hutch.html` for the same venture minutes into this one; the two
+        did not collide (different files) except in the shared,
+        one-line `sitemap.xml` and the generated `gitops/prod/front-door*`
+        mirror, both resolved by hand (merge both `<url>` entries; re-run
+        `regen.mjs` for the generated side) rather than picking one over
+        the other.
+      - >-
+        Verified: 59/59 tests in `ventures/home-staging-bid-calculator`
+        (its pre-existing 44 + this session's 15 `vs-honeybook.test.mjs`,
+        after the concurrent `vs-hutch` merge). Ran the full CLAUDE.md
+        starvation-window checklist post-merge and post-`regen.mjs`:
+        `checklist_coverage.py` clean; 1140/1140 `platform/marketing` +
+        `platform/pages` tests; 490/490 `gitops/tests` pytest; 101/101
+        `platform/proposal`; 66/66 `platform/privacy` + `platform/webcheck`;
+        all 15 `platform/ci` unittest modules plus `agent_review`'s
+        `test_review` (21/21); 380 passed (8 subtests) across
+        `portfolio/ledger`/`scoring`/`router`/`usage`/`pipeline` +
+        `infra/tests` (up from 377 passed / 3 failed before the
+        scoring-gap fix). No new user-typed input fields were added (the
+        new page is informational only, same shape as the fleet's other
+        `vs-*.html` pages), so the heavier Playwright/axe install was not
+        run for this change; every touched field remains inside the
+        already-shipped, already axe-clean calculator markup.
+      - >-
+        Not yet done: republish `gh-pages` (owed after this merge, since it
+        touches a served surface) and re-run `pages_state.py
+        --require-current` -- left for whichever session merges this, per
+        CLAUDE.md, to avoid a second session racing this one's own publish.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Another scheduled direction-setting session (same owner brief as the
+        entry above, ~2 hours earlier: push the fleet toward viable,
+        donation-revenue businesses, keep customers happy, avoid legal
+        exposure, rank new ventures highly). `portfolio/DIRECTION.md` had
+        just gained an explicit dated note ("Before rewriting this brief
+        again") recording that three direction-only PRs (#3542, #3551,
+        #3571) had landed in the three hours before it, none shipping a
+        venture or fixing a defect -- so a fourth restatement was the
+        anti-pattern to avoid, not the job. Read DIRECTION.md/AGENTS.md/
+        PRODUCT_PLAYBOOK.md/pipeline/README.md and confirmed the North star
+        already covers every point in the brief; wrote nothing there beyond
+        two one-line tool pointers (below).
+      - >-
+        Built `portfolio/pipeline/duplicate_check.py` + tests (16 passing):
+        scores a proposed niche against every venture description (+ product
+        lines), every `screened-out.md` row, the eight `ai-first-markets`
+        ideas, and every pipeline candidate, using IDF-weighted word/bigram
+        containment, and exits 1 with the closest matches when one clears a
+        calibrated "read this first" bar. Motivation: at 199 `ventures/`
+        directories, nearly all a `<trade>-bid-calculator` shape,
+        `DIRECTION.md`'s own "raise the bar, not just the count" note asks
+        sessions to avoid a near-duplicate niche, and eyeballing that list by
+        hand is exactly the kind of manual step this repo has repeatedly
+        replaced with a script (`supersede_check.py`,
+        `checklist_coverage.py`, `check_no_payment_code.py`). Plain Jaccard
+        was tried first and rejected: it scored an actual near-duplicate
+        pair (asphalt-sealcoat-bid-calculator vs. a one-line rephrasing of
+        its own description) at 0.16 because the real description is 6x
+        longer than a candidate one-liner; IDF-weighted containment scores
+        the same pair 0.85, and two genuinely unrelated live ventures
+        (world-clock-widget vs. septic-pumping-bid-calculator) stay below
+        the 0.45 threshold. Wired one-line pointers into
+        `portfolio/pipeline/README.md`, `DIRECTION.md`, and `AGENTS.md`
+        where the manual screening step they already describe lives --
+        not a policy restatement.
+      - >-
+        Found `main` red on `portfolio/scoring` + `portfolio/router` tests
+        while running the pipeline/scoring/router/usage/ledger checklist
+        line: #3580 (merged ~2h earlier, unrelated to this session) added
+        `ventures/home-staging-bid-calculator` without a `venture-scores.yaml`
+        row, and `score_ventures.py --check` requires every VENTURE.yaml to
+        have one. Ported the fix in this PR rather than leaving it red or
+        widening scope into a separate PR: added a scored entry (composite
+        6.333, same per-job trade-calculator shape and dimension values as
+        `ice-dam-removal-bid-calculator`/`locksmith-bid-calculator`, gates
+        both pass) with its own `basis`/`floor_note`/`gate_note` reasoned
+        from that venture's actual README and VENTURE.yaml. `score_ventures.py
+        --check` and the full `portfolio/scoring` + `portfolio/router` +
+        `portfolio/pipeline` suites (128 tests total across the three) pass
+        clean afterward.
+      - >-
+        Did not graduate a new venture this session -- the pipeline README's
+        own rule ("a candidate that fits an existing venture is a product
+        line first") and the just-raised visitor-channel bar make that a
+        genuine research task, not one to rush inside a direction-setting
+        session already spending most of its budget verifying no gap
+        existed. Built the tool that makes the *next* such session's
+        screening step reliable instead.
+    mrr_end: null
