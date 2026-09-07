@@ -1,5 +1,50 @@
 period: 2026-09
 entries:
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Delivery-path gap, found by enumerating rather than recalling: 16
+        ventures were shipping 62 `*.test.mjs` files that no workflow ran.
+        Eleven had no `<slug>-ci.yml` at all (ten graduated after 2026-09-02,
+        one on 2026-09-03); five were Python ventures that later gained a
+        browser page — the "a CLI acquiring a page is a routine event here"
+        case CLAUDE.md names — whose workflow still ran only pytest. No
+        portfolio-wide workflow covers this: `portfolio-validate.yml` checks
+        structure and markup, `proposal-module-ci.yml` runs exactly
+        `ventures/*/proposal.test.mjs`, and nothing else executes
+        `node --test` inside a venture. All 62 files pass locally (842
+        assertions across the 16), so nothing was broken — what was missing
+        was anything that would notice if they broke.
+      - >-
+        Fixed both halves and closed the hole behind them: 11 new per-venture
+        workflows on the existing template, a `page-test` job added to the 5
+        Python-venture workflows, and invariant 7 in
+        `platform/ci/validate_workflows.py`, which fails naming the venture,
+        its unrun test files and the fix whenever a venture ships
+        `*.test.mjs` that no workflow both filters on and runs. Coverage
+        needs both halves deliberately: five of the sixteen already had a
+        slug-filtered workflow and were still uncovered. 11 unit tests for
+        the new check, including a real-tree regression guard. Verified it
+        fires by holding one of the new files back: exit 1, correct message.
+      - >-
+        Counted-in-prose follow-ups the workflow additions moved:
+        `platform/ci/publish-surface.yaml` regenerated (`--write`, 231 → 242
+        workflows) and `gitops/ci/sync_readme_counts.py` run (264/266/231 →
+        280/282/242). Both are guarded, so skipping either lands red.
+      - >-
+        CI on this PR is starved, not failing: every run on `main` at
+        2026-09-07T01:00Z came back `runner_id: 0`
+        (`ci_starvation.py --run 34071590563`, exit 0 = starvation), so the
+        local run is the gate. Ran the CLAUDE.md merge checklist:
+        `checklist_coverage.py`, 490 passed/25 skipped in `gitops/tests`,
+        all 19 `platform/ci` unittest modules (669 tests) plus
+        `agent_review` (21), 1140 `node --test` assertions across
+        `platform/marketing` + `platform/pages`, 396 in the portfolio
+        suites, `publish_surface.py --check` and
+        `run_workflow_locally.py --for-changes`.
+    mrr_end: null
   - venture: home-staging-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -18160,4 +18205,60 @@ entries:
         (no CI run exists for uncommitted local changes); verified
         everything above locally instead, which is always correct per
         AGENTS.md.
+    mrr_end: null
+  - venture: owner-operator-cpm-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second comparison page, `vs-dat-rateview.html`, for a
+        merit-6.83 venture with no comparison content touched today (checked
+        `git log --since` against the day's other merges --
+        reverb-fee-calculator, where-to-sell-calculator,
+        home-staging-bid-calculator, locksmith-bid-calculator and
+        mcp-supply-chain-watch had all already shipped comparison content
+        today; owner-operator-cpm-calculator had not). Named competitor: DAT
+        RateView, part of DAT iQ from DAT Freight & Analytics -- a real,
+        paid, subscription lane-rate benchmarking product confirmed via
+        WebSearch against dat.com/rateview and dat.com's own product
+        description (average spot/contract rates per lane from real freight
+        invoices, day/week/multi-month history). Positioned as a different
+        job from the existing `vs-atbs.html` page: ATBS is an ongoing
+        bookkeeping/tax service, DAT RateView is a market-rate lookup, and
+        this calculator answers neither -- it is a free, instant, personal
+        break-even check against the operator's own costs for one week, with
+        no market data and no history. No dollar figure is stated for either
+        product, matching the existing `vs-atbs.html` convention in this
+        venture's own test file.
+      - >-
+        `portfolio/pipeline/duplicate_check.py` on the page description
+        scored 0.22 top match (the venture itself) -- nothing near the 0.45
+        threshold. Wired the page into `index.html`'s "see also" line,
+        `sitemap.xml`, and extended `page.test.mjs` with the same assertions
+        the existing ATBS comparison test uses (links back, cites
+        dat.com/rateview, no affiliation, no warranty, no-SLA, sponsors
+        link, no bare dollar figure). `node --test
+        ventures/owner-operator-cpm-calculator/*.test.mjs` (55 assertions),
+        `node platform/pages/clauses.mjs owner-operator-cpm-calculator`, and
+        `python3 platform/ci/checklist_coverage.py` all pass. Ran
+        `node platform/marketing/regen.mjs` and committed the front-door
+        mirror/sitemap/catalog rewrites it produced.
+      - >-
+        Full CLAUDE.md "Ship without review ceremony" checklist run locally
+        (no `ci_starvation.py` dispatch needed -- everything run here
+        regardless): `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1140 pass), `node --test
+        platform/proposal/*.test.mjs` (101 pass), `node --test
+        platform/privacy/*.test.mjs platform/webcheck/*.test.mjs` (66
+        pass), the 14 non-agent_review `platform/ci` unittest modules plus
+        `agent_review.test_review` separately (659 + 21 pass),
+        `python3 -m pytest gitops/tests -q` (490 passed, 25 skipped -- this
+        venture's change touches `gitops/prod/front-door*` via `regen.mjs`),
+        and `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`
+        (all pass). No new form input was added (the new page is static
+        prose with no calculator fields), so the Playwright/axe browser
+        checks were not required and were not run. Opened PR against `main`,
+        merged after the local run above, then refreshed the gh-pages
+        snapshot per CLAUDE.md's publish-branch instructions.
     mrr_end: null

@@ -19,6 +19,7 @@ from validate_workflows import (
     REPO_ROOT,
     check,
     check_unique_names,
+    check_venture_tests_run,
     reserved_github_refs,
 )
 
@@ -316,6 +317,198 @@ class CheckUniqueNamesTest(unittest.TestCase):
         )
         self.assertEqual(check_unique_names(paths), [])
 
+
+
+class VentureTestsRunTest(unittest.TestCase):
+    """Invariant 7: a venture's `*.test.mjs` files must run in some workflow.
+
+    The failure this catches is silent by construction -- the tests pass on a
+    contributor's machine and simply never execute anywhere else -- so the
+    synthetic cases below matter more than usual: nothing about the live tree
+    tells you whether the rule still fires.
+    """
+
+    def _tree(self, tmp, ventures, workflows):
+        """Build a fake ventures/ and workflows/ pair; return (dir, paths)."""
+        root = Path(tmp)
+        vdir = root / "ventures"
+        for slug, files in ventures.items():
+            (vdir / slug).mkdir(parents=True)
+            for name in files:
+                (vdir / slug / name).write_text("// test\n")
+        wdir = root / "workflows"
+        wdir.mkdir()
+        paths = []
+        for name, text in workflows.items():
+            path = wdir / name
+            path.write_text(text)
+            paths.append(path)
+        return vdir, paths
+
+    def _workflow(self, slug, run="node --test"):
+        return (
+            f"name: {slug} CI\n"
+            "on:\n"
+            "  pull_request:\n"
+            "    paths:\n"
+            f'      - "ventures/{slug}/**"\n'
+            "jobs:\n"
+            "  test:\n"
+            "    runs-on: ubuntu-latest\n"
+            "    timeout-minutes: 20\n"
+            "    steps:\n"
+            f"      - run: {run}\n"
+        )
+
+    def test_a_venture_whose_workflow_runs_node_test_is_covered(self):
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            vdir, paths = self._tree(
+                tmp,
+                {"widget-calculator": ["calc.test.mjs"]},
+                {"widget-calculator-ci.yml": self._workflow("widget-calculator")},
+            )
+            self.assertEqual(check_venture_tests_run(paths, vdir), [])
+
+    def test_a_venture_with_no_workflow_at_all_is_reported(self):
+        # The eleven ventures this check first found: graduated after
+        # 2026-09-02 with 4-7 test files each and no `<slug>-ci.yml`.
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            vdir, paths = self._tree(
+                tmp, {"widget-calculator": ["calc.test.mjs", "page.test.mjs"]}, {}
+            )
+            errors = check_venture_tests_run(paths, vdir)
+            self.assertEqual(len(errors), 1, errors)
+            self.assertIn("ventures/widget-calculator", errors[0])
+            self.assertIn("calc.test.mjs", errors[0])
+            # The message has to name the fix, not just the fault.
+            self.assertIn("widget-calculator-ci.yml", errors[0])
+
+    def test_a_slug_filtered_workflow_that_runs_no_js_tests_is_not_coverage(self):
+        # The other five: a Python venture that later gained a browser page,
+        # whose workflow still ran only pytest. Filtering on the venture is
+        # half of coverage; running the tests is the other half.
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            vdir, paths = self._tree(
+                tmp,
+                {"evidence-tool": ["page.test.mjs"]},
+                {
+                    "evidence-tool-ci.yml": self._workflow(
+                        "evidence-tool", run="python3 -m pytest -q"
+                    )
+                },
+            )
+            errors = check_venture_tests_run(paths, vdir)
+            self.assertEqual(len(errors), 1, errors)
+            self.assertIn("ventures/evidence-tool", errors[0])
+
+    def test_a_glob_filtered_shared_workflow_is_not_coverage(self):
+        # proposal-module-ci.yml runs `node --test` but filters on
+        # `ventures/*/proposal.test.mjs`, so it covers exactly one filename in
+        # each venture and nothing else. Counting it would mark every venture
+        # with a proposal panel as covered while its calculator went untested.
+        shared = (
+            "name: proposal module CI\n"
+            "on:\n"
+            "  pull_request:\n"
+            "    paths:\n"
+            '      - "ventures/*/proposal.test.mjs"\n'
+            "jobs:\n"
+            "  test:\n"
+            "    runs-on: ubuntu-latest\n"
+            "    timeout-minutes: 20\n"
+            "    steps:\n"
+            "      - run: node --test platform/proposal/*.test.mjs\n"
+        )
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            vdir, paths = self._tree(
+                tmp,
+                {"widget-calculator": ["calc.test.mjs", "proposal.test.mjs"]},
+                {"proposal-module-ci.yml": shared},
+            )
+            errors = check_venture_tests_run(paths, vdir)
+            self.assertEqual(len(errors), 1, errors)
+
+    def test_npm_test_counts_as_running_the_tests(self):
+        # `no-show-fee-calculator` spells it this way; its package.json script
+        # is `node --test test/*.test.mjs`, so the tests do run.
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            vdir, paths = self._tree(
+                tmp,
+                {"widget-calculator": ["calc.test.mjs"]},
+                {
+                    "widget-calculator-ci.yml": self._workflow(
+                        "widget-calculator", run="npm test"
+                    )
+                },
+            )
+            self.assertEqual(check_venture_tests_run(paths, vdir), [])
+
+    def test_tests_nested_below_the_venture_root_are_seen(self):
+        # `no-show-fee-calculator` keeps its suites in `test/`; a check that
+        # only globbed the venture root would call it covered by accident and
+        # uncovered ventures with the same layout invisible.
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            vdir, paths = self._tree(tmp, {"widget-calculator": []}, {})
+            (vdir / "widget-calculator" / "test").mkdir()
+            (vdir / "widget-calculator" / "test" / "calc.test.mjs").write_text("//\n")
+            errors = check_venture_tests_run(paths, vdir)
+            self.assertEqual(len(errors), 1, errors)
+            self.assertIn("test/calc.test.mjs", errors[0])
+
+    def test_a_dependency_tree_does_not_make_a_venture_look_uncovered(self):
+        # No venture commits a node_modules, but one has a package.json, and
+        # an `npm install` there would otherwise fill the glob with a
+        # dependency's own suites -- failing this check on one machine only.
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            vdir, paths = self._tree(tmp, {"widget-calculator": []}, {})
+            dep = vdir / "widget-calculator" / "node_modules" / "some-lib"
+            dep.mkdir(parents=True)
+            (dep / "index.test.mjs").write_text("//\n")
+            self.assertEqual(check_venture_tests_run(paths, vdir), [])
+
+    def test_a_venture_shipping_no_mjs_tests_is_not_required_to_have_one(self):
+        # Python-only and Next.js ventures exist; this invariant is about
+        # tests that are written and never run, not about mandating tests.
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            vdir, paths = self._tree(tmp, {"python-tool": ["README.md"]}, {})
+            self.assertEqual(check_venture_tests_run(paths, vdir), [])
+
+    def test_an_unquoted_on_key_still_has_its_paths_read(self):
+        # PyYAML resolves an unquoted `on:` to the boolean True under YAML
+        # 1.1 -- the trap check() already works around. Missing it here would
+        # make every workflow in the repo look like it filters on nothing,
+        # so the check would report all 198 ventures and be turned off.
+        text = self._workflow("widget-calculator")
+        self.assertTrue(text.startswith("name: widget-calculator CI\non:"))
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            vdir, paths = self._tree(
+                tmp,
+                {"widget-calculator": ["calc.test.mjs"]},
+                {"widget-calculator-ci.yml": text},
+            )
+            self.assertIs(True, "on" not in yaml.safe_load(text))
+            self.assertEqual(check_venture_tests_run(paths, vdir), [])
+
+    def test_an_unparseable_workflow_is_skipped_rather_than_crashing(self):
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            vdir, paths = self._tree(
+                tmp,
+                {"widget-calculator": ["calc.test.mjs"]},
+                {
+                    "broken.yml": "name: [unterminated\n",
+                    "widget-calculator-ci.yml": self._workflow("widget-calculator"),
+                },
+            )
+            self.assertEqual(check_venture_tests_run(paths, vdir), [])
+
+    def test_the_real_venture_tree_has_every_test_file_running_somewhere(self):
+        # Regression for the bug this check was written from: on 2026-09-07,
+        # 16 ventures shipped 62 `*.test.mjs` files that no workflow ran.
+        workflows_dir = REPO_ROOT / ".github" / "workflows"
+        paths = sorted(
+            p for p in workflows_dir.iterdir() if p.suffix in {".yml", ".yaml"}
+        )
+        self.assertEqual(check_venture_tests_run(paths), [])
 
 
 class ReservedGithubNamesTest(unittest.TestCase):
