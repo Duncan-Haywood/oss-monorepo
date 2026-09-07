@@ -1,0 +1,44 @@
+name: vscode-extension-drift-check CI
+
+# Zero-dependency Node CLI/browser tool: `cli.mjs` and `engine.mjs` are the
+# canonical logic, reused as-is by the browser page. Keep both covered
+# independently of the portfolio-wide validation workflow, which only checks
+# published pages and does not run venture unit tests.
+on:
+  pull_request:
+    paths:
+      - "ventures/vscode-extension-drift-check/**"
+      - ".github/workflows/vscode-extension-drift-check-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/vscode-extension-drift-check/**"
+      - ".github/workflows/vscode-extension-drift-check-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vscode-extension-drift-check-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/vscode-extension-drift-check
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run engine tests (the canonical drift-detection logic)
+        run: node --test engine.test.mjs
+      - name: Run CLI tests
+        run: node --test cli.test.mjs
+      - name: Run page tests (disclaimers, SEO metadata, sitemap coverage)
+        run: node --test page.test.mjs
