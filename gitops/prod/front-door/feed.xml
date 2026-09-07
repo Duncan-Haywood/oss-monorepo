@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 196 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 197 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>ADA Title II Website Accessibility Evidence Report</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ada-title-ii-evidence/"/>
+    <id>tag:marisstella.dev,2026:tool/ada-title-ii-evidence</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Turn a government website&#39;s axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.</summary>
   </entry>
   <entry>
     <title>AI Crawler Access Check — Which AI Bots Does Your robots.txt Block?</title>
@@ -67,7 +76,7 @@
     <id>tag:marisstella.dev,2026:tool/whatnot-seller-payout</id>
     <published>2026-09-07T00:00:00Z</published>
     <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Marketplace seller tools"/>
     <summary type="text">Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.</summary>
   </entry>
   <entry>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free CAM reconciliation calculator for small commercial landlords and tenants. Check area-share math, credits, billed charges, and variance privately in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Carpet Cleaning Bid Calculator — Price the Stop, Not Room</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/carpet-cleaning-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/carpet-cleaning-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price a carpet cleaning job from soil-specific extraction rates: rooms, stairs, pet-urine extra passes, upholstery, furniture moving, and drive time — plus the walk-away number a $129 three-bedroom special hides.</summary>
   </entry>
 </feed>

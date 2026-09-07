@@ -44,6 +44,9 @@ workflows:
 - workflow: actions-runner-starvation-check-ci.yml
   classification: none
   publishes: []
+- workflow: ada-title-ii-evidence-ci.yml
+  classification: none
+  publishes: []
 - workflow: agent-cross-review.yml
   classification: none
   publishes: []
@@ -51,6 +54,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: agent-pr-auto-merge.yml
+  classification: none
+  publishes: []
+- workflow: ai-crawler-access-check-ci.yml
   classification: none
   publishes: []
 - workflow: ai-engineering-academy-ci.yml
