@@ -33,18 +33,18 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 554427 bytes
-#   portfolio-front-tools-1: 110 files, 553445 bytes
+#   portfolio-front-tools-0: 136 files, 554430 bytes
+#   portfolio-front-tools-1: 110 files, 553458 bytes
 #   portfolio-front-tools-2: 148 files, 555984 bytes
-#   portfolio-front-tools-3: 143 files, 556508 bytes
-#   portfolio-front-tools-4: 116 files, 556152 bytes
-#   portfolio-front-tools-5: 134 files, 554230 bytes
-#   portfolio-front-tools-6: 114 files, 554658 bytes
-#   portfolio-front-tools-7: 113 files, 554030 bytes
-#   portfolio-front-tools-8: 119 files, 546873 bytes
-#   portfolio-front-tools-9: 105 files, 555410 bytes
-#   portfolio-front-tools-10: 109 files, 550043 bytes
-#   portfolio-front-tools-11: 74 files, 382533 bytes
+#   portfolio-front-tools-3: 143 files, 556625 bytes
+#   portfolio-front-tools-4: 116 files, 556372 bytes
+#   portfolio-front-tools-5: 134 files, 554321 bytes
+#   portfolio-front-tools-6: 114 files, 554661 bytes
+#   portfolio-front-tools-7: 113 files, 554175 bytes
+#   portfolio-front-tools-8: 119 files, 547096 bytes
+#   portfolio-front-tools-9: 105 files, 555510 bytes
+#   portfolio-front-tools-10: 109 files, 550318 bytes
+#   portfolio-front-tools-11: 79 files, 402593 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1473,6 +1473,11 @@ configMapGenerator:
       - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
+      - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
+      - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
+      - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
+      - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
+      - vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz=vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz
       - walk-in-shower-bid-calculator__calc.mjs.gz=walk-in-shower-bid-calculator__calc.mjs.gz
       - walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz=walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz
       - walk-in-shower-bid-calculator__index.html.gz=walk-in-shower-bid-calculator__index.html.gz

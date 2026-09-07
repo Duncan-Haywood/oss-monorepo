@@ -7691,3 +7691,52 @@ ventures:
       the user to review, never a claim that a specific package is
       malicious. Makes no network call of any kind (never queries npm),
       uploads nothing, and says so plainly in its own FAQ.
+  - slug: vscode-extension-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. `snapshot`/`diff` decide drift by
+      parsing each installed extension's own package.json fields directly —
+      a factual diff of activation events, dependencies, and entry points,
+      not a model judgment — and `check`'s marketplace-delisting flag is a
+      plain existence lookup against the public Marketplace API.
+    basis: >-
+      Screened and graduated 2026-09-07 per portfolio/pipeline/README.md's
+      "archetype itself" section: same point-in-time snapshot-diff shape as
+      license-drift-check, npm-lifecycle-script-check, and the
+      actions-*-check family, scored on this file's six-dimension rubric to
+      keep coverage complete for score_ventures.py --check and
+      portfolio/router/test_allocate.py. duplicate_check.py scored every
+      existing venture, screened-out row, and pipeline candidate below 0.12
+      for this idea. Autonomous ops 10 / gross margin 10: `snapshot` and
+      `diff` read only the local extensions directory and the browser page
+      parses only pasted text, so serving one more user costs a static file;
+      `check`'s Marketplace lookup runs from the user's own machine against
+      a public API this project pays nothing to serve. Distribution 6: the
+      GlassWorm campaign (ongoing since 2026-01-31, 72+ malicious Open VSX
+      extensions) and the Nx Console VS Code Marketplace compromise
+      (2026-05-18, credential-stealing trojanized build, covered by
+      TheHackerNews and multiple security vendors) are real, dated,
+      event-driven incidents that leave developers searching "vscode
+      extension supply chain" or "is my vscode extension safe" in their
+      aftermath, and neither VS Code nor the Marketplace notifies an
+      existing installer when a trusted extension is later pulled.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive — it diffs the user's own installed
+      extensions and flags exactly what changed for the user to review,
+      never a claim that a specific extension is malicious. The only network
+      call (`check`, CLI-only) is a plain lookup of an extension id already
+      installed on the user's own machine against the public Marketplace
+      API; it uploads no file contents and says so in its own FAQ.

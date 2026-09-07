@@ -145,11 +145,23 @@ test('every .html file in the venture is reachable from the sitemap', () => {
   }
 });
 
-// Closest sibling: same unattended-vs-visited route margin shape for an
-// independent operator, but a service visit rather than a machine placement.
-// Without a crawlable link here, a crawler entering on the ATM route margin
-// calculator never reaches the dog walking route pricing calculator in one
-// hop.
+// Closest machine-route sibling: same unattended placement margin shape for
+// an independent operator, but vending machines rather than ATM placements.
+// Related-tool chrome rotates inside the subcategory, so without an explicit
+// one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the vending-machine-route-margin sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/vending-machine-route-margin\/"/,
+    'index must link ../vending-machine-route-margin/ so crawlers reach the vending machine route margin calculator in one hop',
+  );
+  assert.match(html, /vending machine route margin calculator/i);
+});
+
+// Closest service-route sibling: same route-margin shape for an independent
+// operator, but a service visit rather than a machine placement. Without a
+// crawlable link here, a crawler entering on the ATM route margin calculator
+// never reaches the dog walking route pricing calculator in one hop.
 test('index links one hop to the dog-walking-route-pricing sibling', () => {
   assert.match(
     html,
