@@ -353,7 +353,14 @@ const CATEGORY_RULES = [
     // `tender-radar` triages the tender listings that `tender-bid-readiness`
     // then checks, so the two belong beside each other for the reader who uses
     // both.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first)/.test(slug),
+    // `custom-farm-rate-calculator` is a custom farm operator (their own
+    // combine, planter, sprayer or baler) pricing one job for another farmer
+    // from field speed, fuel burn, repairs and the machine's own ownership
+    // cost spread over hours run — the same "materials, burden, overhead"
+    // job-costing this section's bid calculators do, just for field work
+    // instead of a construction trade, and it landed in the catch-all only
+    // because its slug ends in `-rate-calculator`, not `-bid-calculator`.
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate)/.test(slug),
   },
   {
     id: 'services',
@@ -371,7 +378,23 @@ const CATEGORY_RULES = [
     // `pool-route` above: a one-technician certified-maintenance route,
     // priced per visit and rolled up per route. It landed in the catch-all
     // only because its slug does not start with `pool-`.
-    test: (slug) => /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection)/.test(slug),
+    // `atm-route-margin`, `vending-machine-route-margin` and
+    // `dog-walking-route-pricing` are the same route-margin shape again: one
+    // independent operator, a list of locations or clients, rolled up into
+    // monthly route profit against an income goal — `fire-extinguisher`'s
+    // and `pool-route`'s exact audience and job, just three more trades that
+    // don't start with `pool-` either. `photo-booth-event-quote` and
+    // `dumpster-rental-margin-calculator` are the booking half of the same
+    // section: a solo operator pricing one event or one rental — travel,
+    // setup/teardown or included allowance, equipment cost — against a flat
+    // headline price that hides the real cost, same job as `booth-rent` and
+    // `portable-restroom` above. All five shipped the same day and sat in
+    // the catch-all for the same reason as every entry above them: no
+    // keyword in this list started with their slug.
+    test: (slug) =>
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin)/.test(
+        slug,
+      ),
   },
   {
     id: 'logistics',
