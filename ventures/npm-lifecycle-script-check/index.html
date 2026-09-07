@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>npm Lifecycle Script Check — Did a Dependency Just Start Running Code at Install Time?</title>
+  <meta name="description" content="Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Did a dependency just start running code at install time?">
+  <meta property="og:description" content="Paste a package-lock.json and get a deterministic list of every package that runs a script during npm install -- and a diff against an older lockfile to catch exactly what's new. The mechanism behind the ua-parser-js, coa/rc, and Shai-Hulud npm supply-chain attacks. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"npm Lifecycle Script Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Lists every package in a package-lock.json that runs a preinstall, install, postinstall, or prepare script at install time, and diffs two point-in-time lockfiles to flag exactly which packages gained one since the last check. Runs entirely in the browser or as a zero-dependency Node CLI usable as a CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn't npm audit already catch this?","acceptedAnswer":{"@type":"Answer","text":"npm audit matches installed versions against a database of known CVEs. A newly added or modified install-time script has no CVE until someone reports it as one — by which point it has already run on every machine that installed it. This tool does not need a vulnerability database: it reports a factual difference in what a package declares it will execute."}},{"@type":"Question","name":"Is this a malware scanner?","acceptedAnswer":{"@type":"Answer","text":"No. It reports which packages run a script at install time, and flags a small number of well-known attacker patterns in that script's text (piping a download into a shell, an obvious network call, obfuscated/encoded code) by keyword match. A flag means \"read this one\", not \"this is malware\" — a legitimate native-module build step can also match. It is not exhaustive and it is not a verdict."}},{"@type":"Question","name":"Is my dependency data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the lockfile you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever."}},{"@type":"Question","name":"What do I paste in?","acceptedAnswer":{"@type":"Answer","text":"Your project's own package-lock.json (npm 7+, lockfileVersion 2 or 3) — no extra step. For the diff, an older copy of the same file (from git history, a backup, or a previous run of node cli.mjs snapshot) goes in the optional second box."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 700px) { .cols { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input[type="text"] { font: inherit; border: 1px solid #cdd5df; border-radius: 6px; padding: 7px 10px; width: 280px; max-width: 100%; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; margin: 1px 3px 1px 0; }
+    .pill.gained { background: #fde8e8; color: #7f1d1d; }
+    .pill.lost { background: #e6eaf0; color: #55606f; }
+    .pill.modified { background: #fef3c7; color: #92400e; }
+    .pill.risk { background: #fde8e8; color: #7f1d1d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">NPM LIFECYCLE SCRIPT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Did a dependency just start running code at install time?</h1>
+    <p>Paste your <code>package-lock.json</code> and see every package that runs a <code>preinstall</code>, <code>install</code>, <code>postinstall</code>, or <code>prepare</code> script the moment <code>npm install</code> touches it. Add an older lockfile and this also names exactly which packages <strong>gained</strong> one since then -- the mechanism behind the ua-parser-js (2021), coa/rc (2021), and Shai-Hulud (2025) npm supply-chain attacks. <code>npm audit</code> checks versions against a CVE database and has nothing to say about this.</p>
+    <p class="note">Nothing is uploaded. The text you paste is parsed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your package-lock.json</h2>
+    <div class="cols">
+      <div>
+        <label for="current-input">Current package-lock.json (required)</label>
+        <textarea id="current-input" spellcheck="false" placeholder='{"lockfileVersion":3,"packages":{"":{"name":"my-app"},"node_modules/left-pad":{"version":"1.3.0"}}}'></textarea>
+      </div>
+      <div>
+        <label for="baseline-input">Older package-lock.json (optional — to see what's new)</label>
+        <textarea id="baseline-input" spellcheck="false" placeholder="Paste an earlier copy (git history, a backup) to diff against, or leave blank for a snapshot of right now."></textarea>
+      </div>
+    </div>
+    <label for="ignore-input">Ignore these package names (comma-separated, optional — a script you've already reviewed and accepted)</label>
+    <input type="text" id="ignore-input" placeholder="node-sass, esbuild">
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What runs at install time</h2>
+    <p id="summary"></p>
+
+    <div id="gained-block" hidden>
+      <h3>Newly gained a script since the older lockfile</h3>
+      <table>
+        <thead><tr><th>Package</th><th>Versions</th><th>Risk flags</th></tr></thead>
+        <tbody id="gained-rows"></tbody>
+      </table>
+    </div>
+    <div id="other-changed-block" hidden>
+      <h3>Also changed (lost or modified a script)</h3>
+      <table>
+        <thead><tr><th>Package</th><th>Change</th><th>Versions</th></tr></thead>
+        <tbody id="other-changed-rows"></tbody>
+      </table>
+    </div>
+    <div id="current-block" hidden>
+      <h3>Runs a script right now</h3>
+      <table>
+        <thead><tr><th>Package</th><th>Version</th><th>Risk flags</th></tr></thead>
+        <tbody id="current-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one file — and it can read your local <code>node_modules</code> directly, which gets the actual script text (a browser cannot read your filesystem, and a lockfile alone only records <em>that</em> a script exists, not what it does):</p>
+    <pre class="cmd">node cli.mjs snapshot --out baseline.json          # commit this once, after review
+npm ci                                             # ...time passes, dependencies update...
+node cli.mjs snapshot --out current.json
+node cli.mjs diff baseline.json current.json       # exit 1 only if something newly gained a script
+node cli.mjs lockfile package-lock.json            # or: just list what runs a script right now
+node cli.mjs diff baseline.json current.json --ignore node-sass,esbuild</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only local files: no network call, ever.</p>
+  </section>
+
+  <section class="card">
+    <h2>Real, dated incidents that used exactly this mechanism</h2>
+    <table>
+      <thead><tr><th>Package</th><th>Date</th><th>Script</th><th>What happened</th></tr></thead>
+      <tbody id="incidents-rows"></tbody>
+    </table>
+    <p class="note">More: <a href="why-npm-audit-does-not-catch-a-malicious-install-script.html">why npm audit doesn't catch this, and how to wire the CLI into CI</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why doesn't npm audit already catch this?</h3>
+    <p>npm audit matches installed versions against a database of known CVEs. A newly added or modified install-time script has no CVE until someone reports it as one — by which point it has already run on every machine that installed it. This tool does not need a vulnerability database: it reports a factual difference in what a package declares it will execute.</p>
+    <h3>Is this a malware scanner?</h3>
+    <p>No. It reports which packages run a script at install time, and flags a small number of well-known attacker patterns in that script's text (piping a download into a shell, an obvious network call, obfuscated/encoded code) by keyword match. A flag means "read this one", not "this is malware" — a legitimate native-module build step can also match. It is not exhaustive and it is not a verdict.</p>
+    <h3>Is my dependency data uploaded anywhere?</h3>
+    <p>No. The browser page parses the lockfile you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever.</p>
+    <h3>What do I paste in?</h3>
+    <p>Your project's own <code>package-lock.json</code> (npm 7+, lockfileVersion 2 or 3) — no extra step. For the diff, an older copy of the same file (from git history, a backup, or a previous run of <code>node cli.mjs snapshot</code>) goes in the optional second box.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports which packages declare an install-time script and flags a small set of keyword patterns in that script's text — it is not a malware scanner, not a security audit, and not a guarantee that an unflagged script is safe or a flagged one is dangerous. It does not replace reading the script yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass over your dependency tree: <a href="../license-drift-check/">License Drift Check</a> diffs two snapshots of your dependency tree's declared licenses — the same "paste two snapshots, get a deterministic diff" shape as this tool, for a different supply-chain risk. And if your editor is part of your supply chain too: <a href="../vscode-extension-drift-check/">VS Code Extension Drift Check</a> diffs two snapshots of your installed extensions for the same kind of newly-changed surface, the mechanism behind the GlassWorm and Nx Console incidents.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSnapshot, diffSnapshots, summarizeDiff, currentlyScripted, KNOWN_INCIDENTS } from "./engine.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      current: $("#current-input"), baseline: $("#baseline-input"), ignore: $("#ignore-input"),
+      status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      gainedBlock: $("#gained-block"), gainedRows: $("#gained-rows"),
+      otherChangedBlock: $("#other-changed-block"), otherChangedRows: $("#other-changed-rows"),
+      currentBlock: $("#current-block"), currentRows: $("#current-rows"),
+      incidentsRows: $("#incidents-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    els.incidentsRows.innerHTML = KNOWN_INCIDENTS.map((e) => `<tr>
+      <td><strong>${escapeHtml(e.project)}</strong></td>
+      <td>${escapeHtml(e.date)}</td>
+      <td><code>${escapeHtml(e.mechanism)}</code></td>
+      <td>${escapeHtml(e.note)}</td>
+    </tr>`).join("");
+
+    function riskPills(tags) {
+      return (tags || []).map((t) => `<span class="pill risk">${escapeHtml(t.replace(/-/g, " "))}</span>`).join("") || "—";
+    }
+
+    function renderReport() {
+      let current;
+      try {
+        current = parseSnapshot(els.current.value);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      if (!current.length) {
+        els.status.innerHTML = `<span class="error">Paste a package-lock.json first (or load the worked example).</span>`;
+        return;
+      }
+
+      const baselineText = els.baseline.value.trim();
+      els.status.textContent = "";
+      els.gainedBlock.hidden = true;
+      els.otherChangedBlock.hidden = true;
+      els.currentBlock.hidden = true;
+
+      if (!baselineText) {
+        const scripted = currentlyScripted(current);
+        els.summary.innerHTML = scripted.length
+          ? `<span class="changed">${scripted.length} of ${current.length} package(s) run a script at install time.</span>`
+          : `<span class="ok">0 of ${current.length} package(s) run a script at install time.</span>`;
+        els.currentBlock.hidden = scripted.length === 0;
+        els.currentRows.innerHTML = scripted.map((e) => `<tr>
+          <td><strong>${escapeHtml(e.name)}</strong></td>
+          <td>${escapeHtml(e.version || "?")}</td>
+          <td>${riskPills(e.riskTags)}</td>
+        </tr>`).join("");
+      } else {
+        let baseline;
+        try {
+          baseline = parseSnapshot(baselineText);
+        } catch (err) {
+          els.status.innerHTML = `<span class="error">Older lockfile: ${escapeHtml(err.message)}</span>`;
+          return;
+        }
+        const ignore = els.ignore.value.split(",").map((s) => s.trim()).filter(Boolean);
+        const result = diffSnapshots(baseline, current, { ignore });
+        const { status, text } = summarizeDiff(result);
+        els.summary.innerHTML = status === "changed" ? `<span class="changed">${escapeHtml(text)}</span>` : `<span class="ok">${escapeHtml(text)}</span>`;
+
+        const gained = result.changed.filter((c) => c.kind === "gained")
+          .concat(result.added.filter((a) => a.hasInstallScript).map((a) => ({
+            name: a.name, beforeVersion: "(new)", afterVersion: a.version, kind: "gained", riskTags: a.riskTags,
+          })));
+        els.gainedBlock.hidden = gained.length === 0;
+        els.gainedRows.innerHTML = gained.map((c) => `<tr>
+          <td><strong>${escapeHtml(c.name)}</strong></td>
+          <td>${escapeHtml(c.beforeVersion || "?")} → ${escapeHtml(c.afterVersion || "?")}</td>
+          <td>${riskPills(c.riskTags)}</td>
+        </tr>`).join("");
+
+        const otherChanged = result.changed.filter((c) => c.kind !== "gained");
+        els.otherChangedBlock.hidden = otherChanged.length === 0;
+        els.otherChangedRows.innerHTML = otherChanged.map((c) => `<tr>
+          <td><strong>${escapeHtml(c.name)}</strong></td>
+          <td><span class="pill ${c.kind}">${escapeHtml(c.kind)}</span></td>
+          <td>${escapeHtml(c.beforeVersion || "?")} → ${escapeHtml(c.afterVersion || "?")}</td>
+        </tr>`).join("");
+      }
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    const EXAMPLE_BASELINE = JSON.stringify({
+      lockfileVersion: 3,
+      packages: {
+        "": { name: "example-app" },
+        "node_modules/left-pad": { version: "1.3.0" },
+        "node_modules/stable-lib": { version: "2.1.0" },
+        "node_modules/quiet-dep": { version: "1.9.0" },
+      },
+    }, null, 2);
+    const EXAMPLE_CURRENT = JSON.stringify({
+      lockfileVersion: 3,
+      packages: {
+        "": { name: "example-app" },
+        "node_modules/left-pad": { version: "1.3.0" },
+        "node_modules/stable-lib": { version: "2.2.0" },
+        "node_modules/quiet-dep": { version: "2.0.0", hasInstallScript: true },
+        "node_modules/new-dependency": { version: "1.0.0", hasInstallScript: true },
+      },
+    }, null, 2);
+
+    $("#load-example").addEventListener("click", () => {
+      els.baseline.value = EXAMPLE_BASELINE;
+      els.current.value = EXAMPLE_CURRENT;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.current.value = "";
+      els.baseline.value = "";
+      els.ignore.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

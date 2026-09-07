@@ -89,6 +89,11 @@ function mapping(inventory) {
   return result;
 }
 
+/** Capture marks omitted webhook lists as absent — empty [] is not evidence. */
+function webhooksAbsent(app) {
+  return app && app.webhook_coverage === "absent";
+}
+
 export function compare(before, after) {
   const oldMap = mapping(before);
   const newMap = mapping(after);
@@ -103,11 +108,32 @@ export function compare(before, after) {
       changes.push({ app: appId, kind: "app_removed" });
       continue;
     }
-    for (const field of ["scopes", "webhooks"]) {
-      const added = [...new Set(newMap.get(appId)[field])].filter((item) => !oldMap.get(appId)[field].includes(item)).sort();
-      const removed = [...new Set(oldMap.get(appId)[field])].filter((item) => !newMap.get(appId)[field].includes(item)).sort();
+    const oldApp = oldMap.get(appId);
+    const newApp = newMap.get(appId);
+
+    const scopeAdded = [...new Set(newApp.scopes)].filter((item) => !oldApp.scopes.includes(item)).sort();
+    const scopeRemoved = [...new Set(oldApp.scopes)].filter((item) => !newApp.scopes.includes(item)).sort();
+    if (scopeAdded.length || scopeRemoved.length) {
+      changes.push({ app: appId, kind: "scopes_changed", added: scopeAdded, removed: scopeRemoved });
+    }
+
+    // Capture writes webhooks: [] and webhook_coverage: "absent" when the
+    // export omitted webhookSubscriptions. Diffing that against a complete
+    // inventory invents a "webhooks removed" finding — the failure mode the
+    // coverage flag exists to prevent. Skip the diff and say so instead.
+    if (webhooksAbsent(oldApp) || webhooksAbsent(newApp)) {
+      changes.push({
+        app: appId,
+        kind: "webhooks_not_compared",
+        reason: "webhook_coverage_absent",
+        before_coverage: webhooksAbsent(oldApp) ? "absent" : "complete",
+        after_coverage: webhooksAbsent(newApp) ? "absent" : "complete",
+      });
+    } else {
+      const added = [...new Set(newApp.webhooks)].filter((item) => !oldApp.webhooks.includes(item)).sort();
+      const removed = [...new Set(oldApp.webhooks)].filter((item) => !newApp.webhooks.includes(item)).sort();
       if (added.length || removed.length) {
-        changes.push({ app: appId, kind: `${field}_changed`, added, removed });
+        changes.push({ app: appId, kind: "webhooks_changed", added, removed });
       }
     }
   }
@@ -129,8 +155,16 @@ export function compare(before, after) {
     before_captured_at: before.captured_at,
     after_captured_at: after.captured_at,
   };
-  const inconclusive = changes.some((change) => change.kind === "capture_order_invalid");
-  const status = inconclusive ? "inconclusive" : changes.length ? "changed" : "unchanged";
+  // Order invalid, or webhooks skipped with no other material drift: we cannot
+  // claim "unchanged" (webhooks were never compared) or a clean "changed".
+  const orderInvalid = changes.some((change) => change.kind === "capture_order_invalid");
+  const material = changes.some(
+    (change) => change.kind !== "capture_order_invalid" && change.kind !== "webhooks_not_compared",
+  );
+  const webhooksSkipped = changes.some((change) => change.kind === "webhooks_not_compared");
+  let status = "unchanged";
+  if (orderInvalid || (webhooksSkipped && !material)) status = "inconclusive";
+  else if (material) status = "changed";
   return { status, metadata, changes, review_required: Boolean(changes.length) };
 }
 
@@ -154,6 +188,8 @@ export function formatChange(change) {
       return `API version changed: ${change.before} → ${change.after}`;
     case "capture_order_invalid":
       return `Capture order is reversed: after (${change.after}) is earlier than before (${change.before})`;
+    case "webhooks_not_compared":
+      return `Webhooks not compared on ${change.app}: at least one capture omitted webhook topics (coverage ${change.before_coverage} → ${change.after_coverage}). Do not treat webhook diffs as evidence.`;
     default:
       return change.kind;
   }

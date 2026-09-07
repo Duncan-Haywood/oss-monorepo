@@ -279,3 +279,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same independent-trade bid-calculator shape for a
+// residential job, but a vacant-listing staging job rather than an elevator
+// install. Without a crawlable link here, a crawler entering on the home
+// elevator bid calculator never reaches the home staging bid calculator in
+// one hop.
+test('index links one hop to the home-staging-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/home-staging-bid-calculator\/"/,
+    'index must link ../home-staging-bid-calculator/ so crawlers reach the home staging bid calculator in one hop',
+  );
+});

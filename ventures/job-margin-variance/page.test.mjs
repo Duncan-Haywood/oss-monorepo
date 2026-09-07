@@ -130,3 +130,15 @@ test('the review-signals panel is announced to screen readers on every update', 
   const html = page('index.html');
   assert.match(html, /<section aria-live="polite"><h2>Review signals<\/h2>/);
 });
+
+// Closest sibling: same trades-paid subcategory, but ranking which job to
+// take next rather than reviewing one that finished. Without a crawlable
+// link here, a crawler entering on the variance calculator never reaches
+// the ranker in one hop.
+test('index links one hop to the which-job-first sibling', () => {
+  assert.match(
+    page('index.html'),
+    /href="\.\.\/which-job-first\/"/,
+    'index must link ../which-job-first/ so crawlers reach the job-priority ranker in one hop',
+  );
+});

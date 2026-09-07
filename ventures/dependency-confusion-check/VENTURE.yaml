@@ -1,0 +1,57 @@
+name: dependency-confusion-check
+description: 'Free, read-only checker for two configuration shapes behind the 2021 dependency-confusion incidents (Alex Birsan''s research against Apple, Microsoft, PayPal, Netflix, Uber, and Tesla): pip --extra-index-url usage, and an unscoped npm dependency name while .npmrc sets a private default registry -- each finding printed with the exact fix, browser or zero-dependency CLI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as
+# actions-cache-poisoning-check, actions-injection-check, pinned-actions-check,
+# and actions-runner-starvation-check -- a direct, obvious, low-risk dev-tool
+# idea tied to a well-documented, dated incident class rather than a
+# pipeline-candidate write-up.
+# Not a duplicate: portfolio/pipeline/duplicate_check.py's top match against
+# this description scored 0.08 (actions-cache-poisoning-check), well below
+# the 0.45 flag bar. Confirmed 2026-09-07. Distinct from mcp-supply-chain-watch
+# (monitors already-connected MCP servers for behavior drift) and from every
+# actions-*-check venture (all scan GitHub Actions workflow YAML; this scans
+# pip/npm dependency configuration instead).
+#
+# Gate self-assessment: liability_containment and ethical_robustness are both
+# high -- a mechanical, read-only linter with no advice-of-record, no
+# compliance claim, no data leaving the user's device, and no registry
+# lookups of any kind (so it never probes a third-party server on the user's
+# behalf). Findings are printed with a suggested fix for the user to apply
+# themselves. This is defensive security tooling (detecting a well-documented
+# CI/CD and package-management supply-chain risk in the user's own
+# repository), not an offensive or dual-use capability. The npm check is
+# deliberately over-inclusive (it flags already-public names too, since it
+# cannot check registry claim status without a network call) and says so in
+# the tool's own FAQ and disclaimer, rather than presenting an unverifiable
+# claim as a confirmed finding.
+hypotheses:
+  - claim: A developer who remembers the 2021 dependency-confusion incidents, or who just read a fresh writeup of one, will paste their pip/npm config here and find a --extra-index-url use or an unscoped internal package name no existing local-only tool flags.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will wire check.py --fail-on-risk into their own CI to block a newly-added --extra-index-url use or unscoped private-registry dependency before it merges.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dependency-confusion-check/
+  analytics: null

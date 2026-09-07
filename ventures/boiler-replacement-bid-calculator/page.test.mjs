@@ -248,3 +248,15 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same "HVAC, plumbing & electrical" subcategory, but a
+// toilet closet-versus-scope bid rather than a boiler plant-versus-scope bid.
+// Without a crawlable link here, a crawler entering on the boiler calculator
+// never reaches the toilet calculator in one hop.
+test('index links one hop to the toilet-replacement-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/toilet-replacement-bid-calculator\/"/,
+    'index must link ../toilet-replacement-bid-calculator/ so crawlers reach the toilet calculator in one hop',
+  );
+});

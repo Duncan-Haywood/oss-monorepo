@@ -145,9 +145,16 @@ def classify_run(record: dict[str, Any], *, require_integrity: bool = False) -> 
     size_bytes = artifact.get("size_bytes")
     min_size = expected.get("min_size_bytes")
     if min_size is not None and (size_bytes is None or size_bytes < min_size):
+        # Same shape as the shrink-alert / markdown paths: never dump a raw
+        # byte count into a reason the operator copies into a ticket.
+        size_label = (
+            "an unknown number of bytes"
+            if size_bytes is None
+            else format_bytes(size_bytes)
+        )
         reasons.append(
-            f"artifact is {size_bytes if size_bytes is not None else 'an unknown number of'} "
-            f"bytes, below the expected minimum of {min_size}"
+            f"artifact is {size_label}, below the expected minimum of "
+            f"{format_bytes(min_size)}"
         )
 
     modified_at = artifact.get("modified_at")

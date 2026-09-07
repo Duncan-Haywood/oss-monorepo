@@ -532,5 +532,143 @@ class RefusesToPublishBackwards(unittest.TestCase):
             )
 
 
+class RefusesToPublishAnUnmergedSource(unittest.TestCase):
+    """The live site must be traceable to a reviewed commit on `main`.
+
+    `publish-branch.sh` publishes whatever HEAD is, and every guard that
+    existed before this one asked *which* main commit was being published --
+    never whether it was a main commit at all. A session sitting on its own
+    feature branch, which is the ordinary state of a session here, therefore
+    shipped unreviewed work to the live catalogue by running the same command
+    the docs give for a routine refresh, and nothing turned red.
+
+    Measured 2026-09-07: `gh-pages` was serving a snapshot whose recorded
+    source commit `077c0998` existed nowhere in the repository -- not on
+    `main`, not on any branch, not as any object. That is what a publish from
+    a branch looks like once the branch is squash-merged (this repo squash-
+    merges, so the original sha is gone) or deleted. Two costs, and the second
+    is the one that hid the first: the live site cannot be traced back to
+    anything reviewable, and the backwards guard *fails open* on it, because
+    `cat-file -e` cannot resolve a commit that no longer exists and the whole
+    `&&` chain short-circuits into the push it exists to stop.
+    """
+
+    def test_the_push_is_gated_on_head_being_on_main(self) -> None:
+        script = (ROOT / "platform" / "pages" / "publish-branch.sh").read_text()
+        self.assertTrue(
+            'merge-base --is-ancestor "$source_sha" "$main_tip"' in script,
+            "the publish must refuse when HEAD is not contained in origin/main",
+        )
+        self.assertTrue(
+            "refusing to publish a commit that is not on origin/main" in script,
+            "the refusal must say what it is refusing, not just exit",
+        )
+        self.assertTrue(
+            "ALLOW_UNMERGED_SOURCE:-" in script,
+            "a deliberate publish of unmerged work must stay possible without "
+            "editing the script",
+        )
+
+    def test_the_gate_is_inside_the_push_branch_only(self) -> None:
+        """Building a branch to look at it must stay unguarded.
+
+        Previewing a change is the normal way to check it, and only the push
+        reaches users -- a guard that also blocked `PUSH` unset would push
+        sessions toward publishing in order to see their own work.
+        """
+        script = (ROOT / "platform" / "pages" / "publish-branch.sh").read_text()
+        push_block = script.split("if [ \"${PUSH:-}\" = '1' ]; then", 1)
+        self.assertEqual(len(push_block), 2, "the PUSH gate's shape has changed")
+        self.assertNotIn(
+            "refusing to publish a commit that is not on origin/main", push_block[0],
+            "the unmerged-source guard must sit inside the PUSH branch, so a "
+            "preview build never trips it",
+        )
+
+    def test_an_unresolvable_published_commit_is_reported_not_swallowed(self) -> None:
+        """The other half: "cannot tell" must not be silent.
+
+        With the gate above in place this repairs itself -- publishing from
+        `main` is the fix for a branch serving an untraceable snapshot, so the
+        script proceeds rather than blocking the repair. What it must not do
+        is proceed *silently*, which is how the original went unnoticed.
+        """
+        script = (ROOT / "platform" / "pages" / "publish-branch.sh").read_text()
+        self.assertTrue(
+            "not a commit in this repository" in script,
+            "an unresolvable $published_from must be reported to the operator",
+        )
+        self.assertTrue(
+            '! git -C "$repo_root" cat-file -e "${published_from}^{commit}"' in script,
+            "the report must be driven by the same resolution the backwards "
+            "guard uses, so the two cannot disagree about what is resolvable",
+        )
+
+    def test_git_really_classifies_a_branch_head_as_not_on_main(self) -> None:
+        """The primitive, against real git rather than a substring.
+
+        Reproduces the measured shape: a commit on a feature branch, then the
+        same work squash-merged to `main` so the branch's own sha is no longer
+        an ancestor of anything on `main` -- which is what makes the published
+        sha untraceable afterwards.
+        """
+        import subprocess
+        import tempfile
+
+        def git(repo, *args, check=True):
+            return subprocess.run(
+                ["git", "-C", str(repo), *args],
+                capture_output=True, text=True, check=check,
+            )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "repo"
+            repo.mkdir()
+            git(repo, "init", "-q")
+            git(repo, "config", "user.email", "t@example.invalid")
+            git(repo, "config", "user.name", "t")
+            (repo / "f").write_text("base")
+            git(repo, "add", "f")
+            git(repo, "commit", "-q", "-m", "base")
+            base = git(repo, "rev-parse", "HEAD").stdout.strip()
+            # `git init` names the first branch from the user's own
+            # `init.defaultBranch`, which is `master` on some machines and
+            # `main` on others -- read it rather than assuming either.
+            default_branch = git(repo, "rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
+
+            git(repo, "checkout", "-q", "-b", "feature")
+            (repo / "f").write_text("feature work")
+            git(repo, "add", "f")
+            git(repo, "commit", "-q", "-m", "feature work")
+            branch_head = git(repo, "rev-parse", "HEAD").stdout.strip()
+
+            # Squash-merge, the way this repository lands every PR: `main`
+            # gains the content under a brand-new sha and the branch's own
+            # commit is not in its ancestry.
+            git(repo, "checkout", "-q", default_branch)
+            git(repo, "merge", "-q", "--squash", "feature")
+            git(repo, "commit", "-q", "-m", "feature work (#1)")
+            main_tip = git(repo, "rev-parse", "HEAD").stdout.strip()
+
+            self.assertNotEqual(branch_head, main_tip)
+            on_main = git(
+                repo, "merge-base", "--is-ancestor", branch_head, main_tip, check=False
+            )
+            self.assertNotEqual(
+                on_main.returncode, 0,
+                "a squash-merged branch head must read as not-on-main -- if it "
+                "did not, the guard would let the measured case through",
+            )
+            merged = git(
+                repo, "merge-base", "--is-ancestor", base, main_tip, check=False
+            )
+            self.assertEqual(
+                merged.returncode, 0,
+                "an ordinary main commit must still publish without tripping "
+                "the guard",
+            )
+
+
+
 if __name__ == "__main__":
     unittest.main()

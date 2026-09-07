@@ -18,6 +18,30 @@ test("landing page exposes searchable product, safety copy, and local app", () =
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(html, /entirely optional and never changes what the tool does/);
 });
+// Closest sibling: same break-even shape (fixed ownership/overhead cost spread
+// over bookings vs. lesson slots), but equipment rental bookings rather than
+// music lesson time. Without a crawlable link here, a crawler entering on the
+// equipment rental calculator never reaches the music lesson calculator in
+// one hop.
+test("index links one hop to the music-lesson-break-even sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/music-lesson-break-even\/"/,
+    "index must link ../music-lesson-break-even/ so crawlers reach the music lesson calculator in one hop",
+  );
+});
+// Closest equipment sibling: same ownership-cost decision for an independent
+// operator, but a lease buyout vs. return-and-replace rather than a rental
+// booking price. Without a crawlable link here, a crawler entering on the
+// rental calculator never reaches the lease buyout calculator in one hop.
+test("index links one hop to the equipment-lease-buyout-calculator sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/equipment-lease-buyout-calculator\/"/,
+    "index must link ../equipment-lease-buyout-calculator/ so crawlers reach the lease buyout calculator in one hop",
+  );
+  assert.match(html, /equipment lease buyout calculator/i);
+});
 test("app wires the share button to encode/decode and applies an incoming link on load", () => {
   assert.match(app, /import \{ encodeShare, decodeShare \} from "\.\/share\.mjs";/);
   assert.match(app, /"copy-share"\)\.addEventListener/);

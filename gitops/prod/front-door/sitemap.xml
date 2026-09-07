@@ -82,6 +82,9 @@
     <loc>https://marisstella.dev/compare/workiz/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/3d-print-price-calculator/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/3pl-quote-normalizer/</loc>
   </url>
   <url>
@@ -124,10 +127,34 @@
     <loc>https://marisstella.dev/tools/3pl-quote-normalizer/vs-shipbob.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-cache-poisoning-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-cache-poisoning-check/what-is-github-actions-cache-poisoning.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-injection-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-injection-check/what-is-a-pwn-request-in-github-actions.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-permissions-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-permissions-check/how-to-set-least-privilege-permissions-for-github-actions.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-runner-starvation-check/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/actions-runner-starvation-check/why-is-my-github-actions-check-red-in-seconds.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-self-hosted-exposure-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-self-hosted-exposure-check/self-hosted-runners-in-public-repositories.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/ada-title-ii-evidence/</loc>
@@ -451,6 +478,15 @@
     <loc>https://marisstella.dev/tools/chargeback-evidence-packet/vs-chargeflow.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/childcare-tuition-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/childcare-tuition-calculator/how-to-price-daycare-tuition.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/childcare-tuition-calculator/vs-procare.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/chimney-sweep-bid-calculator/</loc>
   </url>
   <url>
@@ -559,6 +595,9 @@
     <loc>https://marisstella.dev/tools/coverage-drop-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/coverage-drop-check/vs-codecov.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/coverage-drop-check/why-did-my-pr-drop-coverage.html</loc>
   </url>
   <url>
@@ -635,6 +674,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/delivery-app-margin-calculator/vs-toast.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/dependency-confusion-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/dependency-confusion-check/what-is-dependency-confusion.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/dns-configuration-evidence/</loc>
@@ -1078,6 +1123,12 @@
     <loc>https://marisstella.dev/tools/garage-door-bid-calculator/vs-housecall-pro.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/gig-driver-net-pay-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/gig-driver-net-pay-calculator/how-much-should-i-set-aside-for-gig-driving-taxes.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/grant-deadline-tracker/</loc>
   </url>
   <url>
@@ -1360,6 +1411,12 @@
     <loc>https://marisstella.dev/tools/lawn-care-bid-calculator/vs-lmn.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/license-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/license-drift-check/how-a-dependency-license-change-reaches-your-lockfile.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/locksmith-bid-calculator/</loc>
   </url>
   <url>
@@ -1495,6 +1552,12 @@
     <loc>https://marisstella.dev/tools/npm-deployment-evidence/which-npm-vulnerabilities-actually-reach-production.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/npm-lifecycle-script-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/npm-lifecycle-script-check/why-npm-audit-does-not-catch-a-malicious-install-script.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/owner-operator-cpm-calculator/</loc>
   </url>
   <url>
@@ -1589,6 +1652,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/photo-booth-event-quote/vs-photobooth-supply-co.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/pinned-actions-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/pinned-actions-check/how-to-pin-a-github-action-to-a-commit-sha.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/plantation-shutter-bid-calculator/</loc>
@@ -2249,6 +2318,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/vinyl-liner-bid-calculator/vs-jobber.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/vscode-extension-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/vscode-extension-drift-check/why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/walk-in-shower-bid-calculator/</loc>

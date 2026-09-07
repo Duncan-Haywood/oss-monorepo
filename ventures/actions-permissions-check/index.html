@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actions Permissions Check — Does Your GITHUB_TOKEN Use Least Privilege?</title>
+  <meta name="description" content="Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Does your GITHUB_TOKEN use least-privilege permissions?">
+  <meta property="og:description" content="A workflow or job with no permissions: block runs with your repository or organization's default token permissions, which can be read-write on every scope. Paste your workflow YAML and find every unspecified or write-all grant.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Actions Permissions Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Scans GitHub Actions workflow YAML for workflows and jobs with no explicit permissions block, or with permissions: write-all. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls of its own."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a missing permissions: block matter?","acceptedAnswer":{"@type":"Answer","text":"A workflow or job with no permissions: key runs with whatever your repository or organization's default GITHUB_TOKEN permissions are set to. Many repositories still default to read-write on every scope — it was GitHub's own default for repositories created before 2023-02-02. A workflow triggered by something an outside contributor can influence then runs with a token that can push commits or modify repository settings, even if the job only needed to read the checkout."}},{"@type":"Question","name":"What is permissions: write-all and why is it risky?","acceptedAnswer":{"@type":"Answer","text":"write-all explicitly grants every scope write access, which is broader than almost any job actually needs. It replaces an ambient, hidden default with an explicit, but still overly broad, grant."}},{"@type":"Question","name":"Does this tool know my repository's actual default token permissions?","acceptedAnswer":{"@type":"Answer","text":"No. There is no public API for that setting, and this tool makes no network calls of any kind. An unspecified finding means the workflow file itself does not make the permissions explicit — it does not mean your repository is definitely misconfigured, only that this file does not say."}},{"@type":"Question","name":"Does a clean scan mean my workflow is secure?","acceptedAnswer":{"@type":"Answer","text":"No. This checks one specific, well-documented thing: whether a permissions block exists and is not write-all. It does not judge whether the scopes a workflow does declare are the minimum a job actually needs, and it makes no claim about your repository's overall security or compliance posture."}},{"@type":"Question","name":"What should I put in a permissions: block?","acceptedAnswer":{"@type":"Answer","text":"GitHub's own guidance is to start from contents: read at the workflow level and add only the specific scope a job needs, such as pull-requests: write for a job that comments on PRs. This tool does not decide that for you — it only tells you where nothing has been decided yet."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.write-all { background: #fde8e8; color: #9a3412; }
+    .pill.unspecified { background: #fdf1e0; color: #92400e; }
+    .pill.explicit { background: #dcefe4; color: #14532d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ACTIONS PERMISSIONS CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Does your GITHUB_TOKEN use least-privilege permissions?</h1>
+    <p>A workflow or job with no <code>permissions:</code> block runs with whatever your repository or organization's default token permissions are — which can be read-write on every scope. Paste your workflow YAML below and this page finds every workflow and job that leaves that unspecified, or that grants <code>permissions: write-all</code> outright.</p>
+    <p class="note">Nothing is uploaded. The YAML you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste one or more workflow files</h2>
+    <p class="note">Copy the contents of each file under <code>.github/workflows/</code> you want checked. Add more blocks for more files — nothing here reads your repository, so pasting is how it sees anything.</p>
+    <div id="files"></div>
+    <p>
+      <button type="button" class="secondary small" id="add-file">+ Add another workflow file</button>
+    </p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one workflow file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>File : Line</th><th>Scope</th><th>Status</th><th>Detail / fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                  # scan .github/workflows under the current directory
+python3 check.py /path/to/repo    # scan a specific checkout
+python3 check.py --format json    # machine-readable
+python3 check.py --fail-on-risk   # exit 2 if any write-all or unspecified grant is found</code></pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-permissions-check/check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a newly-added unspecified or write-all workflow before it merges.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does a missing <code>permissions:</code> block matter?</h3>
+    <p>A workflow or job with no <code>permissions:</code> key runs with whatever your repository or organization's default <code>GITHUB_TOKEN</code> permissions are set to. Many repositories still default to read-write on every scope — it was GitHub's own default for repositories created before 2023-02-02. A workflow triggered by something an outside contributor can influence then runs with a token that can push commits or modify repository settings, even if the job only needed to read the checkout.</p>
+    <h3>What is <code>permissions: write-all</code> and why is it risky?</h3>
+    <p><code>write-all</code> explicitly grants every scope write access, which is broader than almost any job actually needs. It replaces an ambient, hidden default with an explicit, but still overly broad, grant.</p>
+    <h3>Does this tool know my repository's actual default token permissions?</h3>
+    <p>No. There is no public API for that setting, and this tool makes no network calls of any kind. An <strong>unspecified</strong> finding means the workflow file itself does not make the permissions explicit — it does not mean your repository is definitely misconfigured, only that this file does not say.</p>
+    <h3>Does a clean scan mean my workflow is secure?</h3>
+    <p>No. This checks one specific, well-documented thing: whether a permissions block exists and is not <code>write-all</code>. It does not judge whether the scopes a workflow does declare are the minimum a job actually needs, and it makes no claim about your repository's overall security or compliance posture.</p>
+    <h3>What should I put in a permissions: block?</h3>
+    <p>GitHub's own guidance is to start from <code>contents: read</code> at the workflow level and add only the specific scope a job needs, such as <code>pull-requests: write</code> for a job that comments on PRs. This tool does not decide that for you — it only tells you where nothing has been decided yet.</p>
+    <p>More: <a href="how-to-set-least-privilege-permissions-for-github-actions.html">how to set least-privilege permissions for GitHub Actions</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including deciding what scopes a job actually needs. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-permissions-check/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The YAML you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Least-privilege permissions are one piece of a hardened CI setup: <a href="../pinned-actions-check/">Pinned Actions Check</a> flags third-party <code>uses:</code> lines referenced by a mutable tag instead of a pinned commit SHA, and <a href="../actions-injection-check/">Actions Injection Check</a> flags pwn-request checkouts and script injection from untrusted <code>${{ github.event }}</code> expressions.</p>
+    <p class="support">Free and open source. If this saved you from shipping an over-privileged token, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { scanFiles, hasUnresolvedRisk, summaryLine } from "./classify.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    const EXAMPLE = [
+      {
+        name: ".github/workflows/ci.yml",
+        text: `name: ci
+on: pull_request_target
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm test
+  deploy:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm run deploy
+  comment:
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "commenting"
+`,
+      },
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" placeholder=".github/workflows/ci.yml" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea class="ftext" spellcheck="false" placeholder="Paste the workflow YAML here"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || `workflow-${i + 1}.yml`,
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function renderRows(findings) {
+      els.rows.innerHTML = findings.map((f) => `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><code>${escapeHtml(f.scope)}</code></td>
+          <td><span class="pill ${f.classification}">${f.classification}</span></td>
+          <td>${escapeHtml(f.detail)}</td>
+        </tr>`).join("");
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one workflow file first.</span>`;
+        return;
+      }
+      let findings;
+      try {
+        findings = scanFiles(files);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const risk = hasUnresolvedRisk(findings);
+      els.verdict.className = `verdict ${risk ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      renderRows(findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: one job with no permissions at all, one write-all deploy job, and one job scoped to exactly what it needs.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one workflow file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile();
+  </script>
+</body>
+</html>

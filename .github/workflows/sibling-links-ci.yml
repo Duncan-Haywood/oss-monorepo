@@ -1,0 +1,81 @@
+name: Sibling links
+
+# Crawlable orphans: tools that no *other tool* links to in one hop.
+#
+# `platform/pages/check.mjs` already proves every page is reachable through the
+# site's own chrome -- the hub, the category pages, the comparison and guide
+# indexes, `sitemap.xml`. This gate asks the narrower question that chrome
+# cannot answer: does any sibling tool link to this one? The related-tool strip
+# rotates alphabetically within a subcategory, so on a large subcategory a pair
+# may never appear on each other's page, and a reader who arrives on the
+# irrigation *install* calculator from a search result has no one-hop route to
+# the irrigation *winterization* calculator -- the single most relevant other
+# page in the catalogue for them.
+#
+# Ten commits between 2026-09-02 and 2026-09-07 close exactly one such pair
+# each ("close crawlable orphan between install and winterization", "between
+# deadline and reporting", "between watch and evidence", ...). Every one was
+# found by a session happening to notice the pair. Measured on 2026-09-07 by
+# the tool this workflow runs: 173 of 197 tools still have no inbound sibling
+# link, which is not a list anyone was going to notice their way through.
+#
+# One of those ten had also not actually landed. #3682's message says it closed
+# the orphan to the Whatnot payout calculator; what reached the static HTML was
+# FAQ prose naming the tool, with the only href written by `calc.mjs` at
+# runtime -- invisible to a crawler that does not execute JavaScript. That is
+# the class of near-miss a count catches and a reading of the commit does not.
+#
+# The gate is a ratchet against `siblings-budget.json`, not a demand that all
+# 173 close at once: it fails when the count goes UP, so a tool that lands with
+# no sibling link turns a run red the day it lands. Same shape as
+# link-contrast-ci.yml -- sweeps the venture tree, so a new venture is covered
+# with nothing to wire up. No dependencies, no build step, no network, no
+# publishing.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/**/*.html"
+      - "platform/pages/siblings.mjs"
+      - "platform/pages/siblings.test.mjs"
+      - "platform/pages/siblings-budget.json"
+      - "platform/pages/build.mjs"
+      - ".github/workflows/sibling-links-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/**/*.html"
+      - "platform/pages/siblings.mjs"
+      - "platform/pages/siblings.test.mjs"
+      - "platform/pages/siblings-budget.json"
+      - "platform/pages/build.mjs"
+      - ".github/workflows/sibling-links-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sibling-links-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sibling-links:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # A node --test run plus one pass over every venture entry page -- a few
+    # seconds. Capped for the same reason every other job here is: minutes on
+    # this account are metered.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # The tool's own tests first, including the shapes it must NOT count as a
+      # closed orphan: a bare prose mention, a link to a sibling's sub-page, a
+      # link to a venture that shipped no entry page. A gate whose tests do not
+      # run is a gate nobody can trust to have narrowed correctly.
+      - name: Gate unit tests
+        run: node --test platform/pages/siblings.test.mjs
+      - name: Every tool is linked by a sibling, or the budget says why not
+        run: node platform/pages/siblings.mjs --check

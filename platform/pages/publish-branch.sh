@@ -94,6 +94,10 @@
 #   ALLOW_REGRESSION  set to 1 to publish anyway when the branch already
 #                     carries a snapshot built from a NEWER commit than this
 #                     one -- see "Publishing backwards" below
+#   ALLOW_UNMERGED_SOURCE
+#                     set to 1 to publish a HEAD that is not on `origin/main`
+#                     -- see "Publishing something that is not on `main`"
+#                     below. Building without PUSH=1 never needs this.
 set -euo pipefail
 
 readonly REQUIRED_CONFIRM='publish-pages-branch'
@@ -246,6 +250,60 @@ say "source commit: $source_sha"
 
 if [ "${PUSH:-}" = '1' ]; then
   echo
+  # Publishing something that is not on `main`.
+  #
+  # The script publishes whatever HEAD happens to be, and every guard below
+  # this point was written about *which* main commit is being published --
+  # never about whether it is a main commit at all. So a session sitting on
+  # its own feature branch, which is the ordinary state of a session here,
+  # ships unreviewed work straight to the live catalogue by running the same
+  # command the docs give for a routine refresh. Nothing turns red.
+  #
+  # Measured 2026-09-07: `gh-pages` was serving a snapshot whose recorded
+  # source commit `077c0998` did not exist anywhere in the repository -- not
+  # on `main`, not on any branch, not as any object. That is what a publish
+  # from a branch looks like afterwards, once the branch is squash-merged
+  # (this repo squash-merges, so the original sha is gone) or deleted: the
+  # live site cannot be traced back to anything reviewable, and the backwards
+  # guard below fails open on it, because `cat-file -e` cannot resolve a
+  # commit that no longer exists and the whole condition short-circuits.
+  #
+  # So: refuse unless HEAD is contained in `origin/main`. A preview build
+  # (`PUSH` unset) is untouched -- building a branch to look at it is the
+  # normal way to check a change, and it is only the push that reaches users.
+  if [ "${ALLOW_UNMERGED_SOURCE:-}" = '1' ]; then
+    say "WARNING: publishing $source_sha without checking it is on origin/main,"
+    say "         because ALLOW_UNMERGED_SOURCE=1."
+  else
+    git -C "$repo_root" fetch --quiet origin main 2>/dev/null || true
+    main_tip="$(git -C "$repo_root" rev-parse --verify --quiet FETCH_HEAD 2>/dev/null \
+      || git -C "$repo_root" rev-parse --verify --quiet origin/main 2>/dev/null || true)"
+    if [ -z "$main_tip" ]; then
+      die "cannot read origin/main, so cannot tell whether $source_sha is reviewed work.
+  Refusing rather than guessing: this push replaces the live site.
+  Fix: restore network access to the remote and re-run, or set
+  ALLOW_UNMERGED_SOURCE=1 if you have another way to know this is right."
+    fi
+    # Shallow checkouts (actions/checkout's default) have no ancestry to walk,
+    # so unshallow first for the same reason the backwards guard below does.
+    if [ "$source_sha" != "$main_tip" ] \
+       && [ "$(git -C "$repo_root" rev-parse --is-shallow-repository 2>/dev/null)" = 'true' ]; then
+      git -C "$repo_root" fetch --quiet --unshallow origin 2>/dev/null || true
+    fi
+    if ! git -C "$repo_root" merge-base --is-ancestor "$source_sha" "$main_tip" 2>/dev/null; then
+      die "refusing to publish a commit that is not on origin/main: $source_sha
+  is not an ancestor of origin/main ($main_tip), so this would put unreviewed
+  work on the live catalogue and leave a snapshot nobody can trace back to a
+  reviewed commit -- which is exactly what a squash-merge or a deleted branch
+  makes of it afterwards.
+  Fix: merge the work first, then publish from an up-to-date checkout --
+    git fetch origin main && git reset --hard origin/main
+    CONFIRM=$REQUIRED_CONFIRM PUSH=1 $0
+  Build without PUSH=1 to preview this branch's site without shipping it.
+  Override with ALLOW_UNMERGED_SOURCE=1 only if you mean to serve unmerged work."
+    fi
+  fi
+
   # Publishing backwards.
   #
   # The force-push below is safe against losing *authored* work -- everything
@@ -284,6 +342,21 @@ if [ "${PUSH:-}" = '1' ]; then
     if [ -n "$published_from" ] && [ "$published_from" != "$source_sha" ] \
        && [ "$(git -C "$repo_root" rev-parse --is-shallow-repository 2>/dev/null)" = 'true' ]; then
       git -C "$repo_root" fetch --quiet --unshallow origin 2>/dev/null || true
+    fi
+    # "Cannot tell" must not read as "safe", but it must not block the repair
+    # either. An unresolvable $published_from means the branch is serving a
+    # snapshot built from a commit this repository does not have -- the
+    # unmerged-source case guarded above, seen from the other side, after the
+    # branch it came from was squash-merged or deleted. Publishing from `main`
+    # (which the guard above has just proved this is) is the fix for that, so
+    # proceed -- but say so, because a silent fall-through is how it went
+    # unnoticed in the first place.
+    if [ -n "$published_from" ] && [ "$published_from" != "$source_sha" ] \
+       && ! git -C "$repo_root" cat-file -e "${published_from}^{commit}" 2>/dev/null; then
+      say "NOTE: '$BRANCH' serves a snapshot built from $published_from, which is"
+      say "      not a commit in this repository -- it was published from a branch"
+      say "      that has since been squash-merged or deleted, so the live site"
+      say "      cannot be traced to a reviewed commit. This push repairs that."
     fi
     if [ -n "$published_from" ] && [ "$published_from" != "$source_sha" ] \
        && git -C "$repo_root" cat-file -e "${published_from}^{commit}" 2>/dev/null \

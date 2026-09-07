@@ -18892,3 +18892,447 @@ entries:
         own "don't rewrite, build instead" note added the same morning
         after three such PRs landed with nothing shipped.
     mrr_end: null
+  - venture: pinned-actions-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new CLI + browser dev-tool venture rather than a 143rd
+        trade calculator, per `portfolio/pipeline/README.md`'s
+        archetype-saturation note (141 of 200 ventures are
+        `<trade>-bid-calculator` clones with zero measured visitors).
+        `pinned-actions-check` scans a repository's GitHub Actions workflow
+        files and flags third-party actions referenced by a mutable tag
+        (`@v4`, `@main`) instead of a pinned 40-character commit SHA -- a
+        documented GitHub Actions supply-chain hardening practice, sharpened
+        by a real incident (`tj-actions/changed-files`'s tags were repointed
+        at a malicious commit in March 2025). Screened with
+        `portfolio/pipeline/duplicate_check.py` first (top score 0.11,
+        against every existing venture, pipeline candidate, screened-out row
+        and ai-first-markets idea -- well below the 0.45 bar); not a
+        duplicate of `mcp-supply-chain-watch` (a customer's connected MCP
+        servers, not their own CI config) or `actions-runner-starvation-check`
+        (runner starvation, unrelated). Direct graduation, not a scored
+        pipeline candidate, following that same sibling's precedent.
+      - >-
+        Read-only by construction: `check.py` and `classify.mjs` make no
+        network calls anywhere in either file. A mutable finding prints the
+        exact `git ls-remote` command to look up the current commit SHA --
+        the lookup and the decision to pin stay entirely the user's. CLI
+        supports `--format text|json` and `--fail-on-risk` (exit 2 on any
+        mutable finding), matching `repository-branch-hygiene`'s own CLI
+        convention. 41 Python unit tests and 41 `node --test` assertions
+        pass, including a parity test that shells out to `python3 check.py`
+        and asserts the browser port produces byte-identical findings on the
+        same fixture, following `repository-branch-hygiene/scan.test.mjs`'s
+        discipline between its Python and JS ports.
+      - >-
+        Shipped the full product surface: `index.html` (multi-file paste,
+        results table, copy-to-clipboard remediation commands),
+        `how-to-pin-a-github-action-to-a-commit-sha.html` (the SEO landing
+        page, answering the search phrase directly), `usage.mjs`
+        (localStorage-only `check_run`/`example_loaded` counters, DNT/GPC
+        honoured), `robots.txt`, `sitemap.xml`, `LICENSE` (MIT), `README.md`,
+        and `VENTURE.yaml` with the gate self-assessment (liability_containment
+        and ethical_robustness both high -- mechanical read-only linter, no
+        advice-of-record, no compliance claim, no data leaving the device, no
+        scraping -- comparable to `repository-branch-hygiene` and
+        `actions-runner-starvation-check`, both already graduated on this
+        reasoning). §5b no-warranty and no-SLA clauses, and the
+        `github.com/sponsors/Duncan-Haywood` link, are on both HTML pages;
+        `node platform/pages/clauses.mjs pinned-actions-check` confirms both
+        published pages carry their required clauses.
+      - >-
+        Ran the CLAUDE.md starvation checklist and found (then fixed) three
+        real gaps it exists to catch, rather than a clean pass on the first
+        try. `regen.mjs` mirrored the new tool into the front-door shards,
+        rebalancing 782 existing gzip files as a side effect (committed
+        alongside). `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` first failed 3 of 1155: the venture's own
+        JSON-LD FAQ text didn't byte-match its visible prose (fixed by
+        aligning both pages' copy), `launched.mjs --write` hadn't been run
+        for the new venture (fixed), and the committed front-door
+        `index.html` briefly read "198 of the 197 tools" because it was
+        built between those two fixes (fixed by re-running `regen.mjs`
+        after `launched.json` settled) -- all 1155 pass now.
+        `platform/ci`'s own 20 unittest modules (run from that directory,
+        per CLAUDE.md's own trap warning) first failed on
+        `test_validate_workflows` (no CI workflow ran this venture's
+        `node --test` files -- added `.github/workflows/pinned-actions-check-ci.yml`
+        on the sibling's template) and `test_publish_surface` (the new
+        workflow wasn't in the committed snapshot -- `publish_surface.py
+        --write`); both clean now, and `gitops/ci/sync_readme_counts.py`
+        caught the new workflow's `runs-on` line too. The mirrored-tool
+        count moved 197->198 in the five hand-typed places CLAUDE.md names
+        this keeps costing: `infra/OWNER_CHECKLIST.md` (twice),
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        (twice), and `gitops/tests/test_manifests.py`'s own constant --
+        `python3 -m pytest gitops/tests` (490 passed) and the
+        `platform/ci` suite confirm consistency. `venture-scores.yaml` was
+        also missing this venture entirely, failing
+        `portfolio/scoring/score_ventures.py --check` and
+        `portfolio/router/test_allocate.py`'s merit-coverage test; added a
+        six-dimension entry (composite 6.0, both gates pass) matching
+        `actions-runner-starvation-check`'s pattern -- `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests` now passes 418/418. Also green:
+        `checklist_coverage.py`, `check_no_payment_code.py`,
+        `portfolio/router/validate.py` (206 VENTURE.yaml files valid),
+        `platform/pages/clauses.mjs pinned-actions-check` (both pages carry
+        their clauses), and a `browser_checks.py --only pinned-actions-check`
+        pass (6 of 7 checks ok; `highlight` skipped -- this venture makes no
+        highlight promise, which its own message says is allowed). First
+        real visitor is expected from developers searching "pin github
+        action to commit sha" or "github actions supply chain security",
+        r/devops and r/github threads discussing action-pinning after a
+        supply-chain incident, and GitHub's own security-hardening
+        documentation, which recommends exactly this practice and is read
+        by exactly the audience who would want a tool that stays entirely
+        local rather than trusting a
+        third-party site with their workflow files.
+    mrr_end: null
+  - venture: actions-injection-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed forward the one thing #3746's merge left red on `main`:
+        `.github/workflows/actions-injection-check-ci.yml` shipped without a
+        row in `platform/ci/publish-surface.yaml`, so
+        `platform/ci/test_publish_surface` failed with "new workflow,
+        classified 'none' and not in publish-surface.yaml" -- the same shape
+        #3407 merged red on, and invisible in GitHub's check list because
+        Actions is starved (`ci_starvation.py`: `runner_id: 0`). Regenerated
+        the snapshot with `publish_surface.py --write` rather than
+        hand-editing it; all 21 `platform/ci` unittest modules pass now.
+      - >-
+        Added the venture's missing `README.md`. Every other graduated
+        venture here carries one, and it is the file a developer arriving
+        from GitHub search reads before the page -- so its absence is a
+        distribution gap, not a tidiness one. Documents both patterns the
+        tool finds, why `pull_request_target` exists at all, the CLI
+        quickstart including `--fail-on-risk` as a CI gate, the disclaimers,
+        what the localStorage usage counters do, and the optional Sponsors
+        link.
+      - >-
+        Concurrency note, recorded because it cost a full duplicate repair.
+        This session and another were repairing PR #3746 at the same time
+        without either knowing. Both found the same defects -- the branch
+        predated the guard in `gitops/tests/test_manifests.py` pinning
+        `OWNER_CHECKLIST.md`'s "apex serves all N" sentence, and `git merge
+        origin/main` resolved *cleanly* while keeping the branch's older
+        copy, silently reverting the guard and putting the count back to
+        175; the venture also shipped with no `VENTURE.yaml`, no
+        `venture-scores.yaml` row, no CI workflow, and a `page.test.mjs`
+        FAQ assertion that substring-matched raw JSON-LD so the one question
+        containing a double quote could never match. The other session
+        merged first, at 13:41:27Z, which deleted the PR branch mid-push
+        here. Discarded this session's parallel copy rather than fighting
+        over 800 generated mirror files, kept only what `main` genuinely
+        still lacked, and verified the merged result rather than assuming
+        it. That verification is what found the publish-surface drift: the
+        losing side of a duplicate repair is the natural place to check the
+        winner's work, and nothing else was going to while CI is starved.
+    mrr_end: null
+  - venture: platform
+  - venture: actions-permissions-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed the hole that let the live catalogue be published from a commit
+        nobody can review. `platform/pages/publish-branch.sh` publishes
+        whatever HEAD is, and every guard in it asked *which* `main` commit was
+        being published -- never whether it was a `main` commit at all. A
+        session sitting on its own feature branch, which is the ordinary state
+        of a session here, therefore shipped unreviewed work straight to the
+        live site by running the same command this repo's docs give for a
+        routine refresh, and nothing turned red.
+      - >-
+        Measured rather than reasoned to: `gh-pages` was found serving a
+        snapshot whose recorded source commit `077c0998` existed nowhere in
+        the repository -- not on `main`, not on any branch, not as any object
+        (`git cat-file -t` fails, `git branch -r --contains` errors). That is
+        what a publish from a branch looks like afterwards, once the branch is
+        squash-merged (this repo squash-merges, so the original sha is gone)
+        or deleted. Republished from `main` (8651fa5b) to repair it.
+      - >-
+        Two defects, and the second is what hid the first. (1) No check that
+        HEAD is on `origin/main`; the push now refuses unless
+        `merge-base --is-ancestor $source_sha $main_tip` holds, with
+        `ALLOW_UNMERGED_SOURCE=1` for a deliberate exception and preview
+        builds (`PUSH` unset) untouched, since previewing is how a change gets
+        checked and only the push reaches users. (2) The existing
+        publish-backwards guard *fails open* on exactly this case: it is one
+        `&&` chain, and `cat-file -e` cannot resolve a commit that no longer
+        exists, so the whole condition short-circuits into the push it exists
+        to stop. Now an unresolvable published commit is named out loud and
+        the push proceeds deliberately -- publishing from `main` is the repair
+        for an untraceable snapshot, so blocking it would block the fix, but a
+        silent fall-through is how this went unnoticed. Same "cannot tell must
+        not read as safe" shape CLAUDE.md records for starved checks and for
+        `run_workflow_locally.py`'s UNRUN steps.
+      - >-
+        Verified both directions against the real script, not only its text:
+        from a feature branch `PUSH=1` refuses and names the fix, and the same
+        branch builds a preview successfully with `PUSH` unset (exit 0). Four
+        new tests in `platform/ci/test_publish_pages_branch.py`, one of them
+        driving real git through a squash-merge to prove a squash-merged
+        branch head reads as not-on-main while an ordinary `main` commit still
+        publishes; suite 19/19, all 21 `platform/ci` modules OK.
+      - >-
+        Also republished the `gh-pages` snapshot twice during the session as
+        `main` moved. Worth recording as a standing cost rather than an
+        incident: with 3 sessions/hour merging and publishing manual, the
+        snapshot went stale within minutes of each publish.
+        `.github/workflows/publish-pages-branch.yml` already automates it and
+        is gated on the owner setting `PAGES_BRANCH_PUBLISH` -- and needs a
+        runner, which `ci_starvation.py --run 34131540325` confirms is still
+        unavailable (`runner_id: 0`, 4s, no steps).
+        Repaired and merged PR #3787. `actions-permissions-check` flags
+        GitHub Actions workflows and jobs running with no explicit
+        `permissions:` block (so they inherit the repository or organization
+        default GITHUB_TOKEN scope) or with `permissions: write-all`, with
+        the minimal replacement scope printed for each finding. Browser page
+        plus zero-dependency Python CLI, parity-tested against each other.
+        Third checker over GitHub's "Security hardening for GitHub Actions"
+        guidance and orthogonal to both siblings: `pinned-actions-check` asks
+        which code runs, `actions-injection-check` asks whose input runs,
+        this asks what the token may do while it runs -- a workflow can pass
+        either sibling and still give a compromised step write access to the
+        whole repository.
+      - >-
+        The branch would have DELETED a live product. Its commit removes
+        `ventures/childcare-tuition-calculator/` outright -- twelve files
+        including `index.html`, `VENTURE.yaml` and the CI workflow -- along
+        with that venture's `venture-scores.yaml` row, its `launched.json`
+        and `publish-surface.yaml` entries, and the mirrored-tool count that
+        had just moved to 200. It also reverted #3784's door sibling links.
+        The venture had merged roughly an hour earlier (#3770, itself merged
+        by this session), so the branch's tree predates it and `git merge
+        origin/main` resolved *cleanly* while keeping the deletion. Third
+        instance of this exact shape in one session (#3746 reverted a
+        test_manifests guard the same way) and the most expensive: nothing
+        turns red when a venture disappears, because its tests leave with it.
+        Restored all twelve files and every metadata row from `origin/main`
+        before touching anything else.
+      - >-
+        Completed the graduation the branch left half-done, the same gaps
+        #3746 shipped with: no `venture-scores.yaml` row (so
+        `score_ventures.py --check` and `portfolio/router/test_allocate.py`
+        both fail) and no CI workflow (so `test_validate_workflows`'s
+        venture-test-coverage check fails). Added both, regenerated
+        `launched.json` and `publish-surface.yaml` rather than hand-editing,
+        ran `sync_readme_counts.py`, and moved the mirrored-tool count
+        200->201 in the five hand-typed places CLAUDE.md warns about.
+      - >-
+        Verified locally, Actions being starved (`ci_starvation.py --run
+        34131540325`: `runner_id: 0`, 4s, no steps): the venture's own 29
+        node and 29 python tests; `gitops/tests` 490 passed / 25 skipped;
+        `score_ventures.py --check` clean across 210; `siblings.mjs --check`
+        142 orphans within budget at 201 tools.
+    mrr_end: null
+  - venture: license-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and graduated a new, genuinely non-duplicate niche per
+        `portfolio/pipeline/README.md`'s "archetype itself" section (2026-09-07):
+        a free CLI + browser tool that diffs two point-in-time snapshots of a
+        dependency tree's declared licenses (npm/pip/cargo/go) and reports
+        exactly which packages' license changed, were added, or were removed
+        since the last snapshot -- the gap Dependabot and Renovate leave open,
+        since both watch versions and vulnerabilities and neither diffs the
+        license field. `duplicate_check.py` scored it below 0.10 against
+        every existing venture, screened-out.md row, and pipeline candidate.
+      - >-
+        Channel evidence, not "it's searchable": four widely used open-source
+        projects relicensed away from a permissive/weak-copyleft license via
+        a routine version bump their existing users did not choose --
+        MongoDB to SSPL (2018-10-16), Elasticsearch/Kibana to SSPL/Elastic
+        License (2021-01-14, AWS forked as OpenSearch within three months),
+        Terraform to BUSL-1.1 (2023-08-10, the OpenTF Manifesto gathered
+        33,000+ GitHub stars within a month and produced the OpenTofu fork,
+        now a CNCF project), and Redis to SSPLv1/RSALv2 (2024-03-20, forked
+        as Valkey under the Linux Foundation within days, backed by AWS,
+        Google Cloud, and Oracle). Confirmed by web search on 2026-09-07 that
+        neither Dependabot's nor Renovate's own feature set includes
+        license-change detection. Dates and outcomes verified against
+        multiple independent sources per event, not asserted from training
+        data alone.
+      - >-
+        Built and tested: `engine.mjs` (snapshot parsing accepting JSON and
+        CSV/pip-licenses/go-licenses-shaped input, license-family
+        classification, the diff itself), `cli.mjs` (`snapshot` scans a local
+        `node_modules` tree with no network call; `diff` compares two files
+        and exits 1 on any unignored license change), a browser page that
+        parses pasted snapshots client-side, and a docs page with per-ecosystem
+        snapshot commands and a ready-to-paste CI step. 37 `node --test`
+        assertions across engine/cli/page tests, including the one
+        disambiguation the whole tool exists to get right: SPDX `BSL-1.0`
+        (Boost Software License, permissive) versus the colloquial "BSL"
+        that means `BUSL-1.1` (Business Source License, source-available).
+      - >-
+        Definition-of-done checklist run: `platform/pages/clauses.mjs
+        license-drift-check` (both pages carry the no-warranty clause),
+        `check_no_payment_code.py` (clean, no payment code of any kind),
+        `portfolio/router/validate.py` (all 210 VENTURE.yaml valid),
+        `portfolio/usage/validate_usage.py` (usage.yaml entry added, valid),
+        `node platform/marketing/regen.mjs` (mirror + front-door regenerated,
+        201 tools), `node platform/pages/launched.mjs --write` (entered the
+        Atom feed), and `node --test` across the venture's own suites plus
+        `platform/marketing/*.test.mjs` and `platform/pages/*.test.mjs`.
+        `check_ledger_only.py` run before pushing -- this entry ships in the
+        same PR as the code, not on its own.
+    mrr_end: 0
+  - venture: dependency-confusion-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Direction check before building: `git log` showed `DIRECTION.md`
+        substantively rewritten as recently as this morning (2026-09-07
+        02:23, #3652) and `session_gate.py` returned PROCEED with meta-work
+        share at 32%, below the 70% threshold. Per `DIRECTION.md`'s own
+        "before rewriting this brief again" guard, the north-star content the
+        owner's brief asked for (viable businesses, donations-only revenue,
+        happy customers, legal exposure as the one hard stop, new ventures
+        ranked first) was already current and had been restated three times
+        in three hours the day before with nothing shipped each time. So this
+        session did not touch the direction docs and built a venture instead,
+        which is what that guard explicitly asks a session to do in this
+        situation.
+      - >-
+        Screened and graduated a new, genuinely non-duplicate niche, weighing
+        shape per `pipeline/README.md`'s "archetype itself" section: a free
+        CLI + browser tool that flags the two configuration patterns behind
+        the 2021 dependency-confusion incidents (Alex Birsan's research
+        against Apple, Microsoft, PayPal, Netflix, Uber, and Tesla) -- pip
+        `--extra-index-url` usage, and an unscoped npm dependency name while
+        `.npmrc` sets a private default registry. `duplicate_check.py`
+        scored the top match (`actions-cache-poisoning-check`) at 0.08,
+        well below the 0.45 flag bar. A developer-niche CLI/browser checker,
+        not another trade bid calculator -- 138+ of ~214 `ventures/`
+        directories already share that shape with zero visitors on any of
+        them, per the same section's finding.
+      - >-
+        Built and tested: `check.py` (stdlib-only CLI, no dependencies, no
+        network calls of any kind -- it never queries npm or PyPI, so it
+        cannot confirm whether a flagged name is actually claimed publicly,
+        and says so plainly in its own docstring, README, and the page's
+        FAQ), `classify.mjs` (byte-identical browser port, pinned to the CLI
+        by two parity tests that shell out to `python3 check.py`), a browser
+        page, and a docs page. Deliberately over-inclusive by design and
+        documented as such: the npm check flags every unscoped dependency
+        once a private registry is configured, including already-public
+        ones (a dependency on `left-pad` looks identical, from a read-only
+        view of `package.json`, to an internal package of the same shape),
+        because without a network call the tool cannot tell the two apart --
+        this is stated in the docstring, the README, the page copy, and the
+        FAQ rather than presented as a confirmed finding. 44 `node --test`
+        assertions plus 20 `python3 -m unittest` assertions, all passing.
+      - >-
+        Definition-of-done checklist run: `platform/pages/clauses.mjs
+        dependency-confusion-check` (both pages carry the no-warranty
+        clause), `platform/ci/checklist_coverage.py` (clean),
+        `portfolio/router/validate.py` (all 213 VENTURE.yaml valid),
+        `portfolio/usage/validate_usage.py` (usage.yaml entry added, valid),
+        `node platform/marketing/regen.mjs` (mirror + front-door
+        regenerated, 205 tools -- the fleet-wide "All N free tools" counter
+        in every sibling tool's back-link is the reason ~800 unrelated
+        `.gz` files also changed in this diff), `node platform/pages/
+        launched.mjs --write` (entered the Atom feed), and `node --test`
+        across the venture's own suites plus `platform/marketing/*.test.mjs`
+        and `platform/pages/*.test.mjs` (1169 assertions). `check_ledger_only.py`
+        run before pushing -- this entry ships in the same PR as the code,
+        not on its own.
+    mrr_end: 0
+  - venture: vscode-extension-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture graduated: a free, zero-dependency CLI + browser tool
+        that snapshots which VS Code (or Cursor/Windsurf/VSCodium)
+        extensions are installed and diffs two point-in-time snapshots to
+        flag exactly which ones changed activation surface, dependencies,
+        or entry point since the last check, plus a CLI-only live lookup
+        against the VS Code Marketplace to flag an installed extension that
+        no longer resolves there. Same snapshot-diff archetype as
+        `license-drift-check` and `npm-lifecycle-script-check`.
+        `duplicate_check.py` scored every existing venture, screened-out
+        row, and pipeline candidate below 0.12. Motivated by two dated,
+        event-driven supply-chain incidents (GlassWorm, ongoing since
+        2026-01-31; the Nx Console VS Code Marketplace compromise,
+        2026-05-18) that neither VS Code nor the Marketplace itself warns
+        an existing installer about.
+      - >-
+        This PR (originally #3902) was found on review to have silently
+        deleted the just-merged `actions-self-hosted-exposure-check`
+        venture (#3898) along with its CI workflow, mirror shards, score
+        row, and its reciprocal sibling link from
+        `actions-cache-poisoning-check` -- git's rename heuristic matched
+        the deleted venture's boilerplate LICENSE/robots.txt/sitemap.xml/
+        usage.mjs against the new venture's, which made a real deletion
+        read as an innocuous rename in the diff summary. Repaired rather
+        than merged as-is, per CLAUDE.md's "Duplicate Prs" guidance against
+        letting concurrent sessions silently destroy each other's shipped
+        work: restored the deleted venture, its workflow, and its sibling
+        link from `origin/main`, and added the missing `venture-scores.yaml`
+        row for this new venture (score_ventures.py --check had flagged
+        both slugs as unscored). Both ventures are now present and tested
+        together.
+      - >-
+        Verification after repair: `python3 -m unittest test_check -v`
+        (restored venture's CLI), `node --test` across both ventures' own
+        suites plus `actions-cache-poisoning-check` (reciprocal-link
+        assertion), `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1169 assertions), `python3 platform/ci/checklist_coverage.py`,
+        `python3 platform/ci/check_conflict_markers.py`, `python3
+        portfolio/router/validate.py`, `python3 portfolio/scoring/
+        score_ventures.py --check` (217 scores, all covered), `node
+        platform/pages/siblings.mjs --check`, `node platform/marketing/
+        regen.mjs`, and `python3 -m pytest gitops/tests -q`, all green.
+    mrr_end: 0
+  - venture: vscode-extension-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a detection gap in the drift engine the day it shipped.
+        `classifySurfaceRisk` required *both* snapshots to declare a
+        non-null `main`/`browser` before emitting the
+        `entry-point-changed` risk tag, so an extension that gained an
+        entry point where it previously declared none was reported as
+        changed but carried no tag -- and that is the larger surface
+        expansion of the two, since an extension declaring neither field
+        ships no code the host will load at all. The reverse (an entry
+        point disappearing) was missed for the same reason. Now compares
+        presence-or-value across both fields and skips the pair only when
+        neither snapshot declares it, which is exactly the "it started
+        doing something it didn't declare before" case the tool exists to
+        catch. The browser page imports `engine.mjs` rather than
+        restating the rule, so the fix reaches the pasted-snapshot
+        surface and the CLI together.
+      - >-
+        Three tests added, all previously absent: a gained entry point is
+        tagged, a `browser` entry point appearing alongside an unchanged
+        `main` is tagged once rather than twice (the tag set is
+        de-duplicated), and two snapshots that both declare no entry
+        point stay untagged with `surfaceChanged` false -- the guard
+        against the fix over-reporting on the common
+        `code --list-extensions` snapshot that carries no surface data.
+        Venture suite 51 -> 54 assertions.
+      - >-
+        Verified locally, since `ci_starvation.py` reports the Actions
+        allowance still starved: `node --test
+        ventures/vscode-extension-drift-check/*.test.mjs` (54/54),
+        `node platform/marketing/regen.mjs` then `node --test
+        platform/marketing/*.test.mjs` (222/222 -- the engine is mirrored
+        into the apex shards, so the regen is not optional), and
+        `check_ledger_only.py` before pushing. Arrived at by review while
+        salvaging #3902; the venture itself and its registrations landed
+        concurrently in that PR, and this carries only the engine
+        correction on top rather than re-landing either.
+    mrr_end: 0

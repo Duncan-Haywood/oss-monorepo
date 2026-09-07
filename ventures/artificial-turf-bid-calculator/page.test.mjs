@@ -199,3 +199,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same outdoor subcategory, but natural sod (pallets, prep,
+// watering) rather than artificial turf (roll waste, base, sod demo). Related-
+// tool chrome rotates alphabetically inside the subcategory, so without an
+// explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the sod-install-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/sod-install-bid-calculator\/"/,
+    'index must link ../sod-install-bid-calculator/ so crawlers reach the sod calculator in one hop',
+  );
+  assert.match(html, /sod install bid calculator/i);
+});

@@ -69,3 +69,16 @@ test('an invalid visit input hides stale results instead of leaving them next to
   assert.match(body, /el\('profit'\)\.hidden = true/, 'the profit hero is not hidden on a rejected input');
   assert.match(body, /el\('errors'\)\.hidden = false/, 'the error message is never shown');
 });
+
+// Closest sibling: same unattended machine-route margin shape for an
+// independent operator, but ATM placements rather than vending machines.
+// Related-tool chrome rotates inside the subcategory, so without an explicit
+// one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the atm-route-margin sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/atm-route-margin\/"/,
+    'index must link ../atm-route-margin/ so crawlers reach the ATM route margin calculator in one hop',
+  );
+  assert.match(html, /ATM route margin calculator/i);
+});

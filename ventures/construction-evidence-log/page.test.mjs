@@ -59,3 +59,15 @@ test('the FAQPage JSON-LD stays in sync with the visible FAQ answers', () => {
     assert.ok(html.includes(`<h3>${q.name}</h3>`), `visible FAQ is missing question: ${q.name}`);
   }
 });
+
+// Closest sibling: same "Getting paid & job margin" subcategory, but a
+// margin-aware change-order price rather than a dated evidence pack.
+// Without a crawlable link here, a crawler entering on the evidence log
+// never reaches the pricing calculator in one hop.
+test('index links one hop to the change-order-margin-calculator sibling', () => {
+  assert.match(
+    page('index.html'),
+    /href="\.\.\/change-order-margin-calculator\/"/,
+    'index must link ../change-order-margin-calculator/ so crawlers reach the pricing calculator in one hop',
+  );
+});

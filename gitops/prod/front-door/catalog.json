@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 197,
-  "collection_total": 197,
+  "served_here": 209,
+  "collection_total": 208,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -53,22 +53,22 @@
       "tool_count": 13
     },
     {
+      "id": "ci",
+      "name": "CI checks & developer gates",
+      "url": "https://marisstella.dev/c/ci/",
+      "tool_count": 12
+    },
+    {
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
       "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 6
     },
     {
-      "id": "ci",
-      "name": "CI checks & developer gates",
-      "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 4
-    },
-    {
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 2
+      "tool_count": 6
     }
   ],
   "tools": [
@@ -497,11 +497,51 @@
       "pages": 3
     },
     {
+      "slug": "3d-print-price-calculator",
+      "name": "3D Print Price Calculator — Price a Print for Etsy or Shopify",
+      "url": "https://marisstella.dev/tools/3d-print-price-calculator/",
+      "category": "More free tools",
+      "description": "Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you're charging.",
+      "pages": 1
+    },
+    {
+      "slug": "actions-cache-poisoning-check",
+      "name": "GitHub Actions Cache Poisoning Check — Fork-Writable Cache & restore-keys",
+      "url": "https://marisstella.dev/tools/actions-cache-poisoning-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find actions/cache steps reachable from pull_request_target/workflow_run, and restore-keys fallbacks that can adopt a poisoned prefix match. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "actions-injection-check",
+      "name": "GitHub Actions Injection Check — Pwn Requests & Script Injection",
+      "url": "https://marisstella.dev/tools/actions-injection-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run 'pwn request' checkouts and shell script-injection from untrusted ${{ github.event }} expressions. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "actions-permissions-check",
+      "name": "Actions Permissions Check — Does Your GITHUB_TOKEN Use Least Privilege?",
+      "url": "https://marisstella.dev/tools/actions-permissions-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "actions-runner-starvation-check",
       "name": "Actions Runner Starvation Check — Is Your Red CI Even Real?",
       "url": "https://marisstella.dev/tools/actions-runner-starvation-check/",
       "category": "CI checks & developer gates",
       "description": "Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "actions-self-hosted-exposure-check",
+      "name": "Actions Self-Hosted Exposure Check — Is Your Self-Hosted Runner Exposed to Forks?",
+      "url": "https://marisstella.dev/tools/actions-self-hosted-exposure-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub's own docs warn against on public repos. Free, runs in your browser, nothing uploaded.",
       "pages": 2
     },
     {
@@ -641,6 +681,14 @@
       "pages": 3
     },
     {
+      "slug": "childcare-tuition-calculator",
+      "name": "Daycare Tuition Calculator",
+      "url": "https://marisstella.dev/tools/childcare-tuition-calculator/",
+      "category": "More free tools",
+      "description": "Free daycare and childcare tuition calculator. Price a classroom from your own child:staff ratio, staffing cost, and overhead, and see what an empty seat actually costs you at every occupancy level.",
+      "pages": 3
+    },
+    {
       "slug": "chimney-sweep-bid-calculator",
       "name": "Chimney Sweep Bid Calculator",
       "url": "https://marisstella.dev/tools/chimney-sweep-bid-calculator/",
@@ -678,7 +726,7 @@
       "url": "https://marisstella.dev/tools/coverage-drop-check/",
       "category": "CI checks & developer gates",
       "description": "Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "cra-evidence-desk",
@@ -743,6 +791,14 @@
       "category": "Marketplace seller tools",
       "description": "Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub. See net after commission, packaging, and extra labor — plus the menu price each app needs to match dine-in.",
       "pages": 4
+    },
+    {
+      "slug": "dependency-confusion-check",
+      "name": "Dependency Confusion Check — pip --extra-index-url & Unscoped npm Names",
+      "url": "https://marisstella.dev/tools/dependency-confusion-check/",
+      "category": "More free tools",
+      "description": "Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.",
+      "pages": 2
     },
     {
       "slug": "dns-configuration-evidence",
@@ -945,6 +1001,14 @@
       "pages": 4
     },
     {
+      "slug": "gig-driver-net-pay-calculator",
+      "name": "Gig Driver Net Pay Calculator — What You Keep After Gas",
+      "url": "https://marisstella.dev/tools/gig-driver-net-pay-calculator/",
+      "category": "More free tools",
+      "description": "Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session's gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.",
+      "pages": 2
+    },
+    {
       "slug": "gravel-driveway-bid-calculator",
       "name": "Gravel Driveway Bid Calculator — Price It by the Yard",
       "url": "https://marisstella.dev/tools/gravel-driveway-bid-calculator/",
@@ -1097,6 +1161,14 @@
       "pages": 3
     },
     {
+      "slug": "license-drift-check",
+      "name": "License Drift Check — Did a Dependency's License Change Since Your Last Snapshot?",
+      "url": "https://marisstella.dev/tools/license-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "locksmith-bid-calculator",
       "name": "Locksmith Bid Calculator — Price a Service Call",
       "url": "https://marisstella.dev/tools/locksmith-bid-calculator/",
@@ -1169,6 +1241,14 @@
       "pages": 4
     },
     {
+      "slug": "npm-lifecycle-script-check",
+      "name": "npm Lifecycle Script Check — Did a Dependency Just Start Running Code at Install Time?",
+      "url": "https://marisstella.dev/tools/npm-lifecycle-script-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "parking-lot-striping-bid-calculator",
       "name": "Parking Lot Striping Bid Calculator — Price to Stripe It",
       "url": "https://marisstella.dev/tools/parking-lot-striping-bid-calculator/",
@@ -1231,6 +1311,14 @@
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.",
       "pages": 3
+    },
+    {
+      "slug": "pinned-actions-check",
+      "name": "Pinned Actions Check — Are Your GitHub Actions Pinned to a Commit SHA?",
+      "url": "https://marisstella.dev/tools/pinned-actions-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "plantation-shutter-bid-calculator",
@@ -1559,6 +1647,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a residential vinyl pool liner from the liner square feet a water-surface special cannot see, the hopper, the stairs, and the track — plus walk-away price and proposed-price margin check.",
       "pages": 3
+    },
+    {
+      "slug": "vscode-extension-drift-check",
+      "name": "VS Code Extension Drift Check — Did an Extension You Trust Just Change What It Does?",
+      "url": "https://marisstella.dev/tools/vscode-extension-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check. A CLI-only command also checks whether an extension still resolves on the VS Code Marketplace. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "walk-in-shower-bid-calculator",

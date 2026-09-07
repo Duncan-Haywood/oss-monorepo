@@ -110,3 +110,16 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest sibling: same venting trade and often the same visit, but the flue rather than the dryer duct. Related-tool chrome rotates inside the
+// Cleaning, restoration & insulation subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the chimney-sweep-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/chimney-sweep-bid-calculator\/"/,
+    'index must link ../chimney-sweep-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /chimney sweep bid calculator/i);
+});

@@ -391,6 +391,78 @@ class ToolchainMissing(unittest.TestCase):
         self.assertEqual(step.status, "setup-failed")
 
 
+class CredentialMissing(unittest.TestCase):
+    """The same "did not run" class, reached by an absent credential.
+
+    Added 2026-09-07 with `pages-freshness-ci.yml`, the first verification-only
+    workflow here whose check cannot run without a token. Left in the `failed`
+    class it would have reported `main` as red in every sandbox without one,
+    which is the costume-of-a-real-failure problem `ToolchainMissing` exists to
+    prevent, one credential further along.
+    """
+
+    def run_one(self, command, workdir="."):
+        step = runner.Step("j", "n", command, workdir)
+        runner.execute(step, timeout=60)
+        return step
+
+    def test_the_real_tool_with_no_token_is_unrun_not_failed(self):
+        """The measured case, run against the tool itself rather than a fake."""
+        step = runner.Step(
+            "j", "n", "python3 platform/ci/pages_state.py --require-current", ".")
+        step.env = {"GH_TOKEN": "", "GITHUB_TOKEN": ""}
+        runner.execute(step, timeout=120)
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing_kind, "credential")
+
+    def test_a_named_unset_token_is_unrun(self):
+        step = self.run_one("echo 'GH_TOKEN is not set' >&2; exit 2")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing, "GH_TOKEN")
+        self.assertEqual(step.missing_kind, "credential")
+
+    def test_a_rejected_token_is_a_real_failure(self):
+        """The discrimination this class turns on.
+
+        A token that is present and refused is a real result -- burying it here
+        would hide exactly what a session most needs to see. Only an explicit
+        statement that a named credential is *absent* is classified as unrun.
+        """
+        step = self.run_one(
+            "echo 'HTTP 401: Bad credentials' >&2; exit 1")
+        self.assertEqual(step.status, "failed")
+
+    def test_a_generic_permission_error_is_a_real_failure(self):
+        step = self.run_one(
+            "echo 'Resource not accessible by integration' >&2; exit 1")
+        self.assertEqual(step.status, "failed")
+
+    def test_an_ordinary_variable_being_unset_is_not_a_credential(self):
+        """`PAGE_URL is not set` is a step output, not a credential."""
+        step = self.run_one("echo 'PAGE_URL is not set' >&2; exit 1")
+        self.assertEqual(step.status, "failed")
+
+    def test_a_missing_tool_still_reports_as_a_tool(self):
+        step = self.run_one("python3 -m absent_module_xyz")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing_kind, "tool")
+
+
+class StatusMark(unittest.TestCase):
+    """Every status the executor can set must be printable.
+
+    On 2026-09-07 it was not: the mark table was written out twice and the
+    single-workflow path was not updated when `unrun` was added, so running one
+    workflow by name died with `KeyError: 'unrun'` the first time a step hit
+    that status. One table now, and this asserts it stays complete.
+    """
+
+    def test_every_status_the_executor_sets_has_a_mark(self):
+        for status in ("ok", "failed", "skipped", "refused",
+                       "setup-failed", "unrun"):
+            self.assertIn(status, runner.STATUS_MARK)
+
+
 class Report(unittest.TestCase):
     def report(self, steps, uses_skipped=(), forced=False):
         out = io.StringIO()
@@ -635,6 +707,53 @@ class ReadOnlyJobs(unittest.TestCase):
                   - run: echo "${{ secrets.TOKEN }}"
         """))
 
+    def test_the_github_token_is_the_one_secret_that_does_not_hold(self):
+        """Narrowed 2026-09-07, and pinned here so the narrowing is not silent.
+
+        `secrets.GITHUB_TOKEN` is minted per run rather than held by the owner,
+        and every session here already has the same value in `GH_TOKEN`, so it
+        has an honest local stand-in where no other secret does. The capability
+        question it used to stand in for is answered directly by
+        `_grants_write` on the declared permissions -- see the two tests below,
+        which are what keep this exception from widening into a hole.
+        """
+        self.assertTrue(self.read_only("""
+            permissions:
+              contents: read
+            jobs:
+              a:
+                steps:
+                  - run: python3 x.py
+                    env:
+                      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        """))
+
+    def test_another_secret_still_holds_even_beside_the_github_token(self):
+        self.assertFalse(self.read_only("""
+            permissions:
+              contents: read
+            jobs:
+              a:
+                steps:
+                  - run: python3 x.py
+                    env:
+                      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                      HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
+        """))
+
+    def test_a_github_token_job_that_grants_write_is_still_held(self):
+        """The exception is about the credential, never about the capability."""
+        self.assertFalse(self.read_only("""
+            permissions:
+              contents: write
+            jobs:
+              a:
+                steps:
+                  - run: python3 x.py
+                    env:
+                      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        """))
+
     def test_a_writing_job_is_held_without_holding_its_read_only_sibling(self):
         allowed, held = runner.read_only_jobs(workflow("""
             permissions:
@@ -679,7 +798,14 @@ class ReadOnlyJobs(unittest.TestCase):
                         "the build job must still carry the test step")
 
     def test_no_auto_run_job_in_the_repo_can_write_or_read_a_secret(self):
-        """Whole-repository sweep: the gate must hold across all 218 files."""
+        """Whole-repository sweep: the gate must hold across all 218 files.
+
+        Read the secret half as "reads a secret other than `GITHUB_TOKEN`"
+        since 2026-09-07 -- `_mentions_secret` excludes that one name, for the
+        reasons its docstring gives. The write half is unnarrowed and is what
+        actually bounds an auto-run job: the three `ReadOnlyJobs` tests above
+        pin both sides of that exception.
+        """
         for name in sorted(os.listdir(runner.WORKFLOWS)):
             if not name.endswith((".yml", ".yaml")):
                 continue

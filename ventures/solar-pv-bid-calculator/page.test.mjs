@@ -99,3 +99,16 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
+
+// Closest sibling: the same electrical contractor sizing the same service, for the other resilience option a homeowner shops. Related-tool chrome rotates inside the
+// HVAC, plumbing & electrical subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the standby-generator-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/standby-generator-bid-calculator\/"/,
+    'index must link ../standby-generator-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /standby generator bid calculator/i);
+});
