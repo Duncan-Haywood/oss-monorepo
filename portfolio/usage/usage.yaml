@@ -4761,3 +4761,20 @@ products:
           “llms.txt checker”. Counts are local, opt-in, off by default, and
           honor DNT/GPC, so zero is the expected reading for a tool nobody
           has visited or switched the counter on for yet.
+  - slug: ada-title-ii-evidence
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          report_generated: 0
+          deadline_looked_up: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/ada-title-ii-evidence/`)
+          from its first commit: a deadline lookup and WCAG 2.1 AA evidence
+          report for government/special-district webmasters ahead of ADA
+          Title II's April 2027/2028 dates. Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for a
+          tool nobody has visited or switched the counter on for yet.

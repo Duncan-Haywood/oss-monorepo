@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 196 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 197 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 196 of them — and
+Every tool in the collection is listed below — all 197 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -161,6 +161,7 @@ page that hosts it.
 - [npm Deployment Evidence — Free Lockfile Surface Report](https://marisstella.dev/tools/npm-deployment-evidence/): Free, no-signup, no-upload tool that reads a package-lock.json in your browser and shows which npm dependencies reach your deployed app versus which are build- or test-only. Runs entirely client-side.
 - [Grant Deadline Tracker for Small Nonprofits](https://marisstella.dev/tools/grant-deadline-tracker/): Free private grant deadline and reporting tracker for small nonprofits. Find overdue obligations, see award funds remaining, and compare hiring a grant writer against the cash a late report puts at risk.
 - [Shopify Accessibility Evidence Report](https://marisstella.dev/tools/shopify-a11y-evidence/): Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.
+- [ADA Title II Website Accessibility Evidence Report](https://marisstella.dev/tools/ada-title-ii-evidence/): Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.
 - [Consent Change Record](https://marisstella.dev/tools/consent-change-record/): Compare before-and-after consent browser traces and create a local request and storage change record.
 - [CRA Evidence Desk — free SBOM vs advisory matcher for EU software vendors](https://marisstella.dev/tools/cra-evidence-desk/): Free Cyber Resilience Act evidence tool: match your CycloneDX or SPDX SBOM against an OSV advisory export, see exactly which components are named, and download a dated record and an Article 14 review draft. Runs entirely in your browser — your SBOM is never uploaded.
 - [DNS Change Evidence — Free Before/After DNS Record Report](https://marisstella.dev/tools/dns-configuration-evidence/): Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.

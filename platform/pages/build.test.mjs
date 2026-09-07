@@ -79,6 +79,7 @@ import {
   COMPARISON_FILE_PATTERN,
   comparisonSubject,
   comparisonSubjectKey,
+  comparisonText,
   comparisonProductGroups,
   comparisonProductSlug,
   discoverComparisons,
@@ -4353,8 +4354,11 @@ test('the venture tree still has comparison pages, and every one names a product
   for (const entry of entries) {
     const surface = surfaces.find((s) => s.slug === entry.slug);
     const html = await fs.readFile(path.join(surface.sourceDir, entry.file), 'utf8');
+    // Normalised on both sides — see `comparisonText`. `entry.subject` has
+    // already had its entities decoded, so `html.includes` was asking the page
+    // to carry the heading a second time in raw form.
     assert.ok(
-      html.includes(entry.subject),
+      comparisonText(html).includes(entry.subject),
       `"${entry.subject}" is not text ${entry.slug}/${entry.file} contains`,
     );
   }
