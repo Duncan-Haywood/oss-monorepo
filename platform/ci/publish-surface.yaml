@@ -317,6 +317,9 @@ workflows:
 - workflow: flooring-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: food-truck-event-margin-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: forge-surface-reachability-ci.yml
   classification: none
   publishes: []
