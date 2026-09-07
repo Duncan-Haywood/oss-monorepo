@@ -38,3 +38,16 @@ test('editing the tolerance and pressing Enter re-runs the match, not only the b
   );
   assert.match(appSource, /\$\('run'\)\.addEventListener\('click', run\)/, 'run() is not shared between the click and Enter-key paths');
 });
+
+// Closest sibling: same private, browser-only reconciliation shape, but
+// checking a landlord's CAM bill rather than matching processor payouts to
+// bank deposits. Without a crawlable link here, a crawler entering on the
+// payment reconciliation workbench never reaches the CAM reconciliation
+// calculator in one hop.
+test('index links one hop to the cam-reconciliation-check sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/cam-reconciliation-check\/"/,
+    'index must link ../cam-reconciliation-check/ so crawlers reach the CAM reconciliation calculator in one hop',
+  );
+});
