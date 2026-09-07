@@ -271,8 +271,8 @@
       "name": "Reverb Fee Calculator — Offer vs List, Cash vs Consign",
       "url": "https://marisstella.dev/tools/reverb-fee-calculator/",
       "category": "Marketplace seller tools",
-      "description": "See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, whether consigning or taking a shop cash offer still beats listing it yourself, and how big a partial refund still beats taking a return.",
-      "pages": 9
+      "description": "See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether it is worth taking now versus waiting for a better one, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, whether consigning or taking a shop cash offer still beats listing it yourself, and how big a partial refund still beats taking a return.",
+      "pages": 10
     },
     {
       "slug": "3pl-quote-normalizer",
