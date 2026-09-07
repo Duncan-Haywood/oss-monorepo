@@ -199,3 +199,14 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest interior-finishes sibling: same remodel, one floor down. Without a
+// crawlable link here, a crawler entering on the crown-molding calculator
+// never reaches the basement-finishing tool in one hop.
+test('index links one hop to the basement-finishing-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/basement-finishing-bid-calculator\/"/,
+    'index must link ../basement-finishing-bid-calculator/ so crawlers reach the basement finishing calculator in one hop',
+  );
+});

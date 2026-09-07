@@ -245,3 +245,14 @@ test('index links one hop to the basement-waterproofing-bid-calculator sibling',
     'index must link ../basement-waterproofing-bid-calculator/ so crawlers reach the waterproofing calculator in one hop',
   );
 });
+
+// Closest interior-finishes sibling: same remodel, trimmed out afterward.
+// Without a crawlable link here, a crawler entering on the basement-finishing
+// calculator never reaches the crown-molding tool in one hop.
+test('index links one hop to the crown-molding-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/crown-molding-bid-calculator\/"/,
+    'index must link ../crown-molding-bid-calculator/ so crawlers reach the crown molding calculator in one hop',
+  );
+});
