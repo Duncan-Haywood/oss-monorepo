@@ -105,12 +105,16 @@ export const ABOUT_DIR = 'about';
 // grouped by product. Same shape as `about`: a page the build writes about the
 // site, not a venture, so it has no launch date and no card on the hub.
 export const COMPARE_DIR = 'compare';
+// The guides index — every page a venture ships beside its calculator, grouped
+// by trade and by tool. Same shape as `about` and `compare`: a page the build
+// writes about the site, not a venture.
+export const GUIDES_DIR = 'guides';
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
 // them — the hub links these from its footer, which is the right weight for a
 // page about the site rather than a tool.
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR]);
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -690,6 +694,45 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       );
       if (linked.size === 0) {
         problems.push(`${relative}: lists no comparison pages, so it is an empty index`);
+      }
+      for (const slug of linked) {
+        if (!productDirs.includes(slug)) {
+          problems.push(`${relative}: links "${slug}" but no such product shipped`);
+        }
+      }
+    }
+  }
+
+  // The guides index, on exactly the same terms as the comparison index above
+  // and for the same reason. It is the only cross-venture route to the 342
+  // "how much should I charge for X" pages the ventures wrote, and measured on
+  // 2026-09-07, 64 of those had one inbound link in the whole artifact — their
+  // own tool's entry page — so a build that stopped emitting this index, or
+  // emitted it with nothing linking it, would put the site's largest body of
+  // content back behind a sitemap-only discovery path and look healthy
+  // everywhere else in this file.
+  //
+  // The empty-index check matters more here than it does for comparisons:
+  // `discoverGuides` reads the *built* tree, so a change to `isGuidePage` or to
+  // the output layout would render a page with a headline, a disclaimer and no
+  // guides — valid HTML, no dead links, and worthless.
+  {
+    const relative = path.join(GUIDES_DIR, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) {
+      problems.push(`${GUIDES_DIR}/: did not ship, so the guide pages have no cross-venture index`);
+    } else {
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      if (hubHtml !== null && !/href="guides\/"/.test(hubHtml)) {
+        problems.push(`${GUIDES_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+      const linked = new Set(
+        [...html.matchAll(/href="\.\.\/([a-z0-9][a-z0-9-]*)\/[^"]+\.html"/g)].map((m) => m[1]),
+      );
+      if (linked.size === 0) {
+        problems.push(`${relative}: lists no guide pages, so it is an empty index`);
       }
       for (const slug of linked) {
         if (!productDirs.includes(slug)) {

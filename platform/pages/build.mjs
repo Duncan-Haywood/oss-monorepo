@@ -859,6 +859,166 @@ export async function discoverComparisons(surfaces) {
 }
 
 /**
+ * The index of every page a venture ships *beside* its calculator — the
+ * "how much should I charge to install carpet" articles, the worked examples,
+ * the decision pages and the extra panels.
+ *
+ * ## Why this page exists
+ *
+ * `guide-coverage.mjs` states the case for these pages in its own header, and
+ * it is the case for indexing them: a tool's entry page ranks for the
+ * transactional query ("deck bid calculator"); the informational query ("how
+ * much should I charge to build a deck?") is a separate and larger search
+ * surface, and the house answer to it is a second page per venture. Measured
+ * against a fresh build on 2026-09-07 there are 342 of them, against 189 tool
+ * entry pages — the largest body of content on this site by a wide margin, and
+ * the only one with no index anywhere.
+ *
+ * That is the same distribution hole `COMPARE_PATH` was written to close, one
+ * content type over. `/compare/` collects the 201 `vs-<product>.html` pages;
+ * nothing collects these. Concretely, measured on the same build:
+ *
+ *   - No page on this site lists them. The hub lists tools, the category pages
+ *     list tools, `/compare/` lists comparisons.
+ *   - `llms.txt` — the surface this portfolio's growth plan actually leans on,
+ *     per `renderLlmsTxt` — named **0 of 173** question-shaped guide pages.
+ *   - 64 of them had exactly one inbound link in the whole artifact (their own
+ *     tool's entry page), so a crawler reaches them at depth 3 or not at all.
+ *
+ * ## What it may and may not say
+ *
+ * The same rule `/compare/` follows, for the same reason: every word is lifted
+ * from a page a venture author already wrote. An entry's text is that page's
+ * own `<h1>`, and its blurb that page's own meta description. This page ranks
+ * nothing, recommends nothing and compares nothing — it is an index, so it
+ * cannot introduce a claim the page it links to does not already carry.
+ */
+export const GUIDES_PATH = 'guides/';
+
+/**
+ * Pages the guides index deliberately does not list.
+ *
+ * A venture's own entry page is on the hub, on its category page and in
+ * `llms.txt` already. A `vs-<product>.html` page has `/compare/`, which is
+ * about the product it names and does that job better than a trade-grouped
+ * list would. And a nested `index.html` is a second *tool* rather than a guide
+ * — `ai-engineering-academy/555-timer-calculator/` and
+ * `consent-change-record/tool/` are entry points, and filing them under
+ * "guides" would describe them as something they are not.
+ *
+ * Stated as three rules over the published tree rather than as a list of
+ * filenames, so the next venture's pages are covered without anyone editing
+ * this file — the staleness `COMPARISON_FILE_PATTERN` avoids the same way.
+ */
+export function isGuidePage(relativePath) {
+  const posix = relativePath.split(path.sep).join('/');
+  if (!posix.endsWith('.html')) return false;
+  if (posix === 'index.html' || posix.endsWith('/index.html')) return false;
+  return !COMPARISON_FILE_PATTERN.test(posix.slice(posix.lastIndexOf('/') + 1));
+}
+
+/**
+ * The heading, title and blurb a guide page describes itself with.
+ *
+ * `<h1>` first because that is the sentence the author wrote for a reader, and
+ * on these pages it is usually the query itself ("How much to charge to
+ * replace a boiler"). The `<title>` is the fallback for a page whose heading is
+ * an image or is missing, minus the " | Site name" suffix the build appends —
+ * the same trim `comparisonSubject` makes, for the same reason.
+ *
+ * Returns `null` when the page carries neither, and the caller drops it rather
+ * than inventing a label from the filename. A slug reads as
+ * "how-much-to-charge" and that is not a sentence anyone wrote.
+ */
+export function guidePageMeta(html) {
+  const text = (value) =>
+    decodeEntities(String(value).replace(/<[^>]*>/g, ' '))
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+  const titleTag = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const title = titleTag ? text(titleTag[1]).split(' | ')[0] : '';
+  const heading = h1 ? text(h1[1]) : '';
+  const label = heading || title;
+  if (!label) return null;
+
+  const description = html.match(
+    /<meta[^>]+name=["']description["'][^>]+content=["']([^"']*)["']/i,
+  );
+  return { label, title, description: description ? text(description[1]) : '' };
+}
+
+/**
+ * Read every published guide page off the built tree, grouped by the tool it
+ * belongs to and then by that tool's category.
+ *
+ * Reads the *output* directory rather than `ventures/`, unlike
+ * `discoverComparisons`, and the difference is deliberate: this index has to
+ * list a page because it shipped, at the URL it shipped to, which is the same
+ * argument `renderVentureSitemap` makes for generating from the artifact. A
+ * source-tree read would list pages `EXCLUDED_FILES` dropped and miss nothing
+ * in exchange.
+ */
+export async function discoverGuides(surfaces, outDir) {
+  const groups = [];
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    let relatives;
+    try {
+      relatives = await publishedPages(dir);
+    } catch {
+      continue;
+    }
+    const items = [];
+    for (const relative of relatives) {
+      if (!isGuidePage(relative)) continue;
+      const html = await fs.readFile(path.join(dir, relative), 'utf8');
+      const meta = guidePageMeta(html);
+      // A page whose own words do not name it is dropped rather than guessed
+      // at. See `guidePageMeta`.
+      if (!meta) continue;
+      items.push({ slug: surface.slug, file: relative, ...meta });
+    }
+    if (items.length === 0) continue;
+    items.sort((a, b) => a.label.localeCompare(b.label));
+    groups.push({
+      slug: surface.slug,
+      title: surface.title,
+      description: surface.description,
+      category: categoryFor(surface.slug),
+      items,
+    });
+  }
+  return groups;
+}
+
+/**
+ * The guides grouped the way the site is already grouped: by category, then by
+ * tool, most pages first inside a category.
+ *
+ * Most-first rather than alphabetical for the same editorial reason
+ * `groupComparisons` orders products by how many tools compare against them: a
+ * tool that has written eighteen answers is the reason the page is worth
+ * opening, and burying it under an alphabetical "Appliance Repair" would be
+ * filing rather than publishing.
+ */
+export function groupGuidesByCategory(groups) {
+  const byCategory = new Map();
+  for (const group of groups) {
+    const id = group.category.id;
+    if (!byCategory.has(id)) byCategory.set(id, { category: group.category, tools: [] });
+    byCategory.get(id).tools.push(group);
+  }
+  for (const entry of byCategory.values()) {
+    entry.tools.sort(
+      (a, b) => b.items.length - a.items.length || a.title.localeCompare(b.title),
+    );
+  }
+  return ALL_CATEGORIES.map((category) => byCategory.get(category.id)).filter(Boolean);
+}
+
+/**
  * The copy each category page is published with.
  *
  * Separate from `CATEGORY_RULES` because these are different jobs. The rules
@@ -971,7 +1131,17 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-paid',
       title: 'Getting paid & job margin',
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|tender-bid-readiness|tender-radar|which-job-first)/.test(slug),
+      // `custom-farm-rate` joins this group rather than one of the seven
+      // trade-specific ones below, and it is the same argument `shop-rate`
+      // sits here on: it is not a takeoff for an installed product, it is a
+      // rate derived from the operator's own overhead — a machine's annual
+      // ownership cost spread over the hours it actually runs — plus a
+      // season-against-an-income-goal check, which is what `job-margin` and
+      // `which-job-first` do for a construction trade. #3596 routed it into
+      // `trades` and stopped there, so it fell to the `trades-other`
+      // fallback and `main` went red on "every published trade tool lands in
+      // a named sub-group"; this is the missing half of that change.
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate)/.test(slug),
     },
     {
       id: 'trades-cleaning',
@@ -2050,7 +2220,7 @@ ${siblings}
     </section>
 
     <footer>${disclaimerHtml(toRoot, groups.flatMap((g) => g.items))}
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Guides</a> · <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
       <p>${sponsorsNote()}</p>
     </footer>
   </div>
@@ -2285,7 +2455,7 @@ ${categoryLinks}
         site is a statement about a product's quality — only about what each
         tool does and does not do.
       </p>
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Guides</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
       <p>${sponsorsNote()}</p>
     </footer>
   </div>
@@ -2499,7 +2669,7 @@ ${categoryLinks}
         ${escapeHtml(subject)} does, read ${escapeHtml(subject)}'s own
         documentation.
       </p>
-      <p style="margin-top:18px"><a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">All comparisons</a> · <a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      <p style="margin-top:18px"><a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">All comparisons</a> · <a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Guides</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
       <p>${sponsorsNote()}</p>
     </footer>
   </div>
@@ -2508,6 +2678,212 @@ ${categoryLinks}
        answer, and folding them onto the hub's slug would leave it
        unanswerable. -->
   <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(`compare/${comparisonProductSlug(group.key)}`)}" defer></script>
+</body>
+</html>
+`;
+}
+
+const GUIDES_STYLE = `
+    .tool { margin-top: 34px; }
+    .tool h3 { font-size: 1.05rem; letter-spacing: -.02em; margin: 0 0 3px; }
+    .tool h3 a { color: var(--ink); text-decoration: none; }
+    .tool h3 a:hover, .tool h3 a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .tool .note { font-size: .85rem; color: var(--soft); margin: 0 0 10px; }
+    .answers { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px;
+               grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    .answers li { background: var(--panel); border: 1px solid var(--line);
+                  border-radius: 11px; padding: 12px 14px; font-size: .94rem;
+                  line-height: 1.45; }
+    .answers a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .answers a:hover, .answers a:focus-visible { text-decoration: underline; }
+    .answers p { margin: 5px 0 0; color: var(--muted); font-size: .88rem; line-height: 1.45; }
+`;
+
+/**
+ * Every guide page in the catalogue, on one URL, grouped by trade and then by
+ * the tool that wrote it. See `GUIDES_PATH` for why this page exists and what
+ * it is allowed to say.
+ *
+ * Grouped by category first rather than rendered as one flat list of 342, for
+ * the reason `renderCategoryPage` states: a flat alphabetical wall is a filing
+ * cabinet, and the reader arriving here is a contractor or a seller who cares
+ * about one trade. Each tool keeps its own block so the guide sits next to the
+ * calculator that answers the same question with the reader's own numbers,
+ * which is the conversion this page exists to make possible at all.
+ */
+export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUrl }) {
+  const url = `${baseUrl}${GUIDES_PATH}`;
+  const toRoot = '../';
+  const sections = groupGuidesByCategory(groups);
+  const total = groups.reduce((n, group) => n + group.items.length, 0);
+  const anchorFor = (category) => `g-${category.id}`;
+
+  // Derived the same way `renderComparePage` derives its own: this page spans
+  // the whole catalogue, so a flat "nothing you type is uploaded" would be
+  // false for the tools that do make a documented live call.
+  const exceptions = externalCallExceptions(surfaces);
+  const privacyClaim = exceptions.length
+    ? `nothing you type is uploaded, except on ${listProse(
+        exceptions.map((x) => escapeHtml(x.title)),
+      )}`
+    : 'nothing you type is uploaded';
+
+  const title = 'Guides: what to charge, and how each price is worked out';
+  const description =
+    `${total} plain-English pages from ${groups.length} free calculators — how a price is built up, ` +
+    'when one option beats another, and what to do with the answer. Written by each tool\'s author, ' +
+    'free, and with the calculator on the same site.';
+
+  const entryHref = (item) => `${toRoot}${item.slug}/${item.file}`;
+
+  const renderTool = (group) => `        <div class="tool">
+          <h3><a href="${escapeHtml(`${toRoot}${group.slug}/`)}" data-tool="${escapeHtml(group.slug)}" data-pf-to="${escapeHtml(group.slug)}">${escapeHtml(group.title)}</a></h3>
+          <p class="note">${escapeHtml(
+            `${group.items.length} page${group.items.length === 1 ? '' : 's'} beside the calculator`,
+          )}</p>
+          <ul class="answers">
+${group.items
+  .map(
+    (item) => `            <li><a href="${escapeHtml(entryHref(item))}" data-pf-to="${escapeHtml(item.slug)}">${escapeHtml(item.label)}</a>${
+      item.description ? `<p>${escapeHtml(truncate(item.description, 130))}</p>` : ''
+    }</li>`,
+  )
+  .join('\n')}
+          </ul>
+        </div>`;
+
+  const body = sections
+    .map(
+      ({ category, tools }) => `      <section class="subject" id="${escapeHtml(anchorFor(category))}">
+        <h2>${escapeHtml(categoryPageCopy(category).title)}</h2>
+        <p class="note">${escapeHtml(
+          `${tools.reduce((n, t) => n + t.items.length, 0)} pages across ${tools.length} tool${
+            tools.length === 1 ? '' : 's'
+          } for ${categoryPageCopy(category).audience}.`,
+        )} <a href="${escapeHtml(`${toRoot}${categoryPagePath(category.id)}`)}">${escapeHtml(
+          `Open the ${category.title} →`,
+        )}</a></p>
+${tools.map(renderTool).join('\n')}
+      </section>`,
+    )
+    .join('\n');
+
+  const jump = sections
+    .map(
+      ({ category, tools }) =>
+        `        <li><a href="#${escapeHtml(anchorFor(category))}">${escapeHtml(category.title)}</a> <span>(${tools.reduce((n, t) => n + t.items.length, 0)})</span></li>`,
+    )
+    .join('\n');
+
+  const itemList = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    url,
+    description,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: 'Guides', item: url },
+      ],
+    },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: total,
+      itemListElement: groups
+        .flatMap((group) =>
+          group.items.map((item) => ({
+            '@type': 'ListItem',
+            name: item.label,
+            url: `${baseUrl}${pageUrlPath(item.slug, item.file)}`,
+          })),
+        )
+        .map((item, index) => ({ ...item, position: index + 1 })),
+    },
+  };
+
+  const categoryLinks = categoryGroups
+    .map(
+      ({ category, items }) =>
+        `        <li><a href="${escapeHtml(`${toRoot}${categoryPagePath(category.id)}`)}">${escapeHtml(
+          categoryPageCopy(category).title,
+        )}</a> <span>(${items.length})</span></li>`,
+    )
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(snippetize(description))}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${jsonLd(itemList)}</script>
+  <style>${CATEGORY_STYLE}${COMPARE_STYLE}${GUIDES_STYLE}  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(surfaces.length))} free tools</a> › Guides</p>
+    <header>
+      <p class="eyebrow">Guides</p>
+      <h1>The question people ask before they know a calculator exists</h1>
+      <p class="lede">Every tool on this site ships pages beside the calculator: how a price is actually built up, when one option beats another, what a fee schedule does to a payout, and what to do with the number once you have it. They are written by the tool's author, in plain English, and the calculator that answers the same question with your own figures is one click away from each one.</p>
+      <p class="count">${total} page${total === 1 ? '' : 's'} across ${groups.length} tool${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>
+    </header>
+
+    <nav class="jump" aria-label="Guides by trade">
+      <h2>Jump to a trade</h2>
+      <ul>
+${jump}
+      </ul>
+    </nav>
+
+    <main>
+${body}
+    </main>
+
+    <section class="siblings">
+      <h2>Browse the tools instead</h2>
+      <ul>
+${categoryLinks}
+      </ul>
+    </section>
+
+    <footer>${disclaimerHtml(toRoot, surfaces)}
+      <h2>What these pages are</h2>
+      <p>
+        Each page linked here is written by the author of the tool it sits
+        beside, and says how that tool works out a number — not what you should
+        charge, and not what any other business charges. The wording on this
+        index is taken from each page's own heading and description; it adds no
+        figure, no ranking and no claim of its own.
+      </p>
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      <p>${sponsorsNote()}</p>
+    </footer>
+  </div>
+  <!-- The same anonymous, local-only counter every other page loads, with this
+       page's own slug. Whether an informational query sends anyone here, and
+       whether the people it sends go on to open a calculator, is the only
+       evidence that would justify writing more guide pages — and folding this
+       onto the hub's slug would leave it unanswerable. -->
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="guides" defer></script>
 </body>
 </html>
 `;
@@ -2785,7 +3161,7 @@ ${categoryLinks}
     </section>
 
     <footer>${disclaimerHtml(toRoot, surfaces)}
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${total} tools</a> · <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${total} tools</a> · <a href="${escapeHtml(`${toRoot}${GUIDES_PATH}`)}">Guides</a> · <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
     </footer>
   </div>
   <!-- The same local-only counter every other page loads. An About page that
@@ -3289,6 +3665,7 @@ ${disclaimerHtml('', surfaces)}
         Open source — every tool is a static page, and one you have opened keeps
         working with no connection.
         <a href="${ABOUT_PATH}">About &amp; press kit</a> ·
+        <a href="${GUIDES_PATH}">Guides</a> ·
         <a href="${COMPARE_PATH}">Comparisons</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
         <a href="llms.txt">llms.txt</a> ·
@@ -5140,6 +5517,11 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`])
+    // And the guides index, for the same reason. See `GUIDES_PATH`: it is the
+    // only page on the site that is *about* the 342 informational pages the
+    // ventures wrote, which is the half of the catalogue organic search
+    // actually reaches.
+    .concat([`  <url><loc>${baseUrl}${GUIDES_PATH}</loc></url>`])
     // And its spokes. These are the pages most likely to be *found* by search
     // rather than by following a link — each is about one product a stranger
     // may be typing the name of — so leaving them out of the sitemap would
@@ -5282,7 +5664,7 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * silently ends the list item, so a tool whose meta description wrapped would
  * publish its second half as body prose.
  */
-export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = []) {
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = []) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
   // Same fact the About page states in full; see `disclaimerHtml` for why it
   // is derived rather than hand-typed.
@@ -5333,6 +5715,22 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = []) {
       (group) =>
         `  - [${group.subject}](${baseUrl}${comparisonProductPath(group.key)}): ${group.items.length} tools here have a side-by-side page against ${group.subject}, each saying what it does, what the free tool does, and when ${group.subject} is the right answer.`,
     ),
+    // The informational half of the catalogue, which this file named nowhere
+    // until 2026-09-07. Measured against a fresh build that day: 0 of the 173
+    // question-shaped guide pages appeared anywhere in `llms.txt`, while every
+    // tool did — so an assistant asked "how much should I charge to replace a
+    // boiler" could see that a boiler calculator exists and could not see that
+    // a page answering the question in prose exists beside it. One line, not
+    // 342: the index is what an assistant should fetch, and the sitemap line
+    // below already covers the individual pages for a crawler.
+    ...(guideGroups.length
+      ? [
+          `- [Guides](${baseUrl}${GUIDES_PATH}): ${guideGroups.reduce(
+            (n, group) => n + group.items.length,
+            0,
+          )} plain-English pages the tools' own authors wrote beside the calculators — how a price is built up, when one option beats another, what a fee schedule does to a payout — grouped by trade and by tool. Useful for answering "how much should I charge for X" with a page that shows the arithmetic, and a calculator on the same site that runs it on the reader's own numbers.`,
+        ]
+      : []),
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
@@ -5727,6 +6125,17 @@ export async function buildSite({
     );
   }
 
+  // The guides index. After the per-venture loop because it reads the built
+  // tree — a page is listed because it shipped, at the URL it shipped to — and
+  // before the sitemaps because they list it. See `GUIDES_PATH`.
+  const guides = await discoverGuides(surfaces, outDir);
+  const guidesDir = path.join(outDir, GUIDES_PATH);
+  await fs.mkdir(guidesDir, { recursive: true });
+  await fs.writeFile(
+    path.join(guidesDir, 'index.html'),
+    renderGuidesPage({ groups: guides, surfaces, categoryGroups, baseUrl: base }),
+  );
+
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
   await fs.writeFile(
     path.join(outDir, 'sitemap-hub.xml'),
@@ -5737,7 +6146,10 @@ export async function buildSite({
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
-  await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base, compareProducts));
+  await fs.writeFile(
+    path.join(outDir, 'llms.txt'),
+    renderLlmsTxt(surfaces, base, compareProducts, guides),
+  );
   // Read from the committed file, not from `git log`: the in-cluster build
   // clones `--depth 1` and has no history. See `launched.mjs`.
   await fs.writeFile(path.join(outDir, FEED_FILE), renderFeed(surfaces, base, launched));
