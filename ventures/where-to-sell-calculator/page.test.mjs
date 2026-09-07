@@ -393,3 +393,19 @@ test('share-link copy falls back when the Clipboard API is unavailable', () => {
   assert.match(html, /share_link_copied/);
   assert.doesNotMatch(html, /window\.prompt\("Copy this share link:/);
 });
+
+// The footer "More seller arithmetic" list is the crawlable half of the
+// handoff table in handoff.mjs. Handoff links are painted by JS after a
+// comparison, so a crawler (and a visitor who never runs the table) only
+// sees the static list. When amazon and reverb handoffs shipped, the footer
+// still named only eBay, Etsy and Shopify — the two new deep tools were
+// unreachable from this page unless you already knew their URLs.
+test('the footer lists every channel that has a handoff deep tool', () => {
+  for (const { slug } of HANDOFFS) {
+    assert.match(
+      html,
+      new RegExp(`href="\\.\\./${slug}/"`),
+      `footer (or page) must link to ../${slug}/ — it is in HANDOFFS`,
+    );
+  }
+});
