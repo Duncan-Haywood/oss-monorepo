@@ -161,9 +161,6 @@ workflows:
 - workflow: concrete-bid-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: coverage-drop-check-ci.yml
-  classification: none
-  publishes: []
 - workflow: concrete-lifting-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -180,6 +177,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: countertop-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: coverage-drop-check-ci.yml
   classification: none
   publishes: []
 - workflow: cra-evidence-desk-ci.yml
@@ -381,6 +381,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: junk-removal-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: kdp-royalty-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
@@ -753,6 +756,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: well-pump-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: whatnot-seller-payout-ci.yml
   classification: none
   publishes: []
 - workflow: wheelchair-ramp-bid-calculator-ci.yml

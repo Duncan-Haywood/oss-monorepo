@@ -5698,6 +5698,41 @@ ventures:
       Starting densities are labelled ballpark figures rather than a tariff,
       and nothing the user enters leaves the browser.
 
+  - slug: kdp-royalty-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on
+      rates the author pastes from their own KDP dashboard, and adding
+      inference would only make exclusive-versus-wide less checkable.
+    basis: >-
+      Graduated on 2026-09-07 as a browser-local KDP exclusive-versus-wide
+      royalty calculator. Amazon's official royalty calculator (account
+      required) prices one format and does not put KU page-reads next to
+      other-store volume. Defensibility 3: the 70/35 and print-cost shape
+      is public, but the same-window exclusive/wide total plus KU-pages-
+      to-match-one-sale is the piece authors keep rebuilding in
+      spreadsheets. Distribution 7: "kdp royalty calculator" and
+      "how many KU pages equal one sale" are named-intent author queries,
+      with a first-visitor channel on r/selfpublish and r/KDP.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: every rate is an author-typed input, the output is arithmetic
+      not a recommendation to enroll or leave KDP Select, and nothing
+      the user enters leaves the browser. The vs- page uses nominative
+      fair use plus a not-affiliated line.
+
   - slug: pressure-washing-bid-calculator
     scores:
       ai_leverage: 1
@@ -6985,3 +7020,40 @@ ventures:
       quality or what coverage they "should" have, only whether the line
       rate went down between the two files. Nothing is uploaded; the CLI
       makes no network call at all.
+
+  - slug: whatnot-seller-payout
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model
+      — commission on the hammer, processing on the checkout total, the
+      published $1,500 category cap, and the charge-vs-bake-vs-eat
+      shipping split — that is arithmetic, and adding inference would
+      only make the result less checkable.
+    basis: >-
+      Graduated 2026-09-07 as a browser-local Whatnot live-seller payout
+      calculator. Scored with tiktok-shop-fee-calculator (composite
+      6.833): same single-channel fee shape, same defensibility 5
+      (processing-on-checkout and the $1,500 cap are the decision a
+      headline “8%” page hides), distribution 8 because “whatnot seller
+      fees” and “whatnot fee calculator” are high-intent seller queries
+      with named communities (r/whatnot, r/whatnotapp) and no
+      overlapping venture in the portfolio (duplicate_check.py top score
+      0.23). Not a trade bid calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the seller's own inputs, never a
+      recommended start price, a claim about Whatnot's live schedule, or
+      tax advice. Presets are labelled starting points from a published
+      help article. Nothing the user enters leaves the browser.

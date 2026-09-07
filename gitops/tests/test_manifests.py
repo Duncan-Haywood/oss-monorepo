@@ -1340,10 +1340,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 193 since 2026-09-07, when `coverage-drop-check` graduated — same shape
     # again: a new venture with a static `index.html` from its first commit,
     # entering the mirror and the total together.
-    # 194 since 2026-09-07, when `ada-title-ii-evidence` graduated — same
+    # 194 since 2026-09-07, when `kdp-royalty-calculator` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 195 since 2026-09-07, when `whatnot-seller-payout` graduated — same
     # shape again: a new venture with a static `index.html` from its first
     # commit, entering the mirror and the total together.
-    total = 194  # `infra/OWNER_CHECKLIST.md`'s own "N of the 194 tools" wording.
+    # 196 since 2026-09-07, when `ada-title-ii-evidence` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    total = 196  # `infra/OWNER_CHECKLIST.md`'s own "N of the 196 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

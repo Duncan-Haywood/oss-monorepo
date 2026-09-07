@@ -18756,26 +18756,93 @@ entries:
     human_hours: 0
     outcomes:
       - >-
-        Re-ran the full browser-checks sweep that `browser_state.py` had
-        reported STALE since ba83eb7c (six merges had landed on `main`
-        since, including the sitemap fix in #3646). `npm install --no-save
-        playwright@1.56.0 axe-core` (both in one command, matching the
-        preinstalled Chromium build 1194), then `browser_checks.py --record
-        --checks sideways,presets,roundtrip,highlight,contrast,sweep,journey`
-        against a full local build (no deploy, no network) at commit
-        `59830499`.
+        PR-drain quota: exactly one open PR existed (#3646, "Fix incomplete
+        sitemaps on three live tools" -- four live search-phrase/comparison
+        pages linked from their index but missing from hand-authored
+        sitemap.xml, same class #3292 swept earlier). All 9 checks on it were
+        red; confirmed starvation rather than a real failure via
+        `ci_starvation.py --run 34099132137` (`runner_id: 0`, 3s, no
+        steps -- github-actions-runners is still down per
+        `infra_state.yaml`). Verified locally instead (167/167 venture tests,
+        `checklist_coverage.py` clean) and merged.
       - >-
-        Clean: all 7 checks passed. `contrast` (axe-core) reports 787 pages,
-        2 viewports, zero WCAG A/AA violations -- confirming the 48+60
-        critical `label` violations found and fixed in #3530/#3536/#3628's
-        predecessor commits (missing accessible names on route-table inputs)
-        have not regressed. `sideways` 788 pages none scroll sideways,
-        `presets` 66/66, `roundtrip` 162/162, `highlight` 103/103, `sweep`
-        199/199 tools with no errors, `journey` 0 failed checks across the
-        bid-persistence, sitemap and 404 flows. No code fix was needed --
-        only `platform/ci/browser_state.json` was rewritten by `--record` to
-        show the current tree covered. `browser_state.py` now reports every
-        check `ok` and current.
+        Checked the 5 non-main branches for unique work before leaving them
+        (branch-to-PR presumption). All were already superseded or empty:
+        `tender-radar-vs-govwin` and `tree-service-bid-share-link` /
+        `venture/tree-service-share-link` duplicate features already on
+        `main` (vs-govwin.html, share.mjs); `venture/vendor-change-watch`'s
+        one commit has a tree hash identical to its parent (a true no-op);
+        `tmp/ssh-key-smoke` is 936 commits behind current `main`. No PRs
+        opened for any of them.
+      - >-
+        Deployment: `pages_state.py` showed the gh-pages snapshot one merge
+        stale after #3646 landed. Re-running `publish-branch.sh` hit its own
+        regression guard ("refusing to publish backwards") because a
+        concurrent session had already published a snapshot built from the
+        same commit -- re-checked and confirmed current rather than
+        overriding.
+      - >-
+        Ran the full accessibility/browser-check sweep (`browser_checks.py
+        --record`, all 7 checks: sideways, presets, roundtrip, highlight,
+        contrast, sweep, journey) against the current tip, 789 pages, since
+        #3646 touched `ventures/` and staled the prior 2026-09-06 reading.
+        First pass recorded against the pre-merge commit by mistake (branch
+        hadn't fast-forwarded yet); re-ran after fast-forwarding to get an
+        honestly-current stamp. All 7 passed clean -- 0 WCAG A/AA violations
+        across 787 pages x 2 viewports, 0 sideways-scroll pages, 199/199
+        sweep tools answered with no errors, 0 failed journey checks. No
+        defects found this run, unlike the 48 critical axe `label`
+        violations the first-ever contrast.mjs run found on 2026-09-06 --
+        genuinely clean, not unrun. Recorded to
+        `platform/ci/browser_state.json`.
+      - >-
+        Investigated the standing "set up an autonomous coding agent on the
+        Hetzner box, spending its own quota, under a mandate like this one"
+        request. That path already exists and is fully built and documented
+        (`gitops/agents/host/`, README + systemd timer + governor sharing
+        code with the k3s CronJob path, `install-codex-host.sh`,
+        `enable-codex-governor.sh`): a Codex CLI worker scheduled every 5
+        minutes, spending the owner's ChatGPT subscription quota rather than
+        metered Actions minutes, opening PRs and never merging. It ships
+        `policy.json` with `"enabled": false` by design and needs the owner
+        to (1) restore SSH access -- decision-queue row #1,
+        `hetzner-ssh-key-is-a-public-key`, still open -- (2) paste
+        `CODEX_AUTH_JSON`/`GH_TOKEN` credentials, and (3) explicitly flip the
+        enable switch. Not attempted this session: no session holds those
+        credentials, and CLAUDE.md gates both "pasting a secret" and
+        "enabling unattended automation that spends paid API budget" behind
+        the owner. Flagged to the owner rather than actioned.
+      - >-
+        Concurrent-session note: another session independently ran the same
+        browser-check sweep at almost the same time (recorded at commit
+        `59830499`, between this session's `7a743380` reading and the
+        current tip) -- both readings kept in `platform/ci/browser_state.json`
+        rather than one overwriting the other. Its findings matched this
+        session's: all 7 checks clean, 787 pages, 2 viewports, zero WCAG A/AA
+        violations, confirming the earlier #3530/#3536/#3628 accessible-name
+        fixes have not regressed. No conflict in substance, only in timing.
+    mrr_end: null
+  - venture: whatnot-seller-payout
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged the only open PR at session start (#3667, tender-radar
+        reciprocal hub link to tender-bid-readiness). CI reds were
+        starvation (`ci_starvation.py --run 34104491301`, runner_id 0).
+        Unique leftover branches were already on main; #3669 was a
+        browser_state stamp against a now-stale commit and was left open.
+      - >-
+        Graduated whatnot-seller-payout: a browser-local Whatnot live-seller
+        payout calculator. Commission on the hammer, processing on the
+        checkout total (item + buyer-paid shipping + tax) plus $0.30, the
+        published $1,500 TCG/comics/sports/toys cap, leftover after the
+        label, hammer-for-target, and charge-vs-bake-vs-eat shipping.
+        First-visitor channel: r/whatnot, r/whatnotapp, and “whatnot seller
+        fees” / “whatnot fee calculator”. duplicate_check.py was 0.23
+        against the nearest existing venture before this directory existed.
+        40/40 venture tests pass. Mirror count 194 -> 195 after integrating
+        #3671's kdp-royalty-calculator on main.
     mrr_end: null
   - venture: ada-title-ii-evidence
     agent_spend_usd: null
