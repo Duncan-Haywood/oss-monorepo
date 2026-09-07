@@ -489,12 +489,20 @@ const CATEGORY_RULES = [
     // `pinned-actions` rather than four alternatives, so the next checker in
     // the family lands here without another edit.
     //
-    // `npm-lifecycle-script-check` joined 2026-09-07: a paste-a-snapshot,
-    // deterministic-diff checker for a maintainer's own dependency tree,
-    // the exact shape this section already holds, just for an install-time
-    // script instead of a workflow file, a coverage report, or a robots.txt.
+    // `license-drift-check` and `npm-lifecycle-script-check` both joined
+    // 2026-09-07, within hours of each other. `license-drift-check`
+    // graduated in #3808 and landed in the catch-all because the rule above
+    // enumerates families by prefix and its slug starts a new one — it names
+    // what it diffs (licenses) rather than what it reads. It is the same
+    // shape as the rest: a browser-local checker plus a matching CLI, run by
+    // a maintainer against a dependency tree they already have, reporting
+    // which packages' declared license changed since the last snapshot.
+    // `npm-lifecycle-script-check` is a paste-a-snapshot, deterministic-diff
+    // checker for that same dependency tree, just for an install-time script
+    // instead of a declared license. Both belong beside the four workflow
+    // checkers, not below the childcare tuition calculator.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|npm-lifecycle-script-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check)/.test(
         slug,
       ),
   },
