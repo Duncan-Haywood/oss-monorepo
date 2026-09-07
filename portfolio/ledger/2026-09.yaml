@@ -1,5 +1,70 @@
 period: 2026-09
 entries:
+  - venture: home-staging-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Open-PR drain first, per this run's mandate: 0 open PRs
+        (`list_pull_requests`, state=open, 100/page). Of 104 remote branches
+        not merged into `main`, 14 carry a diff of zero against it and the
+        rest are the head branches of already-closed PRs; the four largest by
+        unique-commit count were checked by hand
+        (`claude/festive-mccarthy-xrn3ua` adds `ventures/vendor-watch`,
+        `cursor/3pl-quote-normalizer-compare-20260825` adds
+        `ventures/3pl-quote-normalizer` — both ventures are already on `main`
+        in later form, i.e. the STALE DRAFT shape `supersede_check.py`
+        documents). So the three-PR quota was vacuously met with an empty
+        queue rather than skipped, and no branch was closed or deleted.
+      - >-
+        Shipped the venture's guide page,
+        `how-much-to-charge-for-home-staging.html`, closing the last row in
+        `platform/pages/guide-coverage.mjs` — it was 188 of 189 published
+        surfaces carrying a secondary page, and this venture (graduated
+        yesterday in #3583) was the one that did not. Distribution here is
+        organic only, so that page is the acquisition surface: the tool's own
+        page ranks for the transactional query, and the informational one
+        ("how much to charge for home staging") is a separate and larger
+        search surface whose current results are franchise rate cards and
+        lead forms. Written from what `calc.mjs` actually models — a staging
+        job is a once-paid install/de-install cost plus a monthly furniture
+        carrying cost that runs for a duration the stager does not control,
+        so an extension fee set below that carrying cost loses money without
+        a ceiling. Visible Q&A with matching `FAQPage` JSON-LD, the venture's
+        no-warranty clause, links both ways with `index.html`.
+      - >-
+        Fixed `main` red along the way, unrelated to the page:
+        `portfolio/scoring/test_score_ventures.py` (two cases) and
+        `portfolio/router/test_allocate.py` (one) had been failing since the
+        #3583 graduation, which added `ventures/home-staging-bid-calculator/
+        VENTURE.yaml` without a row in `portfolio/scoring/venture-scores.yaml`.
+        Confirmed pre-existing by stashing this branch's changes and
+        re-running. Added the row (composite 6.667, same shape and reasoning
+        as `carpet-cleaning-bid-calculator`); `score_ventures.py --check` now
+        reports all 198 scores consistent and covering every `VENTURE.yaml`.
+      - >-
+        Verified: `checklist_coverage.py` (clean), `regen.mjs` (2 generators,
+        served surface current — it picked the new page into the Hetzner
+        front-door mirror as well as the Pages build), `node --test` over
+        `platform/marketing` + `platform/pages` (1140/1140) and over
+        `platform/proposal` + `platform/privacy` + `platform/webcheck` + the
+        venture (206/206), `gitops/tests` (490 passed, 25 skipped), all 19
+        `platform/ci` unittest modules OK, `agent_review` OK,
+        `portfolio/*` + `infra/tests` (380 passed, was 3 failed).
+        `browser_checks.py --only home-staging-bid-calculator` ran the full
+        Playwright set including axe contrast and the 763-URL sitemap
+        resolution: 6 of 7 checks ran and passed, `highlight` skipped on a
+        missing dependency.
+      - >-
+        Deployment: refreshed the `gh-pages` snapshot with
+        `platform/pages/publish-branch.sh`, which is the live route — nothing
+        rebuilds that committed artifact when `main` moves, and Actions
+        runners are still starved (`infra_state.yaml`,
+        `github-actions-runners: down`), so the workflow that would do it
+        cannot run. The Hetzner origin is unchanged and still down; the
+        regenerated `gitops/prod/front-door*` mirror carries the new page for
+        whenever `hetzner-ssh-key-is-a-public-key` is granted and the cluster
+        comes back.
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0

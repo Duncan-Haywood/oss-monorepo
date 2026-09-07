@@ -6674,3 +6674,44 @@ ventures:
       determination about ice-dam prevention. The tool never touches a live
       transaction or anyone else's data, and it is not a safety or
       fall-protection assessment. Nothing entered leaves the browser.
+  - slug: home-staging-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — an included-term
+      price built from a once-paid install/de-install cost plus the furniture
+      package's own monthly carrying cost, and an extension fee checked
+      against that carrying cost — arithmetic a stager has to be able to
+      re-derive against their own storage bills and mileage log before
+      quoting.
+    basis: >-
+      Graduated 2026-09-06 (#3583); scored 2026-09-07 in the change that
+      added its guide page, closing the gap `score_ventures.py --check` had
+      been red on since the graduation. Same per-job trade-calculator shape
+      as `carpet-cleaning-bid-calculator` and `moving-bid-calculator`, scored
+      the same way. Defensibility 5: the term-price-versus-carrying-cost
+      split is specific to a business whose inventory is off the market for
+      the duration of a job whose length the operator does not control, and
+      it is not modeled by a generic bid calculator or by the franchise rate
+      cards that rank for the query. Distribution 7: "how much to charge for
+      home staging" and "home staging pricing" are real operator queries
+      whose current results are franchise rate cards and lead forms, but
+      volume here is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the stager's own figures, never a
+      recommended price, an industry rate card, a real-estate opinion, or a
+      prediction of how long a home will take to sell. The tool never touches
+      a live transaction or anyone else's data, and nothing entered leaves
+      the browser.
