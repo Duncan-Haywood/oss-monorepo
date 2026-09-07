@@ -1368,7 +1368,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 203 since 2026-09-07, when `gig-driver-net-pay-calculator` graduated —
     # same shape again: a new venture with a static `index.html` from its
     # first commit, entering the mirror and the total together.
-    total = 203  # `infra/OWNER_CHECKLIST.md`'s own "N of the 203 tools" wording.
+    # 204 since 2026-09-07, when `actions-cache-poisoning-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    total = 204  # `infra/OWNER_CHECKLIST.md`'s own "N of the 204 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

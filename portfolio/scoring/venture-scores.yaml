@@ -7290,6 +7290,66 @@ ventures:
       or resolves anything on the user's behalf. It makes no security or
       compliance claim: a clean scan means these two specific, documented
       patterns are absent, not that the workflow is secure overall.
+  - slug: actions-cache-poisoning-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over workflow YAML already on disk or
+      pasted into the browser: an actions/cache (or actions/cache/save) step
+      under a pull_request_target/workflow_run trigger, or a restore-keys
+      field on actions/cache or actions/cache/restore. There is nothing to
+      infer.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags an
+      actions/cache write reachable from a fork-triggered
+      pull_request_target/workflow_run job, and an unscoped restore-keys
+      fallback that can adopt a colliding entry -- the two patterns behind
+      the TanStack Router cache-poisoning incident (May 2026). Same shape as
+      `actions-injection-check`, `actions-permissions-check`, and
+      `pinned-actions-check`: a standard-library-only classifier over data
+      the user already has, scored on this file's six-dimension rubric to
+      keep coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page classifies YAML the visitor pastes and the CLI reads only local
+      files, so marginal cost per use is zero and there is no server to
+      operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the classification rules are a handful of documented
+      regex-shaped checks any developer could write; what is not trivially
+      copied is the paired CLI/browser port with a shared classifier module,
+      a parity test, and the already-written explanation of why each pattern
+      is dangerous (the TanStack incident, AdnaneKhan's ActionsCacheBlasting
+      research, Hive Security's writeup), which is the actual value a
+      searcher is buying. Unmeasured beyond that, hence not scored higher.
+      Distribution 5: a dated, named incident (TanStack Router, May 2026)
+      gives this a concrete recent-news hook none of its siblings had at
+      launch, but this portfolio has no existing developer-tool distribution
+      channel and volume is unmeasured, so scored level with the family
+      rather than above it.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network calls anywhere in either
+      implementation — it classifies workflow YAML already on the user's
+      disk or pasted into the browser, asks for no token, and never fetches
+      or resolves anything on the user's behalf. It makes no security or
+      compliance claim: a clean scan means these two specific, documented
+      patterns are absent, not that the workflow or its cache usage is safe
+      overall.
   - slug: childcare-tuition-calculator
     scores:
       ai_leverage: 1
