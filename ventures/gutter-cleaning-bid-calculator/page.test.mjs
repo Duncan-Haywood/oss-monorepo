@@ -34,3 +34,16 @@ test('the companion article answers the two-story question and stays crawlable',
   assert.match(sitemap, /gutter-cleaning-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /two-story-gutter-cleaning-cost\.html/);
 });
+
+// Closest sibling: same exterior-maintenance crew, routinely bundled onto one visit. Related-tool chrome rotates inside the
+// Cleaning, restoration & insulation subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the pressure-washing-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/pressure-washing-bid-calculator\/"/,
+    'index must link ../pressure-washing-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /pressure washing bid calculator/i);
+});

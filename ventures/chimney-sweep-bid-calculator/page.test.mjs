@@ -38,3 +38,16 @@ test('robots and sitemap let crawlers find both pages', () => {
   assert.match(sitemap, /chimney-sweep-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+// Closest sibling: same venting trade and often the same visit, but the dryer duct rather than the flue. Related-tool chrome rotates inside the
+// Cleaning, restoration & insulation subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the dryer-vent-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/dryer-vent-bid-calculator\/"/,
+    'index must link ../dryer-vent-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /dryer vent bid calculator/i);
+});

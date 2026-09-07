@@ -140,3 +140,16 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
+
+// Closest sibling: same exterior contractor, same elevation, but the wall wrap rather than the roof. Related-tool chrome rotates inside the
+// Roofing, siding & gutters subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the siding-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/siding-bid-calculator\/"/,
+    'index must link ../siding-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /siding bid calculator/i);
+});
