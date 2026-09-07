@@ -252,3 +252,10 @@ test('every worked-example sub-page carries a robots meta and a matching canonic
     assert.match(source, new RegExp(`<link rel="canonical" href="${page.replace('.', '\\.')}"`), `${page} is missing (or has a mismatched) canonical link`);
   }
 });
+
+// where-to-sell-calculator already hands a Reverb comparison into this page;
+// without a crawlable link back, a visitor who landed on Reverb first has no
+// path to the multi-channel ranking that owns the handoff.
+test('index links to the where-to-sell calculator', () => {
+  assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
+});
