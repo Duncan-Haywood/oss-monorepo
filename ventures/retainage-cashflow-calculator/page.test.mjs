@@ -160,3 +160,15 @@ test('the structural guards actually fail on a swallowed document', () => {
   assert.doesNotMatch(d.scriptSource, /parseInputs/);
   assert.ok(d.declaredIds.size < declaredIds.size);
 });
+
+// Closest sibling: same trades-paid subcategory, but the whole subcontract's
+// payment timing rather than the retainage hold alone. Without a crawlable
+// link here, a crawler entering on the retainage calculator never reaches
+// the cash-flow planner in one hop.
+test('index links one hop to the subcontractor-cashflow-planner sibling', () => {
+  assert.match(
+    page,
+    /href="\.\.\/subcontractor-cashflow-planner\/"/,
+    'index must link ../subcontractor-cashflow-planner/ so crawlers reach the cash-flow planner in one hop',
+  );
+});

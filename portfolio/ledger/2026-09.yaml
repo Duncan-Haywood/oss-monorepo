@@ -19034,3 +19034,58 @@ entries:
         losing side of a duplicate repair is the natural place to check the
         winner's work, and nothing else was going to while CI is starved.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed the hole that let the live catalogue be published from a commit
+        nobody can review. `platform/pages/publish-branch.sh` publishes
+        whatever HEAD is, and every guard in it asked *which* `main` commit was
+        being published -- never whether it was a `main` commit at all. A
+        session sitting on its own feature branch, which is the ordinary state
+        of a session here, therefore shipped unreviewed work straight to the
+        live site by running the same command this repo's docs give for a
+        routine refresh, and nothing turned red.
+      - >-
+        Measured rather than reasoned to: `gh-pages` was found serving a
+        snapshot whose recorded source commit `077c0998` existed nowhere in
+        the repository -- not on `main`, not on any branch, not as any object
+        (`git cat-file -t` fails, `git branch -r --contains` errors). That is
+        what a publish from a branch looks like afterwards, once the branch is
+        squash-merged (this repo squash-merges, so the original sha is gone)
+        or deleted. Republished from `main` (8651fa5b) to repair it.
+      - >-
+        Two defects, and the second is what hid the first. (1) No check that
+        HEAD is on `origin/main`; the push now refuses unless
+        `merge-base --is-ancestor $source_sha $main_tip` holds, with
+        `ALLOW_UNMERGED_SOURCE=1` for a deliberate exception and preview
+        builds (`PUSH` unset) untouched, since previewing is how a change gets
+        checked and only the push reaches users. (2) The existing
+        publish-backwards guard *fails open* on exactly this case: it is one
+        `&&` chain, and `cat-file -e` cannot resolve a commit that no longer
+        exists, so the whole condition short-circuits into the push it exists
+        to stop. Now an unresolvable published commit is named out loud and
+        the push proceeds deliberately -- publishing from `main` is the repair
+        for an untraceable snapshot, so blocking it would block the fix, but a
+        silent fall-through is how this went unnoticed. Same "cannot tell must
+        not read as safe" shape CLAUDE.md records for starved checks and for
+        `run_workflow_locally.py`'s UNRUN steps.
+      - >-
+        Verified both directions against the real script, not only its text:
+        from a feature branch `PUSH=1` refuses and names the fix, and the same
+        branch builds a preview successfully with `PUSH` unset (exit 0). Four
+        new tests in `platform/ci/test_publish_pages_branch.py`, one of them
+        driving real git through a squash-merge to prove a squash-merged
+        branch head reads as not-on-main while an ordinary `main` commit still
+        publishes; suite 19/19, all 21 `platform/ci` modules OK.
+      - >-
+        Also republished the `gh-pages` snapshot twice during the session as
+        `main` moved. Worth recording as a standing cost rather than an
+        incident: with 3 sessions/hour merging and publishing manual, the
+        snapshot went stale within minutes of each publish.
+        `.github/workflows/publish-pages-branch.yml` already automates it and
+        is gated on the owner setting `PAGES_BRANCH_PUBLISH` -- and needs a
+        runner, which `ci_starvation.py --run 34131540325` confirms is still
+        unavailable (`runner_id: 0`, 4s, no steps).
+    mrr_end: null
