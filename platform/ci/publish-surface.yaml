@@ -158,6 +158,9 @@ workflows:
 - workflow: concrete-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: coverage-drop-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: concrete-lifting-bid-calculator-ci.yml
   classification: none
   publishes: []
