@@ -458,6 +458,23 @@ const CATEGORY_RULES = [
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
       || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit)/.test(slug),
   },
+  {
+    id: 'ci',
+    title: 'CI checks & developer gates',
+    accent: '#1a4560',
+    blurb: 'Tell a starved runner from a real failure, catch a coverage drop, classify flaky tests, or see which AI crawlers your robots.txt allows — free, local, no account.',
+    // These four sat in the catch-all together: each is a browser-local (and
+    // matching CLI) checker a maintainer runs against files or API JSON they
+    // already have, not a trade bid, marketplace fee, or compliance evidence
+    // packet. They already deep-link each other as Related, but a visitor
+    // browsing "More free tools" never met the group — and related-tool chrome
+    // mixed them with Sponsor Ready and marketplace payouts. A named section
+    // is how a developer looking for a CI gate finds all four.
+    test: (slug) =>
+      /^(actions-runner-starvation|coverage-drop-check|flaky-test-finder|ai-crawler-access)/.test(
+        slug,
+      ),
+  },
 ];
 
 const FALLBACK_CATEGORY = {
@@ -473,7 +490,7 @@ export function categoryFor(slug) {
 
 /**
  * The share-card image a page in this category points at. One file per
- * category (7 total, named by a stable id) rather than one per tool (164,
+ * category (8 total, named by a stable id) rather than one per tool (164,
  * named by a title that renames): a rebrand or a retitled tool never breaks
  * this filename, and a share into the roofing group and a share into the
  * marketplace-fee thread render as visibly different cards without anyone
@@ -1109,10 +1126,18 @@ const CATEGORY_PAGE_COPY = {
       'A service business quotes work without bidding a construction job, and the arithmetic is its own: travel time nobody bills, a route that has to cover the truck, a licence term that changes what the work is worth. These tools price that, one trade at a time.',
     audience: 'small service businesses',
   },
+  ci: {
+    title: 'Free CI checks and developer gates',
+    description:
+      'Free local tools that read a GitHub Actions job JSON, two coverage XML reports, JUnit XML across runs, or a robots.txt — and report a deterministic verdict. No account, nothing uploaded.',
+    intro:
+      'A red CI check, a coverage cliff, a flaky suite, or an AI crawler you thought you blocked — each is a file or a JSON blob you already have. These tools read that input in your browser (or as a matching zero-dependency CLI) and name the verdict, without an account or an upload.',
+    audience: 'maintainers and developers running CI',
+  },
   more: {
     title: 'More free small-business calculators',
     description:
-      'The rest of the free, browser-only calculators here — everything outside the marketplace, trade, services, logistics, compliance and back-office sections.',
+      'The rest of the free, browser-only calculators here — everything outside the marketplace, trade, services, logistics, compliance, back-office and CI sections.',
     intro:
       'Tools that did not fit the other sections. Same terms as the rest of the site: free, no account, and every calculation runs in your own browser.',
     audience: 'small businesses',
