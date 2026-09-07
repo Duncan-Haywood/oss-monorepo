@@ -122,9 +122,23 @@ one `npm install` is the whole barrier, and sessions have been treating it as
 impossible** (added 2026-09-06):
 
 ```
+python3 platform/ci/browser_state.py               # has anyone run these lately?
 npm install --no-save playwright@1.56.0 axe-core   # both in ONE command
 python3 platform/ci/browser_checks.py --only <slug>
 ```
+
+**Ask the first line before you decide the other two are someone else's job**
+(added 2026-09-07). A whole-site run takes 20-30 minutes and printed its
+verdict to a terminal that then went away, so nothing in the tree said whether
+it had ever happened — which left every session choosing between spending the
+30 minutes again and skipping, and this file already records which one gets
+picked. `browser_state.py` reports, per check, the date and commit it last
+passed at, and whether anything under `ventures/`, `platform/pages/` or
+`platform/marketing/` has moved since. A docs or ledger merge does not stale a
+reading; a change to a rendered surface does. Add `--record` to a full
+`browser_checks.py` run to write the reading — it refuses a `--only` run and a
+run with skips, because a reading that laundered either into "the catalogue
+passed" would be worse than no reading at all.
 
 `platform/ci/browser_checks.py` already does the hard parts — it builds into a
 temp dir, proves with a sentinel token that the port is not answering a stale
