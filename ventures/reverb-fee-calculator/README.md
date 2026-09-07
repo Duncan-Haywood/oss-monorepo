@@ -12,11 +12,12 @@ fees Reverb or eBay will charge: enter the rates from your last payout and
 verify them against your current statements.
 
 After using this, you can now see cash at list, cash on the offer, the
-Reverb offer that matches eBay list cash, whether charging shipping,
-folding postage into the list, absorbing the label, or offering local
-pickup leaves more, whether Reverb Safe Shipping still beats your own
-label after expected claims, whether a bump still pays if it gets you
-from the offer to list, and whether consigning at a shop or taking
+Reverb offer that matches eBay list cash, whether taking the offer now
+beats the probability-weighted value of waiting for a better one, whether
+charging shipping, folding postage into the list, absorbing the label, or
+offering local pickup leaves more, whether Reverb Safe Shipping still beats
+your own label after expected claims, whether a bump still pays if it gets
+you from the offer to list, and whether consigning at a shop or taking
 their cash offer still beats listing it yourself, which used to mean
 opening two seller fee pages and a spreadsheet.
 
@@ -47,6 +48,36 @@ The SEO page
 [`should-i-take-this-reverb-offer.html`](should-i-take-this-reverb-offer.html)
 walks the default worked example ($800 list, $720 offer, $284.33 vs $210.65
 on Reverb, $233.76 on eBay at list, $745.10 crossover).
+
+## Take the offer now, or wait for a better one?
+
+Every comparison above treats "wait for list" as a sure thing. It is not.
+Declining an offer does not buy a sale at list — it buys a *chance* of one,
+and the realistic alternative if that chance doesn't land is usually another
+offer near (or below) the one already in hand. That is the actual decision a
+lowball forces: certain cash now against a probability-weighted average
+later.
+
+The calculator adds two inputs — your typed odds of eventually reaching
+list, and the price you would realistically settle for otherwise — and
+prices three paths on one screen:
+
+- **Take the offer now** — certain cash, the baseline.
+- **Wait, eventually reach list** — weighted by your typed probability.
+- **Wait, eventually settle for less** — weighted by the remaining
+  probability, at your typed fallback price.
+
+It also names the **break-even chance of reaching list**: below it, taking
+the offer wins on average; above it, waiting does. The fallback price
+defaults *below* the offer rather than at list, on purpose — an inbox that
+produced one lowball tends to produce more of them, and defaulting the
+fallback at list would quietly assume away the downside of holding out.
+
+The SEO page
+[`should-i-wait-for-a-better-reverb-offer.html`](should-i-wait-for-a-better-reverb-offer.html)
+walks the default worked example ($720 offer / $800 list / $680 fallback /
+30% typed chance: $208.15 certain now vs. $204.48 in expectation waiting,
+33.33% break-even chance).
 
 ## Buyer-pays shipping, free shipping, or pickup
 

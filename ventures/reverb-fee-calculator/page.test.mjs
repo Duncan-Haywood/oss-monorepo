@@ -219,7 +219,7 @@ test('the incumbent-comparison page links back, names Reverb\'s own resources ho
 test('every published page carries Open Graph tags', () => {
   const dir = new URL('./', import.meta.url);
   const pages = readdirSync(dir).filter((name) => name.endsWith('.html'));
-  assert.ok(pages.length >= 9, 'expected at least the 9 known pages in this venture');
+  assert.ok(pages.length >= 10, 'expected at least the 10 known pages in this venture');
   for (const page of pages) {
     const source = readFileSync(new URL(page, dir), 'utf8');
     assert.match(source, /<meta property="og:title" content="[^"]+">/, `${page} is missing og:title`);

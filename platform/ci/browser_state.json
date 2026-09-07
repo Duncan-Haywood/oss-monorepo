@@ -1,0 +1,29 @@
+{
+  "readings": [
+    {
+      "checks": [
+        "contrast",
+        "sideways"
+      ],
+      "commit": "da40d4f035c7fec7343c1ef1e50f618986b32946",
+      "measured": "2026-09-07",
+      "pages": 775,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sweep"
+      ],
+      "commit": "da40d4f035c7fec7343c1ef1e50f618986b32946",
+      "measured": "2026-09-07",
+      "pages": 775,
+      "result": "pass",
+      "scope": "full"
+    }
+  ]
+}
