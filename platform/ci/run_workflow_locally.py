@@ -99,6 +99,13 @@ VERIFICATION_ONLY = {
     "agent-permission-harness-ci.yml",
     "conflict-markers-ci.yml",
     "duplicate-symbols-ci.yml",
+    # Added 2026-09-07 with the workflow itself. `--tree` is the mode that
+    # answers "is `main` green right now?", and a gate that only runs when a
+    # diff selects it cannot answer that -- which is the same "correct,
+    # current, and shouting into an empty room" shape CLAUDE.md records
+    # against `validate_doc_consistency.py` and `score_ventures.py --check`.
+    # It reads the venture tree and asserts a count; it writes nothing.
+    "sibling-links-ci.yml",
 }
 
 # Commands that change something outside this working tree. A verification
