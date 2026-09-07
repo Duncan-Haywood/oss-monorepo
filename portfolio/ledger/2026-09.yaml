@@ -18205,6 +18205,106 @@ entries:
         existed. Built the tool that makes the *next* such session's
         screening step reliable instead.
     mrr_end: null
+  - venture: pour-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and graduated a new venture per DIRECTION.md's "raise the
+        bar, not just the count" rule: named the niche, ran
+        `duplicate_check.py` before writing anything up (top score 0.13
+        against `delivery-app-margin-calculator`, well under the 0.45
+        "read this first" bar), scored it honestly against both pipeline
+        hard gates, and shipped real code in the same session rather than a
+        write-up alone.
+      - >-
+        Niche: independent bar/restaurant beverage programs pricing a
+        cocktail recipe against a target pour cost (liquor cost)
+        percentage, and quantifying what a small, specific over-pour on the
+        primary spirit costs across a year of actual drink volume --
+        distinct from every `*-bid-calculator` (one-time job bid, not a
+        recurring recipe/menu price) and every `*-route-margin` venture
+        (per-location or per-visit route economics, not a recipe). Named
+        distribution channels: r/bartenders and r/TendingBar (bar-industry
+        subreddits where recipe costing and pour-cost questions recur), and
+        the search phrases "pour cost calculator," "liquor cost
+        calculator," and "how to calculate pour cost."
+      - >-
+        Gate scores (portfolio/pipeline/README.md rubric):
+        liability_containment 8/10, ethical_robustness 9/10 -- both clear
+        the 5 hard-gate floor with room. Full eight-dimension composite
+        6.875, floor 1 (ai_leverage, the deliberate floor of a
+        deterministic calculator per the pipeline's own rule, not a
+        defect). Full write-up:
+        `portfolio/pipeline/candidates/pour-cost-calculator.md`.
+        `candidates.yaml` and `README.md`'s ranked table both updated to
+        `verdict: graduated`, inserted at its correct composite position
+        (not appended out of order) so `validate_candidates.py` and
+        `validate_doc_consistency.py` carry no new inconsistency from this
+        change (the tool's 2 pre-existing, unrelated inconsistencies about
+        `fire-extinguisher-inspection-route-margin` are untouched).
+      - >-
+        Shipped `ventures/pour-cost-calculator`: a static, deterministic
+        browser calculator (spirit/modifier/mixer recipe costing, pour cost
+        % vs. a target, the menu price the recipe would need to hit that
+        target, and the weekly/annual dollar cost of a stated over-pour on
+        the primary spirit across the operator's own drink volume), a
+        search-intent guide page (`how-to-calculate-pour-cost.html`) whose
+        worked example is recomputed and asserted against the live
+        calculator rather than typed twice, all five PRODUCT_PLAYBOOK.md
+        §5 requirements (LICENSE, the exact §5b no-warranty/no-SLA
+        disclaimer text visible on every page, the §5c privacy line, local
+        anonymous usage counting matching the fleet's `usage.mjs`
+        pattern, and the §5e discoverability checklist -- meta
+        description, SoftwareApplication + FAQPage JSON-LD, robots.txt,
+        sitemap.xml, launch date via `launched.mjs --write`), and the §6
+        `github.com/sponsors/Duncan-Haywood` footer link (counted
+        automatically by the fleet's existing `markSponsorLinksIn`, no
+        per-venture wiring needed). 43 passing `node --test` assertions
+        (calc arithmetic, usage counting, page/markup contract).
+      - >-
+        Ran the full verification set this session's brief specified, not a
+        hand-picked subset, and fixed forward every real gap it found
+        rather than narrowing scope: `node platform/marketing/regen.mjs`
+        (committed the rewritten mirror/sitemap/feed/catalog); the venture
+        landed in the fallback "more" category and pushed it to 9 tools, so
+        added it to the existing `services` category in
+        `platform/pages/build.mjs` instead of leaving the catch-all-size
+        guard red; `platform/ci/test_check_step_grid.py` caught a real
+        input-stepping defect (three `oz used` fields used `min="0.01"
+        step="0.125"`, a grid with no whole number on it) -- fixed to
+        `step="any"`; `platform/webcheck/faq-visible.test.mjs` caught the
+        JSON-LD FAQ text on both pages not matching the visible copy
+        verbatim (curly quotes/en-dash on the page vs. straight
+        characters in the JSON-LD, and one page's JSON-LD authored with no
+        matching visible section at all) -- fixed both; `gitops/tests`
+        needed the mirrored-tool count (189 -> 190) updated in the four
+        places CLAUDE.md names (`infra/OWNER_CHECKLIST.md` x2,
+        `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2, plus the test's own
+        literal); `portfolio/scoring` + `portfolio/router` needed a
+        `venture-scores.yaml` row (this file's own six-dimension rubric,
+        composite 6.333, same shape as `home-staging-bid-calculator`) for
+        coverage. Full results: `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1140/1140
+        after fixes; `node --test ventures/pour-cost-calculator/*.test.mjs`
+        43/43; `checklist_coverage.py` clean; `python3 -m pytest
+        gitops/tests` 490 passed / 25 skipped; the `platform/ci` unittest
+        line 15/15 (all pass); `agent_review` 21/21; `python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests` 396 passed / 8 subtests. Two
+        `platform/webcheck/page-integrity.test.mjs` cases fail in this
+        environment on unrelated ventures (`cut-list-optimizer`,
+        `3pl-quote-normalizer`) because the clone is shallow and the
+        specific historical commits they diff against are not present --
+        pre-existing and orthogonal to this change, not fixed here per the
+        no-git-operations constraint on this session.
+      - >-
+        `ci_starvation.py` needs a run id and none was available to check
+        (no CI run exists for uncommitted local changes); verified
+        everything above locally instead, which is always correct per
+        AGENTS.md.
+    mrr_end: null
   - venture: owner-operator-cpm-calculator
     agent_spend_usd: null
     human_hours: 0
