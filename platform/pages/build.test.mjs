@@ -4589,11 +4589,16 @@ test('renderGuidesPage names an external-call exception by its prose name, not i
     },
   ];
   const html = renderGuidesPage({ groups, surfaces, categoryGroups: [], baseUrl: 'https://example.test/' });
-  assert.ok(html.includes('except on DNS Change Evidence'), 'the exception is not named at all');
+  const [sentence] = html.match(/nothing you type is uploaded[^<]*/) ?? [];
+  assert.ok(sentence, 'the privacy sentence is missing entirely');
+  assert.ok(sentence.includes('except on DNS Change Evidence'), `the exception is not named: "${sentence}"`);
   assert.ok(
-    !html.includes('DNS Change Evidence — prove what a DNS change actually did'),
-    'the raw tagline survived into the privacy sentence',
+    !sentence.includes('prove what a DNS change actually did'),
+    `the raw tagline survived into the privacy sentence: "${sentence}"`,
   );
+  // The tool's own heading is unaffected — full title there is correct, same
+  // as disclaimerHtml's <a> per toolProseName's own doc comment.
+  assert.ok(html.includes('<h3><a href="../dns-change-evidence/"'), 'the guide heading itself must keep the full title');
 });
 
 test('the guides index is in the hub sitemap and named in llms.txt', () => {
