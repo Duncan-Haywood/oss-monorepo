@@ -86,6 +86,12 @@ import {
   renderComparePage,
   renderCompareProductPage,
   renderCategoryPage,
+  GUIDES_PATH,
+  isGuidePage,
+  guidePageMeta,
+  discoverGuides,
+  groupGuidesByCategory,
+  renderGuidesPage,
   sponsorsNote,
   SPONSORS_URL,
   SPONSOR_CLICK_EVENT,
@@ -95,6 +101,7 @@ import {
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
+import { decodeEntities } from './entities.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
 // pin its transcription line by line now compare against the definitions
 // themselves. See "the hub validates a saved bid with the tested definition".
@@ -671,13 +678,13 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Five trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, the comparison index, catalog.json, the
-  // sitemap and the Atom feed — so the count is tools plus those. A sixth,
-  // "Source", used to point at this repository's GitHub URL; the repository is
-  // private, so that link 404s for every real visitor and was removed rather
-  // than left false.
-  assert.equal(bullets.length, surfaces.length + 5);
+  // Six trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the comparison index, the guides index,
+  // catalog.json, the sitemap and the Atom feed — so the count is tools plus
+  // those. A seventh, "Source", used to point at this repository's GitHub URL;
+  // the repository is private, so that link 404s for every real visitor and was
+  // removed rather than left false.
+  assert.equal(bullets.length, surfaces.length + 6);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -4132,17 +4139,19 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the categories, About and /compare/, and nothing else', () => {
+test('the hub sitemap holds the hub, the categories, About, /compare/ and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  // About and the comparison index are hub-level pages belonging to no venture,
-  // so this sitemap is the only one that can carry either.
+  // About, the comparison index and the guides index are hub-level pages
+  // belonging to no venture, so this sitemap is the only one that can carry
+  // any of them.
   assert.deepEqual(locs, [
     BASE,
     `${BASE}c/marketplace/`,
     `${BASE}c/trades/`,
     `${BASE}about/`,
     `${BASE}${COMPARE_PATH}`,
+    `${BASE}${GUIDES_PATH}`,
   ]);
 
   // Called with no categories it still emits a valid urlset naming the hub —
@@ -4401,6 +4410,186 @@ test('renderComparePage links every entry, disclaims, and counts itself honestly
   assert.ok(!html.includes('compare/widget/'), 'a single-tool product must not be linked a page');
 });
 
+test('isGuidePage lists the pages beside a tool and nothing already indexed elsewhere', () => {
+  assert.ok(isGuidePage('how-much-to-charge-to-replace-a-boiler.html'));
+  assert.ok(isGuidePage('sensitivity.html'));
+  // The tool's own entry page is on the hub, its category page and llms.txt.
+  assert.ok(!isGuidePage('index.html'));
+  // A nested `index.html` is a second *tool*, not a guide —
+  // `ai-engineering-academy/555-timer-calculator/` is an entry point.
+  assert.ok(!isGuidePage('555-timer-calculator/index.html'));
+  // A comparison page has `/compare/`, which is about the product it names and
+  // does that job better than a trade-grouped list would.
+  assert.ok(!isGuidePage('vs-jobber.html'));
+  assert.ok(!isGuidePage('sitemap.xml'));
+  // ...but a page that merely starts with the letters is not a comparison.
+  assert.ok(isGuidePage('vsat-link-budget.html'));
+});
+
+test('guidePageMeta takes a guide’s label from the page’s own words, or drops it', () => {
+  const withH1 = guidePageMeta(
+    '<title>How much to charge to replace a boiler | Site</title>' +
+      '<meta name="description" content="Worked example, in pounds.">' +
+      '<h1>How much to charge to replace a boiler</h1>',
+  );
+  assert.equal(withH1.label, 'How much to charge to replace a boiler');
+  assert.equal(withH1.description, 'Worked example, in pounds.');
+  // The site-name suffix the build appends is not part of the answer.
+  assert.equal(
+    guidePageMeta('<title>Deadhead miles | Free small-business calculators</title>').label,
+    'Deadhead miles',
+  );
+  // Entities are decoded, so an index entry reads as the author wrote it.
+  assert.equal(guidePageMeta('<h1>Airbnb&rsquo;s host fee</h1>').label, 'Airbnb’s host fee');
+  // A page with neither is dropped rather than labelled from its filename.
+  assert.equal(guidePageMeta('<p>nothing here</p>'), null);
+});
+
+test('discoverGuides reads what shipped, and groupGuidesByCategory puts the deepest tool first', async () => {
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-guides-'));
+  const page = (h1, description) =>
+    `<html><head><title>${h1} | Site</title><meta name="description" content="${description}"></head><body><h1>${h1}</h1></body></html>`;
+
+  await fs.mkdir(path.join(outDir, 'ebay-fee-calculator'), { recursive: true });
+  await fs.writeFile(path.join(outDir, 'ebay-fee-calculator', 'index.html'), page('Tool', 'x'));
+  await fs.writeFile(path.join(outDir, 'ebay-fee-calculator', 'vs-x.html'), page('vs X', 'x'));
+  await fs.writeFile(path.join(outDir, 'ebay-fee-calculator', 'b.html'), page('B question', 'Bee.'));
+  await fs.writeFile(path.join(outDir, 'ebay-fee-calculator', 'a.html'), page('A question', 'Ay.'));
+  await fs.mkdir(path.join(outDir, 'deck-bid-calculator'), { recursive: true });
+  await fs.writeFile(path.join(outDir, 'deck-bid-calculator', 'index.html'), page('Tool', 'x'));
+  await fs.writeFile(path.join(outDir, 'deck-bid-calculator', 'c.html'), page('C question', 'See.'));
+  // A tool with no guide page contributes no empty block.
+  await fs.mkdir(path.join(outDir, 'shop-rate-calculator'), { recursive: true });
+  await fs.writeFile(path.join(outDir, 'shop-rate-calculator', 'index.html'), page('Tool', 'x'));
+
+  const surfaces = [
+    { slug: 'deck-bid-calculator', title: 'Deck Bid Calculator', description: 'Decks.' },
+    { slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator', description: 'Fees.' },
+    { slug: 'shop-rate-calculator', title: 'Shop Rate Calculator', description: 'Rates.' },
+    // A surface with no directory in the artifact must not throw.
+    { slug: 'never-published', title: 'Never Published', description: '' },
+  ];
+  const groups = await discoverGuides(surfaces, outDir);
+
+  assert.deepEqual(
+    groups.map((g) => [g.slug, g.items.map((i) => i.file)]),
+    [
+      ['deck-bid-calculator', ['c.html']],
+      ['ebay-fee-calculator', ['a.html', 'b.html']],
+    ],
+    'entry pages, comparison pages and guide-less tools are all excluded',
+  );
+  assert.equal(groups[1].items[0].label, 'A question');
+  assert.equal(groups[1].items[0].description, 'Ay.');
+
+  const byCategory = groupGuidesByCategory(groups);
+  const marketplace = byCategory.find((s) => s.category.id === 'marketplace');
+  const trades = byCategory.find((s) => s.category.id === 'trades');
+  assert.ok(marketplace && trades, 'both categories present');
+  assert.deepEqual(marketplace.tools.map((t) => t.slug), ['ebay-fee-calculator']);
+  assert.deepEqual(trades.tools.map((t) => t.slug), ['deck-bid-calculator']);
+});
+
+test('the built tree still has guide pages, and every label is text its own page carries', async () => {
+  // The gap this guards is `discoverGuides` going quiet — the same failure
+  // `discoverComparisons` has its own test for. It also enforces the mandate's
+  // absolute limit at the source: every word the index prints has to be text
+  // the page it links to actually contains, because an index may restate what
+  // a venture author wrote and may not add a claim of its own.
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-guides-real-'));
+  const surfaces = (await discoverSurfaces(path.join(REPO_ROOT, 'ventures'))).slice(0, 6);
+  for (const surface of surfaces) {
+    await fs.cp(surface.sourceDir, path.join(outDir, surface.slug), { recursive: true });
+  }
+  const groups = await discoverGuides(
+    surfaces.map((s) => ({ ...s, title: s.slug, description: '' })),
+    outDir,
+  );
+  assert.ok(groups.length > 0, 'no guide pages discovered in the first six ventures');
+  for (const group of groups) {
+    for (const item of group.items) {
+      const html = await fs.readFile(path.join(outDir, group.slug, item.file), 'utf8');
+      assert.ok(
+        decodeEntities(html.replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').includes(item.label),
+        `"${item.label}" is not text ${group.slug}/${item.file} contains`,
+      );
+    }
+  }
+});
+
+test('renderGuidesPage links every guide, disclaims, and counts itself honestly', () => {
+  const item = (file, label) => ({ slug: 'ebay-fee-calculator', file, label, title: label, description: 'Short.' });
+  const groups = [
+    {
+      slug: 'ebay-fee-calculator',
+      title: 'eBay Fee Calculator',
+      description: 'Fees.',
+      category: categoryFor('ebay-fee-calculator'),
+      items: [item('a.html', 'A question'), item('b.html', 'B question')],
+    },
+    {
+      slug: 'deck-bid-calculator',
+      title: 'Deck Bid Calculator',
+      description: 'Decks.',
+      category: categoryFor('deck-bid-calculator'),
+      items: [{ ...item('c.html', 'C question'), slug: 'deck-bid-calculator' }],
+    },
+  ];
+  const surfaces = [
+    { slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator' },
+    { slug: 'deck-bid-calculator', title: 'Deck Bid Calculator' },
+  ];
+  const html = renderGuidesPage({ groups, surfaces, categoryGroups: [], baseUrl: 'https://example.test/' });
+
+  for (const group of groups) {
+    for (const entry of group.items) {
+      assert.ok(
+        html.includes(`href="../${entry.slug}/${entry.file}"`),
+        `${entry.slug}/${entry.file} is not linked`,
+      );
+    }
+    // And the tool itself, so the guide sits next to the calculator that
+    // answers the same question with the reader's own numbers.
+    assert.ok(html.includes(`href="../${group.slug}/"`), `${group.slug} is not linked`);
+  }
+  // Counts derived rather than written down.
+  assert.match(html, /3 pages across 2 tools/);
+  assert.match(html, /No warranty/);
+  assert.ok(html.includes(`<link rel="canonical" href="https://example.test/${GUIDES_PATH}">`));
+  // Usage tracking, on the same terms as every other page here.
+  assert.ok(html.includes('data-pf-slug="guides"'));
+  // And no third-party anything: /about/ promises there are none.
+  assert.ok(!/src="https?:\/\//.test(html));
+  assert.ok(!/href="https?:\/\/fonts\./.test(html));
+  // The index says only what the pages it links already say.
+  assert.ok(html.includes('adds no'), 'the index must say it adds nothing of its own');
+});
+
+test('the guides index is in the hub sitemap and named in llms.txt', () => {
+  // Both halves of "found at all": a page in no sitemap is built, deployed and
+  // never crawled, and a surface missing from llms.txt is invisible to an
+  // assistant. Measured 2026-09-07, before this page existed: 0 of the 173
+  // question-shaped guide pages appeared anywhere in llms.txt.
+  assert.ok(renderHubSitemap(BASE, ['marketplace']).includes(`${BASE}${GUIDES_PATH}`));
+
+  const surfaces = [
+    { slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator', description: 'Fees.', fullDescription: 'Fees.' },
+  ];
+  const groups = [
+    {
+      slug: 'ebay-fee-calculator',
+      title: 'eBay Fee Calculator',
+      description: 'Fees.',
+      category: categoryFor('ebay-fee-calculator'),
+      items: [{ slug: 'ebay-fee-calculator', file: 'a.html', label: 'A question', title: 'A', description: '' }],
+    },
+  ];
+  assert.match(renderLlmsTxt(surfaces, BASE, [], groups), /- \[Guides\]/);
+  assert.match(renderLlmsTxt(surfaces, BASE, [], groups), /1 plain-English pages/);
+  // A build with no guide pages must not advertise an empty index.
+  assert.ok(!renderLlmsTxt(surfaces, BASE, [], []).includes('[Guides]'));
+});
+
 test('a product slug is URL-safe and matches what the apex nginx capture allows', () => {
   // The two ends of one contract: `comparisonProductSlug` decides the URL on
   // this host *and* (through `compareProductKey`) the ConfigMap key on the
@@ -4536,6 +4725,63 @@ test('the built site publishes /compare/, links it, and lists it in the sitemap'
 
   const llms = await fs.readFile(path.join(out, 'dist', 'llms.txt'), 'utf8');
   assert.ok(llms.includes(`https://example.test/${COMPARE_PATH}`), 'llms.txt must name /compare/');
+
+  await fs.rm(out, { recursive: true, force: true });
+});
+
+test('the built site publishes /guides/, links it, and lists it in the sitemap', async () => {
+  // The end-to-end half of the guides index: the three places a page has to
+  // appear before anyone reaches it — a link a visitor can click, a sitemap
+  // entry a crawler follows, and an llms.txt line an assistant reads. Before
+  // this page existed the guide pages had none of the three, only their own
+  // tool's entry page.
+  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'guides-'));
+  const ventures = path.join(out, 'ventures');
+  const mk = async (slug, files) => {
+    await fs.mkdir(path.join(ventures, slug), { recursive: true });
+    for (const [name, body] of Object.entries(files)) {
+      await fs.writeFile(path.join(ventures, slug, name), body);
+    }
+  };
+  const page = (title, body) =>
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>` +
+    `<meta name="description" content="A free calculator that does arithmetic in your browser."></head>` +
+    `<body>${body}<p>No warranty: this is an estimate, not advice.</p></body></html>`;
+  await mk('alpha-calculator', {
+    'index.html': page(
+      'Alpha Calculator',
+      '<h1>Alpha Calculator</h1><a href="how-much-to-charge.html">How much to charge</a>',
+    ),
+    'how-much-to-charge.html': page('How much to charge', '<h1>How much to charge</h1>'),
+    // A comparison page belongs to /compare/, not here.
+    'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
+  });
+
+  const dist = path.join(out, 'dist');
+  await buildSite({
+    venturesDir: ventures,
+    outDir: dist,
+    baseUrl: 'https://example.test/',
+    log: () => {},
+    disableWorker: true,
+  });
+
+  const guides = await fs.readFile(path.join(dist, GUIDES_PATH, 'index.html'), 'utf8');
+  assert.ok(guides.includes('href="../alpha-calculator/how-much-to-charge.html"'));
+  assert.ok(guides.includes('How much to charge'), 'the page’s own heading is the entry');
+  assert.ok(
+    !guides.includes('vs-jobber.html'),
+    'a comparison page has /compare/ and must not be listed twice',
+  );
+
+  const hub = await fs.readFile(path.join(dist, 'index.html'), 'utf8');
+  assert.ok(hub.includes(`href="${GUIDES_PATH}"`), 'the hub must link /guides/');
+
+  const hubSitemap = await fs.readFile(path.join(dist, 'sitemap-hub.xml'), 'utf8');
+  assert.ok(hubSitemap.includes(`<loc>https://example.test/${GUIDES_PATH}</loc>`));
+
+  const llms = await fs.readFile(path.join(dist, 'llms.txt'), 'utf8');
+  assert.ok(llms.includes(`https://example.test/${GUIDES_PATH}`), 'llms.txt must name /guides/');
 
   await fs.rm(out, { recursive: true, force: true });
 });
