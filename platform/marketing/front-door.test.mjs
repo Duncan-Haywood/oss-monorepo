@@ -15,6 +15,7 @@ import {
   categoryPagePath,
   comparisonSubject,
   comparisonSubjectKey,
+  comparisonText,
   groupComparisons,
 } from '../pages/build.mjs';
 import { FEED_MAX_ENTRIES } from '../pages/launched.mjs';
@@ -2013,8 +2014,11 @@ test('every product name on the comparison index came from a page that named it'
   for (const f of comparisonFiles) {
     const subject = comparisonSubject(f.contents);
     assert.ok(subject, `${f.slug}/${f.file} has no "… vs. <product>" heading`);
+    // Both sides through the same normaliser: the subject is already decoded,
+    // so testing it against raw markup asks whether the page spells its own
+    // heading twice, which is not the guarantee this test is for.
     assert.ok(
-      f.contents.includes(subject),
+      comparisonText(f.contents).includes(subject),
       `"${subject}" is not text ${f.slug}/${f.file} contains`,
     );
   }
