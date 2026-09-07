@@ -6770,3 +6770,56 @@ ventures:
       bartender. The tool never touches a live transaction, a POS, or
       anyone else's data; nothing entered leaves the browser and nothing is
       saved between sessions.
+
+  - slug: actions-runner-starvation-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic classification of one field (`runner_id`) already
+      present in GitHub's own Actions API response. There is nothing to
+      infer: a job either got a runner or it did not.
+    basis: >-
+      Graduated 2026-09-07 (#3615) as a free dev-tool CLI/browser check that
+      tells a developer whether a red GitHub Actions check is a real failure
+      or a job GitHub never assigned a runner to, from the run's own
+      `runner_id` field. Same shape as `npm-deployment-evidence` and
+      `repository-branch-hygiene`: a standard-library-only classifier over
+      data the user already has, scored on this file's six-dimension rubric
+      to keep coverage complete for `score_ventures.py --check` and
+      `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page and the Python CLI both run entirely on data the visitor pastes
+      or already has locally, so marginal cost per use is zero and there is
+      no server to operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like the portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the classification rule itself is one field compare
+      that any developer could write in a few lines; what is not trivially
+      copied is having already written and published the explanation of
+      *why* duration and empty output mislead, which is the actual value a
+      searcher is buying. Unmeasured beyond that, hence not scored higher.
+      Distribution 5: "why is my GitHub Actions check red" and "GitHub
+      Actions runner_id 0" are real, narrow developer search terms with no
+      dedicated free tool answering them today, but this portfolio has no
+      existing developer-tool distribution channel and volume is
+      unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool never fetches anything on the user's behalf and never
+      asks for a token — the user pastes JSON they already fetched with
+      their own credentials, so their token and their run data never leave
+      their own machine or session. The output is a classification of a
+      public API field, not a security or compliance verdict.
