@@ -288,3 +288,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same accessibility / aging-in-place trade, but carpentry
+// (rise, landings, rails) rather than a purchased rail-and-chair lift.
+// Related-tool chrome may never surface that pair, so without an explicit
+// one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the wheelchair-ramp-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/wheelchair-ramp-bid-calculator\/"/,
+    'index must link ../wheelchair-ramp-bid-calculator/ so crawlers reach the ramp calculator in one hop',
+  );
+  assert.match(html, /wheelchair ramp bid calculator/i);
+});
