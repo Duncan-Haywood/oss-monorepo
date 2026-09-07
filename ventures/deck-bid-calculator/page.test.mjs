@@ -119,3 +119,17 @@ test('index links one hop to the fence-bid-calculator sibling', () => {
   );
   assert.match(html, /fence bid calculator/i);
 });
+
+// Same outdoor-living job: a pergola or patio cover rather than the deck
+// frame. Related-tool chrome rotates inside the landscape subcategory, so
+// without an explicit one-hop a crawler on this page may never land on that
+// tool — and the pergola calculator was a crawlable orphan.
+test('index links one hop to the pergola-bid-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/pergola-bid-calculator\/"/,
+    'index must link ../pergola-bid-calculator/ so crawlers reach the pergola calculator in one hop',
+  );
+  assert.match(html, /pergola bid calculator/i);
+});
