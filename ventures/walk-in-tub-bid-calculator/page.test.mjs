@@ -256,3 +256,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same bathroom-remodel job, but a tiled walk-in shower /
+// tub-to-shower conversion rather than a tub with a door. Related-tool chrome
+// rotates inside the bathroom subcategory, so without an explicit one-hop a
+// crawler on this page may never land on that tool.
+test('index links one hop to the walk-in-shower-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/walk-in-shower-bid-calculator\/"/,
+    'index must link ../walk-in-shower-bid-calculator/ so crawlers reach the shower calculator in one hop',
+  );
+  assert.match(html, /walk-in shower bid calculator/i);
+});

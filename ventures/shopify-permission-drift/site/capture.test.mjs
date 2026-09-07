@@ -93,3 +93,15 @@ test("usage events stay aggregate and honor opt-out", () => {
 test("infers installations source", () => {
   assert.equal(inferSource(dump), "shopify-app-installations");
 });
+
+test("webhook coverage survives canonical JSON re-import", () => {
+  for (const supplied of [false, true]) {
+    const app = { id: "app-shipping", scopes: ["read_products"] };
+    if (supplied) app.webhooks = [];
+    const inventory = normalizeExport({ api_version: "2026-07", apps: [app] });
+    const restored = normalizeExport(JSON.parse(JSON.stringify(inventory)));
+    assert.deepEqual(restored.apps[0].webhooks, []);
+    assert.equal(restored.apps[0].webhook_coverage, supplied ? "complete" : "absent");
+    assert.equal(captureSummary(restored), captureSummary(inventory));
+  }
+});

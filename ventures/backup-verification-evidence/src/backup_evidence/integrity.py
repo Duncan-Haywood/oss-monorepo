@@ -421,11 +421,20 @@ def _check_tar(path: Path, fmt: str, max_bytes: int | None) -> dict[str, Any]:
 
 
 def _check_zip(path: Path) -> dict[str, Any]:
-    """CRC-check every member. `testzip` decompresses each one to compare."""
+    """CRC-check every entry, including entries with duplicate filenames."""
     try:
         with zipfile.ZipFile(path) as archive:
             names = archive.namelist()
-            bad = archive.testzip()
+            bad = None
+            for member in archive.infolist():
+                try:
+                    # A filename lookup resolves to the last duplicate. Use
+                    # the entry itself so earlier payloads are checked too.
+                    with archive.open(member) as payload:
+                        _drain(payload, None)
+                except zipfile.BadZipFile:
+                    bad = member.filename
+                    break
     except zipfile.BadZipFile as exc:
         return _result(
             CORRUPT,
