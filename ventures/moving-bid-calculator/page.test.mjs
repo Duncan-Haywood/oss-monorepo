@@ -89,3 +89,16 @@ test('the inventory rows are named consistently across the spec, save, and resto
 test('the link caution copy names what it carries', () => {
   assert.match(html, /A bid link carries your whole job/, 'the bid link does not say what it carries');
 });
+
+// Closest cleaning sibling: same property clear-out, but a junk haul rather
+// than a household move. Related-tool chrome rotates inside the cleaning
+// subcategory, so without an explicit one-hop a crawler on this page may never
+// land on that tool.
+test('index links one hop to the junk-removal-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/junk-removal-bid-calculator\/"/,
+    'index must link ../junk-removal-bid-calculator/ so crawlers reach the junk calculator in one hop',
+  );
+  assert.match(html, /junk removal bid calculator/i);
+});
