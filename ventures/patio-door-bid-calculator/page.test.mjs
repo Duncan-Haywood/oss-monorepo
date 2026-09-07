@@ -198,3 +198,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same openings subcategory, but interior door replacements
+// (hollow vs solid-core, hang-only vs pocket) rather than a patio unit.
+// Related-tool chrome rotates inside the windows/doors subcategory, so without
+// an explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the interior-door-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/interior-door-bid-calculator\/"/,
+    'index must link ../interior-door-bid-calculator/ so crawlers reach the interior-door calculator in one hop',
+  );
+  assert.match(html, /interior door bid calculator/i);
+});
