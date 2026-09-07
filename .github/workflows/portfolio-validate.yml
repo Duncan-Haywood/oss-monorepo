@@ -388,6 +388,47 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_money_sign
 
+      # Every check above asks whether the code that is HERE is correct. None of
+      # them can see a product that is no longer here: deleting a venture
+      # deletes its tests along with it, so the assertions leave with the
+      # thing they guarded and the suite goes green on a smaller catalogue.
+      #
+      # PR #3740 was that, measured 2026-09-07. An unattended agent committed a
+      # working tree captured before #3727 merged onto #3727's own merge
+      # commit, which deleted the venture #3727 had graduated two minutes
+      # earlier -- checker, 620 lines of passing tests, landing page, guide
+      # page, CI workflow, ledger entry and scoring row. `regen.mjs` then
+      # re-rendered every generated surface for 197 tools instead of 198, so
+      # the diff arrived as `+84 -1985` across 833 files whose only insertions
+      # were counter decrements. Nothing was red.
+      #
+      # With up to four sessions inside a 15-minute window here, a tree older
+      # than its parent commit is the ordinary case. This asks the one question
+      # the rest of the suite structurally cannot.
+      #
+      # Needs the base branch to compare against, which `actions/checkout@v4`'s
+      # shallow default does not fetch. On a pull_request event the checkout is
+      # the merge commit, so this reads as "would merging this remove a live
+      # venture?" -- which is the question, and is why a venture main gained
+      # after the branch forked does not false-positive.
+      #
+      # Fetched into `refs/ci/base-main` rather than `refs/remotes/origin/main`,
+      # and forced. Writing the tracking ref is what a first draft did, and
+      # `run_workflow_locally.py` rejected it here: in any checkout that already
+      # has `origin/main` at a different commit, a `--depth=1` fetch is a
+      # non-fast-forward and the step exits 1. That is every local run and the
+      # `push: branches: [main]` event. A private ref namespace cannot collide
+      # with anything, so the step means the same thing everywhere it runs.
+      - name: Fetch the base branch for the venture-regression check
+        run: git fetch --no-tags --depth=1 origin +refs/heads/main:refs/ci/base-main
+
+      - name: Check no live venture disappears from the served catalogue
+        run: python3 platform/ci/check_venture_regression.py --base refs/ci/base-main
+
+      - name: Venture-regression checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_venture_regression
+
       # PRODUCT_PLAYBOOK.md §6 / DIRECTION.md "Legal guardrails" forbid payment
       # collection fleet-wide ("no checkout, no card fields, no billing code,
       # not even disabled"), but that sentence had no check behind it. Two
