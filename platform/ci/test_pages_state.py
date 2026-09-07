@@ -498,14 +498,15 @@ if __name__ == "__main__":
 
 
 def pages_run(conclusion="success", sha="e" * 40, branch_name="gh-pages",
-              status="completed", path="dynamic/pages/pages-build-deployment"):
+              status="completed", path="dynamic/pages/pages-build-deployment",
+              run_id=34012041708):
     return {
         "path": path,
         "status": status,
         "conclusion": conclusion,
         "head_branch": branch_name,
         "head_sha": sha,
-        "id": 34012041708,
+        "id": run_id,
         "updated_at": "2026-09-06T04:39:47Z",
     }
 
@@ -570,6 +571,104 @@ class DeploymentVote(unittest.TestCase):
             pages_run(sha="a" * 40),
         ]))
         self.assertEqual(deployment["head_sha"], "aaaaaaaa")
+
+    def test_a_superseded_build_is_not_a_failure(self):
+        """`cancelled` is GitHub abandoning a build a newer push overtook.
+
+        The check used to be `conclusion != "success"`, which reported
+        `failed` -- "this snapshot did not deploy" -- about a site that was
+        serving. Of runs 111-125 on this branch five concluded `cancelled` and
+        each was followed by a `success`, so this is the ordinary outcome of
+        two sessions publishing minutes apart, not an edge case.
+        """
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[
+                pages_run(conclusion="cancelled", sha="f" * 40, run_id=124),
+                pages_run(conclusion="success", sha="a" * 40, run_id=123),
+            ])),
+            None,
+        )
+        self.assertEqual(got, "served")
+        # It must name the build that actually deployed, not the abandoned one.
+        self.assertIn("123", why)
+        self.assertIn("aaaaaaaa", why)
+        self.assertNotIn("did not deploy", why)
+
+    def test_the_measured_false_alarm_does_not_recur(self):
+        """A replay of the 03:21 reading on 2026-09-07.
+
+        The real build (run 125) was still in progress, so the reader fell
+        through it onto run 124 -- `cancelled`, superseded 11 seconds earlier
+        -- and the row read `failed`. The same command on the same commit read
+        `served` at 03:22. `publish-branch.sh` prints this report immediately
+        after force-pushing the branch, so that window is not incidental: it
+        is exactly when a publishing session looks.
+        """
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[
+                pages_run(status="in_progress", conclusion=None,
+                          sha="d" * 40, run_id=34079370768),
+                pages_run(conclusion="cancelled",
+                          sha="2" * 40, run_id=34079362071),
+                pages_run(conclusion="success",
+                          sha="3" * 40, run_id=34079332192),
+            ])),
+            None,
+        )
+        self.assertEqual(got, "served")
+        self.assertIn("in flight", why)
+        self.assertIn("34079370768", why)
+
+    def test_a_cancelled_build_with_no_success_behind_it_is_not_served(self):
+        """Superseded is not a failure, but it is not evidence of a deploy.
+
+        Reading it as `served` would be the mirror of the bug being fixed --
+        trading a false alarm for a false all-clear.
+        """
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[
+                pages_run(conclusion="cancelled", sha="f" * 40, run_id=124),
+            ])),
+            None,
+        )
+        self.assertEqual(got, "unknown")
+        self.assertNotIn("already granted", why)
+
+    def test_a_genuine_failure_is_still_failed(self):
+        """The point is to keep this signal believable, not to soften it."""
+        for conclusion in ("failure", "timed_out", "startup_failure"):
+            with self.subTest(conclusion=conclusion):
+                got, why = ps.verdict_deployment(
+                    ps.read_pages_deployment(
+                        fake_api(runs=[pages_run(conclusion=conclusion)])
+                    ),
+                    None,
+                )
+                self.assertEqual(got, "failed")
+                self.assertIn("did not deploy", why)
+
+    def test_an_in_flight_build_is_disclosed_alongside_a_success(self):
+        """Answering about an older commit silently is its own defect."""
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[
+                pages_run(status="in_progress", conclusion=None,
+                          sha="f" * 40, run_id=999),
+                pages_run(conclusion="success", sha="a" * 40, run_id=123),
+            ])),
+            None,
+        )
+        self.assertEqual(got, "served")
+        self.assertIn("in flight", why)
+        self.assertIn("999", why)
+
+    def test_a_first_ever_build_still_running_is_unknown_not_served(self):
+        got, _ = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[
+                pages_run(status="in_progress", conclusion=None, sha="f" * 40),
+            ])),
+            None,
+        )
+        self.assertEqual(got, "unknown")
 
     def test_a_snapshot_pushed_after_the_last_build_is_flagged(self):
         """Served, but not necessarily *this* snapshot -- worth saying."""

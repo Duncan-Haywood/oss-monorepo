@@ -200,6 +200,22 @@ class AskHostExtraction(unittest.TestCase):
                      "me", "tv", "cc", "ws", "to", "gg", "dev", "app", "org"}
         self.assertEqual(check_ask_hosts._NOT_TLDS & delegated, set())
 
+    def test_sdk_method_paths_are_not_hosts(self):
+        """The third source of host-shaped tokens, after files and versions.
+
+        `print-atelier-stripe-checkout` quotes the calls a session found in
+        the venture. They are method paths on a library object -- lowercase,
+        dotted, alphabetic-final -- so every structural rule accepted them
+        and `Portfolio validate` went red on `main` asking for a verdict on a
+        host that cannot exist.
+        """
+        self.assertEqual(
+            self.extract(
+                "real `stripe.checkout.sessions.create` and `stripe.accounts` calls"
+            ),
+            set(),
+        )
+
     def test_versions_and_criteria_are_not_hosts(self):
         self.assertEqual(self.extract("`next@16.3.1` fixes `1.4.3`"), set())
 
@@ -235,6 +251,20 @@ class PublicationHostsAreNotEgress(unittest.TestCase):
 
     def test_the_pages_origin_is_not_demanded_either(self):
         self.assertEqual(self.extract("`duncan-haywood.github.io` is the base"), set())
+
+    def test_the_bare_pages_suffix_is_not_demanded_either(self):
+        """`github-pages-origin` quotes the denial that makes it an owner ask.
+
+        The row explains why no session can load the page itself: the proxy
+        answers `403 to CONNECT` for `github.io`. Quoting that measurement in
+        backticks is what made the checker demand a verdict for it -- so the
+        report of a denial read as an unmeasured host, and `main` went red on
+        the one row about the origin that is actually serving.
+        """
+        self.assertEqual(
+            self.extract("the proxy answers `403 to CONNECT` for `github.io`"),
+            set(),
+        )
 
     def test_the_exemption_is_not_a_blanket(self):
         """A third-party host in the very same sentence is still checked."""
