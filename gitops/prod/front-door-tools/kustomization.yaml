@@ -33,18 +33,18 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 554427 bytes
-#   portfolio-front-tools-1: 110 files, 553445 bytes
+#   portfolio-front-tools-0: 136 files, 554430 bytes
+#   portfolio-front-tools-1: 110 files, 553458 bytes
 #   portfolio-front-tools-2: 148 files, 555984 bytes
-#   portfolio-front-tools-3: 141 files, 549950 bytes
-#   portfolio-front-tools-4: 116 files, 553973 bytes
-#   portfolio-front-tools-5: 133 files, 553509 bytes
-#   portfolio-front-tools-6: 114 files, 554726 bytes
-#   portfolio-front-tools-7: 113 files, 554174 bytes
-#   portfolio-front-tools-8: 119 files, 547039 bytes
-#   portfolio-front-tools-9: 105 files, 555551 bytes
-#   portfolio-front-tools-10: 109 files, 550281 bytes
-#   portfolio-front-tools-11: 79 files, 402535 bytes
+#   portfolio-front-tools-3: 143 files, 556698 bytes
+#   portfolio-front-tools-4: 116 files, 556372 bytes
+#   portfolio-front-tools-5: 134 files, 554580 bytes
+#   portfolio-front-tools-6: 114 files, 554661 bytes
+#   portfolio-front-tools-7: 113 files, 554175 bytes
+#   portfolio-front-tools-8: 119 files, 547096 bytes
+#   portfolio-front-tools-9: 105 files, 555510 bytes
+#   portfolio-front-tools-10: 109 files, 550318 bytes
+#   portfolio-front-tools-11: 79 files, 402858 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -520,6 +520,10 @@ configMapGenerator:
       - fence-bid-calculator__share.mjs.gz=fence-bid-calculator__share.mjs.gz
       - fence-bid-calculator__usage.mjs.gz=fence-bid-calculator__usage.mjs.gz
       - fence-bid-calculator__vs-fence-cloud.html.gz=fence-bid-calculator__vs-fence-cloud.html.gz
+      - 3d-print-price-calculator__LICENSE.gz=3d-print-price-calculator__LICENSE.gz
+      - 3d-print-price-calculator__calc.mjs.gz=3d-print-price-calculator__calc.mjs.gz
+      - 3d-print-price-calculator__index.html.gz=3d-print-price-calculator__index.html.gz
+      - 3d-print-price-calculator__usage.mjs.gz=3d-print-price-calculator__usage.mjs.gz
       - actions-cache-poisoning-check__LICENSE.gz=actions-cache-poisoning-check__LICENSE.gz
       - actions-cache-poisoning-check__classify.mjs.gz=actions-cache-poisoning-check__classify.mjs.gz
       - actions-cache-poisoning-check__index.html.gz=actions-cache-poisoning-check__index.html.gz
@@ -541,7 +545,6 @@ configMapGenerator:
       - actions-self-hosted-exposure-check__index.html.gz=actions-self-hosted-exposure-check__index.html.gz
       - actions-self-hosted-exposure-check__self-hosted-runners-in-public-repositories.html.gz=actions-self-hosted-exposure-check__self-hosted-runners-in-public-repositories.html.gz
       - actions-self-hosted-exposure-check__usage.mjs.gz=actions-self-hosted-exposure-check__usage.mjs.gz
-      - ada-title-ii-evidence__LICENSE.gz=ada-title-ii-evidence__LICENSE.gz
       - ada-title-ii-evidence__calc.mjs.gz=ada-title-ii-evidence__calc.mjs.gz
       - ada-title-ii-evidence__deadline.html.gz=ada-title-ii-evidence__deadline.html.gz
       - ada-title-ii-evidence__deadline.mjs.gz=ada-title-ii-evidence__deadline.mjs.gz
@@ -616,12 +619,12 @@ configMapGenerator:
       - atm-route-margin__usage.mjs.gz=atm-route-margin__usage.mjs.gz
       - atm-route-margin__vs-atm-depot.html.gz=atm-route-margin__vs-atm-depot.html.gz
       - attic-insulation-bid-calculator__calc.mjs.gz=attic-insulation-bid-calculator__calc.mjs.gz
-      - attic-insulation-bid-calculator__how-much-to-charge.html.gz=attic-insulation-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - attic-insulation-bid-calculator__how-much-to-charge.html.gz=attic-insulation-bid-calculator__how-much-to-charge.html.gz
       - attic-insulation-bid-calculator__index.html.gz=attic-insulation-bid-calculator__index.html.gz
       - attic-insulation-bid-calculator__share.mjs.gz=attic-insulation-bid-calculator__share.mjs.gz
       - attic-insulation-bid-calculator__usage.mjs.gz=attic-insulation-bid-calculator__usage.mjs.gz
@@ -737,12 +740,12 @@ configMapGenerator:
       - cut-list-optimizer__index.html.gz=cut-list-optimizer__index.html.gz
       - cut-list-optimizer__share.mjs.gz=cut-list-optimizer__share.mjs.gz
       - cut-list-optimizer__sheet.mjs.gz=cut-list-optimizer__sheet.mjs.gz
-      - cut-list-optimizer__usage.mjs.gz=cut-list-optimizer__usage.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cut-list-optimizer__usage.mjs.gz=cut-list-optimizer__usage.mjs.gz
       - cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz=cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz
       - deck-bid-calculator__calc.mjs.gz=deck-bid-calculator__calc.mjs.gz
       - deck-bid-calculator__how-much-to-charge.html.gz=deck-bid-calculator__how-much-to-charge.html.gz

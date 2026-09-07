@@ -85,6 +85,36 @@ test("diffSnapshots: a changed entry point is flagged", () => {
   assert.deepEqual(result.changed[0].riskTags, ["entry-point-changed"]);
 });
 
+// An extension declaring neither `main` nor `browser` loads no code of its
+// own; one that starts declaring one has expanded its surface as much as a
+// swapped entry point, so it earns the same tag rather than only the
+// undifferentiated `surfaceChanged` flag.
+test("diffSnapshots: gaining an entry point where there was none is flagged", () => {
+  const baseline = parseSnapshot(JSON.stringify([{ publisher: "a", name: "b", version: "1.0.0", activationEvents: ["onLanguage:go"] }]));
+  const current = parseSnapshot(
+    JSON.stringify([{ publisher: "a", name: "b", version: "1.0.0", activationEvents: ["onLanguage:go"], main: "./out/new.js" }]),
+  );
+  const result = diffSnapshots(baseline, current);
+  assert.deepEqual(result.changed[0].riskTags, ["entry-point-changed"]);
+});
+
+test("diffSnapshots: a browser entry point appearing is flagged once, not twice", () => {
+  const baseline = parseSnapshot(JSON.stringify([{ publisher: "a", name: "b", version: "1.0.0", main: "./out/a.js" }]));
+  const current = parseSnapshot(
+    JSON.stringify([{ publisher: "a", name: "b", version: "1.0.0", main: "./out/a.js", browser: "./out/web.js" }]),
+  );
+  const result = diffSnapshots(baseline, current);
+  assert.deepEqual(result.changed[0].riskTags, ["entry-point-changed"]);
+});
+
+test("diffSnapshots: two snapshots that both declare no entry point are not flagged", () => {
+  const baseline = parseSnapshot(JSON.stringify([{ publisher: "a", name: "b", version: "1.0.0", activationEvents: ["onLanguage:go"] }]));
+  const current = parseSnapshot(JSON.stringify([{ publisher: "a", name: "b", version: "1.1.0", activationEvents: ["onLanguage:go"] }]));
+  const result = diffSnapshots(baseline, current);
+  assert.deepEqual(result.changed[0].riskTags, []);
+  assert.equal(result.changed[0].surfaceChanged, false);
+});
+
 test("diffSnapshots: unknown surface on either side never claims 'unchanged'", () => {
   // baseline from `code --list-extensions` text (no surface data) vs a full JSON snapshot
   const baseline = parseSnapshot("a.b@1.0.0\n");
