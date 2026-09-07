@@ -199,3 +199,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same roofing envelope trade, but eave wrap/replace rather
+// than a skylight cut-in. Related-tool chrome rotates inside the subcategory,
+// so without an explicit one-hop a crawler on this page may never land on that
+// tool.
+test('index links one hop to the soffit-fascia-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/soffit-fascia-bid-calculator\/"/,
+    'index must link ../soffit-fascia-bid-calculator/ so crawlers reach the soffit and fascia calculator in one hop',
+  );
+  assert.match(html, /soffit and fascia bid calculator/i);
+});
