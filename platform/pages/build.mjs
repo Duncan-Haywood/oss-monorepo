@@ -467,7 +467,7 @@ const CATEGORY_RULES = [
     id: 'ci',
     title: 'CI checks & developer gates',
     accent: '#1a4560',
-    blurb: 'Tell a starved runner from a real failure, catch a coverage drop, classify flaky tests, or see which AI crawlers your robots.txt allows — free, local, no account.',
+    blurb: 'Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning; tell a starved runner from a real failure; catch a coverage drop, classify flaky tests, or see which AI crawlers your robots.txt allows — free, local, no account.',
     // These four sat in the catch-all together: each is a browser-local (and
     // matching CLI) checker a maintainer runs against files or API JSON they
     // already have, not a trade bid, marketplace fee, or compliance evidence
@@ -475,8 +475,32 @@ const CATEGORY_RULES = [
     // browsing "More free tools" never met the group — and related-tool chrome
     // mixed them with Sponsor Ready and marketplace payouts. A named section
     // is how a developer looking for a CI gate finds all four.
+    //
+    // The workflow-YAML checkers joined 2026-09-07, when
+    // `actions-cache-poisoning-check` graduated and pushed the catch-all past
+    // the bound `build.test.mjs` puts on it. All four —
+    // `actions-cache-poisoning`, `actions-injection`, `actions-permissions`
+    // and `pinned-actions` — read a GitHub Actions workflow the visitor
+    // already has and name a specific supply-chain pattern in it. That is the
+    // same shape as `actions-runner-starvation` (which this rule already
+    // claimed only because of its prefix), and they cross-link each other as
+    // Related, so the group was already coherent everywhere except the one
+    // place a stranger browses. Written as one `actions-` prefix plus
+    // `pinned-actions` rather than four alternatives, so the next checker in
+    // the family lands here without another edit.
+    //
+    // `license-drift-check` joined the same day, a few hours later. It
+    // graduated in #3808 and landed in the catch-all because the rule above
+    // enumerates families by prefix and its slug starts a new one — it names
+    // what it diffs (licenses) rather than what it reads. It is the same
+    // shape as the rest: a browser-local checker plus a matching CLI, run by
+    // a maintainer against a dependency tree they already have, reporting
+    // which packages' declared license changed since the last snapshot. Its
+    // own graduation line calls it a "dependency license-change diff for CI".
+    // A visitor browsing for a supply-chain gate should meet it beside the
+    // four workflow checkers, not below the childcare tuition calculator.
     test: (slug) =>
-      /^(actions-runner-starvation|coverage-drop-check|flaky-test-finder|ai-crawler-access)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check)/.test(
         slug,
       ),
   },
