@@ -165,6 +165,122 @@ SETUP = re.compile(
     r"^\s*(pip3?\s+install|python3?\s+-m\s+pip\s+install|npm\s+(ci|install)"
     r"|apt-get\s+install|sudo\s+apt-get)\b")
 
+# The other half of that reasoning, and the half this tool was missing until
+# 2026-09-07. The comment above says a real missing dependency "fails on its
+# own, with a message that names the import" -- true, and the report then
+# rendered that failure identically to an assertion failure in the repository.
+# So the install step was carefully exempted from the verdict and the five
+# steps downstream of it were not.
+#
+# Measured the day this was added, twice on the same clean checkout of `main`
+# minutes apart, with nothing between the runs but `pip install pytest`:
+#
+#     portfolio-validate.yml: 55/60 run: step(s) passed, 5 failed
+#     portfolio-validate.yml: 60/60 run: step(s) passed
+#
+# Every one of the five said `No module named pytest`. `main` was green both
+# times. A session running the first reads "`main` is red on five steps" --
+# which is the exact question `--tree` was added to answer, answered wrong,
+# in the environment (a web session, where the image ships Python without
+# pytest) where sessions here actually run. CLAUDE.md warns about this in
+# prose; this file's own history says a reminder competes with everything
+# else in a long file and an exit code does not.
+#
+# A step that could not find its interpreter, module, or binary did not run
+# the check it exists to make. That is not a pass and not a failure: it is
+# the same "did not run" class as a skipped step, and it is reported that
+# way -- named, counted as not run, and never left reading as green.
+TOOLCHAIN_MISSING = (
+    re.compile(r"No module named '?([\w.]+)'?"),          # python -m / import
+    re.compile(r"Cannot find module '([^']+)'"),          # node require
+    re.compile(r"Error \[ERR_MODULE_NOT_FOUND\][^\n]*'([^']+)'"),
+    re.compile(r"^(?:.*: )?([\w.@/+-]+): command not found"),
+    re.compile(r"command not found: ([\w.@/+-]+)"),
+)
+
+
+_REPO_MODULES: set | None = None
+
+
+def repo_modules() -> set:
+    """Every module name this repository itself supplies, from the tracked tree.
+
+    Computed once, from `git ls-files`, because the alternative is a walk of a
+    tree with 2,000+ published pages in it. Names are what a bare `import`
+    could resolve to: a `<name>.py` at any depth, and any directory that is on
+    a tracked path.
+    """
+    global _REPO_MODULES
+    if _REPO_MODULES is not None:
+        return _REPO_MODULES
+
+    names: set = set()
+    try:
+        listed = subprocess.run(
+            ["git", "ls-files"], cwd=REPO, capture_output=True, text=True,
+            timeout=60, check=True).stdout.splitlines()
+    except (subprocess.SubprocessError, OSError):
+        # No git, or not a checkout. An empty set means every missing name
+        # reads as a missing tool, which is the wrong way to be wrong -- so
+        # fall back to the two directories a bare import could resolve from.
+        listed = []
+        for base in (REPO,):
+            with os.scandir(base) as entries:
+                listed = [e.name for e in entries]
+
+    for path in listed:
+        parts = path.split("/")
+        names.update(parts[:-1])                     # directories on the path
+        leaf = parts[-1]
+        if leaf.endswith(".py"):
+            names.add(leaf[:-3])
+    _REPO_MODULES = names
+    return names
+
+
+def _provided_by_repo(name: str, cwd: str) -> bool:
+    """True when `name` is something this repository itself supplies.
+
+    The discrimination this whole classification turns on. `pytest` is absent
+    from the tree, so a step that cannot import it never ran. `pages_state` is
+    `platform/ci/pages_state.py`, so a step that cannot import *that* found a
+    real defect -- and it is a defect this repository has already had:
+    CLAUDE.md records that `platform/ci`'s suites resolve their imports by
+    bare name and only with `platform/ci` as the working directory, so
+    `python3 -m pytest platform/ci` from the root fails collection. Calling
+    that "toolchain missing" would bury exactly the bug the check exists to
+    surface, so the tree is searched before the verdict is given.
+
+    Deliberately biased towards "this is ours": a name that exists in the tree
+    and is also a third-party package reads as a real failure, which costs a
+    session one look at the output. The opposite error hides a defect.
+    """
+    head = name.split(".")[0].lstrip("@").split("/")[0]
+    if not head:
+        return False
+    if head in repo_modules():
+        return True
+    # A relative path in the message (`./x`, `platform/ci/y`) is this tree's.
+    for base in (cwd, REPO):
+        if os.path.exists(os.path.join(base, head + ".py")):
+            return True
+        if os.path.isdir(os.path.join(base, head)):
+            return True
+    return False
+
+
+def missing_toolchain(output, cwd: str) -> str | None:
+    """The tool a failing step could not find, or None if it found them all.
+
+    `output` is the step's combined stdout/stderr, already split into lines.
+    """
+    for line in output:
+        for pattern in TOOLCHAIN_MISSING:
+            found = pattern.search(line.strip())
+            if found and not _provided_by_repo(found.group(1), cwd):
+                return found.group(1)
+    return None
+
 
 class Step:
     """One `run:` step, with where and how it should be executed."""
@@ -174,8 +290,11 @@ class Step:
         self.name = name
         self.run = run
         self.workdir = workdir
-        self.status = "pending"   # ok | failed | skipped | refused
+        self.status = "pending"   # ok | failed | unrun | skipped | refused
         self.reason = ""
+        # Set on an `unrun` step: the module or binary that was not found, so
+        # the report can name what to install rather than only that it failed.
+        self.missing = ""
         self.seconds = 0.0
         self.tail = []
         # env: entries to add for this step. Populated only from `vars.`
@@ -475,6 +594,11 @@ def execute(step: Step, timeout: int) -> None:
         step.status = "setup-failed"
         step.reason = (f"exit {done.returncode} installing dependencies; "
                        "the steps that need them will say so")
+    elif (absent := missing_toolchain(output, cwd)) is not None:
+        step.status = "unrun"
+        step.missing = absent
+        step.reason = (f"`{absent}` is not installed here, so this step never "
+                       "ran the check it exists to make")
     else:
         step.status = "failed"
         step.reason = f"exit {done.returncode}"
@@ -486,6 +610,7 @@ def report(name, steps, uses_skipped, forced) -> int:
     skipped = [s for s in steps if s.status == "skipped"]
     refused = [s for s in steps if s.status == "refused"]
     setup_failed = [s for s in steps if s.status == "setup-failed"]
+    unrun = [s for s in steps if s.status == "unrun"]
 
     print()
     for step in failed:
@@ -494,6 +619,16 @@ def report(name, steps, uses_skipped, forced) -> int:
         for line in step.tail:
             print(f"        {line}")
         print()
+
+    for step in unrun:
+        print(f"UNRUN   {step.label}: {step.reason}")
+        print(f"        $ {step.run.splitlines()[0]}")
+    if unrun:
+        # Name the fix rather than leaving the reader to derive it. The whole
+        # point of the class is that these steps still owe an answer.
+        print("        Install the missing tool(s) and re-run; until then "
+              "these steps have verified nothing:")
+        print("          " + ", ".join(sorted({s.missing for s in unrun})))
 
     for step in setup_failed:
         print(f"SETUP   {step.label}: {step.reason}")
@@ -509,11 +644,12 @@ def report(name, steps, uses_skipped, forced) -> int:
         print(f"SKIPPED {step.label}: {step.reason}")
     for note in uses_skipped:
         print(f"SKIPPED {note}")
-    if skipped or refused or uses_skipped or setup_failed:
+    if skipped or refused or uses_skipped or setup_failed or unrun:
         print()
 
     total = len(ran)
-    not_run = len(skipped) + len(refused) + len(uses_skipped) + len(setup_failed)
+    not_run = (len(skipped) + len(refused) + len(uses_skipped)
+               + len(setup_failed) + len(unrun))
     print(f"{name}: {total - len(failed)}/{total} run: step(s) passed"
           + (f", {len(failed)} failed" if failed else "")
           + f" ({not_run} not run)")
@@ -523,7 +659,7 @@ def report(name, steps, uses_skipped, forced) -> int:
     if not total:
         print("  Nothing was executed, so nothing was verified.")
         return 1
-    if skipped or refused or uses_skipped or setup_failed:
+    if skipped or refused or uses_skipped or setup_failed or unrun:
         print("  Not a green check: the steps listed above did not run. Say so\n"
               "  in the pull request rather than reporting the workflow passed.")
     if forced:
@@ -628,7 +764,8 @@ def _run_selected(args, selected, held, absent=()) -> int:
         for step in steps:
             execute(step, args.timeout)
             mark = {"ok": "ok", "failed": "FAIL", "skipped": "skip",
-                    "refused": "refuse", "setup-failed": "setup"}[step.status]
+                    "refused": "refuse", "setup-failed": "setup",
+                    "unrun": "UNRUN"}[step.status]
             print(f"  [{mark:6}] {step.label} ({step.seconds:.1f}s)")
         if report(name, steps, uses_skipped, False) != 0:
             failures.append(name)
