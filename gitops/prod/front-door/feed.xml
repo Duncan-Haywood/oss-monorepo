@@ -13,7 +13,7 @@
     <id>tag:marisstella.dev,2026:tool/actions-runner-starvation-check</id>
     <published>2026-09-07T00:00:00Z</published>
     <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
@@ -31,7 +31,7 @@
     <id>tag:marisstella.dev,2026:tool/ai-crawler-access-check</id>
     <published>2026-09-07T00:00:00Z</published>
     <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
@@ -40,7 +40,7 @@
     <id>tag:marisstella.dev,2026:tool/coverage-drop-check</id>
     <published>2026-09-07T00:00:00Z</published>
     <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.</summary>
   </entry>
   <entry>
@@ -49,7 +49,7 @@
     <id>tag:marisstella.dev,2026:tool/flaky-test-finder</id>
     <published>2026-09-07T00:00:00Z</published>
     <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.</summary>
   </entry>
   <entry>
