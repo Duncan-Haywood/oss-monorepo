@@ -68,6 +68,19 @@ test('the tool links to the service-call pricing guide page', () => {
   assert.match(html, /href="how-much-should-a-locksmith-charge-for-a-service-call\.html"/);
 });
 
+// Closest windows/doors/garage sibling: same property access job, but an
+// automatic driveway gate rather than a locksmith service call. Related-tool
+// chrome rotates inside the subcategory, so without an explicit one-hop a
+// crawler on this page may never land on that tool.
+test('index links one hop to the automatic-driveway-gate-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/automatic-driveway-gate-bid-calculator\/"/,
+    'index must link ../automatic-driveway-gate-bid-calculator/ so crawlers reach the gate calculator in one hop',
+  );
+  assert.match(html, /automatic driveway gate bid calculator/i);
+});
+
 test('the guide page links back to the calculator and carries the no-warranty clause', () => {
   assert.match(guideHtml, /<a href="\.\/">/);
   assert.match(guideHtml, /No warranty\.<\/strong> This tool is provided free and as-is/);
