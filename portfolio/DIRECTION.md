@@ -100,6 +100,27 @@ document.
    doesn't replace the visitor-source requirement above — it just catches a
    near-duplicate before a session spends the rest of it writing one up.
 
+   **Added 2026-09-07: weigh the archetype, not just the niche, before
+   graduating a 143rd `<trade>-bid-calculator`.** `pipeline/README.md`
+   measured that **141 of 200** `ventures/` directories share that one
+   shape — a deterministic pricing calculator for one trade — and none of
+   the 141 has ever recorded a nonzero visitor. Clearing
+   `duplicate_check.py` and the liability/ethics gates proves the *niche*
+   isn't a copy; it says nothing about whether the *shape* is still the
+   right bet after 141 tries with nothing to show. A niche with no channel
+   stronger than "searchable, like the other 141" should weigh a different
+   product shape first — CLI/library, a GitHub Action or checker that runs
+   in the user's own CI, a generator (`PRODUCT_PLAYBOOK.md` §2 already
+   ranks these above the browser calculator on cost grounds; this is the
+   same ranking, argued from zero traffic across 141 tries).
+   `ventures/actions-runner-starvation-check` is a fresh instance of that
+   alternative shape, not another calculator. A specific niche with an
+   unusually strong, named channel is still worth building regardless of
+   shape — this doesn't forbid the archetype, it raises the bar for
+   choosing it by default. See `pipeline/README.md`'s "archetype itself"
+   section for the full measurement; this paragraph exists so the same
+   finding is visible from the file a session actually opens first.
+
    **Read "zero in `usage.yaml`" as "unmeasured," not "unwanted," on the
    route that is actually live (added 2026-09-06).** GitHub Pages is what a
    stranger reaches today, and it self-reports nothing; every per-venture
