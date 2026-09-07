@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 136 files, 553235 bytes
 #   portfolio-front-tools-1: 112 files, 556381 bytes
 #   portfolio-front-tools-2: 148 files, 554839 bytes
-#   portfolio-front-tools-3: 127 files, 551884 bytes
+#   portfolio-front-tools-3: 128 files, 555929 bytes
 #   portfolio-front-tools-4: 116 files, 543480 bytes
 #   portfolio-front-tools-5: 131 files, 555279 bytes
 #   portfolio-front-tools-6: 108 files, 545792 bytes
@@ -495,6 +495,7 @@ configMapGenerator:
       - roofing-bid-calculator__share.mjs.gz=roofing-bid-calculator__share.mjs.gz
       - roofing-bid-calculator__usage.mjs.gz=roofing-bid-calculator__usage.mjs.gz
       - roofing-bid-calculator__vs-acculynx.html.gz=roofing-bid-calculator__vs-acculynx.html.gz
+      - roofing-bid-calculator__vs-jobber.html.gz=roofing-bid-calculator__vs-jobber.html.gz
       - painting-bid-calculator__calc.mjs.gz=painting-bid-calculator__calc.mjs.gz
       - painting-bid-calculator__index.html.gz=painting-bid-calculator__index.html.gz
       - painting-bid-calculator__interior-painting-price-per-square-foot.html.gz=painting-bid-calculator__interior-painting-price-per-square-foot.html.gz
