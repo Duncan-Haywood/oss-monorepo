@@ -317,7 +317,12 @@ const CATEGORY_RULES = [
     // marketplaces' fee schedules on one booking, which is this section's exact
     // job. It sat in the catch-all because the slug does not start with a
     // storefront's name.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp)/.test(slug),
+    // `whatnot-seller-payout` is the livestream/auction sibling the retail fee
+    // ranking already deep-links (#3682): commission on the hammer plus
+    // processing on checkout. It sat in "More free tools" because the slug
+    // starts with `whatnot-`, which no marketplace prefix above caught — same
+    // catch-all hole tiktok-shop and kdp already closed.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot)/.test(slug),
   },
   {
     id: 'trades',

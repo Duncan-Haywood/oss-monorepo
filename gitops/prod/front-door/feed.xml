@@ -76,7 +76,7 @@
     <id>tag:marisstella.dev,2026:tool/whatnot-seller-payout</id>
     <published>2026-09-07T00:00:00Z</published>
     <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Marketplace seller tools"/>
     <summary type="text">Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.</summary>
   </entry>
   <entry>
