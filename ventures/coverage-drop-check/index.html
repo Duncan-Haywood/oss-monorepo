@@ -112,7 +112,7 @@ python3 check.py baseline.xml current.xml --json</code></pre>
     <p>Cobertura XML (coverage.py, pytest-cov --cov-report=xml, nyc/Istanbul --reporter=cobertura) and JaCoCo XML. Those are the reports most CI jobs already write. LCOV is not read yet.</p>
     <h3>Is my coverage report uploaded anywhere?</h3>
     <p>No. The browser page parses the XML you paste entirely in your own browser and never sends it anywhere. The CLI reads local files and makes no network call at all.</p>
-    <p>More: <a href="why-did-my-pr-drop-coverage.html">why coverage drops on a PR that "didn't touch tests"</a>.</p>
+    <p>More: <a href="why-did-my-pr-drop-coverage.html">why coverage drops on a PR that "didn't touch tests"</a>, or how this compares to <a href="vs-codecov.html">Codecov</a>, a hosted, connected alternative with a historical dashboard.</p>
     <p>Related: if coverage looks fine but the same tests flip between CI runs, the <a href="../flaky-test-finder/">flaky test finder</a> classifies which tests are flaky versus broken from JUnit XML you paste — nothing uploaded.</p>
     <p>Related: if every check fails in a few seconds with an empty body before you look at coverage, first check whether GitHub assigned a runner with the <a href="../actions-runner-starvation-check/">actions runner starvation check</a> — paste the run&rsquo;s job JSON and it reads <code>runner_id</code>.</p>
   </section>
