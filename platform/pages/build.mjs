@@ -1748,6 +1748,38 @@ export function externalCallExceptions(surfaces) {
     .sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
+/**
+ * A tool's name with any trailing tagline removed, for splicing into a
+ * sentence.
+ *
+ * `readMeta` takes a surface's title from its `og:title`, falling back to
+ * `<title>` split on `|`. Eight tools in the catalogue write that title as
+ * `Name — what it does` (an em dash), which reads correctly as a card heading
+ * and as link text, and wrongly the moment it is joined by `listProse` into
+ * running prose: the tagline swallows the conjunction, so a two-item list
+ * reads as one item with a long name. The site's own privacy sentence was the
+ * casualty, on the About page and in `llms.txt` —
+ *
+ *   ...never leave their device, except on DNS Change Evidence — prove what a
+ *   DNS change actually did and Sponsor Ready, where the one thing you paste...
+ *
+ * — where a reader cannot tell whether "Sponsor Ready" is a second tool or
+ * more of the first one's tagline. That sentence is the portfolio's central
+ * promise about a visitor's data, so it is the one place ambiguity costs the
+ * most.
+ *
+ * Deliberately narrow. It splits on a *spaced* em or en dash only, which is
+ * the convention those eight titles actually use; a hyphen is left alone
+ * because tool names legitimately contain one ("Before/After DNS"), and a
+ * dash with no surrounding spaces is not this pattern. It changes no card
+ * heading and no link text — only names read as words in a sentence.
+ */
+export function toolProseName(title) {
+  const raw = String(title ?? '').trim();
+  const name = raw.split(/\s+[—–]\s+/)[0].trim();
+  return name || raw;
+}
+
 /** "A", "A and B", or "A, B, and C" — used to read an exception list as prose. */
 export function listProse(items) {
   if (items.length === 0) return '';
@@ -1962,7 +1994,7 @@ function disclaimerHtml(toRoot, surfaces = []) {
   const exceptions = externalCallExceptions(surfaces);
   const exceptionNote = exceptions.length
     ? ` Except ${listProse(
-        exceptions.map((x) => escapeHtml(x.title)),
+        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
       )} — each of which checks a live public API as its whole job, so what you paste there to look up goes to ${listProse(
         [...new Set(exceptions.flatMap((x) => x.hosts))],
       )} and nowhere else. <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> says exactly what.`
@@ -2109,7 +2141,7 @@ export function renderCategoryPage({ category, items, groups, baseUrl }) {
   // tools when that is false for one of them.
   const categoryExceptions = externalCallExceptions(items);
   const countPrivacyClaim = categoryExceptions.length
-    ? `nothing you type is uploaded, except on ${listProse(categoryExceptions.map((x) => x.title))}`
+    ? `nothing you type is uploaded, except on ${listProse(categoryExceptions.map((x) => toolProseName(x.title)))}`
     : 'nothing you type is uploaded';
   const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
 
@@ -2306,7 +2338,7 @@ export function renderComparePage({ groups, surfaces, categoryGroups = [], baseU
   const exceptions = externalCallExceptions(surfaces);
   const privacyClaim = exceptions.length
     ? `nothing you type is uploaded, except on ${listProse(
-        exceptions.map((x) => escapeHtml(x.title)),
+        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
       )}`
     : 'nothing you type is uploaded';
 
@@ -2531,7 +2563,7 @@ export function renderCompareProductPage({
   const exceptions = externalCallExceptions(surfaces);
   const privacyClaim = exceptions.length
     ? `nothing you type is uploaded, except on ${listProse(
-        exceptions.map((x) => escapeHtml(x.title)),
+        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
       )}`
     : 'nothing you type is uploaded';
 
@@ -2730,7 +2762,7 @@ export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUr
   const exceptions = externalCallExceptions(surfaces);
   const privacyClaim = exceptions.length
     ? `nothing you type is uploaded, except on ${listProse(
-        exceptions.map((x) => escapeHtml(x.title)),
+        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
       )}`
     : 'nothing you type is uploaded';
 
@@ -2964,7 +2996,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   // it cannot drift from the catalogue the way hand-written marketing copy does.
   const shortBoiler = `${total} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
   const deviceClaim = exceptions.length
-    ? `the numbers a user types never leave their device, except on ${listProse(exceptions.map((x) => x.title))}, where the one thing you paste — the lookup target — goes to the public API it checks (${exceptionHosts}) and nowhere else`
+    ? `the numbers a user types never leave their device, except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste — the lookup target — goes to the public API it checks (${exceptionHosts}) and nowhere else`
     : `the numbers a user types never leave their device`;
   const longBoiler = `${SITE_NAME} is a collection of ${total} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${total} are free with no gated features and no paid tier.`;
 
@@ -5745,7 +5777,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
 
   return `# Free calculators and checks for people who run a small business
 
-> ${surfaces.length} free, browser-only tools for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment: every calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => x.title))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
+> ${surfaces.length} free, browser-only tools for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment: every calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
