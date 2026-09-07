@@ -71,7 +71,10 @@ queue is genuinely empty** (added 2026-09-06) — five candidates that had
 already shipped were still marked unbuilt in `candidates.yaml` (a
 `session_gate.py` misdirection risk, now fixed). The next new-venture
 session screens a fresh niche against `portfolio/pipeline/screened-out.md`
-and the liability/ethics gates, not the queue. See `portfolio/DIRECTION.md`
+and the liability/ethics gates, not the queue. Run
+`python3 portfolio/pipeline/duplicate_check.py "<one-line niche description>"`
+first — at 199 ventures, most a `<trade>-bid-calculator` shape, eyeballing
+that list is no longer reliable (added 2026-09-07). See `portfolio/DIRECTION.md`
 "Owner direction, 2026-09-06" for the full read, including why legal
 exposure (not speed) is still the one hard stop.
 

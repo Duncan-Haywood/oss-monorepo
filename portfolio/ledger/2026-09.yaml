@@ -17814,3 +17814,67 @@ entries:
         against this branch's parent commit before this change, so it
         will need a republish after merge per CLAUDE.md.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Another scheduled direction-setting session (same owner brief as the
+        entry above, ~2 hours earlier: push the fleet toward viable,
+        donation-revenue businesses, keep customers happy, avoid legal
+        exposure, rank new ventures highly). `portfolio/DIRECTION.md` had
+        just gained an explicit dated note ("Before rewriting this brief
+        again") recording that three direction-only PRs (#3542, #3551,
+        #3571) had landed in the three hours before it, none shipping a
+        venture or fixing a defect -- so a fourth restatement was the
+        anti-pattern to avoid, not the job. Read DIRECTION.md/AGENTS.md/
+        PRODUCT_PLAYBOOK.md/pipeline/README.md and confirmed the North star
+        already covers every point in the brief; wrote nothing there beyond
+        two one-line tool pointers (below).
+      - >-
+        Built `portfolio/pipeline/duplicate_check.py` + tests (16 passing):
+        scores a proposed niche against every venture description (+ product
+        lines), every `screened-out.md` row, the eight `ai-first-markets`
+        ideas, and every pipeline candidate, using IDF-weighted word/bigram
+        containment, and exits 1 with the closest matches when one clears a
+        calibrated "read this first" bar. Motivation: at 199 `ventures/`
+        directories, nearly all a `<trade>-bid-calculator` shape,
+        `DIRECTION.md`'s own "raise the bar, not just the count" note asks
+        sessions to avoid a near-duplicate niche, and eyeballing that list by
+        hand is exactly the kind of manual step this repo has repeatedly
+        replaced with a script (`supersede_check.py`,
+        `checklist_coverage.py`, `check_no_payment_code.py`). Plain Jaccard
+        was tried first and rejected: it scored an actual near-duplicate
+        pair (asphalt-sealcoat-bid-calculator vs. a one-line rephrasing of
+        its own description) at 0.16 because the real description is 6x
+        longer than a candidate one-liner; IDF-weighted containment scores
+        the same pair 0.85, and two genuinely unrelated live ventures
+        (world-clock-widget vs. septic-pumping-bid-calculator) stay below
+        the 0.45 threshold. Wired one-line pointers into
+        `portfolio/pipeline/README.md`, `DIRECTION.md`, and `AGENTS.md`
+        where the manual screening step they already describe lives --
+        not a policy restatement.
+      - >-
+        Found `main` red on `portfolio/scoring` + `portfolio/router` tests
+        while running the pipeline/scoring/router/usage/ledger checklist
+        line: #3580 (merged ~2h earlier, unrelated to this session) added
+        `ventures/home-staging-bid-calculator` without a `venture-scores.yaml`
+        row, and `score_ventures.py --check` requires every VENTURE.yaml to
+        have one. Ported the fix in this PR rather than leaving it red or
+        widening scope into a separate PR: added a scored entry (composite
+        6.333, same per-job trade-calculator shape and dimension values as
+        `ice-dam-removal-bid-calculator`/`locksmith-bid-calculator`, gates
+        both pass) with its own `basis`/`floor_note`/`gate_note` reasoned
+        from that venture's actual README and VENTURE.yaml. `score_ventures.py
+        --check` and the full `portfolio/scoring` + `portfolio/router` +
+        `portfolio/pipeline` suites (128 tests total across the three) pass
+        clean afterward.
+      - >-
+        Did not graduate a new venture this session -- the pipeline README's
+        own rule ("a candidate that fits an existing venture is a product
+        line first") and the just-raised visitor-channel bar make that a
+        genuine research task, not one to rush inside a direction-setting
+        session already spending most of its budget verifying no gap
+        existed. Built the tool that makes the *next* such session's
+        screening step reliable instead.
+    mrr_end: null
