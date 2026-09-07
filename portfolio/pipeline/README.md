@@ -81,6 +81,33 @@ matches printed when the top score clears the "read this before you write a
 candidate" bar. It is lexical overlap, not meaning — a low score is evidence
 of novelty, not proof — so read the top matches it prints either way.
 
+**The `<trade>-bid-calculator` archetype itself is now the thing to weigh,
+not just the individual niche** (added 2026-09-07). Counted directly from
+`ventures/` this session: of 200 venture directories, **141 have a slug
+ending in `-calculator`, `-margin`, `-pricing`, or containing `-route-`** —
+one deterministic arithmetic calculator for one trade, repeated. Every one
+of them clears `duplicate_check.py` on its own (a boiler is not a crown
+molding job), and every one is individually well-justified in its own
+write-up. None of that is in question. What is: `usage/usage.yaml` has
+never recorded a nonzero visitor on *any* of the 200, and the shape itself
+— not any one instance of it — has now had 141 independent tries with
+nothing to show. A 142nd instance clearing the duplicate check and the
+liability/ethics gates is necessary but no longer strong evidence that the
+*archetype* is the right next bet, separately from whether the *niche* is.
+
+This does not mean stop building bid calculators — a specific niche with an
+unusually strong, named channel (a trade forum that already discusses this
+exact pricing problem, a subreddit with real thread volume) is still worth
+building regardless of shape. It does mean: when screening a fresh niche
+with no channel stronger than "searchable, like the other 141," weigh a
+different product shape first — CLI/library, a GitHub Action or checker
+that runs in the user's own CI, or a generator (`PRODUCT_PLAYBOOK.md` §2
+ranks these above the browser calculator already, on cost grounds; this is
+the same ranking, argued from zero traffic across 141 tries rather than
+from marginal cost alone). `ventures/actions-runner-starvation-check` is
+one such attempt — a developer-niche CLI/browser tool, not a trade
+calculator, built the same session this note was added.
+
 ## Scoring
 
 Eight dimensions, 0–10. The first six are the same dimensions
