@@ -514,6 +514,9 @@ workflows:
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []
+- workflow: pour-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: pressure-washing-bid-calculator-ci.yml
   classification: none
   publishes: []
