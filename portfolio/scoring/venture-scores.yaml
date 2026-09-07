@@ -6868,6 +6868,73 @@ ventures:
       The page states that a clean scan is not a security audit — a declared
       `permissions:` block can still be wider than a job needs, which this
       does not judge — so there is no advice-of-record or compliance claim.
+  - slug: actions-self-hosted-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic reading of two YAML keys (`on:` and `runs-on:`) already
+      present in the workflow file on disk. There is nothing to infer: a
+      job either declares the literal `self-hosted` label under one of four
+      named triggers or it does not.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags
+      GitHub Actions jobs running on a `self-hosted` runner label inside a
+      workflow triggered by `pull_request`, `pull_request_target`,
+      `workflow_run`, or `issue_comment` — GitHub's own documented reason not
+      to use self-hosted runners on a public repository. Fifth of the
+      `actions-*-check` family and orthogonal to all four siblings:
+      `pinned-actions-check` asks *which* code runs (a mutable @tag),
+      `actions-injection-check` asks *whose input* runs (a pwn-request
+      checkout or an interpolated expression), `actions-permissions-check`
+      asks *what the token may do*, `actions-cache-poisoning-check` asks
+      *what a compromised job can plant for later*, and this asks *who gets
+      to make a job run in the first place, and on whose machine*. Same
+      standard-library-only classifier + browser port + parity-tested shape,
+      scored on this file's six-dimension rubric to keep coverage complete
+      for `score_ventures.py --check` and `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: nothing to host — the page
+      classifies text the visitor pastes and the CLI reads local files, so
+      marginal cost per use is zero and there is no server to operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities, since usage rather than payment is the
+      current-phase metric.
+      Defensibility 4: level with `pinned-actions-check` rather than at the
+      family floor — the classification rule itself (two YAML keys) is
+      simple, but the four-trigger risk taxonomy and the already-written
+      explanation of why `pull_request_target`/`workflow_run` differ from
+      plain `pull_request` is a background piece a searcher is buying, not
+      just a lookup.
+      Distribution 5: "self-hosted runner public repository security" is
+      GitHub's own documented warning, and the OpenSSF Scorecard project's
+      `Dangerous-Workflow` check flags the same condition on public
+      repositories at scale, giving a second, concrete route to a
+      Scorecard-flagged maintainer searching for a fix — the same kind of
+      channel `actions-permissions-check` names for its Token-Permissions
+      half of the same project. Not scored higher: no dedicated demand
+      event, no existing developer-tool distribution channel in this
+      portfolio, and volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only linter over the user's own workflow text. It makes no
+      network call in either implementation, needs no token, and nothing the
+      visitor pastes leaves the device. It reports on a defender's own
+      configuration and has no capability to scan anyone else's repository.
+      The page states that a clean scan is not a claim the self-hosted
+      infrastructure is safe — it does not evaluate runner groups, network
+      segmentation, or how the machine itself is hardened — so there is no
+      advice-of-record or compliance claim.
   - slug: actions-runner-starvation-check
     scores:
       ai_leverage: 1
@@ -7624,3 +7691,59 @@ ventures:
       the user to review, never a claim that a specific package is
       malicious. Makes no network call of any kind (never queries npm),
       uploads nothing, and says so plainly in its own FAQ.
+  - slug: vscode-extension-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether an installed extension's
+      activation surface changed since the last snapshot is a factual diff
+      over each extension's own package.json (activation events,
+      dependencies, entry point); whether an installed extension still
+      resolves on the Marketplace is a factual API lookup, not a model
+      judgment.
+    basis: >-
+      Screened and graduated 2026-09-07 per portfolio/pipeline/README.md's
+      "archetype itself" section: same "paste two point-in-time snapshots,
+      get a deterministic diff" shape as license-drift-check and
+      npm-lifecycle-script-check, applied to VS Code-family editor
+      extensions rather than npm packages — a surface none of this
+      portfolio's existing drift checkers reads. duplicate_check.py scored
+      every existing venture and screened-out row below 0.12 against this
+      niche, well below the 0.45 review bar. Autonomous ops 10 / gross
+      margin 10: `snapshot` and `diff` read only local files and the
+      browser page parses only pasted text, so serving one more user costs
+      a static file; the CLI-only `check` command does call the public VS
+      Code Marketplace API from the user's own machine, at no cost to this
+      project. Distribution 6, matching npm-lifecycle-script-check's
+      argument for the same reason: GlassWorm (ongoing since 2026-01-31,
+      70+ malicious Open VSX extensions) and the Nx Console Marketplace
+      compromise (2026-05-18, credential-stealing trojanized build live
+      ~18 minutes) are real, dated, event-driven incidents covered by
+      TheHackerNews and multiple security vendors, giving searchers a
+      concrete reason to look for "vscode extension supply chain" or
+      "is my vscode extension safe" in their aftermath — not an evergreen
+      query. Defensibility 3, level with npm-lifecycle-script-check: the
+      core mechanism (diff two JSON snapshots, call one public API) is
+      simple and could be replicated quickly; what is not yet proven is
+      whether developers actually run it after an incident rather than
+      just reading about one.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive — it flags a documented supply-chain
+      risk pattern (an installed extension's activation surface changing,
+      or an installed extension disappearing from the Marketplace) for the
+      user to review themselves, never a claim that a specific extension is
+      malicious. `snapshot`/`diff` make no network call at all; `check`
+      calls only the public Marketplace API the extension itself came from,
+      uploads nothing, and the page says so plainly.

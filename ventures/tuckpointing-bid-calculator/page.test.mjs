@@ -247,3 +247,16 @@ test('a saved or shared bid carries no customer or business details', () => {
       `${field} would be written into the saved bid and its shareable link`);
   }
 });
+
+// Closest sibling: same masonry-facade repair trade and the same scaffold, but render rather than joints. Related-tool chrome rotates inside the
+// Roofing, siding & gutters subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the stucco-repair-bid-calculator sibling', () => {
+  const siblingPage = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    siblingPage,
+    /href="\.\.\/stucco-repair-bid-calculator\/"/,
+    'index must link ../stucco-repair-bid-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(siblingPage, /stucco repair bid calculator/i);
+});

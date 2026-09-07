@@ -815,6 +815,12 @@ workflows:
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
+- workflow: actions-self-hosted-exposure-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: vscode-extension-drift-check-ci.yml
+  classification: none
+  publishes: []
 gitops:
 - application: agents
   path: gitops/agents
