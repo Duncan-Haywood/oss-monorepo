@@ -8,7 +8,7 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 207,
+  "served_here": 208,
   "collection_total": 207,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
@@ -68,7 +68,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
+      "tool_count": 6
     }
   ],
   "tools": [
@@ -495,6 +495,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a fence installation from posts, terminals, gates, tear-out, and digging conditions. See installed price per foot, effective hourly rate, and the walk-away number before you send the bid.",
       "pages": 3
+    },
+    {
+      "slug": "3d-print-price-calculator",
+      "name": "3D Print Price Calculator — Price a Print for Etsy or Shopify",
+      "url": "https://marisstella.dev/tools/3d-print-price-calculator/",
+      "category": "More free tools",
+      "description": "Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you're charging.",
+      "pages": 1
     },
     {
       "slug": "actions-cache-poisoning-check",
