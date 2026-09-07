@@ -1,5 +1,5 @@
 {
-  "orphanBudget": 118,
+  "orphanBudget": 112,
   "measured": "2026-09-07",
   "tools": 202,
   "what": "Tools with no static one-hop inbound link from any sibling tool. Read by `node platform/pages/siblings.mjs --check` and by siblings.test.mjs. A ratchet, not a target: LOWER it in the same commit that closes a pair, so a new tool shipping with no sibling link turns a run red instead of waiting to be noticed. Raising it is a deliberate act that belongs in a pull request body with a reason.",

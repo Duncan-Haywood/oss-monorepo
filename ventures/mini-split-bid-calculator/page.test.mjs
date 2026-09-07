@@ -16,6 +16,19 @@ test('landing page names the installer problem and the calculator', () => {
   assert.match(page, /Copy bid summary/);
 });
 
+// Closest sibling: same HVAC heating/cooling job, but a furnace or heat-pump
+// swap rather than a ductless install. Related-tool chrome rotates inside the
+// MEP subcategory, so without an explicit one-hop a crawler on this page may
+// never land on that tool.
+test('index links one hop to the furnace-bid-calculator sibling', () => {
+  assert.match(
+    page,
+    /href="\.\.\/furnace-bid-calculator\/"/,
+    'index must link ../furnace-bid-calculator/ so crawlers reach the furnace calculator in one hop',
+  );
+  assert.match(page, /furnace bid calculator/i);
+});
+
 test('FAQ page answers the search query and links back to the calculator', () => {
   assert.match(faq, /How much to charge to install a mini split/);
   assert.match(faq, /FAQPage/);
