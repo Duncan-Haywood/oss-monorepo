@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 196 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 197 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 196 of them — and
+Every tool in the collection is listed below — all 197 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -161,6 +161,7 @@ page that hosts it.
 - [npm Deployment Evidence — Free Lockfile Surface Report](https://marisstella.dev/tools/npm-deployment-evidence/): Free, no-signup, no-upload tool that reads a package-lock.json in your browser and shows which npm dependencies reach your deployed app versus which are build- or test-only. Runs entirely client-side.
 - [Grant Deadline Tracker for Small Nonprofits](https://marisstella.dev/tools/grant-deadline-tracker/): Free private grant deadline and reporting tracker for small nonprofits. Find overdue obligations, see award funds remaining, and compare hiring a grant writer against the cash a late report puts at risk.
 - [Shopify Accessibility Evidence Report](https://marisstella.dev/tools/shopify-a11y-evidence/): Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.
+- [ADA Title II Website Accessibility Evidence Report](https://marisstella.dev/tools/ada-title-ii-evidence/): Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.
 - [Consent Change Record](https://marisstella.dev/tools/consent-change-record/): Compare before-and-after consent browser traces and create a local request and storage change record.
 - [CRA Evidence Desk — free SBOM vs advisory matcher for EU software vendors](https://marisstella.dev/tools/cra-evidence-desk/): Free Cyber Resilience Act evidence tool: match your CycloneDX or SPDX SBOM against an OSV advisory export, see exactly which components are named, and download a dated record and an Article 14 review draft. Runs entirely in your browser — your SBOM is never uploaded.
 - [DNS Change Evidence — Free Before/After DNS Record Report](https://marisstella.dev/tools/dns-configuration-evidence/): Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.
@@ -185,6 +186,7 @@ page that hosts it.
 - [KDP Royalty Calculator — KU Page Reads vs Going Wide](https://marisstella.dev/tools/kdp-royalty-calculator/): See what a Kindle book keeps on KDP exclusive (paid sales plus Kindle Unlimited page reads) versus going wide. Paperback print cost, 70% vs 35% ebook, and Ingram wholesale are boxes you type from your own dashboard. Free, runs in your browser.
 - [Marketplace Fee Comparison — Which Channel Nets Most](https://marisstella.dev/tools/marketplace-fee-compare/): Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store on one item. Enter the price and your landed cost once and see net profit on every channel. Runs entirely in your browser.
 - [Shopify Fee Calculator — Payments vs PayPal vs Grow](https://marisstella.dev/tools/shopify-fee-calculator/): Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee. Then compare Basic, Grow, Advanced, and Plus at your monthly volume.
+- [Whatnot Seller Payout Calculator — Keep After 8% + Processing](https://marisstella.dev/tools/whatnot-seller-payout/): Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.
 - [Where to Sell Calculator — eBay vs Etsy vs Amazon](https://marisstella.dev/tools/where-to-sell-calculator/): Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, Reverb, your own store, and a local sale.
 
 ## Service business pricing & quotes
@@ -228,18 +230,14 @@ page that hosts it.
 - [LTL Freight Class Estimator](https://marisstella.dev/tools/ltl-freight-class-estimator/): Estimate LTL freight class from pallet dimensions, weight, and piece count — then see the packed height that reaches the next class down, and the height at which a carrier remeasure re-rates the shipment.
 - [Cloud Egress Cost Calculator for S3 Storage](https://marisstella.dev/tools/cloud-egress-calculator/): Compare monthly S3-compatible storage, request, and data egress costs for a real workload. Free, private, and runs in your browser.
 
-## CI checks & developer gates
-
-- [Actions Runner Starvation Check — Is Your Red CI Even Real?](https://marisstella.dev/tools/actions-runner-starvation-check/): Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.
-- [AI Crawler Access Check — Which AI Bots Does Your robots.txt Block?](https://marisstella.dev/tools/ai-crawler-access-check/): Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.
-- [Coverage Drop Check — Did This PR Lower Line Coverage?](https://marisstella.dev/tools/coverage-drop-check/): Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.
-- [Flaky Test Finder — Which Tests Flipped Between CI Runs?](https://marisstella.dev/tools/flaky-test-finder/): Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.
-
 ## More free tools
 
 - [Sponsor Ready — free GitHub Sponsors readiness checklist](https://marisstella.dev/tools/sponsor-ready/): Free, no-signup checklist that scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors, and tells you exactly what to fix first.
+- [Actions Runner Starvation Check — Is Your Red CI Even Real?](https://marisstella.dev/tools/actions-runner-starvation-check/): Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.
+- [AI Crawler Access Check — Which AI Bots Does Your robots.txt Block?](https://marisstella.dev/tools/ai-crawler-access-check/): Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.
 - [Free Electronics Calculators — AI Engineering Academy](https://marisstella.dev/tools/ai-engineering-academy/): A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.
-- [Whatnot Seller Payout Calculator — Keep After 8% + Processing](https://marisstella.dev/tools/whatnot-seller-payout/): Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.
+- [Coverage Drop Check — Did This PR Lower Line Coverage?](https://marisstella.dev/tools/coverage-drop-check/): Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.
+- [Flaky Test Finder — Which Tests Flipped Between CI Runs?](https://marisstella.dev/tools/flaky-test-finder/): Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.
 
 ## Optional
 
