@@ -78,6 +78,18 @@ test("disclaimer, no-SLA, and optional sponsors are visible", () => {
   assert.match(html, /github.com\/sponsors\/Duncan-Haywood/);
 });
 
+// Closest sibling: same logistics catalogue, but density-to-class before the
+// quote rather than accessorial lines after the invoice. Without a crawlable
+// link here, a crawler entering on the accessorial auditor never reaches the
+// class estimator in one hop.
+test("index links one hop to the ltl-freight-class-estimator sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/ltl-freight-class-estimator\/"/,
+    "index must link ../ltl-freight-class-estimator/ so crawlers reach the class estimator in one hop",
+  );
+});
+
 test("default demo totals match the FAQ copy", () => {
   // The fourth line carries no expected amount. It is priced here the way the
   // page prices it — from the shipped rate card and the quantity — so the copy
