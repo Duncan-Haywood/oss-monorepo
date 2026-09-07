@@ -88,3 +88,16 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+// Closest sibling: same independent-trade bid-calculator shape for a
+// residential job, but an elevator install rather than a vacant-listing
+// staging job. Without a crawlable link here, a crawler entering on the home
+// staging bid calculator never reaches the home elevator bid calculator in
+// one hop.
+test('index links one hop to the home-elevator-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/home-elevator-bid-calculator\/"/,
+    'index must link ../home-elevator-bid-calculator/ so crawlers reach the home elevator bid calculator in one hop',
+  );
+});

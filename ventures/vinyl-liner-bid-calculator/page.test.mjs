@@ -87,6 +87,19 @@ test('the share link wires encode, terms, and restore, not just the button', () 
   assert.match(scriptSource, /restoreShare\(\)/, 'restoreShare is defined but never called on load');
 });
 
+// Closest sibling: same pool-resurfacing job, but a plaster/pebble finish
+// rather than a vinyl liner. Related-tool chrome rotates inside the landscape
+// subcategory, so without an explicit one-hop a crawler on this page may never
+// land on that tool.
+test('index links one hop to the pool-plaster-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/pool-plaster-bid-calculator\/"/,
+    'index must link ../pool-plaster-bid-calculator/ so crawlers reach the plaster calculator in one hop',
+  );
+  assert.match(html, /pool plaster bid calculator/i);
+});
+
 test('the landing page names the problem in the crew’s own words', () => {
   assert.match(html, /<title>[^<]*Vinyl Liner Bid Calculator/i);
   assert.match(html, /meta name="description"[^>]*liner square feet/i);

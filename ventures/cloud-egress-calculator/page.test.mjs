@@ -337,3 +337,15 @@ test("the two new FAQ questions are present in both the visible copy and the FAQ
     assert.match(scriptSource, new RegExp(`"name":"${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
   }
 });
+
+// Closest sibling: same monthly-cost-normalization shape, but a fulfillment
+// quote rather than a cloud storage bill. Without a crawlable link here, a
+// crawler entering on the cloud egress calculator never reaches the 3PL
+// quote normalizer in one hop.
+test("index links one hop to the 3pl-quote-normalizer sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/3pl-quote-normalizer\/"/,
+    "index must link ../3pl-quote-normalizer/ so crawlers reach the 3PL quote normalizer in one hop",
+  );
+});
