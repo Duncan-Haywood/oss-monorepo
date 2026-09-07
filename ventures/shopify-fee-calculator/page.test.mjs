@@ -125,3 +125,10 @@ test("the result panel is announced to screen readers when it updates", () => {
     "the result section is not a live region, so updates are never announced",
   );
 });
+
+// marketplace-fee-compare already deep-links here for plan-tier fees a
+// headline rate cannot carry; without a crawlable link back, a visitor on
+// Shopify never reaches the six-channel triage (same orphan class as #3637).
+test("index links to the marketplace fee comparison", () => {
+  assert.match(index, /href="\.\.\/marketplace-fee-compare\/"/);
+});

@@ -33,16 +33,16 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 553391 bytes
-#   portfolio-front-tools-1: 111 files, 556873 bytes
-#   portfolio-front-tools-2: 148 files, 556105 bytes
-#   portfolio-front-tools-3: 130 files, 550128 bytes
+#   portfolio-front-tools-0: 136 files, 553504 bytes
+#   portfolio-front-tools-1: 110 files, 552780 bytes
+#   portfolio-front-tools-2: 148 files, 554974 bytes
+#   portfolio-front-tools-3: 131 files, 555827 bytes
 #   portfolio-front-tools-4: 118 files, 556873 bytes
 #   portfolio-front-tools-5: 132 files, 552181 bytes
 #   portfolio-front-tools-6: 110 files, 555921 bytes
 #   portfolio-front-tools-7: 114 files, 556849 bytes
 #   portfolio-front-tools-8: 118 files, 543937 bytes
-#   portfolio-front-tools-9: 96 files, 543695 bytes
+#   portfolio-front-tools-9: 96 files, 543797 bytes
 #   portfolio-front-tools-10: 86 files, 439900 bytes
 #   portfolio-front-tools-11: 53 files, 263711 bytes
 #
@@ -318,12 +318,12 @@ configMapGenerator:
       - 3pl-quote-normalizer__returns-sensitivity.html.gz=3pl-quote-normalizer__returns-sensitivity.html.gz
       - 3pl-quote-normalizer__sensitivity.html.gz=3pl-quote-normalizer__sensitivity.html.gz
       - 3pl-quote-normalizer__share.mjs.gz=3pl-quote-normalizer__share.mjs.gz
-      - 3pl-quote-normalizer__should-i-pay-the-3pl-to-kit.html.gz=3pl-quote-normalizer__should-i-pay-the-3pl-to-kit.html.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - 3pl-quote-normalizer__should-i-pay-the-3pl-to-kit.html.gz=3pl-quote-normalizer__should-i-pay-the-3pl-to-kit.html.gz
       - 3pl-quote-normalizer__should-i-restock-or-let-the-customer-keep-a-3pl-return.html.gz=3pl-quote-normalizer__should-i-restock-or-let-the-customer-keep-a-3pl-return.html.gz
       - 3pl-quote-normalizer__usage.mjs.gz=3pl-quote-normalizer__usage.mjs.gz
       - 3pl-quote-normalizer__vs-extensiv.html.gz=3pl-quote-normalizer__vs-extensiv.html.gz
@@ -471,12 +471,12 @@ configMapGenerator:
       - notary-trip-quote__share.mjs.gz=notary-trip-quote__share.mjs.gz
       - notary-trip-quote__usage.mjs.gz=notary-trip-quote__usage.mjs.gz
       - notary-trip-quote__vs-notarygadget.html.gz=notary-trip-quote__vs-notarygadget.html.gz
-      - booth-rent-vs-commission__calc.mjs.gz=booth-rent-vs-commission__calc.mjs.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - booth-rent-vs-commission__calc.mjs.gz=booth-rent-vs-commission__calc.mjs.gz
       - booth-rent-vs-commission__how-many-clients-does-booth-rent-need.html.gz=booth-rent-vs-commission__how-many-clients-does-booth-rent-need.html.gz
       - booth-rent-vs-commission__index.html.gz=booth-rent-vs-commission__index.html.gz
       - booth-rent-vs-commission__payroll.mjs.gz=booth-rent-vs-commission__payroll.mjs.gz

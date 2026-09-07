@@ -138,3 +138,10 @@ test("the incumbent-comparison page carries the standard disclaimer and sponsor 
   assert.match(vsWfsSeo, /Best-effort hosting, no SLA/);
   assert.match(vsWfsSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
+
+// marketplace-fee-compare already deep-links here for fees a headline
+// referral rate cannot carry; without a crawlable link back, a visitor on
+// Walmart never reaches the six-channel triage (same orphan class as #3637).
+test("index links to the marketplace fee comparison", () => {
+  assert.match(html, /href="\.\.\/marketplace-fee-compare\/"/);
+});

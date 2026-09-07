@@ -551,3 +551,10 @@ test('every .html file in the venture is reachable from the sitemap', () => {
 test('index links to the where-to-sell calculator', () => {
   assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
 });
+
+// marketplace-fee-compare already deep-links here for fees a headline rate
+// cannot carry; without a crawlable link back, a visitor on Etsy never
+// reaches the six-channel triage (same orphan class as #3637).
+test('index links to the marketplace fee comparison', () => {
+  assert.match(html, /href="\.\.\/marketplace-fee-compare\/"/);
+});
