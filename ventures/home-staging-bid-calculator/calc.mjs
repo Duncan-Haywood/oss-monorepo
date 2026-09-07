@@ -186,6 +186,8 @@ export function calculateQuote(input) {
 
   return {
     roomsStaged,
+    includedTermMonths,
+    extensionFeePerMonth,
     laborCost,
     mileageCost,
     equipmentCostPerJob,

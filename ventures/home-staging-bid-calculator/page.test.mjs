@@ -16,8 +16,8 @@ test('the page imports calculateQuote and DEFAULTS from calc.mjs', () => {
 });
 
 test('the page wires usage counting for both the quote and the term checker', () => {
-  assert.match(html, /recordEvent\('quote-priced'\)/);
-  assert.match(html, /recordEvent\('term-checked'\)/);
+  assert.match(html, /count\('quote-priced'\)/);
+  assert.match(html, /count\('term-checked'\)/);
   assert.match(html, /<code>quote-priced<\/code>, <code>term-checked<\/code>/);
 });
 
