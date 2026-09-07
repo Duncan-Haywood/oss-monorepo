@@ -49,3 +49,15 @@ test("every .html file in the venture is reachable from the sitemap", () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
   }
 });
+
+// flaky-test-finder covers the next question after "did coverage drop?": which
+// tests actually flipped. Without a crawlable link on this hub, a crawler
+// entering on coverage-drop-check never reaches that sibling in one hop —
+// same one-way orphan class as #3639 / #3667 / #3677.
+test("index links to the related flaky-test-finder", () => {
+  assert.match(
+    html,
+    /href="\.\.\/flaky-test-finder\/"/,
+    "index must link ../flaky-test-finder/ so crawlers can reach the JUnit flaky classifier",
+  );
+});
