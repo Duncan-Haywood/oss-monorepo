@@ -559,6 +559,9 @@
     <loc>https://marisstella.dev/tools/coverage-drop-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/coverage-drop-check/vs-codecov.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/coverage-drop-check/why-did-my-pr-drop-coverage.html</loc>
   </url>
   <url>
