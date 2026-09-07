@@ -18427,3 +18427,72 @@ entries:
         window again (`auto-merge` check: `runner_id: 0`), so this is the
         real, sole verification rather than a CI cross-check.
     mrr_end: null
+  - venture: pour-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Branch/PR-drain phase first: zero open PRs existed, so screened the
+        remote-branch backlog for unique unmerged work instead. Ran
+        `portfolio/ledger/supersede_check.py` against ~40 of the 107
+        branches carrying commits ahead of `origin/main` (a mix of the
+        highest ahead-count branches, the most recently created, and a
+        parallelised batch), dispatching six parallel review agents at the
+        candidates that looked most promising by content (secrets/deploy
+        tooling, three comparison-page branches, a CI diagnostic, an
+        appointment-guide page) before broadening the net myself. Every
+        single one came back SUPERSEDED or an equivalent already-merged
+        finding -- several under a different commit hash via squash-merge,
+        two as stale earlier drafts main had since rewritten better
+        (`funny-archimedes-iz76so`'s `quote-margin-check` work, superseded
+        by main's own `csvCell`/`reportDocument` rename), one as pure
+        ledger-only prose. Concluded the repairable queue was empty rather
+        than continuing to spend the run cataloguing an already-dead
+        backlog, per the mandate's own "if none exist, start new work"
+        clause.
+      - >-
+        Also checked the Hetzner/Codex-CLI-on-VM request: the
+        `gitops/agents/` Codex governor (host-mode systemd installer,
+        worker, mandate.md) is already fully built, but is gated entirely on
+        owner-only actions (rotating `HETZNERSSHKEY`, which currently holds
+        a public key; sealing `CODEX_AUTH_JSON`/`OPENAI_API_KEY` +
+        `GH_TOKEN` as `codex-secrets`) and this session's own egress cannot
+        reach the Hetzner boxes at all (`agent-session-egress: down` in
+        `infra_state.yaml` -- no raw TCP to either box, no `ssh` binary).
+        Did not duplicate the existing, extensively-documented ask in
+        `decision_queue.py`. Separately confirmed GitHub Pages is live,
+        deployed, and its `gh-pages` snapshot already current as of this
+        session (`platform/ci/pages_state.py`), so no publish step was
+        needed there.
+      - >-
+        Product work: `pour-cost-calculator` (graduated in #3600) was the
+        only shipped venture with zero comparison pages at all. Added
+        `vs-binwise.html`, comparing against BinWise (a well-documented,
+        POS-integrated bar/beverage inventory platform sold as an ongoing
+        subscription) -- no invented pricing, required no-warranty/
+        not-affiliated clauses, and a FAQPage JSON-LD block verified
+        byte-identical to its visible prose (`platform/pages/faq-visible.
+        test.mjs` caught and this session fixed one real mismatch of its
+        own, comma vs. em dash, before opening the PR). Wired into
+        `index.html`/`sitemap.xml`, `regen.mjs` run and committed. Mid-session
+        a concurrent PR (#3606) shipped a `vs-wisk.html` page for the same
+        venture; merged `main` into this branch and kept both pages rather
+        than letting either collide or get discarded.
+      - >-
+        Verification: `node --test ventures/pour-cost-calculator/*.test.mjs`
+        (64 pass, post-merge with the concurrent vs-WISK work), `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` (1155
+        pass), `python3 platform/ci/checklist_coverage.py` (clean),
+        `node platform/pages/clauses.mjs pour-cost-calculator` (4/4 pages
+        carry required clauses), `node --test platform/marketing/
+        workflow-coverage.test.mjs` (pass), `python3 platform/ci/
+        run_workflow_locally.py --for-changes` (this venture's own CI
+        workflow ran clean locally; a handful of unrelated pre-existing
+        failures elsewhere in the selection -- an egress-consolidation
+        ask-verdict gap and a step-grid issue on a different venture --
+        were left alone as pre-existing on `main`, not introduced here).
+        Opened PR #3607, checked several of its red checks with
+        `ci_starvation.py` (`runner_id: 0` on all -- starvation, not a real
+        failure), recorded that finding on the PR, and merged on the basis
+        of the local verification above.
+    mrr_end: null
