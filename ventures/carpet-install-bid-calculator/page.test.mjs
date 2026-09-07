@@ -203,3 +203,16 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
+
+// Closest sibling: same floor-covering trade, but hard-surface LVP / hardwood /
+// tile (waste, tear-out) rather than carpet yards and stairs. Related-tool
+// chrome may never surface that pair, so without an explicit one-hop a crawler
+// on this page may never land on that tool.
+test('index links one hop to the flooring-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/flooring-bid-calculator\/"/,
+    'index must link ../flooring-bid-calculator/ so crawlers reach the flooring calculator in one hop',
+  );
+  assert.match(html, /flooring bid calculator/i);
+});
