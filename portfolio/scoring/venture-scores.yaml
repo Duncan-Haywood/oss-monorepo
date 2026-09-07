@@ -7740,3 +7740,44 @@ ventures:
       call (`check`, CLI-only) is a plain lookup of an extension id already
       installed on the user's own machine against the public Marketplace
       API; it uploads no file contents and says so in its own FAQ.
+  - slug: 3d-print-price-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Price is solved directly from
+      price*(1 - fee%) - cost = price*(margin%) and cost is inflated by a
+      user-entered failure rate — closed-form arithmetic on numbers the user
+      supplies, not a model judgment.
+    basis: >-
+      Graduated 2026-09-07 as a free browser-only pricing calculator for
+      makers selling 3D-printed parts on Etsy, Shopify, or at craft fairs.
+      duplicate_check.py scored the closest existing venture
+      (shopify-fee-calculator) at 0.16, well below the 0.45 flag bar.
+      Autonomous ops 10 / gross margin 10: every field runs client-side with
+      no account, upload, or paid dependency, so serving one more user costs
+      a static file. Distribution 6: "how do you price your prints" and
+      underpricing complaints are a recurring thread topic in r/3dprintbusiness
+      and r/functionalprint, and neither subreddit's wiki links a dedicated
+      free pricing calculator as of this writing — real, recurring search and
+      community demand rather than an invented query. Defensibility is low
+      and honestly so: the failure-rate-adjusted, fee-solved-for-price method
+      is a page of arithmetic anyone could copy; what is not trivially copied
+      is the sibling link into cut-list-optimizer's overlapping maker
+      audience.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: pure arithmetic on numbers the user types in, with no
+      advice-of-record positioning, no account, and no upload. The page
+      states plainly that nothing typed leaves the browser and that usage
+      counting is anonymous and opt-out.
