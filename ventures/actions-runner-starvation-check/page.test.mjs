@@ -34,3 +34,17 @@ test('index links to the related flaky-test-finder', async () => {
     'index must link ../flaky-test-finder/ so crawlers can reach the JUnit flaky classifier',
   );
 });
+
+// coverage-drop-check covers the other next question after "did a runner
+// run?": did line coverage fall on this PR. The flaky edge of this triangle
+// already has reciprocal hub links; without this one, a crawler entering on
+// starvation-check still needs two hops to reach the coverage tool — same
+// one-hop orphan class as #3677 / #3685.
+test('index links to the related coverage-drop-check', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/coverage-drop-check\/"/,
+    'index must link ../coverage-drop-check/ so crawlers can reach the coverage-delta checker',
+  );
+});
