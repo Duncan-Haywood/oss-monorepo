@@ -18751,3 +18751,29 @@ entries:
         entry and keeping its unique contribution, `run_workflow_locally.py
         --tree`, verified locally (77 tests) before merging.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Re-ran the full browser-checks sweep that `browser_state.py` had
+        reported STALE since ba83eb7c (six merges had landed on `main`
+        since, including the sitemap fix in #3646). `npm install --no-save
+        playwright@1.56.0 axe-core` (both in one command, matching the
+        preinstalled Chromium build 1194), then `browser_checks.py --record
+        --checks sideways,presets,roundtrip,highlight,contrast,sweep,journey`
+        against a full local build (no deploy, no network) at commit
+        `59830499`.
+      - >-
+        Clean: all 7 checks passed. `contrast` (axe-core) reports 787 pages,
+        2 viewports, zero WCAG A/AA violations -- confirming the 48+60
+        critical `label` violations found and fixed in #3530/#3536/#3628's
+        predecessor commits (missing accessible names on route-table inputs)
+        have not regressed. `sideways` 788 pages none scroll sideways,
+        `presets` 66/66, `roundtrip` 162/162, `highlight` 103/103, `sweep`
+        199/199 tools with no errors, `journey` 0 failed checks across the
+        bid-persistence, sitemap and 404 flows. No code fix was needed --
+        only `platform/ci/browser_state.json` was rewritten by `--record` to
+        show the current tree covered. `browser_state.py` now reports every
+        check `ok` and current.
+    mrr_end: null
