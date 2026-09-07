@@ -6674,3 +6674,49 @@ ventures:
       determination about ice-dam prevention. The tool never touches a live
       transaction or anyone else's data, and it is not a safety or
       fall-protection assessment. Nothing entered leaves the browser.
+
+  - slug: home-staging-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — an included-term
+      staging price separated from the furniture package's own monthly
+      carrying cost, and an extension fee checked against that carrying
+      cost rather than trusted at face value — arithmetic a stager has to
+      be able to re-derive before a slow listing quietly erases the job's
+      margin.
+    basis: >-
+      Graduated and scored 2026-09-06/07. Same included-allowance/overage-
+      cost-floor shape as this portfolio's other term-plus-extension
+      calculators (`dumpster-rental-margin-calculator`,
+      `ice-dam-removal-bid-calculator`), applied to a genuinely different
+      buyer: an independent home stager pricing a vacant-listing furniture
+      package from an included term, with a separate extension fee for
+      every month the listing runs long. Defensibility 5: the
+      extension-fee-vs-carrying-cost check is specific to this buyer's cost
+      structure and not modeled by a generic per-room rate card or by a
+      CRM/proposal platform (HoneyBook and comparable tools) built for
+      sending the contract and collecting payment once a price already
+      exists, rather than for the pre-quote pricing decision itself.
+      Distribution 6: "home staging pricing" and "staging fee calculator"
+      are narrow, real search terms bought by a stager pricing a job, with
+      no incumbent free interactive tool built around this exact
+      included-term/carrying-cost arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the stager's own figures, never a
+      staging design recommendation, a listing-price or time-on-market
+      prediction, or a determination about a staging agreement's terms.
+      The tool never touches a live transaction or anyone else's data.
+      Nothing entered leaves the browser.
