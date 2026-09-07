@@ -7511,3 +7511,116 @@ ventures:
       offer, and never tax or legal advice. The tax-reserve figure is
       labelled a rough set-aside estimate, not a filing number, and
       nothing entered leaves the browser.
+  - slug: dependency-confusion-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over pip/npm configuration already on
+      disk or pasted into the browser: a --extra-index-url flag, or an
+      unscoped npm dependency name alongside a private-registry .npmrc.
+      There is nothing to infer.
+    basis: >-
+      Graduated 2026-09-07 as a free dev-tool CLI/browser check that flags
+      pip --extra-index-url usage and an unscoped npm dependency name
+      behind a private registry -- the two configuration shapes behind the
+      2021 dependency-confusion incidents (Alex Birsan's research against
+      Apple, Microsoft, PayPal, Netflix, Uber, and Tesla). Same shape and
+      rubric as `actions-cache-poisoning-check`, `actions-injection-check`,
+      and `pinned-actions-check`: a standard-library-only classifier over
+      data the user already has.
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page classifies text the visitor pastes and the CLI reads only local
+      files, so marginal cost per use is zero and there is no server to
+      operate.
+      Time to revenue 6: no direct revenue path beyond the site's standard
+      voluntary GitHub Sponsors link; scored like this portfolio's other
+      free-forever dev utilities rather than assumed lower, since usage
+      itself (not payment) is the current-phase metric.
+      Defensibility 4: the two configuration patterns are individually
+      well known (pip's own docs name the --extra-index-url risk; npm's
+      own guidance recommends scoping); what is not trivially copied is
+      the paired CLI/browser port with a shared classifier module, a
+      parity test, and the already-written explanation tied to a specific,
+      well-documented incident class (Birsan's 2021 research), which is
+      the actual value a searcher is buying.
+      Distribution 5: a well-known, citable incident class gives this a
+      concrete search hook ("dependency confusion check"), but this
+      portfolio has no existing developer-tool distribution channel and
+      volume is unmeasured, so scored level with the family rather than
+      above it.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network calls anywhere in either
+      implementation — it classifies pip/npm configuration already on the
+      user's disk or pasted into the browser, and never queries a package
+      registry on the user's behalf. It makes no security or compliance
+      claim: a clean scan means these two specific, documented patterns
+      are absent, not that the user's supply chain is safe overall. The
+      npm check is deliberately over-inclusive (it flags already-public
+      names too, since it cannot check registry claim status without a
+      network call) and says so in its own docstring, README, and the
+      page's FAQ, rather than presenting an unverifiable claim as a
+      confirmed finding.
+  - slug: npm-lifecycle-script-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a package runs a
+      preinstall/install/postinstall/prepare script, and whether that
+      changed since the last snapshot, is decided by parsing
+      package-lock.json and package.json fields directly — a factual
+      diff, not a model judgment. The handful of risk-tag keywords
+      (piping a download into a shell, an obvious network call,
+      obfuscated code) are a static keyword match the tool's own copy
+      calls non-exhaustive, not an inferred verdict.
+    basis: >-
+      Screened and graduated 2026-09-07 per portfolio/pipeline/README.md's
+      "archetype itself" section: same shape as license-drift-check and
+      the actions-*-check family — a free CLI + browser tool that diffs
+      two point-in-time snapshots of a dependency tree and reports
+      exactly what changed, scored on this file's six-dimension rubric to
+      keep coverage complete for score_ventures.py --check and
+      portfolio/router/test_allocate.py. duplicate_check.py scored the
+      closest existing venture (actions-cache-poisoning-check) at 0.13,
+      well below the 0.45 flag bar. Autonomous ops 10 / gross margin 10:
+      the browser page parses only text pasted into it and the CLI reads
+      only local files, so serving one more user costs a static file and
+      needs no human review of any output. Distribution 6, a point above
+      license-drift-check's 5: the ua-parser-js (2021), coa/rc (2021),
+      and Shai-Hulud (2025, plus a 2025-11 second wave) npm
+      supply-chain incidents used exactly this mechanism, are the
+      subject of incident write-ups from Unit 42, Sysdig, Wiz,
+      Securelist, Datadog Security Labs, Zscaler, and Checkmarx, and
+      npm audit's own documentation confirms it has no mechanism to
+      flag a new or changed lifecycle script — real, dated, event-driven
+      search demand ("npm audit postinstall script", "shai-hulud check
+      my dependencies") rather than an evergreen query.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive — it flags a well-documented
+      supply-chain risk pattern in the user's own dependency tree for
+      the user to review, never a claim that a specific package is
+      malicious. Makes no network call of any kind (never queries npm),
+      uploads nothing, and says so plainly in its own FAQ.
