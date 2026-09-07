@@ -1281,6 +1281,10 @@ test('tools that belong to a named category are not left in the catch-all', () =
   assert.equal(categoryFor('tiktok-shop-fee-calculator').id, 'marketplace');
   assert.equal(categoryFor('delivery-app-margin-calculator').id, 'marketplace');
   assert.equal(categoryFor('kdp-royalty-calculator').id, 'marketplace');
+  // Whatnot's retail fee ranking already deep-links this payout tool; leaving
+  // it in "More free tools" hid it from every seller already reading the
+  // marketplace section that names it.
+  assert.equal(categoryFor('whatnot-seller-payout').id, 'marketplace');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
   assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');
@@ -4172,6 +4176,9 @@ test('tools whose audience browses a section are filed in it', async () => {
     // Airbnb vs Vrbo is two marketplaces' fee schedules on one booking, which
     // is the marketplace section's job, not a service quote.
     'str-host-payout-calculator': ['marketplace', null],
+    // Whatnot livestream payout is the same marketplace-seller job; slug starts
+    // with the storefront name the marketplace rule now catches.
+    'whatnot-seller-payout': ['marketplace', null],
     'notary-trip-quote': ['services', null],
     'booth-rent-vs-commission': ['services', null],
     'translator-project-quote': ['services', null],

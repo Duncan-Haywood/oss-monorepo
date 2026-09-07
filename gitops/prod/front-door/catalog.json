@@ -38,7 +38,7 @@
       "id": "marketplace",
       "name": "Marketplace seller tools",
       "url": "https://marisstella.dev/c/marketplace/",
-      "tool_count": 13
+      "tool_count": 14
     },
     {
       "id": "services",
@@ -53,15 +53,15 @@
       "tool_count": 13
     },
     {
-      "id": "more",
-      "name": "More free tools",
-      "url": "https://marisstella.dev/c/more/",
-      "tool_count": 7
-    },
-    {
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
       "url": "https://marisstella.dev/c/logistics/",
+      "tool_count": 6
+    },
+    {
+      "id": "more",
+      "name": "More free tools",
+      "url": "https://marisstella.dev/c/more/",
       "tool_count": 6
     }
   ],
@@ -1590,7 +1590,7 @@
       "slug": "whatnot-seller-payout",
       "name": "Whatnot Seller Payout Calculator — Keep After 8% + Processing",
       "url": "https://marisstella.dev/tools/whatnot-seller-payout/",
-      "category": "More free tools",
+      "category": "Marketplace seller tools",
       "description": "Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.",
       "pages": 3
     },
