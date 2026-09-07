@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 148 files, 554974 bytes
 #   portfolio-front-tools-3: 131 files, 555827 bytes
 #   portfolio-front-tools-4: 118 files, 556873 bytes
-#   portfolio-front-tools-5: 132 files, 552181 bytes
+#   portfolio-front-tools-5: 133 files, 556281 bytes
 #   portfolio-front-tools-6: 110 files, 555921 bytes
 #   portfolio-front-tools-7: 114 files, 556943 bytes
 #   portfolio-front-tools-8: 118 files, 543937 bytes
@@ -853,6 +853,7 @@ configMapGenerator:
       - flaky-test-finder__classify.mjs.gz=flaky-test-finder__classify.mjs.gz
       - flaky-test-finder__index.html.gz=flaky-test-finder__index.html.gz
       - flaky-test-finder__usage.mjs.gz=flaky-test-finder__usage.mjs.gz
+      - flaky-test-finder__vs-buildpulse.html.gz=flaky-test-finder__vs-buildpulse.html.gz
       - flaky-test-finder__why-are-my-tests-flaky-in-ci.html.gz=flaky-test-finder__why-are-my-tests-flaky-in-ci.html.gz
       - flat-roof-bid-calculator__calc.mjs.gz=flat-roof-bid-calculator__calc.mjs.gz
       - flat-roof-bid-calculator__how-much-to-charge-for-a-flat-roof.html.gz=flat-roof-bid-calculator__how-much-to-charge-for-a-flat-roof.html.gz

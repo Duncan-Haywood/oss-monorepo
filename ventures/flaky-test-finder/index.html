@@ -108,7 +108,7 @@ python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
     <p>Anything that emits JUnit XML: pytest (--junitxml), Jest via jest-junit, Go via go-junit-report, PHPUnit, RSpec via RSpecJUnitFormatter, and Maven/Gradle Surefire/Failsafe. Surefire's own <code>&lt;flakyFailure&gt;</code>/<code>&lt;flakyError&gt;</code> elements are also read directly. Even a single Surefire report with retries enabled can surface flakiness this way.</p>
     <h3>Is my test output uploaded anywhere?</h3>
     <p>No. The browser page parses the XML you paste entirely in your own browser and never sends it anywhere. The CLI reads local files and makes no network call at all.</p>
-    <p>More: <a href="why-are-my-tests-flaky-in-ci.html">why tests go flaky in CI and what to do about each one</a>.</p>
+    <p>More: <a href="why-are-my-tests-flaky-in-ci.html">why tests go flaky in CI and what to do about each one</a>, or how this compares to <a href="vs-buildpulse.html">BuildPulse</a>, a paid, connected, always-on alternative.</p>
   </section>
 
   <footer>
