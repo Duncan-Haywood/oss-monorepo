@@ -68,7 +68,10 @@
     <h3>Is my project data uploaded anywhere?</h3>
     <p>No. There are no accounts, cookies, analytics vendors, or network requests &mdash; the scenario runs entirely in your browser, "Save locally" keeps a draft in this browser's storage, and CSV export saves a file straight to your device. Anonymous feature counts can be turned off with the checkbox in the Privacy and limits section above.</p>
   </section>
-  <footer>Subcontractor Cash Flow Planner is free to use. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Keep a copy of important project assumptions outside this browser.</footer>
+  <footer>
+    <p>Tracking retainage withheld on a signed contract rather than the whole job's cash timing? The <a href="../retainage-cashflow-calculator/">construction retainage calculator</a> models the hold, release, and carrying cost &mdash; nothing uploaded.</p>
+    <p>Subcontractor Cash Flow Planner is free to use. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Keep a copy of important project assumptions outside this browser.</p>
+  </footer>
 </main><script type="module">
 import { planCashflow, csvRow, CSV_FIELDS } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs } from './share.mjs';
 const form = document.querySelector('#planner'), result = document.querySelector('#result'), usage = document.querySelector('#usage'), shareStatus = document.querySelector('#shareStatus'); let latest;
