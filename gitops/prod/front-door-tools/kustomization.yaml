@@ -44,7 +44,7 @@
 #   portfolio-front-tools-8: 119 files, 547096 bytes
 #   portfolio-front-tools-9: 105 files, 555510 bytes
 #   portfolio-front-tools-10: 109 files, 550318 bytes
-#   portfolio-front-tools-11: 79 files, 402593 bytes
+#   portfolio-front-tools-11: 79 files, 402858 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
