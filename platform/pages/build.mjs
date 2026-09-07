@@ -488,8 +488,19 @@ const CATEGORY_RULES = [
     // place a stranger browses. Written as one `actions-` prefix plus
     // `pinned-actions` rather than four alternatives, so the next checker in
     // the family lands here without another edit.
+    //
+    // `license-drift-check` joined the same day, a few hours later. It
+    // graduated in #3808 and landed in the catch-all because the rule above
+    // enumerates families by prefix and its slug starts a new one — it names
+    // what it diffs (licenses) rather than what it reads. It is the same
+    // shape as the rest: a browser-local checker plus a matching CLI, run by
+    // a maintainer against a dependency tree they already have, reporting
+    // which packages' declared license changed since the last snapshot. Its
+    // own graduation line calls it a "dependency license-change diff for CI".
+    // A visitor browsing for a supply-chain gate should meet it beside the
+    // four workflow checkers, not below the childcare tuition calculator.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check)/.test(
         slug,
       ),
   },
