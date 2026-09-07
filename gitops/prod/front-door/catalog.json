@@ -56,7 +56,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 8
+      "tool_count": 9
     },
     {
       "id": "logistics",
@@ -68,7 +68,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
+      "tool_count": 4
     }
   ],
   "tools": [
@@ -1140,7 +1140,7 @@
       "slug": "license-drift-check",
       "name": "License Drift Check — Did a Dependency's License Change Since Your Last Snapshot?",
       "url": "https://marisstella.dev/tools/license-drift-check/",
-      "category": "More free tools",
+      "category": "CI checks & developer gates",
       "description": "Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 2
     },

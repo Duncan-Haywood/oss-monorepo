@@ -112,7 +112,7 @@
     <id>tag:marisstella.dev,2026:tool/license-drift-check</id>
     <published>2026-09-07T00:00:00Z</published>
     <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste two snapshots of your dependency tree&#39;s declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
