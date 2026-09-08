@@ -7861,3 +7861,94 @@ ventures:
       `notes never tell the operator what to do` test enforces rather than
       leaves to review. The one forward-looking figure (a price move
       annualised) ships with its own assumption in the same sentence.
+
+  - slug: poshmark-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain
+      model — Poshmark's published flat-$2.95-under-$15/20%-at-$15+
+      commission schedule, the $14.75 break-even price, and the signed
+      payout change when an offer or bundle discount crosses the $15
+      line — that is arithmetic, and adding inference would only make
+      the result less checkable.
+    basis: >-
+      Graduated 2026-09-07 as a browser-local Poshmark seller fee
+      calculator. Same rubric shape as whatnot-seller-payout: single-
+      marketplace fee arithmetic with a non-obvious structural insight
+      a flat-rate page misses. Defensibility 5: the break-even price
+      and the offer-crossing sign-flip (a lower sale price can pay
+      more, near $15.00) are not published anywhere else found in a
+      search of the category. Distribution 6: r/poshmark and r/Reseller
+      are large, active named communities, and "poshmark fee
+      calculator" / "poshmark seller fees" are recurring search
+      phrases, but no channel measurement exists yet
+      (duplicate_check.py top score against an existing venture 0.19,
+      against faire-wholesale-calculator). Not a trade bid calculator.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the seller's own inputs, never
+      a recommended list price or an instruction to accept or reject
+      an offer. Poshmark's schedule is a labelled published constant,
+      not a live fetch. Nothing the user enters leaves the browser.
+
+  - slug: duplicate-payment-audit
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model is involved and none should be. The four checks are exact
+      vendor/invoice/amount matching, edit distance of 1-2 on invoice numbers,
+      and a configurable same-amount date window — deterministic rules a
+      bookkeeper can audit row by row and argue with. An LLM here would make
+      the output less trustworthy, not more: a flagged duplicate that cannot
+      be explained is one nobody can safely act on against a vendor.
+    basis: >-
+      Graduated 2026-09-07 as a free, local-first duplicate-payment checker
+      for AP ledgers a small business already exports. Scored 7 rather than 6
+      on time_to_revenue because willingness to pay is already demonstrated
+      rather than assumed: recovery-audit firms do exactly this work on
+      contingency, and AP-automation platforms sell the same check as a paid
+      feature — the gap is that both are priced for ledgers far larger than a
+      bookkeeper's. Distribution 7 on the same evidence the README cites:
+      named vendors (Ramp, Brex, NetSuite, Stripe, Klippa, Precoro) already
+      run content marketing against these search phrases, which is a
+      measurement of demand rather than a guess about it. Defensibility 4 —
+      the detection tiers are commodity arithmetic; what is not commodity is
+      that this one runs with nothing uploaded, which is the objection a
+      bookkeeper raises first about a hosted AP tool.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, and the containment is load-bearing here rather than boilerplate:
+      the output names a specific vendor and a specific payment, so a user
+      could act on it against a third party. The page states that it does not
+      determine any payment was fraudulent, wrongful, or actually duplicated,
+      warns on every same-amount/near-date row that legitimate recurring
+      charges (rent, subscriptions, retainers) match the same pattern, and
+      requires verification against vendor statements before requesting a
+      refund, credit, or correction from anyone. Ethically: the CSV is parsed
+      in the browser, no financial data reaches a server (verified — zero
+      fetch, XMLHttpRequest or sendBeacon calls anywhere in the venture), and
+      the usage counter carries no ledger content and can be switched off on
+      the page.

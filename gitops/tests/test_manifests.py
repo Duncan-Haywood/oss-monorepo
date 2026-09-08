@@ -1392,7 +1392,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 211 since 2026-09-07, when `menu-engineering-calculator` graduated —
     # same shape again, and landing in the same hour as the one above, which
     # is why this merge had to keep both rather than pick a side.
-    total = 211  # `infra/OWNER_CHECKLIST.md`'s own "N of the 211 tools" wording.
+    # 213 since 2026-09-08: `poshmark-fee-calculator` and
+    # `duplicate-payment-audit` graduated within hours of each other and each
+    # branch, correctly, raised the count by one from 211 — so the merge of the
+    # two has to add two, not one. Same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    total = 213  # `infra/OWNER_CHECKLIST.md`'s own "N of the 213 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

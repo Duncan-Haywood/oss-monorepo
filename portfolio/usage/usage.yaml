@@ -4823,3 +4823,22 @@ products:
           registry". Counts are local, opt-in, off by default, and honor
           DNT/GPC, so zero is the expected reading for a tool nobody has
           visited or switched the counter on for yet.
+  - slug: poshmark-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          offer_compared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/poshmark-fee-calculator/`) from its first commit.
+          First-visitor channel is r/poshmark and r/Reseller, and the
+          search phrases "poshmark fee calculator" / "poshmark seller
+          fees" / "poshmark break even price". Counts are local, opt-in,
+          off by default, and honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on
+          for yet.
