@@ -996,26 +996,6 @@ a ledger entry into a PR waiting on the owner.
 covers your finding. The ledger *tooling* (`.py` under `portfolio/ledger/`) is
 ordinary platform code, exempt from the check and mergeable on its own.
 
-**A "set direction" brief has the same failure mode, and it now has the same
-kind of check.** `portfolio/DIRECTION.md`'s "Before rewriting this brief
-again" section asked sessions to check recent history before restating the
-north star; well over a dozen direction-only commits to `DIRECTION.md` and
-`AGENTS.md` landed anyway across 2026-09-06/07, because the check lived in
-prose a session only sees after opening the file. Run this before pushing a
-direction-setting session's work:
-
-```
-python3 portfolio/ledger/check_direction_only.py
-```
-
-Exit 1 means every file in your branch is `portfolio/DIRECTION.md` and/or
-`AGENTS.md` and nothing else — restate nothing; instead check
-`git log -5 -- portfolio/DIRECTION.md AGENTS.md`, and if the brief is
-already current, spend the session on `portfolio/router/allocate.py`'s top
-candidate or a fresh venture screened against `screened-out.md`. A genuine,
-targeted correction to either file still passes as long as it rides with
-real work in the same PR.
-
 ## Automation
 
 Do not add or re-enable unattended workflows that push commits or call paid

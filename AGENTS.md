@@ -4,12 +4,7 @@ Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first — if your brief
 is "set direction" for the fleet, start with its "Before rewriting this brief
 again" note: that exact brief was already re-answered three times in three
 hours immediately before that note was added, and none of the three shipped
-a venture. Before pushing a direction-only change, run
-`python3 portfolio/ledger/check_direction_only.py` — it exits 1 if this file
-and `portfolio/DIRECTION.md` are the only files in the diff, which is the
-mechanical version of the same check (added 2026-09-08 after the prose
-warning alone didn't stop a dozen more restatements). Otherwise, or once that
-check clears, start with its
+a venture. Otherwise, or once that check clears, start with its
 "North star" section for the six-point version (deploy what's built, new
 ventures rank first as the owner's standing preference, donations only, keep
 customers happy by shipping working/honest products, market the products

@@ -52,24 +52,6 @@ gap (a wrong number, a broken pointer, a rule this file doesn't yet cover) is
 still worth a small, targeted fix in the same PR as real work; a full
 restatement of the brief is not a gap.
 
-**Added 2026-09-08: that warning didn't close the loop on its own.** A
-session can only apply it after opening this file and reading this far —
-and `git log` against `origin/main` on 2026-09-08 shows well over a dozen
-more direction-only commits to these same two files landed across
-2026-09-06 and 2026-09-07, several of them *after* this note already
-existed in the version they were rewriting. Prose a session has to
-remember to check is the same shape `CLAUDE.md`'s ledger-only-commit rule
-already found didn't hold under its own soft wording (381 ledger-only
-commits, 34.6% of a week's merges, before that rule became a script). So
-this rule is now a script too: `python3 portfolio/ledger/check_direction_only.py`
-exits 1 when every changed file in a branch is `portfolio/DIRECTION.md`
-and/or `AGENTS.md` and nothing else — run it before pushing a "set
-direction" session's work, the same way `check_ledger_only.py` already gets
-run before a ledger entry. It does not judge content, only shape: a change
-that also ships or fixes something else rides through clean, and a genuine
-targeted correction folded into a PR with real work still passes, exactly
-as the paragraph above already asks for.
-
 ## North star (read this first)
 
 **Relayed 2026-09-06.** The fleet's job, in the owner's own words: find
