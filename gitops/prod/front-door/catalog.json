@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 211,
-  "collection_total": 211,
+  "served_here": 212,
+  "collection_total": 212,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -38,7 +38,7 @@
       "id": "marketplace",
       "name": "Marketplace seller tools",
       "url": "https://marisstella.dev/c/marketplace/",
-      "tool_count": 14
+      "tool_count": 15
     },
     {
       "id": "services",
@@ -1366,6 +1366,14 @@
       "url": "https://marisstella.dev/tools/popcorn-ceiling-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price popcorn ceiling removal from ceiling area, scrape-and-prime versus Level 4 skim versus Level 5 plus paint, 8-foot versus vaulted versus two-story access, and extras — plus the walk-away price a $1.50 / sq ft special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "poshmark-fee-calculator",
+      "name": "Poshmark Fee Calculator — What You Actually Keep After Fees",
+      "url": "https://marisstella.dev/tools/poshmark-fee-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "Free Poshmark seller fee calculator. The flat $2.95 fee under $15, 20% at $15+, the $14.75 break-even price, your real profit after item cost, and whether a lower offer costs you more than the discount. Nothing leaves your browser.",
       "pages": 3
     },
     {
