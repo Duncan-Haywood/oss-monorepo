@@ -281,6 +281,22 @@
         "home-staging-bid-calculator",
         "ice-dam-removal-bid-calculator"
       ]
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "bc70bba562bffcb32acf5e1c081ca9c56291bac6",
+      "measured": "2026-09-08",
+      "pages": 836,
+      "result": "pass",
+      "scope": "full"
     }
   ]
 }
