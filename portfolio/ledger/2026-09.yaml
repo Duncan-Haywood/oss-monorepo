@@ -19670,3 +19670,57 @@ entries:
         latest `main` before merge, since a concurrent new venture shifts
         every one of these totals again.
     mrr_end: 0
+  - venture: home-staging-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `router/allocate.py` listed this venture as "BLOCKED (unpublished) --
+        no `links.production`", but the calculator has been mirrored onto the
+        Pages catalogue for some time: `git ls-tree origin/gh-pages` shows
+        `home-staging-bid-calculator/index.html` (plus its two comparison
+        pages) already committed there, and `pages_state.py` reports the
+        `gh-pages` snapshot `current` against `main`'s tip. The `VENTURE.yaml`
+        itself had never been updated to record the URL, so the router,
+        `usage/README.md`'s per-product tracking, and anyone reading
+        `venture-scores.yaml`'s merit-unblocked ordering all read a live
+        product as dark. Set `links.production` to
+        `https://duncan-haywood.github.io/monorepo-projects/home-staging-bid-calculator/`,
+        matching the URL pattern every other mirrored venture already uses.
+      - >-
+        Verification: `node --test
+        ventures/home-staging-bid-calculator/*.test.mjs` (all passing, this
+        change touches no code), `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1169/1169),
+        `python3 portfolio/usage/validate_usage.py` (196 products, 381
+        readings, valid), `python3 portfolio/pipeline/validate_doc_consistency.py`
+        and `python3 portfolio/scoring/score_ventures.py --check` both clean.
+        No code changed and no redeploy is needed -- the fix is the metadata
+        catching up to what is already live.
+    mrr_end: 0
+  - venture: ice-dam-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same defect, same fix, found by scanning every `router/allocate.py`
+        "BLOCKED (unpublished)" row against the `gh-pages` tree rather than
+        trusting the label: this calculator's `index.html` and two comparison
+        pages are already committed to `gh-pages` and served from the current
+        snapshot, but `VENTURE.yaml` still had `links.production: null`. Set
+        it to
+        `https://duncan-haywood.github.io/monorepo-projects/ice-dam-removal-bid-calculator/`.
+        The other 8 ventures the router flagged as unpublished this session
+        (`local-site-studio`, `vendor-watch`, `photo-editing`,
+        `quick-pick-survey`, `world-clock-widget`, `retail-pilot-intel`,
+        `garmin-world-traveler-watchface`, `photos-import-tools`) are
+        genuinely not static Pages candidates -- Next.js/Convex apps, a Python
+        package, a Swift package, and a Garmin Connect IQ watch face -- so
+        their `null` production links are correct as of this reading and are
+        not a metadata gap.
+      - >-
+        Verification: `node --test
+        ventures/ice-dam-removal-bid-calculator/*.test.mjs` all passing (no
+        code changed), plus the same repo-wide checks listed under
+        `home-staging-bid-calculator` above.
+    mrr_end: 0

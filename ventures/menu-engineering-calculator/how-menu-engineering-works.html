@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Menu Engineering Works: The Matrix, The Two Thresholds, and a Worked Menu</title>
+  <meta name="description" content="A plain explanation of the Kasavana and Smith menu engineering matrix: how the popularity threshold and the weighted-average contribution margin are calculated, why contribution margin beats food cost percentage, and a four-dish menu worked all the way through.">
+  <link rel="canonical" href="./how-menu-engineering-works.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a plowhorse on a menu?","acceptedAnswer":{"@type":"Answer","text":"A plowhorse is a dish that sells well but contributes below the menu average in dollars. Volume is doing the work that margin should be. Because a plowhorse lands on more plates than anything else on the menu, a given price move on one is worth more in absolute dollars than the same move anywhere else — which is also why it carries the most risk if the price change moves the mix."}},{"@type":"Question","name":"How many dishes do you need for menu engineering to work?","acceptedAnswer":{"@type":"Answer","text":"At least two, because both thresholds are relative: an item is measured against the rest of the menu, not against an outside standard. In practice the matrix gets more useful as the menu gets longer, because the popularity bar falls as items are added and the weighted margin bar starts to describe a real mix rather than two or three dishes."}},{"@type":"Question","name":"Does menu engineering work for a cafe, food truck or bar?","acceptedAnswer":{"@type":"Answer","text":"Yes, wherever you can put a plate cost, a price and a unit count against each item. The method has nothing restaurant-specific in it — it is a portfolio read. For a bar the equivalent per-drink arithmetic, including what an over-pour costs across a year, is a separate calculator on this site."}},{"@type":"Question","name":"Should you just remove the dogs from a menu?","acceptedAnswer":{"@type":"Answer","text":"That is not a question the matrix answers. It measures two things — covers and contribution margin — and is silent about every other reason a dish earns its place: a regular who comes in for it, the only vegetarian main on the page, an ingredient shared with three other dishes, or the thing that keeps a supplier relationship alive. The matrix tells you which dishes are worth arguing about, not how the argument should end."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1ec; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; margin: 0 0 14px; }
+    h2 { margin-top: 32px; font-size: 1.2rem; }
+    p, li { line-height: 1.6; }
+    .lede { font-size: 1.05rem; }
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 460px; background: #fbfdfa; }
+    th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #d8e2db; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55645c; }
+    td.n { font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; background: #1f6b47; color: #f2f8f4; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 650; }
+    .cta:hover { background: #175538; }
+    aside { background: #fbfdfa; border: 1px solid #c9d6cd; border-radius: 12px; padding: 16px; margin: 20px 0; }
+    footer { margin-top: 34px; font-size: .82rem; color: #55645c; border-top: 1px solid #d8e2db; padding-top: 16px; }
+    footer a, main a { color: #1a5c3d; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>How menu engineering works</h1>
+    <p class="lede">Menu engineering sorts every dish on a menu into one of four boxes using two numbers you
+      already have: how many of it sold, and how many dollars it leaves behind after food cost. This page explains
+      where the two thresholds come from, why one of them is weighted, and works a small menu all the way through.</p>
+
+    <p><a class="cta" href="./">Open the free menu engineering calculator</a></p>
+
+    <h2>The two axes</h2>
+    <p>The method is Kasavana and Smith&rsquo;s, published at Michigan State University in 1982. It has outlasted a
+      lot of fancier ideas because both of its inputs come off a sales report and a recipe card, and neither
+      requires a consultant to interpret.</p>
+    <p><strong>Popularity</strong> is a dish&rsquo;s share of covers. If every item on a ten-item menu sold equally,
+      each would take 10%. The convention is to call an item popular once it clears <strong>70% of that equal
+      share</strong> &mdash; so 7% on a ten-item menu, 5.6% on a twelve-item one. The 70% is a convention rather
+      than a law of nature, which is why a calculator worth using prints the threshold it applied instead of asking
+      you to take the sorting on trust.</p>
+    <p><strong>Contribution margin</strong> is menu price minus plate food cost, <em>in dollars</em>. Not as a
+      percentage. This is the axis operators most often get wrong, and the next section is about why.</p>
+
+    <h2>Why not food cost percentage?</h2>
+    <p>Because food cost percentage and contribution margin disagree constantly, and only one of them pays rent.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Dish</th><th>Price</th><th>Plate cost</th><th>Food cost %</th><th>Contributes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Ribeye</td><td class="n">$34.00</td><td class="n">$13.60</td><td class="n">40%</td><td class="n">$20.40</td></tr>
+          <tr><td>Pasta</td><td class="n">$9.00</td><td class="n">$1.80</td><td class="n">20%</td><td class="n">$7.20</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The pasta wins by twenty points on the number the industry quotes, and loses by $13.20 on the number that
+      reaches the bank. A kitchen that ranks its menu by food cost percentage will promote the pasta, sell more of
+      it, sell fewer steaks, and end the month with a better food cost percentage and less money. This is the single
+      most common way menu analysis backfires.</p>
+
+    <h2>Why the margin bar is weighted</h2>
+    <p>The bar every dish is measured against is the menu&rsquo;s <strong>weighted</strong> average contribution
+      margin: total contribution margin divided by total covers. Not the average of the per-dish margins.</p>
+    <p>The difference is not academic. An unweighted average lets a $40 plate that sold twice pull the bar up as
+      hard as the $14 plate that sold four hundred times. The bar is supposed to describe what the menu actually
+      earns per cover, and only the weighted version does that. A menu with one rarely-ordered expensive special can
+      have almost every other dish misclassified by this alone.</p>
+
+    <h2>The four boxes</h2>
+    <ul>
+      <li><strong>Star</strong> &mdash; sells well, contributes above average.</li>
+      <li><strong>Plowhorse</strong> &mdash; sells well, contributes below average. Volume is doing the work margin
+        should be. Because a plowhorse lands on more plates than anything else, it is where a given price move is
+        worth the most in absolute dollars.</li>
+      <li><strong>Puzzle</strong> &mdash; contributes above average, does not sell. The margin is already there;
+        what is missing is covers.</li>
+      <li><strong>Dog</strong> &mdash; below the bar on both. Still takes prep, storage, and a line on the menu.</li>
+    </ul>
+    <p>The names are the industry&rsquo;s and they are blunter than they need to be. A &ldquo;dog&rdquo; can be the
+      dish the owner is proudest of, the one a regular comes in for, or the only vegetarian main on the page. The
+      matrix measures two things and is silent about every other reason a dish earns its place.</p>
+
+    <h2>A worked menu</h2>
+    <p>Four dishes over four weeks, 1,000 covers. Total sales $16,000, total food cost $5,100, so total contribution
+      margin is $10,900 and the weighted average is <strong>$10.90 a cover</strong>. Four items, so the equal share
+      is 25% and the popularity bar is 25% &times; 0.7 = <strong>17.5%</strong>.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Dish</th><th>Sold</th><th>Menu mix</th><th>Price</th><th>Plate cost</th><th>CM</th><th>Class</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Smash burger</td><td class="n">500</td><td class="n">50.0%</td><td class="n">$14.00</td><td class="n">$5.00</td><td class="n">$9.00</td><td>Plowhorse</td></tr>
+          <tr><td>Ribeye</td><td class="n">100</td><td class="n">10.0%</td><td class="n">$34.00</td><td class="n">$14.00</td><td class="n">$20.00</td><td>Puzzle</td></tr>
+          <tr><td>House salad</td><td class="n">300</td><td class="n">30.0%</td><td class="n">$16.00</td><td class="n">$3.00</td><td class="n">$13.00</td><td>Star</td></tr>
+          <tr><td>Soup of the day</td><td class="n">100</td><td class="n">10.0%</td><td class="n">$8.00</td><td class="n">$3.00</td><td class="n">$5.00</td><td>Dog</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The burger clears the popularity bar easily and contributes $1.90 a plate below the menu average, so it is a
+      plowhorse. The ribeye contributes nearly twice the average and sells at 10%, below the 17.5% bar, so it is a
+      puzzle. Note that the ribeye also has the <em>worst</em> food cost percentage on the menu at 41%, and is the
+      best contributor on it by a wide margin.</p>
+
+    <aside>
+      <p style="margin:0"><strong>What a price move is worth.</strong> The burger takes 500 of the 1,000 covers.
+        A $1 increase on it is $500 over these four weeks, about $6,500 a year &mdash; <em>if the same number of
+        people order it at the new price</em>. That last clause is the whole risk, and no arithmetic on your own
+        past sales can settle it. Only the next period&rsquo;s sales report can.</p>
+    </aside>
+
+    <h2>What the matrix does not tell you</h2>
+    <p>It does not tell you what to charge, what to cut, or how to lay out a menu. Those depend on the room, the
+      clientele, what the kitchen can execute on a Saturday, what your suppliers will do to a price next quarter,
+      and a dozen things that are not in four columns of numbers. The matrix gives you a defensible starting point
+      and takes the guesswork out of which dishes are worth arguing about.</p>
+
+    <h2>Common questions</h2>
+
+    <h3>What is a plowhorse on a menu?</h3>
+    <p>A plowhorse is a dish that sells well but contributes below the menu average in dollars. Volume is doing the
+      work that margin should be. Because a plowhorse lands on more plates than anything else on the menu, a given
+      price move on one is worth more in absolute dollars than the same move anywhere else &mdash; which is also why
+      it carries the most risk if the price change moves the mix.</p>
+
+    <h3>How many dishes do you need for menu engineering to work?</h3>
+    <p>At least two, because both thresholds are relative: an item is measured against the rest of the menu, not
+      against an outside standard. In practice the matrix gets more useful as the menu gets longer, because the
+      popularity bar falls as items are added and the weighted margin bar starts to describe a real mix rather than
+      two or three dishes.</p>
+
+    <h3>Does menu engineering work for a cafe, food truck or bar?</h3>
+    <p>Yes, wherever you can put a plate cost, a price and a unit count against each item. The method has nothing
+      restaurant-specific in it &mdash; it is a portfolio read. For a bar the equivalent per-drink arithmetic,
+      including what an over-pour costs across a year, is a
+      <a href="../pour-cost-calculator/">separate calculator on this site</a>.</p>
+
+    <h3>Should you just remove the dogs from a menu?</h3>
+    <p>That is not a question the matrix answers. It measures two things &mdash; covers and contribution margin
+      &mdash; and is silent about every other reason a dish earns its place: a regular who comes in for it, the only
+      vegetarian main on the page, an ingredient shared with three other dishes, or the thing that keeps a supplier
+      relationship alive. The matrix tells you which dishes are worth arguing about, not how the argument should
+      end.</p>
+
+    <p><a class="cta" href="./">Sort your own menu &mdash; free, nothing uploaded</a></p>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page and the calculator it describes are not legal, tax, accounting,
+      insurance, or financial advice, and do not tell you what to charge, what to take off your menu, or how to run
+      your kitchen. Verify every figure against your own invoices, POS reports, and accounts, and against a
+      qualified professional, before relying on it or repricing a menu with it. To the maximum extent permitted by
+      law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><a href="./">Menu engineering calculator</a> &middot; <a href="../pour-cost-calculator/">Pour cost calculator</a></p>
+  </footer>
+</body>
+</html>

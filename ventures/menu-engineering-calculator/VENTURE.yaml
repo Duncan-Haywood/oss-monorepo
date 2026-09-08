@@ -1,0 +1,36 @@
+name: menu-engineering-calculator
+description: Free browser calculator that runs an independent restaurant's own menu through the Kasavana and Smith menu engineering matrix — classifying every dish as a star, plowhorse, puzzle or dog from its plate food cost, menu price and units sold, against the menu's own weighted-average contribution margin and a 70%-of-equal-share popularity threshold — then reports overall food cost percentage against a target and sizes what a stated price increase across the plowhorses is worth over the period and annualised.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent restaurant operators rank their menu by food cost percentage because that is the number the industry quotes, and will change which dishes they argue about once they see the same menu ranked by contribution margin in dollars.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The weighted-average margin bar is the feature that makes the output trustworthy rather than merely plausible — an operator who has seen a spreadsheet misclassify a rarely-ordered special will recognise why the bar is divided by covers rather than by dish count.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: Sizing a specific price move across the plowhorses, annualised, is what makes the tool worth returning to each period, because the classification alone is a one-time read and the dollar figure changes as the mix does.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/KitchenConfidential, r/restaurateur and the search phrases "menu engineering calculator", "menu engineering matrix" and "plate cost calculator" are a reachable free channel, since the incumbent tools are paid restaurant-management suites rather than a free single-purpose calculator.
+    status: untested
+    checked: null
+    evidence: in-repo
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Operators report that typing a menu in by hand is more work than the classification is worth, and that they would only use this if it read their POS export directly.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/menu-engineering-calculator/
+  analytics: null
