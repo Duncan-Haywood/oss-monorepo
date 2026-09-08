@@ -2,17 +2,6 @@
   "readings": [
     {
       "checks": [
-        "contrast",
-        "sideways"
-      ],
-      "commit": "da40d4f035c7fec7343c1ef1e50f618986b32946",
-      "measured": "2026-09-07",
-      "pages": 775,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
         "highlight",
         "journey",
         "presets",
@@ -311,6 +300,22 @@
       "commit": "1051dbe5af9315059a357fca48133f812283fa37",
       "measured": "2026-09-08",
       "pages": 837,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "0cb46908473cf3e7d35e79f1fea0ba96ce1e876a",
+      "measured": "2026-09-08",
+      "pages": 843,
       "result": "pass",
       "scope": "full"
     }

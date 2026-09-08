@@ -20016,3 +20016,52 @@ entries:
         product code changed by this entry beyond
         `platform/ci/browser_state.json`'s recorded reading.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Brief this session: a scheduled "set direction" prompt asking the
+        fleet to focus on viable businesses, donation revenue, happy
+        customers, deployment, marketing without legal exposure, and new
+        ventures. Checked `git log -5 -- portfolio/DIRECTION.md AGENTS.md`
+        first, per those files' own "before rewriting this brief again"
+        note: both were substantively rewritten as recently as the prior
+        commit (`2737beca`, adding `check_direction_only.py`), their "North
+        star" and "Owner direction" sections already state exactly this
+        brief in detail, and `check_direction_only.py`/`check_ledger_only.py`
+        both report clean. Did not restate it a fourteenth time; spent the
+        session on the real work those files ask for instead.
+      - >-
+        Verified the guardrails that actually enforce this brief for every
+        other session, rather than re-deriving them in prose:
+        `platform/ci/pages_state.py` (deploy snapshot `current`, built from
+        `main`'s own tip `0cb46908`), `platform/ci/check_no_payment_code.py`
+        (no undeclared payment-SDK usage fleet-wide), and `node
+        platform/pages/clauses.mjs` (813 published pages across 215
+        surfaces carry their required liability/nominative-fair-use
+        clauses). All green — the direction is not just written, it is
+        currently in force.
+      - >-
+        `python3 platform/ci/browser_state.py` reported all 7
+        whole-catalogue browser/accessibility checks STALE again (builder
+        or front door changed since the last recorded run at `bc70bba5`,
+        earlier this same log). Installed `playwright@1.56.0` + `axe-core`
+        (`--no-save`, one command, per `AGENTS.md`) and ran
+        `PLAYWRIGHT=$(npm root -g)/playwright/index.js python3
+        platform/ci/browser_checks.py --record --checks
+        sideways,presets,roundtrip,highlight,contrast,sweep,journey`. All 7
+        passed clean against the full built site: 841 pages / 2 viewports,
+        zero WCAG A/AA contrast violations; 106/106 tools correctly reject
+        their rejected input; 222/222 sweep tools answer with no errors;
+        the saved-bid/backup/restore/handoff journey passed end to end
+        (0 failed checks, 0 page/console errors); all 841 sitemap URLs
+        resolve. No defect found — recorded at `0cb46908` in
+        `platform/ci/browser_state.json` so the next session does not read
+        this as stale and re-spend the 20-30 minutes for the same clean
+        answer.
+      - >-
+        No product code changed. The only diff this entry rides with is
+        `platform/ci/browser_state.json`'s refreshed reading (the actual
+        artifact) plus this record of it.
+    mrr_end: 0
