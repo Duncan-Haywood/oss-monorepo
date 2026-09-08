@@ -188,6 +188,15 @@
     <summary type="text">Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Poshmark Fee Calculator — What You Actually Keep After Fees</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/poshmark-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/poshmark-fee-calculator</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free Poshmark seller fee calculator. The flat $2.95 fee under $15, 20% at $15+, the $14.75 break-even price, your real profit after item cost, and whether a lower offer costs you more than the discount. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
     <title>Pour Cost Calculator</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pour-cost-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/pour-cost-calculator</id>
