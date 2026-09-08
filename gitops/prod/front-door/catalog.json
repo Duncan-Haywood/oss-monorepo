@@ -8,7 +8,7 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 217,
+  "served_here": 218,
   "collection_total": 217,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
@@ -74,7 +74,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 4
+      "tool_count": 5
     }
   ],
   "tools": [
@@ -1501,6 +1501,14 @@
       "category": "Trade & contractor bids",
       "description": "Price an IP security camera install from the drops, the cable, and the labour — and check the three things a camera bid gets wrong: days of recording the drives actually hold, PoE load against the switch budget, and runs past the 328 ft Ethernet limit.",
       "pages": 4
+    },
+    {
+      "slug": "security-deposit-return-calculator",
+      "name": "Security Deposit Refund & Prorated Rent Calculator — Free, No Sign-Up",
+      "url": "https://marisstella.dev/tools/security-deposit-return-calculator/",
+      "category": "More free tools",
+      "description": "Free security deposit refund calculator: itemize deductions against a tenant's deposit and see the refund or balance due. Plus a prorated rent calculator for a partial first or last month. Entirely client-side, nothing uploaded.",
+      "pages": 1
     },
     {
       "slug": "septic-pumping-bid-calculator",
