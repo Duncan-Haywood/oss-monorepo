@@ -8124,3 +8124,62 @@ ventures:
       Ethically: every input is a number the operator already knows about
       their own list, nothing is scraped or inferred about a third party,
       and all computation is client-side.
+  - slug: ios-privacy-manifest-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over Swift/Objective-C source (five
+      named Required Reason API categories) cross-checked against a
+      PrivacyInfo.xcprivacy plist manifest via a recursive-descent parser.
+      There is nothing to infer: either the source uses an API in a
+      category the manifest does not declare, or it does not.
+    basis: >-
+      Graduated 2026-09-08 as a free browser + CLI checker for iOS/macOS
+      developers: scans source for Apple's five Required Reason API
+      categories and cross-checks the result against a
+      PrivacyInfo.xcprivacy manifest, naming the exact category/file/line
+      behind an ITMS-91061 (missing declaration) or ITMS-91055 (invalid
+      reason code) App Store Connect rejection. Same shape and rubric as
+      `dependency-confusion-check`, `actions-cache-poisoning-check`, and
+      `npm-lifecycle-script-check`: a standard-library-only classifier over
+      data the developer already has (their own source tree and manifest).
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page scans files the visitor picks locally and the CLI reads only
+      local files, so marginal cost per use is zero.
+      Time to revenue 6, level with the family: no direct revenue path
+      beyond the standard voluntary GitHub Sponsors link, but the CLI shape
+      is usable as a CI gate in the developer's own pipeline, which is
+      genuine return-usage potential without further portfolio action.
+      Defensibility 4: the five Required Reason API categories are
+      Apple's own public documentation; what is not trivially copied is
+      the paired CLI/browser port sharing one core scan module, a
+      recursive-descent manifest parser (a first regex-only version had a
+      real bug on nested plist arrays, caught by its own tests), and
+      naming the exact ITMS rejection code a developer searches for.
+      Distribution 6: developers who hit ITMS-91061/ITMS-91055 search the
+      exact error code verbatim — r/iOSProgramming, r/swift, Apple
+      Developer Forums, and Stack Overflow's ios/privacy-manifest tags all
+      show recurring threads naming these codes, a sharper distribution
+      hook than an unnamed incident class.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output flags a category/file/line as needing a declaration or
+      carrying an invalid reason code — it never determines the app is
+      compliant or that Apple will accept the submission, and category IDs
+      and reason codes are reproduced from Apple's own public documentation
+      (cross-checked against three independent sources since Apple's docs
+      are JS-rendered and not fetchable in this environment). Ethically:
+      the browser page reads files the visitor picks locally with no
+      upload, no accounts, no analytics vendor, and the usage counter
+      carries no source-code content and can be switched off on the page.
