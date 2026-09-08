@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 111 files, 555316 bytes
 #   portfolio-front-tools-2: 148 files, 556718 bytes
 #   portfolio-front-tools-3: 142 files, 553521 bytes
-#   portfolio-front-tools-4: 118 files, 548175 bytes
+#   portfolio-front-tools-4: 119 files, 552935 bytes
 #   portfolio-front-tools-5: 134 files, 556138 bytes
 #   portfolio-front-tools-6: 115 files, 548650 bytes
 #   portfolio-front-tools-7: 112 files, 556647 bytes
@@ -627,6 +627,7 @@ configMapGenerator:
       - ats-resume-checker__checker.mjs.gz=ats-resume-checker__checker.mjs.gz
       - ats-resume-checker__index.html.gz=ats-resume-checker__index.html.gz
       - ats-resume-checker__usage.mjs.gz=ats-resume-checker__usage.mjs.gz
+      - ats-resume-checker__vs-jobscan.html.gz=ats-resume-checker__vs-jobscan.html.gz
       - ats-resume-checker__what-is-the-ats-copy-paste-test.html.gz=ats-resume-checker__what-is-the-ats-copy-paste-test.html.gz
       - attic-insulation-bid-calculator__calc.mjs.gz=attic-insulation-bid-calculator__calc.mjs.gz
       - attic-insulation-bid-calculator__how-much-to-charge.html.gz=attic-insulation-bid-calculator__how-much-to-charge.html.gz
