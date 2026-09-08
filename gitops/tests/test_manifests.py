@@ -1408,7 +1408,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 216 since 2026-09-08, when `newsletter-sponsorship-rate-calculator`
     # graduated — same shape again: a new venture with a static `index.html`
     # from its first commit, entering the mirror and the total together.
-    total = 216  # `infra/OWNER_CHECKLIST.md`'s own "N of the 216 tools" wording.
+    # 217 since 2026-09-08, when `ios-privacy-manifest-check` graduated (#4100)
+    # — same shape again, and the first time this drift reached `main` rather
+    # than being caught on the branch: Actions has been starved since
+    # 2026-09-07, so nothing ran this test on the merge. It was one of three
+    # reds #4100 left behind, alongside a missing `venture-scores.yaml` row and
+    # a missing venture CI workflow.
+    total = 217  # `infra/OWNER_CHECKLIST.md`'s own "N of the 217 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

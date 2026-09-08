@@ -1,0 +1,46 @@
+name: ios-privacy-manifest-check CI
+
+# Zero-dependency CLI/browser tool: `scan.mjs` is the shared detection engine
+# (Required Reason API usage in Swift/Objective-C source, cross-checked
+# against PrivacyInfo.xcprivacy), `check.mjs` is the Node CLI gate,
+# `page.test.mjs` covers the page wiring, and `usage.test.mjs` covers the
+# local usage counter. Keep all four covered independently of the
+# portfolio-wide validation workflow, which only checks published pages and
+# does not run venture unit tests. Without this file `validate_workflows.py`
+# fails -- which is exactly what it did on `main` after the venture merged in
+# #4100, because the graduation landed the tests without the workflow that
+# runs them. Same hole `vscode-extension-drift-check-ci.yml` documents.
+on:
+  pull_request:
+    paths:
+      - "ventures/ios-privacy-manifest-check/**"
+      - ".github/workflows/ios-privacy-manifest-check-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/ios-privacy-manifest-check/**"
+      - ".github/workflows/ios-privacy-manifest-check-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-privacy-manifest-check-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/ios-privacy-manifest-check
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run scanner, CLI, page-wiring, and usage tests
+        run: node --test scan.test.mjs check.test.mjs page.test.mjs usage.test.mjs

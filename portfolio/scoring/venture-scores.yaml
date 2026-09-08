@@ -8124,3 +8124,57 @@ ventures:
       Ethically: every input is a number the operator already knows about
       their own list, nothing is scraped or inferred about a third party,
       and all computation is client-side.
+
+  - slug: ios-privacy-manifest-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a file uses a Required
+      Reason API is decided by matching source against Apple's own published
+      symbol list per category, and whether a declared reason code is valid
+      is a lookup against the fixed set Apple documents for that category.
+      Both verdicts have to be reproducible enough for a developer to act on
+      before submitting a build; a model in the path would make an
+      ITMS-91061 verdict a guess instead of a citation to a file and line.
+    basis: >-
+      Graduated 2026-09-08 (#4100) as a browser-local + CLI checker that
+      scans Swift/Objective-C source for Required Reason API usage and
+      cross-checks it against PrivacyInfo.xcprivacy. Same
+      developer-checker archetype as the actions-*-check family,
+      vscode-extension-drift-check and npm-lifecycle-script-check rather
+      than the trade-calculator archetype, and scored on this file's
+      six-dimension rubric for parity with them. Autonomous ops 10 /
+      gross margin 10: the browser page reads the developer's files locally
+      with the File API and the CLI reads the local tree, so nothing is
+      uploaded and serving one more user costs a static file. Time to
+      revenue 5: iOS developers are a strong free-tooling-norm audience,
+      the same read taken for ai-crawler-access-check and
+      vscode-extension-drift-check. Defensibility 3: the Required Reason
+      API categories and their valid reason codes are published by Apple,
+      so the detection rules are copyable; what is not free elsewhere is
+      the cross-check itself naming the exact category, file and line.
+      Distribution 6: ITMS-91061 and ITMS-91055 are verbatim error strings
+      a developer pastes into search the hour their build is rejected,
+      which is narrower but higher-intent traffic than a category query --
+      the same 6 the newsletter calculator took for named-intent search.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The output is a pre-submission checklist naming undeclared
+      Required Reason API usage and invalid reason codes; being wrong costs
+      a developer one more App Store Connect round trip, which is the
+      outcome they already have without the tool, not a filing, a
+      certification, or a determination made on anyone's behalf. Ethically:
+      the only inputs are the developer's own source files and their own
+      manifest, read locally and never uploaded, and nothing is inferred
+      about an end user of the app being checked.
