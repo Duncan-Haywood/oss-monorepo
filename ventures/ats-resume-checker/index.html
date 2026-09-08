@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ATS Resume Checker — Free Copy-Paste Test, No Sign-Up</title>
+  <meta name="description" content="Free ATS resume checker, no sign-up and nothing uploaded. Paste the text copied out of your resume and instantly see the formatting issues that break applicant-tracking-system parsing — icon-font bullets, missing headings, buried contact info, and more.">
+  <meta property="og:title" content="ATS Resume Checker — the copy-paste test, free, no sign-up">
+  <meta property="og:description" content="Paste the text you copied out of your resume file. See exactly which formatting issues would break an ATS parser reading the same text — nothing uploaded, no account.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"ATS Resume Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Runs the ATS copy-paste test on resume text you paste: flags icon-font bullet characters, corrupted text, missing standard section headings, buried or missing contact info, missing dates, and signs of a collapsed multi-column layout. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the ATS copy-paste test?","acceptedAnswer":{"@type":"Answer","text":"Copy all the text out of your resume file (Ctrl+A, Ctrl+C from the PDF or Word document — never retype it) and look at what comes out. Applicant tracking systems extract resume text the same mechanical way, so a garbled, out-of-order, or incomplete copy is a strong sign the same content will not parse correctly."}},{"@type":"Question","name":"Does this tell me whether my resume will pass a specific company's ATS?","acceptedAnswer":{"@type":"Answer","text":"No. ATS products differ in how they extract and score text, and this tool has no visibility into any specific employer's system. It reports evidence from the text you pasted — formatting symptoms that are documented to cause parsing problems across most systems — and leaves the decision to you."}},{"@type":"Question","name":"Why paste text instead of uploading my resume file?","acceptedAnswer":{"@type":"Answer","text":"Uploading a file means a server somewhere reads your resume's contents. Pasting text you already copied keeps everything in your browser — nothing about your resume ever leaves your device — and it doubles as the copy-paste test itself: if the paste comes out garbled, that is the finding."}},{"@type":"Question","name":"What if my resume is already text and copies out perfectly?","acceptedAnswer":{"@type":"Answer","text":"Then this tool will likely report no findings, which is a good sign for the format checks it runs — but it does not check word choice, relevance to a specific job description, or achievement phrasing, which matter just as much and are outside what a structural check can see."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #3a1f5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3a1f5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5c5468; }
+    .card { background: #fff; border: 1px solid #ddd6e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3a1f5d10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #b9adcc; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5b3a8e; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e9e4f1; color: #3a1f5d; }
+    .headline { font-size: 1.3rem; font-weight: 800; margin: 0 0 4px; color: #14532d; }
+    .headline.high { color: #9a3412; }
+    .headline.medium { color: #7c5e10; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.low { background: #e3e9ef; color: #3a1f5d; }
+    .stats { display: flex; gap: 18px; flex-wrap: wrap; font-size: .85rem; color: #5c5468; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd6e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ATS RESUME CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will your resume even reach a human? Run the copy-paste test.</h1>
+    <p>Most job applications go through an applicant tracking system before
+    anyone reads them, and it extracts your resume's text the same
+    mechanical way copying it out by hand does. Select all the text in your
+    resume file, copy it, and paste it below — this page reads the exact
+    same extraction for the specific, well-documented formatting problems
+    that break it: icon-font bullets that paste as garbage, missing section
+    headings, contact info buried where a parser won't look, and layouts
+    that scramble when flattened to plain text.</p>
+    <p class="note">Nothing is uploaded. The text you paste is read in this
+    browser and never leaves your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Copy the text out of your resume file</h2>
+    <p>Open your resume (PDF or Word), select all the text (<kbd>Ctrl+A</kbd>
+    / <kbd>Cmd+A</kbd>), and copy it (<kbd>Ctrl+C</kbd> / <kbd>Cmd+C</kbd>).
+    Do not retype it — the whole point is testing what a mechanical
+    extraction produces, not what you meant to write.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Paste it here</h2>
+    <textarea id="resume-text" spellcheck="false" placeholder="Paste the text you copied from your resume file here..."></textarea>
+    <p>
+      <button type="button" id="check">Check my resume</button>
+      <button type="button" class="secondary" id="load-example">Load an example with issues</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste your resume text above and click Check my resume.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>What was found</h2>
+    <p class="headline" id="headline"></p>
+    <div class="stats" id="stats"></div>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't check</h2>
+    <p>This reads the text you paste for symptoms that are documented to
+    break ATS text extraction: icon-font characters standing in for
+    bullets, corrupted text, missing standard section headings, missing or
+    buried contact information, missing dates, and signs of a multi-column
+    layout collapsing into one line. It does <strong>not</strong> check
+    keyword match against a specific job posting, achievement phrasing, or
+    grammar — and it cannot see your file's actual visual layout (columns,
+    text boxes, images), only what copied out as text, which is exactly
+    what most parsers see too.</p>
+    <p>More on the technique: <a href="what-is-the-ats-copy-paste-test.html">what the ATS copy-paste test is and why it works</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is the ATS copy-paste test?</h3>
+    <p>Copy all the text out of your resume file (<kbd>Ctrl+A</kbd>, <kbd>Ctrl+C</kbd> from the PDF or Word document — never retype it) and look at what comes out. Applicant tracking systems extract resume text the same mechanical way, so a garbled, out-of-order, or incomplete copy is a strong sign the same content will not parse correctly.</p>
+    <h3>Does this tell me whether my resume will pass a specific company's ATS?</h3>
+    <p>No. ATS products differ in how they extract and score text, and this tool has no visibility into any specific employer's system. It reports evidence from the text you pasted — formatting symptoms that are documented to cause parsing problems across most systems — and leaves the decision to you.</p>
+    <h3>Why paste text instead of uploading my resume file?</h3>
+    <p>Uploading a file means a server somewhere reads your resume's contents. Pasting text you already copied keeps everything in your browser — nothing about your resume ever leaves your device — and it doubles as the copy-paste test itself: if the paste comes out garbled, that is the finding.</p>
+    <h3>What if my resume is already text and copies out perfectly?</h3>
+    <p>Then this tool will likely report no findings, which is a good sign for the format checks it runs — but it does not check word choice, relevance to a specific job description, or achievement phrasing, which matter just as much and are outside what a structural check can see.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not career, legal, or any other professional advice, and it does not tell you whether any specific employer's applicant tracking system will accept your resume — only whether the text you pasted shows documented signs of a broken format. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — the text you paste is not saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, summarize } from "./checker.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      text: $("#resume-text"), status: $("#status"), reportCard: $("#report-card"),
+      headline: $("#headline"), stats: $("#stats"), findings: $("#findings"),
+    };
+
+    const EXAMPLE = `Jordan Rivera
+
+My Journey
+Dedicated operations professional with a passion for logistics.
+
+ Cut pick-time errors 18% by rebuilding the FIFO checklist
+ Trained a team of 12 seasonal hires each peak season
+ Managed nightly reconciliation for a $40k/day register bank
+
+Reach me at jordan.rivera@example.com`;
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function renderFindings(findings) {
+      if (findings.length === 0) {
+        els.findings.innerHTML = `<p>No copy-paste artifacts found in what you pasted. This checks format only — see "What this does and doesn't check" below for what it can't see.</p>`;
+        return;
+      }
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${escapeHtml(f.severity)}</span>${escapeHtml(f.title)}</h4>
+          <p>${escapeHtml(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    function runCheck(text) {
+      const result = analyze(text);
+      const { level, text: headline } = summarize(result);
+      els.headline.className = `headline ${level}`;
+      els.headline.textContent = headline;
+      els.stats.innerHTML = `
+        <span>${result.stats.characters.toLocaleString()} characters</span>
+        <span>${result.stats.lines.toLocaleString()} lines</span>
+        <span>${result.stats.highCount} high · ${result.stats.mediumCount} medium · ${result.stats.lowCount} low</span>`;
+      renderFindings(result.findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", () => {
+      const text = els.text.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste your resume text above first.</span>`;
+        return;
+      }
+      runCheck(text);
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      els.text.value = EXAMPLE;
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: a resume with icon-font bullets, a non-standard heading, and no phone number.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.text.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste your resume text above and click Check my resume.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

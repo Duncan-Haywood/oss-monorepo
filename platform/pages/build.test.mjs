@@ -4215,8 +4215,19 @@ test('the catch-all holds only what no section claims', async () => {
   // back past a screenful means the taxonomy has stopped keeping up, which is
   // exactly the state this change found it in (14 tools, six of them one
   // coherent category).
+  //
+  // Raised 8 -> 9 on 2026-09-07/08 when two independent sessions each
+  // graduated a venture that fits none of the six named categories in the
+  // same window: `menu-engineering-calculator` (a restaurant-menu pricing
+  // classifier — not a trade bid, not a marketplace fee, not a service
+  // quote, not logistics/evidence/backoffice/CI) and `ats-resume-checker` (a
+  // job-seeker resume format checker — a different audience from every
+  // other category, which is all small-business or developer-facing).
+  // Neither is a coherent cluster on its own yet, so this is the fallback
+  // working as designed rather than a taxonomy gap to close today; lower it
+  // back if either niche grows a sibling that lets both leave the catch-all.
   assert.ok(
-    more.items.length <= 8,
+    more.items.length <= 9,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
   );
 });
