@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 213 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 215 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-09-07T00:00:00Z</updated>
+  <updated>2026-09-08T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Certified Payroll Calculator — Davis-Bacon Overtime &amp; Fringe Compliance</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/certified-payroll-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/certified-payroll-calculator</id>
+    <published>2026-09-08T00:00:00Z</published>
+    <updated>2026-09-08T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free calculator for Davis-Bacon / prevailing-wage certified payroll: checks whether a worker&#39;s cash wages plus fringe meet the wage determination, and computes overtime correctly when part of the fringe is paid in cash instead of a bona fide plan.</summary>
+  </entry>
   <entry>
     <title>3D Print Price Calculator — Price a Print for Etsy or Shopify</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/3d-print-price-calculator/"/>
@@ -78,6 +87,15 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>ATS Resume Checker — Free Copy-Paste Test, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ats-resume-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/ats-resume-checker</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free ATS resume checker, no sign-up and nothing uploaded. Paste the text copied out of your resume and instantly see the formatting issues that break applicant-tracking-system parsing — icon-font bullets, missing headings, buried contact info, and more.</summary>
   </entry>
   <entry>
     <title>Daycare Tuition Calculator</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.</summary>
-  </entry>
-  <entry>
-    <title>Which Job First? Free Pairwise Job Priority Ranker for Contractors</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/which-job-first/"/>
-    <id>tag:marisstella.dev,2026:tool/which-job-first</id>
-    <published>2026-09-03T00:00:00Z</published>
-    <updated>2026-09-03T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.</summary>
-  </entry>
-  <entry>
-    <title>Vendor Change Watch — See What Changed in a Vendor&#39;s Terms</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vendor-change-watch/"/>
-    <id>tag:marisstella.dev,2026:tool/vendor-change-watch</id>
-    <published>2026-08-29T00:00:00Z</published>
-    <updated>2026-08-29T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Paste a vendor&#39;s terms, privacy policy, or subprocessor page. Come back later, paste it again, and get a section-by-section diff of what changed. Runs in your browser; nothing is uploaded.</summary>
   </entry>
 </feed>

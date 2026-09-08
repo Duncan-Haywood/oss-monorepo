@@ -1389,16 +1389,23 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 210 since 2026-09-07, when `food-truck-event-margin-calculator`
     # graduated — same shape again: a new venture with a static `index.html`
     # from its first commit, entering the mirror and the total together.
-    # 211 since 2026-09-07, when `menu-engineering-calculator` graduated —
+    # 211 since 2026-09-07, when `ats-resume-checker` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 212 since 2026-09-07, when `menu-engineering-calculator` graduated —
     # same shape again, and landing in the same hour as the one above, which
     # is why this merge had to keep both rather than pick a side.
-    # 213 since 2026-09-08: `poshmark-fee-calculator` and
-    # `duplicate-payment-audit` graduated within hours of each other and each
-    # branch, correctly, raised the count by one from 211 — so the merge of the
-    # two has to add two, not one. Same
+    # 214 since 2026-09-08. Three ventures graduated within hours of each
+    # other -- `poshmark-fee-calculator`, `duplicate-payment-audit` and
+    # `ats-resume-checker` -- and each branch, correctly, raised the count by
+    # one from its own base. Merging them has to add three, not one, which is
+    # why this number has now been resolved upward twice in one evening. Same
     # shape again: a new venture with a static `index.html` from its first
     # commit, entering the mirror and the total together.
-    total = 213  # `infra/OWNER_CHECKLIST.md`'s own "N of the 213 tools" wording.
+    # 215 since 2026-09-08, when `certified-payroll-calculator` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    total = 215  # `infra/OWNER_CHECKLIST.md`'s own "N of the 215 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -19555,6 +19555,121 @@ entries:
         (`portfolio-pages.yml` deploy, `publish-pages-branch.yml`) -- none
         apply to a docs/venture-code change with no deploy step of its own.
     mrr_end: 0
+  - venture: ats-resume-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New-venture brief (owner-relayed via a scheduled task, same
+        priority `portfolio/DIRECTION.md` states): 141 of ~200 existing
+        ventures share the trade-bid-calculator shape and none has ever
+        recorded a nonzero visitor, so a 201st instance of that archetype
+        is low-value by the portfolio's own measurement
+        (`pipeline/README.md`'s archetype-saturation note). Screened a
+        genuinely different product shape and audience instead.
+      - >-
+        Picked `ats-resume-checker`: job seekers preparing a resume for
+        applicant tracking systems. Answered `PRODUCT_PLAYBOOK.md` §1's
+        four questions -- who (job seekers submitting through online
+        applications), what they type ("ats resume checker free", "ats
+        resume checker no sign up"), what it costs them (a silently
+        rejected application that never reaches a human), why no big
+        vendor has solved it cleanly (Jobscan, ResyMatch, Rezi, TopResume,
+        and VMock all require an account and usually a paid tier or a
+        server-side upload of the resume's content; nothing free does the
+        narrower format-only check with nothing uploaded). Named channel:
+        r/resumes and r/jobs, both large and active with constant "will
+        this pass ATS" threads.
+      - >-
+        `python3 portfolio/pipeline/duplicate_check.py` on the niche
+        description scored every existing venture and pipeline candidate
+        below 0.13 (well under the 0.45 read-this-first bar) before the
+        venture existed -- no overlap with any of the 220 ventures or 30
+        pipeline candidates. Scored inline against the two non-negotiable
+        gates rather than writing a full `pipeline/candidates.yaml`
+        write-up, the same lightweight precedent
+        `actions-runner-starvation-check` used for a generalized-checker
+        shape needing no market write-up: liability_containment 8 (every
+        finding is evidence about the pasted text, never a determination
+        that a specific employer's ATS will accept the resume; no advice-
+        of-record), ethical_robustness 8 (static deterministic ruleset,
+        no dark patterns, does not get worse for users as traffic grows).
+        Both recorded in `VENTURE.yaml`'s own comment and in
+        `portfolio/scoring/venture-scores.yaml` (six-dimension merit
+        rubric plus the two gates, composite 5.833, floor 1 on
+        ai_leverage -- pure pattern matching, nothing for a model to do).
+      - >-
+        Shipped `ventures/ats-resume-checker`: `checker.mjs` automates the
+        "ATS copy-paste test" career coaches already recommend by hand --
+        paste the text copied out of a resume file and see the documented
+        formatting symptoms that break ATS parsing (icon-font/private-use-
+        area bullet characters, the Unicode replacement character, no
+        recognized section heading, missing or buried contact info, no
+        recognizable year, mid-line whitespace runs from a collapsed
+        multi-column layout). 17 passing `node --test` cases. `index.html`
+        (disclaimer, privacy line, FAQPage/SoftwareApplication JSON-LD,
+        sponsor link, local-only usage counting with a worked example)
+        plus one discoverability docs page
+        (`what-is-the-ats-copy-paste-test.html`, HowTo JSON-LD) answering
+        the specific search question, LICENSE, robots.txt, sitemap.xml,
+        `VENTURE.yaml` with named kill criteria, and
+        `.github/workflows/ats-resume-checker-ci.yml`.
+      - >-
+        Verification: `node --test ventures/ats-resume-checker/*.test.mjs`
+        (17/17), `node platform/pages/clauses.mjs ats-resume-checker` (both
+        pages carry required clauses), `python3 portfolio/router/validate.py`
+        (219 valid), `python3 platform/ci/check_no_payment_code.py` (clean),
+        `python3 portfolio/scoring/score_ventures.py --check` (220 ventures
+        consistent), `node platform/marketing/regen.mjs` then `node
+        platform/pages/launched.mjs --write` then `regen.mjs` again (the
+        first regen ran before the launch date was recorded, which left
+        `front-door.mjs`'s tool-count total one behind its own mirror count
+        -- `publishedSlugs()` reads `launched.json`; re-running regen after
+        the launch write fixed it, and `front-door.test.mjs` (109/109)
+        confirms it). `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1169/1169), `platform/proposal` (101/101),
+        `platform/privacy` + `platform/webcheck` (71/71),
+        `python3 platform/ci/checklist_coverage.py` (clean),
+        `python3 -m pytest gitops/tests -q` (490 passed, 25 skipped -- fixed
+        the mirrored-tool-count ratchet across the four places CLAUDE.md
+        names: `infra/OWNER_CHECKLIST.md` (3 lines), `gitops/prod/usage/
+        aggregate.py`, `gitops/prod/front-door/default.conf` (2 lines), and
+        `gitops/tests/test_manifests.py`'s own hardcoded `total`), all 15
+        `platform/ci` unittest modules plus `agent_review` (clean --
+        `test_validate_workflows.py` needed the new venture's own CI
+        workflow, `test_publish_surface.py` needed a `publish-surface.yaml`
+        row for it), `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`
+        (419 passed, 8 subtests), `python3 platform/ci/run_workflow_locally.py
+        portfolio-validate.yml` (validate job green). Raised
+        `platform/pages/siblings-budget.json`'s orphan budget 38 -> 39
+        (documented why in the file: `siblings.mjs --check`'s own nearest-
+        sibling suggestion for this venture is an unrelated 3D-printing
+        calculator via the catch-all "More free tools" category -- nothing
+        in the existing all-trade-calculator/dev-tool catalogue is a real
+        sibling to link, and a fabricated link would mislead more than the
+        orphan does). Ran the browser/accessibility checks scoped to this
+        venture (`PLAYWRIGHT=$(npm root)/playwright/index.js python3
+        platform/ci/browser_checks.py --only ats-resume-checker`): sideways,
+        contrast (0 WCAG A/AA violations), and sweep (the tool actually
+        computes via "Load an example with issues" -> "Check my resume")
+        all passed; `presets`/`roundtrip` skipped (this venture has neither
+        control) and `highlight` skipped (no highlight promise sentence).
+        Opened the page and ran the worked example by hand, and ran the
+        CLI-less browser tool end to end via the sweep check above.
+      - >-
+        Not verified against the current `origin/main`: this session's
+        branch was current with `main` at start, and `main` moved 5 commits
+        (including a new venture, `menu-engineering-calculator`) while this
+        work was in progress. The count-sensitive ratchets touched here
+        (`siblings-budget.json`, `OWNER_CHECKLIST.md`, `aggregate.py`,
+        `default.conf`, `test_manifests.py`'s `total`,
+        `venture-scores.yaml`'s coverage check) are internally consistent
+        against the tree this branch was built on, but will need
+        `regen.mjs` and these same checks re-run after a rebase onto the
+        latest `main` before merge, since a concurrent new venture shifts
+        every one of these totals again.
+    mrr_end: 0
   - venture: home-staging-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -19728,4 +19843,176 @@ entries:
         `platform/proposal/ platform/privacy/ platform/webcheck/` 172/172,
         `run_workflow_locally.py --for-changes` clean, and
         `run_workflow_locally.py --tree` green on `main` beforehand (9/9).
+    mrr_end: 0
+  - venture: certified-payroll-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/certified-payroll-calculator`, a
+        free browser calculator for Davis-Bacon / prevailing-wage government
+        contractors. For one worker classification, one week, it checks cash
+        wages plus fringe against the wage determination and computes
+        overtime correctly when part of the required fringe is paid in cash
+        instead of into a bona fide plan (29 CFR 5.32 / 778.7 excludes the
+        plan contribution from the overtime "regular rate" but includes
+        cash-in-lieu-of-fringe) — a specific, documented DOL Davis-Bacon audit
+        finding that general-purpose payroll systems get wrong by defaulting
+        the overtime premium to the base rate only. Also flags apprentices
+        beyond the approved apprentice-to-journeyman ratio. Screened against
+        `screened-out.md` and the liability/ethics gates in
+        `portfolio/DIRECTION.md` first; `portfolio/pipeline/duplicate_check.py`
+        returned no match at or above the read-this-first threshold (top
+        score 0.07, against `janitorial-bid-calculator`). Not from the
+        pipeline candidate queue — a fresh niche invented this session, per
+        `DIRECTION.md`'s standing invitation to graduate a strong
+        non-duplicative idea the same day it's screened. `venture-scores.yaml`
+        entry added (composite 6.333, floor 1 `ai_leverage`, gates
+        `liability_containment`/`ethical_robustness` pass), matching the
+        deterministic-calculator floor pattern already accepted for
+        `pour-cost-calculator` and `duplicate-payment-audit`.
+      - >-
+        Named channel: "certified payroll software" and "WH-347 calculator"
+        are established search phrases with existing paid competitors
+        (LCPtracker, eMars, ELB Consulting) advertising against them — all
+        three assume an ongoing subscription and a live project, leaving a
+        gap for a free one-off check. r/GovernmentContracting and
+        r/Construction carry recurring compliance questions of this shape,
+        and the fringe-benefit overtime rule specifically is a documented
+        point of confusion in trade-association Davis-Bacon compliance
+        guidance.
+      - >-
+        This is a new buyer persona for the portfolio, not another
+        `*-bid-calculator`: certified payroll / compliance staff checking a
+        week of pay that already happened against a compliance floor, rather
+        than a contractor pricing a job before it starts. Per
+        `DIRECTION.md`'s note to weigh the archetype (141+ existing bid
+        calculators with zero confirmed visitors) before defaulting to a
+        142nd, this is priced the same shape for a reason: the value is in
+        the specific fringe/overtime and apprentice-ratio arithmetic, which a
+        browser calculator states more directly than a CLI or GitHub Action
+        would for this buyer.
+      - >-
+        Verification: `node --test ventures/certified-payroll-calculator/*.test.mjs`
+        (39/39 passing — 17 calc, 5 usage, 8 share, 9 page tests); `node
+        platform/pages/clauses.mjs certified-payroll-calculator` (clean, 2
+        published pages carry required clauses); `python3
+        portfolio/router/validate.py` (223/223 valid); `node
+        platform/marketing/regen.mjs` run twice (mirror/front-door
+        regenerated and committed, second pass after `launched.mjs --write`
+        to keep the feed/llms.txt/catalog.json in sync with the new launch
+        date); `node platform/pages/launched.mjs --write` (1 added); `python3
+        platform/ci/checklist_coverage.py` and `check_no_payment_code.py`
+        (clean); `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1169/1169 passing, with `TMPDIR` pointed
+        at `/home` instead of the default `/tmp`, which was near its quota on
+        this shared sandbox); `platform/pages/siblings.mjs` found this
+        venture is a genuine orphan (no existing venture shares its niche to
+        link to honestly) and raised `orphanBudget` 33→34 in
+        `platform/pages/siblings-budget.json` with the reason recorded
+        in-file, rather than fabricate a sibling link; `gitops/tests/test_manifests.py`'s
+        mirrored-tool-count test caught the four hand-typed "213 tools"
+        mentions this venture made stale (`infra/OWNER_CHECKLIST.md` ×3,
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        ×2) — all bumped to 214 in this PR, verified with
+        `/tmp/tpc-venv/bin/pytest gitops/tests/test_manifests.py` (83/83
+        passing) after a preinstalled `pip`/`pytest` in this session's
+        default `python3` turned out unavailable (`ensurepip` has no network
+        route here either). The rest of `gitops/tests` (test_worker_run.py,
+        test_publish_branch.py, test_load_secrets.py) could not be verified —
+        every failure was the same `Unknown system error -122` (EDQUOT)
+        writing to `/tmp` that the prior `duplicate-payment-audit` entry in
+        this file also hit, unrelated to any file this PR touches.
+        `python3 portfolio/scoring/score_ventures.py --check` (223/223
+        internally consistent, after adding this venture's score row) and
+        `python3 portfolio/pipeline/validate_doc_consistency.py` (clean, 32
+        candidates) both pass; `python3 portfolio/usage/validate_usage.py`
+        (clean, 197 products).
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR-queue drain (this run's mandated first phase): 2 open PRs at
+        session start (#4044 duplicate-payment-audit, #4045
+        poshmark-fee-calculator). Reviewed and fixed both — re-merged main,
+        resolved generated-mirror-file conflicts by regenerating via
+        `platform/marketing/regen.mjs`, added the missing per-venture CI
+        workflow `test_validate_workflows.py` invariant 7 requires, and
+        bumped the mirrored-tool-count across the four locations CLAUDE.md
+        names (`gitops/tests/test_manifests.py`,
+        `infra/OWNER_CHECKLIST.md` x3, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2). Both merged by
+        concurrent sessions racing the same fixes before this session's own
+        push landed — the fix work was real and needed regardless of which
+        session's push won.
+      - >-
+        Merged #4051 directly (a mechanical gate,
+        `portfolio/ledger/check_direction_only.py`, closing the same loophole
+        `check_ledger_only.py` already closed for ledger-only PRs, applied to
+        direction-only ones): verified 12/12 of its own unit tests, the full
+        `portfolio/ledger` suite (257 passing), doc-consistency and
+        checklist-coverage clean, then squash-merged.
+      - >-
+        Two more PRs appeared mid-run and were processed to completion:
+        #4054 (`ats-resume-checker`, a genuinely new product shape/audience
+        vs. the portfolio's ~200 trade-bid-calculators — merged by a
+        concurrent session after this session's own conflict-resolution and
+        verification work), and #4056 (an unattended agent's PR that
+        silently reverted #4051's just-merged tooling with no stated
+        rationale, while its own assigned brief was "ship a new venture" —
+        closed as an exceptional closure with a comment explaining why,
+        rather than merged; nothing of value was lost since it added no new
+        surface). Also closed #4057, a stale duplicate of #4044 opened by
+        another concurrent session against an already-merged base —
+        confirmed via `supersede_check.py`'s identical-merge proof before
+        closing.
+      - >-
+        Queue was empty after the above; no new PRs appeared before this
+        entry was written.
+      - >-
+        Verified the one working deployment route rather than assuming
+        CLAUDE.md's dated prose still held: `platform/ci/pages_state.py`
+        reports the `gh-pages` snapshot current against `main`'s tip
+        throughout, no refresh needed. Read `portfolio/ledger/infra_state.yaml`
+        and `decision_queue.py` for the Hetzner/Codex-host-mode asks
+        specifically (both fully built, both still gated on the single
+        `hetzner-ssh-key-is-a-public-key` owner action, unchanged since
+        2026-09-05/06) rather than re-deriving that finding, and reported it
+        to the account owner directly since this run's brief specifically
+        asked about Hetzner deployment and a Codex worker there.
+      - >-
+        Ran the full-catalogue browser/accessibility sweep
+        (`platform/ci/browser_checks.py --record`), stale since 2026-09-07
+        per `browser_state.py` (the builder/front-door changed under four
+        venture merges this session watched land). All 7 checks passed
+        clean: 220/220 tools answered with no errors, 834/834 sitemap URLs
+        resolve, 834 pages across 2 viewports carry zero WCAG A/AA
+        violations, and the saved-bids/backup/restore user journey passed
+        end to end. Recorded in `platform/ci/browser_state.json` at commit
+        bc70bba5. No defect found this run, unlike the first historical run
+        of this sweep (2026-09-06), which found 48 critical axe `label`
+        violations across three live products — recorded here because a
+        clean full-catalogue reading is itself the finding this check
+        exists to produce, and the next session should not have to re-run
+        a 20-30 minute sweep to learn that.
+      - >-
+        Attempted the existing, tested `platform/ci/branch_cleanup.py
+        --sweep` (owner-approved automation, idle because Actions is
+        starved) to retire 25 merged-PR branches a dry run identified as
+        safe to delete out of 352 total. The delete call itself returned
+        HTTP 403 from this session's network path (unclear whether a token-
+        scope limit or the egress proxy) rather than completing any
+        deletions — confirmed via `git ls-remote` that the one branch
+        attempted was not removed. Not pursued further; left for a session
+        with working delete permission or for Actions to resume.
+      - >-
+        Verification: `python3 portfolio/ledger/decision_queue.py`,
+        `python3 platform/ci/pages_state.py --require-current`, `python3
+        platform/ci/browser_state.py`, `python3 platform/ci/browser_checks.py
+        --record` (7/7 checks passing, full log kept in this session's
+        scratchpad), `git ls-remote` (branch-delete verification). No
+        product code changed by this entry beyond
+        `platform/ci/browser_state.json`'s recorded reading.
     mrr_end: 0

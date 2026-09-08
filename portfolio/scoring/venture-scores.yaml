@@ -7818,6 +7818,79 @@ ventures:
       permit requirements), no account, nothing uploaded — every field
       runs in the browser only.
 
+  - slug: ats-resume-checker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic pattern matching over the text a visitor pastes
+      (private-use-area characters, the Unicode replacement character,
+      standard section-heading regexes, email/phone/year regexes, mid-line
+      whitespace runs). There is no inference step and nothing a model
+      would improve on: either the pattern is present in the pasted text
+      or it is not.
+    basis: >-
+      Graduated 2026-09-07 as a free, browser-only tool automating the
+      "ATS copy-paste test" career coaches already recommend by hand: paste
+      the text copied out of a resume file and see the documented
+      formatting symptoms that break applicant-tracking-system parsing.
+      A different product shape and a different audience from every other
+      venture in the portfolio — not a trade calculator, and not a
+      developer/CI tool like `actions-runner-starvation-check` or
+      `flaky-test-finder` — screened per `portfolio/pipeline/README.md`'s
+      archetype-saturation note (141 of ~200 ventures were the trade-bid-
+      calculator shape at graduation time, none with a recorded visitor).
+      Scored on this file's six-dimension rubric to keep coverage complete
+      for `score_ventures.py --check` and `portfolio/router/test_allocate.py`.
+      Autonomous ops 10 / gross margin 10: the pasted text never leaves the
+      browser, there is no server component, and marginal cost per visitor
+      is zero.
+      Time to revenue 5, a point below the dev-tool siblings: job seekers
+      are a real audience but one with less disposable income and less
+      donation-culture familiarity than the small-business and developer
+      audiences the rest of the portfolio's Sponsors link has been scored
+      against, so the same voluntary-donation mechanism is scored slightly
+      lower here rather than assumed equal.
+      Defensibility 3, the floor alongside ai_leverage: the individual
+      pattern checks (icon-font characters, missing headings, buried
+      contact info) are each a few lines any developer could write, and
+      "how to format your resume for ATS" is a heavily blogged topic with
+      no shortage of free advice. What is not already free and standardized
+      elsewhere is the specific positioning against the paid, account-
+      gated, often upload-your-resume incumbents (Jobscan, ResyMatch, Rezi,
+      TopResume, VMock) — a 100%-client-side "nothing uploaded" tool that
+      doubles as its own proof (a garbled paste is itself the finding) — but
+      that positioning is a marketing asset, not a code moat, so it is not
+      scored higher than the sibling dev-tools' comparable defensibility.
+      Distribution 6: r/resumes and r/jobs are large, high-activity
+      subreddits with constant "will this resume pass ATS" threads, and
+      "ats resume checker free" / "ats resume checker no sign up" are
+      established search phrases in the career-advice niche — a real,
+      named channel this portfolio has not tried before, though actual
+      referral volume is unmeasured (`VENTURE.yaml`'s `kill_criteria`).
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: every finding is phrased as evidence about a pasted-text
+      artifact ("this pattern was found, here is why it matters"), never
+      as a determination that a specific employer's ATS will or will not
+      accept the resume — the page and the README both say so explicitly.
+      No advice-of-record, no filing, no professional liability; being
+      wrong costs nothing more than a missed or extra format suggestion
+      the user reviews themselves. Nothing is uploaded, there is no
+      account, and the static ruleset does not get worse for users as
+      traffic grows — no dark patterns, no upsell, no keyword-stuffing or
+      deception encouraged.
+
   - slug: menu-engineering-calculator
     scores:
       ai_leverage: 1
@@ -7952,3 +8025,60 @@ ventures:
       fetch, XMLHttpRequest or sendBeacon calls anywhere in the venture), and
       the usage counter carries no ledger content and can be switched off on
       the page.
+  - slug: certified-payroll-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model is involved and none should be. The required checks are exact
+      arithmetic against wage-determination figures the user already looked
+      up: a combined-rate comparison, an overtime premium computed on the
+      correct base, and a ratio count. An LLM here would introduce exactly
+      the failure mode a Davis-Bacon audit is designed to catch — a number
+      nobody can trace back to 29 CFR 5.32/778.7 or the wage determination
+      itself.
+    basis: >-
+      Graduated 2026-09-08 as a free calculator for Davis-Bacon / prevailing-
+      wage certified payroll: checks a worker classification's week against
+      the wage determination and gets the overtime premium right when part of
+      the fringe is paid in cash rather than into a bona fide plan — the
+      specific, well-documented DOL audit finding this tool exists to catch.
+      time_to_revenue 7 on the same evidence as duplicate-payment-audit's:
+      willingness to pay is demonstrated rather than assumed, since paid
+      certified-payroll platforms (LCPtracker, eMars, ELB Consulting) already
+      sell this exact compliance check as a subscription; the gap is that all
+      three assume an ongoing project and a subscription, not a one-off check
+      on a single week. Distribution 6: "certified payroll software" and
+      "WH-347 calculator" are established search phrases with existing paid
+      competitors advertising against them, plus government-contracting and
+      trade-compliance forums where the fringe/overtime rule is a recurring
+      point of confusion — real but narrower than a mass-market trade niche,
+      since the buyer is specifically a Davis-Bacon-covered contractor's
+      payroll or compliance staff. Defensibility 4 — once known, the
+      regulation is public and the arithmetic is commodity; what is not
+      commodity is that most payroll defaults get it wrong by omission, which
+      is the gap the tool is built against, not a mechanism nobody else could
+      copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The page never determines Davis-Bacon coverage, which wage
+      determination applies, or a worker's approved apprentice rate/ratio —
+      those are stated as facts the user supplies, never inferred. Output is
+      framed as a compliance check on entered figures ("falls $X/hr short of
+      the required rate"), never a determination ("you are compliant"), and
+      the apprentice-ratio section reports a count and, at most, a priced
+      gap — it never silently overrides a rate. Ethically: everything
+      computes in the browser, no wage or payroll data reaches a server
+      (verified — zero fetch/XMLHttpRequest/sendBeacon calls in the
+      venture), and the usage counter carries no wage figures and can be
+      switched off on the page.
