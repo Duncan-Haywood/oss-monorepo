@@ -11,6 +11,9 @@ workflows:
 - workflow: 3d-print-price-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: menu-engineering-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: 3pl-quote-normalizer-ci.yml
   classification: none
   publishes: []
