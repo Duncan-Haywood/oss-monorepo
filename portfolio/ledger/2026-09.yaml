@@ -19676,3 +19676,90 @@ entries:
         finding is disk-quota-shaped, non-specific to any file this PR
         touches, and reproduced identically across independent runs.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR-queue drain (this run's mandated first phase): 2 open PRs at
+        session start (#4044 duplicate-payment-audit, #4045
+        poshmark-fee-calculator). Reviewed and fixed both — re-merged main,
+        resolved generated-mirror-file conflicts by regenerating via
+        `platform/marketing/regen.mjs`, added the missing per-venture CI
+        workflow `test_validate_workflows.py` invariant 7 requires, and
+        bumped the mirrored-tool-count across the four locations CLAUDE.md
+        names (`gitops/tests/test_manifests.py`,
+        `infra/OWNER_CHECKLIST.md` x3, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2). Both merged by
+        concurrent sessions racing the same fixes before this session's own
+        push landed — the fix work was real and needed regardless of which
+        session's push won.
+      - >-
+        Merged #4051 directly (a mechanical gate,
+        `portfolio/ledger/check_direction_only.py`, closing the same loophole
+        `check_ledger_only.py` already closed for ledger-only PRs, applied to
+        direction-only ones): verified 12/12 of its own unit tests, the full
+        `portfolio/ledger` suite (257 passing), doc-consistency and
+        checklist-coverage clean, then squash-merged.
+      - >-
+        Two more PRs appeared mid-run and were processed to completion:
+        #4054 (`ats-resume-checker`, a genuinely new product shape/audience
+        vs. the portfolio's ~200 trade-bid-calculators — merged by a
+        concurrent session after this session's own conflict-resolution and
+        verification work), and #4056 (an unattended agent's PR that
+        silently reverted #4051's just-merged tooling with no stated
+        rationale, while its own assigned brief was "ship a new venture" —
+        closed as an exceptional closure with a comment explaining why,
+        rather than merged; nothing of value was lost since it added no new
+        surface). Also closed #4057, a stale duplicate of #4044 opened by
+        another concurrent session against an already-merged base —
+        confirmed via `supersede_check.py`'s identical-merge proof before
+        closing.
+      - >-
+        Queue was empty after the above; no new PRs appeared before this
+        entry was written.
+      - >-
+        Verified the one working deployment route rather than assuming
+        CLAUDE.md's dated prose still held: `platform/ci/pages_state.py`
+        reports the `gh-pages` snapshot current against `main`'s tip
+        throughout, no refresh needed. Read `portfolio/ledger/infra_state.yaml`
+        and `decision_queue.py` for the Hetzner/Codex-host-mode asks
+        specifically (both fully built, both still gated on the single
+        `hetzner-ssh-key-is-a-public-key` owner action, unchanged since
+        2026-09-05/06) rather than re-deriving that finding, and reported it
+        to the account owner directly since this run's brief specifically
+        asked about Hetzner deployment and a Codex worker there.
+      - >-
+        Ran the full-catalogue browser/accessibility sweep
+        (`platform/ci/browser_checks.py --record`), stale since 2026-09-07
+        per `browser_state.py` (the builder/front-door changed under four
+        venture merges this session watched land). All 7 checks passed
+        clean: 220/220 tools answered with no errors, 834/834 sitemap URLs
+        resolve, 834 pages across 2 viewports carry zero WCAG A/AA
+        violations, and the saved-bids/backup/restore user journey passed
+        end to end. Recorded in `platform/ci/browser_state.json` at commit
+        bc70bba5. No defect found this run, unlike the first historical run
+        of this sweep (2026-09-06), which found 48 critical axe `label`
+        violations across three live products — recorded here because a
+        clean full-catalogue reading is itself the finding this check
+        exists to produce, and the next session should not have to re-run
+        a 20-30 minute sweep to learn that.
+      - >-
+        Attempted the existing, tested `platform/ci/branch_cleanup.py
+        --sweep` (owner-approved automation, idle because Actions is
+        starved) to retire 25 merged-PR branches a dry run identified as
+        safe to delete out of 352 total. The delete call itself returned
+        HTTP 403 from this session's network path (unclear whether a token-
+        scope limit or the egress proxy) rather than completing any
+        deletions — confirmed via `git ls-remote` that the one branch
+        attempted was not removed. Not pursued further; left for a session
+        with working delete permission or for Actions to resume.
+      - >-
+        Verification: `python3 portfolio/ledger/decision_queue.py`,
+        `python3 platform/ci/pages_state.py --require-current`, `python3
+        platform/ci/browser_state.py`, `python3 platform/ci/browser_checks.py
+        --record` (7/7 checks passing, full log kept in this session's
+        scratchpad), `git ls-remote` (branch-delete verification). No
+        product code changed by this entry beyond
+        `platform/ci/browser_state.json`'s recorded reading.
+    mrr_end: 0
