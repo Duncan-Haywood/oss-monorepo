@@ -254,6 +254,9 @@ workflows:
 - workflow: dumpster-rental-margin-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: duplicate-payment-audit-ci.yml
+  classification: none
+  publishes: []
 - workflow: duplicate-symbols-ci.yml
   classification: none
   publishes: []
