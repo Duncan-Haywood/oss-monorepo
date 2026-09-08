@@ -107,6 +107,9 @@ workflows:
 - workflow: asphalt-sealcoat-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: ats-resume-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: atm-route-margin-ci.yml
   classification: none
   publishes: []
@@ -252,6 +255,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: dumpster-rental-margin-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: duplicate-payment-audit-ci.yml
   classification: none
   publishes: []
 - workflow: duplicate-symbols-ci.yml

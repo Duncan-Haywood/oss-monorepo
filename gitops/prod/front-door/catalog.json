@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 213,
-  "collection_total": 213,
+  "served_here": 214,
+  "collection_total": 214,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 7
+      "tool_count": 8
     },
     {
       "id": "logistics",
@@ -606,6 +606,14 @@
       "url": "https://marisstella.dev/tools/atm-route-margin/",
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent ATM route operators: find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.",
+      "pages": 3
+    },
+    {
+      "slug": "ats-resume-checker",
+      "name": "ATS Resume Checker — Free Copy-Paste Test, No Sign-Up",
+      "url": "https://marisstella.dev/tools/ats-resume-checker/",
+      "category": "More free tools",
+      "description": "Free ATS resume checker, no sign-up and nothing uploaded. Paste the text copied out of your resume and instantly see the formatting issues that break applicant-tracking-system parsing — icon-font bullets, missing headings, buried contact info, and more.",
       "pages": 3
     },
     {
@@ -1214,7 +1222,7 @@
       "url": "https://marisstella.dev/tools/menu-engineering-calculator/",
       "category": "More free tools",
       "description": "Free menu engineering calculator for independent restaurants: enter each dish's plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "metal-roof-bid-calculator",
@@ -1382,7 +1390,7 @@
       "url": "https://marisstella.dev/tools/poshmark-fee-calculator/",
       "category": "Marketplace seller tools",
       "description": "Free Poshmark seller fee calculator. The flat $2.95 fee under $15, 20% at $15+, the $14.75 break-even price, your real profit after item cost, and whether a lower offer costs you more than the discount. Nothing leaves your browser.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "pour-cost-calculator",

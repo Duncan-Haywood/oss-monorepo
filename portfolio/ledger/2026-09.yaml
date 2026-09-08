@@ -19555,6 +19555,121 @@ entries:
         (`portfolio-pages.yml` deploy, `publish-pages-branch.yml`) -- none
         apply to a docs/venture-code change with no deploy step of its own.
     mrr_end: 0
+  - venture: ats-resume-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New-venture brief (owner-relayed via a scheduled task, same
+        priority `portfolio/DIRECTION.md` states): 141 of ~200 existing
+        ventures share the trade-bid-calculator shape and none has ever
+        recorded a nonzero visitor, so a 201st instance of that archetype
+        is low-value by the portfolio's own measurement
+        (`pipeline/README.md`'s archetype-saturation note). Screened a
+        genuinely different product shape and audience instead.
+      - >-
+        Picked `ats-resume-checker`: job seekers preparing a resume for
+        applicant tracking systems. Answered `PRODUCT_PLAYBOOK.md` §1's
+        four questions -- who (job seekers submitting through online
+        applications), what they type ("ats resume checker free", "ats
+        resume checker no sign up"), what it costs them (a silently
+        rejected application that never reaches a human), why no big
+        vendor has solved it cleanly (Jobscan, ResyMatch, Rezi, TopResume,
+        and VMock all require an account and usually a paid tier or a
+        server-side upload of the resume's content; nothing free does the
+        narrower format-only check with nothing uploaded). Named channel:
+        r/resumes and r/jobs, both large and active with constant "will
+        this pass ATS" threads.
+      - >-
+        `python3 portfolio/pipeline/duplicate_check.py` on the niche
+        description scored every existing venture and pipeline candidate
+        below 0.13 (well under the 0.45 read-this-first bar) before the
+        venture existed -- no overlap with any of the 220 ventures or 30
+        pipeline candidates. Scored inline against the two non-negotiable
+        gates rather than writing a full `pipeline/candidates.yaml`
+        write-up, the same lightweight precedent
+        `actions-runner-starvation-check` used for a generalized-checker
+        shape needing no market write-up: liability_containment 8 (every
+        finding is evidence about the pasted text, never a determination
+        that a specific employer's ATS will accept the resume; no advice-
+        of-record), ethical_robustness 8 (static deterministic ruleset,
+        no dark patterns, does not get worse for users as traffic grows).
+        Both recorded in `VENTURE.yaml`'s own comment and in
+        `portfolio/scoring/venture-scores.yaml` (six-dimension merit
+        rubric plus the two gates, composite 5.833, floor 1 on
+        ai_leverage -- pure pattern matching, nothing for a model to do).
+      - >-
+        Shipped `ventures/ats-resume-checker`: `checker.mjs` automates the
+        "ATS copy-paste test" career coaches already recommend by hand --
+        paste the text copied out of a resume file and see the documented
+        formatting symptoms that break ATS parsing (icon-font/private-use-
+        area bullet characters, the Unicode replacement character, no
+        recognized section heading, missing or buried contact info, no
+        recognizable year, mid-line whitespace runs from a collapsed
+        multi-column layout). 17 passing `node --test` cases. `index.html`
+        (disclaimer, privacy line, FAQPage/SoftwareApplication JSON-LD,
+        sponsor link, local-only usage counting with a worked example)
+        plus one discoverability docs page
+        (`what-is-the-ats-copy-paste-test.html`, HowTo JSON-LD) answering
+        the specific search question, LICENSE, robots.txt, sitemap.xml,
+        `VENTURE.yaml` with named kill criteria, and
+        `.github/workflows/ats-resume-checker-ci.yml`.
+      - >-
+        Verification: `node --test ventures/ats-resume-checker/*.test.mjs`
+        (17/17), `node platform/pages/clauses.mjs ats-resume-checker` (both
+        pages carry required clauses), `python3 portfolio/router/validate.py`
+        (219 valid), `python3 platform/ci/check_no_payment_code.py` (clean),
+        `python3 portfolio/scoring/score_ventures.py --check` (220 ventures
+        consistent), `node platform/marketing/regen.mjs` then `node
+        platform/pages/launched.mjs --write` then `regen.mjs` again (the
+        first regen ran before the launch date was recorded, which left
+        `front-door.mjs`'s tool-count total one behind its own mirror count
+        -- `publishedSlugs()` reads `launched.json`; re-running regen after
+        the launch write fixed it, and `front-door.test.mjs` (109/109)
+        confirms it). `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1169/1169), `platform/proposal` (101/101),
+        `platform/privacy` + `platform/webcheck` (71/71),
+        `python3 platform/ci/checklist_coverage.py` (clean),
+        `python3 -m pytest gitops/tests -q` (490 passed, 25 skipped -- fixed
+        the mirrored-tool-count ratchet across the four places CLAUDE.md
+        names: `infra/OWNER_CHECKLIST.md` (3 lines), `gitops/prod/usage/
+        aggregate.py`, `gitops/prod/front-door/default.conf` (2 lines), and
+        `gitops/tests/test_manifests.py`'s own hardcoded `total`), all 15
+        `platform/ci` unittest modules plus `agent_review` (clean --
+        `test_validate_workflows.py` needed the new venture's own CI
+        workflow, `test_publish_surface.py` needed a `publish-surface.yaml`
+        row for it), `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`
+        (419 passed, 8 subtests), `python3 platform/ci/run_workflow_locally.py
+        portfolio-validate.yml` (validate job green). Raised
+        `platform/pages/siblings-budget.json`'s orphan budget 38 -> 39
+        (documented why in the file: `siblings.mjs --check`'s own nearest-
+        sibling suggestion for this venture is an unrelated 3D-printing
+        calculator via the catch-all "More free tools" category -- nothing
+        in the existing all-trade-calculator/dev-tool catalogue is a real
+        sibling to link, and a fabricated link would mislead more than the
+        orphan does). Ran the browser/accessibility checks scoped to this
+        venture (`PLAYWRIGHT=$(npm root)/playwright/index.js python3
+        platform/ci/browser_checks.py --only ats-resume-checker`): sideways,
+        contrast (0 WCAG A/AA violations), and sweep (the tool actually
+        computes via "Load an example with issues" -> "Check my resume")
+        all passed; `presets`/`roundtrip` skipped (this venture has neither
+        control) and `highlight` skipped (no highlight promise sentence).
+        Opened the page and ran the worked example by hand, and ran the
+        CLI-less browser tool end to end via the sweep check above.
+      - >-
+        Not verified against the current `origin/main`: this session's
+        branch was current with `main` at start, and `main` moved 5 commits
+        (including a new venture, `menu-engineering-calculator`) while this
+        work was in progress. The count-sensitive ratchets touched here
+        (`siblings-budget.json`, `OWNER_CHECKLIST.md`, `aggregate.py`,
+        `default.conf`, `test_manifests.py`'s `total`,
+        `venture-scores.yaml`'s coverage check) are internally consistent
+        against the tree this branch was built on, but will need
+        `regen.mjs` and these same checks re-run after a rebase onto the
+        latest `main` before merge, since a concurrent new venture shifts
+        every one of these totals again.
+    mrr_end: 0
   - venture: home-staging-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -19675,6 +19790,59 @@ entries:
         machine). Read as environment flakiness, not a regression, given the
         finding is disk-quota-shaped, non-specific to any file this PR
         touches, and reproduced identically across independent runs.
+    mrr_end: 0
+  - venture: menu-engineering-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-marginedge.html`, the venture's first comparison page.
+        The venture merged earlier the same day (#4030) with an index and a
+        guide page but no distribution asset, and a scan of the catalogue
+        found it among 17 ventures with an `index.html` and no `vs-*.html`.
+        Comparison pages are the half of `marketing-distribution` that earns
+        a link the week it ships rather than over months, which is the gap
+        that matters when `usage.yaml` still records zero observed users
+        across the whole catalogue -- the bottleneck is discovery, not more
+        products. MarginEdge was chosen as the counterpart because it is the
+        clearest example of the category an operator is actually choosing
+        between: an account-based back-office platform that keeps plate costs
+        current from supplier invoices, against a free page that does the
+        Kasavana and Smith read those costs feed.
+      - >-
+        Held to the truthfulness limit the other `vs-*` pages use, and
+        tightened it. No pricing, plan name or feature list for MarginEdge is
+        stated anywhere, because `marginedge.com` is not reachable from a
+        session behind this egress proxy and none could be confirmed against
+        a primary source; only well-documented category facts appear. Founder
+        names, founding year and headquarters were deliberately omitted too,
+        which the comparable `vs-square-appointments.html` does include -- for
+        a less universally documented vendor an unverifiable biographical
+        detail is the same risk as an unverifiable price, and the comparison
+        loses nothing without it. Two tests enforce this rather than trusting
+        the prose: `doesNotMatch(html, /\$\d/)` fails on any dollar figure,
+        and a positive assertion fails if a later edit quietly replaces the
+        hedge with a confident feature list.
+      - >-
+        Wired in so it cannot be orphaned: linked from `index.html`'s
+        `seo-link` row, added to the venture `sitemap.xml`, and
+        `platform/marketing/regen.mjs` run so the front-door mirror carries
+        it (`menu-engineering-calculator__vs-marginedge.html.gz`, plus the
+        catalog/llms.txt/sitemap the generator rewrites). That last step is
+        the one CLAUDE.md records costing live product across #3256-#3258 and
+        again in #3324-#3326 -- a venture page in the commit, `regen.mjs`
+        never run, and the apex 404ing on a URL its own sitemap advertises.
+        Three of the twelve tests exist only to fail if a future edit breaks
+        the index link, the sitemap row, or the JSON-LD/visible-copy match.
+      - >-
+        Verification, all local: GitHub Actions was starved for the whole
+        session (`ci_starvation.py --run 34169329712`: `runner_id: 0`, 2s, no
+        steps), so every check below was run here by hand.
+        `node --test ventures/menu-engineering-calculator/*.test.mjs` 67/67,
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1169/1169,
+        `platform/proposal/ platform/privacy/ platform/webcheck/` 172/172,
+        `run_workflow_locally.py --for-changes` clean, and
+        `run_workflow_locally.py --tree` green on `main` beforehand (9/9).
     mrr_end: 0
   - venture: platform
     agent_spend_usd: null
