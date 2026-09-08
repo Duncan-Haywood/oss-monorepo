@@ -81,6 +81,125 @@ def test_fold_reports_no_changes_when_none_made(agent_runner, tmp_path):
     assert diff == ""
 
 
+# --- sync_branch_to_latest ----------------------------------------------
+#
+# Regression: the clone is taken before the tool runs, and the tool can run
+# for up to 30 minutes. In a repo with frequent concurrent merges, `main`
+# moves during that window, and `fold_changes_into_staged()` used to reset
+# against the *clone-time* local `main` ref — so a file that changed
+# upstream mid-run looked, from the branch's perspective, like it still had
+# its old content. Folded and opened as a PR, that read as this branch
+# deleting or reverting whatever changed upstream, even though the tool
+# never touched it. This actually happened twice in one session (PRs #4064
+# and #4078), each accidentally deleting a venture that had merged to `main`
+# minutes into the run.
+
+def _init_remote_and_clone(tmp_path):
+    """A bare 'origin' plus a clone with 'origin' configured and checked out
+    onto an agent branch — the shape `gh repo clone` + `git checkout -b`
+    produces in `_process_issue_inner`, unlike `_init_repo()` above which has
+    no remote at all."""
+    origin = tmp_path / "origin.git"
+    subprocess.run(
+        ["git", "init", "-q", "--bare", "-b", "main", str(origin)],
+        check=True, capture_output=True,
+    )
+
+    seed = tmp_path / "seed"
+    seed.mkdir()
+
+    def run_seed(*args):
+        subprocess.run(["git", *args], cwd=seed, check=True, capture_output=True, text=True)
+
+    run_seed("init", "-q", "-b", "main")
+    run_seed("config", "user.email", "a@example.com")
+    run_seed("config", "user.name", "a")
+    (seed / "file.txt").write_text("hello\n")
+    (seed / "upstream.txt").write_text("original\n")
+    run_seed("add", "-A")
+    run_seed("commit", "-q", "-m", "init")
+    run_seed("remote", "add", "origin", str(origin))
+    run_seed("push", "-q", "origin", "main")
+
+    workspace = tmp_path / "workspace"
+    subprocess.run(["git", "clone", "-q", str(origin), str(workspace)], check=True, capture_output=True)
+
+    def run_ws(*args):
+        return subprocess.run(["git", *args], cwd=workspace, check=True, capture_output=True, text=True)
+
+    run_ws("config", "user.email", "a@example.com")
+    run_ws("config", "user.name", "a")
+    run_ws("checkout", "-q", "-b", "agent/claude/issue-1")
+    return origin, seed, workspace
+
+
+def _push_upstream_change(seed, filename, content, message):
+    def run_seed(*args):
+        subprocess.run(["git", *args], cwd=seed, check=True, capture_output=True, text=True)
+
+    (seed / filename).write_text(content)
+    run_seed("add", "-A")
+    run_seed("commit", "-q", "-m", message)
+    run_seed("push", "-q", "origin", "main")
+
+
+def test_sync_brings_in_upstream_change_untouched_by_the_tool(agent_runner, tmp_path, fake_log):
+    origin, seed, workspace = _init_remote_and_clone(tmp_path)
+
+    # Simulate another session merging to main while the tool is running —
+    # a file the tool never touches.
+    _push_upstream_change(seed, "upstream.txt", "a whole new venture\n", "someone else's merge")
+
+    # Simulate the tool's own, unrelated change.
+    (workspace / "file.txt").write_text("hello\nagent change\n")
+    subprocess.run(["git", "add", "-A"], cwd=workspace, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", "agent change"], cwd=workspace, check=True, capture_output=True,
+    )
+
+    assert agent_runner.sync_branch_to_latest(workspace, "main", fake_log) is True
+
+    diff = agent_runner.fold_changes_into_staged(workspace, "main")
+    # The whole point of the fix: folding against the *fresh* main must not
+    # show the upstream file as part of this branch's contribution — the old
+    # bug folded against the clone-time main and made this read as a delete.
+    assert "upstream.txt" not in diff
+    assert "file.txt" in diff
+
+
+def test_sync_reports_conflict_and_leaves_a_clean_tree(agent_runner, tmp_path, fake_log):
+    origin, seed, workspace = _init_remote_and_clone(tmp_path)
+
+    # Upstream and the tool both edit the same line of the same file.
+    _push_upstream_change(seed, "file.txt", "hello\nsomeone else's conflicting edit\n", "upstream edit")
+
+    (workspace / "file.txt").write_text("hello\nthe tool's conflicting edit\n")
+    subprocess.run(["git", "add", "-A"], cwd=workspace, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", "agent change"], cwd=workspace, check=True, capture_output=True,
+    )
+
+    assert agent_runner.sync_branch_to_latest(workspace, "main", fake_log) is False
+
+    # No merge left half-done: nothing pushed on a conflict, and the next
+    # thing that touches this workspace (it's about to be deleted, but a
+    # future call must not see a repo mid-merge) sees a clean tree.
+    status = subprocess.run(
+        ["git", "status", "--porcelain"], cwd=workspace, check=True, capture_output=True, text=True,
+    ).stdout.strip()
+    assert status == ""
+    assert not (workspace / ".git" / "MERGE_HEAD").exists()
+
+
+def test_sync_tolerates_fetch_failure(agent_runner, tmp_path, fake_log):
+    _, _, workspace = _init_remote_and_clone(tmp_path)
+    subprocess.run(["git", "remote", "remove", "origin"], cwd=workspace, check=True, capture_output=True)
+
+    # No origin to fetch from — must not crash the run over a network hiccup,
+    # just fall back to the old (pre-existing) clone-time-tip behavior.
+    assert agent_runner.sync_branch_to_latest(workspace, "main", fake_log) is True
+
+
 # --- choose_model_tier -----------------------------------------------------
 
 def test_explicit_override_wins(agent_runner):
