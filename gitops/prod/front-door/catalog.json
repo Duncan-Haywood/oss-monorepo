@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 212,
-  "collection_total": 212,
+  "served_here": 213,
+  "collection_total": 213,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -41,28 +41,28 @@
       "tool_count": 15
     },
     {
+      "id": "backoffice",
+      "name": "Back-office money & contracts",
+      "url": "https://marisstella.dev/c/backoffice/",
+      "tool_count": 14
+    },
+    {
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
       "tool_count": 13
     },
     {
-      "id": "backoffice",
-      "name": "Back-office money & contracts",
-      "url": "https://marisstella.dev/c/backoffice/",
-      "tool_count": 13
-    },
-    {
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 12
+      "tool_count": 13
     },
     {
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 8
+      "tool_count": 7
     },
     {
       "id": "logistics",
@@ -796,7 +796,7 @@
       "slug": "dependency-confusion-check",
       "name": "Dependency Confusion Check — pip --extra-index-url & Unscoped npm Names",
       "url": "https://marisstella.dev/tools/dependency-confusion-check/",
-      "category": "More free tools",
+      "category": "CI checks & developer gates",
       "description": "Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.",
       "pages": 2
     },
@@ -847,6 +847,14 @@
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.",
       "pages": 3
+    },
+    {
+      "slug": "duplicate-payment-audit",
+      "name": "Duplicate Payment Audit — Find Double Vendor Payments in Your AP Ledger",
+      "url": "https://marisstella.dev/tools/duplicate-payment-audit/",
+      "category": "Back-office money & contracts",
+      "description": "Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.",
+      "pages": 1
     },
     {
       "slug": "egress-window-bid-calculator",
