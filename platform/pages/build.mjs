@@ -459,9 +459,17 @@ const CATEGORY_RULES = [
     // and markup — the same after-the-sale reconciliation job as this section's
     // other tools, just for a card processor's bill instead of a landlord's CAM
     // statement or a SaaS seat count.
+    // `duplicate-payment-audit` joined 2026-09-08, in the same commit that
+    // graduated it. It reads an AP payment ledger the business already exports
+    // and flags vendor payments that look paid twice -- the same
+    // after-the-sale reconciliation job as `payment-reconciliation-workbench`
+    // (matching payouts to deposits) and `card-processing-fee-audit`
+    // (splitting a processor's bill), and it cross-links the workbench as a
+    // sibling. Landing it here rather than leaving it in the catch-all is also
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit)/.test(slug),
   },
   {
     id: 'ci',
@@ -508,8 +516,16 @@ const CATEGORY_RULES = [
     // an npm dependency's license or install-time script. It cross-links
     // `npm-lifecycle-script-check` as Related for the same reason those two
     // already cross-link each other.
+    // `dependency-confusion-check` joined 2026-09-08. It asks whether a public
+    // package could be substituted for an internal one -- the same
+    // supply-chain question `npm-lifecycle-script-check` asks about
+    // install-time scripts, read from a manifest the maintainer already has,
+    // and it cross-links that tool as Related. It had sat in the catch-all
+    // since it graduated only because its slug starts a family the prefix list
+    // did not name, which is the same accident this comment block records for
+    // `license-drift-check` a day earlier.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check)/.test(
         slug,
       ),
   },

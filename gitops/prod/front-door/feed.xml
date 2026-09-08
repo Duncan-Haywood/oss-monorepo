@@ -103,7 +103,7 @@
     <id>tag:marisstella.dev,2026:tool/dependency-confusion-check</id>
     <published>2026-09-07T00:00:00Z</published>
     <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.</summary>
   </entry>
   <entry>
@@ -112,7 +112,7 @@
     <id>tag:marisstella.dev,2026:tool/duplicate-payment-audit</id>
     <published>2026-09-07T00:00:00Z</published>
     <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.</summary>
   </entry>
   <entry>
