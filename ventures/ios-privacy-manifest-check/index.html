@@ -101,6 +101,19 @@
 
 <div id="results" aria-live="polite"></div>
 
+<section>
+  <h2>Common questions</h2>
+  <h3>Why did App Store Connect reject my app with ITMS-91061 (Missing privacy manifest)?</h3>
+  <p>Your app (or an SDK it embeds) calls one of Apple's Required Reason APIs -- file timestamps, disk space, system boot time, active keyboards, or UserDefaults -- without a PrivacyInfo.xcprivacy file declaring an approved reason. This tool scans your source for those calls and tells you exactly which category and file is missing a declaration.</p>
+  <h3>What does ITMS-91055 (Invalid API reason declaration) mean?</h3>
+  <p>Your manifest declares a reason code that Apple doesn't recognise for that category -- often a code copy-pasted from a different category's example. This tool checks every declared code against Apple's published list per category and flags any that don't match.</p>
+  <h3>Is my source code uploaded anywhere?</h3>
+  <p>No. The browser tool reads the files you select using the File API and never sends them anywhere -- everything happens in memory in your tab. The CLI never makes a network call either.</p>
+  <h3>Does a clean report mean Apple will approve my app?</h3>
+  <p>No. This is evidence of what your code and your manifest currently say, produced by pattern-matching known API symbols -- it is not App Review, and it cannot see reflection, dynamic dispatch, or third-party SDK binaries. Always confirm against Apple's current documentation before submitting.</p>
+  <p>More: <a href="missing-privacy-manifest-itms-91061.html">what is ITMS-91061 and how do I fix it?</a></p>
+</section>
+
 <script type="module">
   import { detectApiUsage, parseManifest, buildReport, suggestedSnippet } from './scan.mjs';
   import { recordUsage } from './usage.mjs';
