@@ -544,6 +544,49 @@ const CATEGORY_RULES = [
         slug,
       ),
   },
+  {
+    id: 'solo-earner',
+    title: 'Creator & solo earner income',
+    accent: '#7a3f8c',
+    blurb:
+      'What one person actually earns from their own work — a print, an ad slot, a delivery shift, a repo, a job application. Priced or checked before you commit to a number.',
+    // Added 2026-09-08, because the catch-all guard asked for it: `More free
+    // tools` had reached 10 and `build.test.mjs`'s bound exists to say the
+    // taxonomy has stopped keeping up. Two prior sessions raised that bound
+    // instead (8 -> 9), each correctly noting its own venture was not a
+    // coherent cluster *on its own*. Enumerating the catch-all rather than
+    // judging one arrival at a time shows the cluster was already there:
+    // five of the ten share an axis no existing category has.
+    //
+    // That axis is the *earner*, not the subject. Every other category here
+    // is small-business-facing (a trade, a marketplace seller, a back office)
+    // or developer-facing. These five are one individual working out what
+    // their own labour or audience is worth: a maker pricing a print, a
+    // newsletter operator pricing an ad slot, a maintainer trying to attract
+    // sponsors, a gig driver finding out what a shift actually netted after
+    // costs, a job seeker checking whether a resume survives parsing. Someone
+    // browsing for one of those is plausibly in the market for the others;
+    // nobody browsing "Cleaning, restoration & insulation" is.
+    //
+    // Written as an exact slug list rather than a prefix family, unlike most
+    // rules above. Those work because their members share a naming
+    // convention (`actions-*`, `*-evidence`) that a future sibling will
+    // inherit for free. This group's members are named for five unrelated
+    // domains -- there is no prefix that catches `sponsor-ready` and
+    // `gig-driver-net-pay-calculator` without also catching things that
+    // belong elsewhere (`sponsor` alone would claim any sponsorship tool a
+    // *business* uses). An exact list cannot silently steal a slug from a
+    // section above it, and the cost is that a sixth member needs one line
+    // here -- which the catch-all bound will ask for anyway.
+    test: (slug) =>
+      [
+        '3d-print-price-calculator',
+        'ats-resume-checker',
+        'gig-driver-net-pay-calculator',
+        'newsletter-sponsorship-rate-calculator',
+        'sponsor-ready',
+      ].includes(slug),
+  },
 ];
 
 const FALLBACK_CATEGORY = {
