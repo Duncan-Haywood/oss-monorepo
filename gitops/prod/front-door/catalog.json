@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 211,
-  "collection_total": 211,
+  "served_here": 212,
+  "collection_total": 212,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -41,15 +41,15 @@
       "tool_count": 14
     },
     {
-      "id": "services",
-      "name": "Service business pricing & quotes",
-      "url": "https://marisstella.dev/c/services/",
-      "tool_count": 13
-    },
-    {
       "id": "backoffice",
       "name": "Back-office money & contracts",
       "url": "https://marisstella.dev/c/backoffice/",
+      "tool_count": 14
+    },
+    {
+      "id": "services",
+      "name": "Service business pricing & quotes",
+      "url": "https://marisstella.dev/c/services/",
       "tool_count": 13
     },
     {
@@ -852,7 +852,7 @@
       "slug": "duplicate-payment-audit",
       "name": "Duplicate Payment Audit — Find Double Vendor Payments in Your AP Ledger",
       "url": "https://marisstella.dev/tools/duplicate-payment-audit/",
-      "category": "More free tools",
+      "category": "Back-office money & contracts",
       "description": "Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.",
       "pages": 1
     },

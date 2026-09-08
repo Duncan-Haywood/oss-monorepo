@@ -7861,3 +7861,52 @@ ventures:
       `notes never tell the operator what to do` test enforces rather than
       leaves to review. The one forward-looking figure (a price move
       annualised) ships with its own assumption in the same sentence.
+
+  - slug: duplicate-payment-audit
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally absent. Matching is deterministic hashmap grouping
+      and bounded edit-distance comparison on a vendor+invoice+amount ledger
+      — every flagged pair traces to a named rule an AP clerk can re-check by
+      hand, which is what keeps the output auditable and the per-user cost at
+      zero.
+    basis: >-
+      Graduated 2026-09-08 as a free, browser-local duplicate/double-payment
+      checker for an accounts-payable ledger export. The wedge: a whole
+      recovery-audit-firm industry (e.g. twice2much.com) already sells this
+      exact check on contingency to enterprise ledgers, and Ramp, Brex,
+      NetSuite, Stripe, Klippa, Precoro, Fiscaltec, and Illumis all publish
+      content marketing targeting "duplicate payment audit" / "how to find
+      duplicate invoices in accounts payable" / "duplicate invoice checker" —
+      a business too small for the contingency engagement has no free
+      self-serve equivalent today. Distribution 6: the named search-term
+      cluster plus r/Bookkeeping, r/Accounting, r/smallbusiness, and
+      r/QuickBooks, where AP-process questions of this shape recur.
+      Defensibility 5: the matching rules are documented and reproducible, so
+      the moat is being first and correct for a segment too small for a
+      contingency firm to bother with, not the arithmetic itself.
+      `duplicate_check.py` found no match at or above the read-this-first
+      threshold (top score 0.16, against `invoice-payment-terms-calculator`,
+      which computes due-date/late-fee arithmetic on a single invoice rather
+      than comparing a ledger for duplicates).
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: never asserts fraud, wrongdoing, or a confirmed duplicate — it
+      flags a statistical pattern in the user's own data for their own
+      review. The lowest-confidence tier (same amount/near date, no invoice
+      link) is explicitly disclosed on the page as also matching legitimate
+      recurring charges (rent, a subscription, a retainer) rather than
+      silently inflating the flagged count. No filing, no vendor contact, no
+      action taken on the user's behalf — the tool only produces a list.

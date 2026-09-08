@@ -459,9 +459,12 @@ const CATEGORY_RULES = [
     // and markup — the same after-the-sale reconciliation job as this section's
     // other tools, just for a card processor's bill instead of a landlord's CAM
     // statement or a SaaS seat count.
+    // `duplicate-payment-audit` is the same after-the-sale reconciliation job
+    // again, this time flagging a duplicate vendor payment in an AP ledger
+    // rather than a fee line on a processor statement.
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit)/.test(slug),
   },
   {
     id: 'ci',
