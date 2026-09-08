@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Newsletter Sponsorship Rate Calculator — Free, No Sign-Up</title>
+  <meta name="description" content="Free newsletter sponsorship rate calculator. Enter your subscriber count, open rate, and niche to get a price range for a dedicated send, primary placement, secondary placement, and classified ad — based on commonly cited newsletter-ad-market CPM benchmarks. No sign-up, nothing uploaded.">
+  <meta property="og:title" content="Newsletter Sponsorship Rate Calculator — free, no sign-up">
+  <meta property="og:description" content="Turn your subscriber count, open rate, and niche into a defensible sponsorship price range for each common ad placement. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Newsletter Sponsorship Rate Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a sponsorship price range for four common newsletter ad placements (dedicated send, primary in-issue slot, secondary slot, classified/text link) from a newsletter's own subscriber count, open rate, and niche, using commonly cited newsletter-ad-market CPM-per-1000-opens benchmarks. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for a newsletter sponsorship?","acceptedAnswer":{"@type":"Answer","text":"It depends on your subscriber count, open rate, niche, and which ad placement you're selling. This calculator applies commonly cited market CPM-per-1000-opens ranges to your own numbers to give a starting price range for a dedicated send, a primary in-issue placement, a secondary placement, or a classified/text link."}},{"@type":"Question","name":"Why does this calculate price from opens instead of raw subscriber count?","acceptedAnswer":{"@type":"Answer","text":"Sponsors are paying for eyes on the ad, not names on a list. Newsletter ad marketplaces routinely price against opens rather than subscribers, because a 20,000-subscriber list with a 15% open rate reaches fewer real readers than a 5,000-subscriber list with a 50% open rate."}},{"@type":"Question","name":"Is this price a guarantee of what a sponsor will pay?","acceptedAnswer":{"@type":"Answer","text":"No. It is a starting point for negotiation based on general market ranges, not a quote, valuation, or offer performed on your behalf. Actual rates vary by list quality, click-through history, niche demand, and how much a specific sponsor wants your specific audience that week."}},{"@type":"Question","name":"What counts as a dedicated send versus a primary or secondary placement?","acceptedAnswer":{"@type":"Answer","text":"A dedicated send is a solo email to your list containing only the sponsor's message — it commands the highest price because it has no competing content. A primary placement is the top ad slot inside your regular issue; a secondary placement is a lower slot in the same issue. A classified or text-link placement is the smallest, cheapest unit, usually a line of text with a link."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .85rem; color: #4c5a68; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">NEWSLETTER SPONSORSHIP RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you charge for a newsletter sponsorship?</h1>
+    <p>Enter your subscriber count, average open rate, and niche below. This
+    turns those numbers into a price range for each common ad placement —
+    a dedicated send, a primary in-issue slot, a secondary slot, and a
+    classified/text link — using the same cost-per-1000-opens logic
+    newsletter ad marketplaces use, applied to your own list instead of a
+    marketplace's cut-taking listing.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+    <p class="note">Also self-publishing books to the same list? See the
+    <a href="../kdp-royalty-calculator/">KDP royalty calculator</a> for
+    what a book keeps exclusive versus wide.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your newsletter's numbers</h2>
+    <div class="grid">
+      <div>
+        <label for="subscribers">Subscriber count</label>
+        <input type="number" id="subscribers" min="0" step="1" placeholder="e.g. 12000">
+      </div>
+      <div>
+        <label for="open-rate">Average open rate (%)</label>
+        <input type="number" id="open-rate" min="0" max="100" step="0.1" placeholder="e.g. 42">
+      </div>
+      <div>
+        <label for="niche">Niche</label>
+        <select id="niche">
+          <option value="general">General interest / lifestyle</option>
+          <option value="tech">Tech / SaaS / startups</option>
+          <option value="finance">Finance / business / investing</option>
+          <option value="b2b">B2B / niche professional</option>
+        </select>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="calculate">Calculate my rates</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter your numbers above and click Calculate my rates.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Suggested price range by placement</h2>
+    <p class="stats" id="stats"></p>
+    <table>
+      <thead><tr><th>Placement</th><th>Suggested range</th></tr></thead>
+      <tbody id="rates-body"></tbody>
+    </table>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This applies commonly cited newsletter-ad-market CPM-per-1000-opens
+    benchmark ranges — wide ranges, by design — to the subscriber count,
+    open rate, and niche you enter. It does <strong>not</strong> know your
+    specific niche's current market, your list's click-through or
+    conversion history, or what a specific sponsor is willing to pay this
+    week. Treat the output as a starting point for a negotiation, not a
+    quote. See <a href="newsletter-sponsorship-rate-benchmarks.html">where
+    these benchmark ranges come from and how to use them</a> for more.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge for a newsletter sponsorship?</h3>
+    <p>It depends on your subscriber count, open rate, niche, and which ad placement you're selling. This calculator applies commonly cited market CPM-per-1000-opens ranges to your own numbers to give a starting price range for a dedicated send, a primary in-issue placement, a secondary placement, or a classified/text link.</p>
+    <h3>Why does this calculate price from opens instead of raw subscriber count?</h3>
+    <p>Sponsors are paying for eyes on the ad, not names on a list. Newsletter ad marketplaces routinely price against opens rather than subscribers, because a 20,000-subscriber list with a 15% open rate reaches fewer real readers than a 5,000-subscriber list with a 50% open rate.</p>
+    <h3>Is this price a guarantee of what a sponsor will pay?</h3>
+    <p>No. It is a starting point for negotiation based on general market ranges, not a quote, valuation, or offer performed on your behalf. Actual rates vary by list quality, click-through history, niche demand, and how much a specific sponsor wants your specific audience that week.</p>
+    <h3>What counts as a dedicated send versus a primary or secondary placement?</h3>
+    <p>A dedicated send is a solo email to your list containing only the sponsor's message — it commands the highest price because it has no competing content. A primary placement is the top ad slot inside your regular issue; a secondary placement is a lower slot in the same issue. A classified or text-link placement is the smallest, cheapest unit, usually a line of text with a link.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for negotiating your own sponsorship terms. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeRates, PLACEMENTS, PLACEMENT_LABELS } from "./calculator.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      subscribers: $("#subscribers"), openRate: $("#open-rate"), niche: $("#niche"),
+      status: $("#status"), reportCard: $("#report-card"),
+      stats: $("#stats"), ratesBody: $("#rates-body"), findings: $("#findings"),
+    };
+
+    function money(n) {
+      return `$${n.toLocaleString()}`;
+    }
+
+    function renderFindings(findings) {
+      if (findings.length === 0) {
+        els.findings.innerHTML = "";
+        return;
+      }
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const subscribers = Number(els.subscribers.value);
+      const openRate = Number(els.openRate.value);
+      const niche = els.niche.value;
+
+      const result = computeRates({ subscribers, openRate, niche });
+
+      els.stats.textContent = `${Math.round(result.opens).toLocaleString()} estimated opens per send, at the numbers entered above.`;
+      els.ratesBody.innerHTML = PLACEMENTS.map((placement) => {
+        const r = result.rates[placement];
+        return `<tr><td>${PLACEMENT_LABELS[placement]}</td><td class="price">${money(r.low)} – ${money(r.high)}</td></tr>`;
+      }).join("");
+      renderFindings(result.findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("calculate_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", () => {
+      if (!els.subscribers.value || !els.openRate.value) {
+        els.status.innerHTML = `<span class="error">Enter your subscriber count and open rate above first.</span>`;
+        return;
+      }
+      runCalculate();
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      els.subscribers.value = "12000";
+      els.openRate.value = "38";
+      els.niche.value = "tech";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a 12,000-subscriber tech/SaaS newsletter with a 38% open rate.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.subscribers.value = "";
+      els.openRate.value = "";
+      els.niche.value = "general";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Enter your numbers above and click Calculate my rates.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

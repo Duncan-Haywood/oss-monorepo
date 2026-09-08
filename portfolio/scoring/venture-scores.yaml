@@ -8082,3 +8082,62 @@ ventures:
       (verified — zero fetch/XMLHttpRequest/sendBeacon calls in the
       venture), and the usage counter carries no wage figures and can be
       switched off on the page.
+  - slug: newsletter-sponsorship-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over published newsletter-ad-market CPM
+      benchmark ranges, applied to a subscriber count, open rate and ad
+      placement the user already knows. There is no inference step and
+      nothing a model would improve on: the output is a price range derived
+      from cited public benchmarks, not a judgment call.
+    basis: >-
+      Graduated 2026-09-08 as a free calculator that turns a newsletter's own
+      subscriber count, open rate and niche into a defensible sponsorship
+      price range per common ad placement (dedicated send, primary/secondary
+      in-issue slot, classified/text link) using commonly cited market
+      benchmarks, entirely client-side. A different buyer than the
+      portfolio's trade-bid-calculator archetype (141+ of ~224 ventures at
+      graduation time): newsletter operators pricing ad inventory, not
+      contractors pricing a job. `duplicate_check.py` scored nothing >= 0.10
+      against any existing venture, pipeline candidate, or screened-out row.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5: the incumbents (Swapstack, Paved, Sponsy) are
+      marketplaces that take a cut and require listing the newsletter with
+      them first, which is adjacent monetization evidence rather than a
+      direct paid competitor for the narrow "give me a price range" job, so
+      scored a point below duplicate-payment-audit/certified-payroll-
+      calculator's more directly-proven willingness to pay.
+      Distribution 6: r/newsletters, r/Substack and the beehiiv/Substack
+      creator Discords see this exact pricing question regularly once a list
+      passes a few thousand subscribers, and "newsletter sponsorship rates" /
+      "newsletter ad rate calculator" are established search phrases with
+      real recurring volume.
+      Defensibility 3, alongside ai_leverage the floor: once known, the
+      benchmark ranges are public and the arithmetic is commodity — what is
+      not commodity is being free and requiring no signup or listing, unlike
+      every marketplace incumbent, but that positioning is a marketing asset
+      rather than a code moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a price *range* derived from published, cited market
+      benchmarks, explicitly framed as a starting point for negotiation —
+      never a quote, guarantee, or valuation performed on the user's behalf.
+      Being wrong costs a creator a miscalibrated ask in one negotiation, not
+      a filing, a contract obligation, or a third party's money; the user
+      decides and negotiates. Ethically: deterministic arithmetic over
+      benchmark ranges, no dark patterns, no data collected server-side, and
+      every input is a number the user already knows about their own list —
+      nothing is scraped or inferred about a third party.

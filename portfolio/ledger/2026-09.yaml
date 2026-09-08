@@ -20016,3 +20016,58 @@ entries:
         product code changed by this entry beyond
         `platform/ci/browser_state.json`'s recorded reading.
     mrr_end: 0
+  - venture: newsletter-sponsorship-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/newsletter-sponsorship-rate-calculator`,
+        a free browser calculator that turns a newsletter's own subscriber
+        count, open rate and niche into a defensible sponsorship price range
+        per common ad placement (dedicated send, primary/secondary in-issue
+        slot, classified/text link) using commonly cited newsletter-ad-market
+        CPM benchmarks, entirely client-side. Screened against
+        `screened-out.md` and the liability/ethics gates in
+        `portfolio/DIRECTION.md` (both pass: liability_containment 8, output
+        framed as a negotiation starting point, never a quote or valuation;
+        ethical_robustness 8, deterministic arithmetic, nothing scraped or
+        inferred about a third party). `duplicate_check.py` scored nothing
+        >= 0.10 against any existing venture, pipeline candidate, or
+        screened-out row. `venture-scores.yaml` entry added (composite
+        5.833, floor 1 `ai_leverage`).
+      - >-
+        Named channel: r/newsletters, r/Substack and the beehiiv/Substack
+        creator Discords see this exact "how much should I charge for a
+        sponsorship" question regularly once a list passes a few thousand
+        subscribers; "newsletter sponsorship rates", "newsletter ad rate
+        calculator" and "cost per 1000 opens newsletter" are established
+        search phrases. Incumbents (Swapstack, Paved, Sponsy) are
+        marketplaces that take a cut and require listing the newsletter with
+        them first — this is free and standalone, nothing to sign up for.
+      - >-
+        This session's PR (#4078, opened against issue #4072) had the same
+        stale-tree defect as #4064 earlier the same day: its single commit's
+        tree predated its own git parent, so it deleted the entire
+        `certified-payroll-calculator` venture (just-merged in #4064) plus
+        its CI workflow, and never actually wrote the `venture-scores.yaml`
+        or `portfolio/ledger/2026-09.yaml` entries for its own new venture —
+        the diff only *removed* `certified-payroll-calculator`'s score row
+        and added no replacement. Repaired the same way as #4064: rebuilt
+        from clean `main`, re-applied only `ventures/newsletter-sponsorship-rate-calculator`'s
+        genuine files, added the missing CI workflow
+        (`newsletter-sponsorship-rate-calculator-ci.yml`), and hand-wrote
+        the `venture-scores.yaml` and ledger entries from `VENTURE.yaml`'s
+        own recorded screening rationale, since the original commit never
+        produced them to recover.
+      - >-
+        Verification: `node --test ventures/newsletter-sponsorship-rate-calculator/*.test.mjs`
+        (16/16 passing); `node platform/pages/clauses.mjs
+        newsletter-sponsorship-rate-calculator` (clean, 2 published pages
+        carry required clauses); `python3 platform/ci/check_venture_regression.py`
+        (clean, no venture removed, after the fix); `python3
+        portfolio/scoring/score_ventures.py --check` (225/225 internally
+        consistent); `python3 portfolio/router/validate.py`; `python3
+        platform/ci/publish_surface.py --write` then `--check` (workflow
+        registered); `node platform/marketing/regen.mjs`; `node
+        platform/pages/launched.mjs --write`.
+    mrr_end: 0
