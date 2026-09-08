@@ -677,6 +677,9 @@ workflows:
 - workflow: security-camera-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: security-deposit-return-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: seller-net-sheet-ci.yml
   classification: none
   publishes: []

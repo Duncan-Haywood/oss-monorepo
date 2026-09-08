@@ -20177,3 +20177,42 @@ entries:
         riding along); `browser_checks.py --record` (7/7, 843 pages, 0
         errors).
     mrr_end: 0
+  - venture: security-deposit-return-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/security-deposit-return-calculator`,
+        a free browser calculator for the two arithmetic questions every
+        residential lease's start or end raises — itemizing a security
+        deposit's deductions into a refund or balance owed, and prorating
+        rent for a partial move-in/move-out month. A different vertical
+        from the portfolio's trade-bid and marketplace-fee archetypes —
+        residential landlord-tenant money, not a trade job or a marketplace
+        listing. `duplicate_check.py` scored nothing >= 0.12 against any
+        existing venture, pipeline candidate, screened-out row, or
+        ai-first-markets idea. `venture-scores.yaml` entry added (composite
+        5.833, floor 1 `ai_leverage`).
+      - >-
+        Named channel: r/Landlord (270k+ members), r/tenant, and
+        r/legaladviceofftopic see recurring "how do I calculate what I owe
+        back" threads every lease ending, and BiggerPockets' landlord
+        forums carry the same question from the property-manager side.
+      - >-
+        This session's PR (#4110, opened against issue #4104) shipped with
+        a genuinely current tree (base matched main's actual tip, no
+        stale-tree regression this time) but was missing the registration
+        checklist items other PRs in this session also missed: a CI
+        workflow, the `venture-scores.yaml` entry, `platform/ci/
+        publish-surface.yaml` registration, `platform/pages/launched.json`
+        entry, and this ledger entry. Added all five directly.
+      - >-
+        Verification: `node --test ventures/security-deposit-return-calculator`
+        (18/18 passing); `node platform/pages/clauses.mjs
+        security-deposit-return-calculator` (clean); `python3
+        platform/ci/check_venture_regression.py` (clean, no venture
+        removed); `python3 portfolio/scoring/score_ventures.py --check`
+        (227/227 internally consistent); `python3 platform/ci/
+        publish_surface.py --write` then `--check` (workflow registered);
+        `node platform/marketing/regen.mjs`.
+    mrr_end: 0

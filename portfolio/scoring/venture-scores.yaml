@@ -8176,3 +8176,59 @@ ventures:
       reproduced from Apple's own public documentation, cross-checked
       against two independent third-party mirrors since Apple's own docs
       page is not fetchable from this environment.
+  - slug: security-deposit-return-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the user already has: a deposit
+      amount, a list of deduction line items they typed in, a monthly rent
+      and a day count. There is no inference step — the output is a sum and
+      a proration, not a judgment call.
+    basis: >-
+      Graduated 2026-09-08 as a free calculator for the two arithmetic
+      questions every residential lease's start or end raises: itemizing a
+      security deposit's deductions into a refund or balance owed, and
+      prorating rent for a partial move-in/move-out month. A different
+      vertical from the portfolio's trade-bid and marketplace-fee
+      archetypes — residential landlord-tenant money, not a trade job or a
+      marketplace listing. `duplicate_check.py` scored nothing >= 0.12
+      against any existing venture, pipeline candidate, screened-out row, or
+      ai-first-markets idea.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: itemization and
+      proration arithmetic are commodity — any landlord already does this
+      in a spreadsheet — what is not commodity is pairing both calculations
+      symmetric between landlord and tenant in one free, no-signup tool.
+      Distribution 6: r/Landlord (270k+ members), r/tenant, and
+      r/legaladviceofftopic see recurring "how do I calculate what I owe
+      back" threads every lease ending, and BiggerPockets' landlord forums
+      carry the same question from the property-manager side — a
+      predictable, recurring moment (move-in/move-out) rather than a
+      one-off search.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool only totals numbers the user already typed in and
+      reports a refund or balance figure — it does not assert what is
+      legally deductible, cite a state's specific statute or deadline, or
+      generate a demand letter or legal notice itself. Being wrong costs one
+      party a miscalculated number to double-check, not a filing or a third
+      party's money; the FAQ and footer both say itemization deadlines and
+      normal-wear-and-tear rules vary by state and lease. Ethically:
+      deterministic arithmetic, no dark patterns, no data collected
+      server-side, and symmetric between landlord and tenant — nothing is
+      scraped or inferred about a third party.
