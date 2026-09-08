@@ -146,7 +146,7 @@ configMapGenerator:
       #
       # Well past the 262144-byte annotation cap that makes the
       # `ServerSideApply=true` above load-bearing rather than decoration —
-      # these eight keys roughly double the margin by which that is true.
+      # these nine keys roughly double the margin by which that is true.
       - c__trades.html=front-door/c__trades.html
       - c__evidence.html=front-door/c__evidence.html
       - c__marketplace.html=front-door/c__marketplace.html
@@ -154,10 +154,11 @@ configMapGenerator:
       - c__services.html=front-door/c__services.html
       - c__logistics.html=front-door/c__logistics.html
       - c__ci.html=front-door/c__ci.html
+      - c__solo-earner.html=front-door/c__solo-earner.html
       - c__more.html=front-door/c__more.html
       # The About and press-kit page, served from the document root by the
       # `^/about/?$` block in `front-door/default.conf`. Same ConfigMap for the
-      # same reason as the eight above; ~9 KB, and unlike them it is not
+      # same reason as the nine above; ~9 KB, and unlike them it is not
       # conditional on any category having mirrored tools, so it is always
       # present.
       - about.html=front-door/about.html

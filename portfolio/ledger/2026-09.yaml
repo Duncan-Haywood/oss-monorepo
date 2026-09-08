@@ -20016,3 +20016,115 @@ entries:
         product code changed by this entry beyond
         `platform/ci/browser_state.json`'s recorded reading.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR-queue drain (this run's mandated first phase, and the run's own
+        explicit priority: "deployment and cicd is a priority and building
+        and deploying marketing materials on the hetzner vms"). One open PR
+        at session start, #4064 (`certified-payroll-calculator`, opened by
+        an unattended `claude` agent run against issue #4058). Its single
+        commit had the exact stale-tree defect
+        `platform/ci/check_venture_regression.py`'s docstring documents from
+        PR #3740: built from a working tree that predated the
+        `ats-resume-checker` merge despite its git parent pointing at it, so
+        `regen.mjs` faithfully deleted the entire `ats-resume-checker`
+        venture (VENTURE.yaml, ledger entry, score row, CI workflow,
+        front-door mirror), dropped the already-registered
+        `duplicate-payment-audit-ci.yml` from `publish-surface.yaml`, and
+        removed `menu-engineering-calculator/vs-marginedge.html` — three
+        unrelated regressions bundled into what looked like a clean new-
+        venture diff. All 23 of its check runs were runner starvation
+        (`ci_starvation.py --run` on each: `runner_id: 0`, 2-5s, no steps),
+        not real failures — but the underlying diff was genuinely broken.
+      - >-
+        Rebuilt the branch from clean `origin/main`, re-applied only the
+        actual new venture (Davis-Bacon certified-payroll compliance
+        calculator) plus its missing CI workflow, `publish-surface.yaml`/
+        `venture-scores.yaml`/`launched.json`/ledger registrations, fixed
+        four other hand-typed tool-count references CLAUDE.md names
+        (`infra/OWNER_CHECKLIST.md` x2, `gitops/prod/front-door/
+        default.conf` x2, `gitops/prod/usage/aggregate.py`,
+        `gitops/tests/test_manifests.py`), raised
+        `platform/pages/siblings-budget.json`'s orphan budget for the new
+        unpaired niche, and re-synced `gitops/ci/README.md`'s runs-on count
+        via `gitops/ci/sync_readme_counts.py`. Force-pushed the fix to the
+        PR's branch (with `--force-with-lease`), reconciling with a
+        concurrent session that had independently started the same repair
+        (verified the concurrent branch was a strict subset via `git diff`
+        both directions before overwriting — no work lost). Three more
+        rounds of concurrent `main` movement landed and were merged in:
+        a Jobscan comparison page on `ats-resume-checker`, the orphan-pair-
+        closing commit for tiktok-shop/walmart-marketplace, and a browser-
+        sweep ledger record (#4075). Merged as #4064 once `mergeable_state`
+        read clean against current `main`.
+      - >-
+        A second PR, #4076, appeared mid-run (a browser/accessibility sweep
+        recording pinned to an older commit, `b2b51d5a`). Confirmed
+        superseded by #4075's equivalent, later reading (already on `main`
+        at commit `bc70bba5`) via `supersede_check.py`'s identical-merge
+        proof, and closed with a comment naming what supersedes it. PR
+        queue empty after these two.
+      - >-
+        Deployed the merge: `pages_state.py --require-current` reported the
+        `gh-pages` snapshot stale (built from `5c7666c6`, main moved to
+        `b7bc0d7c`). `platform/pages/publish-branch.sh` refused once
+        (`publishing backwards` — a concurrent session's earlier publish
+        raced this session's stale local checkout); re-ran from a fresh
+        `git reset --hard origin/main` per its own printed fix, which
+        succeeded. `pages_state.py --require-current` now exits 0, current
+        against `b7bc0d7c`. This is the "deploying marketing materials on
+        the hetzner vms" instruction read literally: the actual delivery
+        route right now is the `gh-pages` branch, not the (still cluster-
+        down) Hetzner GitOps path — see below.
+      - >-
+        The new venture staled the full-catalogue browser/accessibility
+        sweep (`browser_state.py`: builder/front-door changed under this
+        merge). Re-ran it (`browser_checks.py --record`, ~20 min, no
+        metered CI): all 7 checks pass clean over 843 pages, 0 failed
+        checks, 0 page/console errors — `certified-payroll-calculator` and
+        `ats-resume-checker` both answer with no errors and no WCAG A/AA
+        violations. Recorded in `platform/ci/browser_state.json` at
+        `b7bc0d7c`.
+      - >-
+        Checked the Hetzner deployment/Codex-worker asks specifically,
+        since this run's brief named both explicitly. Both are fully built
+        and tested, unchanged since 2026-09-05/06, still gated on the
+        single owner-only `hetzner-ssh-key-is-a-public-key` (#3184 in the
+        decision queue — did not duplicate the ask, per
+        `deploy-cicd-readiness.yaml`'s own instruction not to). Verified
+        rather than trusted the dated readings: `python3 -m pytest
+        gitops/tests/test_host_governor.py
+        gitops/tests/test_install_codex_host.py` (45/45 passing — the Codex
+        worker's third scheduler, `gitops/agents/host/`, a systemd timer
+        that needs neither the dead k3s cluster nor GitHub Actions).
+        `gitops/agents/workers/mandate.md` (the standing prompt every
+        queued Codex-worker item is prepended with) and
+        `gitops/agents/queue/deploy-cicd-readiness.yaml` /
+        `marketing-distribution.yaml` already encode this run's own
+        priority verbatim, dated 2026-09-01, from the account owner's own
+        direction — nothing to add, only to confirm still current and
+        report back rather than re-derive or duplicate.
+      - >-
+        Verification: `node --test` across all seven ventures touched by
+        either side of any merge (516 assertions total, all passing);
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1169/1169, twice — once pre-merge, once post-merge);
+        `platform/proposal/`, `platform/privacy/`, `platform/webcheck/`
+        suites (all passing, 2 documented shallow-clone skips);
+        `python3 -m pytest gitops/tests -q` (490 passed, twice); the 15
+        `platform/ci` unittest modules (all pass, including
+        `test_publish_surface` and `test_ci_runner`, both of which failed
+        before this session's fix); `python3 -m pytest
+        portfolio/{ledger,scoring,router,usage,pipeline} infra/tests -q`
+        (431 passed); `check_venture_regression.py` (clean after the fix,
+        twice); `publish_surface.py --check`, `score_ventures.py --check`,
+        `router/validate.py`, `usage/validate_usage.py`,
+        `check_no_payment_code.py`, `validate_doc_consistency.py`,
+        `checklist_coverage.py` (all clean); `siblings.mjs --check`
+        (33/33, in budget); `check_ledger_only.py` (873 non-ledger files
+        riding along); `browser_checks.py --record` (7/7, 843 pages, 0
+        errors).
+    mrr_end: 0
