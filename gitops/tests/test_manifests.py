@@ -1405,7 +1405,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 215 since 2026-09-08, when `certified-payroll-calculator` graduated —
     # same shape again: a new venture with a static `index.html` from its
     # first commit, entering the mirror and the total together.
-    total = 215  # `infra/OWNER_CHECKLIST.md`'s own "N of the 215 tools" wording.
+    # 216 since 2026-09-08, when `newsletter-sponsorship-rate-calculator`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 217 since 2026-09-08, when `ios-privacy-manifest-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    total = 217  # `infra/OWNER_CHECKLIST.md`'s own "N of the 217 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

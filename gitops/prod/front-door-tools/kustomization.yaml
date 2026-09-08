@@ -33,18 +33,18 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 555121 bytes
-#   portfolio-front-tools-1: 111 files, 555319 bytes
-#   portfolio-front-tools-2: 148 files, 556696 bytes
-#   portfolio-front-tools-3: 142 files, 553588 bytes
-#   portfolio-front-tools-4: 119 files, 553699 bytes
-#   portfolio-front-tools-5: 135 files, 550289 bytes
-#   portfolio-front-tools-6: 117 files, 556699 bytes
-#   portfolio-front-tools-7: 113 files, 554585 bytes
-#   portfolio-front-tools-8: 112 files, 540631 bytes
-#   portfolio-front-tools-9: 113 files, 553246 bytes
-#   portfolio-front-tools-10: 107 files, 556472 bytes
-#   portfolio-front-tools-11: 109 files, 543205 bytes
+#   portfolio-front-tools-0: 136 files, 555120 bytes
+#   portfolio-front-tools-1: 111 files, 555326 bytes
+#   portfolio-front-tools-2: 148 files, 556700 bytes
+#   portfolio-front-tools-3: 142 files, 553619 bytes
+#   portfolio-front-tools-4: 119 files, 553682 bytes
+#   portfolio-front-tools-5: 135 files, 550398 bytes
+#   portfolio-front-tools-6: 117 files, 556718 bytes
+#   portfolio-front-tools-7: 113 files, 554913 bytes
+#   portfolio-front-tools-8: 116 files, 552759 bytes
+#   portfolio-front-tools-9: 113 files, 553194 bytes
+#   portfolio-front-tools-10: 107 files, 556461 bytes
+#   portfolio-front-tools-11: 109 files, 543200 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1160,6 +1160,10 @@ configMapGenerator:
       - moving-bid-calculator__index.html.gz=moving-bid-calculator__index.html.gz
       - moving-bid-calculator__usage.mjs.gz=moving-bid-calculator__usage.mjs.gz
       - moving-bid-calculator__vs-smartmoving.html.gz=moving-bid-calculator__vs-smartmoving.html.gz
+      - newsletter-sponsorship-rate-calculator__calculator.mjs.gz=newsletter-sponsorship-rate-calculator__calculator.mjs.gz
+      - newsletter-sponsorship-rate-calculator__index.html.gz=newsletter-sponsorship-rate-calculator__index.html.gz
+      - newsletter-sponsorship-rate-calculator__newsletter-sponsorship-rate-benchmarks.html.gz=newsletter-sponsorship-rate-calculator__newsletter-sponsorship-rate-benchmarks.html.gz
+      - newsletter-sponsorship-rate-calculator__usage.mjs.gz=newsletter-sponsorship-rate-calculator__usage.mjs.gz
       - no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz=no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz
       - no-show-fee-calculator__app.mjs.gz=no-show-fee-calculator__app.mjs.gz
       - no-show-fee-calculator__calc.mjs.gz=no-show-fee-calculator__calc.mjs.gz
