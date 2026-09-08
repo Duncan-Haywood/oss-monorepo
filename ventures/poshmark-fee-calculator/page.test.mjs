@@ -196,3 +196,22 @@ test('index links to the related marketplace fee compare hub', () => {
     'index should link ../marketplace-fee-compare/ so crawlers can reach the retail fee ranking',
   );
 });
+
+test('the incumbent-comparison page links back, names Poshmark\'s own resource honestly, and cross-links to real anchors', () => {
+  const vsSeo = page('vs-poshmarks-how-it-works-page.html');
+  assert.match(markup, /vs-poshmarks-how-it-works-page\.html/);
+  assert.match(vsSeo, /<a href="\.\/">/);
+  assert.match(vsSeo, /poshmark\.com\/what_is_poshmark/);
+  assert.match(vsSeo, /\$2\.95/);
+  assert.match(vsSeo, /20%/);
+  assert.match(vsSeo, /October 3, 2024/);
+  assert.match(vsSeo, /October 24, 2024/);
+  assert.match(vsSeo, /5\.99%/);
+  assert.match(vsSeo, /not affiliated with, endorsed by, or sponsored by Poshmark/i);
+  assert.match(vsSeo, /No warranty/);
+  assert.match(vsSeo, /no SLA/i);
+  for (const anchor of ['sale-section', 'offer-compare']) {
+    assert.match(vsSeo, new RegExp(`#${anchor}"`), `vs-page should link to #${anchor}`);
+    assert.match(markup, new RegExp(`id="${anchor}"`), `index.html should have id="${anchor}"`);
+  }
+});
