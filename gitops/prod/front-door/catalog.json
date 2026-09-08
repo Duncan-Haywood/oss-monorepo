@@ -1209,6 +1209,14 @@
       "pages": 3
     },
     {
+      "slug": "menu-engineering-calculator",
+      "name": "Menu Engineering Calculator",
+      "url": "https://marisstella.dev/tools/menu-engineering-calculator/",
+      "category": "More free tools",
+      "description": "Free menu engineering calculator for independent restaurants: enter each dish's plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.",
+      "pages": 2
+    },
+    {
       "slug": "metal-roof-bid-calculator",
       "name": "Metal Roof Bid Calculator — Price a Metal Roof Job",
       "url": "https://marisstella.dev/tools/metal-roof-bid-calculator/",

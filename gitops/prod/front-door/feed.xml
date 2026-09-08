@@ -161,6 +161,15 @@
     <summary type="text">Paste two snapshots of your dependency tree&#39;s declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Menu Engineering Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/menu-engineering-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/menu-engineering-calculator</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free menu engineering calculator for independent restaurants: enter each dish&#39;s plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.</summary>
+  </entry>
+  <entry>
     <title>npm Lifecycle Script Check — Did a Dependency Just Start Running Code at Install Time?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/npm-lifecycle-script-check/"/>
     <id>tag:marisstella.dev,2026:tool/npm-lifecycle-script-check</id>

@@ -7817,3 +7817,47 @@ ventures:
       record positioning (it does not determine health-department or
       permit requirements), no account, nothing uploaded — every field
       runs in the browser only.
+
+  - slug: menu-engineering-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally absent. The tool applies the Kasavana & Smith matrix
+      to numbers the operator supplies — a weighted mean, a share-of-covers
+      threshold and a subtraction — arithmetic a chef can re-derive on paper,
+      which is what makes the classification arguable rather than oracular.
+    basis: >-
+      Graduated 2026-09-07 as a free, browser-only menu classifier for
+      independent restaurants. The wedge is that the metric the industry
+      quotes — food cost percentage — ranks a menu wrong, and the incumbent
+      tools that do this properly (MarginEdge, Restaurant365, xtraCHEF) are
+      paid restaurant-management suites sold on an annual contract, not a free
+      single-purpose calculator. Distribution 7: "menu engineering" is an
+      established search term with textbook demand behind it rather than a
+      coined phrase, and r/KitchenConfidential and r/restaurateur carry the
+      question recurrently — a broader audience than a single-trade bid
+      calculator. Defensibility 4: the matrix is public and 40 years old, so
+      the arithmetic is not the moat; the weighted-average bar and printing
+      both thresholds instead of hiding them are the differentiation, and both
+      are copyable. `duplicate_check.py` scored the closest existing venture
+      (`amazon-fba-calculator`) at 0.11, well under the 0.45 bar; the nearest
+      neighbour by subject, `pour-cost-calculator`, scored 0.10 and covers the
+      bar side only — the two are linked as siblings rather than overlapping.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: pure arithmetic on numbers the user supplies, no account, no
+      upload, and no advice about what to charge or cut — a line the
+      `notes never tell the operator what to do` test enforces rather than
+      leaves to review. The one forward-looking figure (a price move
+      annualised) ships with its own assumption in the same sentence.
