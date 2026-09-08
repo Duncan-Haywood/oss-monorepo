@@ -9,7 +9,7 @@
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
   "served_here": 216,
-  "collection_total": 215,
+  "collection_total": 216,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -59,16 +59,22 @@
       "tool_count": 13
     },
     {
-      "id": "more",
-      "name": "More free tools",
-      "url": "https://marisstella.dev/c/more/",
-      "tool_count": 9
-    },
-    {
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
       "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 6
+    },
+    {
+      "id": "solo-earner",
+      "name": "Creator & solo earner income",
+      "url": "https://marisstella.dev/c/solo-earner/",
+      "tool_count": 5
+    },
+    {
+      "id": "more",
+      "name": "More free tools",
+      "url": "https://marisstella.dev/c/more/",
+      "tool_count": 4
     }
   ],
   "tools": [
@@ -452,7 +458,7 @@
       "slug": "sponsor-ready",
       "name": "Sponsor Ready — free GitHub Sponsors readiness checklist",
       "url": "https://marisstella.dev/tools/sponsor-ready/",
-      "category": "More free tools",
+      "category": "Creator & solo earner income",
       "description": "Free, no-signup checklist that scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors, and tells you exactly what to fix first.",
       "pages": 3
     },
@@ -500,7 +506,7 @@
       "slug": "3d-print-price-calculator",
       "name": "3D Print Price Calculator — Price a Print for Etsy or Shopify",
       "url": "https://marisstella.dev/tools/3d-print-price-calculator/",
-      "category": "More free tools",
+      "category": "Creator & solo earner income",
       "description": "Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you're charging.",
       "pages": 1
     },
@@ -612,7 +618,7 @@
       "slug": "ats-resume-checker",
       "name": "ATS Resume Checker — Free Copy-Paste Test, No Sign-Up",
       "url": "https://marisstella.dev/tools/ats-resume-checker/",
-      "category": "More free tools",
+      "category": "Creator & solo earner income",
       "description": "Free ATS resume checker, no sign-up and nothing uploaded. Paste the text copied out of your resume and instantly see the formatting issues that break applicant-tracking-system parsing — icon-font bullets, missing headings, buried contact info, and more.",
       "pages": 3
     },
@@ -1036,7 +1042,7 @@
       "slug": "gig-driver-net-pay-calculator",
       "name": "Gig Driver Net Pay Calculator — What You Keep After Gas",
       "url": "https://marisstella.dev/tools/gig-driver-net-pay-calculator/",
-      "category": "More free tools",
+      "category": "Creator & solo earner income",
       "description": "Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session's gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.",
       "pages": 2
     },
@@ -1276,7 +1282,7 @@
       "slug": "newsletter-sponsorship-rate-calculator",
       "name": "Newsletter Sponsorship Rate Calculator — Free, No Sign-Up",
       "url": "https://marisstella.dev/tools/newsletter-sponsorship-rate-calculator/",
-      "category": "More free tools",
+      "category": "Creator & solo earner income",
       "description": "Free newsletter sponsorship rate calculator. Enter your subscriber count, open rate, and niche to get a price range for a dedicated send, primary placement, secondary placement, and classified ad — based on commonly cited newsletter-ad-market CPM benchmarks. No sign-up, nothing uploaded.",
       "pages": 2
     },
