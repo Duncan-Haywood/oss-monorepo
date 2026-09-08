@@ -19844,3 +19844,69 @@ entries:
         `run_workflow_locally.py --for-changes` clean, and
         `run_workflow_locally.py --tree` green on `main` beforehand (9/9).
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Recorded the first full-catalogue browser/accessibility reading since
+        three ventures shipped. `browser_state.py` reported all 7 checks STALE
+        against `ab51eb8b` (830 pages) while `main` had moved to `b2b51d5a`
+        with `duplicate-payment-audit`, `poshmark-fee-calculator` and
+        `ats-resume-checker` landed and the builder changed. Ran
+        `browser_checks.py --record --checks
+        sideways,presets,roundtrip,highlight,contrast,sweep,journey`: all 7
+        pass over 839 pages, 0 failed checks and 0 page/console errors, and
+        the reading is committed rather than left in a terminal. This is the
+        check CLAUDE.md records as the one sessions skip — its first run
+        found 48 critical axe `label` violations across three live products
+        while 1139 `node --test` assertions were green — so a clean reading
+        here is a real statement about what a screen-reader user receives,
+        not a formality.
+      - >-
+        `main` verified green as a whole, which is the question
+        `--for-changes` cannot answer: `run_workflow_locally.py --tree` on a
+        clean checkout of `b2b51d5a` reports 9/9 selected workflows passing
+        and 63/63 `portfolio-validate` run-steps, with only
+        `portfolio-pages.yml/deploy` not run (it needs a runner). CLAUDE.md
+        records three separate occasions where `main` sat silently red during
+        a starvation window, each found by a session that happened to look.
+      - >-
+        GitHub Actions is starved again, measured not assumed:
+        `ci_starvation.py --run 34172969884` returns `runner_id: 0`, 3s, no
+        steps — so every red check on the two PRs open at session start was
+        absent CI, not a failure. Every check below was therefore run locally.
+      - >-
+        Reviewed #4044 (duplicate-payment-audit) against the CLAUDE.md merge
+        checklist and found three defects the starved checks were hiding:
+        `build.test.mjs`'s catch-all guard tripping at 9 tools (the new
+        venture landed in `more` because its slug ends `-audit`, which no
+        `backoffice` rule named, despite it being the same after-the-sale
+        reconciliation job as `payment-reconciliation-workbench`, which it
+        cross-links in both footers); the mirrored-tool count stale in five
+        hand-typed places (`infra/OWNER_CHECKLIST.md` ×3,
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        ×2, and the pinned `total` inside `test_manifests.py` itself); and
+        `duplicate-payment-audit-ci.yml` missing from
+        `platform/ci/publish-surface.yaml`. Concurrent sessions merged #4044
+        and #4045 at 00:39 while this verification was running, so the fixes
+        were not landed from here — each was re-run against clean `main`
+        afterwards and all three are green there, so the merged revisions
+        carry equivalent repairs. Recorded because the finding is what
+        matters, not the authorship: a starvation window is exactly when a
+        guard like the catch-all bound goes unseen.
+      - >-
+        Deployment checked rather than assumed: `pages_state.py
+        --require-current` exits 0 — the `gh-pages` snapshot is built from the
+        tip of `main` (`b2b51d5a`) and GitHub's managed builder deployed it
+        (run 34174706794). The public URL still cannot be fetched from a
+        session (`CONNECT tunnel failed, response 403` for `github.io`), so
+        `github-pages-origin` stays `unknown`: what is measured is that GitHub
+        deployed the site, not that a stranger has read it.
+      - >-
+        Repaired a local `origin/HEAD` that did not resolve in this clone
+        (`git remote set-head origin main`). Not cosmetic: tooling that falls
+        back to `origin/HEAD` when a branch has no remote counterpart
+        miscounts unpushed work against a ref that errors, which reads as
+        "you have unpushed commits" on a tree identical to `main`.
+    mrr_end: 0
