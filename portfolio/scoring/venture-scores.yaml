@@ -8025,3 +8025,60 @@ ventures:
       fetch, XMLHttpRequest or sendBeacon calls anywhere in the venture), and
       the usage counter carries no ledger content and can be switched off on
       the page.
+  - slug: certified-payroll-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No model is involved and none should be. The required checks are exact
+      arithmetic against wage-determination figures the user already looked
+      up: a combined-rate comparison, an overtime premium computed on the
+      correct base, and a ratio count. An LLM here would introduce exactly
+      the failure mode a Davis-Bacon audit is designed to catch — a number
+      nobody can trace back to 29 CFR 5.32/778.7 or the wage determination
+      itself.
+    basis: >-
+      Graduated 2026-09-08 as a free calculator for Davis-Bacon / prevailing-
+      wage certified payroll: checks a worker classification's week against
+      the wage determination and gets the overtime premium right when part of
+      the fringe is paid in cash rather than into a bona fide plan — the
+      specific, well-documented DOL audit finding this tool exists to catch.
+      time_to_revenue 7 on the same evidence as duplicate-payment-audit's:
+      willingness to pay is demonstrated rather than assumed, since paid
+      certified-payroll platforms (LCPtracker, eMars, ELB Consulting) already
+      sell this exact compliance check as a subscription; the gap is that all
+      three assume an ongoing project and a subscription, not a one-off check
+      on a single week. Distribution 6: "certified payroll software" and
+      "WH-347 calculator" are established search phrases with existing paid
+      competitors advertising against them, plus government-contracting and
+      trade-compliance forums where the fringe/overtime rule is a recurring
+      point of confusion — real but narrower than a mass-market trade niche,
+      since the buyer is specifically a Davis-Bacon-covered contractor's
+      payroll or compliance staff. Defensibility 4 — once known, the
+      regulation is public and the arithmetic is commodity; what is not
+      commodity is that most payroll defaults get it wrong by omission, which
+      is the gap the tool is built against, not a mechanism nobody else could
+      copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The page never determines Davis-Bacon coverage, which wage
+      determination applies, or a worker's approved apprentice rate/ratio —
+      those are stated as facts the user supplies, never inferred. Output is
+      framed as a compliance check on entered figures ("falls $X/hr short of
+      the required rate"), never a determination ("you are compliant"), and
+      the apprentice-ratio section reports a count and, at most, a priced
+      gap — it never silently overrides a rate. Ethically: everything
+      computes in the browser, no wage or payroll data reaches a server
+      (verified — zero fetch/XMLHttpRequest/sendBeacon calls in the
+      venture), and the usage counter carries no wage figures and can be
+      switched off on the page.
