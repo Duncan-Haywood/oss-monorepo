@@ -407,6 +407,9 @@ workflows:
 - workflow: invoice-payment-terms-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: ios-privacy-manifest-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: irrigation-install-bid-calculator-ci.yml
   classification: none
   publishes: []

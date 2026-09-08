@@ -490,7 +490,7 @@ const CATEGORY_RULES = [
     id: 'ci',
     title: 'CI checks & developer gates',
     accent: '#1a4560',
-    blurb: 'Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning; tell a starved runner from a real failure; catch a coverage drop, classify flaky tests, see which AI crawlers your robots.txt allows, or catch a dependency that just gained an install-time script — free, local, no account.',
+    blurb: 'Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning; tell a starved runner from a real failure; catch a coverage drop, classify flaky tests, see which AI crawlers your robots.txt allows, catch a dependency that just gained an install-time script or could be confused with an internal package, or find a missing iOS privacy-manifest declaration before App Review does — free, local, no account.',
     // These four sat in the catch-all together: each is a browser-local (and
     // matching CLI) checker a maintainer runs against files or API JSON they
     // already have, not a trade bid, marketplace fee, or compliance evidence
@@ -539,8 +539,17 @@ const CATEGORY_RULES = [
     // since it graduated only because its slug starts a family the prefix list
     // did not name, which is the same accident this comment block records for
     // `license-drift-check` a day earlier.
+    //
+    // `ios-privacy-manifest-check` joined the same day. Same shape again --
+    // a browser-local checker plus a matching CLI, run by a developer against
+    // source and a manifest file they already have, reporting which
+    // declarations are missing or wrong -- just for an iOS app's
+    // PrivacyInfo.xcprivacy instead of an npm/Actions supply-chain artifact.
+    // It cross-links `dependency-confusion-check` as Related. Listed by exact
+    // slug rather than a new prefix, the same way `dependency-confusion-check`
+    // itself is: one tool does not earn a whole family pattern.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check)/.test(
         slug,
       ),
   },

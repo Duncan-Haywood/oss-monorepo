@@ -8124,3 +8124,51 @@ ventures:
       Ethically: every input is a number the operator already knows about
       their own list, nothing is scraped or inferred about a third party,
       and all computation is client-side.
+
+  - slug: ios-privacy-manifest-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic source scanning (Apple's five published Required Reason
+      API categories) cross-checked against a plist manifest already on
+      disk. There is nothing to infer: a category is either used in source
+      and declared with a valid reason code, or it is not.
+    basis: >-
+      Graduated 2026-09-07 as a browser-local + CLI checker for iOS/macOS
+      developers, the same "generator/checker that runs in the user's own
+      CI" shape as `actions-runner-starvation-check` and
+      `dependency-confusion-check`, screened against 141+ trade-bid
+      calculators for a different audience entirely (App Store Connect
+      submission compliance). `duplicate_check.py` scored nothing above
+      0.15 against any existing venture. Defensibility 4: Apple's Required
+      Reason categories and reason codes are public, but cross-checking
+      *usage* against the *manifest* by category (not just presence/absence
+      of the file) and naming the exact ITMS code a mismatch will produce is
+      not something existing linters do — most privacy-manifest tooling
+      checks manifest syntax, not source-to-manifest correspondence.
+      Distribution 5: developers who hit ITMS-91061/ITMS-91055 search the
+      exact error code (r/iOSProgramming, r/swift, Apple Developer Forums,
+      Stack Overflow's `ios`/`privacy-manifest` tags all show recurring
+      threads), which is credible but unverified named-intent search volume
+      rather than a channel with confirmed traffic.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool names a mismatch between source usage and the manifest
+      and cites the specific App Store Connect rejection code; it never
+      claims Apple will or will not reject a submission, and the developer
+      decides what to declare. Ethically: the browser page uploads nothing
+      (a local file picker only), the CLI runs entirely on the developer's
+      own machine, and the category/reason-code data was cross-checked
+      against three independent public sources since Apple's own docs are
+      JS-rendered and not fetchable in-session.
