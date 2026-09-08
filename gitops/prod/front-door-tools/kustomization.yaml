@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 116 files, 556681 bytes
 #   portfolio-front-tools-5: 134 files, 554848 bytes
 #   portfolio-front-tools-6: 114 files, 549783 bytes
-#   portfolio-front-tools-7: 110 files, 546365 bytes
+#   portfolio-front-tools-7: 111 files, 551198 bytes
 #   portfolio-front-tools-8: 116 files, 553935 bytes
 #   portfolio-front-tools-9: 106 files, 552135 bytes
 #   portfolio-front-tools-10: 110 files, 551299 bytes
@@ -1107,6 +1107,7 @@ configMapGenerator:
       - menu-engineering-calculator__how-menu-engineering-works.html.gz=menu-engineering-calculator__how-menu-engineering-works.html.gz
       - menu-engineering-calculator__index.html.gz=menu-engineering-calculator__index.html.gz
       - menu-engineering-calculator__usage.mjs.gz=menu-engineering-calculator__usage.mjs.gz
+      - menu-engineering-calculator__vs-marginedge.html.gz=menu-engineering-calculator__vs-marginedge.html.gz
       - metal-roof-bid-calculator__calc.mjs.gz=metal-roof-bid-calculator__calc.mjs.gz
       - metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz=metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz
       - metal-roof-bid-calculator__index.html.gz=metal-roof-bid-calculator__index.html.gz

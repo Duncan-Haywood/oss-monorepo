@@ -19609,3 +19609,56 @@ entries:
         code changed), plus the same repo-wide checks listed under
         `home-staging-bid-calculator` above.
     mrr_end: 0
+  - venture: menu-engineering-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-marginedge.html`, the venture's first comparison page.
+        The venture merged earlier the same day (#4030) with an index and a
+        guide page but no distribution asset, and a scan of the catalogue
+        found it among 17 ventures with an `index.html` and no `vs-*.html`.
+        Comparison pages are the half of `marketing-distribution` that earns
+        a link the week it ships rather than over months, which is the gap
+        that matters when `usage.yaml` still records zero observed users
+        across the whole catalogue -- the bottleneck is discovery, not more
+        products. MarginEdge was chosen as the counterpart because it is the
+        clearest example of the category an operator is actually choosing
+        between: an account-based back-office platform that keeps plate costs
+        current from supplier invoices, against a free page that does the
+        Kasavana and Smith read those costs feed.
+      - >-
+        Held to the truthfulness limit the other `vs-*` pages use, and
+        tightened it. No pricing, plan name or feature list for MarginEdge is
+        stated anywhere, because `marginedge.com` is not reachable from a
+        session behind this egress proxy and none could be confirmed against
+        a primary source; only well-documented category facts appear. Founder
+        names, founding year and headquarters were deliberately omitted too,
+        which the comparable `vs-square-appointments.html` does include -- for
+        a less universally documented vendor an unverifiable biographical
+        detail is the same risk as an unverifiable price, and the comparison
+        loses nothing without it. Two tests enforce this rather than trusting
+        the prose: `doesNotMatch(html, /\$\d/)` fails on any dollar figure,
+        and a positive assertion fails if a later edit quietly replaces the
+        hedge with a confident feature list.
+      - >-
+        Wired in so it cannot be orphaned: linked from `index.html`'s
+        `seo-link` row, added to the venture `sitemap.xml`, and
+        `platform/marketing/regen.mjs` run so the front-door mirror carries
+        it (`menu-engineering-calculator__vs-marginedge.html.gz`, plus the
+        catalog/llms.txt/sitemap the generator rewrites). That last step is
+        the one CLAUDE.md records costing live product across #3256-#3258 and
+        again in #3324-#3326 -- a venture page in the commit, `regen.mjs`
+        never run, and the apex 404ing on a URL its own sitemap advertises.
+        Three of the twelve tests exist only to fail if a future edit breaks
+        the index link, the sitemap row, or the JSON-LD/visible-copy match.
+      - >-
+        Verification, all local: GitHub Actions was starved for the whole
+        session (`ci_starvation.py --run 34169329712`: `runner_id: 0`, 2s, no
+        steps), so every check below was run here by hand.
+        `node --test ventures/menu-engineering-calculator/*.test.mjs` 67/67,
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1169/1169,
+        `platform/proposal/ platform/privacy/ platform/webcheck/` 172/172,
+        `run_workflow_locally.py --for-changes` clean, and
+        `run_workflow_locally.py --tree` green on `main` beforehand (9/9).
+    mrr_end: 0
