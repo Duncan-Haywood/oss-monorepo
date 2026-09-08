@@ -322,7 +322,12 @@ const CATEGORY_RULES = [
     // processing on checkout. It sat in "More free tools" because the slug
     // starts with `whatnot-`, which no marketplace prefix above caught — same
     // catch-all hole tiktok-shop and kdp already closed.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot)/.test(slug),
+    // `poshmark-fee-calculator` is the same single-channel fee-schedule shape
+    // as `reverb` and `whatnot` above — flat/percentage seller commission on
+    // one storefront — and would otherwise sit in the catch-all for the same
+    // reason those two did: the slug names the storefront, not a marketplace
+    // keyword this rule already recognised.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark)/.test(slug),
   },
   {
     id: 'trades',
