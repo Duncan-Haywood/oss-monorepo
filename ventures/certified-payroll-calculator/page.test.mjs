@@ -116,3 +116,17 @@ test('the ratio check clarifies it reports a count, not an automatic rate overri
   assert.match(markup, /full journeyman rate/i);
   assert.match(scriptSource, /result\.ratio\.exceeded/);
 });
+
+// Closest sibling: a small contractor pursuing the public work that carries a
+// wage determination in the first place. This venture graduated into the
+// "More free tools" bucket with nothing linking to it, so without an explicit
+// one-hop a crawler landing here could not reach the bid-readiness checker at
+// all (platform/pages/siblings.mjs --check orphan class).
+test("index links one hop to the contractor-bid-readiness sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/contractor-bid-readiness\/"/,
+    'index must link ../contractor-bid-readiness/ so crawlers reach the bid readiness checker in one hop',
+  );
+  assert.match(html, /contractor bid readiness checker/i);
+});
