@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 216,
-  "collection_total": 216,
+  "served_here": 217,
+  "collection_total": 217,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -47,15 +47,15 @@
       "tool_count": 15
     },
     {
-      "id": "services",
-      "name": "Service business pricing & quotes",
-      "url": "https://marisstella.dev/c/services/",
-      "tool_count": 13
-    },
-    {
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
+      "tool_count": 14
+    },
+    {
+      "id": "services",
+      "name": "Service business pricing & quotes",
+      "url": "https://marisstella.dev/c/services/",
       "tool_count": 13
     },
     {
@@ -1141,6 +1141,14 @@
       "category": "Trade & contractor bids",
       "description": "Price an interior door replacement from door count, hollow slab versus solid-core versus French-or-barn, hang-only versus pocket-conversion, owner-supplied versus carpenter-supplied, weekday versus Saturday overtime, and extras — plus the walk-away price a $150-a-door special cannot see.",
       "pages": 5
+    },
+    {
+      "slug": "ios-privacy-manifest-check",
+      "name": "iOS Privacy Manifest Checker — Required Reason API vs PrivacyInfo.xcprivacy",
+      "url": "https://marisstella.dev/tools/ios-privacy-manifest-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free, browser-local checker: scans your Swift/Objective-C source for Apple's Required Reason API usage and compares it against your PrivacyInfo.xcprivacy manifest, so a missing declaration doesn't cost you an App Store rejection (ITMS-91061 / ITMS-91055). Nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "irrigation-install-bid-calculator",

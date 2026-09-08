@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fix ITMS-91061 "Missing privacy manifest" and ITMS-91055 "Invalid API reason declaration"</title>
+<meta name="description" content="What ITMS-91061 and ITMS-91055 mean, the five Required Reason API categories that cause them, and how to find and fix the missing or invalid PrivacyInfo.xcprivacy entry -- with a free scanner that finds it for you.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/ios-privacy-manifest-check/missing-privacy-manifest-itms-91061.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to fix ITMS-91061 (Missing privacy manifest) and ITMS-91055 (Invalid API reason declaration)",
+  "step": [
+    { "@type": "HowToStep", "name": "Find which Required Reason API your code or an SDK uses", "text": "Search your source (and check your SDKs' own privacy manifests) for the file timestamp, disk space, system boot time, active keyboard, or UserDefaults APIs Apple lists as Required Reason APIs." },
+    { "@type": "HowToStep", "name": "Add or fix the PrivacyInfo.xcprivacy entry", "text": "For each category your code actually uses, add an NSPrivacyAccessedAPITypes entry naming the category and a reason code Apple has published for it -- ITMS-91055 means a declared code isn't one of the published ones for that category." },
+    { "@type": "HowToStep", "name": "Re-check before resubmitting", "text": "Re-scan your source and manifest to confirm every detected category is declared with a recognised code before you upload the build again." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; }
+</style>
+</head>
+<body>
+<h1>Fixing ITMS-91061 and ITMS-91055</h1>
+
+<h2>ITMS-91061: "Missing privacy manifest"</h2>
+<p>
+  App Store Connect returns this when your app -- or an SDK it embeds --
+  calls one of Apple's five <strong>Required Reason API</strong> categories
+  and no <code>PrivacyInfo.xcprivacy</code> file in the app bundle declares
+  an approved reason for it. It doesn't matter whether the call is deliberate
+  or came in through a dependency; Apple checks the compiled binary's symbol
+  table, not your intent.
+</p>
+
+<h2>ITMS-91055: "Invalid API reason declaration"</h2>
+<p>
+  You have a manifest, but one of its declared reason codes isn't on Apple's
+  published list <em>for that category</em>. The most common cause is
+  copy-pasting an entry from one category's example while changing only the
+  <code>NSPrivacyAccessedAPIType</code> string -- the reason codes are not
+  interchangeable between categories.
+</p>
+
+<h2>The five Required Reason API categories</h2>
+<table>
+<thead><tr><th>Category</th><th>Typical trigger</th></tr></thead>
+<tbody>
+<tr><td>File timestamp</td><td><code>creationDate</code>, <code>modificationDate</code>, <code>stat()</code>/<code>fstat()</code>/<code>lstat()</code>, <code>getattrlist()</code></td></tr>
+<tr><td>System boot time</td><td><code>ProcessInfo.processInfo.systemUptime</code>, <code>mach_absolute_time()</code></td></tr>
+<tr><td>Disk space</td><td><code>volumeAvailableCapacityKey</code>, <code>systemFreeSize</code>, <code>statfs()</code></td></tr>
+<tr><td>Active keyboard</td><td><code>UITextInputMode.activeInputModes</code></td></tr>
+<tr><td>User defaults</td><td><code>UserDefaults</code>, <code>NSUserDefaults</code>, SwiftUI's <code>@AppStorage</code></td></tr>
+</tbody>
+</table>
+
+<h2>Find the exact file and line</h2>
+<p>
+  <a href="index.html">The checker on this site</a> scans your source for
+  these symbols, reads your manifest, and tells you exactly which category is
+  used-but-undeclared or declared-with-an-invalid-code, with the file and
+  line for every match. It runs as a browser tool (nothing uploaded) or a
+  Node CLI you can add to your own pre-submission check.
+</p>
+
+<p>
+  This is evidence of what the code and the manifest say, not a determination
+  that App Review will pass -- see
+  <a href="index.html">the checker</a> and its disclaimer for what it can and
+  can't see, and verify against
+  <a href="https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api" rel="noopener">Apple's current documentation</a>
+  before you resubmit.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal advice, and it does not replace Apple's own review process. To the
+  maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its
+  use.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by Apple Inc. Apple, Xcode, App Store, and
+  PrivacyInfo.xcprivacy are trademarks of Apple Inc., named here only to describe the error codes and file
+  this page explains.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>
