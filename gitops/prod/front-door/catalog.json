@@ -44,7 +44,7 @@
       "id": "backoffice",
       "name": "Back-office money & contracts",
       "url": "https://marisstella.dev/c/backoffice/",
-      "tool_count": 14
+      "tool_count": 15
     },
     {
       "id": "services",
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 9
+      "tool_count": 8
     },
     {
       "id": "logistics",
@@ -692,7 +692,7 @@
       "slug": "certified-payroll-calculator",
       "name": "Certified Payroll Calculator — Davis-Bacon Overtime & Fringe Compliance",
       "url": "https://marisstella.dev/tools/certified-payroll-calculator/",
-      "category": "More free tools",
+      "category": "Back-office money & contracts",
       "description": "Free calculator for Davis-Bacon / prevailing-wage certified payroll: checks whether a worker's cash wages plus fringe meet the wage determination, and computes overtime correctly when part of the fringe is paid in cash instead of a bona fide plan.",
       "pages": 2
     },

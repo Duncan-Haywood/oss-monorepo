@@ -472,9 +472,19 @@ const CATEGORY_RULES = [
     // (splitting a processor's bill), and it cross-links the workbench as a
     // sibling. Landing it here rather than leaving it in the catch-all is also
     // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    // `certified-payroll-calculator` joined 2026-09-08, in the same commit
+    // that graduated it (#4064). It checks a paid week's wages against a
+    // wage determination's required base + fringe rate and computes any
+    // shortfall -- the same after-the-fact reconciliation job as
+    // `duplicate-payment-audit` (checking a ledger against what should have
+    // been paid), just for a certified-payroll wage row instead of an AP
+    // invoice. It had been landing in the catch-all, pushing it to 9 tools
+    // and past the bound `build.test.mjs` puts on it (`the catch-all holds
+    // only what no section claims`), because the venture's own graduation
+    // commit added no category rule for it.
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator)/.test(slug),
   },
   {
     id: 'ci',
