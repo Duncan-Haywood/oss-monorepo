@@ -34,7 +34,9 @@ sent anywhere: paste the text you already copied, read the findings, done.
 Open [`index.html`](index.html), paste the text copied out of your resume
 file (never retyped — that defeats the test), and click **Check my
 resume**. See [`what-is-the-ats-copy-paste-test.html`](what-is-the-ats-copy-paste-test.html)
-for why the technique works and what it can't tell you.
+for why the technique works and what it can't tell you, or
+[`vs-jobscan.html`](vs-jobscan.html) for how this differs from a
+keyword-matching scanner like Jobscan.
 
 ## What it checks
 
