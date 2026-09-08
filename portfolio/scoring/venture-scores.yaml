@@ -8124,3 +8124,55 @@ ventures:
       Ethically: every input is a number the operator already knows about
       their own list, nothing is scraped or inferred about a third party,
       and all computation is client-side.
+  - slug: ios-privacy-manifest-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic scanning: a fixed list of Apple's five Required Reason
+      API categories matched against source text, cross-checked against a
+      parsed PrivacyInfo.xcprivacy plist. There is nothing to infer and no
+      model judgment anywhere in the result.
+    basis: >-
+      Graduated 2026-09-08 as a free browser + CLI checker that scans
+      Swift/Objective-C source for Apple's Required Reason API categories
+      and cross-checks the result against a PrivacyInfo.xcprivacy manifest,
+      naming the exact category/file/line behind an ITMS-91061 (missing
+      declaration) or ITMS-91055 (invalid reason code) App Store Connect
+      rejection. Same shape as dependency-confusion-check and
+      license-drift-check: a standard-library-only classifier over source
+      the developer already has, usable as a CI gate in the developer's own
+      pipeline (exit code reflects pass/fail).
+      Autonomous ops 10 / gross margin 10: nothing to host — the browser
+      page scans files picked locally (nothing uploaded) and the CLI reads
+      only local files. Time to revenue 6: the buyer is a developer who has
+      already hit or is trying to avoid a concrete App Store Connect
+      rejection, a sharper trigger than most free tools here. Defensibility
+      4: reproducing Apple's category/reason-code table from public
+      documentation is easy, but a correct plist parser (recursive-descent,
+      not regex) and the specific rejection-code framing are not.
+      Distribution 6: developers search the exact rejection codes
+      (ITMS-91061, ITMS-91055) on Stack Overflow, r/iOSProgramming, r/swift,
+      and Apple Developer Forums — named-intent, recurring queries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool never submits anything to App Store Connect or
+      determines whether a build will actually be accepted — it reports
+      which of Apple's own published categories/reason codes the scanned
+      source and manifest do or do not agree on, framed as a pre-submission
+      check the developer still verifies themselves. Ethically: nothing the
+      developer's source or manifest reveals leaves the browser (the CLI
+      reads only local files), and the category/reason-code table is
+      reproduced from Apple's own public documentation, cross-checked
+      against two independent third-party mirrors since Apple's own docs
+      page is not fetchable from this environment.
