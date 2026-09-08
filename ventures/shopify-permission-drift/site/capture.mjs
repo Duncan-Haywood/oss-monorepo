@@ -89,25 +89,25 @@ export function extractAppRecords(payload) {
     return payload.length === 0 ? [] : null;
   }
   if (!payload || typeof payload !== "object") return null;
-  if (Array.isArray(payload.apps)) return payload.apps.filter((item) => item && typeof item === "object");
+  if (Array.isArray(payload.apps)) return payload.apps;
 
   const body = unwrapData(payload);
   if (body && typeof body === "object") {
     for (const key of ["appInstallations", "currentAppInstallations", "applications"]) {
       if (key in body) {
         const found = nodes(body[key]);
-        if (found) return found.filter((item) => item && typeof item === "object");
+        if (found) return found;
       }
     }
     if (body.currentAppInstallation && typeof body.currentAppInstallation === "object") {
       return [body.currentAppInstallation];
     }
-    if (Array.isArray(body.apps)) return body.apps.filter((item) => item && typeof item === "object");
+    if (Array.isArray(body.apps)) return body.apps;
   }
   for (const key of ["appInstallations", "applications"]) {
     if (key in payload) {
       const found = nodes(payload[key]);
-      if (found) return found.filter((item) => item && typeof item === "object");
+      if (found) return found;
     }
   }
   return null;
