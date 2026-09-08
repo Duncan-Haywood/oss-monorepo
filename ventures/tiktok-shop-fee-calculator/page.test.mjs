@@ -225,3 +225,16 @@ test("every published page carries Open Graph tags", () => {
 test("index links to the marketplace fee comparison", () => {
   assert.match(html, /href="\.\.\/marketplace-fee-compare\/"/);
 });
+
+// Closest sibling: another marketplace seller comparing take rates on the
+// same SKU. Related-tool chrome rotates inside the marketplace subcategory,
+// so without an explicit one-hop a crawler landing here may never reach the
+// Walmart calculator (platform/pages/siblings.mjs --check orphan class).
+test("index links one hop to the walmart-marketplace-calculator sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/walmart-marketplace-calculator\/"/,
+    'index must link ../walmart-marketplace-calculator/ so crawlers reach the Walmart calculator in one hop',
+  );
+  assert.match(html, /Walmart marketplace calculator/i);
+});
