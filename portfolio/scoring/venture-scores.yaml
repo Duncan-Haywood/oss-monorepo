@@ -8082,3 +8082,45 @@ ventures:
       (verified — zero fetch/XMLHttpRequest/sendBeacon calls in the
       venture), and the usage counter carries no wage figures and can be
       switched off on the page.
+
+  - slug: newsletter-sponsorship-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on
+      opens-per-1000 CPM benchmarks against numbers the operator already
+      knows about their own list, and adding inference would only make the
+      result less checkable.
+    basis: >-
+      Graduated 2026-09-07 as a browser-local newsletter sponsorship pricing
+      calculator, screened against 141+ existing trade-bid calculators for a
+      different audience (creator-economy monetization, not a home-service
+      trade). duplicate_check.py scored nothing >= 0.10 against any existing
+      venture, pipeline candidate, or screened-out row. Defensibility 3: the
+      opens-based CPM pricing logic is publicly documented by the
+      marketplaces themselves; what is not free elsewhere is seeing those
+      benchmark numbers without first listing a newsletter with one of them.
+      Distribution 6: "how much to charge for newsletter sponsorship" and
+      "newsletter ad rate calculator" are recurring, named-intent queries in
+      r/newsletters, r/Substack, and beehiiv/Substack creator communities —
+      real but a narrower buyer pool than a mass-market trade niche.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a price range framed explicitly as a negotiation
+      starting point, never a quote, guarantee, or valuation performed on
+      the user's behalf — being wrong costs a creator a miscalibrated ask
+      in one negotiation, not a filing or a contract obligation.
+      Ethically: every input is a number the operator already knows about
+      their own list, nothing is scraped or inferred about a third party,
+      and all computation is client-side.

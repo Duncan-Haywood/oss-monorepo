@@ -8,7 +8,7 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 215,
+  "served_here": 216,
   "collection_total": 215,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 8
+      "tool_count": 9
     },
     {
       "id": "logistics",
@@ -1271,6 +1271,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a local moving job from inventory hours plus stairs, long carry, packing, and drive time — then see the walk-away price before you match a cheap bedroom-count quote.",
       "pages": 3
+    },
+    {
+      "slug": "newsletter-sponsorship-rate-calculator",
+      "name": "Newsletter Sponsorship Rate Calculator — Free, No Sign-Up",
+      "url": "https://marisstella.dev/tools/newsletter-sponsorship-rate-calculator/",
+      "category": "More free tools",
+      "description": "Free newsletter sponsorship rate calculator. Enter your subscriber count, open rate, and niche to get a price range for a dedicated send, primary placement, secondary placement, and classified ad — based on commonly cited newsletter-ad-market CPM benchmarks. No sign-up, nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "no-show-fee-calculator",

@@ -57,6 +57,21 @@ test('the 90-day landing page uses the same worked example the tests lock', () =
   assert.match(html, /FAQPage/);
 });
 
+// Closest cross-venture sibling: a self-published author with a mailing
+// list is a common overlap with a newsletter operator, and each tool prices
+// a different revenue lever on the same audience. Related-tool chrome
+// rotates by category, so without an explicit one-hop a crawler on this page
+// may never land on that tool (platform/pages/siblings.test.mjs's orphan budget).
+test('index links one hop to the newsletter-sponsorship-rate-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/newsletter-sponsorship-rate-calculator\/"/,
+    'index must link ../newsletter-sponsorship-rate-calculator/ so crawlers reach it in one hop',
+  );
+  assert.match(html, /newsletter sponsorship rate calculator/i);
+});
+
 test('the comparison page is linked, listed, and not affiliated', () => {
   const hub = page('index.html');
   const vs = page('vs-amazon-kdp-royalty-calculator.html');
