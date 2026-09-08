@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Certified Payroll Calculator — Davis-Bacon Overtime &amp; Fringe Compliance</title>
+  <meta name="description" content="Free calculator for Davis-Bacon / prevailing-wage certified payroll: checks whether a worker's cash wages plus fringe meet the wage determination, and computes overtime correctly when part of the fringe is paid in cash instead of a bona fide plan.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <meta property="og:title" content="Certified Payroll Calculator">
+  <meta property="og:description" content="Overtime on a Davis-Bacon job isn't just 1.5x the base rate. Check compliance and overtime math for one worker, one week.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Certified Payroll Calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Prevailing wage compliance check against a wage determination, overtime computed correctly when cash-in-lieu-of-fringe is paid, total weekly compensation and underpayment gap, apprentice-to-journeyman ratio check, copyable weekly summary"
+  }
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does overtime on a Davis-Bacon job include fringe benefits?","acceptedAnswer":{"@type":"Answer","text":"It depends on how the fringe is paid. A bona fide contribution to a health, pension, or apprenticeship plan is excluded from the overtime \"regular rate\" under 29 CFR 5.32 and 29 CFR 778.7, so it is owed at the same rate for every hour and never gets a time-and-a-half premium. Fringe paid directly to the worker in cash instead of into a plan is included in the regular rate, so it does get the overtime premium on hours over 40. Paying cash-in-lieu-of-fringe at straight time during overtime hours — which is what many payroll systems do by default — underpays every week it runs."}},{"@type":"Question","name":"What counts as the \"basic hourly rate\" on a wage determination?","acceptedAnswer":{"@type":"Answer","text":"The wage determination for a classification states two numbers: a basic hourly rate and a fringe benefit rate. The contractor must provide at least their combined total, through any mix of cash wages, bona fide plan contributions, or cash paid in lieu of fringe. This calculator asks for both required figures and both actual figures so it can check the combined total and, separately, get the overtime math right — the two figures play different roles."}},{"@type":"Question","name":"How does the apprentice-to-journeyman ratio work on certified payroll?","acceptedAnswer":{"@type":"Answer","text":"A registered apprenticeship program's wage determination sets an approved ratio, such as one apprentice per three journeymen, applied per classification at the site. Apprentices beyond that ratio are not entitled to the reduced apprentice rate — they must be paid the full journeyman prevailing wage for the hours they worked. This calculator reports how many apprentices exceed the approved ratio from the counts you enter; it does not look up the approved ratio for you, since that comes from the specific apprenticeship program's registration."}},{"@type":"Question","name":"Does this generate my WH-347 certified payroll report?","acceptedAnswer":{"@type":"Answer","text":"No. It computes the underlying arithmetic — required vs. actual hourly compensation, correct overtime pay, and total weekly compensation — for one classification, one week, so you can check or fill in a certified payroll report correctly. It does not know your project name, contract number, or DOL's exact form layout, and it does not submit or sign anything on your behalf."}},{"@type":"Question","name":"Does this tell me which wage determination applies to my project?","acceptedAnswer":{"@type":"Answer","text":"No. The applicable wage determination comes from the contracting officer and the project's own solicitation, published on SAM.gov. This calculator takes the required base and fringe rates as inputs you already looked up — it never guesses a rate or a classification for you."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 780px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1a5a8a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .85fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c4cedb; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1c232010; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4f5967; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8e9bab; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8e9bab; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2320; }
+    button:hover { background: #dde7f0; }
+    .result { position: sticky; top: 15px; background: #12233a; color: #f2f6fa; border-color: #12233a; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue, which fails contrast on this fill. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.5rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9d8ff; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #cfe3f7; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4f5967; }
+    footer a { color: #1a5a8a; }
+    .faq { margin-top: 4px; }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; }
+      .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR DAVIS-BACON / PREVAILING-WAGE GOVERNMENT CONTRACTORS</p>
+    <h1>Overtime isn&rsquo;t just 1.5&times; the base rate.</h1>
+    <p>When part of the required fringe is paid in cash instead of into a bona fide benefit plan, that cash portion has to get the overtime premium too &mdash; a rule most payroll software gets wrong by default. Enter one classification&rsquo;s wage-determination figures and this week&rsquo;s hours, and see the compliant total, the compliance gap if any, and what the common shortcut would have cost.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>Classification and the wage determination</h2>
+        <p class="hint">The required figures come from your project&rsquo;s wage determination on SAM.gov, or the worker&rsquo;s registered apprenticeship agreement if this row is an apprentice. This page never looks one up for you.</p>
+        <div class="fields">
+          <label>Classification (for your records) <input id="classification" type="text" value="Electrician" placeholder="e.g. Electrician"></label>
+          <label>Required base rate ($/hr) <input id="requiredBaseRate" type="number" min="0" step="0.01" value="28"></label>
+          <label>Required fringe rate ($/hr) <input id="requiredFringeRate" type="number" min="0" step="0.01" value="10.50"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>What was actually paid this week</h2>
+        <div class="fields">
+          <label>Actual base rate ($/hr) <input id="actualBaseRate" type="number" min="0" step="0.01" value="28"></label>
+          <label>Bona fide plan fringe ($/hr) <input id="bonaFideFringePerHour" type="number" min="0" step="0.01" value="8.50"></label>
+          <label>Cash-in-lieu-of-fringe ($/hr) <input id="cashFringePerHour" type="number" min="0" step="0.01" value="2.00"></label>
+          <label>Straight-time hours <input id="straightHours" type="number" min="0" step="0.25" value="40"></label>
+          <label>Overtime hours <input id="overtimeHours" type="number" min="0" step="0.25" value="6"></label>
+        </div>
+        <p class="hint">Bona fide plan fringe is a contribution to a trustee or third-party plan (health, pension, apprenticeship) — it is excluded from the overtime regular rate. Cash-in-lieu-of-fringe is paid straight to the worker instead, and it must get the overtime premium.</p>
+      </section>
+
+      <section>
+        <h2>Apprentice ratio check (optional)</h2>
+        <p class="hint">Fill in all four counts to check whether this classification's apprentices exceed the approved ratio. Leave any blank to skip this check. Excess apprentices are owed the full journeyman rate, not the reduced apprentice rate — this reports the count and, if you provide the journeyman rate and their hours, the dollar gap.</p>
+        <div class="fields">
+          <label>Approved ratio — apprentices <input id="approvedRatioApprentices" type="number" min="0" step="1" placeholder="e.g. 1"></label>
+          <label>Approved ratio — per journeymen <input id="approvedRatioJourneymen" type="number" min="0" step="1" placeholder="e.g. 3"></label>
+          <label>Journeymen on site this week <input id="journeymenOnSite" type="number" min="0" step="1" placeholder="e.g. 3"></label>
+          <label>Apprentices on site this week <input id="apprenticesOnSite" type="number" min="0" step="1" placeholder="e.g. 2"></label>
+          <label>Full journeyman rate ($/hr, optional) <input id="fullJourneymanRate" type="number" min="0" step="0.01" placeholder="e.g. 38.50"></label>
+          <label>Hours worked by excess apprentices (optional) <input id="excessApprenticeHours" type="number" min="0" step="0.25" placeholder="e.g. 40"></label>
+        </div>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>This week&rsquo;s compliance check</h2>
+      <div id="hero" class="hero-number">$&mdash;</div>
+      <div id="heroLabel">shortfall vs. the required combined rate</div>
+      <dl>
+        <dt>Required rate (base + fringe)</dt><dd id="requiredTotalRate"></dd>
+        <dt>Actual rate (base + all fringe)</dt><dd id="actualTotalRate"></dd>
+        <dt>Straight-time rate paid</dt><dd id="straightRatePerHour"></dd>
+        <dt>Overtime rate paid (correct)</dt><dd id="otRatePerHour"></dd>
+        <dt>Cash wages this week</dt><dd id="totalCashWagesPaid"></dd>
+        <dt>Bona fide fringe due</dt><dd id="totalBonaFideFringeDue"></dd>
+        <dt>Total compensation</dt><dd id="totalCompensationPaid"></dd>
+        <dt>Cost of the common OT mistake</dt><dd id="otUnderpaymentIfCashFringeExcluded"></dd>
+        <dt>Required gross at prevailing wage</dt><dd id="requiredGrossAtPrevailingWage"></dd>
+        <dt>Total underpayment this week</dt><dd id="underpaymentTotal"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div id="ratioVerdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy week summary</button>
+        <button type="button" id="copyShareLink">Copy share link</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting figures are an illustrative example, not a wage determination for any real project. Replace them with your own wage determination and time records.</p>
+    </section>
+  </main>
+
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>A Davis-Bacon or prevailing-wage wage determination sets a required base rate and a required fringe rate for each classification. A contractor can satisfy the fringe portion with a bona fide plan contribution, cash paid directly to the worker, or a mix of both &mdash; but only the cash portion changes the overtime math. <a href="does-overtime-include-fringe-benefits-on-certified-payroll.html">Does overtime include fringe benefits on certified payroll?</a> walks through the rule in search-query words.</p>
+    <p>It does not tell you which wage determination applies, whether your contract is covered, or what a worker's approved apprentice rate is. Those are facts from the contracting officer's wage determination and the registered apprenticeship agreement — entered here, never guessed.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>Does overtime on a Davis-Bacon job include fringe benefits?</h3>
+  <p>It depends on how the fringe is paid. A bona fide contribution to a health, pension, or apprenticeship plan is excluded from the overtime "regular rate" under 29 CFR 5.32 and 29 CFR 778.7, so it is owed at the same rate for every hour and never gets a time-and-a-half premium. Fringe paid directly to the worker in cash instead of into a plan is included in the regular rate, so it does get the overtime premium on hours over 40. Paying cash-in-lieu-of-fringe at straight time during overtime hours &mdash; which is what many payroll systems do by default &mdash; underpays every week it runs.</p>
+  <h3>What counts as the "basic hourly rate" on a wage determination?</h3>
+  <p>The wage determination for a classification states two numbers: a basic hourly rate and a fringe benefit rate. The contractor must provide at least their combined total, through any mix of cash wages, bona fide plan contributions, or cash paid in lieu of fringe. This calculator asks for both required figures and both actual figures so it can check the combined total and, separately, get the overtime math right &mdash; the two figures play different roles.</p>
+  <h3>How does the apprentice-to-journeyman ratio work on certified payroll?</h3>
+  <p>A registered apprenticeship program's wage determination sets an approved ratio, such as one apprentice per three journeymen, applied per classification at the site. Apprentices beyond that ratio are not entitled to the reduced apprentice rate &mdash; they must be paid the full journeyman prevailing wage for the hours they worked. This calculator reports how many apprentices exceed the approved ratio from the counts you enter; it does not look up the approved ratio for you, since that comes from the specific apprenticeship program's registration.</p>
+  <h3>Does this generate my WH-347 certified payroll report?</h3>
+  <p>No. It computes the underlying arithmetic &mdash; required vs. actual hourly compensation, correct overtime pay, and total weekly compensation &mdash; for one classification, one week, so you can check or fill in a certified payroll report correctly. It does not know your project name, contract number, or DOL's exact form layout, and it does not submit or sign anything on your behalf.</p>
+  <h3>Does this tell me which wage determination applies to my project?</h3>
+  <p>No. The applicable wage determination comes from the contracting officer and the project's own solicitation, published on SAM.gov. This calculator takes the required base and fringe rates as inputs you already looked up &mdash; it never guesses a rate or a classification for you.</p>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, payroll, or compliance advice, and it does not replace a qualified professional. It does not determine whether a contract is covered by Davis-Bacon, which wage determination applies, or a worker's approved apprentice rate or ratio. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any certified payroll or wage obligation it helps you check. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Wage rates, hours, and every other figure stay on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your numbers. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it caught a payroll mistake before an auditor did, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateCertifiedPayroll } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+
+    const FIELD_IDS = [
+      'requiredBaseRate', 'requiredFringeRate', 'actualBaseRate', 'bonaFideFringePerHour',
+      'cashFringePerHour', 'straightHours', 'overtimeHours', 'approvedRatioApprentices',
+      'approvedRatioJourneymen', 'journeymenOnSite', 'apprenticesOnSite', 'fullJourneymanRate',
+      'excessApprenticeHours',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const perHour = value => value === null ? 'n/a' : `${money(value)}/hr`;
+    const el = id => document.getElementById(id);
+
+    function readInput() {
+      return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message) {
+      el('hero').textContent = message;
+      el('hero').className = 'hero-number negative';
+      el('heroLabel').textContent = 'check the highlighted input';
+      ['requiredTotalRate', 'actualTotalRate', 'straightRatePerHour', 'otRatePerHour',
+        'totalCashWagesPaid', 'totalBonaFideFringeDue', 'totalCompensationPaid',
+        'otUnderpaymentIfCashFringeExcluded', 'requiredGrossAtPrevailingWage', 'underpaymentTotal']
+        .forEach(id => { el(id).textContent = ''; });
+      el('verdict').hidden = true;
+      el('ratioVerdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateCertifiedPayroll(readInput());
+      } catch (error) {
+        clearOutputs(error.message);
+        return;
+      }
+
+      el('hero').textContent = money(result.shortfallPerHour);
+      el('hero').className = `hero-number ${result.shortfallPerHour > 0 ? 'negative' : 'positive'}`;
+      el('heroLabel').textContent = result.shortfallPerHour > 0 ? 'shortfall per hour vs. the required rate' : 'meets the required combined rate';
+
+      el('requiredTotalRate').textContent = perHour(result.requiredTotalRate);
+      el('actualTotalRate').textContent = perHour(result.actualTotalRate);
+      el('straightRatePerHour').textContent = perHour(result.straightRatePerHour);
+      el('otRatePerHour').textContent = perHour(result.otRatePerHour);
+      el('totalCashWagesPaid').textContent = money(result.totalCashWagesPaid);
+      el('totalBonaFideFringeDue').textContent = money(result.totalBonaFideFringeDue);
+      el('totalCompensationPaid').textContent = money(result.totalCompensationPaid);
+      el('otUnderpaymentIfCashFringeExcluded').textContent = money(result.otUnderpaymentIfCashFringeExcluded);
+      el('requiredGrossAtPrevailingWage').textContent = money(result.requiredGrossAtPrevailingWage);
+      el('underpaymentTotal').textContent = money(result.underpaymentTotal);
+
+      const verdict = el('verdict');
+      verdict.hidden = false;
+      verdict.className = `verdict${result.compliant ? '' : ' bad'}`;
+      verdict.innerHTML = result.compliant
+        ? `Meets the required combined rate of <strong>${money(result.requiredTotalRate)}/hr</strong> for this classification.`
+        : `Falls <strong>${money(result.shortfallPerHour)}/hr short</strong> of the required combined rate of ${money(result.requiredTotalRate)}/hr — a total underpayment of <strong>${money(result.underpaymentTotal)}</strong> this week.`;
+
+      const ratioVerdict = el('ratioVerdict');
+      if (!result.ratio) {
+        ratioVerdict.hidden = true;
+      } else {
+        ratioVerdict.hidden = false;
+        ratioVerdict.className = `verdict${result.ratio.exceeded ? ' bad' : ''}`;
+        if (!result.ratio.exceeded) {
+          ratioVerdict.innerHTML = `Apprentices (${result.ratio.allowed} allowed) are within the approved ratio.`;
+        } else if (result.ratio.shortfallTotal !== null) {
+          ratioVerdict.innerHTML = `<strong>${result.ratio.excess} apprentice(s)</strong> exceed the approved ratio and are owed the full journeyman rate — about <strong>${money(result.ratio.shortfallTotal)}</strong> more for the hours entered.`;
+        } else {
+          ratioVerdict.innerHTML = `<strong>${result.ratio.excess} apprentice(s)</strong> exceed the approved ratio and must be paid the full journeyman rate. Add the journeyman rate and their hours to price the gap.`;
+        }
+      }
+    }
+
+    function summaryText(result, classification) {
+      const lines = [
+        `CERTIFIED PAYROLL WEEK — ${classification || 'Classification'}`,
+        '',
+        `Required rate: ${perHour(result.requiredTotalRate)} | Actual rate: ${perHour(result.actualTotalRate)}`,
+        result.compliant ? 'Meets the required combined rate.' : `Shortfall: ${perHour(result.shortfallPerHour)} (total underpayment ${money(result.underpaymentTotal)})`,
+        `Straight-time rate: ${perHour(result.straightRatePerHour)} | Overtime rate: ${perHour(result.otRatePerHour)}`,
+        `Cash wages: ${money(result.totalCashWagesPaid)} | Bona fide fringe: ${money(result.totalBonaFideFringeDue)} | Total compensation: ${money(result.totalCompensationPaid)}`,
+        `Cost of paying cash fringe at straight time during overtime: ${money(result.otUnderpaymentIfCashFringeExcluded)}`,
+      ];
+      if (result.ratio) {
+        lines.push(result.ratio.exceeded
+          ? `Apprentice ratio: ${result.ratio.excess} apprentice(s) exceed the approved ratio${result.ratio.shortfallTotal !== null ? ` (~${money(result.ratio.shortfallTotal)})` : ''}.`
+          : `Apprentice ratio: within the approved ${result.ratio.allowed}-apprentice allowance.`);
+      }
+      lines.push('', 'Arithmetic on the entered figures, not a filed certified payroll report. Verify against your project\'s wage determination.');
+      return lines.join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateCertifiedPayroll(readInput());
+      const text = summaryText(result, el('classification').value);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    // Restoring a shared link sets each field's value directly rather than
+    // going through readInput()'s string coercion, and skips any id the
+    // link did not carry so the recipient's own page defaults stand.
+    function applyShared(incoming) {
+      for (const id of FIELD_IDS) {
+        if (id in incoming) el(id).value = incoming[id];
+      }
+    }
+
+    function shareUrl() {
+      const { origin, pathname } = window.location;
+      return `${origin}${pathname}#${encodeInputs(readInput())}`;
+    }
+
+    async function copyShareLink() {
+      const text = shareUrl();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('share_link_copied');
+      el('summaryStatus').textContent = 'Link copied — the numbers travel in the link, not to a server';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => {
+        const isRatioField = ['approvedRatioApprentices', 'approvedRatioJourneymen', 'journeymenOnSite', 'apprenticesOnSite'].includes(id);
+        count(isRatioField ? 'ratio_checked' : 'week_calculated');
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShareLink').addEventListener('click', () => {
+      copyShareLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    // A shared week arrives in the fragment, which browsers never send to a
+    // server. `search` is accepted too, so a link that lost its # on the way
+    // through a messaging app still opens on the sender's numbers.
+    const incoming = decodeInputs(window.location.hash || window.location.search);
+    if (Object.keys(incoming).length > 0) {
+      applyShared(incoming);
+      count('shared_link_opened');
+      el('summaryStatus').textContent = 'Opened from a shared link — verify every figure against your own wage determination.';
+    }
+    update();
+  </script>
+</body>
+</html>

@@ -11,9 +11,6 @@ workflows:
 - workflow: 3d-print-price-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: menu-engineering-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: 3pl-quote-normalizer-ci.yml
   classification: none
   publishes: []
@@ -107,10 +104,10 @@ workflows:
 - workflow: asphalt-sealcoat-bid-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: ats-resume-checker-ci.yml
+- workflow: atm-route-margin-ci.yml
   classification: none
   publishes: []
-- workflow: atm-route-margin-ci.yml
+- workflow: ats-resume-checker-ci.yml
   classification: none
   publishes: []
 - workflow: attic-insulation-bid-calculator-ci.yml
@@ -156,6 +153,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: cash-runway-planner-ci.yml
+  classification: none
+  publishes: []
+- workflow: certified-payroll-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: change-order-margin-calculator-ci.yml
@@ -459,6 +459,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: medical-courier-route-margin-ci.yml
+  classification: none
+  publishes: []
+- workflow: menu-engineering-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: metal-roof-bid-calculator-ci.yml

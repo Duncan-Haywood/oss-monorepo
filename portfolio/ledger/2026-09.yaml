@@ -19844,6 +19844,91 @@ entries:
         `run_workflow_locally.py --for-changes` clean, and
         `run_workflow_locally.py --tree` green on `main` beforehand (9/9).
     mrr_end: 0
+  - venture: certified-payroll-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/certified-payroll-calculator`, a
+        free browser calculator for Davis-Bacon / prevailing-wage government
+        contractors. For one worker classification, one week, it checks cash
+        wages plus fringe against the wage determination and computes
+        overtime correctly when part of the required fringe is paid in cash
+        instead of into a bona fide plan (29 CFR 5.32 / 778.7 excludes the
+        plan contribution from the overtime "regular rate" but includes
+        cash-in-lieu-of-fringe) — a specific, documented DOL Davis-Bacon audit
+        finding that general-purpose payroll systems get wrong by defaulting
+        the overtime premium to the base rate only. Also flags apprentices
+        beyond the approved apprentice-to-journeyman ratio. Screened against
+        `screened-out.md` and the liability/ethics gates in
+        `portfolio/DIRECTION.md` first; `portfolio/pipeline/duplicate_check.py`
+        returned no match at or above the read-this-first threshold (top
+        score 0.07, against `janitorial-bid-calculator`). Not from the
+        pipeline candidate queue — a fresh niche invented this session, per
+        `DIRECTION.md`'s standing invitation to graduate a strong
+        non-duplicative idea the same day it's screened. `venture-scores.yaml`
+        entry added (composite 6.333, floor 1 `ai_leverage`, gates
+        `liability_containment`/`ethical_robustness` pass), matching the
+        deterministic-calculator floor pattern already accepted for
+        `pour-cost-calculator` and `duplicate-payment-audit`.
+      - >-
+        Named channel: "certified payroll software" and "WH-347 calculator"
+        are established search phrases with existing paid competitors
+        (LCPtracker, eMars, ELB Consulting) advertising against them — all
+        three assume an ongoing subscription and a live project, leaving a
+        gap for a free one-off check. r/GovernmentContracting and
+        r/Construction carry recurring compliance questions of this shape,
+        and the fringe-benefit overtime rule specifically is a documented
+        point of confusion in trade-association Davis-Bacon compliance
+        guidance.
+      - >-
+        This is a new buyer persona for the portfolio, not another
+        `*-bid-calculator`: certified payroll / compliance staff checking a
+        week of pay that already happened against a compliance floor, rather
+        than a contractor pricing a job before it starts. Per
+        `DIRECTION.md`'s note to weigh the archetype (141+ existing bid
+        calculators with zero confirmed visitors) before defaulting to a
+        142nd, this is priced the same shape for a reason: the value is in
+        the specific fringe/overtime and apprentice-ratio arithmetic, which a
+        browser calculator states more directly than a CLI or GitHub Action
+        would for this buyer.
+      - >-
+        Verification: `node --test ventures/certified-payroll-calculator/*.test.mjs`
+        (39/39 passing — 17 calc, 5 usage, 8 share, 9 page tests); `node
+        platform/pages/clauses.mjs certified-payroll-calculator` (clean, 2
+        published pages carry required clauses); `python3
+        portfolio/router/validate.py` (223/223 valid); `node
+        platform/marketing/regen.mjs` run twice (mirror/front-door
+        regenerated and committed, second pass after `launched.mjs --write`
+        to keep the feed/llms.txt/catalog.json in sync with the new launch
+        date); `node platform/pages/launched.mjs --write` (1 added); `python3
+        platform/ci/checklist_coverage.py` and `check_no_payment_code.py`
+        (clean); `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1169/1169 passing, with `TMPDIR` pointed
+        at `/home` instead of the default `/tmp`, which was near its quota on
+        this shared sandbox); `platform/pages/siblings.mjs` found this
+        venture is a genuine orphan (no existing venture shares its niche to
+        link to honestly) and raised `orphanBudget` 33→34 in
+        `platform/pages/siblings-budget.json` with the reason recorded
+        in-file, rather than fabricate a sibling link; `gitops/tests/test_manifests.py`'s
+        mirrored-tool-count test caught the four hand-typed "213 tools"
+        mentions this venture made stale (`infra/OWNER_CHECKLIST.md` ×3,
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        ×2) — all bumped to 214 in this PR, verified with
+        `/tmp/tpc-venv/bin/pytest gitops/tests/test_manifests.py` (83/83
+        passing) after a preinstalled `pip`/`pytest` in this session's
+        default `python3` turned out unavailable (`ensurepip` has no network
+        route here either). The rest of `gitops/tests` (test_worker_run.py,
+        test_publish_branch.py, test_load_secrets.py) could not be verified —
+        every failure was the same `Unknown system error -122` (EDQUOT)
+        writing to `/tmp` that the prior `duplicate-payment-audit` entry in
+        this file also hit, unrelated to any file this PR touches.
+        `python3 portfolio/scoring/score_ventures.py --check` (223/223
+        internally consistent, after adding this venture's score row) and
+        `python3 portfolio/pipeline/validate_doc_consistency.py` (clean, 32
+        candidates) both pass; `python3 portfolio/usage/validate_usage.py`
+        (clean, 197 products).
+    mrr_end: 0
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
