@@ -100,3 +100,16 @@ test('the guide page worked example matches calc.mjs for the same inputs', () =>
   assert.match(guide, /\$3,336\.67/);
   assert.match(guide, /\$196\.00/);
 });
+
+// Closest sibling: also a per-vehicle job a wrap shop's own customer asks
+// about. Without an explicit one-hop, platform/pages/siblings.mjs reports
+// this tool as a crawlable orphan -- reachable only through the category
+// index, never from another tool.
+test('index links one hop to the mobile-detailing-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/mobile-detailing-bid-calculator\/"/,
+    'index must link ../mobile-detailing-bid-calculator/ so crawlers reach the detailing calculator in one hop',
+  );
+  assert.match(html, /mobile detailing bid calculator/i);
+});
