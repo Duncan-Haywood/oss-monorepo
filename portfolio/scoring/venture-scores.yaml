@@ -7817,3 +7817,100 @@ ventures:
       record positioning (it does not determine health-department or
       permit requirements), no account, nothing uploaded — every field
       runs in the browser only.
+
+  - slug: menu-engineering-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally absent. The tool applies the Kasavana & Smith matrix
+      to numbers the operator supplies — a weighted mean, a share-of-covers
+      threshold and a subtraction — arithmetic a chef can re-derive on paper,
+      which is what makes the classification arguable rather than oracular.
+    basis: >-
+      Graduated 2026-09-07 as a free, browser-only menu classifier for
+      independent restaurants. The wedge is that the metric the industry
+      quotes — food cost percentage — ranks a menu wrong, and the incumbent
+      tools that do this properly (MarginEdge, Restaurant365, xtraCHEF) are
+      paid restaurant-management suites sold on an annual contract, not a free
+      single-purpose calculator. Distribution 7: "menu engineering" is an
+      established search term with textbook demand behind it rather than a
+      coined phrase, and r/KitchenConfidential and r/restaurateur carry the
+      question recurrently — a broader audience than a single-trade bid
+      calculator. Defensibility 4: the matrix is public and 40 years old, so
+      the arithmetic is not the moat; the weighted-average bar and printing
+      both thresholds instead of hiding them are the differentiation, and both
+      are copyable. `duplicate_check.py` scored the closest existing venture
+      (`amazon-fba-calculator`) at 0.11, well under the 0.45 bar; the nearest
+      neighbour by subject, `pour-cost-calculator`, scored 0.10 and covers the
+      bar side only — the two are linked as siblings rather than overlapping.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: pure arithmetic on numbers the user supplies, no account, no
+      upload, and no advice about what to charge or cut — a line the
+      `notes never tell the operator what to do` test enforces rather than
+      leaves to review. The one forward-looking figure (a price move
+      annualised) ships with its own assumption in the same sentence.
+
+  - slug: duplicate-payment-audit
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The matching is deterministic hashmap grouping and bounded edit-distance
+      comparison, not a model — what keeps the per-user cost at zero and every
+      flagged pair traceable to the exact rows and rule that produced it.
+    basis: >-
+      Graduated 2026-09-07 as a free, browser-only checker that groups an
+      accounts-payable ledger CSV by vendor and flags exact vendor+invoice+
+      amount duplicates, near-duplicate invoice-number typos, and same-
+      amount/near-date pairs with no invoice link — the last tier explicitly
+      labeled "review" on the page itself because a legitimate recurring
+      charge produces the identical pattern. An entire "duplicate payment
+      audit / recovery" industry already targets this exact search-term
+      cluster on a contingency fee for enterprise ledgers, and at least eight
+      fintech/AP-automation vendors (Ramp, Brex, NetSuite, Stripe, Klippa,
+      Precoro, Fiscaltec, Illumis) publish content marketing against the same
+      phrases, verified by web search during the write-up — evidence of real
+      recurring demand with no free self-serve equivalent for a business too
+      small for that engagement. Distribution 6: the search-term cluster plus
+      r/Bookkeeping, r/Accounting, r/smallbusiness and r/QuickBooks, where
+      AP-process questions of this shape recur. Defensibility 5: a
+      transparent, narrow tool with no data moat, defensible only by being
+      first and correct for the underserved segment. `duplicate_check.py`
+      returned no match above the read-this-first threshold (top score 0.16,
+      against `invoice-payment-terms-calculator`, single-invoice due-date
+      arithmetic rather than a ledger-wide duplicate check); it is also
+      distinct from its `payment-reconciliation-workbench` sibling (matches
+      processor payouts to bank deposits, not vendor payments to each other)
+      and from `card-processing-fee-audit` (audits a fee schedule against a
+      contract, not a ledger for repeated payments).
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: never asserts fraud, wrongdoing, or a confirmed duplicate — it
+      surfaces a statistical pattern in the user's own data for the user to
+      verify, with the lowest-confidence (same-amount/near-date) tier
+      explicitly disclosed as also matching legitimate recurring charges. No
+      filing, no vendor contact, and no action taken on the user's behalf;
+      every row comes from a CSV the user already has and nothing leaves the
+      browser.

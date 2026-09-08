@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 211 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 212 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -112,7 +112,7 @@
     <id>tag:marisstella.dev,2026:tool/duplicate-payment-audit</id>
     <published>2026-09-07T00:00:00Z</published>
     <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.</summary>
   </entry>
   <entry>
@@ -159,6 +159,15 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste two snapshots of your dependency tree&#39;s declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Menu Engineering Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/menu-engineering-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/menu-engineering-calculator</id>
+    <published>2026-09-07T00:00:00Z</published>
+    <updated>2026-09-07T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free menu engineering calculator for independent restaurants: enter each dish&#39;s plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.</summary>
   </entry>
   <entry>
     <title>npm Lifecycle Script Check — Did a Dependency Just Start Running Code at Install Time?</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-28T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price an IP security camera install from the drops, the cable, and the labour — and check the three things a camera bid gets wrong: days of recording the drives actually hold, PoE load against the switch budget, and runs past the 328 ft Ethernet limit.</summary>
-  </entry>
-  <entry>
-    <title>Shop Rate Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/shop-rate-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/shop-rate-calculator</id>
-    <published>2026-08-28T00:00:00Z</published>
-    <updated>2026-08-28T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Work out your real labor burden, your overhead rate on direct cost, and the hourly rate a trade job has to be sold at — from your own payroll, vehicles, office and materials. Free, private, and it fills in the burden and overhead fields on every bid calculator here.</summary>
   </entry>
 </feed>
