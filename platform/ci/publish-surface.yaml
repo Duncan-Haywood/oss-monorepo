@@ -482,6 +482,9 @@ workflows:
 - workflow: music-lesson-break-even-ci.yml
   classification: none
   publishes: []
+- workflow: newsletter-sponsorship-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: no-show-fee-calculator-ci.yml
   classification: none
   publishes: []
