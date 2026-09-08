@@ -1,0 +1,36 @@
+name: poshmark-fee-calculator
+description: A private browser calculator for Poshmark sellers that prices one sale the way a payout statement actually lands — the flat $2.95 fee under $15.00, 20% at $15.00 or more, the $14.75 break-even price where the two cost the same, profit after item and prep cost, the sale price needed to hit a target profit, and whether a lower offer or bundle discount actually costs what it looks like once it crosses the $15 line.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Poshmark sellers will return to a calculator that surfaces the $14.75 break-even price and the effective rate on low-price items, because a flat "Poshmark takes 20%" page hides that the flat $2.95 fee is often a worse deal, not a simpler one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers negotiating an offer or setting a bundle discount near $15.00 will use the offer comparison before accepting, because the direction of the $15 cliff's effect on payout is counter-intuitive (crossing down is usually a one-time break, not a penalty) and costly to get wrong on a real sale.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/poshmark, r/Reseller, and the search phrases "poshmark fee calculator", "poshmark seller fees", and "poshmark break even price" are a reachable, free channel — measurable only once the tool is live in the apex catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified Poshmark sellers run a real sale twice within 90 days of the tool being discoverable.
+  - Sellers report the published $2.95/20% schedule has changed and the calculator's fixed constants no longer match a real payout statement.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/poshmark-fee-calculator/
+  analytics: null
