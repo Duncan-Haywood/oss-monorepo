@@ -430,6 +430,62 @@ def scan_for_secrets(workspace: Path, run_log: RunLog) -> bool:
     return result.returncode == 0
 
 
+def sync_branch_to_latest(workspace: Path, base_branch: str, run_log: RunLog) -> bool:
+    """Bring the local `base_branch` ref up to `origin`'s current tip and
+    merge it into the checked-out branch, before `fold_changes_into_staged()`
+    diffs against it.
+
+    The workspace is a fresh clone taken *before* the tool runs, and the
+    tool can run for up to 30 minutes (see `_process_issue_inner`). In a
+    repo that regularly sees several merges to `base_branch` in that window,
+    `fold_changes_into_staged()`'s `git reset --soft base_branch` was
+    resetting against that clone-time tip, not the real one — so any file
+    that changed upstream during the run looked, from this branch's
+    perspective, like it still had its old (now stale) content. Folded into
+    one commit and opened as a PR, that reads as this branch *deleting* or
+    *reverting* whatever changed upstream in the meantime, even though the
+    tool never touched those files. Confirmed against two real cases the
+    same session this was fixed: PRs #4064 and #4078 each accidentally
+    deleted a venture that had merged to `main` minutes into the run.
+
+    Returns True if the branch is now current with `origin/base_branch`
+    (whether or not there was anything new to bring in). Returns False only
+    if merging produced a real conflict — the merge is aborted immediately
+    so the workspace is left clean, and the caller should treat the run as
+    failed rather than fold and push a half-merged tree. A fetch failure
+    (network hiccup) is logged and treated as non-fatal: this falls back to
+    folding against the clone-time tip, which is the pre-existing behavior
+    rather than a new failure mode.
+    """
+    fetch = subprocess.run(
+        ["git", "fetch", "origin", f"{base_branch}:{base_branch}"],
+        cwd=workspace, capture_output=True, text=True,
+    )
+    run_log.write(fetch.stdout)
+    run_log.write(fetch.stderr)
+    if fetch.returncode != 0:
+        run_log.write(
+            f"fetching latest {base_branch} failed; folding against the "
+            f"clone-time tip instead"
+        )
+        return True
+
+    merge = subprocess.run(
+        ["git", "merge", "--no-edit", base_branch],
+        cwd=workspace, capture_output=True, text=True,
+    )
+    run_log.write(merge.stdout)
+    run_log.write(merge.stderr)
+    if merge.returncode != 0:
+        abort = subprocess.run(
+            ["git", "merge", "--abort"], cwd=workspace, capture_output=True, text=True,
+        )
+        run_log.write(abort.stdout)
+        run_log.write(abort.stderr)
+        return False
+    return True
+
+
 def fold_changes_into_staged(workspace: Path, base_branch: str) -> str:
     """Stage any uncommitted edits, then fold them together with any
     commits the tool made on its own directly onto base_branch's tip, so
@@ -568,6 +624,27 @@ def _process_issue_inner(
             f"Agent run (`{tool}`) failed (exit {result.returncode}) and made "
             f"no changes it's willing to submit. See server log for the "
             f"transcript. Remove the `{LABEL_FAILED}` label to retry.",
+        )
+        return
+
+    # The clone is up to 30 minutes stale by now (the tool just ran) — bring
+    # base_branch up to origin's real tip before folding, or a file that
+    # changed upstream mid-run reads as this branch reverting it. See
+    # sync_branch_to_latest()'s docstring.
+    if not sync_branch_to_latest(workspace, base_branch, run_log):
+        run_log.write(
+            f"[{repo}#{number}] merging latest {base_branch} produced a "
+            f"conflict; leaving for a human rather than folding a half-merge"
+        )
+        label(repo, number, LABEL_FAILED)
+        unclaim_issue(repo, number)
+        comment(
+            repo, number,
+            f"Agent run (`{tool}`) made changes, but `{base_branch}` moved "
+            f"during the run and merging it back in produced a conflict this "
+            f"runner can't resolve unattended. Nothing was pushed. Retry "
+            f"after `{base_branch}` settles, or resolve by hand and remove "
+            f"the `{LABEL_FAILED}` label.",
         )
         return
 
