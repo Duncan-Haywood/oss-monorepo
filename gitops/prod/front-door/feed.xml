@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 216 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 217 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-08T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free calculator for Davis-Bacon / prevailing-wage certified payroll: checks whether a worker&#39;s cash wages plus fringe meet the wage determination, and computes overtime correctly when part of the fringe is paid in cash instead of a bona fide plan.</summary>
+  </entry>
+  <entry>
+    <title>iOS Privacy Manifest Checker — Required Reason API vs PrivacyInfo.xcprivacy</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ios-privacy-manifest-check/"/>
+    <id>tag:marisstella.dev,2026:tool/ios-privacy-manifest-check</id>
+    <published>2026-09-08T00:00:00Z</published>
+    <updated>2026-09-08T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free, browser-local checker: scans your Swift/Objective-C source for Apple&#39;s Required Reason API usage and compares it against your PrivacyInfo.xcprivacy manifest, so a missing declaration doesn&#39;t cost you an App Store rejection (ITMS-91061 / ITMS-91055). Nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Newsletter Sponsorship Rate Calculator — Free, No Sign-Up</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-06T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you&#39;re already considering against the breakeven.</summary>
-  </entry>
-  <entry>
-    <title>Vehicle Wrap Bid Calculator — Price a Wrap Install</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vehicle-wrap-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/vehicle-wrap-bid-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free calculator for independent vehicle wrap and graphics shops: price a full or partial wrap from vehicle surface area, material waste factor, install complexity, and labor, then see exactly what a waste-blind quote loses on every job.</summary>
   </entry>
 </feed>
