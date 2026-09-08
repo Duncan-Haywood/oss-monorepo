@@ -11,9 +11,6 @@ workflows:
 - workflow: 3d-print-price-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: menu-engineering-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: 3pl-quote-normalizer-ci.yml
   classification: none
   publishes: []
@@ -254,6 +251,9 @@ workflows:
 - workflow: dumpster-rental-margin-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: duplicate-payment-audit-ci.yml
+  classification: none
+  publishes: []
 - workflow: duplicate-symbols-ci.yml
   classification: none
   publishes: []
@@ -453,6 +453,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: medical-courier-route-margin-ci.yml
+  classification: none
+  publishes: []
+- workflow: menu-engineering-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: metal-roof-bid-calculator-ci.yml
