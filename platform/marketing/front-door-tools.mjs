@@ -562,6 +562,7 @@ export const WHY_CATEGORY_WORD = {
   backoffice: 'back-office',
   logistics: 'logistics',
   ci: 'ci',
+  'solo-earner': 'solo-earner',
   more: 'more',
 };
 
@@ -713,7 +714,7 @@ export const STARTER_SET = [
   { slug: 'booth-rent-vs-commission', why: 'services — the decision a stylist makes once and lives with for years' },
 
   // more — the second and last eligible venture behind that card.
-  { slug: 'sponsor-ready', why: 'more — the only other venture that card can point at' },
+  { slug: 'sponsor-ready', why: 'solo-earner — the only other venture that card can point at; refiled from "more" 2026-09-08 when the solo-earner category was split out of the catch-all' },
 
   // ---------------------------------------------------------------------
   // trades, 8 -> 13. Added 2026-09-02, spending existing headroom only.

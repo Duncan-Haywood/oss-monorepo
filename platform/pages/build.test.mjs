@@ -434,8 +434,20 @@ test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
   assert.match(hub, /entirely optional/i);
+  // `\bsubscribe\b` rather than a bare `subscribe`: the guard is about a
+  // paywall *call to action* ("Subscribe", "subscribe now", "subscribe to
+  // unlock"), and every one of those forms still matches. What no longer
+  // matches is the noun -- "subscriber", "subscribers", "subscriber count" --
+  // which is a legitimate domain word rather than an ask.
+  //
+  // It first fired on 2026-09-08 against `newsletter-sponsorship-rate-
+  // calculator`, whose entire input is a newsletter's subscriber count, and
+  // it fired *after* that venture had already merged: Actions was starved, so
+  // nothing ran this suite on the PR and `main` went red on it. Rewording the
+  // venture's copy to satisfy a substring match would have made the product
+  // worse to protect a guard from a word it never meant to catch.
   assert.ok(
-    !/subscribe|upgrade to|paid plan|free trial/i.test(visibleCopy(hub)),
+    !/\bsubscribe\b|upgrade to|paid plan|free trial/i.test(visibleCopy(hub)),
     'no paywall language',
   );
 });
@@ -1258,7 +1270,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 8, 'the seven named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 9, 'the eight named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -4226,8 +4238,22 @@ test('the catch-all holds only what no section claims', async () => {
   // Neither is a coherent cluster on its own yet, so this is the fallback
   // working as designed rather than a taxonomy gap to close today; lower it
   // back if either niche grows a sibling that lets both leave the catch-all.
+  //
+  // Lowered 9 -> 5 on 2026-09-08, which is what those two raises were waiting
+  // for. The bound was one arrival from firing again and this time the answer
+  // was the category rather than another raise: enumerating the catch-all
+  // instead of judging one arrival at a time showed that five of its nine
+  // members already shared an axis no named section had -- an individual
+  // pricing their own labour or audience, rather than a business or a
+  // developer. They are now `solo-earner` in build.mjs, and the four left
+  // here really are unrelated to each other.
+  //
+  // Note the shape of the mistake this corrects: each raise was locally
+  // correct ("my venture is not a cluster on its own") and the aggregate was
+  // wrong, because nobody was looking at the aggregate. Prefer listing the
+  // catch-all to reasoning about the one venture in front of you.
   assert.ok(
-    more.items.length <= 9,
+    more.items.length <= 5,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
   );
 });
