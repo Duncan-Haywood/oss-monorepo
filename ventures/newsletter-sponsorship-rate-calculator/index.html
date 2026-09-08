@@ -143,7 +143,9 @@
     };
 
     function money(n) {
-      return `$${n.toLocaleString()}`;
+      const format = (n) => `$${n.toLocaleString()}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
 
     function renderFindings(findings) {
