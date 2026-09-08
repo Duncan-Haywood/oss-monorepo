@@ -248,6 +248,39 @@
       "pages": 830,
       "result": "pass",
       "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "ab51eb8b84bfb466f8e00122c0e953f1278611f9",
+      "measured": "2026-09-07",
+      "pages": 830,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "1c6ee87ecde710d38e18f7721362ed04dd6f9f5e",
+      "measured": "2026-09-07",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "home-staging-bid-calculator",
+        "ice-dam-removal-bid-calculator"
+      ]
     }
   ]
 }
