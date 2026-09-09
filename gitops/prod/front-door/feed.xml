@@ -35,6 +35,15 @@
     <summary type="text">Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>package.json Exports Drift Check — Does &quot;exports&quot; Point at Files That Exist?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/package-exports-drift-check/"/>
+    <id>tag:marisstella.dev,2026:tool/package-exports-drift-check</id>
+    <published>2026-09-09T00:00:00Z</published>
+    <updated>2026-09-09T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your package.json and a listing of the files you actually publish and see every literal target in the &quot;exports&quot; map that points at a file that doesn&#39;t exist -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module right after npm install. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Structured Data Drift Check — Does Your JSON-LD Match the Page?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/structured-data-drift-check/"/>
     <id>tag:marisstella.dev,2026:tool/structured-data-drift-check</id>

@@ -1,0 +1,76 @@
+name: package-exports-drift-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that flattens a package.json ''exports'' map (every subpath, every nested condition -- import/require/types/... -- and every fallback array) and checks that each literal file target actually exists, naming every one that is missing -- the cause of Node''s ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module errors that only show up after a stranger runs npm install, never on the maintainer''s own machine where the build has usually already run. A deterministic existence check, not a bundler, resolver, or publish tool.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section (2026-09-07) argues explicitly for
+# this shape over another <trade>-bid-calculator, since 141+ of ~231
+# ventures already share that shape with zero recorded visitors between
+# them. Same deterministic-self-consistency-check shape as
+# env-example-drift-check and structured-data-drift-check (both
+# 2026-09-09), applied to a different pair: a package.json's own exports
+# map against the files that actually exist/publish, rather than an
+# .env.example against code reads or a page's JSON-LD against its visible
+# text.
+#
+# duplicate_check.py (run 2026-09-09) scored every existing venture,
+# screened-out row, and pipeline candidate below 0.21 for this idea's
+# description -- nowhere near the 0.45 review bar. Closest matches by eye:
+# env-example-drift-check (0.21, same "diff two things a repo already has"
+# shape, different pair), npm-lifecycle-script-check (0.15, reads the same
+# lockfile/package.json neighborhood but diffs install-time scripts across
+# two lockfile snapshots, not exports targets against files) and
+# dependency-confusion-check (0.09, npm/pip registry config, not exports).
+# None of the 231 ventures reads or diffs a package.json "exports" field.
+#
+# Distribution channel: Node's ERR_PACKAGE_PATH_NOT_EXPORTED and the
+# broader "package.json exports field breaks npm install" class of bug is
+# a well-documented, recurring pain point in the Node/TypeScript ecosystem
+# since Node 12+ made "exports" the strict, non-fallback resolution path --
+# numerous blog posts and Stack Overflow threads exist specifically titled
+# around this error message and around "Cannot find module" immediately
+# after installing a package whose exports map went stale relative to its
+# build output. Searchable channels with real, recurring thread volume:
+# r/node, r/typescript, r/reactjs (library authors), and Stack Overflow's
+# own ERR_PACKAGE_PATH_NOT_EXPORTED / "exports field not found" questions,
+# most of which trace back to exactly this class of drift. publint and
+# arethetypeswrong.github.io cover adjacent ground (a good sign the pain is
+# real and that library authors already reach for automated exports
+# checking) but neither is a standalone zero-dependency existence-only
+# checker scoped this narrowly, and arethetypeswrong specifically targets
+# the "types" condition rather than every literal target in the map; that
+# gap -- a minimal, dependency-free, CI-gate-ready checker for the general
+# case -- is the wedge.
+hypotheses:
+  - claim: A library maintainer who has just shipped a broken publish (a user filing "Cannot find module" or ERR_PACKAGE_PATH_NOT_EXPORTED against a version already on npm) will run the CLI once, see the stale target named, and wire it into their publish workflow as the last gate before `npm publish` so the same class of bug cannot ship again.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A developer debugging ERR_PACKAGE_PATH_NOT_EXPORTED in someone else's dependency will paste that package's package.json and a file listing (or npm pack --dry-run output) into the browser tool to quickly confirm whether the published package is actually broken before filing an issue or reaching for a workaround.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only text pasted
+  # into it, in the visitor's own browser, and the CLI reads only the local
+  # package.json it is pointed at, with no network call at all. Serving one
+  # more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI (or publish workflow) within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/package-exports-drift-check/
+  analytics: null

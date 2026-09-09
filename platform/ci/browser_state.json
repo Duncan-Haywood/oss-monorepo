@@ -10,22 +10,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "e94942781736472e160295df165a22bd9594a909",
-      "measured": "2026-09-07",
-      "pages": 803,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "ce7b9a884c02addee7e36a2ea6fd29f1a544250e",
       "measured": "2026-09-07",
       "pages": 810,
@@ -310,6 +294,22 @@
         "sweep"
       ],
       "commit": "f8dc132c3167081371d2039a899b7eb642b8e1fe",
+      "measured": "2026-09-09",
+      "pages": 866,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "39d8d0a5790389da6562e9cb6a6f3f330a30d197",
       "measured": "2026-09-09",
       "pages": 866,
       "result": "pass",
