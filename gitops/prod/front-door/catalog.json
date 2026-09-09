@@ -540,7 +540,7 @@
       "url": "https://marisstella.dev/tools/actions-permissions-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "actions-runner-starvation-check",
