@@ -41,7 +41,7 @@
 #   portfolio-front-tools-5: 136 files, 554155 bytes
 #   portfolio-front-tools-6: 116 files, 543590 bytes
 #   portfolio-front-tools-7: 110 files, 553454 bytes
-#   portfolio-front-tools-8: 117 files, 548760 bytes
+#   portfolio-front-tools-8: 118 files, 552649 bytes
 #   portfolio-front-tools-9: 120 files, 551045 bytes
 #   portfolio-front-tools-10: 101 files, 555873 bytes
 #   portfolio-front-tools-11: 64 files, 320343 bytes
@@ -1168,6 +1168,7 @@ configMapGenerator:
       - newsletter-sponsorship-rate-calculator__index.html.gz=newsletter-sponsorship-rate-calculator__index.html.gz
       - newsletter-sponsorship-rate-calculator__newsletter-sponsorship-rate-benchmarks.html.gz=newsletter-sponsorship-rate-calculator__newsletter-sponsorship-rate-benchmarks.html.gz
       - newsletter-sponsorship-rate-calculator__usage.mjs.gz=newsletter-sponsorship-rate-calculator__usage.mjs.gz
+      - newsletter-sponsorship-rate-calculator__vs-paved.html.gz=newsletter-sponsorship-rate-calculator__vs-paved.html.gz
       - no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz=no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz
       - no-show-fee-calculator__app.mjs.gz=no-show-fee-calculator__app.mjs.gz
       - no-show-fee-calculator__calc.mjs.gz=no-show-fee-calculator__calc.mjs.gz
