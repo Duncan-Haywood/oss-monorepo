@@ -920,6 +920,105 @@ class Tree(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("nothing was verified", out.getvalue().lower())
 
+    def test_a_step_is_named_before_it_runs_not_after(self):
+        # A sweep of this tree takes ~13 minutes. If the label is printed
+        # only once `execute()` returns, a session that pipes the output --
+        # which Python then block-buffers -- watches a silent process at ~0%
+        # CPU and reasonably concludes it has hung. That happened: the
+        # session that merged #4326 killed it on exactly that reading and
+        # fell back to CLAUDE.md's hand-copied command list, the substitution
+        # this tool exists to make unnecessary.
+        #
+        # So the property under test is ordering, not formatting: at the
+        # moment a step begins, its name must already be on stdout.
+        seen = []
+        out = io.StringIO()
+
+        def fake_execute(step, _timeout):
+            seen.append(out.getvalue())
+            step.status = "ok"
+            step.seconds = 0.0
+
+        wf = workflow("""
+            jobs:
+              j:
+                steps:
+                  - name: the-slow-one
+                    run: echo 1
+        """)
+        real_execute = runner.execute
+        runner.execute = fake_execute
+        try:
+            with contextlib.redirect_stdout(out):
+                runner._run_selected(
+                    argparse.Namespace(list=False, timeout=1),
+                    [("w.yml", wf, {"j"})], [])
+        finally:
+            runner.execute = real_execute
+
+        self.assertEqual(len(seen), 1, "the step did not run")
+        self.assertIn("the-slow-one", seen[0],
+                      "the step ran before its name reached stdout; a long "
+                      "step is then indistinguishable from a hang")
+
+    def test_only_run_steps_prints_the_progress_line(self):
+        # The by-name path and the sweep each had their own copy of this
+        # loop, and they drifted twice: once into `KeyError: 'unrun'` (see
+        # the note above STATUS_MARK), and once when the progress fix landed
+        # in the sweep and left the by-name path still printing after the
+        # fact. Both were found by running the tool, not by reading it.
+        #
+        # So the rule is mechanical: exactly one place renders a step's
+        # status. A second copy fails here rather than in six weeks.
+        import inspect
+        src = inspect.getsource(runner)
+        printers = [ln.strip() for ln in src.splitlines()
+                    if "STATUS_MARK[" in ln]
+        self.assertEqual(
+            len(printers), 1,
+            "STATUS_MARK is rendered in more than one place: "
+            f"{printers}. Call run_steps() instead of restating the loop.")
+        self.assertIn("STATUS_MARK[", inspect.getsource(runner.run_steps),
+                      "run_steps no longer renders the status line")
+
+    def test_progress_is_flushed_rather_than_left_in_the_buffer(self):
+        # Naming the step first only helps if it actually leaves the process.
+        # Python block-buffers stdout when it is not a tty, which is the case
+        # this matters in -- a session piping the sweep to a file or a pager.
+        flushes = []
+
+        class Recorder(io.StringIO):
+            def flush(self):
+                flushes.append(self.getvalue())
+                super().flush()
+
+        def fake_execute(step, _timeout):
+            step.status = "ok"
+            step.seconds = 0.0
+
+        wf = workflow("""
+            jobs:
+              j:
+                steps:
+                  - name: the-slow-one
+                    run: echo 1
+        """)
+        out = Recorder()
+        real_execute = runner.execute
+        runner.execute = fake_execute
+        try:
+            with contextlib.redirect_stdout(out):
+                runner._run_selected(
+                    argparse.Namespace(list=False, timeout=1),
+                    [("w.yml", wf, {"j"})], [])
+        finally:
+            runner.execute = real_execute
+
+        self.assertTrue(
+            any("the-slow-one" in f for f in flushes),
+            "the step label was never flushed, so a piped sweep shows "
+            "nothing until the buffer fills or the process exits")
+
 
 if __name__ == "__main__":
     unittest.main()
