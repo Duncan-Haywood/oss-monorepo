@@ -9,7 +9,7 @@
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
   "served_here": 219,
-  "collection_total": 218,
+  "collection_total": 219,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -884,7 +884,7 @@
       "url": "https://marisstella.dev/tools/duplicate-payment-audit/",
       "category": "Back-office money & contracts",
       "description": "Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "egress-window-bid-calculator",

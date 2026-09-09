@@ -36,10 +36,10 @@
 #   portfolio-front-tools-0: 136 files, 555123 bytes
 #   portfolio-front-tools-1: 111 files, 555412 bytes
 #   portfolio-front-tools-2: 148 files, 556696 bytes
-#   portfolio-front-tools-3: 143 files, 555476 bytes
+#   portfolio-front-tools-3: 143 files, 555361 bytes
 #   portfolio-front-tools-4: 119 files, 554698 bytes
-#   portfolio-front-tools-5: 137 files, 556895 bytes
-#   portfolio-front-tools-6: 117 files, 547581 bytes
+#   portfolio-front-tools-5: 135 files, 556607 bytes
+#   portfolio-front-tools-6: 120 files, 552106 bytes
 #   portfolio-front-tools-7: 110 files, 553460 bytes
 #   portfolio-front-tools-8: 118 files, 552366 bytes
 #   portfolio-front-tools-9: 120 files, 551078 bytes
@@ -825,6 +825,7 @@ configMapGenerator:
       - duplicate-payment-audit__export.mjs.gz=duplicate-payment-audit__export.mjs.gz
       - duplicate-payment-audit__index.html.gz=duplicate-payment-audit__index.html.gz
       - duplicate-payment-audit__usage.mjs.gz=duplicate-payment-audit__usage.mjs.gz
+      - duplicate-payment-audit__vs-bill-com.html.gz=duplicate-payment-audit__vs-bill-com.html.gz
       - egress-window-bid-calculator__calc.mjs.gz=egress-window-bid-calculator__calc.mjs.gz
       - egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz=egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz
       - egress-window-bid-calculator__index.html.gz=egress-window-bid-calculator__index.html.gz
@@ -884,14 +885,14 @@ configMapGenerator:
       - equipment-rental-break-even__app.mjs.gz=equipment-rental-break-even__app.mjs.gz
       - equipment-rental-break-even__how-much-should-i-charge-to-rent-out-equipment.html.gz=equipment-rental-break-even__how-much-should-i-charge-to-rent-out-equipment.html.gz
       - equipment-rental-break-even__index.html.gz=equipment-rental-break-even__index.html.gz
-      - equipment-rental-break-even__model.mjs.gz=equipment-rental-break-even__model.mjs.gz
-      - equipment-rental-break-even__share.mjs.gz=equipment-rental-break-even__share.mjs.gz
-      - equipment-rental-break-even__usage.mjs.gz=equipment-rental-break-even__usage.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - equipment-rental-break-even__model.mjs.gz=equipment-rental-break-even__model.mjs.gz
+      - equipment-rental-break-even__share.mjs.gz=equipment-rental-break-even__share.mjs.gz
+      - equipment-rental-break-even__usage.mjs.gz=equipment-rental-break-even__usage.mjs.gz
       - equipment-rental-break-even__vs-booqable.html.gz=equipment-rental-break-even__vs-booqable.html.gz
       - ev-charger-bid-calculator__calc.mjs.gz=ev-charger-bid-calculator__calc.mjs.gz
       - ev-charger-bid-calculator__how-much-to-charge.html.gz=ev-charger-bid-calculator__how-much-to-charge.html.gz
