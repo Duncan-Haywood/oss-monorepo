@@ -4,6 +4,7 @@
     python3 check.py                       # scan .github/workflows under .
     python3 check.py /path/to/repo         # scan a specific checkout
     python3 check.py --format json         # machine-readable
+    python3 check.py --format sarif        # SARIF 2.1.0, for github/codeql-action/upload-sarif
     python3 check.py --fail-on-risk        # exit 2 if any finding exists
 
 ## The two risks this catches
@@ -254,6 +255,93 @@ def has_risk(findings):
     return any(f["type"] in RISK_CLASSIFICATIONS for f in findings)
 
 
+_SARIF_RULES = {
+    PWN_REQUEST_CHECKOUT: {
+        "name": "PwnRequestCheckout",
+        "short": "Pwn request checkout",
+        "text": (
+            "A pull_request_target/workflow_run workflow checks out an "
+            "untrusted head, so a later build/test/run step can execute a "
+            "stranger's fork with the base repository's secrets."
+        ),
+    },
+    SCRIPT_INJECTION: {
+        "name": "ScriptInjectionViaUntrustedContextExpression",
+        "short": "Script injection via untrusted context expression",
+        "text": (
+            "A run: step interpolates an untrusted ${{ github.event.* }} "
+            "expression (a PR title, issue body, commit message, or branch "
+            "name) directly into a shell command, letting an attacker-"
+            "controlled string splice its own commands into the script."
+        ),
+    },
+}
+
+
+def _sarif_artifact_uri(path):
+    # Code Scanning resolves a result's URI against the repository root, so
+    # a leading "./" (from scanning the current directory, the default) or
+    # an absolute path (from `check.py /path/to/repo`) both need trimming to
+    # the path relative to what was scanned -- an absolute or dot-relative
+    # URI is otherwise silently dropped by the upload rather than shown.
+    text = str(path)
+    if text.startswith("./"):
+        text = text[2:]
+    return text
+
+
+def render_sarif(findings, root):
+    root_path = str(Path(root).resolve())
+    results = []
+    for finding in findings:
+        file_path = finding["file"]
+        try:
+            uri = _sarif_artifact_uri(Path(file_path).resolve().relative_to(root_path))
+        except ValueError:
+            uri = _sarif_artifact_uri(file_path)
+        results.append(
+            {
+                "ruleId": finding["type"],
+                "level": "warning",
+                "message": {"text": f"{finding['detail']} -- {finding['remediation']}"},
+                "locations": [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": uri},
+                            "region": {"startLine": finding["line"]},
+                        }
+                    }
+                ],
+            }
+        )
+    sarif = {
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "actions-injection-check",
+                        "informationUri": "https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/",
+                        "rules": [
+                            {
+                                "id": rule_id,
+                                "name": rule["name"],
+                                "shortDescription": {"text": rule["short"]},
+                                "fullDescription": {"text": rule["text"]},
+                                "helpUri": "https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/what-is-a-pwn-request-in-github-actions.html",
+                            }
+                            for rule_id, rule in _SARIF_RULES.items()
+                        ],
+                    }
+                },
+                "results": results,
+            }
+        ],
+    }
+    return json.dumps(sarif, indent=2)
+
+
 def render_text(findings, root):
     if not findings:
         files = discover_workflow_files(root)
@@ -288,7 +376,7 @@ def main(argv=None):
         "path", nargs="?", default=".", help="directory to scan (default: current directory)"
     )
     parser.add_argument(
-        "--format", choices=("text", "json"), default="text", help="output format"
+        "--format", choices=("text", "json", "sarif"), default="text", help="output format"
     )
     parser.add_argument(
         "--fail-on-risk",
@@ -301,6 +389,8 @@ def main(argv=None):
 
     if args.format == "json":
         print(json.dumps(findings, indent=2))
+    elif args.format == "sarif":
+        print(render_sarif(findings, args.path))
     else:
         print(render_text(findings, args.path))
 
