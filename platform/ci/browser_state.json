@@ -10,38 +10,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "59830499ccaef2d58f7e88deb4b6db8128708f14",
-      "measured": "2026-09-07",
-      "pages": 789,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "56c21e705a3631650e93a104a1c75f2a05986301",
-      "measured": "2026-09-07",
-      "pages": 791,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "5af5d1d4bab910c9f8ac8d670cc6fa70f990149a",
       "measured": "2026-09-07",
       "pages": 803,
@@ -318,6 +286,32 @@
       "commit": "776092251bcdcce263cdba6c9ffe8ec1a13ec6d6",
       "measured": "2026-09-09",
       "pages": 853,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "777a87f9461dbe73c47befc4a6bdb2873ac7967f",
+      "measured": "2026-09-09",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "newsletter-sponsorship-rate-calculator"
+      ]
+    },
+    {
+      "checks": [
+        "journey"
+      ],
+      "commit": "777a87f9461dbe73c47befc4a6bdb2873ac7967f",
+      "measured": "2026-09-09",
+      "pages": 854,
       "result": "pass",
       "scope": "full"
     }

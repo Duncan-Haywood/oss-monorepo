@@ -38,7 +38,11 @@
 #   portfolio-front-tools-2: 148 files, 556696 bytes
 #   portfolio-front-tools-3: 143 files, 555361 bytes
 #   portfolio-front-tools-4: 119 files, 554698 bytes
+<<<<<<< HEAD
 #   portfolio-front-tools-5: 135 files, 556607 bytes
+=======
+#   portfolio-front-tools-5: 135 files, 555962 bytes
+>>>>>>> origin/main
 #   portfolio-front-tools-6: 120 files, 552106 bytes
 #   portfolio-front-tools-7: 110 files, 553460 bytes
 #   portfolio-front-tools-8: 118 files, 552366 bytes
@@ -825,7 +829,11 @@ configMapGenerator:
       - duplicate-payment-audit__export.mjs.gz=duplicate-payment-audit__export.mjs.gz
       - duplicate-payment-audit__index.html.gz=duplicate-payment-audit__index.html.gz
       - duplicate-payment-audit__usage.mjs.gz=duplicate-payment-audit__usage.mjs.gz
+<<<<<<< HEAD
       - duplicate-payment-audit__vs-bill-com.html.gz=duplicate-payment-audit__vs-bill-com.html.gz
+=======
+      - duplicate-payment-audit__vs-prgx.html.gz=duplicate-payment-audit__vs-prgx.html.gz
+>>>>>>> origin/main
       - egress-window-bid-calculator__calc.mjs.gz=egress-window-bid-calculator__calc.mjs.gz
       - egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz=egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz
       - egress-window-bid-calculator__index.html.gz=egress-window-bid-calculator__index.html.gz
