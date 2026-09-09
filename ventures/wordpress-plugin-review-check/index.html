@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WordPress Plugin Review Checker — Stable Tag, Escaping &amp; Nonce Issues</title>
+<meta name="description" content="Free, browser-local checker for WordPress plugin developers: catches a readme.txt Stable tag that doesn't match your plugin's Version header, missing required readme/header fields, unescaped $_GET/$_POST output, and $_POST handling with no nonce check -- before wordpress.org Plugin Review does. Nothing is uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/wordpress-plugin-review-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="WordPress Plugin Review Checker">
+<meta property="og:description" content="Cross-check your plugin's readme.txt and PHP source for the patterns behind common wordpress.org Plugin Directory rejections. Free, local, no upload.">
+<meta property="og:url" content="https://example.invalid/wordpress-plugin-review-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "WordPress Plugin Review Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser); a Node.js CLI is also provided",
+  "description": "Scans a WordPress plugin's readme.txt and PHP source for the patterns behind common wordpress.org Plugin Directory review rejections: a Stable tag that doesn't match the plugin header's Version, missing required readme/header fields, unescaped superglobal output, and $_POST handling with no nonce check. Runs entirely in the browser or as a local CLI; nothing is uploaded.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Flags a readme.txt Stable tag that does not match the plugin header's Version -- the directory serves whatever Stable tag names",
+    "Flags missing required readme.txt fields (Stable tag, License, License URI) and plugin header fields (Plugin Name, Version)",
+    "Flags a $_GET/$_POST/$_REQUEST/$_COOKIE/$_SERVER value echoed with no escaping function on the same line",
+    "Flags a file that reads $_POST with no nonce-verification call anywhere in it",
+    "Runs fully client-side or as a Node CLI in your own CI; no upload, no account"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does a Stable tag / Version mismatch matter for WordPress plugin review?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The Plugin Directory serves whichever version readme.txt's Stable tag names, not whatever you most recently committed or tagged. If Stable tag still says an old version, users downloading or auto-updating your plugin get that old build even after you've shipped a new one -- and reviewers flag the mismatch on submission. This tool reads both files and tells you if they disagree." }
+    },
+    {
+      "@type": "Question",
+      "name": "What counts as \"unescaped output\" in a WordPress plugin?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Printing a value from $_GET, $_POST, $_REQUEST, $_COOKIE, or $_SERVER with echo/print/printf and no escaping function (esc_html, esc_attr, esc_url, sanitize_text_field, absint, and similar) wrapped around it. WordPress's own plugin-review guidance treats unescaped output as a security issue regardless of whether the specific input happens to be exploitable today -- the fix is standard, and reviewers ask for it as a matter of course." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does processing $_POST need a nonce check?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Without a nonce (check_admin_referer, check_ajax_referer, or wp_verify_nonce), a form handler can't tell a request submitted by your own plugin's form from one a malicious site tricked a logged-in user's browser into sending (cross-site request forgery). Plugin review looks for a nonce check anywhere in a file that processes $_POST; this tool does the same file-level check." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my plugin's source code uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The browser tool reads the files you select using the File API and never sends them anywhere -- everything happens in memory in your tab. The CLI never makes a network call either." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean my plugin will pass wordpress.org Plugin Review?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This is evidence from pattern-matching your readme.txt, plugin header, and PHP source against known field names and function calls -- it is not the review process, and it is a line-level heuristic, not data-flow analysis. It can miss an escaping function applied a few lines away from the echo, a nonce check that exists but never actually runs before the $_POST read it's meant to guard, or a field spelled non-standardly. Always re-check against the Plugin Directory's own current guidelines before submitting." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 860px; margin: 0 auto; padding: 1.5rem; line-height: 1.5; }
+  h1 { font-size: 1.5rem; }
+  .picker { border: 2px dashed #888; border-radius: 8px; padding: 1.25rem; margin: 1rem 0; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; }
+  .link-button { font-size: inherit; padding: 0; border: none; background: none; color: #0366d6; text-decoration: underline; cursor: pointer; }
+  button:disabled { cursor: not-allowed; opacity: 0.6; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1.5rem; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; font-size: 0.92rem; }
+  .status-ok { color: #1a7f37; font-weight: 600; }
+  .status-bad { color: #b42318; font-weight: 600; }
+  .status-info { color: #555; }
+  .examples { margin: 0.25rem 0 0; padding-left: 1.1rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; }
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #ccc; font-size: 0.85rem; color: #555; }
+  footer p { margin: 0.6rem 0; }
+  .summary-ok { color: #1a7f37; }
+  .summary-bad { color: #b42318; }
+  ul.plain { padding-left: 1.2rem; }
+</style>
+</head>
+<body>
+<h1>WordPress Plugin Review Checker</h1>
+<p>
+  Scans your plugin's <code>readme.txt</code> and PHP source for the patterns behind common
+  wordpress.org Plugin Directory review rejections: a <strong>Stable tag</strong> that doesn't
+  match your plugin header's <strong>Version</strong>, missing required readme/header fields, a
+  <code>$_GET</code>/<code>$_POST</code>/<code>$_REQUEST</code>/<code>$_COOKIE</code>/<code>$_SERVER</code>
+  value echoed with no escaping function, and <code>$_POST</code> handling with no nonce check
+  anywhere in the file. Everything runs in this tab; nothing is uploaded. A command-line version
+  for CI is in the same
+  <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/wordpress-plugin-review-check" rel="noopener">repository</a>
+  (<code>node check.mjs .</code>).
+</p>
+
+<div class="picker">
+  <label for="fileInput"><strong>1. Select your plugin's PHP files and readme.txt</strong></label><br>
+  <small>Open your plugin's folder and select every <code>.php</code> file plus <code>readme.txt</code>
+  (select-all works). Not at your project right now? <button type="button" id="loadExample" class="link-button">Load a worked example</button> instead.</small><br><br>
+  <input type="file" id="fileInput" multiple accept=".php,.txt">
+  <p id="fileCount">No files selected yet.</p>
+  <button id="runBtn" type="button" disabled>2. Check plugin</button>
+</div>
+
+<div id="results" aria-live="polite"></div>
+
+<script type="module">
+  import { parseReadme, findPluginHeaderFile, parsePluginHeader, detectUnescapedOutput, detectMissingNonceChecks, buildReport } from './scan.mjs';
+  import { recordUsage } from './usage.mjs';
+
+  const fileInput = document.getElementById('fileInput');
+  const fileCountEl = document.getElementById('fileCount');
+  const runBtn = document.getElementById('runBtn');
+  const resultsEl = document.getElementById('results');
+  const loadExampleBtn = document.getElementById('loadExample');
+
+  let selected = [];
+
+  fileInput.addEventListener('change', () => {
+    selected = Array.from(fileInput.files);
+    fileCountEl.textContent = selected.length === 0
+      ? 'No files selected yet.'
+      : `${selected.length} file(s) selected.`;
+    runBtn.disabled = selected.length === 0;
+  });
+
+  function runCheck(phpFiles, readmeText, event) {
+    const readme = parseReadme(readmeText);
+    const headerFile = findPluginHeaderFile(phpFiles);
+    const pluginHeader = parsePluginHeader(headerFile);
+    const unescapedOutput = detectUnescapedOutput(phpFiles);
+    const missingNonceChecks = detectMissingNonceChecks(phpFiles);
+    const report = buildReport({ readme, pluginHeader, unescapedOutput, missingNonceChecks });
+    renderReport(report, phpFiles.length);
+
+    const optedOut = document.getElementById('usageOptOut')?.checked ?? false;
+    recordUsage(localStorage, optedOut, event);
+  }
+
+  runBtn.addEventListener('click', async () => {
+    const readmeFile = selected.find((f) => f.name.toLowerCase() === 'readme.txt');
+    const phpSourceFiles = selected.filter((f) => /\.php$/i.test(f.name));
+
+    const fileRecords = await Promise.all(
+      phpSourceFiles.map(async (f) => ({ path: f.webkitRelativePath || f.name, content: await f.text() })),
+    );
+    const readmeText = readmeFile ? await readmeFile.text() : null;
+    runCheck(fileRecords, readmeText, 'scan_run');
+  });
+
+  // A visitor deciding whether this tool is worth digging up their plugin
+  // files for has nothing to try it on -- same "load an example" pattern
+  // used by the other file-upload checkers in this portfolio. Runs through
+  // the same parseReadme/parsePluginHeader/detectUnescapedOutput/
+  // detectMissingNonceChecks/buildReport path as a real scan; only the
+  // source of the files differs, and it deliberately exercises a Stable tag
+  // mismatch, an unescaped echo, and a missing nonce check all at once.
+  const EXAMPLE_README = `=== Example Plugin ===
+Contributors: exampledev
+Tags: example, demo
+Requires at least: 6.0
+Tested up to: 6.6
+Stable tag: 1.2.0
+License: GPLv2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
+== Description ==
+
+An example plugin used to demonstrate this checker.
+`;
+  const EXAMPLE_PLUGIN_FILE = `<?php
+/**
+ * Plugin Name: Example Plugin
+ * Version: 1.3.0
+ * License: GPL-2.0-or-later
+ */
+
+// Stable tag above says 1.2.0, this header says 1.3.0 -- a mismatch.
+
+if ( isset( $_GET['name'] ) ) {
+    echo 'Hello, ' . $_GET['name'];
+    // Printed with no escaping function -- flagged.
+}
+
+function example_save_settings() {
+    if ( isset( $_POST['example_option'] ) ) {
+        update_option( 'example_option', $_POST['example_option'] );
+        // No check_admin_referer/check_ajax_referer/wp_verify_nonce
+        // anywhere in this file -- flagged.
+    }
+}
+`;
+
+  loadExampleBtn?.addEventListener('click', () => {
+    fileInput.value = '';
+    selected = [];
+    fileCountEl.textContent = 'Showing a worked example — pick your own files above to check your project instead.';
+    runCheck(
+      [{ path: 'example-plugin.php', content: EXAMPLE_PLUGIN_FILE }],
+      EXAMPLE_README,
+      'example_loaded',
+    );
+  });
+
+  function renderReport(report, scannedCount) {
+    resultsEl.innerHTML = '';
+
+    const summary = document.createElement('p');
+    summary.className = report.ok ? 'summary-ok' : 'summary-bad';
+    const parts = [];
+    if (!report.readmeFound) parts.push('no readme.txt found');
+    if (!report.pluginHeaderFound) parts.push('no plugin header found');
+    if (report.stableTagStatus === 'mismatch') parts.push('Stable tag does not match Version');
+    if (report.missingRequiredReadme.length) parts.push(`readme.txt missing: ${report.missingRequiredReadme.join(', ')}`);
+    if (report.missingRequiredHeader.length) parts.push(`plugin header missing: ${report.missingRequiredHeader.join(', ')}`);
+    if (report.unescapedOutput.length) parts.push(`${report.unescapedOutput.length} unescaped output line(s)`);
+    if (report.missingNonceChecks.length) parts.push(`${report.missingNonceChecks.length} file(s) with $_POST and no nonce check`);
+    summary.textContent = report.ok
+      ? `Scanned ${scannedCount} PHP file(s). Everything this tool checks looks clean.`
+      : `Scanned ${scannedCount} PHP file(s). ${parts.join('; ')}.`;
+    resultsEl.appendChild(summary);
+
+    const table = document.createElement('table');
+    table.innerHTML = '<thead><tr><th>Check</th><th>Result</th></tr></thead>';
+    const tbody = document.createElement('tbody');
+
+    function row(label, statusClass, text) {
+      const tr = document.createElement('tr');
+      const th = document.createElement('td');
+      th.textContent = label;
+      tr.appendChild(th);
+      const td = document.createElement('td');
+      td.innerHTML = `<span class="status-${statusClass}">${text}</span>`;
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+
+    row('readme.txt found', report.readmeFound ? 'ok' : 'bad', report.readmeFound ? 'Yes' : 'No');
+    row('Plugin header found', report.pluginHeaderFound ? 'ok' : 'bad', report.pluginHeaderFound ? `Yes (${report.pluginHeaderPath})` : 'No');
+
+    if (report.stableTagStatus === 'match') row('Stable tag vs Version', 'ok', 'Match');
+    else if (report.stableTagStatus === 'trunk') row('Stable tag vs Version', 'info', '"trunk" -- always serves latest commit');
+    else if (report.stableTagStatus === 'mismatch') row('Stable tag vs Version', 'bad', `readme.txt says "${report.stableTagMismatch.stableTag}", header says "${report.stableTagMismatch.pluginVersion}"`);
+    else row('Stable tag vs Version', 'info', 'Not checked (one or both files/fields missing)');
+
+    row('Required readme fields', report.missingRequiredReadme.length ? 'bad' : 'ok', report.missingRequiredReadme.length ? `Missing: ${report.missingRequiredReadme.join(', ')}` : 'All present');
+    row('Required plugin header fields', report.missingRequiredHeader.length ? 'bad' : 'ok', report.missingRequiredHeader.length ? `Missing: ${report.missingRequiredHeader.join(', ')}` : 'All present');
+    row('Unescaped superglobal output', report.unescapedOutput.length ? 'bad' : 'ok', report.unescapedOutput.length ? `${report.unescapedOutput.length} line(s)` : 'None found');
+    row('Nonce checks on $_POST handlers', report.missingNonceChecks.length ? 'bad' : 'ok', report.missingNonceChecks.length ? `${report.missingNonceChecks.length} file(s) with no check found` : 'None missing');
+
+    table.appendChild(tbody);
+    resultsEl.appendChild(table);
+
+    if (report.missingRecommendedReadme.length > 0 || report.missingRecommendedHeader.length > 0) {
+      const p = document.createElement('p');
+      p.className = 'status-info';
+      const bits = [];
+      if (report.missingRecommendedReadme.length) bits.push(`readme.txt: ${report.missingRecommendedReadme.join(', ')}`);
+      if (report.missingRecommendedHeader.length) bits.push(`plugin header: ${report.missingRecommendedHeader.join(', ')}`);
+      p.textContent = `Recommended but not required, and missing: ${bits.join('; ')}.`;
+      resultsEl.appendChild(p);
+    }
+
+    if (report.unescapedOutput.length > 0) {
+      const h3 = document.createElement('h3');
+      h3.textContent = 'Unescaped output';
+      resultsEl.appendChild(h3);
+      const ul = document.createElement('ul');
+      ul.className = 'examples';
+      for (const f of report.unescapedOutput.slice(0, 20)) {
+        const li = document.createElement('li');
+        li.textContent = `${f.path}:${f.line}  ${f.snippet}`;
+        ul.appendChild(li);
+      }
+      resultsEl.appendChild(ul);
+    }
+
+    if (report.missingNonceChecks.length > 0) {
+      const h3 = document.createElement('h3');
+      h3.textContent = 'Files with $_POST and no nonce check';
+      resultsEl.appendChild(h3);
+      const ul = document.createElement('ul');
+      ul.className = 'examples';
+      for (const f of report.missingNonceChecks) {
+        const li = document.createElement('li');
+        li.textContent = `${f.path}:${f.line}  ${f.snippet}`;
+        ul.appendChild(li);
+      }
+      resultsEl.appendChild(ul);
+    }
+  }
+</script>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Why does a Stable tag / Version mismatch matter for WordPress plugin review?</h3>
+  <p>The Plugin Directory serves whichever version readme.txt's Stable tag names, not whatever you most recently committed or tagged. If Stable tag still says an old version, users downloading or auto-updating your plugin get that old build even after you've shipped a new one -- and reviewers flag the mismatch on submission. This tool reads both files and tells you if they disagree.</p>
+  <h3>What counts as "unescaped output" in a WordPress plugin?</h3>
+  <p>Printing a value from $_GET, $_POST, $_REQUEST, $_COOKIE, or $_SERVER with echo/print/printf and no escaping function (esc_html, esc_attr, esc_url, sanitize_text_field, absint, and similar) wrapped around it. WordPress's own plugin-review guidance treats unescaped output as a security issue regardless of whether the specific input happens to be exploitable today -- the fix is standard, and reviewers ask for it as a matter of course.</p>
+  <h3>Why does processing $_POST need a nonce check?</h3>
+  <p>Without a nonce (check_admin_referer, check_ajax_referer, or wp_verify_nonce), a form handler can't tell a request submitted by your own plugin's form from one a malicious site tricked a logged-in user's browser into sending (cross-site request forgery). Plugin review looks for a nonce check anywhere in a file that processes $_POST; this tool does the same file-level check.</p>
+  <h3>Is my plugin's source code uploaded anywhere?</h3>
+  <p>No. The browser tool reads the files you select using the File API and never sends them anywhere -- everything happens in memory in your tab. The CLI never makes a network call either.</p>
+  <h3>Does a clean report mean my plugin will pass wordpress.org Plugin Review?</h3>
+  <p>No. This is evidence from pattern-matching your readme.txt, plugin header, and PHP source against known field names and function calls -- it is not the review process, and it is a line-level heuristic, not data-flow analysis. It can miss an escaping function applied a few lines away from the echo, a nonce check that exists but never actually runs before the $_POST read it's meant to guard, or a field spelled non-standardly. Always re-check against the Plugin Directory's own current guidelines before submitting.</p>
+  <p>More on the most common of these: <a href="stable-tag-mismatch.html">Fixing a readme.txt "Stable tag" mismatch</a>.</p>
+</section>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This tool reports what pattern-matching found in the
+  files you selected -- known readme.txt/plugin-header field names, and known WordPress escaping and nonce
+  function calls. It is a line-level and file-level heuristic, not data-flow analysis: it cannot confirm an
+  escaping function actually applies to the value printed, or that a nonce check it found actually runs
+  before the $_POST read it's meant to guard. A clean report is not a guarantee wordpress.org Plugin Review
+  will pass -- verify against
+  <a href="https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/" rel="noopener">the Plugin Directory's current guidelines</a>
+  before you submit.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal or security advice, and it does not replace a qualified professional or
+  wordpress.org's own review process. You are responsible for reviewing and verifying its output before
+  relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by
+  law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken,
+  moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> Files you select are read locally with the File API and
+  never uploaded. The only thing stored is an anonymous local count of which features were used and the
+  day -- no file names, no file contents, no account, no tracking cookies, no analytics vendor. Turn it off
+  with the checkbox above.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by the WordPress Foundation, Automattic Inc., or
+  WordPress.org. WordPress® is a registered trademark of the WordPress Foundation, named here only to
+  describe what this tool checks.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and
+  never changes what the tool does.</p>
+  <p>Also worth a pass over your other extensions:
+  <a href="../chrome-extension-permission-check/">Chrome Extension Permission Checker</a> and
+  <a href="../ios-privacy-manifest-check/">iOS Privacy Manifest Checker</a> cross-check a platform's
+  review-gating manifest against actual source usage the same way, for Chrome and iOS.</p>
+</footer>
+</body>
+</html>

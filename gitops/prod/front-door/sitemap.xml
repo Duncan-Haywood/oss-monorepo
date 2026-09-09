@@ -151,6 +151,9 @@
     <loc>https://marisstella.dev/tools/actions-injection-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-injection-check/vs-zizmor.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-injection-check/what-is-a-pwn-request-in-github-actions.html</loc>
   </url>
   <url>
@@ -2618,5 +2621,11 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/window-replacement-bid-calculator/vs-marketsharp.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/wordpress-plugin-review-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/wordpress-plugin-review-check/stable-tag-mismatch.html</loc>
   </url>
 </urlset>

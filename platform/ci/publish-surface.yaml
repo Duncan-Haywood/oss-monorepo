@@ -866,6 +866,9 @@ workflows:
 - workflow: window-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: wordpress-plugin-review-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []

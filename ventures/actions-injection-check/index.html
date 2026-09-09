@@ -100,7 +100,7 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p>No. This checks two specific, well-documented patterns. It is not a security audit and makes no claim about your workflows' overall security. Both patterns have variants this tool does not attempt to catch — a hand-rolled <code>git checkout</code> instead of <code>actions/checkout</code>, or an expression built in an unusual way.</p>
     <h3>Why does script injection get flagged regardless of trigger type?</h3>
     <p>Unlike the pwn-request checkout risk, script injection into a shell is dangerous on any trigger a stranger can influence — <code>pull_request</code>, <code>issues</code>, <code>issue_comment</code> — not just the two privileged triggers. A workflow token with even minimal permissions, or a runner with network access, is enough for an injected command to do damage.</p>
-    <p>More: <a href="what-is-a-pwn-request-in-github-actions.html">what is a pwn request in GitHub Actions?</a></p>
+    <p>More: <a href="what-is-a-pwn-request-in-github-actions.html">what is a pwn request in GitHub Actions?</a> Already run <a href="vs-zizmor.html">zizmor</a>? See <a href="vs-zizmor.html">how this checker compares</a> for the injection question specifically.</p>
   </section>
 
   <footer>

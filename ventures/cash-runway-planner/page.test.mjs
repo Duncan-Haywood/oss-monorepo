@@ -64,3 +64,21 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: adjacent steps in one job. That tool produces the date an
+// invoice actually pays, which is the input this forecast consumes. Rotating
+// chrome may never pair them inside the back-office subcategory.
+test('index links one hop to the invoice-payment-terms-calculator sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/invoice\-payment\-terms\-calculator\/"/,
+    'index must link ../invoice-payment-terms-calculator/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /invoice payment terms calculator/i);
+});

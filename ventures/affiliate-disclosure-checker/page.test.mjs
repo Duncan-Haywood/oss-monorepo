@@ -64,3 +64,22 @@ test("index's own worked example demonstrates a real missing-disclosure finding 
   assert.equal(level, "fail");
   assert.ok(report.hasAmazonLink, "the worked example should use a recognisable Amazon Associates link");
 });
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: the same solo earner monetising work they already publish,
+// but sponsorship of an open-source project rather than affiliate links on a
+// post. Related-tool chrome rotates inside the solo-earner subcategory, so
+// without an explicit one-hop a crawler on this page may never land on it.
+test('index links one hop to the sponsor-ready sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/sponsor\-ready\/"/,
+    'index must link ../sponsor-ready/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /Sponsor Ready/i);
+});
