@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 219,
-  "collection_total": 219,
+  "served_here": 220,
+  "collection_total": 220,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -35,6 +35,12 @@
       "tool_count": 20
     },
     {
+      "id": "ci",
+      "name": "CI checks & developer gates",
+      "url": "https://marisstella.dev/c/ci/",
+      "tool_count": 16
+    },
+    {
       "id": "marketplace",
       "name": "Marketplace seller tools",
       "url": "https://marisstella.dev/c/marketplace/",
@@ -44,12 +50,6 @@
       "id": "backoffice",
       "name": "Back-office money & contracts",
       "url": "https://marisstella.dev/c/backoffice/",
-      "tool_count": 15
-    },
-    {
-      "id": "ci",
-      "name": "CI checks & developer gates",
-      "url": "https://marisstella.dev/c/ci/",
       "tool_count": 15
     },
     {
@@ -1645,6 +1645,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a residential standby generator install from the nameplate feeder, transfer switch, pad, gas or propane line, and setback — plus walk-away price, dollars per kW, and how many times a typical 22 kW natural-gas hang this house really is.",
       "pages": 3
+    },
+    {
+      "slug": "structured-data-drift-check",
+      "name": "Structured Data Drift Check — Does Your JSON-LD Match the Page?",
+      "url": "https://marisstella.dev/tools/structured-data-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste a page's HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page's own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "stucco-repair-bid-calculator",

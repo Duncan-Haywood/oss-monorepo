@@ -490,7 +490,7 @@ const CATEGORY_RULES = [
     id: 'ci',
     title: 'CI checks & developer gates',
     accent: '#1a4560',
-    blurb: 'Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning; tell a starved runner from a real failure; catch a coverage drop, classify flaky tests, see which AI crawlers your robots.txt allows, catch a dependency that just gained an install-time script or could be confused with an internal package, or find a missing iOS privacy-manifest declaration before App Review does — free, local, no account.',
+    blurb: 'Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning; tell a starved runner from a real failure; catch a coverage drop, classify flaky tests, see which AI crawlers your robots.txt allows, catch a dependency that just gained an install-time script or could be confused with an internal package, find a missing iOS privacy-manifest declaration before App Review does, or catch a page whose JSON-LD no longer matches its own visible text — free, local, no account.',
     // These four sat in the catch-all together: each is a browser-local (and
     // matching CLI) checker a maintainer runs against files or API JSON they
     // already have, not a trade bid, marketplace fee, or compliance evidence
@@ -548,8 +548,21 @@ const CATEGORY_RULES = [
     // It cross-links `dependency-confusion-check` as Related. Listed by exact
     // slug rather than a new prefix, the same way `dependency-confusion-check`
     // itself is: one tool does not earn a whole family pattern.
+    //
+    // `structured-data-drift-check` joined 2026-09-09. Same shape again -- a
+    // browser-local checker plus a matching CLI, run by a developer against
+    // an HTML page (and its own JSON-LD) they already have, reporting
+    // exactly where a FAQPage/HowTo/Product/etc. claim diverges from the
+    // page's own visible text -- just for structured-data drift instead of
+    // an npm/Actions/iOS supply-chain artifact. It cross-links
+    // `ai-crawler-access-check` as Related (same "can an AI system actually
+    // trust this page" question, different failure mode). Listed by exact
+    // slug rather than a new prefix, the same way `dependency-confusion-check`
+    // and `ios-privacy-manifest-check` are: one tool does not earn a whole
+    // family pattern, and landing it here rather than the catch-all is also
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check)/.test(
         slug,
       ),
   },

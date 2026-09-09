@@ -749,6 +749,9 @@ workflows:
 - workflow: str-host-payout-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: structured-data-drift-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: stucco-repair-bid-calculator-ci.yml
   classification: none
   publishes: []
