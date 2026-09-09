@@ -37,8 +37,8 @@
 #   portfolio-front-tools-1: 111 files, 555396 bytes
 #   portfolio-front-tools-2: 148 files, 556695 bytes
 #   portfolio-front-tools-3: 142 files, 553631 bytes
-#   portfolio-front-tools-4: 119 files, 553683 bytes
-#   portfolio-front-tools-5: 135 files, 550395 bytes
+#   portfolio-front-tools-4: 119 files, 553784 bytes
+#   portfolio-front-tools-5: 136 files, 554012 bytes
 #   portfolio-front-tools-6: 116 files, 553040 bytes
 #   portfolio-front-tools-7: 113 files, 555624 bytes
 #   portfolio-front-tools-8: 117 files, 556573 bytes
@@ -687,6 +687,7 @@ configMapGenerator:
       - certified-payroll-calculator__index.html.gz=certified-payroll-calculator__index.html.gz
       - certified-payroll-calculator__share.mjs.gz=certified-payroll-calculator__share.mjs.gz
       - certified-payroll-calculator__usage.mjs.gz=certified-payroll-calculator__usage.mjs.gz
+      - certified-payroll-calculator__vs-lcptracker.html.gz=certified-payroll-calculator__vs-lcptracker.html.gz
       - childcare-tuition-calculator__calc.mjs.gz=childcare-tuition-calculator__calc.mjs.gz
       - childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz=childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz
       - childcare-tuition-calculator__index.html.gz=childcare-tuition-calculator__index.html.gz
@@ -743,12 +744,12 @@ configMapGenerator:
       - custom-farm-rate-calculator__calc.mjs.gz=custom-farm-rate-calculator__calc.mjs.gz
       - custom-farm-rate-calculator__index.html.gz=custom-farm-rate-calculator__index.html.gz
       - custom-farm-rate-calculator__usage.mjs.gz=custom-farm-rate-calculator__usage.mjs.gz
-      - custom-farm-rate-calculator__vs-survey-rates.html.gz=custom-farm-rate-calculator__vs-survey-rates.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - custom-farm-rate-calculator__vs-survey-rates.html.gz=custom-farm-rate-calculator__vs-survey-rates.html.gz
       - custom-farm-rate-calculator__why-a-lightly-used-machine-needs-a-higher-rate.html.gz=custom-farm-rate-calculator__why-a-lightly-used-machine-needs-a-higher-rate.html.gz
       - cut-list-optimizer__calc.mjs.gz=cut-list-optimizer__calc.mjs.gz
       - cut-list-optimizer__compare-4x8-vs-5x5.html.gz=cut-list-optimizer__compare-4x8-vs-5x5.html.gz
