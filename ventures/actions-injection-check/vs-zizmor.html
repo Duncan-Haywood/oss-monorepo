@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actions Injection Check vs. zizmor</title>
+  <meta name="description" content="zizmor is a free, open-source CLI that audits an entire GitHub Actions repository for dozens of issue types, pwn requests and script injection among them. This page runs only those two checks, free, in your browser, on one pasted workflow file, with nothing to install.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-zizmor.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Actions Injection Check vs. zizmor">
+  <meta property="og:description" content="zizmor audits a whole repository's workflows for dozens of issue categories from an installed CLI. This page checks two of those categories -- pwn requests and script injection -- free, in your browser, on one pasted file, no install.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/actions-injection-check/vs-zizmor.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or zizmor?","acceptedAnswer":{"@type":"Answer","text":"They overlap on two specific findings and differ everywhere else. zizmor is an open-source static-analysis CLI for GitHub Actions (and GitLab CI) workflows: point it at a repository checkout and, per its own documentation, it runs a broad set of audits covering far more than injection risk -- excessive permissions, unpinned actions, cache and artifact poisoning, and known-vulnerable actions are among the categories it documents, alongside the dangerous-trigger (pwn request) and template-injection (script injection) checks this page compares against. It installs via pip, pipx, cargo, or Homebrew, and ships a GitHub Action and a pre-commit hook for wiring it into CI. This checker does only the two things in its name -- pwn-request checkouts and shell script injection -- on the one workflow file you paste, entirely in your browser, with nothing to install and no repository checkout required. If you want one CLI that audits an entire repository across many workflow-security categories, zizmor is built for that. If you want a fast, no-install, no-checkout answer to these two specific and well-documented patterns for a single file, this is the narrower tool for that."}},{"@type":"Question","name":"Does zizmor check for the same things this tool does?","acceptedAnswer":{"@type":"Answer","text":"Two of its many audits overlap with this page: zizmor documents a dangerous-triggers audit for the pull_request_target/workflow_run pwn-request pattern, and a template-injection audit for untrusted expressions spliced into a run: step, which is the same underlying issue this tool calls script injection. Where they differ is scope and shape: zizmor runs those checks as part of a much larger audit set against every workflow file in a repository you have checked out, and reports its own finding format from the CLI or its GitHub Action. This tool checks only those two patterns, on whatever YAML you paste, with no checkout and no other audits attempted."}},{"@type":"Question","name":"Why use a two-pattern browser tool when zizmor already covers more ground?","acceptedAnswer":{"@type":"Answer","text":"Three reasons this tool exists alongside it. First, zizmor is a CLI you install and run against a repository on disk; this tool is a page you open and paste one file into, with nothing to set up. Second, that makes this tool usable on a single workflow file pulled from anywhere -- a pull request diff, a gist, a private repository you are not set up to check out locally -- without cloning anything. Third, this checker makes no network calls of its own and nothing you paste is uploaded, which matters when the file itself is the sensitive part. Neither reason makes this tool a substitute for the other audits zizmor runs; a repository that wants comprehensive workflow-security coverage should run zizmor, not stop at these two checks."}},{"@type":"Question","name":"Is this page affiliated with zizmor?","acceptedAnswer":{"@type":"Answer","text":"No. This page is not affiliated with, endorsed by, or sponsored by the zizmor project or its maintainers. zizmor is an open-source project, named here only to describe what this checker is and is not, using facts drawn from its own public documentation."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Actions Injection Check</a></p>
+    <h1>Actions Injection Check vs. zizmor</h1>
+    <p class="lede">They overlap on two specific findings and differ in everything else. zizmor is an
+      open-source CLI that audits an entire GitHub Actions repository across dozens of issue categories,
+      pwn requests and script injection among them. This page runs only those two checks, on one pasted
+      workflow file, free, in your browser, with nothing to install and no repository checkout.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>zizmor</strong> is an open-source static-analysis tool for GitHub Actions and GitLab CI
+        workflows. Per its own documentation, it runs a broad set of audits against every workflow file in
+        a repository you point it at -- among them dangerous-triggers (the <code>pull_request_target</code>
+        / <code>workflow_run</code> pwn-request pattern this checker also flags), template-injection (the
+        untrusted-expression-in-a-shell pattern this checker calls script injection), excessive permissions,
+        unpinned actions, and cache/artifact-poisoning risk. It installs as a CLI via pip, pipx, cargo, or
+        Homebrew, and ships an official GitHub Action and a pre-commit hook for running it continuously in
+        CI. It is free and open source, with no account or paid tier documented for the tool itself.
+      </p>
+      <p>
+        <strong>This checker</strong> does only the two things in its name. You paste the YAML of one
+        workflow file, and it lists every <code>pull_request_target</code>/<code>workflow_run</code>
+        checkout of an untrusted ref, and every <code>run:</code> step that interpolates an untrusted
+        <code>${{ github.event.* }}</code> expression -- file, line, and the exact fix. It runs entirely in
+        your browser, needs no install and no repository checkout, and makes no network call of its own, so
+        it works the same on a pull-request diff, a gist, or a private repository you have not cloned
+        anywhere.
+      </p>
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want one CLI that audits an entire repository's workflows across many security categories, wired into CI.</td><td>zizmor -- that is its whole job, and this tool attempts only two of its many categories.</td></tr>
+          <tr><td>I have one workflow file -- from a PR diff, a gist, or a repo I have not checked out -- and want just the pwn-request and script-injection findings, right now.</td><td>This checker -- paste the YAML, no install, no clone.</td></tr>
+          <tr><td>I want this to run continuously against every push and pull request in CI.</td><td>zizmor's GitHub Action or pre-commit hook -- this tool has no memory between runs and nothing to schedule.</td></tr>
+          <tr><td>I want zero install and zero network calls to check a single file I am reviewing right now.</td><td>This checker -- a page, not a program to set up.</td></tr>
+          <tr><td>I want unpinned-action, permission, or cache/artifact-poisoning findings too, not just pwn requests and injection.</td><td>zizmor -- or the sibling single-purpose checkers this portfolio ships for those specific patterns (see below).</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">The two are complementary, not competing: a repository can run zizmor in CI for ongoing, comprehensive coverage and still reach for this tool the moment the question is "does this one pasted file have a pwn-request or injection problem," with nothing to install and nothing checked out. This page does not evaluate zizmor's detection accuracy and makes no claim about it either way -- it only describes zizmor's documented audit categories and states what this checker does differently.</p>
+      <p><a class="cta" href="./">Run the free injection &amp; pwn-request check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Should I use this checker or zizmor?</h3>
+      <p>They overlap on two specific findings and differ everywhere else. zizmor is an open-source static-analysis CLI for GitHub Actions (and GitLab CI) workflows: point it at a repository checkout and, per its own documentation, it runs a broad set of audits covering far more than injection risk -- excessive permissions, unpinned actions, cache and artifact poisoning, and known-vulnerable actions are among the categories it documents, alongside the dangerous-trigger (pwn request) and template-injection (script injection) checks this page compares against. It installs via pip, pipx, cargo, or Homebrew, and ships a GitHub Action and a pre-commit hook for wiring it into CI. This checker does only the two things in its name -- pwn-request checkouts and shell script injection -- on the one workflow file you paste, entirely in your browser, with nothing to install and no repository checkout required. If you want one CLI that audits an entire repository across many workflow-security categories, zizmor is built for that. If you want a fast, no-install, no-checkout answer to these two specific and well-documented patterns for a single file, this is the narrower tool for that.</p>
+      <h3>Does zizmor check for the same things this tool does?</h3>
+      <p>Two of its many audits overlap with this page: zizmor documents a dangerous-triggers audit for the <code>pull_request_target</code>/<code>workflow_run</code> pwn-request pattern, and a template-injection audit for untrusted expressions spliced into a <code>run:</code> step, which is the same underlying issue this tool calls script injection. Where they differ is scope and shape: zizmor runs those checks as part of a much larger audit set against every workflow file in a repository you have checked out, and reports its own finding format from the CLI or its GitHub Action. This tool checks only those two patterns, on whatever YAML you paste, with no checkout and no other audits attempted.</p>
+      <h3>Why use a two-pattern browser tool when zizmor already covers more ground?</h3>
+      <p>Three reasons this tool exists alongside it. First, zizmor is a CLI you install and run against a repository on disk; this tool is a page you open and paste one file into, with nothing to set up. Second, that makes this tool usable on a single workflow file pulled from anywhere -- a pull request diff, a gist, a private repository you are not set up to check out locally -- without cloning anything. Third, this checker makes no network calls of its own and nothing you paste is uploaded, which matters when the file itself is the sensitive part. Neither reason makes this tool a substitute for the other audits zizmor runs; a repository that wants comprehensive workflow-security coverage should run zizmor, not stop at these two checks.</p>
+      <h3>Is this page affiliated with zizmor?</h3>
+      <p>No. This page is not affiliated with, endorsed by, or sponsored by the zizmor project or its maintainers. zizmor is an open-source project, named here only to describe what this checker is and is not, using facts drawn from its own public documentation.</p>
+      <p class="note">Also worth a pass over the same workflows: <a href="../pinned-actions-check/">Pinned Actions Check</a>, <a href="../actions-permissions-check/">Actions Permissions Check</a>, and <a href="../actions-cache-poisoning-check/">Actions Cache Poisoning Check</a> each cover one more of the categories zizmor bundles into a single CLI run, as a free, no-install browser page.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe from injection attacks, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no live comparison against zizmor -- it is a static page describing category facts sourced from zizmor's own public documentation, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>
