@@ -233,6 +233,7 @@ configMapGenerator:
       - vs__servicemonster.html.gz=front-door/vs__servicemonster.html.gz
       - vs__crest-capital-s-lease-calculator.html.gz=front-door/vs__crest-capital-s-lease-calculator.html.gz
       - vs__workiz.html.gz=front-door/vs__workiz.html.gz
+      - vs__accessibe.html.gz=front-door/vs__accessibe.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

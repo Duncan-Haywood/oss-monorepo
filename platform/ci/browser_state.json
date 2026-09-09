@@ -10,54 +10,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "9a6203e919444db5b9fb6f6a4040357399868765",
-      "measured": "2026-09-07",
-      "pages": 819,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "ed4b5fc7c679a0742cde2966d2cdac82908ca23b",
-      "measured": "2026-09-07",
-      "pages": 819,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "1725b7cb53e48dcaf909d2ef0a8047cebda13ada",
-      "measured": "2026-09-07",
-      "pages": 819,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "28bde1a3a40afdadf7616d7e508a6779af4c807a",
       "measured": "2026-09-07",
       "pages": 830,
@@ -309,9 +261,51 @@
         "sideways",
         "sweep"
       ],
+      "commit": "1b0dfe046ffc938e3d83c097d5f384add6332f77",
+      "measured": "2026-09-09",
+      "pages": 872,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
       "commit": "b8953905d4aa94050e95be874a101f6260ea8148",
       "measured": "2026-09-09",
       "pages": 872,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "a7dbb0dfff11329fe90c0535fd4ebf368678e5db",
+      "measured": "2026-09-09",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "ada-title-ii-evidence"
+      ]
+    },
+    {
+      "checks": [
+        "journey"
+      ],
+      "commit": "a7dbb0dfff11329fe90c0535fd4ebf368678e5db",
+      "measured": "2026-09-09",
+      "pages": 874,
       "result": "pass",
       "scope": "full"
     }

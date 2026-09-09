@@ -564,7 +564,7 @@
       "url": "https://marisstella.dev/tools/ada-title-ii-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "affiliate-disclosure-checker",
