@@ -169,26 +169,43 @@ node cli.mjs check dist/index.html --strict                # also fail on malfor
 
     $("#check").addEventListener("click", renderReport);
 
-    // Built with the ld+json type attribute split across a concatenation so
-    // this literal string never appears in the page's own source -- a
-    // whole-file regex scan (this tool's own engine included, if you paste
-    // this very page in) would otherwise try to parse *this JS string* as a
-    // third JSON-LD block and report a spurious parse warning.
+    // Every structural closing/opening tag spelling the example page needs
+    // is built from a constant below, each concatenated from pieces so that
+    // none of the resulting tag text appears contiguous anywhere in this
+    // page's own raw source file -- not even spelled out in a comment like
+    // this one, on purpose. Two things scan this file's raw text rather
+    // than a real DOM and would otherwise be fooled by this fake page's own
+    // markup sitting inside a JS string: this tool's own engine (a
+    // whole-file regex scan would try to parse it as a real, second copy of
+    // this page's structured data), and this portfolio's own site build,
+    // which locates this file's real closing tags by literal text search to
+    // splice in shared navigation -- if a fake one of those tags sat inside
+    // this string ahead of the real one, the build would splice that
+    // navigation into the middle of this script instead of the end of the
+    // real page, corrupting it. Concrete case: that exact corruption shipped
+    // once and was only caught by rebuilding the published site locally,
+    // not by any unit test.
     const LD_TYPE = "application/ld" + "+json";
+    const SCRIPT_OPEN = "<" + "script";
+    const SCRIPT_CLOSE = "<" + "/script>";
+    const HEAD_CLOSE = "<" + "/head>";
+    const BODY_OPEN = "<" + "body>";
+    const BODY_CLOSE = "<" + "/body>";
+    const HTML_CLOSE = "<" + "/html>";
     const EXAMPLE_PAGE = `<!doctype html><html><head>
-<script type="${LD_TYPE}">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+${SCRIPT_OPEN} type="${LD_TYPE}">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
   {"@type":"Question","name":"How long is the free trial?","acceptedAnswer":{"@type":"Answer","text":"The free trial lasts 30 days, no card required."}},
   {"@type":"Question","name":"Do you offer refunds?","acceptedAnswer":{"@type":"Answer","text":"Yes, within 60 days of purchase."}}
-]}</` + `script>
-<script type="${LD_TYPE}">{"@type":"Product","name":"Widget Pro","description":"A widget that solves widget problems."}</` + `script>
-</head><body>
+]}${SCRIPT_CLOSE}
+${SCRIPT_OPEN} type="${LD_TYPE}">{"@type":"Product","name":"Widget Pro","description":"A widget that solves widget problems."}${SCRIPT_CLOSE}
+${HEAD_CLOSE}${BODY_OPEN}
 <h2>How long is the free trial?</h2>
 <p>The free trial lasts 14 days, no card required.</p>
 <h2>Do you offer refunds?</h2>
 <p>Yes, within 60 days of purchase.</p>
 <h1>Widget Pro</h1>
 <p>A widget that solves widget problems.</p>
-</body></html>`;
+${BODY_CLOSE}${HTML_CLOSE}`;
 
     $("#load-example").addEventListener("click", () => {
       els.input.value = EXAMPLE_PAGE;

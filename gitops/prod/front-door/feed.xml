@@ -13,7 +13,7 @@
     <id>tag:marisstella.dev,2026:tool/structured-data-drift-check</id>
     <published>2026-09-09T00:00:00Z</published>
     <updated>2026-09-09T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a page&#39;s HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page&#39;s own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>

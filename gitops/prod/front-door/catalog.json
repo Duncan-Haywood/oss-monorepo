@@ -50,7 +50,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 14
+      "tool_count": 15
     },
     {
       "id": "services",
@@ -65,15 +65,15 @@
       "tool_count": 6
     },
     {
-      "id": "more",
-      "name": "More free tools",
-      "url": "https://marisstella.dev/c/more/",
-      "tool_count": 6
-    },
-    {
       "id": "solo-earner",
       "name": "Creator & solo earner income",
       "url": "https://marisstella.dev/c/solo-earner/",
+      "tool_count": 5
+    },
+    {
+      "id": "more",
+      "name": "More free tools",
+      "url": "https://marisstella.dev/c/more/",
       "tool_count": 5
     }
   ],
@@ -1642,7 +1642,7 @@
       "slug": "structured-data-drift-check",
       "name": "Structured Data Drift Check — Does Your JSON-LD Match the Page?",
       "url": "https://marisstella.dev/tools/structured-data-drift-check/",
-      "category": "More free tools",
+      "category": "CI checks & developer gates",
       "description": "Paste a page's HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page's own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 2
     },
