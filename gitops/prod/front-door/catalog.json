@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 223,
-  "collection_total": 223,
+  "served_here": 224,
+  "collection_total": 224,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -38,7 +38,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 18
+      "tool_count": 19
     },
     {
       "id": "marketplace",
@@ -733,6 +733,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a chimney sweep from flue type, stories, roof access, and creosote — not a flat house rate. See labor hours, walk-away price, and the margin a neighborhood special actually leaves.",
       "pages": 3
+    },
+    {
+      "slug": "chrome-extension-permission-check",
+      "name": "Chrome Extension Permission Checker — Unused & Missing Permissions",
+      "url": "https://marisstella.dev/tools/chrome-extension-permission-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free, browser-local checker: scans your extension's JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json's declared permissions, so an unused or missing permission doesn't cost you a Chrome Web Store rejection ('Purple Potassium'). Nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "concrete-lifting-bid-calculator",

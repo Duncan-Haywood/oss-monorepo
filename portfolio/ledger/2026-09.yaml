@@ -20571,3 +20571,123 @@ entries:
         presets, roundtrip, contrast, sweep, and journey all pass; highlight
         skipped -- this venture makes no highlight promise to verify).
     mrr_end: 0
+  - venture: chrome-extension-permission-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/chrome-extension-permission-check`,
+        a free, zero-network CLI + browser tool for Chrome/Edge extension
+        developers. Scans JavaScript/TypeScript source for `chrome.*` API
+        usage (45+ permissions mapped to their namespace or web-API
+        signature) and cross-checks it against manifest.json's declared
+        `permissions`, `optional_permissions`, and `host_permissions`, in
+        both directions: a permission declared with no matching call in
+        source (the exact cause Chrome's own troubleshooting documentation
+        names as the single most common Chrome Web Store review rejection,
+        "Purple Potassium") and an API call whose permission was never
+        declared (a runtime failure independent of review). Also flags a
+        broad all-sites `host_permissions` pattern (`<all_urls>`,
+        `*://*/*`). A permission with no reliable code signature
+        (`activeTab`, `background`, `unlimitedStorage`) is listed
+        separately and never flagged as unused; a declared permission this
+        tool has no mapping for at all is named as "not checked" rather
+        than silently dropped or wrongly accused -- keeping the cost of a
+        wrong signature bounded, per `PRODUCT_PLAYBOOK.md`'s evidence-not-
+        determination positioning. Ships the standard disclaimer/privacy/
+        sponsor-link copy, a secondary doc page on the "Purple Potassium"
+        rejection with HowTo/FAQPage JSON-LD, usage counting, LICENSE, and
+        49 tests (`scan.test.mjs`, `check.test.mjs`, `usage.test.mjs`,
+        `page.test.mjs`) plus the venture's own CI workflow. Screened per
+        `portfolio/pipeline/README.md`'s "archetype itself" section (a
+        developer CLI/checker, not a 233rd `<trade>-bid-calculator`) and
+        scored in `portfolio/pipeline/candidates/chrome-extension-
+        permission-check.md` (composite 6.875, both gates --
+        `liability_containment` 8, `ethical_robustness` 9 -- clear the
+        floor of 5); `duplicate_check.py` scored the closest existing
+        venture (`ios-privacy-manifest-check`, the same "cross-check a
+        platform-review-gating manifest against real API usage" shape for
+        iOS) at 0.29, well under the 0.45 flag bar. Named distribution:
+        developers hitting the exact "Purple Potassium" / "unused
+        permission" rejection and searching that terminology, plus
+        r/chrome_extensions, r/webdev, and the chromium-extensions Google
+        Group.
+      - >-
+        Fixed forward three defects the new venture's own checks and the
+        wider suite surfaced, rather than leaving them for a later
+        session: (1) the visible FAQ answer text on the new page had
+        drifted from its own JSON-LD by a few words --
+        `faq-visible.test.mjs` caught it and both were made to read
+        identically; (2) the new venture landed in the site's catch-all
+        category ("More free tools"), pushing it past the bound
+        `build.test.mjs` enforces -- added it to the `ci` category's
+        exact-slug list in `platform/pages/build.mjs`, cross-linking
+        `ios-privacy-manifest-check` as Related both ways (added the
+        reciprocal link and a `page.test.mjs` assertion to that venture's
+        own footer, the minimal edit `platform/pages/siblings.mjs --check`
+        asks for to close a crawlable-orphan pair); (3) `node platform/pages/launched.mjs --write` to
+        record today's launch date, and the mirrored-tool count (223 ->
+        224) in the four places `CLAUDE.md` already documents needing a
+        matching edit (`infra/OWNER_CHECKLIST.md` x3,
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/
+        default.conf` x2, and `gitops/tests/test_manifests.py`'s own
+        pinned total) plus `gitops/ci/sync_readme_counts.py` for a
+        `runs-on` count the new workflow file shifted by one.
+      - >-
+        Verified rather than assumed: `node --test` in the venture
+        (49/49, including a dogfooding assertion that the page's own
+        worked example demonstrates every report status --
+        declared-and-detected, declared-unused, detected-undeclared,
+        declared-uncheckable, and a broad host permission -- through this
+        venture's own engine, and CLI tests against a real temporary
+        filesystem proving `node_modules`/`dist` are skipped by the
+        directory walk); `node platform/pages/clauses.mjs
+        chrome-extension-permission-check` (clean); `node
+        platform/pages/faq-coverage.mjs` / `faq-duplicate.mjs` /
+        `guide-coverage.mjs` (clean, 224/224); `node
+        platform/pages/siblings.mjs --check` (31/31, back within budget
+        after closing the pair above); `python3 portfolio/pipeline/
+        validate_candidates.py` (34/34 consistent); `python3
+        portfolio/pipeline/validate_doc_consistency.py` (34/34
+        consistent, after inserting and renumbering the README table
+        row); `python3 portfolio/scoring/score_ventures.py --check`
+        (233/233 consistent, after adding a matching 6-dimension row to
+        `venture-scores.yaml`); `python3 portfolio/router/validate.py`
+        (232/232 valid); `python3 portfolio/router/allocate.py` (lists the
+        new venture, no error); `python3 platform/ci/checklist_coverage.py`;
+        `python3 platform/ci/check_no_payment_code.py` (clean); `python3
+        -m pytest gitops/tests -q` (490 passed, 25 skipped, after the
+        count fixes above); `python3 -m unittest` across every
+        `platform/ci` module and `platform/ci/agent_review` (all green,
+        after adding the new venture's workflow to `publish-surface.yaml`
+        classified `none`); `python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q` (431 passed); `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1169/1169, after the three fixes above and re-running
+        `regen.mjs`); `node build.mjs --out=/tmp/dist-check && node
+        check.mjs /tmp/dist-check` (224 products, 872 pages, no dead
+        links); `node --test platform/proposal/*.test.mjs
+        platform/privacy/*.test.mjs platform/webcheck/*.test.mjs` (172
+        passed, no shallow-clone skips this run); `python3
+        platform/ci/browser_state.py` (reported STALE fleet-wide because
+        this session's edit to `platform/pages/build.mjs`'s shared
+        category rules touches every rendered page, not because of a
+        defect); `npm install --no-save playwright@1.56.0 axe-core` then
+        `python3 platform/ci/browser_checks.py --only
+        chrome-extension-permission-check` and `--only
+        ios-privacy-manifest-check` (both: sideways, presets, roundtrip,
+        contrast, sweep, and journey all pass; highlight skipped, neither
+        venture makes a highlight promise) -- a full whole-catalogue
+        `--record` sweep (20-30 minutes) was not run this session, so the
+        fleet-wide browser-check reading stays the prior one rather than a
+        false confirmation; `python3 platform/ci/run_workflow_locally.py
+        --for-changes` (green except one pre-existing, unrelated skip:
+        `pages.yml`'s "Build the site" step is skipped because its
+        `${{ vars.PAGES_BASE_URL || format(...) }}` expression is not one
+        this tool evaluates -- documented in the tool's own source --
+        which cascades into the next step failing on a missing `_site`
+        directory; that step calls a different Python builder
+        (`build_pages_site.py`) than the one this change touches, and the
+        JS builder's own output was verified separately above).
+    mrr_end: 0

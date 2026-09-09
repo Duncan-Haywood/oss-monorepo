@@ -179,6 +179,9 @@ workflows:
 - workflow: chimney-sweep-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: chrome-extension-permission-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []

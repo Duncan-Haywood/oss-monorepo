@@ -8527,3 +8527,61 @@ ventures:
       terms. Makes no network call of any kind, uploads nothing, and both
       pages' footers and FAQs state plainly that it is not a legal or
       compliance determination.
+  - slug: chrome-extension-permission-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a declared permission
+      has a matching chrome.* API call in source, and whether a broad
+      host_permissions pattern is present, is decided by pattern matching
+      against a fixed permission-to-namespace map -- a factual,
+      deterministic comparison, not a model judgment, and it never claims
+      a Chrome Web Store review determination.
+    basis: >-
+      Screened 2026-09-09 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free CLI + browser checker, not a 233rd
+      <trade>-bid-calculator. Structurally close to ios-privacy-manifest-
+      check (both cross-check a platform-review-gating manifest against
+      real API usage), but the fleet has exactly one prior instance of
+      this shape and the audience, platform documentation, and rejection
+      terminology are completely disjoint from iOS. duplicate_check.py
+      scored the closest existing venture (ios-privacy-manifest-check) at
+      0.29 against the final description, well under the 0.45 flag bar;
+      no existing venture reads a Chrome extension manifest.json or
+      chrome.* API call sites.
+      Autonomous ops 10 / gross margin 10: the browser page parses only
+      files selected locally and the CLI reads only local files it is
+      pointed at, so serving one more user costs a static file and needs
+      no human review of any output.
+      Distribution 7: Google's own troubleshooting documentation names
+      unused/excessive permissions ("Purple Potassium") as the single
+      most common Chrome Web Store review rejection reason, giving a
+      specific, branded search phrase with near-zero existing tool
+      competition, plus r/chrome_extensions, r/webdev, and the
+      chromium-extensions Google Group as named forums with recurring
+      permission-rejection and runtime "chrome.X is undefined" threads.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      pattern-matcher is easy to reimplement, so defensibility rests on
+      being first and correct for this exact bidirectional
+      declared-vs-used check rather than on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive -- it reports which declared
+      permissions have a matching code signature detected and which
+      don't, and which detected API calls have no matching declaration,
+      never a claim that a submission will pass or fail Chrome Web Store
+      review. An unmapped permission is named as "not checked" rather
+      than guessed at, bounding the cost of a wrong signature. Makes no
+      network call of any kind, uploads nothing, and both pages' footers
+      and FAQs state plainly that it is not a review determination.

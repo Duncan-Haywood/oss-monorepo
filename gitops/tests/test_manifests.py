@@ -1432,7 +1432,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # graduated the same day — same shape again: a new venture with a
     # static `index.html` from its first commit, entering the mirror and
     # the total together.
-    total = 223  # `infra/OWNER_CHECKLIST.md`'s own "N of the 223 tools" wording.
+    # 224 since 2026-09-09, when `chrome-extension-permission-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    total = 224  # `infra/OWNER_CHECKLIST.md`'s own "N of the 224 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 223 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 224 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 223 of them — and
+Every tool in the collection is listed below — all 224 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -181,6 +181,7 @@ page that hosts it.
 - [Actions Runner Starvation Check — Is Your Red CI Even Real?](https://marisstella.dev/tools/actions-runner-starvation-check/): Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.
 - [Actions Self-Hosted Exposure Check — Is Your Self-Hosted Runner Exposed to Forks?](https://marisstella.dev/tools/actions-self-hosted-exposure-check/): Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub's own docs warn against on public repos. Free, runs in your browser, nothing uploaded.
 - [AI Crawler Access Check — Which AI Bots Does Your robots.txt Block?](https://marisstella.dev/tools/ai-crawler-access-check/): Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.
+- [Chrome Extension Permission Checker — Unused & Missing Permissions](https://marisstella.dev/tools/chrome-extension-permission-check/): Free, browser-local checker: scans your extension's JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json's declared permissions, so an unused or missing permission doesn't cost you a Chrome Web Store rejection ('Purple Potassium'). Nothing is uploaded.
 - [Coverage Drop Check — Did This PR Lower Line Coverage?](https://marisstella.dev/tools/coverage-drop-check/): Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.
 - [Dependency Confusion Check — pip --extra-index-url & Unscoped npm Names](https://marisstella.dev/tools/dependency-confusion-check/): Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.
 - [.env.example Drift Check — Does Your Example File Match the Code?](https://marisstella.dev/tools/env-example-drift-check/): Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.
