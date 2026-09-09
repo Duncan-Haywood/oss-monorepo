@@ -781,3 +781,64 @@ class RequireCurrent(unittest.TestCase):
         )
         with unittest.mock.patch("sys.stdout", new=io.StringIO()):
             self.assertEqual(ps.main([], api=api), 0)
+
+
+class IndexingVerdict(unittest.TestCase):
+    """Can a crawler discover this site's sitemap on its own?
+
+    `robots.txt` is fetched per origin, at the origin root. A project Pages
+    site is served from a subpath, so the file this repository publishes is
+    not the file a crawler reads -- and nothing in the tree said so, which is
+    why this row exists rather than a paragraph somewhere.
+    """
+
+    def test_a_subpath_site_names_the_file_crawlers_actually_read(self):
+        verdict, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertEqual(verdict, "subpath-robots")
+        self.assertIn("https://duncan-haywood.github.io/robots.txt", why)
+        self.assertIn("monorepo-projects/robots.txt", why)
+
+    def test_a_subpath_site_names_both_owner_fixes(self):
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertIn("Search Console", why)
+        self.assertIn("custom domain", why)
+
+    def test_a_subpath_site_says_crawling_is_still_allowed(self):
+        """The row must not read as 'the site is blocked from search'."""
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertIn("Crawling is still allowed", why)
+
+    def test_an_origin_root_site_is_fine_and_says_so(self):
+        for base in ("https://marisstella.dev/", "https://marisstella.dev"):
+            verdict, why = ps.indexing_verdict(base)
+            self.assertEqual(verdict, "root", base)
+            self.assertIn("discoverable", why)
+
+    def test_an_unreadable_base_url_is_unknown_never_root(self):
+        """Absence reads as unknown, never as health -- the house rule."""
+        for base in ("", None):
+            verdict, _ = ps.indexing_verdict(base)
+            self.assertEqual(verdict, "unknown", repr(base))
+
+    def test_the_row_reaches_the_rendered_report(self):
+        state = {
+            "private": True, "has_pages": True,
+            "plan_verdict": "likely-up", "plan_reason": "r",
+            "source": "branch", "source_reason": "r",
+            "deployed": "served", "deployed_reason": "r",
+            "snapshot": "current", "snapshot_reason": "r",
+            "indexing": "subpath-robots", "indexing_reason": "why " * 40,
+            "source_note": "n",
+        }
+        out = ps.render(state)
+        self.assertIn("indexing          subpath-robots", out)
+        # Wrapped rather than one long line: an unwrapped paragraph runs off a
+        # terminal and is skipped by the reader this row exists for.
+        self.assertTrue(all(len(line) <= 100 for line in out.split("\n")), out)
+
+    def test_it_does_not_change_the_exit_code(self):
+        """A subpath robots.txt is an owner action, not a broken route -- and
+        folding it into the exit code would make a green run mean two things,
+        the same reason freshness has its own gate."""
+        for verdict in ("root", "subpath-robots", "unknown"):
+            self.assertEqual(ps.exit_code({"plan_verdict": "likely-up", "indexing": verdict}), 0)
