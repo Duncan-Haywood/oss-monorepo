@@ -844,7 +844,7 @@
       "url": "https://marisstella.dev/tools/dependency-confusion-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "dns-configuration-evidence",

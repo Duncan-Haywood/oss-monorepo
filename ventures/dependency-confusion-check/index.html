@@ -85,6 +85,7 @@ python3 check.py /path/to/repo    # scan a specific checkout
 python3 check.py --format json    # machine-readable
 python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/dependency-confusion-check/check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-risk</code> into your own CI to block a newly-added finding before it merges.</p>
+    <p class="note">Already running a registry-aware supply-chain platform like Socket? <a href="./vs-socket.html">See how this checker differs</a> — different layers, worth running both.</p>
   </section>
 
   <section class="card">
