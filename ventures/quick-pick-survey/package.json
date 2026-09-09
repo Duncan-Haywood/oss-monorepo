@@ -23,7 +23,7 @@
   "dependencies": {
     "@prisma/client": "5.22.0",
     "bcryptjs": "^3.0.3",
-    "next": "^16.3.1",
+    "next": "^16.3.3",
     "prisma": "5.22.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"
@@ -42,6 +42,6 @@
     "tailwindcss": "^4",
     "tsx": "^4.23.12",
     "typescript": "^5",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.0"
   }
 }
