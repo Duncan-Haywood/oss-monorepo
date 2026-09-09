@@ -565,7 +565,25 @@ def record(checks, *, result: str, commit: str | None = None, pages: int | None 
     # Recorded only when git can answer -- a reading with no `surface` key
     # behaves exactly as it did before, which is what keeps the existing
     # readings in `browser_state.json` valid.
-    trees = surface_trees()
+    #
+    # Asked at the RECORDED commit, not at HEAD. `surface_trees()` defaults to
+    # HEAD, and HEAD is not the commit this reading is about whenever a sibling
+    # session merged during the run -- which is the ordinary case here
+    # (`session_gate.py` measures up to 4 distinct sessions inside a 15-minute
+    # window) and the exact case `browser_checks._record_reading` already
+    # prints "HEAD moved during this run" for. Taking the commit from the build
+    # and the trees from HEAD produced a reading whose two halves described
+    # different trees, and the tree half is the one the verdict falls back to
+    # once the sha dies -- so the durable anchor was the wrong one, on exactly
+    # the runs where the other anchor was least reliable. Measured 2026-09-09:
+    # a whole-catalogue sweep built at `a979dedb` finished four merges later at
+    # `b3776090`, which had gained `ventures/actions-permissions-check/
+    # vs-openssf-scorecard.html` -- a page no browser in that run ever opened,
+    # and which the reading would have reported as covered.
+    #
+    # An unreachable commit still yields no `surface` key rather than a
+    # substitute: absence reads as unknown, never as health.
+    trees = surface_trees(reading["commit"] or "HEAD")
     if trees:
         reading["surface"] = trees
     if slugs:

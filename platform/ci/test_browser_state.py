@@ -48,6 +48,47 @@ class RecordingTest(unittest.TestCase):
         self.assertEqual(readings[0]["pages"], 775)
         self.assertEqual(readings[0]["measured"], "2026-09-07")
 
+    # The two halves of a reading's anchor must describe the same tree. The
+    # commit comes from the build (`browser_checks._record_reading`); the tree
+    # oids used to come from HEAD, which is a different tree whenever a sibling
+    # session merged during the 20-30 minutes the sweep takes. That is the
+    # ordinary case here, and it is the half the verdict falls back to once a
+    # squash-merge destroys the sha -- so the durable anchor was the wrong one
+    # on exactly the runs where the other one was least reliable.
+    def test_the_tree_anchor_is_taken_at_the_recorded_commit_not_at_head(self):
+        seen = []
+
+        def fake_trees(ref="HEAD"):
+            seen.append(ref)
+            return {p: "0" * 40 for p in browser_state.SURFACE_PATHS}
+
+        with mock.patch.object(browser_state, "surface_trees", fake_trees), \
+             mock.patch.object(browser_state, "head_commit", return_value="b" * 40):
+            browser_state.record(["contrast"], result="pass", commit="a" * 40,
+                                 now="2026-09-09")
+        self.assertEqual(seen, ["a" * 40],
+                         "the tree anchor must describe the commit the artifact was built from")
+
+    def test_a_reading_with_no_commit_still_anchors_against_head(self):
+        seen = []
+
+        def fake_trees(ref="HEAD"):
+            seen.append(ref)
+            return {p: "0" * 40 for p in browser_state.SURFACE_PATHS}
+
+        with mock.patch.object(browser_state, "surface_trees", fake_trees), \
+             mock.patch.object(browser_state, "head_commit", return_value=None):
+            browser_state.record(["contrast"], result="pass", now="2026-09-09")
+        self.assertEqual(seen, ["HEAD"])
+
+    # Absence never reads as health: a commit git cannot resolve yields no
+    # `surface` key at all, which the verdict reads as unknown.
+    def test_an_unreadable_commit_records_no_surface_rather_than_a_substitute(self):
+        with mock.patch.object(browser_state, "surface_trees", return_value=None):
+            browser_state.record(["contrast"], result="pass", commit="a" * 40,
+                                 now="2026-09-09")
+        self.assertNotIn("surface", browser_state.load()["readings"][0])
+
     def test_readings_are_capped_so_the_file_stays_short(self):
         for i in range(25):
             browser_state.record(["contrast"], result="pass",
