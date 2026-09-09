@@ -160,6 +160,39 @@ class MainCLI(unittest.TestCase):
     def test_exit_2_on_missing_files(self):
         self.assertEqual(cdc.main(["missing-a.xml", "missing-b.xml"]), 2)
 
+    def test_cli_honors_each_reports_xml_encoding(self):
+        for encoding in ("utf-16", "iso-8859-1"):
+            for encoded_side in ("baseline", "current"):
+                with self.subTest(encoding=encoding, encoded_side=encoded_side):
+                    paths = []
+                    for side, covered in (("baseline", 2), ("current", 1)):
+                        codec = encoding if side == encoded_side else "utf-8"
+                        xml = cobertura(covered, 2, [{
+                            "filename": "café.py",
+                            "lines": [{"number": 1, "hits": 1},
+                                      {"number": 2, "hits": covered - 1}],
+                        }]).replace('<?xml version="1.0"?>',
+                                   f'<?xml version="1.0" encoding="{codec}"?>')
+                        path = os.path.join(self.tmp.name, side + ".xml")
+                        with open(path, "wb") as handle:
+                            handle.write(xml.encode(codec))
+                        paths.append(path)
+                    proc = subprocess.run(
+                        [sys.executable, cdc.__file__, *paths, "--json"],
+                        capture_output=True, text=True, check=False,
+                    )
+                    self.assertEqual(proc.returncode, 1, proc.stderr)
+                    result = json.loads(proc.stdout)
+                    self.assertEqual(result["dropPct"], 50)
+                    self.assertEqual(result["droppedFiles"][0]["filename"], "café.py")
+
+    def test_malformed_encoded_xml_returns_parse_error(self):
+        valid = self.write("base.xml", cobertura(1, 1, []))
+        invalid = os.path.join(self.tmp.name, "invalid.xml")
+        with open(invalid, "wb") as handle:
+            handle.write('<?xml version="1.0" encoding="utf-16"?><coverage>'.encode("utf-16"))
+        self.assertEqual(cdc.main([valid, invalid]), 2)
+
     def test_json_output_is_valid_json(self):
         xml = cobertura(1, 1, [{"filename": "a.py", "lines": [{"number": 1, "hits": 1}]}])
         a = self.write("base.xml", xml)
