@@ -3,23 +3,6 @@
     {
       "checks": [
         "contrast",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "1c6ee87ecde710d38e18f7721362ed04dd6f9f5e",
-      "measured": "2026-09-07",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "home-staging-bid-calculator",
-        "ice-dam-removal-bid-calculator"
-      ]
-    },
-    {
-      "checks": [
-        "contrast",
         "highlight",
         "journey",
         "presets",
@@ -296,6 +279,23 @@
       "pages": 874,
       "result": "pass",
       "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "9c1af1e3581b2346d982faef9bc935b4da1300ae",
+      "measured": "2026-09-09",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "dependency-confusion-check",
+        "pinned-actions-check"
+      ]
     }
   ]
 }
