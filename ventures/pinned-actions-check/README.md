@@ -48,12 +48,27 @@ nothing is uploaded, and the page itself makes no network requests.
 python3 check.py                  # scan .github/workflows under the current directory
 python3 check.py /path/to/repo    # scan a specific checkout
 python3 check.py --format json    # machine-readable
+python3 check.py --format sarif   # SARIF 2.1.0, for GitHub code scanning
 python3 check.py --fail-on-risk   # exit 2 if any mutable (unpinned) action is found
 ```
 
 Zero dependencies — stdlib only, one file, nothing to install, no network
 calls. Wire `--fail-on-risk` into your own CI to block a newly-added unpinned
-action before it merges.
+action before it merges, or upload the SARIF output so a mutable reference
+shows up as a code scanning alert on the PR diff instead of only in a log:
+
+```yaml
+- run: python3 check.py --format sarif > results.sarif
+- uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: results.sarif
+```
+
+Only `mutable` findings become SARIF results — a `pinned`, `local`, or
+`docker` reference is not a finding to report, and every artifact path is
+resolved relative to the scanned directory (the default `.`, or the argument
+you pass), which is what `upload-sarif` needs to attach a result to a line in
+the pull request diff rather than dropping it silently.
 
 ## Disclaimers
 
