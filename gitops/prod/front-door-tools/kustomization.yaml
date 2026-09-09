@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 136 files, 555121 bytes
 #   portfolio-front-tools-1: 111 files, 555407 bytes
 #   portfolio-front-tools-2: 147 files, 553714 bytes
-#   portfolio-front-tools-3: 144 files, 552436 bytes
+#   portfolio-front-tools-3: 145 files, 556964 bytes
 #   portfolio-front-tools-4: 122 files, 548336 bytes
 #   portfolio-front-tools-5: 131 files, 556482 bytes
 #   portfolio-front-tools-6: 123 files, 553525 bytes
@@ -557,6 +557,7 @@ configMapGenerator:
       - ada-title-ii-evidence__deadline.mjs.gz=ada-title-ii-evidence__deadline.mjs.gz
       - ada-title-ii-evidence__index.html.gz=ada-title-ii-evidence__index.html.gz
       - ada-title-ii-evidence__usage.mjs.gz=ada-title-ii-evidence__usage.mjs.gz
+      - ada-title-ii-evidence__vs-accessibe.html.gz=ada-title-ii-evidence__vs-accessibe.html.gz
       - affiliate-disclosure-checker__cli.mjs.gz=affiliate-disclosure-checker__cli.mjs.gz
       - affiliate-disclosure-checker__engine.mjs.gz=affiliate-disclosure-checker__engine.mjs.gz
       - affiliate-disclosure-checker__index.html.gz=affiliate-disclosure-checker__index.html.gz
