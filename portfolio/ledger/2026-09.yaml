@@ -20742,4 +20742,18 @@ entries:
         reported the gh-pages snapshot current against `main`'s pre-merge
         tip; the standing publish-branch job runs again after this merges,
         per CLAUDE.md.
+      - >-
+        Opened PR #4345. `ci_starvation.py --run 34398674726` (a Pages
+        deploy run ~16 minutes before this push) showed real runners, but
+        starvation recurred by push time: all 12 workflow runs GitHub
+        started on the PR (portfolio-validate, dependency-confusion-check
+        CI, checklist-coverage, link-contrast, page-integrity,
+        sibling-links, conflict-markers, agent-permission-harness,
+        hetzner-gitops, portfolio-pages x2, agent-cross-review) came back
+        red in 2-3s each; `ci_starvation.py` against every one of them
+        confirms `runner_id: 0` on every non-skipped job -- pure
+        starvation, not a real failure, matching the documented signature
+        exactly. Merged on the strength of the local verification above
+        per CLAUDE.md's starvation policy, rather than waiting on checks
+        that will not run.
     mrr_end: 0
