@@ -128,6 +128,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # `actions/checkout` fetches one branch, so the branch GitHub actually
+      # serves is not in the clone -- and `published-base-url.mjs` reports the
+      # build default as `assumed-default` rather than as a reading when it
+      # cannot see it. Fetch it, so the origin stamped below is measured from
+      # the published artifact rather than assumed about it.
+      #
+      # `|| true`: a repository with Pages not yet configured has no such
+      # branch, and that is not a reason to fail a site verification. The
+      # helper says on stderr which case it landed in, in the step below.
+      - name: Fetch the branch GitHub Pages serves
+        run: git fetch --depth=1 origin gh-pages:refs/remotes/origin/gh-pages || true
+
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -206,10 +218,6 @@ jobs:
           # scratch directory is not one of the places it would guess.
           PLAYWRIGHT: ${{ runner.temp }}/browser-checks/node_modules/playwright/index.js
           AXE: ${{ runner.temp }}/browser-checks/node_modules/axe-core/axe.min.js
-          # Stamped so `journey.mjs`'s canonical, sitemap and share-link steps
-          # check the origin the site is actually published under rather than
-          # the build's default. This is a string in the artifact, not a
-          # network call: nothing here fetches the live site.
           CHECKS: ${{ inputs.checks || 'sideways,presets,roundtrip,highlight,contrast,sweep,journey' }}
           # Empty on the nightly, which is the whole point: the scheduled run
           # is the whole-site sweep and must never be scoped by accident. The
@@ -220,13 +228,25 @@ jobs:
           ONLY: ${{ inputs.only || '' }}
         run: |
           set -euo pipefail
+          # Asked, not written down. `journey.mjs` reads a built page's
+          # canonical tag, its sitemap `<loc>`s and a share link back out and
+          # asserts they name the site's own origin, so the stamp decides
+          # which artifact those assertions are about. This line used to be a
+          # literal `https://tools.marisstella.dev/`, which stopped serving on
+          # 2026-09-04 and is not what any published artifact carries -- so
+          # the one automated whole-site check of the published origin was
+          # verifying a build nobody serves, and passing, because the stamp
+          # made it self-consistent. `published-base-url.mjs` derives it from
+          # the serving branch the same way `publish-branch.sh` does, and
+          # prints its provenance to stderr, where this log keeps it.
+          base_url="$(node platform/pages/published-base-url.mjs)"
           # An unquoted empty --only would consume the next flag as its value.
           only_args=()
           if [ -n "$ONLY" ]; then only_args=(--only "$ONLY"); fi
           python3 platform/ci/browser_checks.py \
             --checks "$CHECKS" \
             "${only_args[@]}" \
-            --stamp-base-url https://tools.marisstella.dev/ \
+            --stamp-base-url "$base_url" \
             && rc=0 || rc=$?
           # 0 = all seven answered and passed. 1 = a real defect in the site
           # (and 124, the timeout the harness invents, is one too). 2 =
