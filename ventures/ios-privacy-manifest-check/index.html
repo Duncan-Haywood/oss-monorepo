@@ -97,6 +97,7 @@
   <input type="file" id="fileInput" multiple accept=".swift,.m,.mm,.h,.xcprivacy">
   <p id="fileCount">No files selected yet.</p>
   <button id="runBtn" type="button" disabled>2. Check for undeclared APIs</button>
+  <p><small>Don't have files handy? <button type="button" id="loadExample">Load a worked example</button> — a UserDefaults call that's declared correctly and a file-timestamp call that isn't, the exact ITMS-91061 shape.</small></p>
 </div>
 
 <div id="results" aria-live="polite"></div>
@@ -108,6 +109,7 @@
   const fileInput = document.getElementById('fileInput');
   const fileCountEl = document.getElementById('fileCount');
   const runBtn = document.getElementById('runBtn');
+  const loadExampleBtn = document.getElementById('loadExample');
   const resultsEl = document.getElementById('results');
 
   let selected = [];
@@ -118,6 +120,49 @@
       ? 'No files selected yet.'
       : `${selected.length} file(s) selected.`;
     runBtn.disabled = selected.length === 0;
+  });
+
+  // Nothing to pick on a first visit unless you happen to have an Xcode
+  // project open -- so, unlike a calculator whose fields already have
+  // numbers in them, this tool had no way to show what it does before you
+  // hand it your own source. These are synthetic File objects built in
+  // memory (never read from disk), reusing the same runBtn handler below.
+  const EXAMPLE_SOURCE_FILES = [
+    {
+      name: 'SettingsStore.swift',
+      content: 'import Foundation\n\nfunc restoreTheme() -> String {\n    return UserDefaults.standard.string(forKey: "theme") ?? "light"\n}\n',
+    },
+    {
+      name: 'CacheInspector.swift',
+      content: 'import Foundation\n\nfunc cacheAge(of url: URL) throws -> Date? {\n    let values = try url.resourceValues(forKeys: [.contentModificationDateKey])\n    return values.contentModificationDate\n}\n',
+    },
+  ];
+  const EXAMPLE_MANIFEST = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>CA92.1</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>
+`;
+
+  loadExampleBtn.addEventListener('click', () => {
+    selected = [
+      ...EXAMPLE_SOURCE_FILES.map((f) => new File([f.content], f.name, { type: 'text/x-swift' })),
+      new File([EXAMPLE_MANIFEST], 'PrivacyInfo.xcprivacy', { type: 'application/xml' }),
+    ];
+    fileCountEl.textContent = `${selected.length} file(s) loaded from the worked example.`;
+    runBtn.disabled = false;
   });
 
   runBtn.addEventListener('click', async () => {
