@@ -78,3 +78,14 @@ test('index links one hop to the dependency-confusion-check sibling', () => {
     'index must link ../dependency-confusion-check/ so crawlers reach the dependency-confusion checker in one hop',
   );
 });
+
+// Unlike a calculator, this tool's only inputs are a file picker and a button
+// that stays disabled until files are chosen -- a first-time visitor with no
+// Xcode project open has nothing to click. The worked example is the
+// tool's first-value path, so it must exist and be built from synthetic
+// `File` objects rather than a real upload.
+test('a worked example is offered and built from in-memory File objects, not a real upload', () => {
+  assert.match(html, /id="loadExample"/);
+  assert.match(html, /Load a worked example/);
+  assert.match(html, /new File\(\[f\.content\], f\.name/);
+});
