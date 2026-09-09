@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fixing a WordPress readme.txt "Stable tag" mismatch</title>
+<meta name="description" content="What a readme.txt Stable tag / plugin Version mismatch means for a WordPress plugin, why it happens, and how to find it before wordpress.org Plugin Review does -- with a free checker that finds it for you.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/wordpress-plugin-review-check/stable-tag-mismatch.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to fix a WordPress plugin readme.txt Stable tag mismatch",
+  "step": [
+    { "@type": "HowToStep", "name": "Open your readme.txt and find the Stable tag line", "text": "Near the top of readme.txt, in the header block above the == Description == section, find the line reading 'Stable tag: X.Y.Z'. This is the version the Plugin Directory actually serves to users -- not your most recent commit, and not whatever your main plugin file says, unless the two happen to agree." },
+    { "@type": "HowToStep", "name": "Open your main plugin file and find the Version line", "text": "In the PHP comment block at the top of your plugin's main file (the one with 'Plugin Name:'), find the 'Version:' line. WordPress reads this to detect available updates and to display the installed version in the Plugins screen." },
+    { "@type": "HowToStep", "name": "Compare the two, exactly", "text": "The two must read identically (or Stable tag may deliberately say 'trunk', which tells the directory to always serve the latest commit instead of a tagged release). A stale Stable tag after a new release means the directory keeps serving the old version -- and it means a mismatch note the moment a reviewer looks." },
+    { "@type": "HowToStep", "name": "Update whichever one is behind, and re-check before resubmitting", "text": "Bump Stable tag to match your new release's Version, or vice versa if the plugin header is what's behind. Re-scan both files to confirm they agree before you tag the release or resubmit." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; }
+</style>
+</head>
+<body>
+<h1>Fixing a readme.txt "Stable tag" mismatch</h1>
+
+<p>
+  A <strong>Stable tag</strong> mismatch is one of the most common notes a WordPress plugin gets
+  during Plugin Directory review, and one of the easiest to introduce by accident: your
+  <code>readme.txt</code> and your plugin's main file each carry their own version string, in two
+  different files, in two different formats, and nothing forces them to move together.
+</p>
+
+<h2>Why it happens</h2>
+<p>
+  The Plugin Directory serves whichever version <code>readme.txt</code>'s <code>Stable tag</code>
+  line names -- not your latest commit, not your latest tag, and not whatever the plugin header
+  says. Bump the version in your main plugin file and forget the matching line in
+  <code>readme.txt</code> (or the reverse) and the two drift apart. Users downloading or
+  auto-updating your plugin keep getting the old build even after you've shipped the new one.
+</p>
+
+<h2>What "correct" looks like</h2>
+<table>
+<thead><tr><th>File</th><th>Line</th><th>What it controls</th></tr></thead>
+<tbody>
+<tr><td><code>readme.txt</code></td><td><code>Stable tag: 1.4.2</code></td><td>Which tagged version the directory actually serves to users</td></tr>
+<tr><td>Main plugin file (PHP header comment)</td><td><code>Version: 1.4.2</code></td><td>What WordPress core shows in the Plugins screen and uses to detect an available update</td></tr>
+</tbody>
+</table>
+<p>
+  The two values should read identically at every release -- or <code>Stable tag</code> may
+  deliberately read <code>trunk</code>, which tells the directory to always serve whatever is in
+  the SVN trunk rather than a tagged release. That's a valid, if less common, choice; it just
+  isn't a version to compare against.
+</p>
+
+<h2>Find it automatically</h2>
+<p>
+  <a href="index.html">The checker on this site</a> reads both files and tells you immediately if
+  they disagree, along with the other checks it runs (required readme/header fields, unescaped
+  superglobal output, missing nonce checks on <code>$_POST</code> handlers). It runs as a browser
+  tool (nothing uploaded) or a Node CLI you can add to your own pre-submission or pre-release check.
+</p>
+
+<p>
+  This is evidence of what the two files currently say, not a determination that Plugin Review
+  will pass in every respect -- see <a href="index.html">the checker</a> and its disclaimer for
+  what else it can and can't see, and verify against
+  <a href="https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/" rel="noopener">the Plugin Directory's current guidelines</a>
+  before you submit or tag a release.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not legal or security advice, and it does not replace wordpress.org's own review
+  process. To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p>Not affiliated with, endorsed by, or sponsored by the WordPress Foundation, Automattic Inc., or
+  WordPress.org. WordPress® is a registered trademark of the WordPress Foundation, named here only to
+  describe the field this page explains.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 224,
-  "collection_total": 224,
+  "served_here": 225,
+  "collection_total": 225,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -38,7 +38,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 19
+      "tool_count": 20
     },
     {
       "id": "marketplace",
@@ -1869,6 +1869,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a window replacement job from United Inches, story, and tear-out — not a flat price per window. See walk-away price, average per opening, and the margin a $550-a-window special actually leaves.",
       "pages": 3
+    },
+    {
+      "slug": "wordpress-plugin-review-check",
+      "name": "WordPress Plugin Review Checker — Stable Tag, Escaping & Nonce Issues",
+      "url": "https://marisstella.dev/tools/wordpress-plugin-review-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free, browser-local checker for WordPress plugin developers: catches a readme.txt Stable tag that doesn't match your plugin's Version header, missing required readme/header fields, unescaped $_GET/$_POST output, and $_POST handling with no nonce check -- before wordpress.org Plugin Review does. Nothing is uploaded.",
+      "pages": 2
     }
   ]
 }

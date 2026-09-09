@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 224 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 225 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 224 of them — and
+Every tool in the collection is listed below — all 225 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -193,6 +193,7 @@ page that hosts it.
 - [Pinned Actions Check — Are Your GitHub Actions Pinned to a Commit SHA?](https://marisstella.dev/tools/pinned-actions-check/): Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.
 - [Structured Data Drift Check — Does Your JSON-LD Match the Page?](https://marisstella.dev/tools/structured-data-drift-check/): Paste a page's HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page's own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.
 - [VS Code Extension Drift Check — Did an Extension You Trust Just Change What It Does?](https://marisstella.dev/tools/vscode-extension-drift-check/): Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check. A CLI-only command also checks whether an extension still resolves on the VS Code Marketplace. Free, runs entirely in your browser, nothing is uploaded.
+- [WordPress Plugin Review Checker — Stable Tag, Escaping & Nonce Issues](https://marisstella.dev/tools/wordpress-plugin-review-check/): Free, browser-local checker for WordPress plugin developers: catches a readme.txt Stable tag that doesn't match your plugin's Version header, missing required readme/header fields, unescaped $_GET/$_POST output, and $_POST handling with no nonce check -- before wordpress.org Plugin Review does. Nothing is uploaded.
 
 ## Marketplace seller tools
 
