@@ -102,7 +102,7 @@ python3 check.py --fail-on-risk   # exit 2 if any mutable (unpinned) action is f
     <p>No. This checks one specific, well-documented thing: whether third-party <code>uses:</code> references are pinned to a commit SHA. It is not a security audit, and it makes no claim about your repository's overall security or compliance posture.</p>
     <h3>What about actions in my own repository?</h3>
     <p>References starting with <code>./</code> (a local composite or JavaScript action in the same repository) and <code>docker://</code> (a container image reference) are skipped — neither is the third-party supply-chain risk this tool exists to catch.</p>
-    <p>More: <a href="how-to-pin-a-github-action-to-a-commit-sha.html">how to pin a GitHub Action to a commit SHA</a>.</p>
+    <p>More: <a href="how-to-pin-a-github-action-to-a-commit-sha.html">how to pin a GitHub Action to a commit SHA</a>. Already run <a href="vs-openssf-scorecard.html">OpenSSF Scorecard</a>? See <a href="vs-openssf-scorecard.html">how this checker compares</a> for the pinning question specifically.</p>
   </section>
 
   <footer>

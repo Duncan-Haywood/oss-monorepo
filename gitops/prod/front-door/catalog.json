@@ -1420,7 +1420,7 @@
       "url": "https://marisstella.dev/tools/pinned-actions-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "plantation-shutter-bid-calculator",
