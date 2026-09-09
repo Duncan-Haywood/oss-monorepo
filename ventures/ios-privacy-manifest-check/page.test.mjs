@@ -83,8 +83,11 @@ test('index links one hop to the dependency-confusion-check sibling', () => {
 // The real file input requires files the visitor may not have on hand right
 // now (or a crawler/automated check has none at all), so this is the only
 // path that demonstrates the tool actually works -- see the sibling
-// file-upload ventures (npm-deployment-evidence, duplicate-payment-audit,
-// etc.), every one of which ships the same "Load a worked example" pattern.
+// file-upload ventures (npm-deployment-evidence, fifo-pick-evidence,
+// dns-configuration-evidence, backup-verification-evidence,
+// einvoice-preflight), each of which ships the same "load an example"
+// pattern. Counted rather than recalled: five of the nine file-input
+// ventures carried one before this venture did.
 test('a worked-example button exists as an alternative to picking real files', () => {
   assert.match(html, /id="loadExample"/);
 });

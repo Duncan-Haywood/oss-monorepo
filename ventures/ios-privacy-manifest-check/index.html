@@ -145,8 +145,10 @@
 
   // A visitor deciding whether this tool is worth digging up their project
   // files for has nothing to try it on -- every sibling file-upload tool in
-  // this portfolio (npm-deployment-evidence, duplicate-payment-audit, etc.)
-  // ships a bundled worked example for exactly this reason. Runs through the
+  // this portfolio (npm-deployment-evidence, fifo-pick-evidence,
+  // dns-configuration-evidence, backup-verification-evidence,
+  // einvoice-preflight) ships a bundled worked example for exactly this
+  // reason -- five of the nine before this one. Runs through the
   // same detectApiUsage/parseManifest/buildReport path as a real scan; only
   // the source of the files differs.
   const EXAMPLE_SOURCE = `import Foundation
