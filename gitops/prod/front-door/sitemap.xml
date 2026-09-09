@@ -727,6 +727,9 @@
     <loc>https://marisstella.dev/tools/dependency-confusion-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/dependency-confusion-check/vs-socket.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/dependency-confusion-check/what-is-dependency-confusion.html</loc>
   </url>
   <url>
@@ -1766,6 +1769,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/pinned-actions-check/how-to-pin-a-github-action-to-a-commit-sha.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/pinned-actions-check/vs-openssf-scorecard.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/plantation-shutter-bid-calculator/</loc>

@@ -10,71 +10,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "1725b7cb53e48dcaf909d2ef0a8047cebda13ada",
-      "measured": "2026-09-07",
-      "pages": 819,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "28bde1a3a40afdadf7616d7e508a6779af4c807a",
-      "measured": "2026-09-07",
-      "pages": 830,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "ab51eb8b84bfb466f8e00122c0e953f1278611f9",
-      "measured": "2026-09-07",
-      "pages": 830,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "1c6ee87ecde710d38e18f7721362ed04dd6f9f5e",
-      "measured": "2026-09-07",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "home-staging-bid-calculator",
-        "ice-dam-removal-bid-calculator"
-      ]
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "bc70bba562bffcb32acf5e1c081ca9c56291bac6",
       "measured": "2026-09-08",
       "pages": 836,
@@ -286,6 +221,22 @@
     {
       "checks": [
         "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "b8953905d4aa94050e95be874a101f6260ea8148",
+      "measured": "2026-09-09",
+      "pages": 872,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
         "presets",
         "roundtrip",
         "sideways",
@@ -308,6 +259,43 @@
       "pages": 874,
       "result": "pass",
       "scope": "full"
+    },
+    {
+      "checks": [
+        "journey"
+      ],
+      "commit": "0c9b33fcaf1e75e4507f45a961db657fa57de63c",
+      "measured": "2026-09-09",
+      "pages": 874,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "highlight"
+      ],
+      "commit": "0c9b33fcaf1e75e4507f45a961db657fa57de63c",
+      "measured": "2026-09-09",
+      "pages": 874,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "9c1af1e3581b2346d982faef9bc935b4da1300ae",
+      "measured": "2026-09-09",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "dependency-confusion-check",
+        "pinned-actions-check"
+      ]
     }
   ]
 }
