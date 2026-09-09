@@ -133,6 +133,12 @@
     <loc>https://marisstella.dev/tools/3pl-quote-normalizer/vs-shipbob.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-artifact-poisoning-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-artifact-poisoning-check/what-is-github-actions-artifact-poisoning.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-cache-poisoning-check/</loc>
   </url>
   <url>
@@ -1580,6 +1586,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/newsletter-sponsorship-rate-calculator/newsletter-sponsorship-rate-benchmarks.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/newsletter-sponsorship-rate-calculator/vs-paved.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/no-show-fee-calculator/</loc>

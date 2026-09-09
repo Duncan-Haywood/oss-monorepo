@@ -2,36 +2,6 @@
   "readings": [
     {
       "checks": [
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sweep"
-      ],
-      "commit": "da40d4f035c7fec7343c1ef1e50f618986b32946",
-      "measured": "2026-09-07",
-      "pages": 775,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "ba83eb7ccf233ad1f12f1d6508084b7e669dc155",
-      "measured": "2026-09-07",
-      "pages": 787,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
         "contrast",
         "highlight",
         "journey",
@@ -332,6 +302,22 @@
       "commit": "3b2b960d9c9933807b21a696fc90cdfe17865a0e",
       "measured": "2026-09-08",
       "pages": 846,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "776092251bcdcce263cdba6c9ffe8ec1a13ec6d6",
+      "measured": "2026-09-09",
+      "pages": 853,
       "result": "pass",
       "scope": "full"
     }
