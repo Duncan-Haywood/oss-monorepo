@@ -104,3 +104,21 @@ test('the worked example the page ships with actually computes', async () => {
   assert.equal(result.maxChurnRate, 20);
   assert.equal(result.breakEvenCustomers, 80);
 });
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: the other side of the same subscription. This tool serves
+// the seller raising a price; that one serves the buyer finding unused seats.
+// Rotating related-tool chrome may never pair them, so link explicitly.
+test('index links one hop to the saas-seat-true-up sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/saas\-seat\-true\-up\/"/,
+    'index must link ../saas-seat-true-up/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /SaaS seat true\-up calculator/i);
+});
