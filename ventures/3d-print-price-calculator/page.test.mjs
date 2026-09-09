@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculatePrice, DEFAULTS } from './calc.mjs';
@@ -61,4 +61,56 @@ test('an invalid input hides stale results instead of leaving them next to a sil
   const body = catchBlock[1];
   assert.match(body, /el\('price'\)\.hidden = true/, 'the price hero is not hidden on a rejected input');
   assert.match(body, /el\('errors'\)\.hidden = false/, 'the error message is never shown');
+});
+
+// The comparison page names slicers to say what this tool is *not*, so the
+// two lines that keep it honest are the ones most likely to be lost in a
+// later edit: the not-affiliated statement, and the reverse link from index.
+// Without the link a crawler entering on the hub never reaches it, which is
+// the one-way orphan class this portfolio has shipped before.
+test('the comparison page disclaims affiliation and is reachable from index', () => {
+  const compare = readFileSync(new URL('./vs-slicer-cost-estimate.html', import.meta.url), 'utf8');
+  assert.match(compare, /not affiliated with, endorsed by, or sponsored by any slicer vendor/i);
+  assert.match(compare, /No warranty\.<\/strong> This tool is provided free and as-is/);
+  assert.match(compare, /<meta property="og:title" content="[^"]+">/);
+  assert.match(compare, /<meta property="og:description" content="[^"]+">/);
+  assert.match(compare, /href="\.\/"/, 'must link back to the calculator');
+  assert.match(
+    html,
+    /href="\.\/vs-slicer-cost-estimate\.html"/,
+    'index must link the comparison page so crawlers can reach it',
+  );
+});
+
+// The FAQ answers are duplicated between visible copy and the JSON-LD block.
+// Structured data disagreeing with the visible page is the defect CLAUDE.md
+// records from #3671, so pin that the two stay identical.
+test('comparison page FAQ structured data matches the visible answers', () => {
+  const compare = readFileSync(new URL('./vs-slicer-cost-estimate.html', import.meta.url), 'utf8');
+  const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(compare)[1]);
+  assert.equal(ld['@type'], 'FAQPage');
+  const visible = compare.replace(/<script[\s\S]*?<\/script>/g, '');
+  for (const entry of ld.mainEntity) {
+    assert.ok(
+      visible.includes(`<h3>${entry.name}</h3>`),
+      `structured-data question is not on the page: ${entry.name}`,
+    );
+    assert.ok(
+      visible.includes(`<p>${entry.acceptedAnswer.text}</p>`),
+      `structured-data answer does not match the visible copy for: ${entry.name}`,
+    );
+  }
+});
+
+// Every .html in the venture must be advertised by the sitemap; the venture
+// had exactly one page until now, so nothing here enforced that yet.
+test('every page in the venture is reachable from the sitemap', () => {
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  for (const name of readdirSync(new URL('./', import.meta.url)).filter(n => n.endsWith('.html'))) {
+    if (name === 'index.html') {
+      assert.match(sitemap, /3d-print-price-calculator\/<\/loc>/);
+      continue;
+    }
+    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+  }
 });
