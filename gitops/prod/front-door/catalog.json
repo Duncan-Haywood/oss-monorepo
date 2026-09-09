@@ -532,7 +532,7 @@
       "url": "https://marisstella.dev/tools/actions-injection-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run 'pwn request' checkouts and shell script-injection from untrusted ${{ github.event }} expressions. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "actions-permissions-check",
