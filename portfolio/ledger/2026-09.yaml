@@ -21004,3 +21004,86 @@ entries:
         (`gitops/agents/host/`, `bootstrap/scripts/install-codex-host.sh`)
         is already built and tested and waits only on the key rotation.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Open-PR queue was empty (0 open PRs, no stray remote branches) at the
+        start of this scheduled run, so the standing three-PR-merge quota was
+        met trivially -- verified via list_pull_requests and
+        search_pull_requests (state:open), not inherited from a prior
+        session's read.
+      - >-
+        Closed 6 of the 16 crawlable orphans `siblings.mjs --check` was
+        carrying at its committed ceiling: einvoice-preflight,
+        fifo-pick-evidence, cra-evidence-desk, shopify-permission-drift,
+        print-atelier, real-estate-agent-photo-app. All six share the
+        `evidence` category and each one's own nearest-sibling suggestion was
+        the same weak match (ada-title-ii-evidence). Read each README instead
+        of trusting the category label and found three real topical pairs
+        (einvoice-preflight/fifo-pick-evidence: two evidence records before a
+        different audit; cra-evidence-desk/shopify-permission-drift: two
+        before/after records of what changed in a customer's software
+        surface; print-atelier/real-estate-agent-photo-app: two photo/file
+        preflights before a paid handoff in a different market). Each page's
+        footer now names the other, with a test asserting the href in both
+        ventures. Lowered the committed orphanBudget 16 -> 10.
+      - >-
+        PR #4363, merged. Verified locally: node --test on all six touched
+        ventures (492 passing), platform/pages suite (959 passing),
+        checklist_coverage.py clean, siblings.mjs --check (10 orphans, within
+        the new budget), build.mjs + check.mjs (225 products, 881 pages, no
+        dead links). All 16 checks GitHub ran on the PR came back `failure`
+        in 3-4s; classified via ci_starvation.py --run 34416461731: exit 1,
+        `runner_id: 0` on every job -- starvation, not a real failure, matching
+        this same day's `github-actions-runners: down` reading in
+        infra_state.yaml. Regenerated the front-door mirror (regen.mjs) in
+        the same PR, then republished gh-pages after merge:
+        pages_state.py --require-current failed stale (built from b3776090,
+        main at 9d44b468), ran publish-branch.sh, re-checked --require-current
+        -- exit 0, current.
+      - >-
+        Re-confirmed, not re-asked: the standing owner direction to deploy
+        marketing materials to the Hetzner VMs and run the Codex CLI there
+        for dev work is still blocked on the single existing ask
+        `hetzner-ssh-key-is-a-public-key` (#3184), already first in
+        decision_queue.py. `gitops/agents/host/` (Codex governor, host mode)
+        and `platform/marketing/` (the Hetzner front-door generator, output
+        committed and regenerated in this PR) are both already built and
+        wired to the exact same owner action -- confirmed this session by
+        reading `gitops/agents/host/README.md`, `gitops/agents/workers/mandate.md`
+        (the standing prompt the Codex worker runs, already a close mirror of
+        this session's own product-first mandate), and infra_state.yaml's
+        `k3s-cluster: down` row. No second ask added, per mandate.md's own
+        instruction not to. This session had no SSH/Hetzner credentials
+        available to it either way.
+      - >-
+        Post-merge, re-ran the local checklist against a fresh `main` and
+        `run_workflow_locally.py --tree` (8/9 selected workflows passed
+        locally; only the runner-gated Pages deploy step didn't run) found a
+        real, pre-existing defect unrelated to this session's own change:
+        `gitops/prod/kustomization.yaml` never mounted
+        `vs__openssf-scorecard.html.gz`, so the OpenSSF-Scorecard comparison
+        page two ventures share had shipped dark since #4359. Wrote the fix,
+        and before pushing found a concurrent session had landed the
+        identical one-line fix as #4364 minutes earlier -- confirmed the
+        diffs matched exactly and dropped the now-redundant commit rather
+        than opening a duplicate PR, per CLAUDE.md's "Duplicate PRs"
+        guidance. No code change needed from this session for that finding;
+        recorded here because independently reaching the same diagnosis is
+        itself a useful cross-check that the defect was real, not a
+        misreading.
+      - >-
+        Per CLAUDE.md's rule that a change touching served markup should
+        refresh the browser/accessibility reading, ran the full
+        whole-catalogue sweep (`npm install --no-save playwright@1.56.0
+        axe-core`, then `browser_checks.py --record --checks
+        sideways,presets,roundtrip,highlight,contrast,sweep,journey`) rather
+        than skip it as someone else's job. All 7 checks passed: 879 pages
+        across 2 viewports with no WCAG A/AA violations, 232 tools exercised
+        with 0 errors, all 879 sitemap URLs resolve, 0 off-origin requests,
+        0px overflow at 375px. Recorded at commit 9d44b468 (this session's
+        merged PR #4363) in platform/ci/browser_state.json, so `browser_state.py`
+        now reports all 7 checks current rather than stale.
+    mrr_end: 0
