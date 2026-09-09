@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 219,
-  "collection_total": 219,
+  "served_here": 220,
+  "collection_total": 220,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -35,6 +35,12 @@
       "tool_count": 20
     },
     {
+      "id": "ci",
+      "name": "CI checks & developer gates",
+      "url": "https://marisstella.dev/c/ci/",
+      "tool_count": 16
+    },
+    {
       "id": "marketplace",
       "name": "Marketplace seller tools",
       "url": "https://marisstella.dev/c/marketplace/",
@@ -44,12 +50,6 @@
       "id": "backoffice",
       "name": "Back-office money & contracts",
       "url": "https://marisstella.dev/c/backoffice/",
-      "tool_count": 15
-    },
-    {
-      "id": "ci",
-      "name": "CI checks & developer gates",
-      "url": "https://marisstella.dev/c/ci/",
       "tool_count": 15
     },
     {
