@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>License Drift Check vs. FOSSA</title>
+  <meta name="description" content="FOSSA is a hosted, continuously-scanning SCA platform that tells you every dependency's license right now and enforces a policy on it. License Drift Check is a free, no-account browser tool that answers one narrower question: did a license change since your last snapshot. Not affiliated with FOSSA.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-fossa.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="License Drift Check vs. FOSSA">
+  <meta property="og:description" content="FOSSA answers what license does this dependency have right now, continuously, across your whole codebase. This page answers one thing: did it change since the last time you looked, with nothing uploaded.">
+  <meta property="og:url" content="./vs-fossa.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use License Drift Check or FOSSA?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions. FOSSA is a hosted software composition analysis (SCA) platform: it connects to your repositories, continuously scans every dependency, tells you what license each one carries right now, checks that against a policy you configure (for example, block copyleft in a proprietary codebase), and can generate SBOMs and block a build on a violation. License Drift Check is a free tool with no account and no connection: you paste two point-in-time snapshots of your dependency tree's declared licenses — a baseline and a current one — and it reports exactly which packages' license changed, were added, or were removed between them. FOSSA tells you the state today; this tool tells you what moved since last time. If you want continuous policy enforcement across a whole org, FOSSA's job is not one this page tries to do. If you already have two snapshots and want the diff before connecting anything, that is what this tool is for."}},{"@type":"Question","name":"Does FOSSA already catch a license change on its own?","acceptedAnswer":{"@type":"Answer","text":"FOSSA's own product describes continuous scanning and policy checks against the license each dependency currently carries, which will flag a newly-scanned dependency that now violates your policy. What it is built to answer is the current state against a rule you set, not a side-by-side diff of exactly which packages changed license since an earlier snapshot you choose yourself — the four events this tool's README documents (MongoDB, Elasticsearch, Terraform, Redis) are exactly the case where the policy did not change, only the license did, underneath a routine version bump."}},{"@type":"Question","name":"Is FOSSA free?","acceptedAnswer":{"@type":"Answer","text":"FOSSA offers a free tier for public open-source projects. Scanning private repositories, team seats, policy enforcement across an organization, and SBOM export at scale are paid tiers. License Drift Check has no account and nothing that bills at any tier — it is a free static page and a zero-dependency CLI, for public or private dependency trees alike, with no per-repository or per-seat cost."}},{"@type":"Question","name":"Is this page affiliated with FOSSA?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by FOSSA, Inc. FOSSA is named here only to describe what this tool is and is not, based on FOSSA's own public product description."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.55; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d5dbe3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; License Drift Check</a></p>
+  <h1>License Drift Check vs. FOSSA</h1>
+  <p>
+    <strong>FOSSA</strong> is a hosted software composition analysis (SCA)
+    platform. It connects to your repositories, continuously scans your
+    dependency tree, tells you what license each dependency carries right
+    now, checks that against a policy you configure (for example, block
+    strong copyleft in a proprietary codebase), and can generate an SBOM or
+    fail a build on a policy violation. It is a genuinely useful,
+    always-on system for an organization that wants license compliance
+    enforced across every repository without anyone checking by hand.
+  </p>
+  <p>
+    That is not this tool's job. License Drift Check parses two
+    point-in-time snapshots you paste &mdash; a baseline and a current one
+    &mdash; and reports exactly which packages' <em>license</em> changed,
+    were added, or were removed between them. Nothing is uploaded, there is
+    no account, no policy engine, and no memory once you close the tab.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What license does every dependency in my codebase carry right now, continuously, across my whole org?</td>
+        <td>FOSSA &mdash; that needs an ongoing connected scan and a policy engine, which a stateless browser page never does.</td>
+      </tr>
+      <tr>
+        <td>I have a baseline snapshot and today's snapshot &mdash; did any package's license change between them?</td>
+        <td>License Drift Check &mdash; paste both, get the exact list of changed, added, and removed packages, no signup, nothing leaves your device.</td>
+      </tr>
+      <tr>
+        <td>I want a build to fail automatically when a dependency violates my license policy.</td>
+        <td>FOSSA's policy engine &mdash; this tool reports a diff, it does not enforce a rule about which licenses are acceptable.</td>
+      </tr>
+      <tr>
+        <td>My dependency tree is private and I don't want to connect an account or upload it just to check for a relicensing event.</td>
+        <td>License Drift Check &mdash; the browser page never makes a network request, and the CLI reads only local files.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    The two are not substitutes. A team that wants continuous, policy-driven
+    license enforcement across every repository and every contributor needs
+    a hosted platform like FOSSA &mdash; a page that only looks at whatever
+    you paste into it, once, cannot do that job. A developer who already has
+    two snapshots and wants to know what changed between them, without
+    connecting a repository or accepting a policy engine's opinion of what
+    is acceptable, does not need an account to get that answer.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use License Drift Check or FOSSA?</h3>
+  <p>They answer different questions. FOSSA is a hosted software composition analysis (SCA) platform: it connects to your repositories, continuously scans every dependency, tells you what license each one carries right now, checks that against a policy you configure (for example, block copyleft in a proprietary codebase), and can generate SBOMs and block a build on a violation. License Drift Check is a free tool with no account and no connection: you paste two point-in-time snapshots of your dependency tree's declared licenses &mdash; a baseline and a current one &mdash; and it reports exactly which packages' license changed, were added, or were removed between them. FOSSA tells you the state today; this tool tells you what moved since last time. If you want continuous policy enforcement across a whole org, FOSSA's job is not one this page tries to do. If you already have two snapshots and want the diff before connecting anything, that is what this tool is for.</p>
+  <h3>Does FOSSA already catch a license change on its own?</h3>
+  <p>FOSSA's own product describes continuous scanning and policy checks against the license each dependency currently carries, which will flag a newly-scanned dependency that now violates your policy. What it is built to answer is the current state against a rule you set, not a side-by-side diff of exactly which packages changed license since an earlier snapshot you choose yourself &mdash; the four events this tool's README documents (MongoDB, Elasticsearch, Terraform, Redis) are exactly the case where the <em>policy</em> did not change, only the license did, underneath a routine version bump.</p>
+  <h3>Is FOSSA free?</h3>
+  <p>FOSSA offers a free tier for public open-source projects. Scanning private repositories, team seats, policy enforcement across an organization, and SBOM export at scale are paid tiers. License Drift Check has no account and nothing that bills at any tier &mdash; it is a free static page and a zero-dependency CLI, for public or private dependency trees alike, with no per-repository or per-seat cost.</p>
+  <h3>Is this page affiliated with FOSSA?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by FOSSA, Inc. FOSSA is named here only to describe what this tool is and is not, based on FOSSA's own public product description.</p>
+  <p class="note">
+    More: <a href="how-a-dependency-license-change-reaches-your-lockfile.html">how a dependency's license change reaches your lockfile</a>.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports a factual difference between two snapshots, not a legal opinion about whether a license change matters to your use. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. If this caught a relicensing before it caught you, the code is under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
