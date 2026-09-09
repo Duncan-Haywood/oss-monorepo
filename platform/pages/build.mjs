@@ -611,9 +611,18 @@ const CATEGORY_RULES = [
     // *business* uses). An exact list cannot silently steal a slug from a
     // section above it, and the cost is that a sixth member needs one line
     // here -- which the catch-all bound will ask for anyway.
+    //
+    // `affiliate-disclosure-checker` joined 2026-09-09: a blogger or content
+    // creator checking their own published post for a missing or too-late
+    // affiliate disclosure, protecting the same kind of self-earned income
+    // `ats-resume-checker` protects (a job seeker's own resume) rather than
+    // pricing anything -- the axis this section groups on is the earner, not
+    // whether the tool is a calculator or a checker, and `ats-resume-checker`
+    // is already the precedent for a checker-shaped member here.
     test: (slug) =>
       [
         '3d-print-price-calculator',
+        'affiliate-disclosure-checker',
         'ats-resume-checker',
         'gig-driver-net-pay-calculator',
         'newsletter-sponsorship-rate-calculator',
