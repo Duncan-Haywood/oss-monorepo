@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tool vs. PRGX (a recovery-audit firm)</title>
+  <meta name="description" content="How this free, private duplicate-payment CSV checker differs from PRGX Global, a contingency recovery-audit firm. Not affiliated with PRGX Global, Inc.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-prgx.html">
+  <meta property="og:title" content="This tool vs. PRGX (a recovery-audit firm)">
+  <meta property="og:description" content="PRGX audits large enterprise AP ledgers on contingency and takes a cut of what it recovers. This page checks one CSV export for likely duplicate payments yourself, free, with nothing uploaded.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or hire PRGX?","acceptedAnswer":{"@type":"Answer","text":"They fit different sizes of business. PRGX Global is a publicly traded recovery-audit firm: it works with large enterprises, plugging into their AP systems to review very high transaction volumes across many vendors and years, and it is paid a contingency fee out of whatever it recovers — so an engagement only makes sense once the expected recovery is large enough to be worth a percentage of it. This page is a free, one-time, self-serve check of a CSV export you already have, aimed at small businesses and bookkeepers a contingency firm has no reason to take on. It flags candidate duplicates for you to review yourself; it does not investigate, negotiate a recovery, or take a cut of anything."}},{"@type":"Question","name":"Does this tool do the same forensic audit PRGX does?","acceptedAnswer":{"@type":"Answer","text":"No. PRGX's audits combine software with the firm's own auditors reviewing findings, contacting vendors, and pursuing recovery of confirmed overpayments across a client's full AP history. This page runs three pattern checks locally in your browser — an exact same-vendor/same-invoice-number/same-amount match, a same-vendor/same-invoice-number different-amount match, and a same-vendor/same-amount near-date match when invoice numbers are missing or nearly identical — and hands you a list to verify against your own records. It does not contact vendors, file disputes, or confirm that a flagged pair is an actual overpayment."}},{"@type":"Question","name":"Is PRGX free?","acceptedAnswer":{"@type":"Answer","text":"No. PRGX and similar recovery-audit firms are typically paid on a contingency-fee basis, taking a percentage of whatever they recover, which is why they focus on large clients where that percentage is worth the engagement. This tool has no fee of any kind: it is a free static page, and the CSV you upload never leaves your browser."}},{"@type":"Question","name":"Is this page affiliated with PRGX?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by PRGX Global, Inc. PRGX is a trademark of its owner, named here only to describe what this tool is for and who it is not trying to replace."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #182230; background: #f4f1eb; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #8a4322; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; color: #17324d; }
+    h2 { color: #17324d; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d8d2c8; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5d6973; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #af6035; color: #fff; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #5d6973; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #5d6973; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Duplicate Payment Audit</a></p>
+  <h1>This tool vs. PRGX</h1>
+  <p>
+    <a href="https://www.prgx.com/" rel="nofollow noopener">PRGX Global</a> is
+    a publicly traded recovery-audit firm built for large enterprises: it
+    reviews very high AP transaction volumes across many vendors and years,
+    typically on a contingency fee taken out of whatever it recovers. That
+    business model only pays for itself once the expected recovery is worth
+    a percentage of a firm's time &mdash; which is why recovery-audit firms
+    generally do not take on a small business's AP ledger.
+  </p>
+  <p>
+    That makes PRGX the right choice for <strong>an enterprise wanting a
+    contingency-fee audit of years of AP history across every vendor</strong>.
+    This page answers a narrower, faster question: <strong>does this one CSV
+    export I already have show any likely duplicate vendor payments</strong>
+    &mdash; free, with no engagement, and nothing uploaded anywhere.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I run a large enterprise and want a contingency-fee audit of years of AP history across every vendor.</td>
+        <td>PRGX's recovery-audit engagement.</td>
+      </tr>
+      <tr>
+        <td>I have one CSV export and want to know if it shows any likely duplicate payments, today, for free.</td>
+        <td>This tool &mdash; upload the CSV, get a reviewable list immediately, nothing installed.</td>
+      </tr>
+      <tr>
+        <td>My business is too small for a recovery-audit firm to take on.</td>
+        <td>This tool was built for exactly that gap &mdash; no minimum size, no fee, no contingency cut.</td>
+      </tr>
+      <tr>
+        <td>I need someone to contact the vendor, file the dispute, and pursue the actual recovery.</td>
+        <td>Neither tool does this alone. PRGX's service includes pursuing recovery; this tool only flags candidates for you to act on yourself.</td>
+      </tr>
+      <tr>
+        <td>I want to check a CSV without sending my payment history to anyone.</td>
+        <td>This tool &mdash; the file is read in your browser and never uploaded.</td>
+      </tr>
+    </tbody>
+  </table>
+  <a class="cta" href="./">Check your CSV now</a>
+  <p>
+    This tool needs no account, no minimum transaction volume, and nothing
+    installed: it is a static page, the matching runs in your browser, and
+    the vendor names, amounts, and dates in your CSV never leave this device.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this tool or hire PRGX?</h3>
+  <p>They fit different sizes of business. PRGX Global is a publicly traded recovery-audit firm: it works with large enterprises, plugging into their AP systems to review very high transaction volumes across many vendors and years, and it is paid a contingency fee out of whatever it recovers &mdash; so an engagement only makes sense once the expected recovery is large enough to be worth a percentage of it. This page is a free, one-time, self-serve check of a CSV export you already have, aimed at small businesses and bookkeepers a contingency firm has no reason to take on. It flags candidate duplicates for you to review yourself; it does not investigate, negotiate a recovery, or take a cut of anything.</p>
+  <h3>Does this tool do the same forensic audit PRGX does?</h3>
+  <p>No. PRGX's audits combine software with the firm's own auditors reviewing findings, contacting vendors, and pursuing recovery of confirmed overpayments across a client's full AP history. This page runs three pattern checks locally in your browser &mdash; an exact same-vendor/same-invoice-number/same-amount match, a same-vendor/same-invoice-number different-amount match, and a same-vendor/same-amount near-date match when invoice numbers are missing or nearly identical &mdash; and hands you a list to verify against your own records. It does not contact vendors, file disputes, or confirm that a flagged pair is an actual overpayment.</p>
+  <h3>Is PRGX free?</h3>
+  <p>No. PRGX and similar recovery-audit firms are typically paid on a contingency-fee basis, taking a percentage of whatever they recover, which is why they focus on large clients where that percentage is worth the engagement. This tool has no fee of any kind: it is a free static page, and the CSV you upload never leaves your browser.</p>
+  <h3>Is this page affiliated with PRGX?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by PRGX Global, Inc. PRGX is a trademark of its owner, named here only to describe what this tool is for and who it is not trying to replace.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. It does not determine that any payment was fraudulent, wrongful, or actually duplicated. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Do not use it as a system of record.</p>
+    <p>Free and open source. If it caught a duplicate payment, <a href="LICENSE" rel="noopener">the code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

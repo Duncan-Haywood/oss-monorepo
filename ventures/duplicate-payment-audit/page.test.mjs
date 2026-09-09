@@ -38,3 +38,15 @@ test('index links one hop to the payment-reconciliation-workbench sibling', () =
     'index must link ../payment-reconciliation-workbench/ so crawlers reach the sibling AP tool in one hop',
   );
 });
+
+test('index links to the vs-PRGX comparison page', () => {
+  assert.match(html, /href="\.\/vs-prgx\.html"/, 'index must link vs-prgx.html so crawlers reach it in one hop');
+});
+
+test('vs-prgx.html carries the nominative-fair-use disclaimer and links back to the tool', () => {
+  const vs = fs.readFileSync(new URL('./vs-prgx.html', import.meta.url), 'utf8');
+  assert.match(vs, /not affiliated with, endorsed by, or sponsored by/i);
+  assert.match(vs, /href="\.\/"/, 'vs-prgx.html must link back to the tool');
+  assert.match(vs, /application\/ld\+json/);
+  assert.match(vs, /No warranty/);
+});
