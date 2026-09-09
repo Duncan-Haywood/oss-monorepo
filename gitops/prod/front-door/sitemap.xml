@@ -70,6 +70,9 @@
     <loc>https://marisstella.dev/compare/jobtread/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/compare/openssf-scorecard/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/compare/paintscout/</loc>
   </url>
   <url>
@@ -161,6 +164,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/actions-permissions-check/how-to-set-least-privilege-permissions-for-github-actions.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-permissions-check/vs-openssf-scorecard.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/actions-runner-starvation-check/</loc>
