@@ -136,6 +136,7 @@
     "npm-deployment-evidence": "2026-08-26",
     "npm-lifecycle-script-check": "2026-09-07",
     "owner-operator-cpm-calculator": "2026-08-26",
+    "package-exports-drift-check": "2026-09-09",
     "painting-bid-calculator": "2026-08-26",
     "parking-lot-striping-bid-calculator": "2026-08-26",
     "patio-door-bid-calculator": "2026-08-26",
