@@ -44,6 +44,21 @@ What each layer costs
 Layers 1 and 2 run anywhere with ordinary outbound internet. Layer 3 is
 skipped, not failed, when the token is absent -- the verdict says so.
 
+**"Ordinary outbound internet" is a precondition, not a description of where
+this runs** (added 2026-09-09). An agent session sandbox does not have it: an
+egress proxy answers the connect, so layer 2 measures the proxy and reports it
+as the host. Measured that day, the two live nodes and an address on which
+nothing can possibly be listening returned the same four states -- 80 and 443
+`open`, 22 and 6443 `no answer` -- while the cluster was known dead. Both
+halves are wrong in the expensive direction, and the 22 reading is the exact
+one this docstring says above would send the owner after the wrong credential.
+
+`detect_interception()` now settles that before layer 2 runs, and layer 2 is
+*skipped* rather than reported when the transport cannot carry it. Layer 3
+still runs; it fails loudly rather than silently. The reading has to be taken
+somewhere with real egress -- `.github/workflows/outage-triage.yml` runs this
+same tool on a GitHub runner and needs no secret.
+
 What it deliberately does not do
 --------------------------------
 It writes nothing, mutates no cluster and no cloud resource, and issues no
@@ -99,6 +114,26 @@ OPEN = "open"
 REFUSED = "refused"
 NO_ANSWER = "no answer"
 UNREACHABLE = "unreachable"
+
+# Addresses reserved for documentation by RFC 5737 (TEST-NET-1/2/3). They are
+# not routed on the public internet and nothing can legitimately be listening
+# on them, so any answer at all is proof that something local answered on the
+# destination's behalf.
+#
+# All three are probed rather than one, because a single sentinel gives a false
+# negative: measured 2026-09-09 in an agent sandbox, 192.0.2.1 came back
+# `refused` on every port (the proxy denylists it) while 198.51.100.7 and
+# 203.0.113.9 both came back **open** on 80 and 443. A one-sentinel design that
+# happened to pick TEST-NET-1 would have concluded "not intercepted" and gone
+# on to report fiction.
+SENTINELS: tuple[str, ...] = ("198.51.100.7", "203.0.113.9", "192.0.2.1")
+
+# One web port and one non-web port: the two poisoning modes look different and
+# checking both is what distinguishes them. Kept to two so a clean runner, where
+# every one of these times out, spends seconds rather than a minute proving a
+# negative.
+SENTINEL_PORTS: tuple[int, ...] = (443, 22)
+SENTINEL_TIMEOUT = 3
 
 # How many actions to pull per server. Hetzner pages this endpoint; a full
 # page means there may be older actions we did not see, which `boot_history`
@@ -178,10 +213,33 @@ class HostDNS:
 
 
 @dataclass
+class Interception:
+    """Whether outbound TCP from here is being answered by something local.
+
+    Deliberately not a verdict, for the same reason `BootHistory` is not one:
+    the classification ("a reserved address answered") is worth pinning apart
+    from what the tool then refuses to do about it.
+    """
+
+    detected: bool = False
+    # (address, port, state) for every sentinel probe, so the rendered banner
+    # shows the reading rather than asserting it.
+    probes: list[tuple[str, int, str]] = field(default_factory=list)
+
+    @property
+    def answering(self) -> list[tuple[str, int, str]]:
+        """The probes that prove it: an unroutable address that answered."""
+        return [p for p in self.probes if p[2] == OPEN]
+
+
+@dataclass
 class Triage:
     nodes: list[Node] = field(default_factory=list)
     dns: list[HostDNS] = field(default_factory=list)
     ports: list[PortResult] = field(default_factory=list)
+    # None means the check did not run (a caller passing its own `connect`);
+    # a value with `detected` false means it ran and the transport is clean.
+    interception: Interception | None = None
     servers: list[dict] = field(default_factory=list)
     api_note: str = ""
     # server_id -> most recent actions, newest first. Read-only history of
@@ -276,6 +334,74 @@ def probe_port(node: Node, port: int, connect=None) -> PortResult:
         return PortResult(
             node=node, port=port, state=UNREACHABLE, detail=f"{type(exc).__name__}: {exc}"
         )
+
+
+def detect_interception(connect=None) -> Interception:
+    """Ask whether this host's outbound TCP reaches the destination at all.
+
+    Layer 2 of this tool is a TCP fingerprint, and its whole diagnostic value
+    is that `refused`, `no answer` and `open` mean three different things. That
+    holds only if the connection reached the machine being probed. Behind an
+    egress proxy it does not, and every one of the three becomes a statement
+    about the proxy.
+
+    Measured 2026-09-09 from an agent session sandbox — the environment the
+    scheduled routines actually run in — probing addresses on which nothing can
+    possibly be listening:
+
+        198.51.100.7   22=no answer  80=**open**  443=**open**  6443=no answer
+        203.0.113.9    22=no answer  80=**open**  443=**open**  6443=no answer
+
+    The two live Hetzner nodes returned that exact pattern the same minute. So
+    from a sandbox this tool renders identical output whether the boxes are
+    healthy, dead, or have never existed — and both halves of that output are
+    actively misleading in the expensive direction:
+
+      * 80 and 443 "open" reads as *the ingress is serving*, while the
+        catalogue's own origin is down.
+      * 22 "no answer" reads as *sshd is gone, the box is off or firewalled*,
+        which is precisely the reading this file's docstring says would sink
+        `hetzner-ssh-key-is-a-public-key` — the top-ranked owner ask and the
+        only route back to the origin. `CLAUDE.md` records the cost: "had port
+        22 been refused alongside 443, the top-ranked ask would have been the
+        wrong credential, costing the owner a day."
+
+    A false negative here is far more expensive than a false positive, so the
+    rule is deliberately blunt: *any* answer from reserved-documentation space
+    condemns the whole port layer, not just the port that answered. A proxy
+    that manufactures `open` on 443 is equally capable of manufacturing
+    `no answer` on 22, and the sandbox measurement above is exactly that.
+
+    Short-circuits on the first proof, so the intercepted case costs one
+    connect and the clean case costs a handful of timeouts.
+    """
+    def _default(ip: str, prt: int) -> None:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(SENTINEL_TIMEOUT)
+            sock.connect((ip, prt))
+
+    connect = connect or _default
+    result = Interception()
+    for port in SENTINEL_PORTS:
+        for address in SENTINELS:
+            try:
+                connect(address, port)
+                state = OPEN
+            except ConnectionRefusedError:
+                state = REFUSED
+            except (socket.timeout, TimeoutError):
+                state = NO_ANSWER
+            except OSError:
+                # "Network is unreachable" is the honest answer a machine with
+                # ordinary outbound internet gives about TEST-NET, and it is
+                # the one thing here that positively argues *against*
+                # interception. Recorded, not treated as proof either way.
+                state = UNREACHABLE
+            result.probes.append((address, port, state))
+            if state == OPEN:
+                result.detected = True
+                return result
+    return result
 
 
 def hetzner_servers(token: str | None, opener=None) -> tuple[list[dict], str]:
@@ -598,6 +724,40 @@ def verdict(triage: Triage) -> tuple[str, list[str]]:
     ours = {node.ipv4 for node in triage.nodes}
     lines: list[str] = []
 
+    # 0. Can this host take a TCP reading at all? Every verdict below layer 1 is
+    #    a statement about ports, so a poisoned transport does not produce a
+    #    weaker diagnosis — it produces a confident wrong one. Refuse instead,
+    #    and say where the reading can be taken.
+    if triage.interception and triage.interception.detected:
+        for address, port, _ in triage.interception.answering:
+            lines.append(
+                f"`{address}:{port}` answered. That address is reserved for "
+                "documentation by RFC 5737 and is not routed on the public "
+                "internet, so nothing can be listening on it — the connection "
+                "was answered locally, by an egress proxy."
+            )
+        return (
+            "This host cannot take a TCP reading — no diagnosis attempted",
+            lines
+            + [
+                "**The port layer was skipped rather than reported.** Behind a "
+                "proxy every port answers the same way whether the boxes are "
+                "healthy, dead, or nonexistent, so a rendered table here would "
+                "be fiction that reads exactly like a measurement.",
+                "**Nothing below is invalidated and nothing is confirmed.** In "
+                "particular this says nothing about `sshd`, so it neither "
+                "supports nor sinks the queued "
+                "`hetzner-ssh-key-is-a-public-key` ask — do not re-rank that "
+                "ask on this run.",
+                "Take the reading somewhere with ordinary outbound internet: "
+                "dispatch the `Outage triage` workflow "
+                "(`.github/workflows/outage-triage.yml`), which runs this same "
+                "tool on a GitHub runner and needs no secret. If Actions is "
+                "starved, `python3 platform/ci/ci_starvation.py --run <id>` "
+                "says so, and the reading has to wait for a runner.",
+            ],
+        )
+
     # 1. DNS pointing away from our machines makes everything else moot.
     astray = [d for d in triage.dns if d.addresses and not d.points_at_us(ours)]
     if astray:
@@ -747,21 +907,46 @@ def render(triage: Triage) -> str:
 
     out.append("### Ports")
     out.append("")
-    out.append(
-        "`refused` means the host is up and sent an RST — nothing bound to that "
-        "port. `no answer` means the packet was dropped. An HTTPS prober cannot "
-        "tell these apart; both look like \"unreachable\"."
-    )
-    out.append("")
-    out.append("| Node | Address | Port | State | What it tells us |")
-    out.append("| --- | --- | --- | --- | --- |")
-    for result in triage.ports:
-        state = result.state if result.state != OPEN else "**open**"
-        detail = result.detail or PORTS.get(result.port, "")
+    if triage.interception and triage.interception.detected:
         out.append(
-            f"| {result.node.role} | `{result.node.ipv4}` | {result.port} | "
-            f"{state} | {detail} |"
+            "**Skipped — outbound TCP from this host does not reach the "
+            "destination.** These probes were not run, because running them "
+            "would have produced a table indistinguishable from a real one."
         )
+        out.append("")
+        out.append("| Probed | Port | State |")
+        out.append("| --- | --- | --- |")
+        for address, port, state in triage.interception.probes:
+            mark = f"**{state}**" if state == OPEN else state
+            out.append(f"| `{address}` | {port} | {mark} |")
+        out.append("")
+        out.append(
+            "Every address above is reserved for documentation by RFC 5737 and "
+            "is not routed on the public internet. Nothing can be listening on "
+            "one, so an `open` proves the connection was answered locally, not "
+            "by the host named."
+        )
+        out.append("")
+        out.append(
+            "Dispatch `.github/workflows/outage-triage.yml` to take this "
+            "reading on a GitHub runner. It needs no secret."
+        )
+    else:
+        out.append(
+            "`refused` means the host is up and sent an RST — nothing bound to that "
+            "port. `no answer` means the packet was dropped. An HTTPS prober cannot "
+            "tell these apart; both look like \"unreachable\"."
+        )
+        out.append("")
+        out.append("| Node | Address | Port | State | What it tells us |")
+        out.append("| --- | --- | --- | --- | --- |")
+        for result in triage.ports:
+            state = result.state if result.state != OPEN else "**open**"
+            detail = result.detail or PORTS.get(result.port, "")
+            out.append(
+                f"| {result.node.role} | `{result.node.ipv4}` | {result.port} | "
+                f"{state} | {detail} |"
+            )
     out.append("")
 
     out.append("### Power state (Hetzner API, read-only)")
@@ -841,11 +1026,23 @@ def render(triage: Triage) -> str:
 def collect(token: str | None = None, resolver=None, connect=None, opener=None) -> Triage:
     triage = Triage(nodes=read_nodes())
     triage.dns = [resolve(host, resolver=resolver) for host in declared_hostnames()]
-    triage.ports = [
-        probe_port(node, port, connect=connect)
-        for node in triage.nodes
-        for port in PORTS
-    ]
+
+    # Establish that the transport can carry a reading before taking one. When
+    # it cannot, the probes are skipped outright rather than taken and flagged:
+    # a manufactured `open` sitting in `triage.ports` is one `--json-out`
+    # consumer away from becoming a cited fact, and the banner it would carry
+    # does not travel with the JSON.
+    triage.interception = detect_interception(connect=connect)
+    if not triage.interception.detected:
+        triage.ports = [
+            probe_port(node, port, connect=connect)
+            for node in triage.nodes
+            for port in PORTS
+        ]
+    # Only the port layer is skipped. The Hetzner API layer below still runs and
+    # is still worth having — it is the one layer that answers "is the box even
+    # powered on", it fails loudly into `api_note` rather than silently, and it
+    # is unaffected by a proxy that will happily carry an authenticated GET.
     triage.servers, triage.api_note = hetzner_servers(token, opener=opener)
 
     # One request per node we own. The inventory is two machines, so this is
@@ -922,6 +1119,21 @@ def main() -> int:
                         if node.server_id
                     },
                     "actions_note": triage.actions_note,
+                    # Carried explicitly so a consumer cannot read the empty
+                    # `ports` array as "probed, nothing open". The banner that
+                    # says so does not travel with the JSON; this field does.
+                    "transport": {
+                        "usable": not (
+                            triage.interception and triage.interception.detected
+                        ),
+                        "ports_probed": bool(triage.ports),
+                        "sentinels": [
+                            {"address": a, "port": p, "state": s}
+                            for a, p, s in (
+                                triage.interception.probes if triage.interception else []
+                            )
+                        ],
+                    },
                     "verdict": {"headline": headline, "reasons": reasons},
                 },
                 indent=2,
@@ -929,10 +1141,19 @@ def main() -> int:
             + "\n"
         )
 
-    # Always 0: this is a diagnostic, not a gate. `Public surface check` owns
-    # the pass/fail signal for whether the site is up; a triage run that
-    # succeeded in explaining an outage has done its job and should not read
-    # as a broken workflow.
+    # 0 for a diagnosis, whatever it found: this is a diagnostic, not a gate.
+    # `Public surface check` owns the pass/fail signal for whether the site is
+    # up, and a triage run that succeeded in explaining an outage has done its
+    # job and should not read as a broken workflow.
+    #
+    # 2 is the one exception, and it is not a finding — it is the absence of
+    # one. The port layer never ran, so this run explained nothing. `CLAUDE.md`
+    # is explicit that "nothing ran" must never read as a pass; exiting 0 here
+    # would let a caller chaining `outage_triage.py && ...` treat a refused
+    # reading as a clean bill of health, which is the exact failure this whole
+    # change exists to close.
+    if triage.interception and triage.interception.detected:
+        return 2
     return 0
 
 
