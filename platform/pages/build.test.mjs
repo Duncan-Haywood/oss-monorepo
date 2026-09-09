@@ -38,6 +38,8 @@ import {
   renderFavicon,
   renderFaviconSvg,
   renderRobots,
+  INDEXNOW_KEY,
+  indexNowKeyFileName,
   renderSitemapIndex,
   renderVentureSitemap,
   searchTokens,
@@ -540,6 +542,15 @@ test('robots.txt points at a sitemap that reaches the hub and every venture', as
 
   const hubMap = await read('sitemap-hub.xml');
   assert.ok(hubMap.includes(`<loc>${BASE}</loc>`));
+});
+
+test('the IndexNow key is published at the site root, matching the constant', async () => {
+  const keyFile = await read(indexNowKeyFileName());
+  assert.equal(keyFile, INDEXNOW_KEY);
+  // The protocol reads this file's content as the key itself -- no trailing
+  // newline or surrounding whitespace, or a verifier comparing it byte-for-
+  // byte to the key in the submission request sees a mismatch.
+  assert.equal(keyFile.trim(), keyFile);
 });
 
 test('the index points at a sitemap for every published tool', async () => {
