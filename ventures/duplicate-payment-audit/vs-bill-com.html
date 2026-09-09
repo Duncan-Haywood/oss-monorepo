@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This tool vs. BILL (Bill.com)</title>
+  <meta name="description" content="How this free, local-first duplicate payment checker differs from BILL (Bill.com), the accounts-payable automation platform. Check a CSV you already have, without moving your AP process. Not affiliated with BILL.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-bill-com.html">
+  <meta property="og:title" content="This tool vs. BILL (Bill.com)">
+  <meta property="og:description" content="BILL runs your whole accounts-payable process — capture, approvals, payment, accounting sync. This page checks one CSV export for double vendor payments, free, with nothing uploaded.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or BILL?","acceptedAnswer":{"@type":"Answer","text":"They operate at different scopes. BILL is an accounts-payable automation platform: bills are captured into it, routed for approval, paid through it, and synced back to an accounting system, and duplicate warnings are one control inside that ongoing workflow. Adopting it means moving how your AP process runs. This page does not run your AP process and never will. It reads one CSV export of payments you have already made, in your browser, and returns a short reviewed list of likely double payments with the reason each pair matched. If your AP already runs on a platform, this is a second opinion over its output; if it does not, this is a check you can do this afternoon without changing anything."}},{"@type":"Question","name":"Can I check for duplicate payments without moving my AP process onto a platform?","acceptedAnswer":{"@type":"Answer","text":"Yes, and that is the specific gap this page exists to close. Platform duplicate warnings are preventive: they fire while a bill is being entered, inside the system the bill was entered into. That does nothing about payments already made, payments made outside the platform, or the period before you adopted one. A CSV export of payment history is something almost every accounting system can produce, and checking it needs no migration, no subscription, and no per-user seats — you export, you check, you keep the review list."}},{"@type":"Question","name":"Does this see duplicates a platform's own control would have missed?","acceptedAnswer":{"@type":"Answer","text":"Sometimes, because it looks at a different thing. A preventive control compares a bill being entered against bills already in that system. This runs four retrospective checks across the whole export at once: the same vendor and invoice number paid twice for the same amount, the same vendor and invoice number paid twice at different amounts, the same vendor and amount under invoice numbers that are a likely typo of each other, and the same vendor and amount landing within a date window you set. The last tier is labelled “review” rather than “duplicate”, because rent, subscriptions, and retainers match that pattern by design. Nothing here proves a payment was duplicated — it produces candidates for you to verify against your vendor statements."}},{"@type":"Question","name":"Is this page affiliated with BILL?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by BILL (formerly Bill.com), and this page is not a review of it. BILL is a trademark of its owner, named here only to describe the category of software this tool is and is not. Platform pricing, plans, and feature sets change; check BILL's own site for its current terms rather than relying on any description here."}}]}</script>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#182230;background:#f4f1eb;line-height:1.45}
+    body{max-width:760px;margin:auto;padding:2rem 1rem 4rem}
+    a{color:#8a4a26;overflow-wrap:anywhere}
+    h1{font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.08;margin:.2rem 0 1rem;color:#17324d}
+    h2{color:#17324d;margin-top:2rem}
+    h3{margin:1.4rem 0 .3rem;font-size:1rem}
+    table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+    th,td{text-align:left;border-bottom:1px solid #d8d2c8;padding:.55rem;vertical-align:top}
+    th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#5d6973}
+    .cta{display:inline-block;margin:.5rem 0 1.2rem;padding:.7rem 1rem;border-radius:8px;background:#af6035;color:#fff;text-decoration:none;font-weight:700}
+    .note{font-size:.88rem;color:#5d6973}
+    footer{margin-top:2.5rem;border-top:1px solid #d8d2c8;padding-top:1rem;font-size:.88rem;color:#4d5963}
+    @media(max-width:700px){table{font-size:.85rem}}
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Duplicate payment audit</a></p>
+  <h1>This tool vs. BILL (Bill.com)</h1>
+  <p>
+    <a href="https://www.bill.com/" rel="nofollow noopener">BILL</a> (formerly
+    Bill.com) is an accounts-payable automation platform. Bills are captured
+    into it, routed for approval, paid through it, and synced back to an
+    accounting system, and a duplicate warning is one control inside that
+    ongoing workflow. It is a <strong>process</strong>: adopting it changes how
+    your payables run, month after month.
+  </p>
+  <p>
+    This page is not a process and does not want to be. It answers one
+    retrospective question about payments you have <strong>already
+    made</strong>: <strong>did any of these go out twice</strong> &mdash; read
+    from a CSV export in your browser, with nothing uploaded, nothing
+    migrated, and nothing to subscribe to.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>How do I stop a duplicate bill being entered and approved in the first place?</td>
+        <td>An AP automation platform like BILL &mdash; preventive controls inside the entry and approval workflow are the thing it is for.</td>
+      </tr>
+      <tr>
+        <td>Did we already pay any vendor twice, in payments made before today?</td>
+        <td>This tool &mdash; export your payment history as CSV, get a reviewed list of candidate pairs in seconds.</td>
+      </tr>
+      <tr>
+        <td>Can I check that without migrating our AP process or buying seats?</td>
+        <td>This tool &mdash; a static page, no account, no sync, no subscription, no data leaves the browser.</td>
+      </tr>
+      <tr>
+        <td>Who routes approvals, schedules the payment, and syncs it to the ledger?</td>
+        <td>An AP automation platform &mdash; this tool does none of that and takes no action on your behalf.</td>
+      </tr>
+      <tr>
+        <td>Is this flagged pair actually a duplicate, or is it our monthly rent?</td>
+        <td>This tool's confidence tiers &mdash; the same-amount/near-date tier is labelled &ldquo;review&rdquo; and says outright that recurring charges match it too.</td>
+      </tr>
+      <tr>
+        <td>Our finance data cannot be uploaded to a third party. Can we still check?</td>
+        <td>This tool &mdash; the CSV is read in your browser and never sent anywhere; nothing is stored server-side.</td>
+      </tr>
+    </tbody>
+  </table>
+  <a class="cta" href="./">Check your AP export now</a>
+  <p>
+    No account and nothing installed: it is a static page, the parsing and
+    matching run in your browser, and your vendor names, amounts, dates, and
+    the file itself stay on this device &mdash; nothing is uploaded anywhere.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this tool or BILL?</h3>
+  <p>They operate at different scopes. BILL is an accounts-payable automation platform: bills are captured into it, routed for approval, paid through it, and synced back to an accounting system, and duplicate warnings are one control inside that ongoing workflow. Adopting it means moving how your AP process runs. This page does not run your AP process and never will. It reads one CSV export of payments you have already made, in your browser, and returns a short reviewed list of likely double payments with the reason each pair matched. If your AP already runs on a platform, this is a second opinion over its output; if it does not, this is a check you can do this afternoon without changing anything.</p>
+  <h3>Can I check for duplicate payments without moving my AP process onto a platform?</h3>
+  <p>Yes, and that is the specific gap this page exists to close. Platform duplicate warnings are preventive: they fire while a bill is being entered, inside the system the bill was entered into. That does nothing about payments already made, payments made outside the platform, or the period before you adopted one. A CSV export of payment history is something almost every accounting system can produce, and checking it needs no migration, no subscription, and no per-user seats &mdash; you export, you check, you keep the review list.</p>
+  <h3>Does this see duplicates a platform's own control would have missed?</h3>
+  <p>Sometimes, because it looks at a different thing. A preventive control compares a bill being entered against bills already in that system. This runs four retrospective checks across the whole export at once: the same vendor and invoice number paid twice for the same amount, the same vendor and invoice number paid twice at different amounts, the same vendor and amount under invoice numbers that are a likely typo of each other, and the same vendor and amount landing within a date window you set. The last tier is labelled &ldquo;review&rdquo; rather than &ldquo;duplicate&rdquo;, because rent, subscriptions, and retainers match that pattern by design. Nothing here proves a payment was duplicated &mdash; it produces candidates for you to verify against your vendor statements.</p>
+  <h3>Is this page affiliated with BILL?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by BILL (formerly Bill.com), and this page is not a review of it. BILL is a trademark of its owner, named here only to describe the category of software this tool is and is not. Platform pricing, plans, and feature sets change; check BILL's own site for its current terms rather than relying on any description here.</p>
+  <p class="note">
+    Also: matching processor payouts to bank deposits instead? The
+    <a href="../payment-reconciliation-workbench/">payment reconciliation workbench</a>
+    matches Stripe/Square/PayPal payouts to bank deposits &mdash; nothing uploaded there either.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. It does not determine that any payment was fraudulent, wrongful, or actually duplicated &mdash; it flags statistical patterns in your own data for your review. <strong>You are responsible for reviewing and verifying its output</strong> against your vendor statements and accounting records before requesting a refund, credit, or correction from anyone. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+    <p>Free and open source. If it caught a payment that went out twice, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
