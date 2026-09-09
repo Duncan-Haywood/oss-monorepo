@@ -1652,7 +1652,7 @@
       "url": "https://marisstella.dev/tools/structured-data-drift-check/",
       "category": "CI checks & developer gates",
       "description": "Paste a page's HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page's own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "stucco-repair-bid-calculator",
