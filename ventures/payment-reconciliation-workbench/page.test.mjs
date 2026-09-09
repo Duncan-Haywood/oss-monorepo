@@ -59,3 +59,30 @@ test('index links one hop to the duplicate-payment-audit sibling', () => {
     'index must link ../duplicate-payment-audit/ so crawlers reach the duplicate payment audit tool in one hop',
   );
 });
+
+// This tool asks for two exports before it will do anything, which is the
+// highest entry cost in the catalogue -- so the worked example is the only
+// thing that shows a visitor the output before they go and produce both
+// files. Pinned to the behaviour it is meant to demonstrate: if a future
+// change to `reconcile` stops producing one of these shapes, the demo would
+// silently start under-showing the product rather than failing.
+test('the bundled worked example produces every result shape the reconciler reports', async () => {
+  const app = fs.readFileSync(new URL('./app.mjs', import.meta.url), 'utf8');
+  const payouts = app.match(/const EXAMPLE_PAYOUTS = `([\s\S]*?)`;/);
+  const deposits = app.match(/const EXAMPLE_DEPOSITS = `([\s\S]*?)`;/);
+  assert.ok(payouts && deposits, 'app.mjs must carry both inline example fixtures');
+
+  const { readRecords, reconcile } = await import('./reconcile.mjs');
+  const rows = reconcile(readRecords(payouts[1], 'p'), readRecords(deposits[1], 'd'), 3);
+
+  assert.ok(rows.some(r => r.status === 'matched' && r.deposits.length === 1), 'needs a plain one-to-one match');
+  assert.ok(rows.some(r => r.status === 'matched' && r.deposits.length > 1), 'needs a payout the bank split across deposits');
+  assert.ok(rows.some(r => r.status === 'unmatched payout' && r.hint?.feeLike), 'needs an exception whose gap reads as a processor fee');
+  assert.ok(rows.some(r => r.status === 'unmatched payout' && !r.hint), 'needs a payout with no deposit to pair with');
+  assert.ok(rows.some(r => r.status === 'unmatched deposit' && !r.hint), 'needs a deposit nothing explains');
+});
+
+test('the worked example is reachable from a control on the page', () => {
+  assert.match(html, /id="loadExample"/);
+  assert.match(html, /Load a worked example/);
+});
