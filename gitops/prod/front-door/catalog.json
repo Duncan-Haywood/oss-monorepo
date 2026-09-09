@@ -508,7 +508,7 @@
       "url": "https://marisstella.dev/tools/3d-print-price-calculator/",
       "category": "Creator & solo earner income",
       "description": "Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you're charging.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "actions-cache-poisoning-check",
@@ -1780,7 +1780,7 @@
       "url": "https://marisstella.dev/tools/whatnot-seller-payout/",
       "category": "Marketplace seller tools",
       "description": "Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "wheelchair-ramp-bid-calculator",
