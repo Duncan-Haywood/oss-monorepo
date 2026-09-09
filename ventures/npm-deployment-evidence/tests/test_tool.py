@@ -1,6 +1,8 @@
 import json
+import io
 import sys
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -40,6 +42,25 @@ class DeploymentEvidenceTests(unittest.TestCase):
         self.assertIn("yarn.lock", message)
         self.assertIn("package-lock.json", message)
         self.assertNotIn("Expecting value", message)
+
+    def test_cli_rejects_non_object_json_without_report_or_usage(self):
+        for value in (None, [], ["package"], "package", 3, True):
+            with self.subTest(value=value), TemporaryDirectory() as directory:
+                root = Path(directory)
+                lockfile = root / "package-lock.json"
+                lockfile.write_text(json.dumps(value), encoding="utf-8")
+                output = root / "report.json"
+                usage = root / "usage.json"
+                stderr, stdout = io.StringIO(), io.StringIO()
+                with redirect_stderr(stderr), redirect_stdout(stdout):
+                    with self.assertRaises(SystemExit) as raised:
+                        main([str(lockfile), "--output", str(output), "--usage-file", str(usage)])
+                self.assertEqual(raised.exception.code, 2)
+                self.assertIn("package-lock.json v2 or v3 with a packages map is required", stderr.getvalue())
+                self.assertNotIn("Traceback", stderr.getvalue())
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertFalse(output.exists())
+                self.assertFalse(usage.exists())
 
     def test_names_pnpm_lock_from_filename_and_content(self):
         with TemporaryDirectory() as directory:

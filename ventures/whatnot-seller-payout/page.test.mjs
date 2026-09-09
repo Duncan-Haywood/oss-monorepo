@@ -193,6 +193,43 @@ test('index links to the related marketplace fee compare hub', () => {
   );
 });
 
+// The comparison page names Whatnot to say what this tool is *not*, so the
+// two lines that keep it honest are the ones most likely to be lost in a
+// later edit: the not-affiliated statement, and the reverse link from index.
+// Without the link a crawler entering on the hub never reaches it -- the same
+// one-way orphan class the marketplace-fee-compare test above guards against.
+test('the comparison page disclaims affiliation and is reachable from index', () => {
+  const source = page('vs-whatnot-seller-dashboard.html');
+  assert.match(source, /not affiliated with, endorsed by, or sponsored by Whatnot/i);
+  assert.match(source, /href="\.\/"/, 'must link back to the calculator');
+  assert.match(
+    markup,
+    /href="\.\/vs-whatnot-seller-dashboard\.html"/,
+    'index must link the comparison page so crawlers can reach it',
+  );
+});
+
+// The FAQ answers are duplicated between visible copy and the JSON-LD block.
+// A crawler that reads structured data disagreeing with the page is the defect
+// CLAUDE.md records from #3671, so pin that they stay identical.
+test('comparison page FAQ structured data matches the visible answers', () => {
+  const source = page('vs-whatnot-seller-dashboard.html');
+  const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(source)[1]);
+  assert.equal(ld['@type'], 'FAQPage');
+  const visible = source.replace(/<script[\s\S]*?<\/script>/g, '');
+  for (const entry of ld.mainEntity) {
+    const question = entry.name.replace(/&/g, '&amp;');
+    assert.ok(
+      visible.includes(`<h3>${question}</h3>`),
+      `structured-data question is not on the page: ${entry.name}`,
+    );
+    assert.ok(
+      visible.includes(`<p>${entry.acceptedAnswer.text}</p>`),
+      `structured-data answer does not match the visible copy for: ${entry.name}`,
+    );
+  }
+});
+
 function near(actual, expected, tolerance = 0.001) {
   assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} is not within ${tolerance} of ${expected}`);
 }
