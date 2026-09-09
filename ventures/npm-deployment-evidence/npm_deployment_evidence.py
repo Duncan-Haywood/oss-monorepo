@@ -58,7 +58,7 @@ def load_lockfile(path: Path) -> tuple[dict, dict[str, list[dict]]]:
         raise ValueError(
             "That file is not valid JSON. Pass package-lock.json itself, not a different file."
         ) from exc
-    if raw.get("lockfileVersion") not in (2, 3) or not isinstance(raw.get("packages"), dict):
+    if not isinstance(raw, dict) or raw.get("lockfileVersion") not in (2, 3) or not isinstance(raw.get("packages"), dict):
         raise ValueError(
             "package-lock.json v2 or v3 with a packages map is required "
             "(yarn.lock and pnpm-lock.yaml are not supported)"

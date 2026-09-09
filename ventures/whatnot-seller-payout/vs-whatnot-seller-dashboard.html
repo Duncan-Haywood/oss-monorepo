@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. Whatnot's own fee schedule and payout statement</title>
+  <meta name="description" content="How this free, no-account Whatnot payout calculator differs from Whatnot's published fee schedule and the payout statement you get after a show. Not affiliated with Whatnot.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-whatnot-seller-dashboard.html">
+  <meta property="og:title" content="This calculator vs. Whatnot's own fee schedule and payout statement">
+  <meta property="og:description" content="Whatnot's statement is authoritative about a lot that already sold. This page prices a lot you have not listed yet — commission on the hammer, processing on the whole checkout total.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or Whatnot's own numbers?","acceptedAnswer":{"@type":"Answer","text":"Both, at different moments. Whatnot's published fee schedule and the payout statement you receive after a show are authoritative — they are what you were actually charged, and every figure here should be checked against them. But a statement only exists once a lot has already sold, and the schedule is a set of rates rather than an answer about your lot. This page is a single static form for the moment before that: you type a hammer, what the lot cost you, the label, and any buyer-paid shipping or tax, and it prints what would be left — no account, no show, no sale required."}},{"@type":"Question","name":"Whatnot publishes a worked example. Why is that not enough?","acceptedAnswer":{"@type":"Answer","text":"Whatnot's help material carries a worked example of a $50 sale costing $5.75 in fees. It is correct and it is one lot. It does not show a $20 TCG card with $5 of buyer-paid shipping, where 2.9% payment processing applies to the whole checkout total — item plus postage plus tax — rather than to the hammer alone, so the effective take is not 8% of $20. It also does not show a $2,400 graded lot, where the published $1,500 commission cap on selected categories means the portion above $1,500 commissions at 0%. This page runs the same arithmetic against your figures instead of a fixed example."}},{"@type":"Question","name":"Does this page connect to my Whatnot seller account?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account, no login, no linking, and no upload. It is a static page: the arithmetic runs in your own browser, and the hammers, costs, and leftovers you type stay on your device. It cannot read your orders, submit a listing, or see your real statement — which is exactly why the rates on it are editable inputs rather than a live feed."}},{"@type":"Question","name":"Are the preset rates current?","acceptedAnswer":{"@type":"Answer","text":"Treat them as labelled starting points, not as a live schedule. They come from a published help article, they change, and they vary by region and category. Every rate on the page is an editable input for that reason: replace the preset with the line on your own payout statement, and the arithmetic follows your number rather than ours."}},{"@type":"Question","name":"Is this page affiliated with Whatnot?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Whatnot Inc. Whatnot is a trademark of its owner, named here only to describe what this calculator is for."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1f6; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1a5a8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.03em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c4cedb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4f5967; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #12233a; color: #f2f6fa; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #4f5967; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #4f5967; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Whatnot seller payout calculator</a></p>
+  <h1>This calculator vs. Whatnot's own fee schedule and payout statement</h1>
+  <p>
+    <a href="https://www.whatnot.com/" rel="nofollow noopener">Whatnot</a>
+    publishes a seller fee schedule and, after a show, sends you a payout
+    statement listing what each order actually earned and what was actually
+    deducted. Those are the authoritative numbers. They are what you were
+    charged, and every figure on this page should be checked against them.
+  </p>
+  <p>
+    But a statement only exists <strong>after</strong> a lot has sold, and a
+    schedule is a set of rates rather than an answer about your lot. This
+    page answers the narrower, earlier question: <strong>for a lot you have
+    not listed yet, at a hammer you are considering, what would actually be
+    left</strong> — with no account, no show, and nothing uploaded.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What was I actually charged on the lots that sold in last night's show?</td>
+        <td>Whatnot's own payout statement — authoritative, and the figure to check this page against.</td>
+      </tr>
+      <tr>
+        <td>What are the current commission and processing rates for my category and region?</td>
+        <td>Whatnot's published fee schedule. The presets here are labelled starting points copied from a help article; they expire.</td>
+      </tr>
+      <tr>
+        <td>For a lot I have not listed yet, at a hammer I am considering, what is left after fees, the label, and what the lot cost me?</td>
+        <td>This calculator — type the figures, get an answer immediately, before the show.</td>
+      </tr>
+      <tr>
+        <td>Is 2.9% processing being charged on the buyer's postage and tax as well as the item?</td>
+        <td>This calculator prices processing on the whole checkout total, which is what a flat "Whatnot takes 8%" page hides.</td>
+      </tr>
+      <tr>
+        <td>Is it cheaper to charge shipping or to eat the label myself?</td>
+        <td>This calculator's <a href="./#shipCompareOut">free-shipping comparison</a> — it depends on the hammer and the label, not on a rule of thumb.</td>
+      </tr>
+      <tr>
+        <td>What hammer would this lot need to clear a leftover target?</td>
+        <td>This calculator's <a href="./#targetOut">target solver</a>, which works backwards from the leftover you want.</td>
+      </tr>
+      <tr>
+        <td>How does the $1,500 category cap change a high-value graded lot?</td>
+        <td>This calculator's <a href="./#commissionCap">commission cap input</a> — the portion above the cap commissions at 0%, so 8% of the whole hammer is the wrong number.</td>
+      </tr>
+    </tbody>
+  </table>
+  <a class="cta" href="./">Price a lot now</a>
+  <p>
+    This tool needs no account and no Whatnot login: it is a static page, the
+    arithmetic runs in your browser, and your hammers, costs, and leftovers
+    stay on this device — nothing is uploaded anywhere. It cannot read your
+    orders or your real statement, which is why every rate on it is an
+    editable input rather than a live feed.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or Whatnot's own numbers?</h3>
+  <p>Both, at different moments. Whatnot's published fee schedule and the payout statement you receive after a show are authoritative — they are what you were actually charged, and every figure here should be checked against them. But a statement only exists once a lot has already sold, and the schedule is a set of rates rather than an answer about your lot. This page is a single static form for the moment before that: you type a hammer, what the lot cost you, the label, and any buyer-paid shipping or tax, and it prints what would be left — no account, no show, no sale required.</p>
+  <h3>Whatnot publishes a worked example. Why is that not enough?</h3>
+  <p>Whatnot's help material carries a worked example of a $50 sale costing $5.75 in fees. It is correct and it is one lot. It does not show a $20 TCG card with $5 of buyer-paid shipping, where 2.9% payment processing applies to the whole checkout total — item plus postage plus tax — rather than to the hammer alone, so the effective take is not 8% of $20. It also does not show a $2,400 graded lot, where the published $1,500 commission cap on selected categories means the portion above $1,500 commissions at 0%. This page runs the same arithmetic against your figures instead of a fixed example.</p>
+  <h3>Does this page connect to my Whatnot seller account?</h3>
+  <p>No. There is no account, no login, no linking, and no upload. It is a static page: the arithmetic runs in your own browser, and the hammers, costs, and leftovers you type stay on your device. It cannot read your orders, submit a listing, or see your real statement — which is exactly why the rates on it are editable inputs rather than a live feed.</p>
+  <h3>Are the preset rates current?</h3>
+  <p>Treat them as labelled starting points, not as a live schedule. They come from a published help article, they change, and they vary by region and category. Every rate on the page is an editable input for that reason: replace the preset with the line on your own payout statement, and the arithmetic follows your number rather than ours.</p>
+  <h3>Is this page affiliated with Whatnot?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Whatnot Inc. Whatnot is a trademark of its owner, named here only to describe what this calculator is for.</p>
+  <p class="note">
+    Also: <a href="./how-much-does-whatnot-take.html">How much does Whatnot take?</a>
+    and <a href="./should-i-offer-free-shipping-on-whatnot.html">Should I offer free shipping on Whatnot?</a>
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or selling advice, and it does not replace a qualified professional. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
