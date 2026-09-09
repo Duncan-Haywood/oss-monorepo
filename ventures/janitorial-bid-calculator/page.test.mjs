@@ -97,6 +97,10 @@ test('custom name is only shown for an Other space row', () => {
   assert.match(scriptSource, /Name this space/);
 });
 
+test('links to the pet grooming bid calculator', () => {
+  assert.match(html, /href="\.\.\/pet-grooming-bid-calculator\/"/, 'the sibling-tool link is missing');
+});
+
 // A structural guard that cannot fail proves nothing, and this one was
 // silently loosened once already. These cases assert the machinery still
 // *notices* a swallowed document, so a future rewrite back to a raw-source
