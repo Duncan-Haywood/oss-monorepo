@@ -20279,6 +20279,57 @@ entries:
         portfolio/usage/validate_usage.py` (clean); `python3 -m pytest
         gitops/tests -q` (490 passed, 25 skipped).
     mrr_end: 0
+  - venture: structured-data-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR #4326: added `vs-google-rich-results-test.html`, the venture's
+        first comparison page, since Google's free Rich Results Test is the
+        most likely tool a developer already knows and could mistake this
+        one for. Differentiated honestly: Rich Results Test validates JSON-LD
+        syntax and rich-result eligibility but never reads the page's own
+        visible text, so it cannot catch the exact drift defect this venture
+        exists to catch. Linked from index.html and sitemap.xml; regen.mjs's
+        mirror/front-door output included.
+      - >-
+        Dogfooding caught a real instance of the defect class this tool
+        checks for before it shipped: the new page's FAQPage JSON-LD used a
+        literal `--` where the visible copy used `&mdash;` (renders as an
+        em-dash), so the venture's own engine.mjs correctly flagged the page
+        as drifted. Fixed to match exactly, then re-verified clean -- the
+        page.test.mjs dogfooding test now guards against a regression.
+      - >-
+        Scheduled autonomous run. No open PRs existed at run start (three-PR
+        merge quota trivially satisfied on an empty queue). Checked
+        `session_gate.py` (PROCEED) and `infra_state.yaml`/`decision_queue.py`
+        first: Hetzner/k3s is fully down and the Codex-host-mode dev-capacity
+        automation (`gitops/agents/host/`) is fully built but both remain
+        blocked solely on the owner-only SSH-key rotation already tracked as
+        decision-queue item 1 (PR #3184) -- this session's own egress is also
+        structurally blocked from reaching the Hetzner boxes regardless of
+        key status, so nothing new added there. GitHub Pages (the actual live
+        deploy route) was already current at run start.
+      - >-
+        Verification: `node --test ventures/structured-data-drift-check/*.test.mjs`
+        (47/47); `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1169/1169); `node --test
+        platform/proposal/*.test.mjs` (101/101); `node --test
+        platform/privacy/*.test.mjs platform/webcheck/*.test.mjs` (71/71);
+        `python3 -m pytest gitops/tests -q` (490 passed, 25 skipped);
+        `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`
+        (431 passed, 8 subtests); every `platform/ci` unittest module
+        individually plus `agent_review`'s `test_review`; `checklist_coverage.py`,
+        `validate_candidates.py`, `validate_doc_consistency.py`,
+        `validate_probe_index.py`, `score_sensitivity.py`,
+        `validate_usage.py`, `score_ventures.py --check`, `router/validate.py`
+        (228/228), and `pages_state.py --require-current` all clean.
+        `run_workflow_locally.py --for-changes` hung indefinitely (near-zero
+        CPU for 10+ minutes, consistent with a blocked network call this
+        sandbox can't complete) and was killed; ran the checklist commands
+        directly instead.
+    mrr_end: 0
   - venture: env-example-drift-check
     agent_spend_usd: null
     human_hours: 0

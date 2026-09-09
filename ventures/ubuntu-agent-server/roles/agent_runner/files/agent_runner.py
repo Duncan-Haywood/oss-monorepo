@@ -299,9 +299,44 @@ def self_directed_ready(repo: str, cooldown_hours: float) -> bool:
     return datetime.now(timezone.utc) - last >= timedelta(hours=cooldown_hours)
 
 
-def mark_self_directed_run(repo: str) -> None:
+def mark_self_directed_run(repo: str, when: datetime | None = None) -> None:
     STATE_DIR.mkdir(parents=True, exist_ok=True)
-    self_directed_cooldown_path(repo).write_text(datetime.now(timezone.utc).isoformat())
+    stamp = when or datetime.now(timezone.utc)
+    self_directed_cooldown_path(repo).write_text(stamp.isoformat())
+
+
+def github_last_self_directed_created_at(repo: str, log: RunLog) -> datetime | None:
+    """Ask GitHub itself when the most recent self-directed issue was filed.
+
+    The local cooldown file in STATE_DIR is the fast path, but it lives on
+    whatever box happens to run this poll — a reboot that lost /srv/agents
+    (not everyone partitions that as persistent), a redeploy that reset
+    AGENTS_ROOT, or a second box pointed at the same repo all make it read
+    as "no prior run" even though GitHub's issue history says otherwise.
+    Measured in production: with self_directed_cooldown_hours: 24 configured,
+    a repo self-directed on effectively every ~10-minute poll instead — the
+    signature of a box whose local state never survives between runs. GitHub
+    itself cannot lose this the same way, so it is the authoritative check
+    right before actually filing a new issue (not on every poll — that would
+    spend an extra API call for nothing on the common case where the local
+    file already says "not ready").
+    """
+    result = gh(
+        "issue", "list", "--repo", repo,
+        "--label", LABEL_SELF_DIRECTED, "--state", "all", "--limit", "1",
+        "--json", "createdAt",
+        check=False,
+    )
+    if result.returncode != 0:
+        log.write(f"[{repo}] gh issue list (self-directed history check) failed: {result.stderr.strip()}")
+        return None
+    try:
+        rows = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return None
+    if not rows or not rows[0].get("createdAt"):
+        return None
+    return datetime.fromisoformat(rows[0]["createdAt"].replace("Z", "+00:00"))
 
 
 def create_self_directed_issue(
@@ -353,6 +388,18 @@ def maybe_self_direct(cfg: dict, repo: str, trigger_label: str, log: RunLog) -> 
     if not self_directed_ready(repo, cooldown):
         log.write(f"[{repo}] self_directed cooldown not elapsed, skipping")
         return []
+    last_remote = github_last_self_directed_created_at(repo, log)
+    if last_remote is not None:
+        elapsed = datetime.now(timezone.utc) - last_remote
+        if elapsed < timedelta(hours=cooldown):
+            log.write(
+                f"[{repo}] local cooldown state said ready but GitHub's own "
+                f"self-directed issue history says only {elapsed} has passed "
+                "(local state was missing or stale) — skipping and "
+                "resyncing local state to match GitHub"
+            )
+            mark_self_directed_run(repo, when=last_remote)
+            return []
     prompt = cfg.get("self_directed_prompt") or SELF_DIRECTED_PROMPT
     new_issue = create_self_directed_issue(repo, trigger_label, log, prompt)
     if not new_issue:
