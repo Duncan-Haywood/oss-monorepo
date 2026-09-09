@@ -1424,10 +1424,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 221 since 2026-09-09, when `env-example-drift-check` graduated — same
     # shape again: a new venture with a static `index.html` from its first
     # commit, entering the mirror and the total together.
-    # 222 since 2026-09-09, when `affiliate-disclosure-checker` graduated —
-    # same shape again: a new venture with a static `index.html` from its
-    # first commit, entering the mirror and the total together.
-    total = 222  # `infra/OWNER_CHECKLIST.md`'s own "N of the 222 tools" wording.
+    # 222 since 2026-09-09, when `package-exports-drift-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 223 since 2026-09-09, when `affiliate-disclosure-checker` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    total = 223  # `infra/OWNER_CHECKLIST.md`'s own "N of the 223 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

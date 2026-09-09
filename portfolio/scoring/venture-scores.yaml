@@ -8411,6 +8411,64 @@ ventures:
       the page's own footer and FAQ state plainly that it is not a
       secrets scanner.
 
+  - slug: package-exports-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a literal target in a
+      package.json "exports" map points at a file that actually exists is
+      decided by flattening the map and checking a filesystem/listing
+      membership test — a factual, deterministic check, not a model
+      judgment, and it never runs the package or resolves an import graph.
+    basis: >-
+      Screened 2026-09-09, the same session as env-example-drift-check and
+      the same shape: a free CLI + browser checker, not a 230th
+      <trade>-bid-calculator, scored on this file's six-dimension rubric to
+      keep coverage complete for score_ventures.py --check and
+      portfolio/router/test_allocate.py. duplicate_check.py scored the
+      closest existing venture (env-example-drift-check) at 0.21, well
+      below the 0.45 flag bar; no existing venture reads or diffs a
+      package.json "exports" field.
+      Autonomous ops 10 / gross margin 10: the browser page parses only
+      text pasted into it and the CLI reads only the local package.json it
+      is pointed at, so serving one more user costs a static file and needs
+      no human review of any output.
+      Distribution 6, level with env-example-drift-check,
+      structured-data-drift-check, and npm-lifecycle-script-check: Node's
+      ERR_PACKAGE_PATH_NOT_EXPORTED and "Cannot find module" right after a
+      stranger's npm install are a well-documented, recurring class of bug
+      in the Node/TypeScript ecosystem since Node 12+ made "exports" the
+      strict resolution path, with real, recurring search and thread
+      volume (r/node, r/typescript, Stack Overflow's own
+      ERR_PACKAGE_PATH_NOT_EXPORTED questions). publint and
+      arethetypeswrong.github.io cover adjacent ground (a good sign the
+      pain is real) but neither is a standalone zero-dependency
+      existence-only checker scoped this narrowly across every subpath and
+      condition in the map, which is the wedge.
+      Time to revenue 5, defensibility 3: same level as the portfolio's
+      other checker ventures — free, donation-only, easy to reimplement,
+      but cheap enough to give away that being copied costs nothing.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive — it never runs the package, never
+      resolves an import graph, and never reads a file's contents; it only
+      checks whether a literal path named in "exports" exists against a
+      filesystem or file listing the user provides, and makes no claim
+      that a package will install or import cleanly. Makes no network call
+      of any kind, and the page's own footer and FAQ state plainly that it
+      is not a bundler or a publish tool.
+
   - slug: affiliate-disclosure-checker
     scores:
       ai_leverage: 1

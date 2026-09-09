@@ -521,6 +521,9 @@ workflows:
 - workflow: owner-operator-cpm-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: package-exports-drift-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: page-integrity-ci.yml
   classification: none
   publishes: []

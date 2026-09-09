@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 222 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 223 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 222 of them — and
+Every tool in the collection is listed below — all 223 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -188,6 +188,7 @@ page that hosts it.
 - [iOS Privacy Manifest Checker — Required Reason API vs PrivacyInfo.xcprivacy](https://marisstella.dev/tools/ios-privacy-manifest-check/): Free, browser-local checker: scans your Swift/Objective-C source for Apple's Required Reason API usage and compares it against your PrivacyInfo.xcprivacy manifest, so a missing declaration doesn't cost you an App Store rejection (ITMS-91061 / ITMS-91055). Nothing is uploaded.
 - [License Drift Check — Did a Dependency's License Change Since Your Last Snapshot?](https://marisstella.dev/tools/license-drift-check/): Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.
 - [npm Lifecycle Script Check — Did a Dependency Just Start Running Code at Install Time?](https://marisstella.dev/tools/npm-lifecycle-script-check/): Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.
+- [package.json Exports Drift Check — Does "exports" Point at Files That Exist?](https://marisstella.dev/tools/package-exports-drift-check/): Paste your package.json and a listing of the files you actually publish and see every literal target in the "exports" map that points at a file that doesn't exist -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module right after npm install. Free, runs entirely in your browser, nothing is uploaded.
 - [Pinned Actions Check — Are Your GitHub Actions Pinned to a Commit SHA?](https://marisstella.dev/tools/pinned-actions-check/): Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.
 - [Structured Data Drift Check — Does Your JSON-LD Match the Page?](https://marisstella.dev/tools/structured-data-drift-check/): Paste a page's HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page's own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.
 - [VS Code Extension Drift Check — Did an Extension You Trust Just Change What It Does?](https://marisstella.dev/tools/vscode-extension-drift-check/): Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check. A CLI-only command also checks whether an extension still resolves on the VS Code Marketplace. Free, runs entirely in your browser, nothing is uploaded.
