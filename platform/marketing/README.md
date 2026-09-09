@@ -176,6 +176,35 @@ for.
   here is always allowed; submitting the portfolio to a directory, opening an
   account, or posting under its name is not.
 
+## `indexnow.mjs` — telling search engines the catalogue changed
+
+`platform/ci/pages_state.py`'s `indexing` row (2026-09-09, #4362) found that
+this site's `robots.txt` — and the `Sitemap:` line naming 881 published pages
+— is unreachable to a crawler, because the site is served from a project-Pages
+*subpath* while `robots.txt` is only ever fetched at the *host* root. Sitemap
+auto-discovery has therefore never happened, and `portfolio/usage/usage.yaml`
+still records zero visitors across every product. The real fix is the owner's
+(submit `sitemap.xml` directly in Search Console, or set a custom domain — see
+the `indexing` row) — but IndexNow does not have that problem, because its key
+file's location is named explicitly in every submission rather than assumed at
+the host root, so the same subpath that defeats `robots.txt` does not defeat
+it.
+
+```
+node platform/marketing/indexnow.mjs               # dry run — prints, sends nothing
+node platform/marketing/indexnow.mjs --submit       # actually notifies IndexNow
+```
+
+Reads `catalog.json` off the published `gh-pages` ref by default (what
+actually publishes, not what the next build would produce), and refuses to
+submit if the published key file does not match — a stale snapshot, not a
+silent bad submission. Covers Bing, Yandex, Seznam and Naver; there is no
+Google equivalent, so this is a complement to sitemap submission, not a
+replacement for it. A session's own sandbox cannot reach `api.indexnow.org`
+(the agent egress proxy blocks it, same as `github.io`) — `--submit` only
+does something from a host with real egress, e.g. a GitHub Actions runner.
+Run it after any `publish-branch.sh` that actually pushes.
+
 ## The embed offer on the apex
 
 `platform/pages/embed.mjs` calls itself "Priority 1 of the

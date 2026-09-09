@@ -102,6 +102,20 @@ export const REPO_ROOT = path.resolve(HERE, '..', '..');
 // project Pages site for this repository.
 export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
 
+// IndexNow (api.indexnow.org) proves ownership of a set of URLs with a key
+// file hosted at a location the submitter names in each request -- it does
+// not have to sit at the host root the way `robots.txt` does. That matters
+// here: the site is served from a project-Pages *subpath*
+// (`platform/ci/pages_state.py`'s "subpath-robots" finding), so a host-root
+// key file would be as undiscoverable as the sitemap line in `robots.txt`
+// already is. Naming the location explicitly in every submission
+// (`platform/marketing/indexnow.mjs`) sidesteps that rather than repeating
+// it. The value is not a secret -- it only proves this build controls the
+// URLs it submits -- so it is a plain committed constant, generated once
+// with `python3 -c "import secrets; print(secrets.token_hex(16))"`.
+export const INDEXNOW_KEY = '51c80c301d4b5583163e00e6c89b06cf';
+export const indexNowKeyFileName = () => `${INDEXNOW_KEY}.txt`;
+
 // The placeholder origin every venture's sitemap.xml and canonical tags were
 // written against, back when no real origin existed. Rewriting it is what
 // turns already-written SEO into SEO that points at a reachable page.
@@ -6376,6 +6390,10 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, EMBED_HOST_FILE), renderEmbedHostModule());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
+  // The IndexNow key file. Content is the key itself, per the protocol; see
+  // `INDEXNOW_KEY` above for why this lives at the site root rather than the
+  // host root.
+  await fs.writeFile(path.join(outDir, indexNowKeyFileName()), INDEXNOW_KEY);
 
   // One landing page per category, under the reserved `c/` prefix. Written
   // before the sitemaps because `renderHubSitemap` has to list exactly the

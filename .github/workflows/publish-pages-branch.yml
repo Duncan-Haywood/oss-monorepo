@@ -122,6 +122,16 @@ jobs:
           PUSH: "1"
         run: ./platform/pages/publish-branch.sh
 
+      # Only after an actual push: notifying IndexNow about a snapshot that
+      # was built-and-verified but not published would tell participating
+      # engines about content that is not live yet. `--ref gh-pages` (the
+      # default) reads what this step just pushed, so it always submits the
+      # commit that is now actually served. See platform/marketing/README.md
+      # for why this exists and what it does and does not do.
+      - name: Notify IndexNow
+        if: vars.PAGES_BRANCH_PUBLISH == 'true'
+        run: node platform/marketing/indexnow.mjs --submit
+
       - name: Say what happened
         if: always()
         env:
