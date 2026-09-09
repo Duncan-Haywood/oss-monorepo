@@ -8585,3 +8585,74 @@ ventures:
       than guessed at, bounding the cost of a wrong signature. Makes no
       network call of any kind, uploads nothing, and both pages' footers
       and FAQs state plainly that it is not a review determination.
+
+  - slug: wordpress-plugin-review-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a readme.txt Stable tag
+      matches a plugin header's Version, whether a required field is
+      present, whether a superglobal is echoed with no escaping function
+      on the same line, and whether a file reads $_POST with no nonce
+      check anywhere in it are all decided by pattern matching against
+      fixed field names and function-name lists -- a factual,
+      deterministic comparison, not a model judgment, and it never
+      claims a Plugin Review determination.
+    basis: >-
+      Screened 2026-09-09 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free CLI + browser checker, not a 234th
+      <trade>-bid-calculator. Structurally the third instance of the same
+      shape as ios-privacy-manifest-check and chrome-extension-permission-
+      check (cross-check a platform-review-gating manifest/header against
+      real source usage), but the fleet has exactly two prior instances
+      and the audience, platform documentation, and rejection terminology
+      (readme.txt, Stable tag, nonces) are completely disjoint from both
+      iOS and Chrome. duplicate_check.py scored the closest existing
+      venture (chrome-extension-permission-check) at 0.09 against the
+      final description, well under the 0.45 flag bar; no existing
+      venture reads a WordPress readme.txt, a plugin header block, or a
+      PHP superglobal/nonce call site.
+      Autonomous ops 10 / gross margin 10: the browser page parses only
+      files selected locally and the CLI reads only local files it is
+      pointed at, so serving one more user costs a static file and needs
+      no human review of any output.
+      Distribution 7: WordPress powers a large share of the web and its
+      plugin developer base is correspondingly large; a Stable tag /
+      Version mismatch is one of the most common Plugin Directory review
+      notes and one of the easiest to introduce by accident (two files,
+      no shared source of truth), giving specific, recurring search
+      phrases ("readme.txt stable tag mismatch", "wordpress plugin nonce
+      verification missing"), plus r/WordPress, r/ProWordPress, the
+      wordpress.org support forums' developer sections, and the Advanced
+      WordPress Facebook group as named, active forums where this exact
+      class of problem is discussed.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      pattern-matcher is easy to reimplement, so defensibility rests on
+      being first and correct for this exact readme/header cross-check
+      plus the two source-pattern checks, rather than on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive -- it reports which required
+      readme/header fields are present, whether the Stable tag and
+      Version agree, which lines echo a superglobal with no escaping
+      function detected, and which files read $_POST with no nonce
+      check detected, never a claim that a submission will pass or fail
+      wordpress.org Plugin Review. A field or function this tool has no
+      mapping for is not silently treated as absent -- the README and
+      both pages state the line-level/file-level heuristic's limits
+      explicitly (an escaping function elsewhere in the flow, or a
+      non-standard field spelling, is not something this can see).
+      Makes no network call of any kind, uploads nothing, and both
+      pages' footers and FAQs state plainly that it is not a review
+      determination.

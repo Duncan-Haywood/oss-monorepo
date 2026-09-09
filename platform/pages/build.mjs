@@ -600,8 +600,24 @@ const CATEGORY_RULES = [
     // whole family pattern, and landing it here rather than the catch-all is
     // also what keeps that catch-all inside the bound `build.test.mjs` puts
     // on it.
+    //
+    // `wordpress-plugin-review-check` joined the same day. Same shape again
+    // -- a browser-local checker plus a matching CLI, run by a developer
+    // against their own PHP source and readme.txt they already have,
+    // cross-checking a review-gating field (readme.txt's Stable tag against
+    // the plugin header's Version) in both directions plus two more patterns
+    // (unescaped superglobal output, a $_POST handler with no nonce check) --
+    // just for a WordPress plugin's Plugin Directory submission instead of a
+    // Chrome/iOS/npm/Actions artifact. It cross-links both
+    // `chrome-extension-permission-check` and `ios-privacy-manifest-check` as
+    // Related (same "cross-check a platform-review-gating manifest/header
+    // against real source" question, a third platform). Listed by exact slug
+    // rather than a new prefix, the same way its neighbors above are: one
+    // tool does not earn a whole family pattern, and landing it here rather
+    // than the catch-all is also what keeps that catch-all inside the bound
+    // `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check)/.test(
         slug,
       ),
   },

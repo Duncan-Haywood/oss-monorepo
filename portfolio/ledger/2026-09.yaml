@@ -20691,3 +20691,173 @@ entries:
         (`build_pages_site.py`) than the one this change touches, and the
         JS builder's own output was verified separately above).
     mrr_end: 0
+  - venture: wordpress-plugin-review-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/wordpress-plugin-review-check`,
+        a free, zero-network CLI + browser tool for WordPress plugin
+        developers preparing a wordpress.org Plugin Directory submission
+        or version update. Cross-checks a plugin's `readme.txt` against
+        its main file's PHP header comment block in both directions of
+        the shape this portfolio's two prior instances of this archetype
+        (`ios-privacy-manifest-check`, `chrome-extension-permission-check`)
+        already use: a `Stable tag` that doesn't match `Version` (the
+        directory serves whichever version `Stable tag` names, so a
+        stale tag ships an old build after a new one is uploaded --
+        deliberately not flagged when `Stable tag` reads `trunk`, a
+        valid choice), and missing required fields (`Stable tag`,
+        `License`, `License URI` in the readme; `Plugin Name`, `Version`
+        in the header) versus recommended-only ones reported but not
+        failed (`Contributors`, `Tags`, `Requires at least`,
+        `Tested up to`; header `License`, `Requires PHP`, `Text Domain`).
+        Also scans PHP source for two independent security patterns:
+        a `$_GET`/`$_POST`/`$_REQUEST`/`$_COOKIE`/`$_SERVER` value
+        echoed/printed with no escaping function (`esc_html`, `esc_attr`,
+        `sanitize_text_field`, `absint`, and others) on the same line,
+        and a file that reads `$_POST` with no nonce-verification call
+        (`check_admin_referer`, `check_ajax_referer`, `wp_verify_nonce`)
+        anywhere in it. Both are explicit line-level/file-level
+        heuristics, stated as such on both pages and in the README, per
+        `PRODUCT_PLAYBOOK.md`'s evidence-not-determination positioning.
+        Ships the standard disclaimer/privacy/sponsor-link copy (plus a
+        not-affiliated-with-the-WordPress-Foundation trademark line,
+        matching the pattern the two sibling checkers already use for
+        Google/Apple), a secondary doc page on the Stable tag mismatch
+        with HowTo/FAQPage JSON-LD, usage counting, LICENSE, and 52
+        tests (`scan.test.mjs`, `check.test.mjs`, `usage.test.mjs`,
+        `page.test.mjs`) plus the venture's own CI workflow. Screened
+        per `portfolio/pipeline/README.md`'s "archetype itself" section
+        (a developer CLI/checker, not a 234th `<trade>-bid-calculator`)
+        and `python3 portfolio/pipeline/duplicate_check.py` (closest
+        match `chrome-extension-permission-check` at 0.09, well under
+        the 0.45 flag bar). Scored 6.875 composite / floor 1
+        (`ai_leverage`) against the pipeline's eight-dimension rubric in
+        `portfolio/pipeline/candidates/wordpress-plugin-review-check.md`
+        and `candidates.yaml` (both gates clear with room:
+        `liability_containment` 8, `ethical_robustness` 9) and 6.333
+        composite / floor 1 against the venture-scoring six-dimension
+        rubric in `portfolio/scoring/venture-scores.yaml`. First-visitor
+        channel named per `DIRECTION.md`'s graduation condition:
+        developers hitting the exact Stable-tag-mismatch or
+        nonce-verification review note and searching that terminology,
+        plus r/WordPress, r/ProWordPress, the wordpress.org support
+        forums' developer sections, and the Advanced WordPress Facebook
+        group -- named channels, not yet measured traffic.
+      - >-
+        Fixed forward every defect the wider suite surfaced, rather than
+        leaving them for a later session, following the exact same
+        pattern the prior `chrome-extension-permission-check` session's
+        ledger entry documents: (1) the new venture landed in the site's
+        catch-all category ("More free tools"), pushing it past the
+        bound `build.test.mjs` enforces -- added it to the `ci`
+        category's exact-slug list in `platform/pages/build.mjs`,
+        cross-linking both `chrome-extension-permission-check` and
+        `ios-privacy-manifest-check` as Related (added the reciprocal
+        links to those two ventures' own footers, the minimal edit
+        `platform/pages/siblings.mjs --check` asks for to close a
+        crawlable-orphan pair -- confirmed both ventures' own
+        `node --test` still pass after the edit); (2)
+        `node platform/pages/launched.mjs --write` to record today's
+        launch date; (3) the mirrored-tool count (224 -> 225) in the
+        four places `CLAUDE.md` already documents needing a matching
+        edit (`infra/OWNER_CHECKLIST.md` x3,
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/
+        default.conf` x2, and `gitops/tests/test_manifests.py`'s own
+        pinned total) plus `gitops/ci/sync_readme_counts.py` for a
+        `runs-on` count the new workflow file shifted by one (317/319/279
+        -> 318/320/280); (4) `python3 platform/ci/publish_surface.py
+        --write` to add the new workflow to `publish-surface.yaml`,
+        classified `none`; (5) a `venture-scores.yaml` row (the router's
+        merit-scoring file, distinct from the pipeline's own
+        `candidates.yaml`) and a `usage.yaml` baseline row, both required
+        by their own validators once the `VENTURE.yaml` existed; (6) a
+        `portfolio/pipeline/candidates.yaml` entry, write-up, and a
+        README.md table row inserted in composite-sorted position
+        (renumbering rows 23-34 to 24-35, since `validate_doc_consistency.py`
+        checks the table is composite-ordered, not just that scores
+        match -- an out-of-order append was tried first and correctly
+        rejected).
+      - >-
+        A `run_workflow_locally.py --for-changes` gap found and worked
+        around this session, worth recording because it will recur for
+        the next brand-new venture: `changed_paths()` uses
+        `git diff --name-only <base>`, which never lists an untracked
+        file, so a venture's own new CI workflow (a wholly new file) was
+        silently absent from the `--for-changes` selection on the first
+        run even though every *modified* file (the sibling ventures'
+        edited footers) was picked up correctly. `git add -A` before
+        re-running made the new files visible to the diff and the new
+        workflow then appeared in the selection and ran clean. Not
+        reported as a defect in the tool -- `git add`-then-verify is a
+        reasonable habit before a push regardless -- but worth a
+        session noticing it once rather than each new-venture session
+        re-discovering it via a false-clean run.
+      - >-
+        Verified rather than assumed: `node --test` in the venture
+        (52/52, including a dogfooding assertion that the page's own
+        worked example demonstrates a Stable tag mismatch, an unescaped
+        `$_GET` echo, and a missing nonce check all at once, through
+        this venture's own engine, and CLI tests against a real
+        temporary filesystem proving `vendor`/`node_modules` are skipped
+        and both `--readme`/`--plugin-file` overrides work); `node
+        --test` on the two sibling ventures whose footers were edited
+        (92/92); `node platform/pages/clauses.mjs
+        wordpress-plugin-review-check` (clean, and re-confirmed clean on
+        both siblings); `node platform/pages/faq-coverage.mjs` /
+        `faq-duplicate.mjs` / `guide-coverage.mjs` (clean, 225/225);
+        `node platform/pages/siblings.mjs --check` (31/31, back within
+        budget after closing the pair above); `python3
+        portfolio/pipeline/duplicate_check.py` (0.09 top match, well
+        under the flag bar); `python3
+        portfolio/pipeline/validate_candidates.py` (35/35 consistent);
+        `python3 portfolio/pipeline/validate_doc_consistency.py` (35/35
+        consistent, after inserting and renumbering the README table
+        row); `python3 portfolio/scoring/score_ventures.py --check`
+        (234/234 consistent, after adding a matching 6-dimension row to
+        `venture-scores.yaml`); `python3 portfolio/router/validate.py`
+        (233/233 valid); `python3 platform/ci/checklist_coverage.py`;
+        `python3 platform/ci/check_no_payment_code.py` (clean); `python3
+        platform/ci/publish_surface.py --check` (clean, after
+        `--write`); `python3 -m pytest gitops/tests -q` (490 passed, 25
+        skipped, after the count fixes above); `python3 -m unittest`
+        across every `platform/ci` module (all 21, including
+        `test_validate_workflows` which is what actually caught the
+        missing venture-CI-workflow file) and `platform/ci/agent_review`
+        (all green); `python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q` (431 passed, 8 subtests);
+        `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1169/1169, after the fixes above and
+        re-running `regen.mjs`); `node --test platform/proposal/*.test.mjs`
+        (101/101); `node --test platform/privacy/*.test.mjs
+        platform/webcheck/*.test.mjs` (71 passed, 2 shallow-clone skips
+        -- `git fetch --unshallow` was run this session but the skip
+        condition is evaluated once at collection; re-run unaffected by
+        this venture); `npm install --no-save playwright@1.56.0
+        axe-core` then `python3 platform/ci/browser_checks.py --only
+        wordpress-plugin-review-check`, `--only
+        chrome-extension-permission-check`, and `--only
+        ios-privacy-manifest-check` (all three: sideways, presets,
+        roundtrip, contrast, sweep, and journey pass; highlight skipped,
+        none of the three make a highlight promise) -- a full
+        whole-catalogue `--record` sweep (20-30 minutes) was not run
+        this session, so the fleet-wide browser-check reading
+        (`browser_state.py`) stays the prior one rather than a false
+        confirmation; `python3 platform/ci/ci_starvation.py --run
+        34398541406` (starved: `runner_id: 0`, confirming the local
+        substitute above was the right call, not an assumption);
+        `python3 platform/ci/run_workflow_locally.py --for-changes`
+        after `git add -A` (14/17 selected workflows passed; the other
+        3 hold on a secret or a write grant exactly as designed --
+        `agent-cross-review.yml` and `hetzner-gitops-ci.yml`'s four
+        secret-reading jobs, `portfolio-pages.yml`/deploy and
+        `publish-pages-branch.yml`/publish); `python3
+        platform/ci/run_workflow_locally.py --tree` against the working
+        tree as it stands (9/9 selected workflows passed, only
+        `portfolio-pages.yml`/deploy held on its write grant) -- the
+        sweep this file's own CLAUDE.md section says is the difference
+        between "my diff is sound" and "the checkout is green", both
+        green here.
+    mrr_end: 0
