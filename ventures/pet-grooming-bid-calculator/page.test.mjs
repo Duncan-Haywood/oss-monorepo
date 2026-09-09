@@ -215,3 +215,7 @@ test('checkboxes and selects are read and written by the same field list as numb
   assert.match(scriptSource, /isCheckbox/, 'the page has no checkbox-aware read/write helper');
   assert.match(scriptSource, /applyValues/, 'the page has no shared apply-values helper for restore/reset/share');
 });
+
+test('links to the pest control bid calculator', () => {
+  assert.match(html, /href="\.\.\/pest-control-bid-calculator\/"/, 'the sibling-tool link is missing');
+});
