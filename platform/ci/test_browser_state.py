@@ -195,6 +195,53 @@ class PerVentureStalenessTest(unittest.TestCase):
         self.assertEqual(st["contrast"]["verdict"], "current")
 
 
+class ScopedSuggestionNamesItsFallback(unittest.TestCase):
+    """The scoped command can be impossible, and the report must say so.
+
+    Measured 2026-09-09: `highlight` went stale because
+    `ada-title-ii-evidence` moved, and the suggested
+    `--checks highlight --only ada-title-ii-evidence` exited 2 with "nothing
+    to verify" — that venture does not print the sentence `highlight` reads.
+    The suggestion is built from which ventures MOVED, never from which of
+    them a check has anything to say about, so it will keep proposing an
+    impossible command. A session that follows it spends the run and the
+    check is exactly as stale.
+
+    The scope predicate lives in the checks (`highlight.mjs` reads
+    HIGHLIGHT_PROMISE from `invalid.mjs`), so the report must not restate it
+    in Python — CLAUDE.md records that copying a rule out of its source cost
+    live product twice. It names the outcome and the fallback instead.
+    """
+
+    def _report(self, stale_check="highlight", pending=("ada-title-ii-evidence",)):
+        st = {c: {"verdict": "current", "reading": {"commit": "a" * 40}, "pending": []}
+              for c in browser_state.CHECKS}
+        st[stale_check] = {"verdict": "stale",
+                           "reading": {"commit": "a" * 40},
+                           "pending": list(pending)}
+        return browser_state.report(st)
+
+    def test_it_says_nothing_to_verify_is_not_an_error(self):
+        out = self._report()
+        self.assertIn("nothing to verify", out)
+        self.assertIn("not an error", out)
+
+    def test_it_offers_the_full_run_as_the_fallback(self):
+        out = self._report()
+        # The unscoped form of the same check — what actually clears it.
+        self.assertIn(
+            "browser_checks.py --record --checks highlight", out)
+        self.assertRegex(out, r"--checks highlight\s*$|--checks highlight\n")
+
+    def test_the_scoped_command_is_still_offered_first(self):
+        # The fallback is a fallback: a scoped run is genuinely cheaper when
+        # the venture IS in scope, which is the common case.
+        out = self._report()
+        self.assertIn("--only ada-title-ii-evidence", out)
+        self.assertLess(out.index("--only ada-title-ii-evidence"),
+                        out.index("nothing to verify"))
+
+
 class ChangedSlugsTest(unittest.TestCase):
     """Slug extraction: `ventures/<slug>/<file>` and nothing shallower."""
 
