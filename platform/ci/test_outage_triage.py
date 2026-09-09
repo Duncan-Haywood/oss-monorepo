@@ -21,12 +21,16 @@ from outage_triage import (
     OPEN,
     PORTS,
     REFUSED,
+    SENTINELS,
     UNREACHABLE,
     HostDNS,
+    Interception,
     Node,
     PortResult,
     Triage,
     boot_history,
+    collect,
+    detect_interception,
     hetzner_actions,
     hetzner_servers,
     probe_port,
@@ -146,6 +150,144 @@ class PortClassification(unittest.TestCase):
         seen = []
         probe_port(AGENT, 6443, connect=lambda ip, port: seen.append((ip, port)))
         self.assertEqual(seen, [("157.180.80.188", 6443)])
+
+
+class InterceptedTransport(unittest.TestCase):
+    """Layer 2 is only a diagnosis if the connection reached the machine.
+
+    Measured 2026-09-09 from an agent session sandbox: the two live nodes and
+    an address on which nothing can possibly be listening returned the same
+    four states (80/443 `open`, 22/6443 `no answer`), while the cluster was
+    known dead. Every assertion here is pinned against that reading.
+    """
+
+    # What the sandbox actually returned, per sentinel and port.
+    SANDBOX = {
+        ("198.51.100.7", 443): OPEN,
+        ("198.51.100.7", 22): NO_ANSWER,
+        ("203.0.113.9", 443): OPEN,
+        ("203.0.113.9", 22): NO_ANSWER,
+        ("192.0.2.1", 443): REFUSED,
+        ("192.0.2.1", 22): REFUSED,
+    }
+
+    @staticmethod
+    def _connect(table, default=None):
+        """A `connect` that replays a measured table."""
+
+        def go(ip, port):
+            state = table.get((ip, port), default)
+            if state == OPEN or state is None:
+                return None
+            if state == REFUSED:
+                raise ConnectionRefusedError(111, "Connection refused")
+            if state == NO_ANSWER:
+                raise socket.timeout("timed out")
+            raise OSError(101, "Network is unreachable")
+
+        return go
+
+    def test_an_answer_from_reserved_space_proves_interception(self):
+        result = detect_interception(connect=self._connect(self.SANDBOX))
+        self.assertTrue(result.detected)
+        self.assertTrue(result.answering)
+
+    def test_one_sentinel_is_not_enough(self):
+        # The false negative this design exists to avoid. TEST-NET-1 is
+        # denylisted by the sandbox proxy and answers `refused` on every port,
+        # which is exactly what a clean host looks like. A single-sentinel
+        # check that happened to pick it would report a usable transport and
+        # go on to render fiction.
+        only_first = {k: v for k, v in self.SANDBOX.items() if k[0] == "192.0.2.1"}
+        self.assertFalse(detect_interception(connect=self._connect(only_first, REFUSED)).detected)
+        # With all three probed, the same environment is caught.
+        self.assertTrue(detect_interception(connect=self._connect(self.SANDBOX)).detected)
+
+    def test_ordinary_outbound_internet_is_not_flagged(self):
+        # A GitHub runner: TEST-NET is simply not routed.
+        clean = self._connect({}, UNREACHABLE)
+        self.assertFalse(detect_interception(connect=clean).detected)
+
+    def test_a_dropping_firewall_is_not_flagged_either(self):
+        self.assertFalse(detect_interception(connect=self._connect({}, NO_ANSWER)).detected)
+
+    def test_every_sentinel_is_reserved_documentation_space(self):
+        # A real address here would make the check assert something about a
+        # third party's host rather than about our own transport.
+        reserved = {"192.0.2.", "198.51.100.", "203.0.113."}
+        for address in SENTINELS:
+            self.assertTrue(
+                any(address.startswith(p) for p in reserved),
+                f"{address} is not RFC 5737 documentation space",
+            )
+
+    def test_collect_skips_the_port_layer_rather_than_reporting_it(self):
+        triage = collect(
+            token=None,
+            resolver=lambda h: ("89.167.29.39",),
+            connect=self._connect(self.SANDBOX),
+        )
+        self.assertTrue(triage.interception.detected)
+        # Skipped, not taken-and-flagged: a manufactured `open` sitting in
+        # `ports` is one --json-out consumer away from becoming a cited fact.
+        self.assertEqual(triage.ports, [])
+
+    def test_collect_takes_the_reading_when_the_transport_is_clean(self):
+        triage = collect(
+            token=None,
+            resolver=lambda h: ("89.167.29.39",),
+            connect=self._connect({}, UNREACHABLE),
+        )
+        self.assertFalse(triage.interception.detected)
+        self.assertEqual(len(triage.ports), len(triage.nodes) * len(PORTS))
+
+    def test_the_verdict_refuses_rather_than_diagnosing(self):
+        headline, reasons = verdict(
+            Triage(nodes=[CONTROL, AGENT], interception=Interception(
+                detected=True, probes=[("198.51.100.7", 443, OPEN)]
+            ))
+        )
+        self.assertIn("cannot take a TCP reading", headline)
+        self.assertIn("RFC 5737", " ".join(reasons))
+
+    def test_it_does_not_sink_the_ssh_ask(self):
+        # The expensive failure. From a sandbox port 22 reads `no answer`,
+        # which the firewall verdict would report as the host being gone --
+        # sending the owner after console access instead of the key rotation
+        # that is the only route back to the origin.
+        _, reasons = verdict(
+            Triage(nodes=[CONTROL, AGENT], interception=Interception(
+                detected=True, probes=[("198.51.100.7", 443, OPEN)]
+            ))
+        )
+        body = " ".join(reasons)
+        self.assertIn("neither supports nor sinks", body)
+        self.assertIn("hetzner-ssh-key-is-a-public-key", body)
+
+    def test_interception_outranks_a_port_picture_that_would_diagnose(self):
+        # Belt and braces: even if a caller hands over both, the refusal wins.
+        poisoned = build({22: NO_ANSWER, 80: OPEN, 443: OPEN, 6443: NO_ANSWER})
+        poisoned.interception = Interception(
+            detected=True, probes=[("198.51.100.7", 443, OPEN)]
+        )
+        headline, _ = verdict(poisoned)
+        self.assertIn("cannot take a TCP reading", headline)
+
+    def test_render_shows_the_refusal_instead_of_a_port_table(self):
+        triage = Triage(nodes=[CONTROL, AGENT], interception=Interception(
+            detected=True, probes=[("198.51.100.7", 443, OPEN)]
+        ))
+        out = render(triage)
+        self.assertIn("Skipped", out)
+        self.assertIn("198.51.100.7", out)
+        self.assertIn("outage-triage.yml", out)
+        # No row for a node it never probed.
+        self.assertNotIn("| control_plane | `89.167.29.39` | 22 |", out)
+
+    def test_a_clean_run_still_renders_the_port_table(self):
+        out = render(build(LIVE_OUTAGE))
+        self.assertIn("| control_plane | `89.167.29.39` | 22 |", out)
+        self.assertNotIn("Skipped —", out)
 
 
 class VerdictInvalidatesOrConfirmsTheAsk(unittest.TestCase):

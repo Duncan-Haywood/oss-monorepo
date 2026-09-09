@@ -597,3 +597,31 @@ readings:
       28/28 probes blocked). The trap is only for hand-rolled socket probes,
       which is precisely what a session reaches for when the tool says it
       cannot answer.
+      **That last sentence was wrong, and it cost three days (corrected
+      2026-09-09).** `platform/ci/outage_triage.py` is not a hand-rolled probe
+      — it is the committed tool whose entire diagnostic value is the
+      open/refused/no-answer distinction — and it called `socket.connect()`
+      with no control at all. So this row named the hazard, named the exact
+      two-address control that detects it, and the one tool in the repository
+      that needed that control did not have it. Same shape `CLAUDE.md` records
+      for `platform/proposal/` and the browser checks: the guard was written
+      down and never wired into the thing it guards.
+      Measured 2026-09-09 from a session, before the fix: the two live nodes
+      and TEST-NET-2 returned the *same four states* — 80/443 `open`, 22/6443
+      `no answer` — so `outage_triage.py` rendered identical output whether the
+      boxes were healthy, dead, or had never existed. Both halves misleading in
+      the expensive direction: 443 `open` reads as a serving ingress while the
+      origin is down, and 22 `no answer` reads as sshd gone, which is exactly
+      the reading the tool's own docstring says would send the owner after
+      console access instead of `hetzner-ssh-key-is-a-public-key` — the
+      top-ranked ask and the only route back to the origin.
+      Closed the same day: `detect_interception()` probes all three RFC 5737
+      ranges before layer 2 runs, the port layer is *skipped* rather than
+      reported when any of them answers, the verdict refuses to diagnose and
+      says in terms that it neither supports nor sinks the SSH ask, and
+      `main()` exits 2 so "no reading taken" cannot read as a pass. The
+      three-address design is not belt-and-braces: TEST-NET-1 is denylisted by
+      the proxy and answers `refused` on every port, so a single control picked
+      from it reports a clean transport. Pinned by
+      `platform/ci/test_outage_triage.py::InterceptedTransport`, whose tables
+      are the readings above rather than invented ones.
