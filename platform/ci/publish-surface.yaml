@@ -44,6 +44,9 @@ workflows:
 - workflow: a11y-theme-resolution-ci.yml
   classification: none
   publishes: []
+- workflow: actions-artifact-poisoning-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-cache-poisoning-check-ci.yml
   classification: none
   publishes: []
