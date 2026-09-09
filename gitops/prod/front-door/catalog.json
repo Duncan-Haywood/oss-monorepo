@@ -1876,7 +1876,7 @@
       "url": "https://marisstella.dev/tools/wordpress-plugin-review-check/",
       "category": "CI checks & developer gates",
       "description": "Free, browser-local checker for WordPress plugin developers: catches a readme.txt Stable tag that doesn't match your plugin's Version header, missing required readme/header fields, unescaped $_GET/$_POST output, and $_POST handling with no nonce check -- before wordpress.org Plugin Review does. Nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     }
   ]
 }
