@@ -5,8 +5,17 @@
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-09-08T00:00:00Z</updated>
+  <updated>2026-09-09T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>GitHub Actions Artifact Poisoning Check — workflow_run Download &amp; Execute</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-artifact-poisoning-check/"/>
+    <id>tag:marisstella.dev,2026:tool/actions-artifact-poisoning-check</id>
+    <published>2026-09-09T00:00:00Z</published>
+    <updated>2026-09-09T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name: pin. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
   <entry>
     <title>Certified Payroll Calculator — Davis-Bacon Overtime &amp; Fringe Compliance</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/certified-payroll-calculator/"/>
@@ -357,14 +366,5 @@
     <updated>2026-09-06T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free calculator for mobile locksmiths: price one service call — lockout, rekey, lock install, or fob programming — with the after-hours premium and minimum service charge built in, then check whether today&#39;s calls hit your income goal.</summary>
-  </entry>
-  <entry>
-    <title>Pet Grooming Bid Calculator — Price a Dog or Cat Groom</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pet-grooming-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/pet-grooming-bid-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free pet grooming price calculator: size, coat, matting, add-ons, and mobile travel go into one transparent quote with break-even and target-margin price.</summary>
   </entry>
 </feed>
