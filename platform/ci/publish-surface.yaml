@@ -284,6 +284,9 @@ workflows:
 - workflow: entry-door-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: env-example-drift-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: epoxy-garage-floor-bid-calculator-ci.yml
   classification: none
   publishes: []
