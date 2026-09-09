@@ -164,3 +164,21 @@ test('the guide page worked example matches calc.mjs exactly', () => {
   assert.equal(lean.profitMarginPct.toFixed(2), '32.64');
   assert.ok(guideHtml.includes('$4.49') && guideHtml.includes('32.64%'));
 });
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: the same recurring stop-based route business priced per
+// site after drive time and materials — pool accounts there, inspection stops
+// here. Rotating chrome may never pair them, so link explicitly.
+test('index links one hop to the pool-route-pricing sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/pool\-route\-pricing\/"/,
+    'index must link ../pool-route-pricing/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /pool route pricing calculator/i);
+});
