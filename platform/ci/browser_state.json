@@ -10,22 +10,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "bc70bba562bffcb32acf5e1c081ca9c56291bac6",
-      "measured": "2026-09-08",
-      "pages": 836,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "1051dbe5af9315059a357fca48133f812283fa37",
       "measured": "2026-09-08",
       "pages": 837,
@@ -295,6 +279,22 @@
       "slugs": [
         "dependency-confusion-check",
         "pinned-actions-check"
+      ]
+    },
+    {
+      "checks": [
+        "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "8bdd040336db170e928445a5fc3b4643e3d60ba9",
+      "measured": "2026-09-09",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "actions-injection-check"
       ]
     }
   ]
