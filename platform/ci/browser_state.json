@@ -309,9 +309,9 @@
         "sideways",
         "sweep"
       ],
-      "commit": "ef64ed29d61333e343b2cd1e905b652950bbb381",
+      "commit": "acb1e1300c11a7338018862747052f462bb310c8",
       "measured": "2026-09-09",
-      "pages": 859,
+      "pages": 860,
       "result": "pass",
       "scope": "full"
     }
