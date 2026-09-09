@@ -20691,3 +20691,55 @@ entries:
         (`build_pages_site.py`) than the one this change touches, and the
         JS builder's own output was verified separately above).
     mrr_end: 0
+  - venture: dependency-confusion-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added `vs-socket.html`, a nominative-fair-use comparison page against
+        Socket (socket.dev / Socket, Inc.) -- the one real dev-tool competitor
+        whose own marketing explicitly names dependency confusion as one of
+        its 70+ detected risk categories (confirmed via search: Socket's
+        glossary entry and product pages, plus its .NET-support post naming
+        "dependency confusion, typosquatting, and malicious updates"
+        explicitly). Content states only Socket's well-documented product
+        shape (GitHub app/CLI/browser-extension, registry-aware, ongoing,
+        free for open source + paid Team/Business/Enterprise tiers per
+        third-party pricing trackers) and draws the real distinction: Socket
+        is a continuous, network-connected platform; this tool is a one-time,
+        zero-network-call local check for the two specific pip
+        `--extra-index-url` / unscoped-npm-name configuration shapes. No
+        dollar figures are stated for Socket (verified by test, same
+        discipline as the accessiBe page) since this session cannot confirm
+        today's pricing live. Linked one hop from `index.html` and
+        `what-is-dependency-confusion.html`; added to `sitemap.xml`.
+      - >-
+        Verified: `node --test ventures/dependency-confusion-check/*.test.mjs`
+        (38/38, including the new `vs-socket.test.mjs`); `python3 -m unittest
+        test_check` (20/20); `node platform/pages/clauses.mjs
+        dependency-confusion-check` (3 pages, required clauses present);
+        `node platform/marketing/regen.mjs` (mirror + front-door regenerated,
+        committed); `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1169/1169); `node --test
+        platform/proposal/*.test.mjs platform/privacy/*.test.mjs
+        platform/webcheck/*.test.mjs` (172/172); `python3 -m pytest
+        gitops/tests -q` (490 passed, 25 skipped, 0 failed -- the
+        mirrored-tool-count files were unaffected since this venture already
+        had a browser surface); `(cd platform/ci && python3 -m unittest
+        <each of the 20 non-agent_review modules>)` and `(cd
+        platform/ci/agent_review && python3 -m unittest test_review)` (all
+        green); `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`
+        (431 passed, 8 subtests passed); `python3 platform/ci/ci_starvation.py
+        --run 34398674726` (real runners assigned -- not a starvation
+        window right now, so GitHub's own CI is authoritative on the PR
+        too); `npm install --no-save playwright@1.56.0 axe-core` then
+        `python3 platform/ci/browser_checks.py --only
+        dependency-confusion-check` (sideways/presets/roundtrip/contrast/
+        sweep/journey all pass; `highlight` skipped -- this venture makes no
+        highlight promise); `python3 platform/ci/checklist_coverage.py`
+        (clean, no missing directories). `python3 platform/ci/pages_state.py`
+        reported the gh-pages snapshot current against `main`'s pre-merge
+        tip; the standing publish-branch job runs again after this merges,
+        per CLAUDE.md.
+    mrr_end: 0

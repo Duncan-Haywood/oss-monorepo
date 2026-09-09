@@ -40,7 +40,7 @@
   <h2>Check your own configuration</h2>
   <p><a href="./">Paste your requirements.txt, pip.conf, package.json, and .npmrc into Dependency Confusion Check</a> to find every <code>--extra-index-url</code> use and unscoped npm name at once, or run the CLI in your own checkout:</p>
   <pre><code>python3 check.py --fail-on-risk</code></pre>
-  <p class="note">That exits with a nonzero status if either pattern is present — wire it into your own CI to block a newly-added one before it merges.</p>
+  <p class="note">That exits with a nonzero status if either pattern is present — wire it into your own CI to block a newly-added one before it merges. Already running a supply-chain platform like Socket? See <a href="./vs-socket.html">how this checker differs from Socket</a> — different layers, and worth running both.</p>
   <footer>
     <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind. This is not a security audit or a compliance attestation, and a clean scan does not mean you are not exposed to dependency confusion — only that these two documented patterns were not found.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> Free, experimental, may move or go offline without notice.</p>
