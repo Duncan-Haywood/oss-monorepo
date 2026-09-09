@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { detectApiUsage, parseManifest, buildReport } from './scan.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(HERE, 'index.html'), 'utf8');
@@ -77,4 +78,42 @@ test('index links one hop to the dependency-confusion-check sibling', () => {
     /href="\.\.\/dependency-confusion-check\/"/,
     'index must link ../dependency-confusion-check/ so crawlers reach the dependency-confusion checker in one hop',
   );
+});
+
+// The real file input requires files the visitor may not have on hand right
+// now (or a crawler/automated check has none at all), so this is the only
+// path that demonstrates the tool actually works -- see the sibling
+// file-upload ventures (npm-deployment-evidence, duplicate-payment-audit,
+// etc.), every one of which ships the same "Load a worked example" pattern.
+test('a worked-example button exists as an alternative to picking real files', () => {
+  assert.match(html, /id="loadExample"/);
+});
+
+function extractConst(name) {
+  const re = new RegExp(`const ${name} = \`([\\s\\S]*?)\`;`);
+  const match = html.match(re);
+  assert.ok(match, `expected an inline const ${name} in index.html`);
+  return match[1];
+}
+
+test('the bundled worked example actually exercises all three report states', () => {
+  const source = extractConst('EXAMPLE_SOURCE');
+  const manifestXml = extractConst('EXAMPLE_MANIFEST');
+
+  const detected = detectApiUsage([{ path: 'DiskSpaceChecker.swift', content: source }]);
+  const manifest = parseManifest(manifestXml);
+  assert.equal(manifest.parseNote, null, 'the bundled example manifest must parse cleanly');
+
+  const report = buildReport(detected, manifest);
+  const byId = new Map(report.categories.map((c) => [c.id, c.status]));
+
+  // Undeclared: exactly the ITMS-91061 case this tool exists to catch --
+  // the example must not accidentally be a page where everything is fine.
+  assert.equal(byId.get('NSPrivacyAccessedAPICategoryDiskSpace'), 'undeclared');
+  // Declared and detected, with a code Apple actually publishes.
+  assert.equal(byId.get('NSPrivacyAccessedAPICategoryUserDefaults'), 'declared');
+  // Declared in the manifest but never used in the source -- the fourth
+  // status the UI renders, otherwise never demonstrated by this example.
+  assert.equal(byId.get('NSPrivacyAccessedAPICategoryFileTimestamp'), 'declared-but-not-detected');
+  assert.equal(report.ok, false, 'an example with an undeclared category must not report ok');
 });
