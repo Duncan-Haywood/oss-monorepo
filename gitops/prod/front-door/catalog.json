@@ -884,7 +884,7 @@
       "url": "https://marisstella.dev/tools/duplicate-payment-audit/",
       "category": "Back-office money & contracts",
       "description": "Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "egress-window-bid-calculator",
@@ -1004,7 +1004,7 @@
       "url": "https://marisstella.dev/tools/food-truck-event-margin-calculator/",
       "category": "More free tools",
       "description": "Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you're already considering against the breakeven.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "foundation-repair-bid-calculator",
@@ -1220,7 +1220,7 @@
       "url": "https://marisstella.dev/tools/license-drift-check/",
       "category": "CI checks & developer gates",
       "description": "Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "locksmith-bid-calculator",
@@ -1516,7 +1516,7 @@
       "url": "https://marisstella.dev/tools/security-deposit-return-calculator/",
       "category": "More free tools",
       "description": "Free security deposit refund calculator: itemize deductions against a tenant's deposit and see the refund or balance due. Plus a prorated rent calculator for a partial first or last month. Entirely client-side, nothing uploaded.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "septic-pumping-bid-calculator",
