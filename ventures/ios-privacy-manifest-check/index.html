@@ -333,6 +333,9 @@ struct SettingsStore {
   <p>Also worth a pass over your dependency tree: <a href="../dependency-confusion-check/">Dependency Confusion Check</a>
   flags an internal package name that a public registry could serve instead -- the same "read a manifest you
   already have, name the exact undeclared risk" shape as this tool, for a different supply chain.</p>
+  <p>Shipping a browser extension too? <a href="../chrome-extension-permission-check/">Chrome Extension Permission Checker</a>
+  cross-checks a manifest.json's declared permissions against detected chrome.* API usage -- the same
+  "read a manifest you already have, name the exact undeclared or unused entry" shape as this tool, for Chrome.</p>
 </footer>
 </body>
 </html>

@@ -80,6 +80,19 @@ test('index links one hop to the dependency-confusion-check sibling', () => {
   );
 });
 
+// The reciprocal half of chrome-extension-permission-check's own link back
+// to this venture -- both cross-check a platform-review-gating manifest
+// against real API usage in source, for iOS and Chrome respectively.
+// Without this link, this venture is a crawlable orphan (platform/pages/
+// siblings.mjs --check).
+test('index links one hop to the chrome-extension-permission-check sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/chrome-extension-permission-check\/"/,
+    'index must link ../chrome-extension-permission-check/ so crawlers reach the Chrome permission checker in one hop',
+  );
+});
+
 // The real file input requires files the visitor may not have on hand right
 // now (or a crawler/automated check has none at all), so this is the only
 // path that demonstrates the tool actually works -- see the sibling
