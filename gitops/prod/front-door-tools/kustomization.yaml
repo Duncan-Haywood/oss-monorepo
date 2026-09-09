@@ -36,13 +36,13 @@
 #   portfolio-front-tools-0: 136 files, 555123 bytes
 #   portfolio-front-tools-1: 111 files, 555412 bytes
 #   portfolio-front-tools-2: 148 files, 556696 bytes
-#   portfolio-front-tools-3: 143 files, 555476 bytes
+#   portfolio-front-tools-3: 143 files, 555361 bytes
 #   portfolio-front-tools-4: 119 files, 554698 bytes
 #   portfolio-front-tools-5: 137 files, 556895 bytes
 #   portfolio-front-tools-6: 117 files, 547581 bytes
 #   portfolio-front-tools-7: 110 files, 553460 bytes
 #   portfolio-front-tools-8: 118 files, 552366 bytes
-#   portfolio-front-tools-9: 120 files, 551078 bytes
+#   portfolio-front-tools-9: 121 files, 554692 bytes
 #   portfolio-front-tools-10: 101 files, 555828 bytes
 #   portfolio-front-tools-11: 64 files, 320318 bytes
 #   portfolio-front-tools-12: 54 files, 269867 bytes
@@ -1343,6 +1343,7 @@ configMapGenerator:
       - security-deposit-return-calculator__calculator.mjs.gz=security-deposit-return-calculator__calculator.mjs.gz
       - security-deposit-return-calculator__index.html.gz=security-deposit-return-calculator__index.html.gz
       - security-deposit-return-calculator__usage.mjs.gz=security-deposit-return-calculator__usage.mjs.gz
+      - security-deposit-return-calculator__vs-turbotenant.html.gz=security-deposit-return-calculator__vs-turbotenant.html.gz
       - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
       - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
       - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz

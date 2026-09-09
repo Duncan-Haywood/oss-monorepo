@@ -9,7 +9,7 @@
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
   "served_here": 219,
-  "collection_total": 218,
+  "collection_total": 219,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -1516,7 +1516,7 @@
       "url": "https://marisstella.dev/tools/security-deposit-return-calculator/",
       "category": "More free tools",
       "description": "Free security deposit refund calculator: itemize deductions against a tenant's deposit and see the refund or balance due. Plus a prorated rent calculator for a partial first or last month. Entirely client-side, nothing uploaded.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "septic-pumping-bid-calculator",
