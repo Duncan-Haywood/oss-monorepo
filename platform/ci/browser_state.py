@@ -127,10 +127,54 @@ a whole-site narrative that ignores `--only` (see `browser_checks.py`), so no
 scoped reading is ever recorded as covering it: any venture change still
 makes `journey` stale over the whole catalogue, exactly as before.
 
-Staleness is computed with `git diff --name-only`, so a shallow clone that
-cannot reach the recorded commit reports `unknown` rather than guessing --
-never `current`, which is the direction the 2026-08-30..09-04 "nothing is
-served" episode failed in.
+Staleness is computed with `git diff --name-only`, so a clone that cannot
+reach the recorded commit reports `unknown` rather than guessing -- never
+`current`, which is the direction the 2026-08-30..09-04 "nothing is served"
+episode failed in.
+
+## What a reading is anchored to, and why it is not just the commit
+
+**Added 2026-09-09, because anchoring on the commit alone was quietly
+self-defeating.** A reading records the commit its run was taken at, which
+for the PR that carries the reading is a *branch* commit -- and this
+repository squash-merges, so that sha ceases to exist the moment the PR
+lands. `0c9b33fc` was recorded for `highlight` and `journey` by PR #4344;
+the squash landed as `ca713361`; the branch commit is unreachable in a
+**complete** clone, not merely a shallow one. Both checks therefore read
+`unknown` forever, and the report demanded a 25-minute whole-catalogue
+re-run to re-establish a state that had not actually changed.
+
+That is this tool's own failure mode, not an incidental bug: it exists to
+stop sessions paying 25 minutes to re-answer a settled question, and the
+anchor it chose guaranteed they would, on every PR that ever records a
+reading -- which is every reading this repository takes.
+
+So a reading also records the **tree object id of each served-surface
+path**. A tree oid is content-addressed, so identical content has an
+identical oid regardless of which commit carries it, and a squash-merge
+preserves the tree it squashes. The oids are therefore the same on both
+sides of the merge that destroys the sha. The commit is kept because it is
+what a human reads in the report; the oids are what the verdict falls back
+to when the commit is gone, and they answer the question the reading was
+always really about -- did the served surface change? -- rather than the
+proxy question of whether one particular commit is still reachable.
+
+Three properties this deliberately keeps:
+
+  - **A reading with no anchor stays `unknown`.** The readings recorded
+    before this change carry no `surface` key, and absence must not launder
+    into a pass. Only a recorded anchor that *matches* yields `current`.
+  - **An unanswerable tree diff is `unknown` too.** If the recorded tree
+    object is genuinely absent -- a reading taken on a branch whose venture
+    content never landed anywhere -- that is not "nothing moved".
+  - **The report names the remedy that can work.** `_unknown_reason`
+    distinguishes a shallow clone (where `git fetch --unshallow` is the
+    fix) from a complete one (where it is not), the same discrimination
+    `platform/webcheck/history-blob.mjs` makes for the same reason. The
+    single "shallow clone?" string it replaced sent the reader at a command
+    that cannot bring back a commit no history contains -- measured the
+    same day, by unshallowing this repository and finding `0c9b33fc`
+    exactly as unreachable as before.
 """
 
 from __future__ import annotations
@@ -183,6 +227,128 @@ def _git(*args: str) -> tuple[int, str]:
 def head_commit() -> str | None:
     rc, out = _git("rev-parse", "HEAD")
     return out if rc == 0 and out else None
+
+
+def clone_is_shallow() -> bool:
+    """Is this a shallow clone? Decides what an unreachable commit means.
+
+    The same discrimination `platform/webcheck/history-blob.mjs` makes, for
+    the same reason: an object missing from a *shallow* clone is a clone
+    artefact and `git fetch --unshallow` fixes it, while one missing from a
+    *complete* history is a stale pin that unshallowing cannot rescue. Saying
+    "shallow clone?" in both cases sends the reader of the second case at a
+    command that cannot help.
+    """
+    rc, out = _git("rev-parse", "--is-shallow-repository")
+    return rc == 0 and out.strip() == "true"
+
+
+def _object_exists(oid: str) -> bool:
+    rc, _ = _git("cat-file", "-e", oid)
+    return rc == 0
+
+
+def surface_trees(ref: str = "HEAD") -> dict[str, str] | None:
+    """Tree object ids for each served-surface path at `ref`.
+
+    This is the anchor a reading survives on, and it exists because the
+    commit sha does not. A reading is recorded on whatever HEAD the session
+    was sitting on, which for the PR that carries the reading is a *branch*
+    commit -- and this repository squash-merges, so that sha ceases to exist
+    the moment the PR lands. `browser_state.json` recorded `0c9b33fc` from
+    PR #4344 on 2026-09-09; the squash landed as `ca713361` and the branch
+    commit is unreachable even in a complete clone, which left `highlight`
+    and `journey` reading `unknown` forever and demanded a 25-minute
+    whole-catalogue re-run to clear something that had not actually changed.
+
+    A tree oid is content-addressed, so identical content has an identical
+    oid no matter which commit carries it. A squash-merge preserves the tree
+    it squashes, so these three oids are the same before and after the merge
+    that destroys the sha. That makes the reading answer the question it was
+    always really about -- did the served surface change? -- rather than the
+    proxy question of whether one particular commit is still reachable.
+    """
+    trees: dict[str, str] = {}
+    for path in SURFACE_PATHS:
+        rc, oid = _git("rev-parse", f"{ref}:{path}")
+        if rc != 0 or not oid:
+            return None
+        trees[path] = oid
+    return trees
+
+
+def _shared_changed_trees(recorded: dict, head: dict) -> bool | None:
+    """Did the builder, chrome, front door or mirror change, by tree oid?
+
+    None means unanswerable, which the caller reports as `unknown` and never
+    as `current` -- the same direction of failure the commit-based helpers
+    take.
+    """
+    for path in SHARED_PATHS:
+        before, after = recorded.get(path), head.get(path)
+        if not before or not after:
+            return None
+        if before != after:
+            return True
+    return False
+
+
+def _changed_slugs_trees(recorded: dict, head: dict) -> set[str] | None:
+    """Venture slugs whose own files changed, by tree oid.
+
+    `git diff` accepts two tree objects directly, so this needs no commit at
+    either end. Paths come out relative to the `ventures/` tree, so the slug
+    is the first segment rather than the second.
+    """
+    before, after = recorded.get(VENTURE_ROOT), head.get(VENTURE_ROOT)
+    if not before or not after:
+        return None
+    if before == after:
+        return set()
+    # The recorded tree can be genuinely absent -- a reading taken on a branch
+    # whose venture content never landed. Unanswerable, not "nothing moved".
+    if not _object_exists(before):
+        return None
+    rc, out = _git("diff", "--name-only", before, after)
+    if rc != 0:
+        return None
+    slugs = set()
+    for line in out.splitlines():
+        parts = line.split("/")
+        if len(parts) >= 2 and parts[0]:
+            slugs.add(parts[0])
+    return slugs
+
+
+def _drift_since(reading: dict) -> tuple[bool | None, set[str] | None]:
+    """(shared_changed, moved_slugs) for a reading, by whichever anchor works.
+
+    The recorded commit is tried first, because every reading carries one and
+    the commit path is what the existing tests pin. The recorded surface tree
+    oids are the fallback, and they are what survives a squash-merge. Either
+    way an unanswerable question stays `None` and reports as `unknown`.
+    """
+    commit = reading.get("commit") or ""
+    if commit:
+        shared = shared_changed(commit)
+        if shared is not None:
+            if shared:
+                return True, set()
+            moved = changed_slugs(commit)
+            if moved is not None:
+                return False, moved
+    recorded = reading.get("surface")
+    if isinstance(recorded, dict) and recorded:
+        head = surface_trees()
+        if head:
+            shared = _shared_changed_trees(recorded, head)
+            if shared is not None:
+                if shared:
+                    return True, set()
+                moved = _changed_slugs_trees(recorded, head)
+                if moved is not None:
+                    return False, moved
+    return None, None
 
 
 def load() -> dict:
@@ -300,6 +466,29 @@ def _covered_since(check: str, slug: str, readings: list, after_commit: str) -> 
     return False
 
 
+def _unknown_reason(reading: dict | None) -> str:
+    """Why a reading could not be compared to HEAD, said accurately.
+
+    This used to be the single string "recorded commit unreachable (shallow
+    clone?)" for every `unknown`. On a complete clone that is a
+    misdiagnosis, and an expensive one: it sends the reader at `git fetch
+    --unshallow`, which cannot bring back a commit that no longer exists in
+    any history. Measured 2026-09-09, when unshallowing this repository left
+    `0c9b33fc` exactly as unreachable as before.
+    """
+    if reading is None:
+        return "no reading"
+    commit = (reading.get("commit") or "")[:8]
+    if clone_is_shallow():
+        return f"{commit} is outside this shallow clone (git fetch --unshallow)"
+    if reading.get("surface"):
+        # It carried the durable anchor and still could not be compared, so
+        # the venture content itself never landed in any reachable history.
+        return f"{commit} and its recorded surface are absent from this history"
+    return (f"{commit} is absent from the complete history -- recorded on a "
+            f"branch that was squash-merged, and predates the surface anchor")
+
+
 def status(readings: list) -> dict:
     """Per-check verdict: current, stale, unknown, or never.
 
@@ -316,11 +505,11 @@ def status(readings: list) -> dict:
             out[check] = {"verdict": "never", "reading": None, "pending": []}
             continue
         commit = reading.get("commit") or ""
-        if commit == head:
+        if commit and commit == head:
             out[check] = {"verdict": "current", "reading": reading, "pending": []}
             continue
 
-        shared = shared_changed(commit)
+        shared, moved = _drift_since(reading)
         if shared is None:
             out[check] = {"verdict": "unknown", "reading": reading, "pending": []}
             continue
@@ -330,7 +519,6 @@ def status(readings: list) -> dict:
             out[check] = {"verdict": "stale", "reading": reading, "pending": []}
             continue
 
-        moved = changed_slugs(commit)
         if moved is None:
             out[check] = {"verdict": "unknown", "reading": reading, "pending": []}
             continue
@@ -371,6 +559,15 @@ def record(checks, *, result: str, commit: str | None = None, pages: int | None 
         "result": result,
         "scope": scope,
     }
+    # The durable half of the anchor. The commit above is kept because it is
+    # what a human reads in the report, but it is the half that dies on a
+    # squash-merge; these three tree oids are what the verdict falls back to.
+    # Recorded only when git can answer -- a reading with no `surface` key
+    # behaves exactly as it did before, which is what keeps the existing
+    # readings in `browser_state.json` valid.
+    trees = surface_trees()
+    if trees:
+        reading["surface"] = trees
     if slugs:
         reading["slugs"] = sorted(slugs)
     if pages is not None:
@@ -463,7 +660,7 @@ def report(st: dict) -> str:
             if v == "never":
                 why.append(f"{c}: never recorded")
             elif v == "unknown":
-                why.append(f"{c}: recorded commit unreachable (shallow clone?)")
+                why.append(f"{c}: {_unknown_reason(st[c]['reading'])}")
             elif c in WHOLE_SITE_CHECKS:
                 why.append(f"{c}: whole-site narrative, ignores --only")
             else:
