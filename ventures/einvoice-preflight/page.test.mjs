@@ -80,3 +80,7 @@ test("sitemap does not point at README.md and lists every shipped html page", ()
     assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
   }
 });
+
+test("links to the FIFO pick evidence tool", () => {
+  assert.match(page, /href="\.\.\/fifo-pick-evidence\/"/, "the sibling-tool link is missing");
+});
