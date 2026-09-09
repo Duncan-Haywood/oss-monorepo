@@ -161,6 +161,30 @@ MUTATING = [
 
 EXPRESSION = re.compile(r"\$\{\{")
 
+# The progress line is written in two halves -- the step's label before it
+# runs, flushed, and the verdict after -- and that is a fix rather than a
+# style. It used to print one whole line *after* `execute()` returned, which
+# combined with Python's block buffering on a pipe to make this tool look
+# hung: a session running the documented `--tree` sweep and piping it
+# anywhere sees no output at all, for as long as the slowest step takes,
+# while the parent process sits at ~0% CPU because its children are doing
+# the work. Every one of those signals reads as a wedged process.
+#
+# It was read that way. Measured 2026-09-09: the sweep over this tree takes
+# ~13 minutes and emitted nothing until it exited, and the session that
+# merged #4326 that morning recorded killing it -- "hung indefinitely
+# (near-zero CPU for 10+ minutes)" -- and falling back to running CLAUDE.md's
+# hand-copied command list instead. That is precisely the substitution
+# CLAUDE.md tells sessions to make in the other direction, on the grounds
+# that a hand-copied list goes stale and this tool cannot. Actions has been
+# starved since 2026-09-04, so during that window this *is* the CI, and a CI
+# that looks broken gets killed rather than read.
+#
+# The cheap guard against that is not a faster sweep, it is saying which step
+# is running while it runs. Note the failure it protects against is the one
+# this file already fails toward everywhere else: a check that did not
+# actually run must never be mistaken for one that did.
+
 # How each step status prints in the live progress line. One definition rather
 # than one per call site: it was two, and the second was not updated when
 # `unrun` was added on 2026-09-07, so running a single workflow by name -- the
@@ -771,6 +795,25 @@ def execute(step: Step, timeout: int) -> None:
         step.reason = f"exit {done.returncode}"
 
 
+def run_steps(steps, timeout) -> None:
+    """Execute steps, printing the live progress line for each.
+
+    One definition, called by both the single-workflow path and the sweep,
+    because there were two and they had already drifted once: the note above
+    `STATUS_MARK` records the `KeyError: 'unrun'` that cost. The progress fix
+    below landed in the sweep first and reached the by-name path only because
+    running it turned up the old output -- the same defect, caught the same
+    way, in the same eleven lines.
+    """
+    for step in steps:
+        # Name the step BEFORE running it, and flush. Both halves are
+        # load-bearing; see the note above `STATUS_MARK`.
+        print(f"  {step.label} ... ", end="", flush=True)
+        execute(step, timeout)
+        print(f"[{STATUS_MARK[step.status]:6}] ({step.seconds:.1f}s)",
+              flush=True)
+
+
 def report(name, steps, uses_skipped, forced) -> int:
     ran = [s for s in steps if s.status in ("ok", "failed")]
     failed = [s for s in steps if s.status == "failed"]
@@ -935,11 +978,9 @@ def _run_selected(args, selected, held, absent=()) -> int:
     for name, workflow, allowed in selected:
         steps, uses_skipped = collect(workflow, only=allowed)
         print(f"\nRunning {name} locally "
-              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)")
-        for step in steps:
-            execute(step, args.timeout)
-            print(f"  [{STATUS_MARK[step.status]:6}] {step.label} "
-                  f"({step.seconds:.1f}s)")
+              f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
+              flush=True)
+        run_steps(steps, args.timeout)
         if report(name, steps, uses_skipped, False) != 0:
             failures.append(name)
 
@@ -1027,11 +1068,9 @@ def main(argv=None) -> int:
         return 0
 
     print(f"Running {name} locally "
-          f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)")
-    for step in steps:
-        execute(step, args.timeout)
-        print(f"  [{STATUS_MARK[step.status]:6}] {step.label} "
-              f"({step.seconds:.1f}s)")
+          f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
+          flush=True)
+    run_steps(steps, args.timeout)
 
     return report(name, steps, uses_skipped, args.force)
 

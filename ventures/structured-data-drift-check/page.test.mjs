@@ -75,3 +75,31 @@ test("docs page's own FAQPage JSON-LD matches its own visible text (dogfooding)"
   assert.equal(status, "ok", text);
   assert.deepEqual(report.errors, [], "docs page's own JSON-LD must parse cleanly");
 });
+
+const VS_PAGE = "vs-google-rich-results-test.html";
+
+test("index links to the vs-google-rich-results-test comparison page", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    new RegExp(`href="${VS_PAGE.replace(/\./g, "\\.")}"`),
+    "index must link the comparison page so crawlers can reach it",
+  );
+});
+
+test("vs-google-rich-results-test page links back to the tool and carries required clauses", async () => {
+  const page = await readFile(new URL(`./${VS_PAGE}`, import.meta.url), "utf8");
+  assert.match(page, /href="\.\/"/, "must link back to the tool");
+  assert.match(page, /no warranty/i, "missing the no-warranty clause");
+  assert.match(page, /github\.com\/sponsors\/Duncan-Haywood/, "missing the sponsor link");
+  assert.match(page, /not affiliated with, endorsed by, or sponsored by Google/i, "missing the non-affiliation disclaimer");
+});
+
+test("vs-google-rich-results-test page's own FAQPage JSON-LD matches its own visible text (dogfooding)", async () => {
+  const page = await readFile(new URL(`./${VS_PAGE}`, import.meta.url), "utf8");
+  const report = checkPage(page);
+  const { status, text } = summarize(report);
+  assert.ok(report.results.length > 0, "expected the vs page to carry checkable JSON-LD");
+  assert.equal(status, "ok", text);
+  assert.deepEqual(report.errors, [], "vs page's own JSON-LD must parse cleanly");
+});
