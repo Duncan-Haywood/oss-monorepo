@@ -58,6 +58,15 @@ test("index's own FAQPage JSON-LD matches its own visible text (dogfooding)", as
   assert.deepEqual(report.errors, [], "index page's own JSON-LD must parse cleanly");
 });
 
+test("index links one hop to the env-example-drift-check sibling", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    /href="\.\.\/env-example-drift-check\/"/,
+    'index must link ../env-example-drift-check/ so crawlers reach a related tool in one hop',
+  );
+});
+
 test("docs page's own FAQPage JSON-LD matches its own visible text (dogfooding)", async () => {
   const page = await readFile(new URL(`./${DOCS_PAGE}`, import.meta.url), "utf8");
   const report = checkPage(page);

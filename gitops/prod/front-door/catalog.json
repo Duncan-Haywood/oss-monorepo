@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 220,
-  "collection_total": 220,
+  "served_here": 221,
+  "collection_total": 221,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -38,7 +38,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 16
+      "tool_count": 17
     },
     {
       "id": "marketplace",
@@ -917,6 +917,14 @@
       "category": "Trade & contractor bids",
       "description": "Price an entry-door replacement from sidelights, transom, out-of-square openings, jamb rot, brickmold, storm door, and paint — not a published $1,200-installed steel special. See the walk-away number before you match a cheaper quote.",
       "pages": 3
+    },
+    {
+      "slug": "env-example-drift-check",
+      "name": ".env.example Drift Check — Does Your Example File Match the Code?",
+      "url": "https://marisstella.dev/tools/env-example-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "epoxy-garage-floor-bid-calculator",

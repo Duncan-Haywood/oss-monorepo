@@ -561,8 +561,19 @@ const CATEGORY_RULES = [
     // and `ios-privacy-manifest-check` are: one tool does not earn a whole
     // family pattern, and landing it here rather than the catch-all is also
     // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    //
+    // `env-example-drift-check` joined 2026-09-09. Same shape again -- a
+    // browser-local checker plus a matching CLI, run by a developer against
+    // an `.env.example` file and their own source code, reporting exactly
+    // which environment variables the code reads that the example file is
+    // missing (or declares but no longer reads) -- just for a repo's config
+    // contract instead of an npm/Actions/iOS/structured-data artifact. It
+    // cross-links `structured-data-drift-check` as Related (same "does the
+    // doc still match the code" question, different pair). Listed by exact
+    // slug rather than a new prefix, the same way `structured-data-drift-check`
+    // is: one tool does not earn a whole family pattern.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check)/.test(
         slug,
       ),
   },

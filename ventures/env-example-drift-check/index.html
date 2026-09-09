@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>.env.example Drift Check — Does Your Example File Match the Code?</title>
+  <meta name="description" content="Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Does your .env.example still match what the code actually reads?">
+  <meta property="og:description" content="Paste your .env.example and your source and get a deterministic list of variables the code reads that the example file is missing, and variables the example file declares that nothing reads anymore. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":".env.example Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Diffs an .env.example file's declared variable names against the environment-variable reads actually found in a repo's own source code (process.env, os.getenv, os.environ, ENV[], System.getenv), naming every variable the code reads that the example file is missing and every variable the example file declares that nothing reads anymore. Runs entirely in the browser or as a zero-dependency Node CLI usable as a CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a missing .env.example variable matter so much?","acceptedAnswer":{"@type":"Answer","text":"It is usually the very first command a new contributor or a CI runner executes after cloning: copy the example file to .env, then start the app. A variable the code reads but the example file never mentions means that first run crashes immediately, and it reads as \"this project is broken\" rather than as what it actually is, a doc that fell one pull request behind."}},{"@type":"Question","name":"Why would the example file and the code ever disagree?","acceptedAnswer":{"@type":"Answer","text":"A pull request adds a new process.env.FOO read (a new API key, a new feature flag) and nobody remembers to add FOO to .env.example in the same review. Nothing mechanical keeps the two in sync unless something checks -- the same reason lockfiles and changelogs drift, just with a sharper, more immediate failure the moment someone new clones the repo."}},{"@type":"Question","name":"Is this a secrets scanner?","acceptedAnswer":{"@type":"Answer","text":"No. It never reads or reports a value on either side, only variable names -- whether a name is declared in the example file and whether that same name is read anywhere in the scanned code. It cannot see, and does not want to see, what a real .env file (which this tool never asks for) actually contains."}},{"@type":"Question","name":"Is my code uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the text you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files -- no network call, ever."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.missing { background: #fde8e8; color: #7f1d1d; }
+    .pill.unused { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">.ENV.EXAMPLE DRIFT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Does your .env.example still match what the code actually reads?</h1>
+    <p>Paste your <code>.env.example</code> and your source code and see every environment variable the code reads (<code>process.env</code>, <code>os.getenv</code>/<code>os.environ</code>, <code>ENV[]</code>, <code>System.getenv</code>) that the example file never mentions — the failure a new contributor hits the moment they run <code>cp .env.example .env</code> and start the app — plus every variable the example file declares that nothing reads anymore.</p>
+    <p class="note">Nothing is uploaded. Both text boxes are parsed in this browser and never leave your device. This is a name diff, not a secrets scanner: it never reads or shows a value, only variable names.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your files</h2>
+    <div class="grid">
+      <div>
+        <label for="example-input">.env.example (or .env.sample)</label>
+        <textarea id="example-input" spellcheck="false" placeholder="DATABASE_URL=postgres://...&#10;API_KEY=&#10;# a comment&#10;PORT=3000"></textarea>
+      </div>
+      <div>
+        <label for="source-input">Source code that reads environment variables (paste one or more files, one after another)</label>
+        <textarea id="source-input" spellcheck="false" placeholder="const key = process.env.API_KEY;&#10;const port = process.env.PORT;&#10;const region = process.env.AWS_REGION;"></textarea>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with drift)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What drifted</h2>
+    <p id="summary"></p>
+    <table id="results-table" hidden>
+      <thead><tr><th>Variable</th><th>Status</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one file — and it can walk a whole source tree in one pass, skipping <code>node_modules</code>, <code>.git</code>, and similar:</p>
+    <pre class="cmd">node cli.mjs check --example .env.example src               # one directory, human-readable
+node cli.mjs check --example .env.example . --json             # whole tree, machine-readable
+node cli.mjs check --example .env.example src app.py           # a mix of directories and files
+node cli.mjs check --example .env.example src --strict          # also fail on unused declared vars</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only the local files/directories you name: no network call, ever. Exits 1 if any variable is read in code but missing from the example file, so it works as a PR gate on the same review that adds the read.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's scanned, per language</h2>
+    <table>
+      <thead><tr><th>Language</th><th>Patterns matched</th></tr></thead>
+      <tbody id="checked-languages-rows"></tbody>
+    </table>
+    <p class="note">Matched line by line, name only — the tool never reads or reports a value on either side. Shell scripts, YAML, and Docker Compose files are not scanned in v0; paste the application source that actually reads the variable instead.</p>
+    <p class="note">More: <a href="why-env-example-files-drift-from-the-code-that-reads-them.html">why example files drift from the code that reads them, and where to wire this into CI</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does a missing .env.example variable matter so much?</h3>
+    <p>It is usually the very first command a new contributor or a CI runner executes after cloning: copy the example file to <code>.env</code>, then start the app. A variable the code reads but the example file never mentions means that first run crashes immediately, and it reads as "this project is broken" rather than as what it actually is, a doc that fell one pull request behind.</p>
+    <h3>Why would the example file and the code ever disagree?</h3>
+    <p>A pull request adds a new <code>process.env.FOO</code> read (a new API key, a new feature flag) and nobody remembers to add <code>FOO</code> to <code>.env.example</code> in the same review. Nothing mechanical keeps the two in sync unless something checks -- the same reason lockfiles and changelogs drift, just with a sharper, more immediate failure the moment someone new clones the repo.</p>
+    <h3>Is this a secrets scanner?</h3>
+    <p>No. It never reads or reports a value on either side, only variable names -- whether a name is declared in the example file and whether that same name is read anywhere in the scanned code. It cannot see, and does not want to see, what a real <code>.env</code> file (which this tool never asks for) actually contains.</p>
+    <h3>Is my code uploaded anywhere?</h3>
+    <p>No. The browser page parses the text you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files -- no network call, ever.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security, legal, or engineering advice, and it does not replace a qualified professional or a real secrets scanner. It reports whether a variable name appears on both sides of a text diff — nothing more, and it is not a guarantee that your configuration is complete or safe. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass on the same repo: <a href="../structured-data-drift-check/">Structured Data Drift Check</a> asks the same "does the doc still match the code" question about a page's JSON-LD instead of an env file, with the same deterministic, no-upload shape.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseExampleFile, scanSource, diffEnv, summarize, CHECKED_LANGUAGES } from "./engine.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      exampleInput: $("#example-input"), sourceInput: $("#source-input"), status: $("#status"),
+      reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"),
+      checkedLanguagesRows: $("#checked-languages-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    els.checkedLanguagesRows.innerHTML = CHECKED_LANGUAGES.map((l) => `<tr>
+      <td>${escapeHtml(l.language)}</td>
+      <td><code>${escapeHtml(l.examples)}</code></td>
+    </tr>`).join("");
+
+    function renderReport() {
+      const exampleText = els.exampleInput.value;
+      const sourceText = els.sourceInput.value;
+      if (!exampleText.trim() || !sourceText.trim()) {
+        els.status.innerHTML = `<span class="error">Paste both your .env.example and your source code first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+
+      const declared = parseExampleFile(exampleText);
+      const referenced = scanSource(sourceText, "pasted source");
+      const report = diffEnv({ declared, referenced });
+      const { status, text } = summarize(report);
+      els.summary.innerHTML = status === "ok"
+        ? `<span class="ok">${escapeHtml(text)}</span>`
+        : `<span class="changed">${escapeHtml(text)}</span>`;
+
+      const rows = [
+        ...report.missing.map((m) => ({ name: m.name, kind: "missing", detail: `read at line ${m.occurrences[0]?.line ?? "?"}${m.occurrences.length > 1 ? ` (+${m.occurrences.length - 1} more)` : ""}` })),
+        ...report.unused.map((name) => ({ name, kind: "unused", detail: "declared, never read" })),
+      ];
+      els.table.hidden = rows.length === 0;
+      els.rows.innerHTML = rows.map((r) => `<tr>
+        <td><code>${escapeHtml(r.name)}</code></td>
+        <td><span class="pill ${r.kind}">${r.kind}</span></td>
+        <td>${escapeHtml(r.detail)}</td>
+      </tr>`).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    const EXAMPLE_ENV = `DATABASE_URL=postgres://localhost/app
+API_KEY=
+# used by the legacy importer, kept for now
+LEGACY_S3_BUCKET=
+PORT=3000`;
+    const EXAMPLE_SOURCE = `const db = process.env.DATABASE_URL;
+const key = process.env.API_KEY;
+const port = process.env.PORT || 3000;
+const region = process.env["AWS_REGION"];`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.exampleInput.value = EXAMPLE_ENV;
+      els.sourceInput.value = EXAMPLE_SOURCE;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.exampleInput.value = "";
+      els.sourceInput.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

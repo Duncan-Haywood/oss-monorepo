@@ -8351,3 +8351,62 @@ ventures:
       (never crawls or fetches anything), uploads nothing, and the page's
       own footer and FAQ say plainly that it is not a Search Console
       substitute or a ranking guarantee.
+
+  - slug: env-example-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a variable name appears
+      in an .env.example file and whether that same name is read
+      somewhere in scanned source code is decided by parsing plain text
+      and comparing two sets of names — a factual, deterministic
+      comparison, not a model judgment, and it never reads or reports a
+      value on either side.
+    basis: >-
+      Screened 2026-09-09 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free CLI + browser checker, not a 229th
+      <trade>-bid-calculator, scored on this file's six-dimension rubric
+      to keep coverage complete for score_ventures.py --check and
+      portfolio/router/test_allocate.py. duplicate_check.py scored the
+      closest existing venture (ios-privacy-manifest-check) at 0.13, well
+      below the 0.45 flag bar; no existing venture reads
+      process.env/os.getenv/ENV[]/System.getenv call sites or an
+      .env.example file.
+      Autonomous ops 10 / gross margin 10: the browser page parses only
+      text pasted into it and the CLI reads only local files it is
+      pointed at, so serving one more user costs a static file and needs
+      no human review of any output.
+      Distribution 6, level with structured-data-drift-check and
+      npm-lifecycle-script-check: a missing .env.example variable is one
+      of the most common README-vs-reality gaps in open source, and one
+      of the most visible, since it fails the very first command a new
+      contributor or a CI runner runs after cloning rather than some
+      rarely-exercised path. Searchable channels with real, recurring
+      thread volume: r/node, r/webdev, r/opensource, and Stack Overflow's
+      own "process.env.X is undefined" questions, most of which trace
+      back to exactly this gap. dotenv-linter and similar tools check an
+      .env file's own internal formatting, not this pair (declared names
+      vs. actual reads across languages), which is the wedge.
+      Time to revenue 5, defensibility 3: same level as the portfolio's
+      other checker ventures — free, donation-only, easy to reimplement,
+      but cheap enough to give away that being copied costs nothing.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive — it compares an example file's
+      declared variable names against the names actually read in scanned
+      source and reports exactly which ones are missing or stale, never
+      a value on either side and never a claim that a configuration is
+      complete, safe, or secure. Makes no network call of any kind, and
+      the page's own footer and FAQ state plainly that it is not a
+      secrets scanner.

@@ -20279,3 +20279,95 @@ entries:
         portfolio/usage/validate_usage.py` (clean); `python3 -m pytest
         gitops/tests -q` (490 passed, 25 skipped).
     mrr_end: 0
+  - venture: env-example-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/env-example-drift-check`, a
+        free, zero-dependency, zero-network CLI and browser tool that diffs
+        a repo's `.env.example` (or `.env.sample`) against the environment
+        variables its own source code actually reads (`process.env.X` in
+        JS/TS, `os.getenv`/`os.environ` in Python, `ENV[]` in Ruby,
+        `System.getenv` in Java) -- naming every variable the code reads
+        that the example file never mentions (the failure a new
+        contributor's `cp .env.example .env` hits immediately after
+        cloning) and every variable the example file declares that nothing
+        reads anymore. A checker/CLI archetype, joining
+        `structured-data-drift-check` and its siblings, not another
+        `<trade>-bid-calculator` -- per `pipeline/README.md`'s 2026-09-07
+        note that the calculator shape has had 141+ tries with zero
+        recorded visitors between them.
+      - >-
+        `duplicate_check.py` scored nothing >= 0.13 against any existing
+        venture, screened-out row, ai-first-markets idea, or pipeline
+        candidate (closest: `ios-privacy-manifest-check` at 0.13, sharing
+        only the "deterministic diff, no network call" shape). A hand grep
+        of every `VENTURE.yaml` for "env" first turned up only two
+        unrelated hits (the word "environment" in a sentence, not an
+        `.env` file) before running the tool.
+      - >-
+        Named channel: a missing `.env.example` variable is one of the
+        most common README-vs-reality gaps in open source, and one of the
+        most visible -- it fails the very first command a new contributor
+        or a CI runner executes after cloning, not some rarely-exercised
+        path. Searchable channels with real, recurring thread volume:
+        r/node, r/webdev, r/opensource, and Stack Overflow's own
+        "process.env.X is undefined" / `KeyError` questions, most of which
+        trace back to exactly this gap. `dotenv-linter` and similar tools
+        check an `.env` file's own internal formatting, not this pair
+        (declared names vs. actual reads across four languages), which is
+        the wedge.
+      - >-
+        Full registration in this PR:
+        `.github/workflows/env-example-drift-check-ci.yml`,
+        `venture-scores.yaml` entry (gates pass, composite 5.833, same
+        rubric as `structured-data-drift-check`), `platform/ci/publish-surface.yaml`
+        registration, `platform/pages/launched.json` entry, added to the
+        `ci` category's slug list in `platform/pages/build.mjs` (would
+        otherwise have landed in the catch-all and pushed it from 5 to 6,
+        past `build.test.mjs`'s bound of 5), cross-linked with
+        `structured-data-drift-check` in both directions (closes this
+        venture's own crawlable-orphan status and, per
+        `platform/pages/siblings-budget.json`, lowers the fleet-wide
+        orphan ratchet from 31 to 30 in the same commit rather than
+        shipping the new tool as an orphan first), `node
+        platform/marketing/regen.mjs` (mirrored-tool count bumped
+        220->221 across `infra/OWNER_CHECKLIST.md`,
+        `gitops/ci/README.md` (via `sync_readme_counts.py`),
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        (both occurrences), and `gitops/tests/test_manifests.py`, matching
+        the precedent this exact registration checklist already
+        documents).
+      - >-
+        Verification: `node --test engine.test.mjs cli.test.mjs page.test.mjs`
+        in the venture (41/41 passing, including a dogfooding assertion
+        that the page's own worked example demonstrates real drift through
+        this venture's own engine, and CLI tests against a real temporary
+        filesystem proving `node_modules`/`.git` are skipped by the
+        directory walk); the CLI run manually against a scratch repo and
+        confirmed to report the missing variable at the correct file:line;
+        `node platform/pages/clauses.mjs env-example-drift-check` (clean);
+        `node platform/pages/siblings.mjs --check` (30/30, within the
+        lowered budget); `python3 portfolio/scoring/score_ventures.py
+        --check` (230/230 consistent); `python3 portfolio/router/validate.py`
+        (229/229 valid); `python3 platform/ci/checklist_coverage.py`;
+        `python3 -m pytest gitops/tests -q` (490 passed, 25 skipped, after
+        fixing the mirrored-tool-count drift this venture's own addition
+        caused); `python3 -m unittest` across every `platform/ci` and
+        `platform/ci/agent_review` module (all green, including
+        `test_validate_workflows` and `test_publish_surface`, which
+        initially failed until the new CI workflow and its
+        `publish-surface.yaml` row were added); `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` (1169/1169,
+        after two rounds of fixes: a FAQPage JSON-LD/visible-text
+        divergence caused by an em dash vs. `--` in two spots, and a stale
+        committed mirror from re-running `regen.mjs` before those fixes
+        landed); `node build.mjs --out=dist && node check.mjs dist` (221
+        products, no dead links); `python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q` (431 passed); `node --test
+        platform/proposal/*.test.mjs platform/privacy/*.test.mjs
+        platform/webcheck/*.test.mjs` (170 passed, 2 documented shallow-clone
+        skips).
+    mrr_end: 0
