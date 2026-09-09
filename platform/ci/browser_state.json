@@ -283,6 +283,22 @@
     },
     {
       "checks": [
+        "highlight",
+        "journey"
+      ],
+      "commit": "9acf1ff1319de53c5fd2b0b7896c15c3b096e673",
+      "measured": "2026-09-09",
+      "pages": 876,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "87242bf37ae718404c186750158b7c576db11072",
+        "platform/pages": "62656339605d059d84ca6d8cb035f139245a8c7e",
+        "ventures": "22727c0e87cf453173775fedf0aebd6015d555e8"
+      }
+    },
+    {
+      "checks": [
         "contrast",
         "presets",
         "roundtrip",

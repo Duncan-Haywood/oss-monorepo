@@ -20927,3 +20927,80 @@ entries:
         between "my diff is sound" and "the checkout is green", both
         green here.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed the anchor `browser_state.py` records a reading against, which
+        was quietly guaranteeing the 25-minute whole-catalogue re-run the tool
+        exists to prevent. A reading recorded the commit its run was taken at,
+        which for the PR carrying the reading is a branch commit -- and this
+        repository squash-merges, so that sha ceases to exist the moment the
+        PR lands. Measured 2026-09-09: `0c9b33fc`, recorded for `highlight`
+        and `journey` by PR #4344, squash-merged as `ca713361`, and
+        unreachable in a COMPLETE clone (`git cat-file -e` fails after `git
+        fetch --unshallow`; 1 of 16 distinct recorded commits). Both checks
+        read `unknown` and the report demanded a full sweep to re-establish a
+        state that had not changed. Every reading this repository takes is
+        recorded on a PR branch, so every one of them had this fate.
+      - >-
+        A reading now also records the tree object id of each served-surface
+        path (`ventures`, `platform/pages`, `platform/marketing`). A tree oid
+        is content-addressed and a squash-merge preserves the tree it
+        squashes, so the oids are identical on both sides of the merge that
+        destroys the sha. The commit is kept for the human-readable report;
+        the oids are what the verdict falls back to. Three refusals kept
+        deliberately: a reading with no anchor (every pre-existing one) stays
+        `unknown` rather than laundering into a pass, an unanswerable tree
+        diff is `unknown` rather than "nothing moved", and only a recorded
+        anchor that matches yields `current`.
+      - >-
+        Also corrected a misdiagnosis that cost this session real time. The
+        report said "recorded commit unreachable (shallow clone?)" for every
+        `unknown`; on a complete clone that sends the reader at `git fetch
+        --unshallow`, which cannot bring back a commit no history contains.
+        Verified by doing exactly that and finding `0c9b33fc` as unreachable
+        as before. `_unknown_reason` now makes the same shallow-vs-complete
+        discrimination `platform/webcheck/history-blob.mjs` already makes.
+      - >-
+        Verified: 53 unittest cases in `test_browser_state.py` (17 new, up
+        from 36); two mutations confirm the new tests bite -- removing the
+        surface-tree fallback fails 3, removing the recording fails 1. End to
+        end against real repository data: the reading recorded this session,
+        with its commit replaced by a nonexistent sha, reads `current` via the
+        anchor, while the same reading stripped of its anchor reads `unknown`.
+        `python3 platform/ci/browser_checks.py --record --checks
+        highlight,journey` (full catalogue, 876 pages, 0 failed checks, 0
+        page/console errors, 0 off-origin requests, 0px overflow at 375px, all
+        874 sitemap URLs resolve) -- clearing the two stale checks honestly
+        rather than by rewriting the dead sha, and producing the first reading
+        that carries the durable anchor. `browser_state.py` now reports all 7
+        checks current. All 21 `platform/ci` unittest modules OK;
+        `checklist_coverage.py` clean; `pytest gitops/tests -q` 490 passed, 25
+        skipped; the portfolio ledger/scoring/router/usage/pipeline/infra
+        suite 431 passed; `run_workflow_locally.py --tree` on `main` 8/9
+        (only the runner-gated Pages deploy not run) and `--for-changes`
+        23/26 (the rest need runners or secrets).
+      - >-
+        CI could not verify this: Actions is starved. Every `Portfolio
+        validate` run on `main` today completed in 3-5s with `failure`
+        (34405877586, 34404758700, 34403434900, 34402662109, 34402249586),
+        the documented `runner_id: 0` signature. Merged on the local
+        verification above per CLAUDE.md's starvation policy.
+      - >-
+        Not done, and blocked rather than skipped: the account owner's
+        standing direction names deploying marketing materials to the Hetzner
+        VMs and running the Codex CLI there for dev work. Both remain blocked
+        on the single existing owner ask `hetzner-ssh-key-is-a-public-key`
+        (#3184) -- no second ask added. Re-measured from this session rather
+        than inherited: `:22` and `:6443` time out to both boxes, and the
+        `:80`/`:443` TCP accepts are the agent egress proxy, not the hosts --
+        an HTTP request returns 403 with `x-deny-reason: host_not_allowed`,
+        which is the proxy refusing, so this session can measure nothing
+        about those origins. `platform/ci/public_surface.py` already
+        classifies that header correctly (`BLOCKED_DENY_REASONS`), so no
+        change was needed there. The Codex host-mode install path
+        (`gitops/agents/host/`, `bootstrap/scripts/install-codex-host.sh`)
+        is already built and tested and waits only on the key rotation.
+    mrr_end: 0

@@ -362,5 +362,179 @@ class RefusalTest(unittest.TestCase):
         self.assertIsNone(browser_checks._count_html(None))
 
 
+class SquashMergedAnchorTest(unittest.TestCase):
+    """A reading must survive the squash-merge of the PR that recorded it.
+
+    Measured 2026-09-09. `browser_state.json` carried `0c9b33fc` for
+    `highlight` and `journey`, recorded on PR #4344's branch. The PR was
+    squash-merged as `ca713361`, which destroys the branch commit, so both
+    checks read `unknown` in a *complete* clone and the tool demanded a
+    25-minute whole-catalogue re-run to re-establish something that had not
+    changed. Every reading recorded on a PR branch has this fate, which is
+    every reading this repository takes.
+
+    The fix anchors a reading to the served surface's tree oids as well as
+    its commit. A squash-merge preserves the tree it squashes, so the oids
+    are identical on both sides of the merge that destroys the sha.
+    """
+
+    TREES = {
+        "ventures": "1" * 40,
+        "platform/pages": "2" * 40,
+        "platform/marketing": "3" * 40,
+    }
+
+    def _status(self, readings, *, head_trees, moved=frozenset()):
+        """Commit-based answers are all unanswerable, as after a squash-merge."""
+        with mock.patch.object(browser_state, "head_commit", return_value="b" * 40), \
+             mock.patch.object(browser_state, "shared_changed", return_value=None), \
+             mock.patch.object(browser_state, "changed_slugs", return_value=None), \
+             mock.patch.object(browser_state, "surface_trees",
+                               return_value=head_trees), \
+             mock.patch.object(browser_state, "_object_exists", return_value=True), \
+             mock.patch.object(browser_state, "_changed_slugs_trees",
+                               return_value=None if moved is None else set(moved)):
+            return browser_state.status(readings)
+
+    def _reading(self, check="contrast", trees=None):
+        return {"commit": "a" * 40, "checks": [check],
+                "surface": dict(trees if trees is not None else self.TREES)}
+
+    def test_an_unreachable_commit_is_rescued_by_an_identical_surface(self):
+        st = self._status([self._reading()], head_trees=dict(self.TREES))
+        self.assertEqual(st["contrast"]["verdict"], "current")
+
+    def test_a_shared_tree_change_is_stale_not_current(self):
+        head = dict(self.TREES, **{"platform/pages": "9" * 40})
+        st = self._status([self._reading()], head_trees=head)
+        self.assertEqual(st["contrast"]["verdict"], "stale")
+        self.assertEqual(st["contrast"]["pending"], [])
+
+    def test_a_venture_tree_change_is_stale_and_names_the_slug(self):
+        head = dict(self.TREES, ventures="9" * 40)
+        st = self._status([self._reading()], head_trees=head, moved={"a-venture"})
+        self.assertEqual(st["contrast"]["verdict"], "stale")
+        self.assertEqual(st["contrast"]["pending"], ["a-venture"])
+
+    def test_a_reading_with_no_anchor_stays_unknown_never_current(self):
+        # The pre-fix readings. Absence must not launder into a pass.
+        st = self._status([{"commit": "a" * 40, "checks": ["contrast"]}],
+                          head_trees=dict(self.TREES))
+        self.assertEqual(st["contrast"]["verdict"], "unknown")
+
+    def test_an_unanswerable_venture_tree_diff_is_unknown_never_current(self):
+        head = dict(self.TREES, ventures="9" * 40)
+        st = self._status([self._reading()], head_trees=head, moved=None)
+        self.assertEqual(st["contrast"]["verdict"], "unknown")
+
+    def test_an_absent_head_surface_is_unknown_never_current(self):
+        st = self._status([self._reading()], head_trees=None)
+        self.assertEqual(st["contrast"]["verdict"], "unknown")
+
+
+class SurfaceAnchorRecordingTest(unittest.TestCase):
+    """The anchor is only worth anything if it is actually written down."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        patcher = mock.patch.object(
+            browser_state, "STATE", os.path.join(self.tmp.name, "browser_state.json"))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_a_reading_records_the_surface_tree_oids(self):
+        trees = {"ventures": "1" * 40, "platform/pages": "2" * 40,
+                 "platform/marketing": "3" * 40}
+        with mock.patch.object(browser_state, "surface_trees", return_value=trees), \
+             mock.patch.object(browser_state, "head_commit", return_value="a" * 40):
+            browser_state.record(["contrast"], result="ok")
+        self.assertEqual(browser_state.load()["readings"][0]["surface"], trees)
+
+    def test_a_reading_is_still_written_when_git_cannot_answer(self):
+        # No git, or a path that does not resolve. The reading degrades to the
+        # old commit-only shape rather than being lost.
+        with mock.patch.object(browser_state, "surface_trees", return_value=None), \
+             mock.patch.object(browser_state, "head_commit", return_value="a" * 40):
+            browser_state.record(["contrast"], result="ok")
+        reading = browser_state.load()["readings"][0]
+        self.assertNotIn("surface", reading)
+        self.assertEqual(reading["commit"], "a" * 40)
+
+    def test_surface_trees_reads_every_served_surface_path(self):
+        seen = []
+
+        def fake_git(*args):
+            seen.append(args)
+            return 0, "f" * 40
+
+        with mock.patch.object(browser_state, "_git", side_effect=fake_git):
+            trees = browser_state.surface_trees()
+        self.assertEqual(sorted(trees), sorted(browser_state.SURFACE_PATHS))
+        self.assertEqual([a[1] for a in seen],
+                         [f"HEAD:{p}" for p in browser_state.SURFACE_PATHS])
+
+    def test_surface_trees_is_none_when_a_path_does_not_resolve(self):
+        with mock.patch.object(browser_state, "_git", return_value=(128, "")):
+            self.assertIsNone(browser_state.surface_trees())
+
+
+class UnknownReasonTest(unittest.TestCase):
+    """An `unknown` must name the remedy that can actually work.
+
+    The single string this replaced said "shallow clone?" for every case.
+    On a complete clone that sends the reader at `git fetch --unshallow`,
+    which cannot bring back a commit no history contains — measured
+    2026-09-09, when unshallowing left `0c9b33fc` exactly as unreachable.
+    """
+
+    def test_a_shallow_clone_is_named_as_such_with_the_command(self):
+        with mock.patch.object(browser_state, "clone_is_shallow", return_value=True):
+            reason = browser_state._unknown_reason({"commit": "a" * 40})
+        self.assertIn("shallow", reason)
+        self.assertIn("--unshallow", reason)
+
+    def test_a_complete_clone_says_squash_merged_and_not_shallow(self):
+        with mock.patch.object(browser_state, "clone_is_shallow", return_value=False):
+            reason = browser_state._unknown_reason({"commit": "a" * 40})
+        self.assertIn("squash-merged", reason)
+        self.assertNotIn("unshallow", reason)
+
+    def test_an_anchored_reading_that_still_fails_says_so_distinctly(self):
+        with mock.patch.object(browser_state, "clone_is_shallow", return_value=False):
+            reason = browser_state._unknown_reason(
+                {"commit": "a" * 40, "surface": {"ventures": "1" * 40}})
+        self.assertIn("recorded surface", reason)
+
+
+class ChangedSlugsTreesTest(unittest.TestCase):
+    """Tree-diff paths are relative to `ventures/`, so the slug is segment 0."""
+
+    def _diff(self, before, after, out, exists=True):
+        with mock.patch.object(browser_state, "_object_exists", return_value=exists), \
+             mock.patch.object(browser_state, "_git", return_value=(0, out)):
+            return browser_state._changed_slugs_trees(
+                {"ventures": before}, {"ventures": after})
+
+    def test_extracts_the_slug_from_a_tree_relative_path(self):
+        moved = self._diff("1" * 40, "2" * 40, "a-venture/index.html\nb-venture/calc.mjs")
+        self.assertEqual(moved, {"a-venture", "b-venture"})
+
+    def test_an_identical_tree_means_nothing_moved(self):
+        oid = "1" * 40
+        self.assertEqual(
+            browser_state._changed_slugs_trees({"ventures": oid}, {"ventures": oid}),
+            set())
+
+    def test_a_missing_recorded_tree_is_unanswerable_not_empty(self):
+        # Absent must never read as "nothing moved" — that is the direction
+        # the whole "nothing is served" episode failed in.
+        self.assertIsNone(
+            self._diff("1" * 40, "2" * 40, "a-venture/index.html", exists=False))
+
+    def test_a_path_with_no_file_segment_is_ignored(self):
+        self.assertEqual(self._diff("1" * 40, "2" * 40, "loose-file"), set())
+
+
 if __name__ == "__main__":
     unittest.main()
