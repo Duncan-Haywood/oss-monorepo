@@ -572,8 +572,22 @@ const CATEGORY_RULES = [
     // doc still match the code" question, different pair). Listed by exact
     // slug rather than a new prefix, the same way `structured-data-drift-check`
     // is: one tool does not earn a whole family pattern.
+    //
+    // `package-exports-drift-check` joined 2026-09-09, the same day. Same
+    // shape again -- a browser-local checker plus a matching CLI, run by a
+    // maintainer against their own `package.json` and a file listing they
+    // already have, reporting exactly which literal target in the `exports`
+    // map points at a file that does not exist -- just for a package's
+    // publish contract instead of an env file, a workflow, an iOS manifest,
+    // or a page's own structured data. It cross-links both
+    // `env-example-drift-check` and `structured-data-drift-check` as
+    // Related (same "does the doc still match the code/build" question,
+    // different pair). Listed by exact slug rather than a new prefix, the
+    // same way its two siblings are: one tool does not earn a whole family
+    // pattern, and landing it here rather than the catch-all is also what
+    // keeps that catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check)/.test(
         slug,
       ),
   },

@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 221,
-  "collection_total": 221,
+  "served_here": 222,
+  "collection_total": 222,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -38,7 +38,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 17
+      "tool_count": 18
     },
     {
       "id": "marketplace",
@@ -1324,6 +1324,14 @@
       "url": "https://marisstella.dev/tools/npm-lifecycle-script-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "package-exports-drift-check",
+      "name": "package.json Exports Drift Check — Does \"exports\" Point at Files That Exist?",
+      "url": "https://marisstella.dev/tools/package-exports-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your package.json and a listing of the files you actually publish and see every literal target in the \"exports\" map that points at a file that doesn't exist -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module right after npm install. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 2
     },
     {
