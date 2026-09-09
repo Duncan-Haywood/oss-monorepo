@@ -438,6 +438,24 @@ def report(st: dict) -> str:
                      f"{', '.join(slugs)}")
         lines.append("  A `--only` run over those is recorded as a scoped reading and")
         lines.append("  tops the full one up. It can never stand in for a full run.")
+        # Measured 2026-09-09: the scoped command above is built from which
+        # ventures MOVED, never from which of them a given check has anything
+        # to say about. `ada-title-ii-evidence` moved and does not print the
+        # sentence `highlight` verifies, so the suggested command exited 2 with
+        # "nothing to verify" and correctly declined to record -- leaving the
+        # check exactly as stale and the run spent.
+        #
+        # The scope predicate lives in the checks themselves (`highlight.mjs`
+        # reads HIGHLIGHT_PROMISE from `invalid.mjs`), and restating a JS rule
+        # in Python here is the mistake CLAUDE.md records twice as having cost
+        # live product. So this says what the outcome means instead of
+        # predicting it -- the check reports its own scope, which is the only
+        # copy of that rule.
+        lines.append("  If it exits 2 with \"nothing to verify\", that venture is")
+        lines.append("  out of scope for that check -- not an error. Clear it with the")
+        lines.append("  full run instead:")
+        lines.append(f"    python3 platform/ci/browser_checks.py --record "
+                     f"--checks {','.join(sorted(scoped))}")
     if full:
         why = []
         for c in full:
