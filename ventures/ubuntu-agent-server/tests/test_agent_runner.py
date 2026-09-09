@@ -331,6 +331,70 @@ def test_self_direct_skips_when_cooldown_not_elapsed(agent_runner, tmp_path, mon
     assert called == []
 
 
+def test_self_direct_defers_to_github_when_local_state_is_missing(agent_runner, tmp_path, monkeypatch, fake_log):
+    """Regression: local state says "ready" (e.g. lost across a reboot or a
+    redeploy that reset AGENTS_ROOT) but GitHub's own issue history shows a
+    self-directed issue was filed minutes ago. Must not file a second one —
+    this is the exact production failure (a repo self-directing on every
+    ~10-minute poll instead of once per 24h cooldown) this check exists to
+    catch even when the local file can't be trusted.
+    """
+    monkeypatch.setattr(agent_runner, "STATE_DIR", tmp_path)
+    assert agent_runner.self_directed_ready("owner/repo", 24) is True  # no local state at all
+
+    recent = (agent_runner.datetime.now(agent_runner.timezone.utc) - agent_runner.timedelta(minutes=10)).isoformat()
+
+    class ListResult:
+        returncode = 0
+        stdout = json.dumps([{"createdAt": recent}])
+        stderr = ""
+
+    calls = []
+
+    def fake_gh(*args, **kwargs):
+        calls.append(args)
+        return ListResult()
+
+    monkeypatch.setattr(agent_runner, "gh", fake_gh)
+
+    cfg = {"self_directed_cooldown_hours": 24}
+    result = agent_runner.maybe_self_direct(cfg, "owner/repo", "agent", fake_log)
+
+    assert result == []
+    # Only the read-only history check ran — no `issue create` call.
+    assert len(calls) == 1
+    assert "create" not in calls[0]
+    # Local state is resynced to match GitHub, so the *next* poll can skip
+    # straight to the cheap local-only check instead of hitting the API again.
+    assert agent_runner.self_directed_ready("owner/repo", 24) is False
+
+
+def test_self_direct_proceeds_when_github_history_also_clear(agent_runner, tmp_path, monkeypatch, fake_log):
+    monkeypatch.setattr(agent_runner, "STATE_DIR", tmp_path)
+
+    class ListResult:
+        returncode = 0
+        stdout = json.dumps([])
+        stderr = ""
+
+    class CreateResult:
+        returncode = 0
+        stdout = "https://github.com/owner/repo/issues/99\n"
+        stderr = ""
+
+    def fake_gh(*args, **kwargs):
+        if args and args[:2] == ("issue", "list"):
+            return ListResult()
+        return CreateResult()
+
+    monkeypatch.setattr(agent_runner, "gh", fake_gh)
+
+    cfg = {"self_directed_cooldown_hours": 24}
+    result = agent_runner.maybe_self_direct(cfg, "owner/repo", "agent", fake_log)
+
+    assert [i["number"] for i in result] == [99]
+
+
 # --- model_env_for -----------------------------------------------------
 
 def test_model_env_for_claude_low(agent_runner):

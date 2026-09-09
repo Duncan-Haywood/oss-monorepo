@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 219 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 220 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-09T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name: pin. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Structured Data Drift Check — Does Your JSON-LD Match the Page?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/structured-data-drift-check/"/>
+    <id>tag:marisstella.dev,2026:tool/structured-data-drift-check</id>
+    <published>2026-09-09T00:00:00Z</published>
+    <updated>2026-09-09T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a page&#39;s HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page&#39;s own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Certified Payroll Calculator — Davis-Bacon Overtime &amp; Fringe Compliance</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-06T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free calculator for independent ice dam removal contractors: price a job from linear feet of roof edge, crew size, an emergency/storm premium, and a minimum service charge, then check whether your per-foot rate card actually covers this job&#39;s largely fixed cost before a short call quietly loses money.</summary>
-  </entry>
-  <entry>
-    <title>Locksmith Bid Calculator — Price a Service Call</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/locksmith-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/locksmith-bid-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free calculator for mobile locksmiths: price one service call — lockout, rekey, lock install, or fob programming — with the after-hours premium and minimum service charge built in, then check whether today&#39;s calls hit your income goal.</summary>
   </entry>
 </feed>

@@ -20216,3 +20216,66 @@ entries:
         publish_surface.py --write` then `--check` (workflow registered);
         `node platform/marketing/regen.mjs`.
     mrr_end: 0
+  - venture: structured-data-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/structured-data-drift-check`, a
+        free, zero-dependency, zero-network CLI and browser tool that checks
+        whether a page's JSON-LD structured data (FAQPage, HowTo,
+        Article/BlogPosting, Product, LocalBusiness/Organization, Review)
+        actually appears, word for word, in that same page's own visible
+        rendered text -- catching stale or fabricated structured data before
+        it costs rich-result eligibility, a Search Console manual action, or
+        misleads an AI answer engine reading the JSON-LD as ground truth. A
+        checker/CLI archetype, not the 142nd `<trade>-bid-calculator`, per
+        `pipeline/README.md`'s 2026-09-07 note that the calculator shape has
+        had 141 tries with zero recorded visitors between them.
+      - >-
+        Not invented from nothing: the exact extraction-and-divergence
+        technique already exists inside this repo for one schema type only
+        (`platform/pages/faq-visible.test.mjs` + `entities.mjs`, guarding
+        this portfolio's own FAQPage pages) -- and CLAUDE.md records that the
+        defect class this generalizes to catch (JSON-LD whose claimed content
+        doesn't match visible copy) already reached `main` and cost live
+        product once (the #3256-3258 incident). This venture generalizes that
+        internal guard into a public tool covering six schema types instead
+        of one. `duplicate_check.py` scored nothing >= 0.09 against any
+        existing venture, screened-out row, ai-first-markets idea, or
+        pipeline candidate.
+      - >-
+        Named channel: Google Search Central documents FAQPage and HowTo
+        specifically as requiring visible-on-page content (a sourced,
+        verifiable requirement, not a guess), and JSON-LD/copy drift is a
+        known recurring maintenance bug in static-site and SSG workflows
+        (Next.js/Astro/Eleventy/Hugo) where structured data is hand-authored
+        separately from visible copy -- r/TechSEO, r/webdev, dev.to, and
+        Hacker News "Show HN" are the near-term channel; the tool is a local
+        HTML-file/CI checker (no URL fetch), matching this portfolio's
+        existing no-network-call checker pattern.
+      - >-
+        Full registration in this PR: `.github/workflows/structured-data-drift-check-ci.yml`,
+        `venture-scores.yaml` entry, `platform/ci/publish-surface.yaml`
+        registration, `platform/pages/launched.json` entry,
+        `node platform/marketing/regen.mjs` (mirrored-tool count bumped
+        218->219 across `infra/OWNER_CHECKLIST.md`, `gitops/ci/README.md`,
+        `gitops/prod/usage/aggregate.py`, and `gitops/tests/test_manifests.py`,
+        matching the precedent `security-deposit-return-calculator` set for
+        this exact registration checklist).
+      - >-
+        Verification: `node --test engine.test.mjs cli.test.mjs page.test.mjs`
+        in the venture (44/44 passing, including two dogfooding assertions
+        that the tool's own pages pass its own check); `node
+        platform/pages/clauses.mjs structured-data-drift-check` (clean);
+        `python3 platform/ci/check_no_payment_code.py` (clean); `node
+        platform/pages/siblings.mjs --check` (31/31, within committed
+        budget); `python3 portfolio/scoring/score_ventures.py --check`
+        (228/228 consistent); `python3 platform/ci/publish_surface.py
+        --check`; `python3 portfolio/pipeline/validate_doc_consistency.py`
+        and `validate_candidates.py` (unaffected, still consistent);
+        `python3 platform/ci/checklist_coverage.py`, `python3
+        portfolio/router/validate.py` (227/227 valid), `python3
+        portfolio/usage/validate_usage.py` (clean); `python3 -m pytest
+        gitops/tests -q` (490 passed, 25 skipped).
+    mrr_end: 0
