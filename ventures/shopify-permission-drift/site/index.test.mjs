@@ -31,3 +31,7 @@ test("primary actions exist for compare, example, export, and ticket copy", () =
   assert.match(html, /id="after"/);
   assert.match(html, /href="\.\/capture.html"/);
 });
+
+test("links to the CRA evidence desk", () => {
+  assert.match(html, /href="\.\.\/cra-evidence-desk\/"/, "the sibling-tool link is missing");
+});
