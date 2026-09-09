@@ -1212,7 +1212,7 @@
       "url": "https://marisstella.dev/tools/license-drift-check/",
       "category": "CI checks & developer gates",
       "description": "Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "locksmith-bid-calculator",
