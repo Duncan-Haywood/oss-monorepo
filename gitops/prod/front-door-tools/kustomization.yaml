@@ -35,13 +35,13 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 136 files, 555114 bytes
 #   portfolio-front-tools-1: 111 files, 555398 bytes
-#   portfolio-front-tools-2: 148 files, 556689 bytes
-#   portfolio-front-tools-3: 143 files, 549149 bytes
+#   portfolio-front-tools-2: 147 files, 553696 bytes
+#   portfolio-front-tools-3: 144 files, 552625 bytes
 #   portfolio-front-tools-4: 120 files, 552170 bytes
-#   portfolio-front-tools-5: 132 files, 545025 bytes
+#   portfolio-front-tools-5: 132 files, 546051 bytes
 #   portfolio-front-tools-6: 122 files, 553912 bytes
-#   portfolio-front-tools-7: 109 files, 555576 bytes
-#   portfolio-front-tools-8: 122 files, 552728 bytes
+#   portfolio-front-tools-7: 109 files, 555717 bytes
+#   portfolio-front-tools-8: 122 files, 553561 bytes
 #   portfolio-front-tools-9: 120 files, 554198 bytes
 #   portfolio-front-tools-10: 99 files, 549618 bytes
 #   portfolio-front-tools-11: 83 files, 411208 bytes
@@ -472,12 +472,12 @@ configMapGenerator:
       - notary-trip-quote__index.html.gz=notary-trip-quote__index.html.gz
       - notary-trip-quote__share.mjs.gz=notary-trip-quote__share.mjs.gz
       - notary-trip-quote__usage.mjs.gz=notary-trip-quote__usage.mjs.gz
-      - notary-trip-quote__vs-notarygadget.html.gz=notary-trip-quote__vs-notarygadget.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - notary-trip-quote__vs-notarygadget.html.gz=notary-trip-quote__vs-notarygadget.html.gz
       - booth-rent-vs-commission__calc.mjs.gz=booth-rent-vs-commission__calc.mjs.gz
       - booth-rent-vs-commission__how-many-clients-does-booth-rent-need.html.gz=booth-rent-vs-commission__how-many-clients-does-booth-rent-need.html.gz
       - booth-rent-vs-commission__index.html.gz=booth-rent-vs-commission__index.html.gz
