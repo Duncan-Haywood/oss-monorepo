@@ -274,6 +274,30 @@ const EXCLUDED_FILES = new Set([
   'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
 ]);
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', '__pycache__']);
+// Every dot-directory is skipped unless it is named here, and the allowlist is
+// the whole reason this is a rule rather than four more entries in the set
+// above. That set is a list of names someone had already seen, and it has now
+// aged twice: it learned `__pycache__` after a Python venture shipped, and it
+// still did not know `.ruff_cache` or `.pytest_cache`, which land in a venture
+// directory the moment a session runs that venture's Python suite — which is
+// exactly what CLAUDE.md's own pre-merge checklist instructs.
+//
+// Measured 2026-09-09, and it is not cosmetic: `publish-branch.sh` runs
+// `check.mjs` against the dist and is fail-closed, and `check.mjs` rejects
+// `CACHEDIR.TAG` because nothing tells nginx how to type `.tag`. So running the
+// documented checklist and then publishing was enough to *block the publish of
+// the live catalogue* — during the starvation window in which that manual
+// publish is the only route to the live site. Two ventures were carrying the
+// cache in this session's tree, and two more carry `__pycache__` that only the
+// older entry above catches.
+//
+// A name list cannot win this race: the next tool ships its own cache and the
+// list learns about it from the outage. Skipping dot-directories by shape does
+// not go stale, and it costs nothing today — measured on a full build, not one
+// dot-directory reaches the artifact. `.well-known` is allowlisted because it
+// is the one dot-directory a static site has a real reason to serve (ACME
+// challenges, `security.txt`), so a future need for it is already answered.
+const PUBLISHABLE_DOT_DIRS = new Set(['.well-known']);
 // `foo.test.mjs` is the house convention, but it is a convention rather than a
 // rule, and two ventures did not follow it: `retainage-cashflow-calculator`
 // ships its suite as `test.mjs` and `freelance-retainer-calculator` as
@@ -2123,6 +2147,7 @@ export async function copyTree(from, to, baseUrl) {
 
     if (entry.isDirectory()) {
       if (EXCLUDED_DIRS.has(entry.name)) continue;
+      if (entry.name.startsWith('.') && !PUBLISHABLE_DOT_DIRS.has(entry.name)) continue;
       const nested = await copyTree(src, dest, baseUrl);
       // A directory that held only CLI source leaves an empty shell behind.
       if (nested.length === 0) await fs.rm(dest, { recursive: true, force: true });
