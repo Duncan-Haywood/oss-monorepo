@@ -1417,7 +1417,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 219 since 2026-09-09, when `structured-data-drift-check` graduated —
     # same shape again: a new venture with a static `index.html` from its
     # first commit, entering the mirror and the total together.
-    total = 219  # `infra/OWNER_CHECKLIST.md`'s own "N of the 219 tools" wording.
+    # 220 since 2026-09-09, when `actions-artifact-poisoning-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    total = 220  # `infra/OWNER_CHECKLIST.md`'s own "N of the 220 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

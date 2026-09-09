@@ -38,3 +38,17 @@ test('index links one hop to the payment-reconciliation-workbench sibling', () =
     'index must link ../payment-reconciliation-workbench/ so crawlers reach the sibling AP tool in one hop',
   );
 });
+
+test('index links to the vs-prgx comparison page, and the page exists with the required disclosures', () => {
+  assert.match(html, /href="vs-prgx\.html"/);
+  const vsHtml = fs.readFileSync(new URL('./vs-prgx.html', import.meta.url), 'utf8');
+  assert.match(vsHtml, /PRGX/);
+  assert.match(vsHtml, /not affiliated with, endorsed by, or sponsored by PRGX/i);
+  assert.match(vsHtml, /No warranty/);
+  assert.match(vsHtml, /href="\.\/"/, 'vs-prgx.html must link back to the calculator');
+});
+
+test('vs-prgx.html is listed in the sitemap', () => {
+  const sitemap = fs.readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /vs-prgx\.html/);
+});

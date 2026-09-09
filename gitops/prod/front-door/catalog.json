@@ -511,6 +511,14 @@
       "pages": 2
     },
     {
+      "slug": "actions-artifact-poisoning-check",
+      "name": "GitHub Actions Artifact Poisoning Check — workflow_run Download & Execute",
+      "url": "https://marisstella.dev/tools/actions-artifact-poisoning-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name: pin. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "actions-cache-poisoning-check",
       "name": "GitHub Actions Cache Poisoning Check — Fork-Writable Cache & restore-keys",
       "url": "https://marisstella.dev/tools/actions-cache-poisoning-check/",
@@ -876,7 +884,7 @@
       "url": "https://marisstella.dev/tools/duplicate-payment-audit/",
       "category": "Back-office money & contracts",
       "description": "Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "egress-window-bid-calculator",
@@ -1292,7 +1300,7 @@
       "url": "https://marisstella.dev/tools/newsletter-sponsorship-rate-calculator/",
       "category": "Creator & solo earner income",
       "description": "Free newsletter sponsorship rate calculator. Enter your subscriber count, open rate, and niche to get a price range for a dedicated send, primary placement, secondary placement, and classified ad — based on commonly cited newsletter-ad-market CPM benchmarks. No sign-up, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "no-show-fee-calculator",
