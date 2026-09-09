@@ -8410,6 +8410,7 @@ ventures:
       complete, safe, or secure. Makes no network call of any kind, and
       the page's own footer and FAQ state plainly that it is not a
       secrets scanner.
+
   - slug: package-exports-drift-check
     scores:
       ai_leverage: 1
@@ -8467,3 +8468,62 @@ ventures:
       that a package will install or import cleanly. Makes no network call
       of any kind, and the page's own footer and FAQ state plainly that it
       is not a bundler or a publish tool.
+
+  - slug: affiliate-disclosure-checker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a link matches a known
+      affiliate-link signal and whether a known disclosure phrase appears
+      before it in reading order is decided by pattern matching against
+      plain text -- a factual, deterministic comparison, not a model
+      judgment, and it never claims a legal or contractual determination
+      on either question.
+    basis: >-
+      Screened 2026-09-09 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free CLI + browser checker, not a 232nd
+      <trade>-bid-calculator, and a genuinely new vertical rather than a
+      further dev-tooling checker (the audience is a blogger/content
+      creator checking their own published page, not a developer checking
+      a repo artifact). duplicate_check.py scored the closest existing
+      venture (structured-data-drift-check) at 0.17 against the final
+      description, and 0.15 or lower against two earlier phrasings tried;
+      no existing venture reads affiliate-link href patterns or
+      disclosure-phrase text.
+      Autonomous ops 10 / gross margin 10: the browser page parses only
+      text pasted into it and the CLI reads only local files it is
+      pointed at, so serving one more user costs a static file and needs
+      no human review of any output.
+      Distribution 7: named, active subreddits (r/AmazonAssociates,
+      r/Blogging, r/juststart, r/AffiliateMarketing) where "amazon
+      associates terminated my account" and "FTC affiliate disclosure"
+      are recurring real threads, not hypothetical search phrases, and
+      the failure mode is a specific, contractually-required sentence
+      (Amazon's own Associates Program Operating Agreement) rather than a
+      vague compliance posture -- sharper and more concrete than the
+      portfolio's other checker ventures' developer-forum channels.
+      Time to revenue 6, defensibility 4: donations-only but a real,
+      named income-protection fear driving discovery; easy to
+      reimplement, so defensibility rests on being first and correct for
+      this exact Amazon-vs-FTC distinction rather than on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive -- it reports which known
+      affiliate-link signals and disclosure phrases it found in
+      user-supplied text, and their relative order, never a claim that a
+      page complies with the FTC's Endorsement Guides, Amazon's
+      Associates Program Operating Agreement, or any other network's
+      terms. Makes no network call of any kind, uploads nothing, and both
+      pages' footers and FAQs state plainly that it is not a legal or
+      compliance determination.

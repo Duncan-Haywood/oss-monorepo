@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 222,
-  "collection_total": 222,
+  "served_here": 223,
+  "collection_total": 223,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -68,7 +68,7 @@
       "id": "solo-earner",
       "name": "Creator & solo earner income",
       "url": "https://marisstella.dev/c/solo-earner/",
-      "tool_count": 5
+      "tool_count": 6
     },
     {
       "id": "more",
@@ -564,6 +564,14 @@
       "url": "https://marisstella.dev/tools/ada-title-ii-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.",
+      "pages": 2
+    },
+    {
+      "slug": "affiliate-disclosure-checker",
+      "name": "Affiliate Disclosure Checker — Is Your Amazon/FTC Disclosure Missing or Too Late?",
+      "url": "https://marisstella.dev/tools/affiliate-disclosure-checker/",
+      "category": "Creator & solo earner income",
+      "description": "Paste a blog post's HTML and see every affiliate link it recognises (Amazon Associates tag= links, amzn.to, rel=sponsored, ShareASale/CJ/Impact/Skimlinks/AWIN tracking links) and whether a disclosure appears before the first one — plus whether an Amazon link carries Amazon's own required exact statement. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 2
     },
     {

@@ -65,6 +65,9 @@ workflows:
 - workflow: ada-title-ii-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: affiliate-disclosure-checker-ci.yml
+  classification: none
+  publishes: []
 - workflow: agent-cross-review.yml
   classification: none
   publishes: []

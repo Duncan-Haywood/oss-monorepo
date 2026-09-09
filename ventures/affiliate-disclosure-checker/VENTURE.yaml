@@ -1,0 +1,88 @@
+name: affiliate-disclosure-checker
+description: 'Free, zero-network, zero-dependency CLI + browser tool that scans a blog post or page''s HTML for recognised affiliate-link signals (Amazon Associates tag= links, amzn.to, rel="sponsored", and known affiliate-network tracking domains -- ShareASale, CJ/Commission Junction, Rakuten/LinkSynergy, Impact, Skimlinks, VigLink, rewardStyle/LTK, AWIN, AvantLink) and reports whether a disclosure phrase appears before the first one in reading order, plus whether any Amazon link carries Amazon''s own required exact statement ("As an Amazon Associate I earn from qualifying purchases"). A deterministic pattern-matching fact-checker, not a legal or compliance determination.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section (2026-09-07) argues explicitly for
+# this shape over another <trade>-bid-calculator, since 141+ of ~230
+# ventures already share that shape with zero recorded visitors between
+# them. This is also a genuinely different vertical from the fleet's other
+# checkers (env-example-drift-check, structured-data-drift-check,
+# license-drift-check, ios-privacy-manifest-check, and siblings) -- those
+# all serve developers checking a repo artifact against its own source;
+# this serves a blogger/content creator checking their own published page
+# against a disclosure requirement, per DIRECTION.md's instruction to
+# broaden past dev tooling once a fresh dev-tooling angle risks feeling
+# marginal against the existing family.
+#
+# duplicate_check.py (run 2026-09-09) scored every existing venture,
+# screened-out row, ai-first-markets idea, and pipeline candidate below
+# 0.15 for this idea's description -- nowhere near the 0.45 review bar.
+# Three phrasings tried, closest matches each time:
+#   "FTC affiliate/sponsored-content disclosure checker...": top score 0.09
+#     (duplicate-payment-audit), unrelated (an AP ledger reconciliation).
+#   "Amazon Associates disclosure compliance checker for bloggers...": top
+#     score 0.15 (ats-resume-checker), unrelated (resume ATS parsing); the
+#     only screened-out row that appeared at all was `chatbot-disclosure-
+#     monitor` at 0.08, which is a different disclosure entirely (an AI
+#     chatbot disclosing it isn't human, not an affiliate-link disclosure
+#     on a blog post) and was screened out as "too small to be a business
+#     on its own", not for overlapping this idea.
+#   Final description (this file's, above): top score 0.15
+#     (structured-data-drift-check), which shares only the generic
+#     "deterministic diff/checker" shape, not the subject matter -- it
+#     diffs a page's own JSON-LD against its own visible text, and reads
+#     nothing about affiliate links or disclosure wording.
+# Grepped ventures/*/VENTURE.yaml for "affiliate" and "disclos" by hand as
+# a second check (2026-09-09): zero hits for "affiliate"; the only
+# "disclos" hits are `ada-title-ii-evidence` (accessibility disclosure, a
+# different subject) and this file.
+#
+# Distribution channel: r/AmazonAssociates, r/Blogging, r/juststart, and
+# r/AffiliateMarketing are active, real subreddits where "amazon associates
+# terminated my account", "amazon associates disclosure requirement", and
+# "FTC affiliate disclosure" are recurring threads, not hypothetical
+# search phrases -- bloggers panicking about a terminated Associates
+# account (which erases the account's entire earning history, not just
+# future commissions) is a known, recurring post type in that community.
+# Amazon's own Associates Program Operating Agreement requires the exact
+# statement this tool checks for, on every page carrying an Associates
+# link, as a contractual term separate from the FTC's general "clear and
+# conspicuous" standard -- so the failure mode is maximally concrete (a
+# named required sentence, not a vague compliance posture) and maximally
+# costly (account termination, i.e. lost income) for exactly the audience
+# DIRECTION.md asks for: people with money on the line and a specific,
+# checkable problem.
+hypotheses:
+  - claim: A blogger or content creator who monetizes with Amazon Associates or another affiliate network will paste a post's HTML before publishing (or run the CLI against their site's build output) to catch a page where the disclosure is missing or placed after the first affiliate link, because losing Associates status is a real, named fear in r/AmazonAssociates and r/Blogging threads.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A niche blog or affiliate-content operator running more than a handful of posts will wire the CLI into their static-site build (Hugo, Jekyll, Eleventy, Next.js export) as a pre-publish gate, the same way env-example-drift-check's audience wires that CLI into CI, because checking every post by eye does not scale past a few dozen.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only text pasted
+  # into it, in the visitor's own browser, and the CLI reads only local
+  # files it is pointed at, with no network call at all. Serving one more
+  # user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository or site is found wiring cli.mjs into its own publish pipeline within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/affiliate-disclosure-checker/
+  analytics: null

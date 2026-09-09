@@ -20422,3 +20422,152 @@ entries:
         platform/webcheck/*.test.mjs` (170 passed, 2 documented shallow-clone
         skips).
     mrr_end: 0
+  - venture: affiliate-disclosure-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/affiliate-disclosure-checker`, a
+        free, zero-network, zero-dependency CLI + browser tool that scans a
+        blog post or page's HTML for recognised affiliate-link signals
+        (Amazon Associates `tag=` links, `amzn.to`, `rel="sponsored"`, and
+        known affiliate-network tracking domains -- ShareASale, CJ/Commission
+        Junction, Rakuten/LinkSynergy, Impact, Skimlinks, VigLink,
+        rewardStyle/LTK, AWIN, AvantLink) and reports whether a disclosure
+        phrase appears before the first one in reading order, plus whether
+        any Amazon link carries Amazon's own required exact statement ("As
+        an Amazon Associate I earn from qualifying purchases"). A
+        deterministic pattern-matching fact-checker, never a legal or
+        compliance determination -- both pages' footers, FAQ schema, and
+        the CLI's own help text say so explicitly.
+      - >-
+        Deliberately a different vertical from the fleet's other checker
+        ventures. `portfolio/pipeline/README.md`'s "archetype itself"
+        section already argues for the CLI/checker shape over a 232nd
+        `<trade>-bid-calculator`; this write-up also weighs the *audience*,
+        since the fleet already has five checker ventures all serving one
+        developer diffing a repo artifact against its own source
+        (`env-example-drift-check`, `structured-data-drift-check`,
+        `license-drift-check`, `ios-privacy-manifest-check`,
+        `dependency-confusion-check`). This one serves a blogger/content
+        creator checking their own published page against a disclosure
+        requirement, so it is filed under the `solo-earner` category by
+        audience (alongside `ats-resume-checker`, a job seeker checking
+        their own resume) rather than folded into the `ci` category's
+        developer-checker family.
+      - >-
+        Scoring gates: `liability_containment` 8 and `ethical_robustness` 9,
+        both well clear of the 5 floor. Justification: it reports only which
+        known affiliate-link and disclosure-phrase patterns it found and
+        their relative order in the text supplied -- never a claim that a
+        page complies with the FTC's Endorsement Guides, Amazon's Associates
+        Program Operating Agreement, or any other network's terms. No
+        network call from the core function (the browser page parses only
+        pasted text; the CLI reads only local files named on the command
+        line), no PII, no scraped data -- every input is text the user
+        already owns and supplies themselves. Composite 6.875 (8-dimension
+        pipeline rubric) / 6.333 (6-dimension venture-scores.yaml rubric),
+        floor 1 on `ai_leverage` (pure deterministic pattern matching, no
+        model in the loop) -- the same deliberate-floor pattern as the
+        fleet's other checker ventures, not a defect.
+      - >-
+        `duplicate_check.py` run against three phrasings before committing
+        to this idea: an FTC/sponsored-content framing (top score 0.09,
+        against `duplicate-payment-audit`, unrelated), an Amazon-Associates-
+        specific framing (top score 0.15, against `ats-resume-checker`,
+        unrelated -- the only screened-out row that appeared at all was
+        `chatbot-disclosure-monitor` at 0.08, an AI-chatbot-is-not-human
+        disclosure, a different subject from an affiliate-link disclosure
+        on a blog post), and the final `VENTURE.yaml` description (top
+        score 0.17, against `structured-data-drift-check`, sharing only the
+        generic "deterministic diff/checker" shape and reading nothing
+        about affiliate links or disclosure wording). All three are well
+        below the 0.45 review bar. A hand grep of every `VENTURE.yaml` for
+        "affiliate" returned zero hits; "disclos" returned only
+        `ada-title-ii-evidence` (an unrelated accessibility subject).
+      - >-
+        Named distribution channel for the first real visitor (DIRECTION.md's
+        graduation condition): r/AmazonAssociates, r/Blogging, r/juststart,
+        and r/AffiliateMarketing -- active, real subreddits where "amazon
+        associates terminated my account" and "FTC affiliate disclosure" are
+        recurring, not hypothetical, thread topics. The failure mode is
+        maximally concrete: Amazon's own Associates Program Operating
+        Agreement names an exact required sentence, and Amazon has
+        terminated accounts for missing it, erasing the account's entire
+        earning history rather than just future commissions -- a real,
+        checkable, named income-protection fear for exactly the audience
+        DIRECTION.md asks for (people with money on the line and a
+        specific, checkable problem), and sharper than the developer-forum
+        channels the portfolio's other checker ventures rely on.
+      - >-
+        Full registration in this PR: candidate write-up
+        (`portfolio/pipeline/candidates/affiliate-disclosure-checker.md`)
+        and a row in `candidates.yaml` (`verdict: graduated`) plus a
+        renumbered table row in `portfolio/pipeline/README.md` (inserted at
+        #21 to keep the composite-descending order the doc-consistency
+        checker enforces, renumbering rows 21-32 to 22-33);
+        `.github/workflows/affiliate-disclosure-checker-ci.yml`;
+        `venture-scores.yaml` entry (gates pass, composite 6.333, six-
+        dimension rubric); `platform/ci/publish-surface.yaml` row (inserted
+        alphabetically after `ada-title-ii-evidence-ci.yml`); added to the
+        `solo-earner` category's exact slug list in `platform/pages/
+        build.mjs` (would otherwise have landed in the catch-all, still
+        within its bound of 5 but a worse fit -- the audience, a content
+        creator protecting their own income, matches `ats-resume-checker`'s
+        precedent exactly); `platform/pages/launched.json` entry via
+        `launched.mjs --write`; `node platform/marketing/regen.mjs`
+        (mirrored-tool count bumped 221->222 across
+        `infra/OWNER_CHECKLIST.md` (three occurrences),
+        `gitops/ci/README.md` (via `sync_readme_counts.py`, also bumping the
+        unrelated `runs-on` switch count 314/316/276 -> 315/317/277 for the
+        new CI workflow file), `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` (both occurrences), and
+        `gitops/tests/test_manifests.py`). No topical sibling exists in the
+        fleet to cross-link (nothing else is about affiliate-disclosure or
+        content-creator monetization specifically), so
+        `platform/pages/siblings-budget.json`'s orphan ratchet was raised
+        30->31 with a named reason instead of fabricating a pairing --
+        the same call already made and documented there for
+        `ats-resume-checker` and `certified-payroll-calculator`.
+      - >-
+        Verification: `node --test engine.test.mjs cli.test.mjs
+        page.test.mjs` in the venture (37/37 passing, including a
+        dogfooding assertion that the page's own worked example
+        demonstrates a real missing-disclosure finding through this
+        venture's own engine, and CLI tests against a real temporary
+        filesystem proving `node_modules`/`.git` are skipped by the
+        directory walk and `--strict` catches an Amazon link with only a
+        generic disclosure); `node platform/pages/clauses.mjs
+        affiliate-disclosure-checker` (clean); `node platform/pages/
+        faq-coverage.mjs` / `faq-duplicate.mjs` / `guide-coverage.mjs`
+        (clean); `node platform/pages/siblings.mjs --check` (31/31, within
+        the raised budget); `python3 portfolio/pipeline/
+        validate_candidates.py` (33/33 consistent); `python3
+        portfolio/pipeline/validate_doc_consistency.py` (33/33 consistent,
+        after inserting and renumbering the README table row); `python3
+        portfolio/scoring/score_ventures.py --check` (231/231 consistent);
+        `python3 portfolio/router/validate.py` (230/230 valid); `python3
+        portfolio/router/allocate.py` (lists the new venture, no error);
+        `python3 platform/ci/checklist_coverage.py`; `python3 platform/ci/
+        check_no_payment_code.py` (clean); `python3 -m pytest gitops/tests
+        -q` (490 passed, 25 skipped); `python3 -m unittest` across every
+        `platform/ci` module and `platform/ci/agent_review` (all green);
+        `python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q`
+        (431 passed); `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (222 + 947 = 1169 passing, after fixing
+        the exact same em-dash-vs-`--` FAQPage JSON-LD/visible-text
+        divergence `env-example-drift-check`'s own ledger entry documents,
+        and re-running `regen.mjs` a second time after a first run left the
+        committed mirror one edit behind); `node build.mjs
+        --out=/tmp/dist-check && node check.mjs /tmp/dist-check` (222
+        products, 868 pages, no dead links); `node --test
+        platform/proposal/*.test.mjs platform/privacy/*.test.mjs
+        platform/webcheck/*.test.mjs` (170 passed, 2 documented
+        shallow-clone skips); `python3 platform/ci/browser_state.py` (every
+        check already covers the current tree); `npm install --no-save
+        playwright@1.56.0 axe-core` then `python3 platform/ci/
+        browser_checks.py --only affiliate-disclosure-checker` (sideways,
+        presets, roundtrip, contrast, sweep, and journey all pass; highlight
+        skipped -- this venture makes no highlight promise to verify).
+    mrr_end: 0

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 222 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 223 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-09T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name: pin. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Affiliate Disclosure Checker — Is Your Amazon/FTC Disclosure Missing or Too Late?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/affiliate-disclosure-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/affiliate-disclosure-checker</id>
+    <published>2026-09-09T00:00:00Z</published>
+    <updated>2026-09-09T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Paste a blog post&#39;s HTML and see every affiliate link it recognises (Amazon Associates tag= links, amzn.to, rel=sponsored, ShareASale/CJ/Impact/Skimlinks/AWIN tracking links) and whether a disclosure appears before the first one — plus whether an Amazon link carries Amazon&#39;s own required exact statement. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>.env.example Drift Check — Does Your Example File Match the Code?</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-06T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Fire Extinguisher Inspection Route Margin Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fire-extinguisher-inspection-route-margin/"/>
-    <id>tag:marisstella.dev,2026:tool/fire-extinguisher-inspection-route-margin</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.</summary>
   </entry>
 </feed>
