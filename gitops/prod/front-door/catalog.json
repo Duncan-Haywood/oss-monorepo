@@ -8,7 +8,7 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 218,
+  "served_here": 219,
   "collection_total": 218,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
@@ -50,7 +50,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 14
+      "tool_count": 15
     },
     {
       "id": "services",
@@ -508,6 +508,14 @@
       "url": "https://marisstella.dev/tools/3d-print-price-calculator/",
       "category": "Creator & solo earner income",
       "description": "Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you're charging.",
+      "pages": 2
+    },
+    {
+      "slug": "actions-artifact-poisoning-check",
+      "name": "GitHub Actions Artifact Poisoning Check — workflow_run Download & Execute",
+      "url": "https://marisstella.dev/tools/actions-artifact-poisoning-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name: pin. Free, runs in your browser, nothing uploaded.",
       "pages": 2
     },
     {
