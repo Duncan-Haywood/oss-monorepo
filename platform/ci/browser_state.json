@@ -3,54 +3,6 @@
     {
       "checks": [
         "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "1725b7cb53e48dcaf909d2ef0a8047cebda13ada",
-      "measured": "2026-09-07",
-      "pages": 819,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "28bde1a3a40afdadf7616d7e508a6779af4c807a",
-      "measured": "2026-09-07",
-      "pages": 830,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "ab51eb8b84bfb466f8e00122c0e953f1278611f9",
-      "measured": "2026-09-07",
-      "pages": 830,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
         "presets",
         "roundtrip",
         "sideways",
@@ -286,6 +238,22 @@
     {
       "checks": [
         "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "b8953905d4aa94050e95be874a101f6260ea8148",
+      "measured": "2026-09-09",
+      "pages": 872,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
         "presets",
         "roundtrip",
         "sideways",
@@ -304,6 +272,26 @@
         "journey"
       ],
       "commit": "a7dbb0dfff11329fe90c0535fd4ebf368678e5db",
+      "measured": "2026-09-09",
+      "pages": 874,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "journey"
+      ],
+      "commit": "0c9b33fcaf1e75e4507f45a961db657fa57de63c",
+      "measured": "2026-09-09",
+      "pages": 874,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "highlight"
+      ],
+      "commit": "0c9b33fcaf1e75e4507f45a961db657fa57de63c",
       "measured": "2026-09-09",
       "pages": 874,
       "result": "pass",
