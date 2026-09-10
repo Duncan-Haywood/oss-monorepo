@@ -9,12 +9,16 @@ month. Then it asks the question a fee table cannot: **how often does it
 actually sell there**, and what is one listing worth per month of shelf once
 you count that.
 
-**Reverb** is a sixth channel, switched off until you turn it on. It only
-applies to musical instruments and audio gear, and a channel a seller cannot
-list on is noise in a ranking rather than information. Its fee assumptions are
-not restated here — `channel-parity.test.mjs` imports them from
-[`../reverb-fee-calculator`](../reverb-fee-calculator/) and fails if the two
-tools ever quote the same marketplace differently.
+**Reverb, TikTok Shop and Whatnot** are three more channels, each switched off
+until you turn it on. Reverb only applies to musical instruments and audio
+gear; TikTok Shop and Whatnot only apply if you sell through those platforms —
+a channel a seller cannot list on is noise in a ranking rather than
+information. None of their fee assumptions are restated here —
+`channel-parity.test.mjs` imports them from
+[`../reverb-fee-calculator`](../reverb-fee-calculator/),
+[`../tiktok-shop-fee-calculator`](../tiktok-shop-fee-calculator/) and
+[`../whatnot-seller-payout`](../whatnot-seller-payout/) and fails if any of
+the four tools ever quote the same marketplace differently.
 
 It runs entirely in the browser: static ES modules, no build step, no
 dependencies, no server, no account, no API key.
@@ -173,21 +177,28 @@ tool sits unused and the comparison ends at a ranking nobody acts on.
 
 So under the verdict, every channel that has a dedicated calculator **and** can
 accept inputs from a link gets a "keep going with this item" link, built from
-what is on screen. Today that is eBay, Etsy, Amazon, Reverb and an own store
-(Shopify); a channel gains one the day its calculator learns to read a link.
+what is on screen. Today that is eBay, Etsy, Amazon, Reverb, TikTok Shop,
+Whatnot and an own store (Shopify); a channel gains one the day its calculator
+learns to read a link.
 
 **The handoff now runs both ways for every channel that has one.** Each of
 `../ebay-fee-calculator/`, `../etsy-profit-calculator/`,
-`../amazon-fba-calculator/`, `../reverb-fee-calculator/` and
-`../shopify-fee-calculator/` carries its own item back into this page with
+`../amazon-fba-calculator/`, `../reverb-fee-calculator/`,
+`../shopify-fee-calculator/`, `../tiktok-shop-fee-calculator/` and
+`../whatnot-seller-payout/` carries its own item back into this page with
 that channel already switched on (each ships its own `to-where-to-sell.mjs`,
 mirroring this page's `handoff.mjs` in reverse). Reverb was first; eBay, Etsy,
-Amazon and Shopify followed the same day. This is the direct test of this
-venture's first untested hypothesis — until now a seller who searched their
-way to a single-channel calculator first (which, for the highest-traffic
-channels, is the more likely entry point) had no way into this comparison
-without retyping, so the "deeper scenarios never get opened" failure the
-hypothesis names could happen from either direction and only one was fixed.
+Amazon and Shopify followed the same day. TikTok Shop and Whatnot followed
+later — both calculators had already exported the field-name contract this
+handoff needs (see each one's own `FIELD_IDS` / `INPUT_IDS`), but neither had
+a where-to-sell channel preset or a `to-where-to-sell.mjs` module wired up, so
+a seller who landed on either page first had no way into this comparison at
+all, in either direction. This is the direct test of this venture's first
+untested hypothesis — until now a seller who searched their way to a
+single-channel calculator first (which, for the highest-traffic channels, is
+the more likely entry point) had no way into this comparison without
+retyping, so the "deeper scenarios never get opened" failure the hypothesis
+names could happen from either direction and only one was fixed.
 
 Two details that are not obvious:
 
@@ -310,7 +321,8 @@ The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
 `channel_volume_edited`, `returns_compared`, `shelf_time_compared`,
 `share_link_copied`, `comparison_csv_downloaded`, `handoff_ebay`, `handoff_etsy`,
-`handoff_amazon`, `handoff_reverb`, `handoff_own-store`) and the
+`handoff_amazon`, `handoff_reverb`, `handoff_own-store`, `handoff_tiktok`,
+`handoff_whatnot`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was

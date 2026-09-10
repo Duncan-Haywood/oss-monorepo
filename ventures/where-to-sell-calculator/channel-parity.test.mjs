@@ -32,8 +32,17 @@ import assert from 'node:assert/strict';
 
 import { CHANNEL_PRESETS, calculateChannel } from './calc.mjs';
 import { REVERB_DEFAULTS, calculateReverbSale } from '../reverb-fee-calculator/calc.mjs';
+import { FEE_SCHEDULE_PRESETS, calculateOrder } from '../tiktok-shop-fee-calculator/calc.mjs';
+import {
+  CATEGORY_PRESETS,
+  DEFAULT_PAYMENT_RATE,
+  DEFAULT_PAYMENT_FIXED,
+  calculateSale,
+} from '../whatnot-seller-payout/calc.mjs';
 
 const reverb = CHANNEL_PRESETS.find((preset) => preset.id === 'reverb');
+const tiktok = CHANNEL_PRESETS.find((preset) => preset.id === 'tiktok');
+const whatnot = CHANNEL_PRESETS.find((preset) => preset.id === 'whatnot');
 
 test('this page still has a Reverb channel to compare', () => {
   // Guard the guard: if the preset is renamed or removed, every assertion
@@ -102,6 +111,130 @@ test('Reverb is off until the seller turns it on', () => {
   // a channel most sellers cannot list on to every comparison, and a channel
   // that does not apply is noise in a ranking rather than information.
   assert.equal(reverb.enabled, false);
+});
+
+test('this page still has a TikTok Shop channel to compare', () => {
+  assert.ok(tiktok, 'no channel with id "tiktok" in CHANNEL_PRESETS');
+});
+
+test('the TikTok Shop fee assumptions match the dedicated calculator\'s current US standard rate', () => {
+  const standard = FEE_SCHEDULE_PRESETS.us_standard;
+  assert.equal(
+    tiktok.commissionRate,
+    standard.referralRate,
+    'referral rate disagrees with tiktok-shop-fee-calculator',
+  );
+  assert.equal(
+    tiktok.paymentRate,
+    standard.paymentRate,
+    'payment processing rate disagrees with tiktok-shop-fee-calculator',
+  );
+  assert.equal(
+    tiktok.paymentFixed,
+    standard.paymentFixed,
+    'fixed payment fee disagrees with tiktok-shop-fee-calculator',
+  );
+});
+
+test('TikTok Shop net profit matches the dedicated calculator on the shared worked example', () => {
+  // Same discipline as the Reverb check above: rate equality alone would not
+  // have caught a base mismatch (order total vs. item price), so this asserts
+  // the actual number, not just the rate.
+  const shared = {
+    price: 50,
+    shippingCharged: 5,
+    shippingCost: 4,
+    itemCost: 15,
+    packagingCost: 0,
+    otherCost: 2,
+    monthlyOrders: 1,
+  };
+  const here = calculateChannel({ ...tiktok, enabled: true }, shared);
+  const there = calculateOrder({
+    itemPrice: shared.price,
+    shippingCharged: shared.shippingCharged,
+    fulfillmentCost: shared.shippingCost,
+    cogs: shared.itemCost,
+    otherPerOrder: shared.otherCost,
+    referralRate: tiktok.commissionRate,
+    paymentRate: tiktok.paymentRate,
+    paymentFixed: tiktok.paymentFixed,
+  });
+  assert.equal(here.fees.commission, there.referralFee, 'referral fee on the same order total');
+  assert.equal(here.profit, there.keptProfit, 'net profit must not jump across the handoff');
+});
+
+test('TikTok Shop is off until the seller turns it on', () => {
+  assert.equal(tiktok.enabled, false);
+});
+
+test('this page still has a Whatnot channel to compare', () => {
+  assert.ok(whatnot, 'no channel with id "whatnot" in CHANNEL_PRESETS');
+});
+
+test('the Whatnot fee assumptions match the dedicated calculator\'s standard, uncapped category', () => {
+  const standard = CATEGORY_PRESETS.standard;
+  assert.equal(
+    whatnot.commissionRate,
+    standard.commissionRate,
+    'commission rate disagrees with whatnot-seller-payout',
+  );
+  assert.equal(
+    whatnot.commissionBase,
+    'item',
+    'Whatnot commission must apply to the hammer price only, matching whatnot-seller-payout',
+  );
+  assert.equal(
+    whatnot.paymentRate,
+    DEFAULT_PAYMENT_RATE,
+    'payment processing rate disagrees with whatnot-seller-payout',
+  );
+  assert.equal(
+    whatnot.paymentFixed,
+    DEFAULT_PAYMENT_FIXED,
+    'fixed payment fee disagrees with whatnot-seller-payout',
+  );
+});
+
+test('Whatnot net profit matches the dedicated calculator on the shared worked example', () => {
+  const shared = {
+    price: 60,
+    shippingCharged: 8,
+    shippingCost: 5,
+    itemCost: 20,
+    packagingCost: 0,
+    otherCost: 3,
+    monthlyOrders: 1,
+  };
+  const here = calculateChannel({ ...whatnot, enabled: true }, shared);
+  const there = calculateSale({
+    salePrice: shared.price,
+    shippingCharged: shared.shippingCharged,
+    taxCharged: 0,
+    shippingCost: shared.shippingCost,
+    itemCost: shared.itemCost,
+    otherCost: shared.otherCost,
+    commissionRate: whatnot.commissionRate,
+    commissionCap: '',
+    paymentRate: whatnot.paymentRate,
+    paymentFixed: whatnot.paymentFixed,
+  });
+  assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+  assert.equal(here.fees.commission, there.commission, 'commission on the same hammer price');
+  assert.equal(here.profit, there.leftover, 'net profit must not jump across the handoff');
+});
+
+test('Whatnot bills processing on the full checkout total, unlike TikTok Shop', () => {
+  // Not a style point. TikTok Shop's referral fee already bundles processing
+  // (paymentRate 0, matching eBay's shape). Whatnot bills the two separately,
+  // the same shape as Reverb. A future edit that "tidies" these to look alike
+  // would silently change one of the answers, so the difference is asserted.
+  assert.equal(tiktok.paymentRate, 0, 'TikTok Shop: processing is inside the referral fee');
+  assert.ok(whatnot.paymentRate > 0, 'Whatnot: processing is billed on top of the commission');
+});
+
+test('Whatnot is off until the seller turns it on', () => {
+  assert.equal(whatnot.enabled, false);
 });
 
 test('a channel that is off by default says so in its note', () => {

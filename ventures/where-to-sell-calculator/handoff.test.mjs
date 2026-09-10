@@ -24,6 +24,8 @@ import { FIELD_IDS as ETSY_FIELDS } from '../etsy-profit-calculator/share.mjs';
 import { INPUT_FIELDS as AMAZON_FIELDS } from '../amazon-fba-calculator/calc.mjs';
 import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs';
 import { INPUT_FIELDS as REVERB_FIELDS } from '../reverb-fee-calculator/calc.mjs';
+import { FIELD_IDS as TIKTOK_FIELDS } from '../tiktok-shop-fee-calculator/calc.mjs';
+import { INPUT_IDS as WHATNOT_FIELDS } from '../whatnot-seller-payout/calc.mjs';
 
 const TARGET_FIELDS = {
   'ebay-fee-calculator': EBAY_FIELDS,
@@ -31,6 +33,8 @@ const TARGET_FIELDS = {
   'amazon-fba-calculator': AMAZON_FIELDS,
   'shopify-fee-calculator': SHOPIFY_FIELDS,
   'reverb-fee-calculator': REVERB_FIELDS,
+  'tiktok-shop-fee-calculator': TIKTOK_FIELDS,
+  'whatnot-seller-payout': WHATNOT_FIELDS,
 };
 
 const SHARED = {
@@ -242,6 +246,29 @@ test('monthly order count travels to Shopify, because the plan is amortised over
   assert.equal(paramsOf(handoffUrl('own-store', { ...SHARED, monthlyOrders: 120 })).get('monthlyOrders'), '120');
   // ...and no other target has a field for it, so it must not leak sideways.
   assert.equal(paramsOf(handoffUrl('ebay', { ...SHARED, monthlyOrders: 120 })).has('monthlyOrders'), false);
+});
+
+test('TikTok Shop carries the item into its own calculator, with packaging folded into other-per-order', () => {
+  const url = handoffUrl('tiktok', SHARED);
+  assert.match(url, /^\.\.\/tiktok-shop-fee-calculator\/#/);
+  const params = paramsOf(url);
+  assert.equal(params.get('itemPrice'), '40');
+  assert.equal(params.get('shippingCharged'), '6');
+  assert.equal(params.get('fulfillmentCost'), '5.2'); // shippingCost, renamed
+  assert.equal(params.get('otherPerOrder'), String(SHARED.otherCost + SHARED.packagingCost));
+  assert.equal(params.get('packagingCost'), null);
+});
+
+test('Whatnot carries the item into its own calculator, with packaging folded into other cost', () => {
+  const url = handoffUrl('whatnot', SHARED);
+  assert.match(url, /^\.\.\/whatnot-seller-payout\/#/);
+  const params = paramsOf(url);
+  assert.equal(params.get('salePrice'), '40');
+  assert.equal(params.get('shippingCharged'), '6');
+  assert.equal(params.get('shippingCost'), '5.2');
+  assert.equal(params.get('itemCost'), '12');
+  assert.equal(params.get('otherCost'), String(SHARED.otherCost + SHARED.packagingCost));
+  assert.equal(params.get('packagingCost'), null);
 });
 
 test('each offered handoff carries a usable href and both labels', () => {

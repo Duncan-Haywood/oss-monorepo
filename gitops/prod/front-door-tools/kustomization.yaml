@@ -34,7 +34,7 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 136 files, 556169 bytes
-#   portfolio-front-tools-1: 111 files, 554588 bytes
+#   portfolio-front-tools-1: 112 files, 556442 bytes
 #   portfolio-front-tools-2: 147 files, 545198 bytes
 #   portfolio-front-tools-3: 145 files, 556589 bytes
 #   portfolio-front-tools-4: 122 files, 556745 bytes
@@ -45,7 +45,7 @@
 #   portfolio-front-tools-9: 124 files, 556918 bytes
 #   portfolio-front-tools-10: 98 files, 556707 bytes
 #   portfolio-front-tools-11: 105 files, 505164 bytes
-#   portfolio-front-tools-12: 55 files, 267433 bytes
+#   portfolio-front-tools-12: 56 files, 270883 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -288,6 +288,7 @@ configMapGenerator:
       - tiktok-shop-fee-calculator__index.html.gz=tiktok-shop-fee-calculator__index.html.gz
       - tiktok-shop-fee-calculator__should-i-bundle-tiktok-shop-orders.html.gz=tiktok-shop-fee-calculator__should-i-bundle-tiktok-shop-orders.html.gz
       - tiktok-shop-fee-calculator__should-i-offer-free-shipping-on-tiktok-shop.html.gz=tiktok-shop-fee-calculator__should-i-offer-free-shipping-on-tiktok-shop.html.gz
+      - tiktok-shop-fee-calculator__to-where-to-sell.mjs.gz=tiktok-shop-fee-calculator__to-where-to-sell.mjs.gz
       - tiktok-shop-fee-calculator__usage.mjs.gz=tiktok-shop-fee-calculator__usage.mjs.gz
       - tiktok-shop-fee-calculator__vs-tiktok-shops-seller-university.html.gz=tiktok-shop-fee-calculator__vs-tiktok-shops-seller-university.html.gz
       - tiktok-shop-fee-calculator__what-will-the-tiktok-shop-fee-change-cost-me.html.gz=tiktok-shop-fee-calculator__what-will-the-tiktok-shop-fee-change-cost-me.html.gz
@@ -1615,6 +1616,7 @@ configMapGenerator:
       - whatnot-seller-payout__index.html.gz=whatnot-seller-payout__index.html.gz
       - whatnot-seller-payout__share.mjs.gz=whatnot-seller-payout__share.mjs.gz
       - whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz=whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz
+      - whatnot-seller-payout__to-where-to-sell.mjs.gz=whatnot-seller-payout__to-where-to-sell.mjs.gz
       - whatnot-seller-payout__usage.mjs.gz=whatnot-seller-payout__usage.mjs.gz
       - whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz=whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz
       - wheelchair-ramp-bid-calculator__calc.mjs.gz=wheelchair-ramp-bid-calculator__calc.mjs.gz

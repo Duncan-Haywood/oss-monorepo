@@ -21766,3 +21766,58 @@ entries:
         the END, after other sessions' merges -- which is the only place a
         starvation-window regression on `main` gets caught at all.
     mrr_end: 0
+  - venture: where-to-sell-calculator
+    agent_spend_usd: null
+    human_hours: null
+    outcomes:
+      - >-
+        Screened `router/allocate.py`'s ranked list for a genuinely missing
+        piece of user-facing value rather than a top-merit candidate that was
+        already fully shipped (several were -- reverb-fee-calculator and a
+        dozen bid calculators all had 100%-passing suites and no gap). Found
+        one: `tiktok-shop-fee-calculator` and `whatnot-seller-payout` were the
+        only two seller channels in the portfolio's marketplace family with no
+        connection to `where-to-sell-calculator`, this venture's own hub. Both
+        already exported a `FIELD_IDS`/`INPUT_IDS` field contract specifically
+        "so the rest of the portfolio can" link into them (their own code
+        comments said so), but neither had a channel preset, a `HANDOFFS`
+        entry, or a `to-where-to-sell.mjs` reverse module -- the eBay, Etsy,
+        Amazon, Reverb and Shopify pattern this venture's own README
+        documents as "the handoff now runs both ways for every channel that
+        has one" was quietly two channels short of that claim.
+      - >-
+        Shipped both directions. `calc.mjs` gained two off-by-default channel
+        presets matching each dedicated calculator's real fee shape (TikTok
+        Shop: referral on the order total with processing bundled in, the
+        eBay shape; Whatnot: commission on the hammer only plus separate
+        processing, the Reverb shape) -- verified by a worked-example test
+        that the two tools compute the identical net profit on the same
+        inputs, not just that their rates match. `handoff.mjs` gained forward
+        entries; each venture gained its own `to-where-to-sell.mjs` (+ tests
+        decoding through the hub's own `decodeComparison`), wired into that
+        page's footer and result paint with a `handoff_where_to_sell` usage
+        event, mirroring reverb-fee-calculator's existing module exactly.
+        `whatnot-seller-payout/calc.mjs` gained exported
+        `DEFAULT_PAYMENT_RATE`/`DEFAULT_PAYMENT_FIXED` constants so the parity
+        test imports the real default rather than restating a literal.
+      - >-
+        page.test.mjs already asserted (written before this session, evidently
+        anticipating exactly this gap) that the privacy paragraph must
+        disclose every `handoff_*` event in `HANDOFFS` and that the footer
+        must link every handoff target -- both assertions were failing before
+        this change and pass after it, alongside the two new channel-parity
+        and eight new handoff.test.mjs cases.
+      - >-
+        Ran `node platform/marketing/regen.mjs` and committed the front-door
+        mirror shards it rewrote. Verified: `node --test` in
+        `where-to-sell-calculator` 165/165, `tiktok-shop-fee-calculator`
+        102/102, `whatnot-seller-payout` 61/61 (all re-run clean after merging
+        origin/main); `platform/marketing`+`platform/pages` 1196/1196; all 15
+        `platform/ci` unittest modules and `agent_review/test_review` (21/21);
+        `pytest gitops/tests` 506 passed / 25 skipped; `pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline
+        infra/tests` 431 passed / 8 subtests; `usage/validate_usage.py` and
+        `checklist_coverage.py` clean. `ci_starvation.py` (measured earlier
+        this session, run 34423728610) read down, so PR checks are read as
+        starvation rather than signal per CLAUDE.md.
+    mrr_end: 0
