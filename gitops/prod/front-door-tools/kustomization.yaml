@@ -33,19 +33,19 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556334 bytes
+#   portfolio-front-tools-0: 136 files, 556339 bytes
 #   portfolio-front-tools-1: 110 files, 555655 bytes
-#   portfolio-front-tools-2: 149 files, 548229 bytes
-#   portfolio-front-tools-3: 146 files, 556940 bytes
-#   portfolio-front-tools-4: 122 files, 555566 bytes
-#   portfolio-front-tools-5: 122 files, 556068 bytes
-#   portfolio-front-tools-6: 138 files, 552198 bytes
-#   portfolio-front-tools-7: 113 files, 557006 bytes
-#   portfolio-front-tools-8: 116 files, 553127 bytes
-#   portfolio-front-tools-9: 128 files, 553779 bytes
-#   portfolio-front-tools-10: 102 files, 542773 bytes
-#   portfolio-front-tools-11: 109 files, 548742 bytes
-#   portfolio-front-tools-12: 107 files, 514684 bytes
+#   portfolio-front-tools-2: 149 files, 548262 bytes
+#   portfolio-front-tools-3: 146 files, 556894 bytes
+#   portfolio-front-tools-4: 122 files, 555523 bytes
+#   portfolio-front-tools-5: 122 files, 556022 bytes
+#   portfolio-front-tools-6: 138 files, 552188 bytes
+#   portfolio-front-tools-7: 113 files, 557011 bytes
+#   portfolio-front-tools-8: 116 files, 553128 bytes
+#   portfolio-front-tools-9: 128 files, 553812 bytes
+#   portfolio-front-tools-10: 102 files, 542909 bytes
+#   portfolio-front-tools-11: 109 files, 557042 bytes
+#   portfolio-front-tools-12: 111 files, 527172 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1548,6 +1548,10 @@ configMapGenerator:
       - sri-check__sri.mjs.gz=sri-check__sri.mjs.gz
       - sri-check__usage.mjs.gz=sri-check__usage.mjs.gz
       - sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz=sri-check__why-does-sri-need-the-crossorigin-attribute.html.gz
+      - staffing-markup-calculator__calc.mjs.gz=staffing-markup-calculator__calc.mjs.gz
+      - staffing-markup-calculator__index.html.gz=staffing-markup-calculator__index.html.gz
+      - staffing-markup-calculator__markup-vs-margin.html.gz=staffing-markup-calculator__markup-vs-margin.html.gz
+      - staffing-markup-calculator__usage.mjs.gz=staffing-markup-calculator__usage.mjs.gz
       - stair-lift-bid-calculator__calc.mjs.gz=stair-lift-bid-calculator__calc.mjs.gz
       - stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz=stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz
       - stair-lift-bid-calculator__index.html.gz=stair-lift-bid-calculator__index.html.gz
@@ -1610,15 +1614,15 @@ configMapGenerator:
       - vehicle-wrap-bid-calculator__calc.mjs.gz=vehicle-wrap-bid-calculator__calc.mjs.gz
       - vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz=vehicle-wrap-bid-calculator__how-much-to-charge-for-a-vehicle-wrap.html.gz
       - vehicle-wrap-bid-calculator__index.html.gz=vehicle-wrap-bid-calculator__index.html.gz
-      - vehicle-wrap-bid-calculator__usage.mjs.gz=vehicle-wrap-bid-calculator__usage.mjs.gz
-      - vehicle-wrap-bid-calculator__vs-shopvox.html.gz=vehicle-wrap-bid-calculator__vs-shopvox.html.gz
-      - vending-machine-route-margin__calc.mjs.gz=vending-machine-route-margin__calc.mjs.gz
-      - vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz=vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vehicle-wrap-bid-calculator__usage.mjs.gz=vehicle-wrap-bid-calculator__usage.mjs.gz
+      - vehicle-wrap-bid-calculator__vs-shopvox.html.gz=vehicle-wrap-bid-calculator__vs-shopvox.html.gz
+      - vending-machine-route-margin__calc.mjs.gz=vending-machine-route-margin__calc.mjs.gz
+      - vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz=vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz
       - vending-machine-route-margin__index.html.gz=vending-machine-route-margin__index.html.gz
       - vending-machine-route-margin__share.mjs.gz=vending-machine-route-margin__share.mjs.gz
       - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz

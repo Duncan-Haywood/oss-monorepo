@@ -263,3 +263,16 @@ test('index links one hop to the custom-farm-rate-calculator sibling', () => {
     'index must link ../custom-farm-rate-calculator/ so crawlers reach the custom farm rate calculator in one hop',
   );
 });
+
+// staffing-markup-calculator shipped 2026-09-10 as a crawlable orphan: no tool
+// linked to it in one hop, and on the current project-Pages origin the sitemap
+// is never read, so a page nothing links to is reachable from nothing. This is
+// the closest sibling by subject — both answer "what does an hour of labor
+// really cost", one for a crew you employ and one for a worker you place.
+test('index links one hop to the staffing-markup-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/staffing-markup-calculator\/"/,
+    'index must link ../staffing-markup-calculator/ so crawlers reach the staffing markup calculator in one hop',
+  );
+});
