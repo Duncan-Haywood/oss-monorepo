@@ -204,6 +204,22 @@ readings:
       needs no secret and reports per-port reachability from a runner.
       Note this itself needs a runner, so it cannot be re-measured while
       `github-actions-runners` is down.
+      **Do not substitute a TCP probe from a session sandbox, and do not
+      believe one you have already run** (added 2026-09-10, after running
+      exactly that). A raw `socket.connect()` to either box reports
+      `:80` and `:443` **OPEN** and `:22` and `:6443` timed out — which
+      inverts the real signature (`:22` open, the rest refused) and reads
+      like a cluster that has come back serving. It is the agent egress
+      proxy answering on the two ports it proxies: an HTTP request to
+      `89.167.29.39:80` returns `403` with `x-deny-reason:
+      host_not_allowed` and a body naming the egress allowlist, not
+      anything from Hetzner. The timeouts are equally meaningless — they
+      are ports the proxy does not handle, not ports the box refused. So a
+      sandbox can measure *nothing* about these hosts, in either
+      direction, and a reading that looks like recovery is the one to
+      distrust most: it would retire this row, drop
+      `hetzner-ssh-key-is-a-public-key` down the queue, and send the next
+      session to build on a cluster that is still dead.
     note: >-
       `:6443` refused on both boxes, so the k3s API server is not listening —
       a dead or absent cluster rather than a crashed ingress. `:22` is open
