@@ -15,6 +15,7 @@ import {
   readerFor,
   assertKeyFilePublished,
   EXIT_NO_EGRESS,
+  isEgressRefusal,
 } from './indexnow.mjs';
 import { INDEXNOW_KEY, indexNowKeyFileName } from '../pages/build.mjs';
 
@@ -159,6 +160,38 @@ test('submit reports a transport failure as a result rather than throwing', asyn
   // one the API chose.
   assert.equal(result.status, 0);
   assert.match(result.error, /fetch failed/);
+});
+
+// The correction to what #4379 shipped, measured against the real proxy on
+// 2026-09-10. `EXIT_NO_EGRESS` was added on the premise that a blocked host
+// makes `fetch` reject -- which is what `curl` sees. Node's fetch instead
+// resolves with an ordinary 403 carrying the proxy's own body, so the run took
+// the generic-failure branch and reported the sandbox limit as "IndexNow
+// refused what we sent", which is the exact confusion the exit code exists to
+// remove.
+test('an egress proxy answering 403 in IndexNow\'s place is recognised', () => {
+  assert.equal(
+    isEgressRefusal({
+      status: 403,
+      body: 'Host not in allowlist: api.indexnow.org. Add this host to your network egress settings to allow access.',
+    }),
+    true,
+  );
+});
+
+test('IndexNow\'s own 403 stays a real failure', () => {
+  // The expensive direction. IndexNow answers 403 for an invalid key, which is
+  // a genuine defect in the published key file -- burying it under "no egress"
+  // would be worse than the confusion this whole mechanism exists to fix, so
+  // the match is on the proxy's own wording and not on the status.
+  assert.equal(isEgressRefusal({ status: 403, body: 'Forbidden - Key not valid' }), false);
+  assert.equal(isEgressRefusal({ status: 403, body: '' }), false);
+  assert.equal(isEgressRefusal({ status: 422, body: 'Unprocessable Entity' }), false);
+  assert.equal(
+    isEgressRefusal({ status: 200, body: 'not in allowlist' }),
+    false,
+    'a 200 is an accepted submission whatever the body says',
+  );
 });
 
 test('EXIT_NO_EGRESS is distinct from the ordinary failure exit', () => {

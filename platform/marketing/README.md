@@ -204,8 +204,22 @@ replacement for it. A session's own sandbox cannot reach `api.indexnow.org`
 (the agent egress proxy blocks it, same as `github.io`) — `--submit` only
 does something from a host with real egress, e.g. a GitHub Actions runner.
 From a host without one it now exits `EXIT_NO_EGRESS` (3) and says so, rather
-than rejecting with a raw `TypeError: fetch failed` that reads like a defect
-in this script.
+than reading like a defect in this script.
+
+**Two shapes of "no egress", and the second is the one that actually happens
+here (measured 2026-09-10).** `EXIT_NO_EGRESS` was first added on the premise
+that a blocked host makes `fetch` *reject* — which is what `curl` sees
+(`CONNECT tunnel failed, response 403`). Running the real thing showed
+otherwise: Node's fetch resolves with an ordinary **403 carrying the proxy's
+own body**, so the first revision took the generic-failure branch and reported
+the sandbox limit as "IndexNow refused what we sent" — the exact confusion the
+exit code exists to remove. `isEgressRefusal` now catches that shape too.
+
+The match is deliberately narrow, on the proxy's own wording (`not in
+allowlist` / `network egress settings`) rather than on the status, because
+**IndexNow itself answers 403 for an invalid key** — a real defect in the
+published key file, which must stay loud. A false positive here would bury it,
+and that is the more expensive of the two mistakes.
 
 **You do not have to remember to run it after a publish (changed 2026-09-10).**
 This section used to end "Run it after any `publish-branch.sh` that actually
