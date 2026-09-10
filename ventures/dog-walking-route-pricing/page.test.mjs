@@ -54,9 +54,34 @@ test('the page carries the standard sponsor link and a LICENSE link', () => {
   assert.match(html, /href="LICENSE"/);
 });
 
-test('the privacy line names both stored event types and says nothing is uploaded or saved', () => {
-  assert.match(html, /never uploaded/);
-  assert.match(html, /nothing is saved when you close the tab/);
+test('the privacy line names both stored event types, says nothing is uploaded, and keeps the client-list promise', () => {
+  assert.match(html, /nothing is ever uploaded/);
+  // Visit inputs are now saved locally so the calculator does not make a
+  // page-wide "nothing is saved" claim that a draft feature would falsify —
+  // but the client list's own, narrower promise must still hold.
+  assert.match(html, /it is never saved anywhere/);
+  assert.match(html, /route table clears on refresh by design|closing or refreshing the tab clears it/);
+});
+
+test('the page ships a save-and-share draft feature for the visit inputs, matching sibling calculators', () => {
+  assert.match(html, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  assert.match(html, /id="copyLink"/);
+  assert.match(html, /id="reset"/);
+  assert.match(html, /id="draftStatus"/);
+});
+
+test('the client route table is never included in the shareable link or local draft', () => {
+  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
+  assert.ok(scriptMatch, 'app script not found');
+  const body = scriptMatch[1];
+  assert.match(body, /function visitInputs\(\) \{ return Object\.fromEntries\(VISIT_IDS\.map/);
+  // The only calls into share.mjs and the visit draft key must be built from
+  // `visitInputs()` / `VISIT_IDS`, never from the client-row inputs — and
+  // `encodeInputs`/the draft key must appear nowhere else in the script.
+  assert.equal([...body.matchAll(/encodeInputs\(/g)].length, 1);
+  assert.match(body, /encodeInputs\(visitInputs\(\)\)/);
+  assert.equal([...body.matchAll(/localStorage\.setItem\(DRAFT_KEY,/g)].length, 1);
+  assert.match(body, /localStorage\.setItem\(DRAFT_KEY, JSON\.stringify\(visitInputs\(\)\)\)/);
 });
 
 test('the visit result panel announces recalculation to screen readers', () => {

@@ -34,18 +34,18 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 136 files, 556176 bytes
-#   portfolio-front-tools-1: 111 files, 554591 bytes
+#   portfolio-front-tools-1: 112 files, 556445 bytes
 #   portfolio-front-tools-2: 147 files, 545205 bytes
 #   portfolio-front-tools-3: 145 files, 556868 bytes
 #   portfolio-front-tools-4: 125 files, 556779 bytes
-#   portfolio-front-tools-5: 130 files, 556560 bytes
-#   portfolio-front-tools-6: 123 files, 544436 bytes
+#   portfolio-front-tools-5: 130 files, 554583 bytes
+#   portfolio-front-tools-6: 124 files, 548549 bytes
 #   portfolio-front-tools-7: 109 files, 547837 bytes
 #   portfolio-front-tools-8: 120 files, 556809 bytes
 #   portfolio-front-tools-9: 124 files, 556589 bytes
 #   portfolio-front-tools-10: 99 files, 555979 bytes
 #   portfolio-front-tools-11: 109 files, 533410 bytes
-#   portfolio-front-tools-12: 55 files, 267423 bytes
+#   portfolio-front-tools-12: 56 files, 270876 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -288,6 +288,7 @@ configMapGenerator:
       - tiktok-shop-fee-calculator__index.html.gz=tiktok-shop-fee-calculator__index.html.gz
       - tiktok-shop-fee-calculator__should-i-bundle-tiktok-shop-orders.html.gz=tiktok-shop-fee-calculator__should-i-bundle-tiktok-shop-orders.html.gz
       - tiktok-shop-fee-calculator__should-i-offer-free-shipping-on-tiktok-shop.html.gz=tiktok-shop-fee-calculator__should-i-offer-free-shipping-on-tiktok-shop.html.gz
+      - tiktok-shop-fee-calculator__to-where-to-sell.mjs.gz=tiktok-shop-fee-calculator__to-where-to-sell.mjs.gz
       - tiktok-shop-fee-calculator__usage.mjs.gz=tiktok-shop-fee-calculator__usage.mjs.gz
       - tiktok-shop-fee-calculator__vs-tiktok-shops-seller-university.html.gz=tiktok-shop-fee-calculator__vs-tiktok-shops-seller-university.html.gz
       - tiktok-shop-fee-calculator__what-will-the-tiktok-shop-fee-change-cost-me.html.gz=tiktok-shop-fee-calculator__what-will-the-tiktok-shop-fee-change-cost-me.html.gz
@@ -818,6 +819,7 @@ configMapGenerator:
       - dog-walking-route-pricing__calc.mjs.gz=dog-walking-route-pricing__calc.mjs.gz
       - dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz=dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz
       - dog-walking-route-pricing__index.html.gz=dog-walking-route-pricing__index.html.gz
+      - dog-walking-route-pricing__share.mjs.gz=dog-walking-route-pricing__share.mjs.gz
       - dog-walking-route-pricing__usage.mjs.gz=dog-walking-route-pricing__usage.mjs.gz
       - dog-walking-route-pricing__vs-rover.html.gz=dog-walking-route-pricing__vs-rover.html.gz
       - dryer-vent-bid-calculator__calc.mjs.gz=dryer-vent-bid-calculator__calc.mjs.gz
@@ -886,12 +888,12 @@ configMapGenerator:
       - electrical-panel-upgrade-bid-calculator__index.html.gz=electrical-panel-upgrade-bid-calculator__index.html.gz
       - electrical-panel-upgrade-bid-calculator__share.mjs.gz=electrical-panel-upgrade-bid-calculator__share.mjs.gz
       - electrical-panel-upgrade-bid-calculator__usage.mjs.gz=electrical-panel-upgrade-bid-calculator__usage.mjs.gz
-      - electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz=electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz=electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz
       - entry-door-bid-calculator__calc.mjs.gz=entry-door-bid-calculator__calc.mjs.gz
       - entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz=entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz
       - entry-door-bid-calculator__index.html.gz=entry-door-bid-calculator__index.html.gz
@@ -1621,6 +1623,7 @@ configMapGenerator:
       - whatnot-seller-payout__index.html.gz=whatnot-seller-payout__index.html.gz
       - whatnot-seller-payout__share.mjs.gz=whatnot-seller-payout__share.mjs.gz
       - whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz=whatnot-seller-payout__should-i-offer-free-shipping-on-whatnot.html.gz
+      - whatnot-seller-payout__to-where-to-sell.mjs.gz=whatnot-seller-payout__to-where-to-sell.mjs.gz
       - whatnot-seller-payout__usage.mjs.gz=whatnot-seller-payout__usage.mjs.gz
       - whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz=whatnot-seller-payout__vs-whatnot-seller-dashboard.html.gz
       - wheelchair-ramp-bid-calculator__calc.mjs.gz=wheelchair-ramp-bid-calculator__calc.mjs.gz
