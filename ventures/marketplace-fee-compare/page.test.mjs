@@ -274,3 +274,89 @@ test("index links statically to the Whatnot payout calculator", () => {
     "index must carry a static ../whatnot-seller-payout/ href — a runtime-built link is invisible to a crawler",
   );
 });
+
+// ---------------------------------------------------------------------------
+// The "continue with these numbers" handoff is actually wired to the page
+// ---------------------------------------------------------------------------
+//
+// `handoff.test.mjs` proves the mapping and the URLs are right. It imports the
+// module directly and never looks at the page, so it stays green if the section
+// this feature renders into is missing, misspelled, or never un-hidden — the
+// exact shape of defect CLAUDE.md records as having shipped here before: "a
+// page whose markup swallowed its own app scriptSource rendered perfectly and did
+// nothing". These assertions are the other half.
+
+test("the page imports the handoff module", () => {
+  assert.match(
+    scriptSource,
+    /import\s*\{[^}]*handoffsForRows[^}]*\}\s*from\s*["']\.\/handoff\.mjs["']/,
+    "index.html must import handoffsForRows — the module is dead code otherwise",
+  );
+});
+
+test("every id the handoff renderer touches exists in the markup", () => {
+  for (const id of ["handoffSection", "handoffs"]) {
+    assert.ok(
+      markup.includes(`id="${id}"`),
+      `scriptSource writes to #${id} but the markup has no such element`,
+    );
+  }
+});
+
+test("the handoff section starts hidden and is un-hidden by a render", () => {
+  // It sits inside #resultSection, which is itself hidden until the inputs
+  // parse. Shipping it visible would show an empty "Continue with these
+  // numbers" heading above nothing on a page with bad inputs.
+  assert.match(
+    markup,
+    /id="handoffSection"[^>]*class="[^"]*\bhidden\b/,
+    "handoffSection must ship hidden",
+  );
+  // Asserted against the renderer's body rather than one exact expression, so
+  // it survives an ordinary refactor while still failing if the section can
+  // only ever be hidden (or only ever shown).
+  const body = /function paintHandoffs\([\s\S]*?\n  \}/.exec(scriptSource);
+  assert.ok(body, "no paintHandoffs function to check");
+  assert.ok(
+    /el\("handoffSection"\)/.test(body[0]),
+    "paintHandoffs never reads #handoffSection",
+  );
+  assert.ok(
+    /classList\.remove\("hidden"\)/.test(body[0]),
+    "nothing ever un-hides handoffSection",
+  );
+  assert.ok(
+    /classList\.add\("hidden"\)/.test(body[0]),
+    "handoffSection is never re-hidden when there are no links",
+  );
+});
+
+test("paint renders the handoffs, so they follow the current inputs", () => {
+  // If paintHandoffs were called only once at startup, the links would keep the
+  // page's default item forever and quietly hand over numbers the seller
+  // replaced — a wrong number on arrival, with nothing red anywhere.
+  assert.match(scriptSource, /function paint\(\)[\s\S]*?paintHandoffs\(rows, item\)/,
+    "paint() must call paintHandoffs so the links track the inputs");
+});
+
+test("following a handoff is counted", () => {
+  // The measurement this feature exists to produce. Without it there is no way
+  // to tell whether the ranking leads anywhere, which is the whole hypothesis.
+  assert.match(scriptSource, /count\("handoff_followed"\)/, "handoff clicks are not counted");
+  assert.match(
+    scriptSource,
+    /el\("handoffs"\)\.addEventListener\("click"/,
+    "the counter must be delegated — the links are rebuilt on every render",
+  );
+});
+
+test("the handoff links are relative and carry a fragment, never a query", () => {
+  // Asserted at the page level too because a template that hard-coded an
+  // absolute origin would break under the GitHub Pages project path prefix, and
+  // one that used "?" would put the seller's cost of goods in a server log.
+  assert.ok(
+    !/href="https?:\/\/[^"]*(ebay|etsy|amazon|walmart|tiktok|shopify)-[^"]*calculator/.test(markup),
+    "a deep-tool link is absolute; it must stay relative",
+  );
+  assert.match(scriptSource, /href="\$\{escapeHtml\(link\.href\)\}"/, "link href is not escaped");
+});

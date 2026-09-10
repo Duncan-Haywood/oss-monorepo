@@ -138,6 +138,16 @@
     a { color: var(--accent); }
     .hidden { display: none; }
     .actions { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin-top: .9rem; }
+    .handoff { margin-top: 1rem; border-top: 1px solid var(--border); padding-top: .8rem; }
+    .handoff h3 { font-size: 1rem; margin: 0 0 .3rem; }
+    .handoff p { margin: 0 0 .5rem; }
+    .handoff ul { list-style: none; margin: 0; padding: 0;
+                  display: flex; flex-direction: column; gap: .45rem; }
+    .handoff li { line-height: 1.35; }
+    /* The winner is the link most people want, so it is the one that reads as a
+       button. The rest stay ordinary links rather than competing with it. */
+    .handoff .best-link { font-weight: 600; }
+    .handoff .rank { color: var(--muted); font-size: .87rem; }
     @media (max-width: 640px) { .wrap { padding: 1.2rem .8rem 3rem; } }
   </style>
 </head>
@@ -214,6 +224,24 @@
         </table>
       </div>
       <p id="demandCaveat" class="caveat hidden"></p>
+
+      <!-- The ranking is a starting point, not the answer: every rate in the
+           table above is a flat headline, and each channel's own calculator
+           models the parts a flat rate cannot. These links carry the item
+           already typed above into that calculator, so following one costs no
+           retyping. Built per render rather than written into the markup so the
+           numbers in each link are the numbers on screen. The bare,
+           crawler-visible links to the same tools stay in "What each channel's
+           number leaves out" below. -->
+      <section id="handoffSection" class="handoff hidden">
+        <h3>Continue with these numbers</h3>
+        <p class="fine">
+          Each channel's own calculator opens with the item above already filled
+          in. Nothing is uploaded — the figures travel inside this browser only.
+        </p>
+        <ul id="handoffs"></ul>
+      </section>
+
       <div class="actions">
         <button id="copy" type="button">Copy this comparison</button>
         <button id="copyShare" type="button">Copy share link</button>
@@ -324,6 +352,7 @@
   } from "./calc.mjs";
   import { recordUsage } from "./usage.mjs";
   import { decodeShare, encodeShare } from "./share.mjs";
+  import { handoffsForRows } from "./handoff.mjs";
 
   const FIELD_IDS = [
     "price", "shippingCharged", "itemCost", "shippingCost",
@@ -436,6 +465,36 @@
     } else {
       caveat.classList.add("hidden");
     }
+
+    paintHandoffs(rows, item);
+  }
+
+  // "Continue with these numbers", rebuilt on every render.
+  //
+  // Ordered by the ranking rather than by the handoff table, so the channel
+  // that just won the comparison is the first link the reader meets. The rate
+  // is repeated on each line because the reader is being asked to leave this
+  // table, and the number they are acting on should still be visible when they
+  // decide which link to take.
+  function paintHandoffs(rows, item) {
+    const links = handoffsForRows(rows, item);
+    const section = el("handoffSection");
+    if (links.length === 0) {
+      section.classList.add("hidden");
+      el("handoffs").replaceChildren();
+      return;
+    }
+    section.classList.remove("hidden");
+    el("handoffs").innerHTML = links.map((link, index) => {
+      const rank = index === 0
+        ? '<span class="rank">best on fees here</span>'
+        : `<span class="rank">#${index + 1} here</span>`;
+      return `<li>
+        <a class="${index === 0 ? "best-link" : ""}" href="${escapeHtml(link.href)}"
+           data-handoff="${escapeHtml(link.channel)}">${escapeHtml(link.channelLabel)}:
+          open the ${escapeHtml(link.label)}</a> ${rank}
+      </li>`;
+    }).join("");
   }
 
   // A shared link is applied before the first paint, so the first thing a
@@ -463,6 +522,20 @@
   for (const channel of CHANNELS) {
     el(`rate-${channel.id}`).addEventListener("input", onInput);
   }
+
+  // Whether anyone actually follows the handoff is the one thing worth
+  // measuring about it: the ranking on this page is cheap to read and the deep
+  // calculators are where the work is, so a comparison that never leads into
+  // one is a funnel that stops here. Delegated because the links are rebuilt on
+  // every render.
+  //
+  // Which channel was followed is deliberately NOT recorded. This counter has
+  // never held a category, a price or a cost, and one seller's chosen
+  // marketplace is closer to those than to a page view. "Was it followed at
+  // all" is the question, and it is answerable without narrowing anyone.
+  el("handoffs").addEventListener("click", (event) => {
+    if (event.target.closest("a[data-handoff]")) count("handoff_followed");
+  });
 
   el("copy").addEventListener("click", async () => {
     if (!lastRun) {
