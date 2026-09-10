@@ -24039,3 +24039,94 @@ entries:
         whole-catalogue --record sweep, which browser_state.py reports
         stale for reasons predating this branch.
     mrr_end: 0
+  - venture: carpet-install-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped should-i-charge-2-a-yard-to-install-carpet.html, testing the
+        venture's own top hypothesis (VENTURE.yaml #1/portfolio/router/allocate.py):
+        the generic "$2 a yard installed" special carpet installers are shopped
+        on cannot see scope, stairs, pattern, or extras.
+      - >-
+        First picked crown-molding-bid-calculator (router's #1 uncovered
+        candidate at session start) and built the identical page
+        (should-i-charge-8-a-foot-to-install-crown-molding.html) -- but before
+        pushing, discovered another concurrent session had already shipped and
+        merged the same venture/hypothesis as PR #4482
+        (should-i-charge-8-a-foot-for-crown-molding.html, same JOB_PRESETS
+        arithmetic, same $542.95/$7,070.87/"thirteen times" figures) while this
+        session was mid-verification. Per CLAUDE.md's Duplicate PRs guidance,
+        discarded the duplicate work rather than opening a competing PR, reset
+        to the new main, and re-ran portfolio/router/allocate.py's ranked list
+        to find the next uncovered candidate with a genuine gap.
+      - >-
+        carpet-install-bid-calculator (router rank 5, already on main) had the
+        same templated hypothesis shape (walk-away price vs. a published
+        per-unit flat-rate special) and no should-i-charge-* decision page yet
+        (only a moving-furniture line-item page, a how-much-to-charge page, and
+        vs-measuresquare). Used calc.mjs's own JOB_PRESETS and
+        floorYardsFromSqft rather than hand-typed numbers: under the
+        calculator's default crew rates ($38/hr, 30% burden, 15% overhead, 20%
+        margin), $2/yd covers none of the four preset jobs -- not even the
+        cheap 400 sq ft living-room special, where the $22/billed-yard carpet
+        invoice alone ($1,075.56) is over 12x the flyer's total price
+        ($88.89). The sharpest comparison is the two jobs sharing identical
+        400 sq ft: a flat stretch-in special is $2,078.12 short of its
+        walk-away price, while a 14-stair patterned glue-down on the same
+        footage is $3,830.70 short, about 1.8x worse from scope alone.
+      - >-
+        Linked from index.html and the existing how-much-to-charge guide page,
+        listed in sitemap.xml, carries FAQPage JSON-LD verified word-for-word
+        against the visible copy (faq-visible.test.mjs caught an em-dash vs.
+        "--" mismatch on the first draft of both this page and the earlier
+        discarded crown-molding page; fixed both times and re-verified), and a
+        new test file pins every dollar figure and the 1.8x ratio to
+        calc.mjs's live output. Ran platform/marketing/regen.mjs twice (once
+        after first authoring the page, again after the JSON-LD punctuation
+        fix, since front-door-tools.test.mjs correctly caught the stale
+        mirror) and committed what it rewrote both times.
+      - >-
+        Verified locally throughout (Actions runners confirmed starved
+        2026-09-10 per portfolio/ledger/infra_state.yaml): node --test on the
+        venture's own suite (141/141, before and after each merge below); node
+        --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+        (1206/1206, after the JSON-LD fix and again after each merge); node
+        platform/pages/clauses.mjs carpet-install-bid-calculator (5 pages, 1
+        surface, clean); python3 platform/ci/checklist_coverage.py clean;
+        python3 -m pytest gitops/tests -q (532 passed/25 skipped, clone
+        unshallowed, re-run post-merge); python3
+        platform/ci/run_workflow_locally.py --for-changes (10/11 selected
+        workflows fully green; the sole exception, pages.yml, fails only
+        because its "Build the site" step contains a ${{ }} expression the
+        local runner cannot evaluate, so the downstream link-check step
+        correctly reports no _site directory -- independently confirmed not a
+        real defect by running node platform/pages/build.mjs and python3
+        platform/ci/check_pages_links.py by hand: 920 pages built, every link
+        resolves). Did not touch venture-scores.yaml, so score_ventures.py
+        --check was not re-run.
+      - >-
+        python3 platform/ci/run_workflow_locally.py --tree (8/9 selected
+        workflows fully green; the ninth, portfolio-pages.yml's deploy job,
+        was correctly not run locally) surfaced one apparent failure,
+        check_venture_regression.py reporting self-storage-rate-increase-calculator
+        "removed" -- diagnosed via the check's own printed guidance as this
+        session's tree being behind main (PR #4483 had just merged mid-sweep),
+        not a real regression: `git fetch --unshallow` (the clone had
+        re-shallowed to disconnected single-commit grafts, so `git merge`
+        refused with "unrelated histories" until this ran), then `git merge
+        origin/main` twice more as main kept moving (#4483
+        self-storage-rate-increase-calculator, resolving 3 binary/yaml
+        conflicts in this venture's own mirror shards by taking origin's side
+        and re-running regen.mjs per CLAUDE.md; #4485
+        security-deposit-return-calculator, a clean auto-merge). Re-ran
+        check_venture_regression.py --base origin/main clean after each merge,
+        and re-ran the venture suite and the full marketing/pages suite clean
+        after the final merge.
+      - >-
+        No open PRs existed at any point this session (checked repeatedly via
+        the GitHub API, including immediately before this push). main
+        advanced five times during this session's work on this one page
+        (#4480, #4481, #4482 the crown-molding duplicate, #4483, #4485); each
+        was merged in and re-verified rather than raced against.
+    mrr_end: 0
