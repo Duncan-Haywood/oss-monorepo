@@ -44,3 +44,24 @@ export function decodeInputs(source) {
   }
   return result;
 }
+
+/**
+ * Turns a decoded link into a value for every field the form owns.
+ *
+ * Absent is not the same as unchanged. `listedPrice` and `offerPrice` drive
+ * the optional offer comparison, so a seller who is not weighing an offer
+ * leaves them blank and `encodeInputs` omits them from the link entirely.
+ * Writing only the keys a link carried leaves the recipient's own saved draft
+ * sitting in those boxes, so a plain sale opens showing an offer comparison
+ * against a price the sender never sent -- the two people read different
+ * payouts with nothing on screen saying the sale was not the sender's.
+ *
+ * `formValues` is the supported way to apply a decoded link: every field gets
+ * written, so one the link did not carry is cleared to blank rather than left
+ * showing someone else's numbers. A required field missing from a link leaves
+ * an empty box that `calc.mjs` reports -- visibly wrong on a form the
+ * recipient is looking at, rather than quietly wrong in a number they are not.
+ */
+export function formValues(decoded) {
+  return Object.fromEntries(FIELD_IDS.map(id => [id, decoded?.[id] !== undefined ? String(decoded[id]) : '']));
+}

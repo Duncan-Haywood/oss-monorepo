@@ -85,10 +85,25 @@ case "$cmd" in
   # not an env-var prefix: a `GH_TOKEN=... ssh` would put the PAT in the remote
   # box's own `ps`. Draining it here also lets a test assert the token never
   # appears in the recorded argv, which is the property that matters.
+  # All three host-mode installers take their secret this way now, so the
+  # branch records *which* one it was. Tests assert on that tag rather than on
+  # a bare "credentials", because the property worth pinning is that the Codex
+  # worker and the runner each got their own -- the failure this closes was one
+  # of them silently not being credentialed at all.
   *"--credentials"*)
     body="$(cat)"
-    printf 'STDIN %s bytes: credentials\\n' "${{#body}}" >> "{calls}"
-    test ! -f "{state}/site_creds_fails"
+    case "$cmd" in
+      *install-codex-host.sh*)          who=codex ;;
+      *install-github-runner-host.sh*)  who=runner ;;
+      *install-portfolio-site-host.sh*) who=site ;;
+      *)                                who=unknown ;;
+    esac
+    printf 'STDIN %s bytes: credentials for %s\\n' "${{#body}}" "$who" >> "{calls}"
+    # Kept verbatim so a test can assert on the env file's *shape* -- one
+    # KEY=value per line -- which is the part systemd is strict about and the
+    # part a pretty-printed auth.json would break.
+    printf '%s' "$body" > "{state}/creds_${{who}}.body"
+    test ! -f "{state}/${{who}}_creds_fails"
     exit $?
     ;;
 esac
@@ -592,6 +607,224 @@ def test_both_host_mode_extras_can_be_installed_in_one_restore(box):
     assert any("install-github-runner-host.sh" in line for line in log.splitlines())
 
 
+# ------------------------------- credentials for steps 9 and 10, in the same run
+#
+# Step 11 has always passed the site its token inline, because the install
+# cannot clone without it. Steps 9 and 10 installed and then told the owner to
+# come back -- so a successful restore left the two things this script exists
+# to make survivable (dev capacity, CI) sitting uncredentialed, and finishing
+# them meant holding HETZNERSSHKEY a second time. Since that key is the single
+# owner action every route here is blocked on, a second trip is the expensive
+# kind of friction. These pin the hand-off and the three properties that make
+# it safe: it never reaches argv, it cannot fail the restore, and it is still
+# not the same thing as authorising spend.
+
+CODEX_AUTH = '{"tokens":{"access_token":"sk-verysecret-access","account_id":"a1"}}'
+
+
+def test_codex_credentials_land_in_the_same_run(box):
+    result = box.run(WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH, CODEX_GH_TOKEN="ghp_c")
+    assert result.returncode == 0, result.stderr
+    assert "credentials for codex" in box.log()
+    assert "credentialed" in result.stdout
+
+
+def test_codex_credentials_are_written_after_the_install(box):
+    """Order is load-bearing: the installer creates what the file is owned against."""
+    box.run(WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH, CODEX_GH_TOKEN="ghp_c")
+    lines = box.log().splitlines()
+    install = next(
+        i for i, l in enumerate(lines) if "install-codex-host.sh" in l and "--credentials" not in l
+    )
+    creds = next(i for i, l in enumerate(lines) if "credentials for codex" in l)
+    assert install < creds, f"credentials written before the install:\n{box.log()}"
+
+
+def test_codex_auth_json_never_reaches_argv(box):
+    """It rides stdin; an env-var prefix would put it in the box's own `ps`."""
+    result = box.run(WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH, CODEX_GH_TOKEN="ghp_secret_c")
+    assert "sk-verysecret-access" not in box.log()
+    assert "sk-verysecret-access" not in result.stdout
+    assert "sk-verysecret-access" not in result.stderr
+    assert "ghp_secret_c" not in box.log()
+    assert "ghp_secret_c" not in result.stdout
+
+
+def test_pretty_printed_auth_json_is_folded_onto_one_line(box):
+    """systemd reads credentials.env one KEY=value per line.
+
+    `codex login` may leave auth.json pretty-printed, and a multi-line value
+    would truncate at the first newline -- an install that looks clean and then
+    fails every tick six hours apart on the auth cooldown.
+    """
+    box.run(
+        WITH_CODEX_HOST=1,
+        CODEX_AUTH_JSON='{\n  "tokens": {\n    "access_token": "sk-x"\n  }\n}',
+        CODEX_GH_TOKEN="ghp_c",
+    )
+    body = (box.state / "creds_codex.body").read_text()
+    keys = [l.split("=", 1)[0] for l in body.splitlines() if l]
+    assert keys == ["CODEX_AUTH_JSON", "GH_TOKEN"], body
+    assert '"access_token": "sk-x"' in body
+
+
+def test_codex_without_credentials_keeps_the_old_two_step_path(box):
+    """The flag alone must behave exactly as it did, and name the shortcut."""
+    result = box.run(WITH_CODEX_HOST=1)
+    assert result.returncode == 0, result.stderr
+    assert "credentials for codex" not in box.log()
+    assert "spends no quota" in result.stdout
+    assert "CODEX_AUTH_JSON" in result.stdout
+
+
+def test_codex_credentials_failure_does_not_fail_the_restore(box):
+    (box.state / "codex_creds_fails").write_text("")
+    result = box.run(WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH)
+    assert result.returncode == 0, result.stderr
+    assert "credentials did not land" in result.stderr
+    assert "nothing is" in result.stderr and "spending" in result.stderr
+
+
+def test_credentialed_codex_still_does_not_authorise_spend(box):
+    """Installing and credentialing are not the same act as enabling."""
+    result = box.run(WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH, CODEX_GH_TOKEN="ghp_c")
+    assert "enable-codex-governor.sh" in result.stdout
+    assert "not authorising spend" in result.stdout
+
+
+def test_codex_without_a_gh_token_says_it_cannot_open_a_pr(box):
+    """Half a credential is the quiet failure: it runs and delivers nothing."""
+    result = box.run(WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH, GH_TOKEN="", CODEX_GH_TOKEN="")
+    assert result.returncode == 0, result.stderr
+    assert "CODEX_GH_TOKEN" in result.stderr
+
+
+def test_codex_falls_back_to_gh_token_off_a_runner(box):
+    """`load-secrets.sh --exec` exports GH_TOKEN as the agents identity.
+
+    That is exactly the credential the worker wants, so requiring the owner to
+    also spell it CODEX_GH_TOKEN would be a second paste for the same value.
+    """
+    result = box.run(WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH, GH_TOKEN="ghp_agents")
+    assert result.returncode == 0, result.stderr
+    assert "GH_TOKEN=ghp_agents" in (box.state / "creds_codex.body").read_text()
+    assert "CODEX_GH_TOKEN" not in result.stderr
+
+
+def test_codex_does_not_inherit_gh_token_inside_actions(box):
+    """In a workflow GH_TOKEN is the job's own token, not the agents identity.
+
+    Shipping it to the box would install a credential nobody chose, scoped to
+    whatever that workflow happened to be granted.
+    """
+    result = box.run(
+        WITH_CODEX_HOST=1,
+        CODEX_AUTH_JSON=CODEX_AUTH,
+        GH_TOKEN="ghs_theworkflowsowntoken",
+        GITHUB_ACTIONS="true",
+    )
+    assert result.returncode == 0, result.stderr
+    body = (box.state / "creds_codex.body").read_text()
+    assert "ghs_theworkflowsowntoken" not in body
+    assert "GH_TOKEN=\n" in body or body.rstrip().endswith("GH_TOKEN=")
+
+
+def test_a_metered_api_key_alone_is_written_but_says_it_bills(box):
+    """The owner may have no ChatGPT plan; that is their call, not a silent one."""
+    result = box.run(WITH_CODEX_HOST=1, OPENAI_API_KEY="sk-proj-metered")
+    assert result.returncode == 0, result.stderr
+    assert "credentials for codex" in box.log()
+    assert "METERED" in result.stderr
+    assert "bills per token" in result.stderr
+    assert "sk-proj-metered" not in box.log()
+
+
+def test_both_codex_credentials_ship_together_so_the_plan_wins(box):
+    """worker.sh prefers auth.json and unsets the API key, so both is safe."""
+    box.run(WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH, OPENAI_API_KEY="sk-proj-metered")
+    body = (box.state / "creds_codex.body").read_text()
+    keys = [l.split("=", 1)[0] for l in body.splitlines() if l]
+    assert keys == ["CODEX_AUTH_JSON", "GH_TOKEN", "OPENAI_API_KEY"], body
+
+
+def test_runner_token_lands_in_the_same_run(box):
+    result = box.run(WITH_GITHUB_RUNNER_HOST=1, RUNNER_TOKEN="ghp_runnersecret")
+    assert result.returncode == 0, result.stderr
+    assert "credentials for runner" in box.log()
+    assert "ghp_runnersecret" not in box.log()
+    assert "ghp_runnersecret" not in result.stdout
+    assert "CI_RUNNER" in result.stdout
+
+
+def test_runner_credentials_are_written_after_the_install(box):
+    """`write_credentials` chowns to the service account the install creates."""
+    box.run(WITH_GITHUB_RUNNER_HOST=1, RUNNER_TOKEN="ghp_r")
+    lines = box.log().splitlines()
+    install = next(
+        i
+        for i, l in enumerate(lines)
+        if "install-github-runner-host.sh" in l and "--credentials" not in l
+    )
+    creds = next(i for i, l in enumerate(lines) if "credentials for runner" in l)
+    assert install < creds, f"credentials written before the install:\n{box.log()}"
+
+
+def test_runner_without_a_token_keeps_the_old_two_step_path(box):
+    result = box.run(WITH_GITHUB_RUNNER_HOST=1)
+    assert result.returncode == 0, result.stderr
+    assert "credentials for runner" not in box.log()
+    assert "registers with GitHub only once" in result.stdout
+    assert "RUNNER_TOKEN" in result.stdout
+
+
+def test_runner_credentials_failure_does_not_fail_the_restore(box):
+    (box.state / "runner_creds_fails").write_text("")
+    result = box.run(WITH_GITHUB_RUNNER_HOST=1, RUNNER_TOKEN="ghp_r")
+    assert result.returncode == 0, result.stderr
+    assert "token did not land" in result.stderr
+    assert "cluster restore above is unaffected" in result.stderr
+
+
+def test_each_installer_gets_its_own_credential_not_a_shared_one(box):
+    """Three secrets, three destinations -- and no crossed wires."""
+    result = box.run(
+        WITH_CODEX_HOST=1,
+        WITH_GITHUB_RUNNER_HOST=1,
+        WITH_PORTFOLIO_SITE_HOST=1,
+        CODEX_AUTH_JSON=CODEX_AUTH,
+        CODEX_GH_TOKEN="ghp_c",
+        RUNNER_TOKEN="ghp_r",
+        SITE_GH_TOKEN="ghp_s",
+    )
+    assert result.returncode == 0, result.stderr
+    log = box.log()
+    for who in ("codex", "runner", "site"):
+        assert f"credentials for {who}" in log, f"{who} never got one:\n{log}"
+    assert "RUNNER_TOKEN=ghp_r" in (box.state / "creds_runner.body").read_text()
+    assert "ghp_r" not in (box.state / "creds_codex.body").read_text()
+
+
+def test_dry_run_warns_when_host_mode_credentials_are_missing(box):
+    """The plan is where a missing secret is cheap to notice."""
+    result = box.run(CONFIRM="", DRY_RUN=1, WITH_CODEX_HOST=1, WITH_GITHUB_RUNNER_HOST=1)
+    assert "NO CODEX_AUTH_JSON" in result.stdout
+    assert "NO RUNNER_TOKEN" in result.stdout
+
+
+def test_dry_run_names_the_credentials_it_would_write(box):
+    result = box.run(
+        CONFIRM="",
+        DRY_RUN=1,
+        WITH_CODEX_HOST=1,
+        WITH_GITHUB_RUNNER_HOST=1,
+        CODEX_AUTH_JSON=CODEX_AUTH,
+        RUNNER_TOKEN="ghp_r",
+    )
+    assert "built-in ChatGPT quota" in result.stdout
+    assert "registration token" in result.stdout
+    assert "sk-verysecret-access" not in result.stdout
+
+
 # --------------------------------------------- step 11: the one that *serves*
 #
 # Steps 9 and 10 restore what builds -- dev capacity and CI -- onto the box's
@@ -801,3 +1034,100 @@ def test_a_clean_cluster_restore_says_nothing_about_failing(box):
     assert result.returncode == 0, result.stderr
     assert "cluster restore FAILED" not in result.stderr
     assert "cluster restore failed" not in result.stderr
+
+
+# --------------------------------------------------------------------------
+# The dry run's credential half, which must not need SSH.
+#
+# `DRY_RUN=1` is documented at the top of the script as "print the plan and
+# the detected mode, change nothing", and `portfolio/ledger/decision_queue.py`
+# offers it to the account owner as the way to see the plan "without changing
+# anything". Until 2026-09-10 every line of it lived below the SSH gate, so on
+# the one machine that matters -- the owner's, before they have loaded the
+# private key -- it printed nothing at all and exited 1.
+#
+# That is the wrong way round for this particular script. The owner holds
+# HETZNERSSHKEY's counterpart for a single session; the run they make with it
+# sets seven environment variables, and getting one wrong is silent. The most
+# expensive of those mistakes is `OPENAI_API_KEY` where `CODEX_AUTH_JSON` was
+# meant: both credential the Codex worker, and only one of them draws on the
+# ChatGPT plan's included quota rather than billing per token. The script has
+# always said so -- from below the gate, where it could not be read until the
+# window was already open.
+
+
+def test_dry_run_prints_the_extras_plan_without_any_ssh(box):
+    """The half of the rehearsal that needs no key must happen before the key."""
+    result = box.run(CONFIRM="", DRY_RUN=1, CP="root@0.0.0.0",
+                     WITH_CODEX_HOST=1, WITH_GITHUB_RUNNER_HOST=1)
+
+    assert "would install the Codex host governor" in result.stdout
+    assert "would install the GitHub Actions runner" in result.stdout
+    assert "install-codex-host.sh" not in box.log()
+
+
+def test_dry_run_flags_the_metered_key_without_any_ssh(box):
+    """The mistake worth catching before the window, not during it."""
+    result = box.run(CONFIRM="", DRY_RUN=1, CP="root@0.0.0.0",
+                     WITH_CODEX_HOST=1, OPENAI_API_KEY="sk-test")
+
+    assert "METERED OPENAI_API_KEY" in result.stdout, (
+        "a dry run without SSH said nothing about the credential that bills "
+        "per tick, which is the one the owner most needs to catch early"
+    )
+
+
+def test_dry_run_flags_a_missing_site_token_without_any_ssh(box):
+    result = box.run(CONFIRM="", DRY_RUN=1, CP="root@0.0.0.0",
+                     WITH_PORTFOLIO_SITE_HOST=1)
+
+    assert "NO SITE_GH_TOKEN" in result.stdout
+
+
+def test_dry_run_names_the_extras_when_none_were_requested(box):
+    """An empty plan should say what it could have carried.
+
+    All three extras need the same SSH key, so the run that has it is the run
+    to add them on. A dry run that printed nothing would not say that.
+    """
+    result = box.run(CONFIRM="", DRY_RUN=1, CP="root@0.0.0.0")
+
+    assert "WITH_CODEX_HOST=1" in result.stdout
+    assert "WITH_GITHUB_RUNNER_HOST=1" in result.stdout
+    assert "WITH_PORTFOLIO_SITE_HOST=1" in result.stdout
+
+
+def test_a_dry_run_stopped_by_ssh_says_what_it_did_check(box):
+    """`UNRUN`, not `FAILED`.
+
+    The same discrimination `platform/ci/run_workflow_locally.py` draws: a
+    stop that means "could not reach the boxes" must not read as a stop that
+    means "your environment is wrong", or the reader learns to ignore both.
+    """
+    result = box.run(CONFIRM="", DRY_RUN=1, CP="root@0.0.0.0",
+                     WITH_CODEX_HOST=1)
+
+    assert result.returncode != 0, "an incomplete dry run must not exit 0"
+    assert "WERE checked" in result.stderr
+    assert "addressing probe" in result.stderr
+
+
+def test_a_real_run_stopped_by_ssh_does_not_claim_a_dry_run(box):
+    """The note above belongs to DRY_RUN only."""
+    result = box.run(CP="root@0.0.0.0", WITH_CODEX_HOST=1)
+
+    assert result.returncode != 0
+    assert "WERE checked" not in result.stderr
+
+
+def test_a_reachable_dry_run_still_ends_with_the_whole_plan(box):
+    """Reaching the boxes must not cost the reader the credential lines."""
+    result = box.run(CONFIRM="", DRY_RUN=1, WITH_CODEX_HOST=1,
+                     CODEX_AUTH_JSON='{"tokens":{}}')
+
+    assert result.returncode == 0, result.stderr
+    assert "detected: public" in result.stdout
+    assert "would install" in result.stdout
+    # The credential line appears at step 0 and again in the closing block, so
+    # the reader never has to scroll past the addressing output to re-read it.
+    assert result.stdout.count("built-in ChatGPT quota") == 2

@@ -106,7 +106,7 @@ test('page wires save, forget, and a shareable link that wins over the saved dra
   for (const id of ['save', 'forget', 'copyLink', 'saveStatus']) {
     assert.ok(ids.has(id), `missing #${id}`);
   }
-  assert.match(script, /import \{ FIELD_IDS, encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  assert.match(script, /import \{ FIELD_IDS, encodeInputs, decodeInputs, formValues \} from '\.\/share\.mjs'/);
 
   const draftIndex = script.indexOf("localStorage.getItem(DRAFT_KEY)");
   const linkIndex = script.indexOf('decodeInputs(location.hash');

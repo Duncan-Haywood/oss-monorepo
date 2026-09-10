@@ -71,3 +71,20 @@ export function decodeInputs(value) {
   }
   return result;
 }
+
+// The supported way to apply a decoded link's numeric fields: every one the
+// form owns gets written, so a field the sender left blank is cleared rather
+// than left showing whatever the *recipient's own saved draft* put there.
+// Applying a decoded link with a plain object spread (`{ ...saved,
+// ...fromLink }`) looks like the link wins and is not — a key fromLink
+// omits still falls through to saved's value for that key. See
+// platform/ci/check_shared_link_clears.py.
+//
+// Deliberately scoped to INPUT_IDS, not FLAG_FIELDS/CHOICE_FIELDS: giveaway
+// and categoryPreset are always encoded when a link is built at all (a
+// checkbox and a <select> have no "blank" state), so they cannot carry the
+// omitted-field defect this function exists to close — the page applies
+// them from the decoded link directly, when present.
+export function formValues(decoded) {
+  return Object.fromEntries(INPUT_IDS.map(id => [id, decoded?.[id] !== undefined ? String(decoded[id]) : '']));
+}

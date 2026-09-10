@@ -221,6 +221,9 @@ workflows:
 - workflow: countertop-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: craft-fair-booth-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: coverage-drop-check-ci.yml
   classification: none
   publishes: []
@@ -483,6 +486,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: menu-engineering-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: merchant-feed-check-ci.yml
   classification: none
   publishes: []
 - workflow: metal-roof-bid-calculator-ci.yml

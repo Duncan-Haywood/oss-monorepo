@@ -145,6 +145,9 @@
   <h3>Why does one of the six requests send my own origin?</h3>
   <p>That request is not an attack and echoing it back is never reported as a finding -- allowing your own origin is the correct answer. It is there for the Vary: Origin notice, which is about the caching layer in front of the API rather than the allow-list behind it. On a server whose allow-list works, all four attack origins are correctly rejected, so nothing else in the run would ever show that the response still changes with the request. The sixth request does, and the request that sends no Origin header at all is what tells a dynamic header from a static one: a value that is identical whether or not you send an Origin is the same response for everybody and owes no Vary.</p>
   <p>More background: <a href="reflected-origin-cors-vulnerability.html">what a reflected-origin CORS misconfiguration actually lets an attacker do</a>.</p>
+  <p>Already testing with a full web security platform? See <a href="vs-burp-suite.html">how this
+  checker compares to Burp Suite</a> — a six-request CI gate next to an interactive assessment
+  tool, and when each one is the right answer.</p>
 </section>
 
 <script type="module">

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { INPUT_FIELDS } from "./calculator.mjs";
-import { FIELD_IDS, encodeInputs, decodeInputs } from "./share.mjs";
+import { FIELD_IDS, encodeInputs, decodeInputs, formValues } from "./share.mjs";
 
 const SAMPLE = {
   pricePerPound: 1.75, avgOrderPounds: 22, minimumCharge: 20, minimumOrderPounds: 10,
@@ -44,4 +44,29 @@ test("a non-string source decodes to nothing rather than throwing", () => {
   assert.deepEqual(decodeInputs(null), {});
   assert.deepEqual(decodeInputs(undefined), {});
   assert.deepEqual(decodeInputs(42), {});
+});
+
+// A shared link is a whole scenario, not a patch over whatever the recipient
+// already had on screen. A shop with no minimum charge leaves that box blank,
+// `encodeInputs` omits it, and applying only the keys the link carried would
+// leave the recipient's own saved draft in it -- pricing the sender's
+// scenario against a minimum charge the sender never had.
+test("formValues clears a field the link did not carry", () => {
+  const omitted = "minimumCharge";
+  const sender = Object.fromEntries(
+    INPUT_FIELDS.filter(id => id !== omitted).map(id => [id, 4]),
+  );
+  const applied = formValues(decodeInputs(encodeInputs(sender)));
+
+  for (const id of FIELD_IDS) {
+    assert.ok(Object.prototype.hasOwnProperty.call(applied, id), `#${id} must be written, not skipped`);
+  }
+  assert.equal(applied[omitted], "", "a field the sender left blank must arrive blank");
+  for (const id of INPUT_FIELDS.filter(id => id !== omitted)) assert.equal(applied[id], "4");
+});
+
+test("formValues round-trips a scenario with every field filled", () => {
+  const sender = Object.fromEntries(FIELD_IDS.map(id => [id, 6]));
+  const applied = formValues(decodeInputs(encodeInputs(sender)));
+  for (const id of FIELD_IDS) assert.equal(applied[id], "6");
 });

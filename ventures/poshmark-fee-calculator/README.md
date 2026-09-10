@@ -60,6 +60,29 @@ uploaded and never appear in a usage count — those are anonymous tallies of
 which features were used, stored locally. We don't have accounts, tracking
 cookies, or an analytics vendor.
 
+## Comparing Poshmark against other channels
+
+[`../where-to-sell-calculator`](../where-to-sell-calculator/) ranks Poshmark
+beside eBay, Etsy, Amazon and a direct sale on one item, and
+[`to-where-to-sell.mjs`](to-where-to-sell.mjs) carries this page's price and
+cost straight into it with Poshmark already switched on — no retyping. The
+link in the footer is rebuilt on every render, so it always carries what is on
+screen, and the numbers travel in the URL fragment, which browsers never send
+to a server.
+
+It does **not** restate the schedule. That page imports `PERCENT_RATE`,
+`FLAT_FEE` and `COMMISSION_THRESHOLD` from this venture's own
+[`calc.mjs`](calc.mjs), and its `channel-parity.test.mjs` fails if the two
+tools ever disagree about the fee, the tier boundary, or the net profit on the
+same sale — checked at twelve prices either side of the cliff, including the
+$15.00 boundary and the $14.75 point where the flat fee equals 20%. If
+Poshmark changes its schedule, this file is the one place that changes.
+
+[`../marketplace-fee-compare`](../marketplace-fee-compare/) deliberately
+leaves Poshmark out, and that is not an inconsistency: it ranks channels by a
+single headline rate, and a flat fee below a threshold is not one. A per-item
+comparison can price the cliff exactly; a rate table cannot.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of

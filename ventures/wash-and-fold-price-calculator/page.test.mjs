@@ -146,7 +146,7 @@ test("the page's EXAMPLE button values match the shipped input defaults", () => 
 test("the page imports the calculation, the usage counter, and the share codec rather than reimplementing them", () => {
   assert.match(html, /import \{ computeWashAndFold, INPUT_FIELDS \} from "\.\/calculator\.mjs"/);
   assert.match(html, /import \{ recordUsage, setUsageOptOut, usageOptedOut \} from "\.\/usage\.mjs"/);
-  assert.match(html, /import \{ encodeInputs, decodeInputs \} from "\.\/share\.mjs"/);
+  assert.match(html, /import \{ encodeInputs, decodeInputs, formValues \} from "\.\/share\.mjs"/);
   assert.match(html, /run\("estimate"\)/, "calculating counts an estimate event");
   assert.match(html, /recordUsage\("inputs_saved"\)/, "saving a draft counts its own event");
   assert.match(html, /recordUsage\("link_copied"\)/, "copying a link counts its own event");

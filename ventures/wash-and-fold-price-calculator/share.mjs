@@ -46,3 +46,24 @@ export function decodeInputs(source) {
   }
   return result;
 }
+
+/**
+ * Turns a decoded link into a value for every field the form owns.
+ *
+ * Absent is not the same as unchanged. A shop with no minimum charge, no
+ * delivery leg, or no monthly profit goal leaves those boxes blank, and
+ * `encodeInputs` omits a blank from the link entirely. Writing only the keys
+ * a link carried therefore leaves the recipient's own saved draft sitting in
+ * them, so a shared scenario is priced against a minimum charge or a delivery
+ * cost the sender never had -- and the page's own promise that "the recipient
+ * always sees the sender's numbers" quietly stops being true, with nothing on
+ * screen to say so.
+ *
+ * `formValues` is the supported way to apply a decoded link: every field gets
+ * written, so one the link did not carry is cleared to blank rather than left
+ * showing someone else's numbers. A blank the calculator treats as zero is
+ * then the sender's own blank, which is the point.
+ */
+export function formValues(decoded) {
+  return Object.fromEntries(FIELD_IDS.map(id => [id, decoded?.[id] !== undefined ? String(decoded[id]) : ""]));
+}

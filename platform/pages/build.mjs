@@ -691,8 +691,22 @@ const CATEGORY_RULES = [
     // tool does not earn a whole family pattern, and landing it here rather
     // than the catch-all is also what keeps that catch-all inside the bound
     // `build.test.mjs` puts on it.
+    //
+    // `merchant-feed-check` joined 2026-09-10. Same shape again -- a
+    // browser-local checker plus a matching CLI, run against a data file the
+    // operator already has, reporting exactly which rows fail the published
+    // specification -- just for a Google Merchant Center / Meta Catalog
+    // product feed instead of a source/manifest/config artifact. The CLI is
+    // positioned the same way as every member above it: wired into a deploy
+    // pipeline as a gate run before the feed syncs, not a one-off web-form
+    // upload. It cross-links `structured-data-drift-check` as Related (the
+    // other representation of a product Google's Shopping features read).
+    // Listed by exact slug rather than a new prefix, the same way its
+    // neighbors above are: one tool does not earn a whole family pattern,
+    // and landing it here rather than the catch-all is also what keeps that
+    // catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check)/.test(
         slug,
       ),
   },
@@ -738,11 +752,23 @@ const CATEGORY_RULES = [
     // pricing anything -- the axis this section groups on is the earner, not
     // whether the tool is a calculator or a checker, and `ats-resume-checker`
     // is already the precedent for a checker-shaped member here.
+    //
+    // `craft-fair-booth-calculator` joined 2026-09-10, and it is the clearest
+    // member yet: a maker deciding whether one market booth is worth their
+    // weekend is the same person as `3d-print-price-calculator`'s maker
+    // pricing a print, asking the same question about the same labour at a
+    // different moment. It is deliberately *not* in `service-pricing`
+    // alongside `photo-booth-event-quote` and the route-margin tools, even
+    // though all of them price an event: that section groups on a business
+    // quoting work for a customer, and a maker has no customer to quote —
+    // they are deciding what their own hours are worth against a booth fee
+    // nobody negotiated with them.
     test: (slug) =>
       [
         '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
+        'craft-fair-booth-calculator',
         'gig-driver-net-pay-calculator',
         'newsletter-sponsorship-rate-calculator',
         'sponsor-ready',
@@ -5582,8 +5608,20 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
     .replace(/<\/body>/i, `${footer}\n</body>`);
 }
 
-/** A copy-link button a venture wrote itself, in any of its four spellings. */
-const OWN_COPY_BUTTON = /<button[^>]*\bid="(share|copyShare|copyLink|shareLink)"/;
+/**
+ * A copy-link button a venture wrote itself, in any of its five spellings.
+ *
+ * `copy-link` was added 2026-09-10, found while fixing the same gap in
+ * `roundtrip.mjs` (which had grown eleven recognised spellings to this file's
+ * four): `wash-and-fold-price-calculator`, `sponsor-ready` and
+ * `ai-engineering-academy/tools/rc-filter-calculator` all ship a real button
+ * under this id. None currently sit in the bid-calculator family this gate
+ * guards, so the duplicate-button bug this regex exists to prevent has not
+ * fired yet for them -- but the next venture that reuses this id and *is* a
+ * bid calculator would silently get two share controls, exactly the
+ * `freelance-retainer-calculator` failure documented below.
+ */
+const OWN_COPY_BUTTON = /<button[^>]*\bid="(share|copyShare|copyLink|shareLink|copy-link)"/;
 
 /**
  * Does this page already carry a share control of its own?

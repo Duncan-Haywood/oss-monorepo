@@ -182,6 +182,37 @@ and internal links between related tools. `platform/pages/build.mjs` derives
 most of that from each venture's own visible copy, so improve the copy and the
 metadata follows; do not hand-write a schema block beside it.
 
+**Know what the current origin does to two items on that list before you spend
+a run on them** (added 2026-09-10). The catalogue is served from a project-Pages
+*subpath* (`https://duncan-haywood.github.io/monorepo-projects/`), and a crawler
+fetches `robots.txt` from the **host root** — which belongs to the owner's
+separate user-level Pages site. So the `robots.txt` this build publishes is not
+the file any crawler reads, and the `Sitemap:` line inside it has never been
+seen, for any of the 881 pages here. Crawling is still allowed; what is lost is
+*enumeration*. That is the leading candidate for why
+`portfolio/usage/usage.yaml` records zero visitors across all 200 products
+while every other SEO surface is in good order.
+
+Two things follow, and the second is the one that changes what you do:
+
+- Effort spent tuning `robots.txt` on this origin cannot pay off. Effort on the
+  surfaces a crawler *does* reach — page copy, titles, FAQ content, structured
+  data, `llms.txt`, and internal links between related tools — still does, and
+  internal links matter more than usual here precisely because enumeration is
+  unavailable. A page reachable only from the sitemap is, today, reachable from
+  nothing.
+- The fix is an owner action, already queued as `pages-custom-domain` in
+  `portfolio/ledger/asks.yaml` — one DNS change pointing `marisstella.dev` at
+  Pages, needing no SSH key, no cluster and no runner. **Do not add a second
+  ask for it, and do not attempt the DNS change.** The repository half is done:
+  `publish-branch.sh` carries a `CNAME` forward, and
+  `platform/pages/custom-domain.test.mjs` pins that a build under a custom
+  origin comes out correct.
+
+Read `python3 platform/ci/pages_state.py`'s `indexing` row rather than this
+paragraph — the day a custom domain lands, that row changes and this prose
+does not.
+
 One exception, because it is the only surface not derived from the tree: if
 you land a new tool, give it a launch date so it enters the Atom feed at
 `/feed.xml` —

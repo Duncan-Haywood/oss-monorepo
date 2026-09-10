@@ -31,6 +31,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { CHANNEL_PRESETS, calculateChannel } from './calc.mjs';
+import { HANDOFFS } from './handoff.mjs';
 import { REVERB_DEFAULTS, calculateReverbSale } from '../reverb-fee-calculator/calc.mjs';
 import { FEE_SCHEDULE_PRESETS, calculateOrder } from '../tiktok-shop-fee-calculator/calc.mjs';
 import {
@@ -39,10 +40,21 @@ import {
   DEFAULT_PAYMENT_FIXED,
   calculateSale,
 } from '../whatnot-seller-payout/calc.mjs';
+import {
+  COMMISSION_THRESHOLD,
+  FLAT_FEE,
+  PERCENT_RATE,
+  BREAK_EVEN_PRICE,
+  calculateSale as calculatePoshmarkSale,
+  priceForTargetPayout,
+} from '../poshmark-fee-calculator/calc.mjs';
+import { CATEGORY_PRESETS as AMAZON_CATEGORIES, SELLER_PLAN_DEFAULTS } from '../amazon-fba-calculator/calc.mjs';
+import { PLAN_PRESETS } from '../shopify-fee-calculator/calc.mjs';
 
 const reverb = CHANNEL_PRESETS.find((preset) => preset.id === 'reverb');
 const tiktok = CHANNEL_PRESETS.find((preset) => preset.id === 'tiktok');
 const whatnot = CHANNEL_PRESETS.find((preset) => preset.id === 'whatnot');
+const poshmark = CHANNEL_PRESETS.find((preset) => preset.id === 'poshmark');
 
 test('this page still has a Reverb channel to compare', () => {
   // Guard the guard: if the preset is renamed or removed, every assertion
@@ -250,4 +262,186 @@ test('a channel that is off by default says so in its note', () => {
       );
     }
   }
+});
+
+test('this page still has a Poshmark channel to compare', () => {
+  assert.ok(poshmark, 'no channel with id "poshmark" in CHANNEL_PRESETS');
+});
+
+test('the Poshmark two-tier schedule matches the dedicated calculator exactly', () => {
+  // Every one of these is imported from poshmark-fee-calculator rather than
+  // typed here. The rule this follows is the one CLAUDE.md records twice
+  // against a copied constant going stale: if Poshmark changes its schedule,
+  // the dedicated calculator is the one place that changes and this fails
+  // rather than the two pages quietly drifting.
+  assert.equal(poshmark.commissionRate, PERCENT_RATE, 'percentage tier disagrees with poshmark-fee-calculator');
+  assert.equal(poshmark.commissionFlatBelow, FLAT_FEE, 'flat tier disagrees with poshmark-fee-calculator');
+  assert.equal(
+    poshmark.commissionThreshold,
+    COMMISSION_THRESHOLD,
+    'the price the tiers switch at disagrees with poshmark-fee-calculator',
+  );
+  assert.equal(
+    poshmark.commissionBase,
+    'item',
+    'Poshmark commission must apply to the item price only, matching poshmark-fee-calculator',
+  );
+  // Poshmark's commission covers processing; a separate processor line here
+  // would double-charge, the same trap eBay's preset avoids.
+  assert.equal(poshmark.paymentRate, 0, 'Poshmark: processing is inside the commission');
+  assert.equal(poshmark.paymentFixed, 0, 'Poshmark: no separate fixed processing fee');
+});
+
+test('Poshmark net profit matches the dedicated calculator on both sides of the cliff', () => {
+  // The reason this asserts a *sweep* rather than one worked example, unlike
+  // every channel above: Poshmark's fee is the only one in this table that is
+  // not a rate, so a single price can only ever exercise one of its two rules.
+  // The prices below straddle the switch, including the exact boundary and the
+  // $14.75 point where the flat fee equals what 20% would have charged.
+  const prices = [1, 2.95, 5, 10, 14.74, BREAK_EVEN_PRICE, 14.99, 15, 15.01, 25, 100, 480];
+  for (const price of prices) {
+    const shared = { itemCost: 12, packagingCost: 0, otherCost: 2, monthlyOrders: 1 };
+    const here = calculateChannel({ ...poshmark, enabled: true, price }, shared);
+    const there = calculatePoshmarkSale({
+      salePrice: price,
+      itemCost: shared.itemCost,
+      otherCost: shared.otherCost,
+    });
+    assert.equal(there.ok, true, JSON.stringify(there.errors ?? []));
+    // Compared to a billionth rather than with `assert.equal`, unlike the
+    // three channels above, and for one narrow reason worth stating: the two
+    // tools reach the percentage tier by different multiplications --
+    // `price * 20 / 100` here, `price * (20 / 100)` there -- which disagree in
+    // the last bit of a double at some prices ($15.01 gives 3.002 and
+    // 3.0020000000000002). That is a float-representation difference, not a
+    // disagreement about the fee: it is eleven orders of magnitude below the
+    // cent either page displays. A real drift in the schedule would be cents
+    // or dollars and fails this just as loudly.
+    const near = (a, b, what) => assert.ok(
+      Math.abs(a - b) < 1e-9,
+      `${what} at $${price}: this page says ${a}, poshmark-fee-calculator says ${b}`,
+    );
+    near(here.fees.commission, there.commission, 'commission');
+    near(here.profit, there.profit, 'net profit must not jump across the handoff');
+  }
+});
+
+test('the price Poshmark needs for a target agrees with the dedicated calculator across the cliff', () => {
+  // The sharp case, and the reason the solver picks a side rather than
+  // dividing by one rate. With no cost, the payout *is* the profit, so the two
+  // tools are solving the same equation and must return the same price. A
+  // target of $12.04 is reachable just under $15 on the flat tier; $12.06 is
+  // only reachable above $15 on the percentage tier. A solver that ignored the
+  // cliff would answer one of those two with a price on the wrong side, and
+  // the seller would list at it and net less than the page promised.
+  const shared = { itemCost: 0, packagingCost: 0, otherCost: 0, monthlyOrders: 1 };
+  const row = calculateChannel({ ...poshmark, enabled: true, price: 20 }, shared);
+  for (const target of [0, 5, 11.9, 12, 12.04, 12.06, 15, 40]) {
+    assert.equal(
+      Math.round(row.priceForProfit(target) * 1e6) / 1e6,
+      Math.round(priceForTargetPayout(target) * 1e6) / 1e6,
+      `price needed for $${target} disagrees with poshmark-fee-calculator`,
+    );
+  }
+});
+
+test('the Poshmark break-even price is a real zero, not a rate divided', () => {
+  // Guards the branch selection directly: a break-even that landed on the
+  // wrong side of the cliff would still print a plausible number, and the only
+  // way to catch that is to feed it back in.
+  for (const itemCost of [1, 3, 11.8, 12, 12.5, 20, 50]) {
+    const shared = { itemCost, packagingCost: 0, otherCost: 0, monthlyOrders: 1, includeReturns: false };
+    const breakEven = calculateChannel({ ...poshmark, enabled: true, price: 20 }, shared).breakEvenPrice;
+    const at = calculateChannel({ ...poshmark, enabled: true, price: breakEven }, shared).profit;
+    assert.ok(Math.abs(at) < 1e-9, `break-even $${breakEven} leaves $${at} of profit at itemCost ${itemCost}`);
+  }
+});
+
+test('Poshmark charges no postage to either side, matching the dedicated calculator', () => {
+  // The buyer buys a prepaid label from Poshmark at checkout. It is not seller
+  // revenue and not a seller cost, which is why the dedicated calculator has
+  // no shipping input at all -- so this preset must not inherit the shared
+  // figures, or the row would show postage inside a payout that never sees it.
+  assert.equal(poshmark.shippingCharged, 0);
+  assert.equal(poshmark.shippingCost, 0);
+});
+
+test('Poshmark is off until the seller turns it on', () => {
+  assert.equal(poshmark.enabled, false);
+});
+
+// ---------------------------------------------------------------------------
+// The four channels that had a handoff and no parity assertion.
+//
+// Added alongside the Poshmark row above, and the gap is the point: this file
+// was written to stop two tools in one portfolio quoting the same marketplace
+// differently, and it covered Reverb, TikTok Shop and Whatnot -- the three
+// channels added *after* it existed. eBay, Etsy, Amazon and Shopify predate
+// it, carry the portfolio's three busiest handoffs between them, and were
+// never asserted against anything. A guard that covers only the newest cases
+// is the shape CLAUDE.md records for `platform/proposal/`: correct, current,
+// and silent about the ground it does not stand on.
+
+test('the eBay fee assumptions match the dedicated calculator', () => {
+  const ebay = CHANNEL_PRESETS.find((preset) => preset.id === 'ebay');
+  assert.ok(ebay, 'no channel with id "ebay" in CHANNEL_PRESETS');
+  // ebay-fee-calculator takes its final value rate and per-order fixed fee as
+  // inputs with these as the fallbacks, so they are read from its own
+  // behaviour rather than from a constant it does not export.
+  assert.equal(ebay.commissionRate, 13.25, 'final value fee disagrees with ebay-fee-calculator');
+  assert.equal(ebay.paymentFixed, 0.3, 'per-order fixed fee disagrees with ebay-fee-calculator');
+});
+
+test('the Etsy fee assumptions match the dedicated calculator', () => {
+  const etsy = CHANNEL_PRESETS.find((preset) => preset.id === 'etsy');
+  assert.ok(etsy, 'no channel with id "etsy" in CHANNEL_PRESETS');
+  assert.equal(etsy.commissionRate, 6.5, 'transaction rate disagrees with etsy-profit-calculator');
+  assert.equal(etsy.paymentRate, 3, 'Etsy Payments rate disagrees with etsy-profit-calculator');
+  assert.equal(etsy.paymentFixed, 0.25, 'Etsy Payments fixed fee disagrees with etsy-profit-calculator');
+  assert.equal(etsy.perListingFee, 0.2, 'listing fee disagrees with etsy-profit-calculator');
+});
+
+test('the Amazon fee assumptions match the dedicated calculator', () => {
+  const amazon = CHANNEL_PRESETS.find((preset) => preset.id === 'amazon');
+  assert.ok(amazon, 'no channel with id "amazon" in CHANNEL_PRESETS');
+  // This page prices Amazon as one channel with no category picker, so the
+  // catch-all referral rate is the one it must agree with.
+  assert.equal(
+    amazon.commissionRate,
+    AMAZON_CATEGORIES.everything_else.referralRate,
+    'referral rate disagrees with amazon-fba-calculator',
+  );
+  assert.equal(
+    amazon.monthlyFee,
+    SELLER_PLAN_DEFAULTS.professionalMonthly,
+    'Professional plan fee disagrees with amazon-fba-calculator',
+  );
+});
+
+test('the own-store fee assumptions match the Shopify calculator\'s Basic plan', () => {
+  const store = CHANNEL_PRESETS.find((preset) => preset.id === 'own-store');
+  assert.ok(store, 'no channel with id "own-store" in CHANNEL_PRESETS');
+  const basic = PLAN_PRESETS.basic;
+  assert.equal(store.paymentRate, basic.paymentsRate, 'card rate disagrees with shopify-fee-calculator');
+  assert.equal(store.paymentFixed, basic.paymentsFixed, 'card fixed fee disagrees with shopify-fee-calculator');
+  assert.equal(store.monthlyFee, basic.monthlyPlan, 'plan price disagrees with shopify-fee-calculator');
+  // An own store has no marketplace commission. Shopify's extra third-party
+  // transaction fee applies only when the merchant does *not* use Shopify
+  // Payments, which is not what this preset models, so a non-zero commission
+  // here would be a double charge rather than a refinement.
+  assert.equal(store.commissionRate, 0, 'an own store takes no marketplace commission');
+});
+
+test('every channel with a handoff has a parity assertion in this file', () => {
+  // The check that stops this file going stale the way it just did. A new
+  // channel that can hand an item to a dedicated calculator is a new chance
+  // for the two to disagree, so it must be named here -- and if it is not,
+  // this fails naming it, instead of waiting for a seller to find the gap.
+  const asserted = new Set(['ebay', 'etsy', 'amazon', 'reverb', 'own-store', 'tiktok', 'whatnot', 'poshmark']);
+  const missing = HANDOFFS.map((entry) => entry.channel).filter((channel) => !asserted.has(channel));
+  assert.deepEqual(
+    missing,
+    [],
+    `these channels hand an item to a dedicated calculator with no parity assertion here: ${missing.join(', ')}`,
+  );
 });

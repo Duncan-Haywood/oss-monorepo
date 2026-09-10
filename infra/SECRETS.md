@@ -106,11 +106,27 @@ it, and a test asserts they name the same set.
 | `GH_TOKEN` | the agents identity — opening PRs, reading CI, the Codex worker |
 | `HCLOUD_TOKEN` | `preflight.sh`, `make discover`, `tofu plan`. Read-only by policy; never store a write token here |
 | `RUNNER_TOKEN` | registering the host-mode Actions runner (`gitops/ci/host`) — the unmetered CI that makes the next starvation window a non-event |
-| `OPENAI_API_KEY` | the Codex worker's dev capacity (`gitops/agents/host`) |
+| `CODEX_AUTH_JSON` | the Codex worker's dev capacity (`gitops/agents/host`) on the ChatGPT plan's **included** quota — a tick costs nothing extra |
+| `OPENAI_API_KEY` | the same worker's **metered** fallback, billed per token. Only if you have no ChatGPT plan to draw on |
 
-The last two are the ones worth taking while you already hold the SSH key:
+The last three are the ones worth taking while you already hold the SSH key:
 between them they rebuild the two schedulers that died with the cluster, and
 neither depends on Actions minutes afterwards.
+
+**Prefer `CODEX_AUTH_JSON` to `OPENAI_API_KEY`, and if you store the first you
+need not store the second at all.** They are not two ways of spelling the same
+credential: the first draws on usage a ChatGPT plan has already paid for, and
+the second bills per token against an OpenAI project. `worker.sh` resolves them
+in that order and, when both are present, actively `unset`s `OPENAI_API_KEY`
+before invoking `codex` so a tick cannot bill by accident — but a store holding
+only the API key has nothing to fall back *from*, and every tick is a charge.
+This row existed with only the metered name on it until 2026-09-10, which is
+the direction that costs money rather than the direction that costs a message.
+
+`bootstrap/restore-cluster.sh` reads both names, so
+`load-secrets.sh --exec -- ... bootstrap/restore-cluster.sh` hands whichever
+you stored to the worker in the same run that installs it — no second trip with
+the SSH key. Same for `RUNNER_TOKEN`.
 
 ## The three sources, in order
 

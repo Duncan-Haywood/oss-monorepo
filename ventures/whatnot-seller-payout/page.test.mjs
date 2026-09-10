@@ -51,8 +51,17 @@ test('reset restores the page\'s own shipped defaults, not a blank form', () => 
 
 test('a shared or restored lot wins over the shipped worked example', () => {
   assert.match(script, /const fromLink = decodeInputs\(location\.hash \|\| location\.search\)/);
-  assert.match(script, /const restored = \{ \.\.\.saved, \.\.\.fromLink \}/);
   assert.match(script, /exampleNote'\)\.hidden = hasRestored/);
+});
+
+test('a shared link is applied through formValues rather than a plain spread', () => {
+  // Regression for the shared-link-clears defect (platform/ci/check_shared_link_clears.py):
+  // a plain `{ ...saved, ...fromLink }` merge looks like the link wins and is
+  // not -- a numeric field the sender left blank falls through to the
+  // recipient's own saved draft instead of being cleared. formValues(fromLink)
+  // is what actually clears it.
+  assert.match(script, /applyInputs\(formValues\(fromLink\)\)/);
+  assert.doesNotMatch(script, /\{\s*\.\.\.saved\s*,\s*\.\.\.fromLink\s*\}/);
 });
 
 test('every form number input is one the arithmetic knows about', () => {

@@ -8856,3 +8856,131 @@ ventures:
       nothing inferred about any third party, and the party it helps is
       the small shop competing against both online giants with a real
       costing model and other small shops guessing.
+
+  - slug: craft-fair-booth-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally absent. The arithmetic is a contribution-margin
+      break-even solved directly from fees, a materials percentage, a card
+      rate, an average order value, and committed hours — every one of them
+      a number the maker supplies and can re-derive by hand on paper.
+    basis: >-
+      Graduated 2026-09-10 as a free, browser-only go/no-go calculator for
+      makers deciding whether one craft fair, farmers market, art festival,
+      or holiday market booth is worth taking. Scored on the portfolio's
+      calculator norm with one dimension above it and one below.
+      Defensibility 4 rather than the family's usual 3: the structural
+      choice that unsold stock is inventory rather than a cost of the event
+      is the thing every generic "event profit" spreadsheet gets wrong, and
+      it is a modelling decision a competitor has to understand before they
+      can copy it — but it is still arithmetic on a public page and nothing
+      stops anyone reproducing it. Distribution 7, a point above the norm,
+      for the same reason apparel-decoration-price-calculator earned it:
+      "was that craft fair worth it?" is a weekly thread in large, active
+      maker communities (r/CraftFair, r/Etsy, r/somethingimade, the
+      regional show-vendor Facebook groups), and the search phrases ("how
+      much do you need to sell at a craft fair", "craft fair booth fee
+      worth it", "craft show break even calculator") are the evergreen
+      version of the same question, asked at the predictable moment an
+      application deadline lands. Time to revenue 6 rather than 7: show
+      season is seasonal, so the question is asked in bursts rather than
+      continuously. It also composes with three existing ventures for the
+      same seller (etsy-profit-calculator, where-to-sell-calculator, and
+      the food-service event tools it deliberately contrasts with), so it
+      raises the value of tools already on main rather than standing alone.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Pure arithmetic on numbers the maker supplies, reported as a
+      planning figure rather than a prediction: the page says explicitly
+      that it does not predict sales, does not read a booth contract, and
+      does not determine sales-tax or vendor-permit obligations, and it
+      tells the user to keep collected sales tax out of the revenue field.
+      No account, no upload, nothing stored — every field runs in the
+      browser only and the one export is a link the user chooses to copy.
+      Being wrong costs the maker a figure to check against their own
+      records, not a filing or a third party's money. Ethically:
+      deterministic, no dark patterns, nothing inferred about any third
+      party, and the party it helps is an independent maker whose most
+      common arithmetic error — charging a whole table's materials against
+      one weekend — makes them quit shows that were in fact working.
+
+  - slug: merchant-feed-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a feed item conforms to
+      the published Google Merchant Center / Meta Catalog product-data
+      specification is decided by required-field presence, regex/enum
+      matching, and the standard GS1 check-digit arithmetic for GTINs --
+      a factual, deterministic comparison against a public specification,
+      not a model judgment, and it never claims a policy or approval
+      determination.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free CLI + browser checker, not another
+      <trade>-bid-calculator. duplicate_check.py scored every existing
+      venture, screened-out.md row, ai-first-markets idea, and pipeline
+      candidate below 0.10 against the final description; the closest,
+      "AI QA for E-commerce" (an ai-first-markets idea: AI agents visually
+      browsing a storefront for checkout/UX bugs), shares an e-commerce
+      audience but no mechanism, artifact, or data model with a feed-row
+      conformance check. Autonomous ops 10 / gross margin 10: the browser
+      page parses a locally loaded or pasted file with no fetch, and the
+      CLI reads only a local file with no network call, so serving one
+      more user costs a static file and needs no human review of any
+      output. Distribution 6: verified by web search rather than assumed
+      -- Shopify's own community forum carries recurring, actively-
+      answered threads on this exact problem ("Why is Google Merchant
+      Center disapproving all my products?"), and at least six unrelated
+      businesses (Adsmurai, Kontrolit, FeedRevision, ProductPrime,
+      ecomseo, mysitemapgenerator) each built a free web-form feed
+      validator landing page, which is itself evidence of real, sustained
+      search demand. Held below wordpress-plugin-review-check/cors-
+      misconfig-check's 7 because none of that demand has yet been shown
+      to convert to a scriptable CLI usage pattern -- every incumbent
+      found is a one-off upload tool, and whether a merchant actually
+      wires the CLI into CI (this tool's differentiated wedge) is
+      untested. Time to revenue 6, defensibility 3: donations-only; the
+      specification itself is public and several free validators already
+      exist, so defensibility rests only on the CI-gate angle and this
+      portfolio's zero-account, zero-upload posture, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool checks feed data against a published, public
+      specification and reports pass/fail per rule -- it explicitly
+      disclaims any Shopping/Catalog policy or approval determination
+      (misrepresentation, prohibited products, account trust, landing-
+      page match), which it cannot observe from a feed file and never
+      claims to. Both pages' footers and the README state plainly that a
+      clean report means data-specification conformance, not a guarantee
+      of approval, and name the two categories of disapproval this tool
+      cannot see. No scraped or third-party personal data: the feed a
+      user loads or pastes is their own product catalog, processed
+      entirely on their own device or machine, never transmitted.
+      Ethically: deterministic checks against a public spec, no dark
+      patterns, and the tool gets strictly more useful to a seller as
+      more of the spec's documented failure modes are added -- it does
+      not get worse for anyone as it scales.
