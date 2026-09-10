@@ -303,6 +303,29 @@
       count('sale_calculated');
     });
 
+    // Keep the payout on screen matching the form.
+    //
+    // This page rendered on submit alone, so an edit left the *previous*
+    // payout standing above the edited inputs. On its own that is a small
+    // staleness. With a share link it is two people reading different
+    // numbers: the link carries the edited form, the seller's screen still
+    // shows the old figure, and whoever opens it sees a payout the sender
+    // never saw. `platform/pages/roundtrip.mjs` caught exactly that -- every
+    // field survived the link and only the headline differed, $40.00
+    // against $39.94.
+    //
+    // Errors stay with the submit handler: complaining midway through a
+    // typed price is noise. Nothing is counted here either -- a keystroke is
+    // not a calculation the seller asked for, and counting it would inflate
+    // `sale_calculated` to the point where the usage reading stops meaning
+    // what `portfolio/usage/` says it means.
+    el('saleForm').addEventListener('input', () => {
+      const result = calculateSale(readInput());
+      if (!result.ok) return;
+      render(result);
+      el('exampleNote').hidden = true;
+    });
+
     el('compareOfferBtn').addEventListener('click', () => {
       const result = compareOffer(readOfferInput());
       markFields(OFFER_INPUT_IDS, result.ok ? [] : result.errors);

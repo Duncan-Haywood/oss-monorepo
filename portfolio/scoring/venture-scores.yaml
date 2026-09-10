@@ -8783,3 +8783,76 @@ ventures:
       nothing inferred about any third party, and the party it helps is
       the small operator competing with chains that already have a costing
       model.
+  - slug: apparel-decoration-price-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over rates the shop reads off its own
+      supplier invoices, payroll and equipment. There is no inference
+      step: the output is a sum, a division, and a ceiling function for
+      whole blanks bought against a spoilage allowance.
+    basis: >-
+      Graduated 2026-09-10 as a free job-costing and quantity-break
+      calculator for custom apparel decorators — screen printing,
+      embroidery and DTF. The substance is that decoration setup is per
+      *job* and flat across quantity (one screen per colour per placement;
+      digitising per placement), so the same design is a materially
+      different cost at 12 pieces than at 288, and the tool costs the job
+      at every standard tier rather than at one quantity.
+      A niche the portfolio does not otherwise serve. The nearest venture
+      by shape is 3d-print-price-calculator (a custom-fabricated item
+      costed as machine time plus material plus a failure allowance), and
+      the two are cross-linked for exactly that reason; but it prices a
+      print from filament and printer wear and has no per-job setup term.
+      The trade "-bid-calculator" family prices a service visit by area and
+      frequency, not a batch of manufactured units. `duplicate_check.py`
+      scored nothing at or above 0.16 on two phrasings against any
+      existing venture, pipeline candidate, screened-out row, or
+      ai-first-markets idea; a grep for embroider/screen-print/apparel/
+      garment/shirt/dtf across the same sources returned nothing.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: the arithmetic is
+      commodity and any shop could build it in a spreadsheet. What is not
+      commodity is that nobody has — the shop-management vendors
+      (Printavo, InkSoft, Shop Works, YoPrint) store a price matrix the
+      shop supplies rather than deriving one, because deriving it is a
+      one-off question that fits a free page better than a subscription.
+      Distribution 7, a point above the portfolio's calculator norm:
+      r/screenprinting and r/embroidery are large, active owner-operator
+      subreddits where "am I charging enough for a 24-piece 3-colour job?"
+      is a weekly thread, the DTF and garment-decorating Facebook groups
+      run it continuously, and the search phrases ("screen printing
+      pricing calculator", "how much to charge for screen printing",
+      "embroidery pricing per 1000 stitches") are the evergreen version of
+      the same question, asked at the predictable moment a shop sets or
+      resets its price matrix.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool multiplies and adds numbers the shop supplies and
+      reports a cost floor — it states no market price, no benchmark, no
+      wage rule and no supplier's rate, and both the page and the README
+      say the output is a cost floor rather than a recommended price. The
+      one exposure specific to this trade, printing artwork the customer
+      had no right to supply, is disclaimed explicitly on the page and is
+      asserted nowhere by the tool, which never sees the artwork. Being
+      wrong costs the shop a figure to check against its own P&L, not a
+      filing, a licence, or a third party's money. Ethically:
+      deterministic arithmetic, no dark patterns, nothing collected,
+      nothing inferred about any third party, and the party it helps is
+      the small shop competing against both online giants with a real
+      costing model and other small shops guessing.
