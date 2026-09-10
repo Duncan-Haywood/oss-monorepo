@@ -54,13 +54,20 @@ test('the page carries the standard sponsor link and a LICENSE link', () => {
   assert.match(html, /href="LICENSE"/);
 });
 
-test('the privacy line names both stored event types, says nothing is uploaded, and keeps the client-list promise', () => {
+test('the privacy line names both stored event types, says nothing is uploaded, and keeps the client-row promise', () => {
   assert.match(html, /nothing is ever uploaded/);
-  // Visit inputs are now saved locally so the calculator does not make a
-  // page-wide "nothing is saved" claim that a draft feature would falsify —
-  // but the client list's own, narrower promise must still hold.
-  assert.match(html, /it is never saved anywhere/);
-  assert.match(html, /route table clears on refresh by design|closing or refreshing the tab clears it/);
+  // Visit inputs, and now weeksPerMonth/targetMonthlyIncome, are saved
+  // locally and shared — so the page must not claim a page-wide "nothing is
+  // saved", only the narrower promise that survives: the client rows
+  // themselves are never saved.
+  assert.match(html, /they are never saved anywhere/);
+  assert.match(html, /closing or refreshing the tab clears them/);
+  assert.doesNotMatch(html, /Nothing you type here is saved or uploaded/);
+});
+
+test('weeksPerMonth and targetMonthlyIncome are documented as saved and shareable, not as part of the never-saved client rows', () => {
+  assert.match(html, /Weeks per month and target income are saved on this device and carried in your shareable link/);
+  assert.match(html, /only the client rows are never saved/);
 });
 
 test('the page ships a save-and-share draft feature for the visit inputs, matching sibling calculators', () => {
