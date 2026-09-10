@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 112 files, 556453 bytes
 #   portfolio-front-tools-2: 147 files, 545245 bytes
 #   portfolio-front-tools-3: 145 files, 556918 bytes
-#   portfolio-front-tools-4: 124 files, 553838 bytes
+#   portfolio-front-tools-4: 125 files, 555306 bytes
 #   portfolio-front-tools-5: 129 files, 556608 bytes
 #   portfolio-front-tools-6: 126 files, 551055 bytes
 #   portfolio-front-tools-7: 109 files, 547844 bytes
@@ -708,6 +708,7 @@ configMapGenerator:
       - childcare-tuition-calculator__calc.mjs.gz=childcare-tuition-calculator__calc.mjs.gz
       - childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz=childcare-tuition-calculator__how-to-price-daycare-tuition.html.gz
       - childcare-tuition-calculator__index.html.gz=childcare-tuition-calculator__index.html.gz
+      - childcare-tuition-calculator__share.mjs.gz=childcare-tuition-calculator__share.mjs.gz
       - childcare-tuition-calculator__usage.mjs.gz=childcare-tuition-calculator__usage.mjs.gz
       - childcare-tuition-calculator__vs-procare.html.gz=childcare-tuition-calculator__vs-procare.html.gz
       - chimney-sweep-bid-calculator__calc.mjs.gz=chimney-sweep-bid-calculator__calc.mjs.gz
