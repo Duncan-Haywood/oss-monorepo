@@ -2034,6 +2034,44 @@ async function countPages(sourceDir) {
  * file, which is why callers should read an empty result as "none found",
  * not as a verified guarantee that none exist.
  */
+// Strips `//` and `/* */` comments from `.js`/`.mjs` source before the regex
+// passes below ever see it. Heuristic, like the rest of this scanner, not a
+// tokenizer -- two things keep it from eating real code:
+//
+//   - `//` only starts a strip when it follows the start of a line or
+//     whitespace/punctuation that plausibly ends a statement (`;{}(),`).
+//     `://` is never preceded by any of those (it is always preceded by a
+//     scheme letter), so `https://example.com` inside a string survives, and
+//     so does a protocol-relative literal like `'//example.com'` (preceded
+//     by the opening quote).
+//   - `/* */` removal runs first, so a `//` sitting inside a block comment
+//     cannot re-open a line-comment strip that swallows the code after it.
+//
+// This exists because a fetch-shaped call *mentioned in a comment* --
+// `cors-misconfig-check/probe.mjs` explains in its header why it deliberately
+// does not use `fetch()`, and says so using the literal text `fetch()` twice
+// -- used to satisfy the `/\bfetch\w*\(/` trigger below on its own, turning on
+// the catch-all rule for a file that makes no fetch call at all. That rule
+// then grabbed every `https://` *looking* quoted substring in the file,
+// including the un-resolved half of two of that file's own template-literal
+// test fixtures (`cors-probe-${randomBytes...}`, `evil-${hostname}`), and
+// published them on /about/, llms.txt and the guide pages as if they were
+// real hosts the tool calls.
+function stripJsComments(src) {
+  return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[\s;{}(),])\/\/.*$/gm, '$1');
+}
+
+// A real hostname (or host:port) never contains `$`, `{`, `}`, `(`, `)`,
+// `<`, `>` or whitespace. `new URL(...)` is far more permissive than that --
+// it happily parses `https://evil-${hostname}` and reports the host as the
+// literal string `evil-${hostname}` -- so a garbage string produced when a
+// regex above grabs a fragment of a template literal (the interpolation
+// syntax intact) can still pass URL parsing and reach the Set. This is the
+// second, independent guard against that: even if a future file trips the
+// same shape of false match some other way, a host this obviously malformed
+// never reaches the published exception list.
+const PLAUSIBLE_HOST = /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?(?::\d+)?$/i;
+
 export async function surfaceExternalFetchHosts(dir) {
   // `.mjs` too, not just `.js`: ventures overwhelmingly ship ES modules
   // (`calc.mjs`, `share.mjs`, …), and a scanner that only reads `.js` never
@@ -2042,7 +2080,12 @@ export async function surfaceExternalFetchHosts(dir) {
   const hosts = new Set();
 
   for (const file of files) {
-    const src = await fs.readFile(file, 'utf8');
+    const rawSrc = await fs.readFile(file, 'utf8');
+    // HTML is left untouched: `//` is a normal, frequent character there
+    // (protocol-relative URLs, query strings) with no `//`-comment
+    // convention of its own, so a JS-shaped comment strip would delete real
+    // markup rather than commentary.
+    const src = file.endsWith('.html') ? rawSrc : stripJsComments(rawSrc);
     const urlConsts = new Map();
     for (const m of src.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*["'`](https?:\/\/[^"'`]+)["'`]/g)) {
       urlConsts.set(m[1], m[2]);
@@ -2088,7 +2131,18 @@ export async function surfaceExternalFetchHosts(dir) {
     }
     for (const url of targets) {
       try {
-        hosts.add(new URL(url).host);
+        // `new URL(...).host` only looks at the authority component, so a
+        // literal host followed by an interpolated path/query
+        // (`https://dns.google/resolve?name=${encodeURIComponent(name)}`,
+        // dns-configuration-evidence's real shape) still resolves to the
+        // genuine, plain host and must still be reported. It is only when
+        // the interpolation itself lands inside the authority
+        // (`https://evil-${hostname}`, or the un-terminated half of a
+        // template like `${randomBytes(6).toString(`) that `.host` comes
+        // back holding `$`/`{`/`(`/… — characters no real hostname has —
+        // which `PLAUSIBLE_HOST` below exists to catch.
+        const host = new URL(url).host;
+        if (PLAUSIBLE_HOST.test(host)) hosts.add(host);
       } catch {
         // Not a resolvable absolute URL — skip rather than guess.
       }
