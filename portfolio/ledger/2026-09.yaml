@@ -24288,6 +24288,80 @@ entries:
         (#4480, #4481, #4482 the crown-molding duplicate, #4483, #4485); each
         was merged in and re-verified rather than raced against.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a build-time trap in platform/pages/offline.mjs that
+        penalised pages for being about their own subject. The build
+        wires every published page for offline use, and decided a page
+        was already wired with `html.includes('rel="manifest"')` over the
+        whole file. That conflates "this page links a manifest" with
+        "this page mentions the attribute" -- so any page writing the
+        attribute unescaped in prose, a code sample, or an HTML comment
+        was read as already-wired and its service worker was skipped.
+        The ventures most likely to write it down are exactly the PWA and
+        crawler tools whose subject is manifests.
+      - >-
+        `linksManifest()` now looks for a real <link> element carrying
+        the `manifest` rel token, scanning only the head and only outside
+        comments, scripts and styles. rel is treated as the token list it
+        is, so `rel="manifest alternate"` counts and `rel="manifest-notes"`
+        does not, and quoted, single-quoted and bare values all parse.
+        Restricting the scan to non-script head content also settles the
+        JSON-LD case by construction: an escaped rel=\"manifest\" inside
+        an ld+json block is documentation about a manifest link, never a
+        manifest link.
+      - >-
+        Found by hitting it. This session drafted a secondary page for
+        pwa-installability-check whose criteria table spelled the
+        attribute in a code example; build.test.mjs went red with "these
+        pages cannot work offline". The first fix -- an HTML comment
+        warning the next author -- re-triggered the trap by quoting the
+        string it was warning about. That second instance is what turned
+        this from an authoring quirk into a platform defect worth fixing:
+        the guard was correct that the page had no worker, but the change
+        it demanded was to contort copy that was accurate about its
+        subject. The page on main dodges it only by the accident of
+        needing HTML/JSON escaping for the same characters.
+      - >-
+        Added platform/pages/offline.test.mjs, 12 assertions. The
+        injector had no direct test before this -- it was covered only
+        through build.test.mjs's whole-site assertion, which is the right
+        guard for the outcome and a poor one for the decision: it names
+        which page ended up without a worker, never why the injector
+        declined. The new tests pin prose, a head code sample, an HTML
+        comment, escaped JSON-LD, a body-only link, rel token lists,
+        idempotency, a headless fragment and rootRel resolution.
+      - >-
+        No new page shipped, and that is the deliberate outcome. The
+        guide-page gap this session set out to close
+        (guide-coverage.mjs: 234 of 235) was closed by a concurrent
+        session while this one was verifying -- #4485 landed
+        add-to-home-screen-not-showing.html for the same venture, the
+        same question in different words. Read side by side it is the
+        stronger page: five FAQ pairs to this draft's three, plus the
+        DevTools Application-panel route to the real reason, Chrome's
+        per-origin prompt debounce, and the inner-page manifest-linking
+        case, none of which the draft had. Its one arguably sharper
+        detail, declared icon size versus the image that actually
+        arrives, is already covered there as "smaller than 192x192 when
+        actually fetched". So the draft was dropped rather than shipped
+        alongside: two pages competing for one query is the outcome
+        guide-coverage.mjs explicitly warns against, and coverage is
+        235 of 235 either way. What survived is the defect the draft
+        uncovered on the way.
+      - >-
+        Verified locally (Actions runners still starved per
+        infra_state.yaml; not re-dispatched to re-confirm a window three
+        days open). node --test across platform/marketing +
+        platform/pages 1218/1218, up from 1206 with the 12 new
+        assertions and no regression in the whole-site offline check;
+        node --test platform/pages/offline.test.mjs 12/12;
+        checklist_coverage.py clean (platform/pages was already a named
+        directory, so the new suite needs no CLAUDE.md line).
+    mrr_end: 0
   - venture: oidc-trust-policy-check
     agent_spend_usd: null
     human_hours: 0
