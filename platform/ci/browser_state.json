@@ -10,69 +10,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "b8953905d4aa94050e95be874a101f6260ea8148",
-      "measured": "2026-09-09",
-      "pages": 872,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "a7dbb0dfff11329fe90c0535fd4ebf368678e5db",
-      "measured": "2026-09-09",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "ada-title-ii-evidence"
-      ]
-    },
-    {
-      "checks": [
-        "journey"
-      ],
-      "commit": "a7dbb0dfff11329fe90c0535fd4ebf368678e5db",
-      "measured": "2026-09-09",
-      "pages": 874,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "7252cf73e79dc3387284853121ad4c01bfc87da7",
-      "measured": "2026-09-10",
-      "pages": 881,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "87242bf37ae718404c186750158b7c576db11072",
-        "platform/pages": "304cd8726ec58ba8c01300094b6b68d8288ec6d0",
-        "ventures": "d4dcdc58027884a22974b03581b99fcdd722cec3"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "37398d3375996e54cbbf41fdff8d27260281d5ff",
       "measured": "2026-09-10",
       "pages": 882,
@@ -373,6 +310,78 @@
         "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
         "platform/pages": "fbfae22c0b73631ee8bfb3dedf1a1804b903780e",
         "ventures": "2dcd31cf08ec4ee155fbd227085af36c95c38740"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "74b07ad47aa4acd7b28f460634f6e240ee266d17",
+      "measured": "2026-09-10",
+      "pages": 891,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "66f1b89fc644003a5074e53e5ace199dabcae5ae",
+        "ventures": "230fdf854472eb339faf8b28a4b50ce74a0d9783"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "365aa0fae96790b7db6371d831d7982089096ee3",
+      "measured": "2026-09-10",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "apparel-decoration-price-calculator"
+      ],
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "66f1b89fc644003a5074e53e5ace199dabcae5ae",
+        "ventures": "5b896789c2e31d8a40fec232a8967537010d4819"
+      }
+    },
+    {
+      "checks": [
+        "highlight"
+      ],
+      "commit": "365aa0fae96790b7db6371d831d7982089096ee3",
+      "measured": "2026-09-10",
+      "pages": 892,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "66f1b89fc644003a5074e53e5ace199dabcae5ae",
+        "ventures": "5b896789c2e31d8a40fec232a8967537010d4819"
+      }
+    },
+    {
+      "checks": [
+        "journey"
+      ],
+      "commit": "365aa0fae96790b7db6371d831d7982089096ee3",
+      "measured": "2026-09-10",
+      "pages": 892,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "66f1b89fc644003a5074e53e5ace199dabcae5ae",
+        "ventures": "5b896789c2e31d8a40fec232a8967537010d4819"
       }
     }
   ]
