@@ -1,5 +1,5 @@
 name: security-deposit-return-calculator
-description: Free browser calculator for the two arithmetic questions every residential move-out raises — how much of a security deposit is refundable once itemized deductions are listed, and what prorated rent is owed for a partial first or last month — entirely client-side.
+description: Free browser calculator for the two arithmetic questions every residential move-out raises — how much of a security deposit is refundable once itemized deductions are listed, and what prorated rent is owed for a partial first or last month — plus a one-click plain-text itemized statement to send the other party to the lease. Entirely client-side.
 stage: prototype
 
 owner: duncan

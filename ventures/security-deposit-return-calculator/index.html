@@ -9,7 +9,7 @@
   <meta property="og:description" content="Itemize security deposit deductions to see the refund or balance due, and calculate prorated rent for a partial move-in or move-out month. Entirely client-side.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Security Deposit Refund & Prorated Rent Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a security deposit refund or balance owed from a deposit amount and an itemized list of deductions, and calculates prorated rent for a partial move-in or move-out month from monthly rent, days in the month, and days occupied. Entirely client-side; nothing is uploaded."}
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Security Deposit Refund & Prorated Rent Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a security deposit refund or balance owed from a deposit amount and an itemized list of deductions, copies the result out as a plain-text itemized statement to send to the other party to the lease, and calculates prorated rent for a partial move-in or move-out month from monthly rent, days in the month, and days occupied. Entirely client-side; nothing is uploaded.","featureList":"Itemized security deposit deduction totals, refund or balance owed, copy a plain-text itemized statement to email the other party, prorated rent for a partial first or last month"}
   </script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you calculate a security deposit refund?","acceptedAnswer":{"@type":"Answer","text":"Add up every itemized deduction (unpaid rent, cleaning, repairs, or other charges) and subtract the total from the deposit amount. If the deductions are less than the deposit, the difference is the refund due. If deductions exceed the deposit, the difference is a balance owed instead."}},{"@type":"Question","name":"What is prorated rent and how is it calculated?","acceptedAnswer":{"@type":"Answer","text":"Prorated rent covers a partial month, usually the first or last month of a lease. It is calculated as a daily rate (monthly rent divided by the number of days in that month) multiplied by the number of days actually occupied."}},{"@type":"Question","name":"Can a landlord deduct for normal wear and tear?","acceptedAnswer":{"@type":"Answer","text":"Most landlord-tenant frameworks distinguish normal wear and tear (ordinary aging from everyday use, generally not deductible) from actual damage beyond normal use (generally deductible) — but the exact definition, itemization deadline, and any deposit limits vary by state and by the lease itself. Check your local law and lease before finalizing a number."}},{"@type":"Question","name":"Is this legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator only totals the numbers you enter — it does not determine what is legally deductible, does not know your state's rules or deadlines, and is not a substitute for reviewing your lease or consulting a qualified professional."}}]}</script>
   <style>
@@ -23,6 +23,7 @@
     .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
     label { display: block; font-weight: 600; margin: 12px 0 4px; }
     input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1.5; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
     button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
     button.secondary { background: #e4edf1; color: #1f4a5d; }
@@ -52,7 +53,10 @@
     <p>Two calculators for the arithmetic every move-in or move-out raises:
     itemize a security deposit's deductions to see the refund or balance due,
     and calculate prorated rent for a partial first or last month. Both run
-    entirely in this browser.</p>
+    entirely in this browser. The deposit side then copies out as a plain-text
+    itemized statement you can paste into an email — the document a landlord
+    has to send, and the line-by-line math a tenant needs to check one charge
+    rather than argue about a total.</p>
     <p class="note">Nothing is uploaded. Your numbers are read in this
     browser and never leave your device — see the privacy note in the
     footer.</p>
@@ -85,6 +89,12 @@
       <tbody id="deduction-body"></tbody>
     </table>
     <div id="deposit-findings"></div>
+    <button type="button" id="copy-statement">Copy itemized statement</button>
+    <p class="note" id="copy-statement-status">Copies the deposit, each named deduction, the total, and the refund or balance as plain text to paste into an email or a dispute. The &ldquo;arithmetic only, not a legal determination&rdquo; note is copied with it.</p>
+    <div id="statement-fallback" hidden>
+      <label class="note" for="statement-text">Select and copy the statement:</label>
+      <textarea id="statement-text" rows="12" readonly></textarea>
+    </div>
   </section>
 
   <section class="card">
@@ -139,6 +149,8 @@
     <p>Prorated rent covers a partial month, usually the first or last month of a lease. It is calculated as a daily rate (monthly rent divided by the number of days in that month) multiplied by the number of days actually occupied.</p>
     <h3>Can a landlord deduct for normal wear and tear?</h3>
     <p>Most landlord-tenant frameworks distinguish normal wear and tear (ordinary aging from everyday use, generally not deductible) from actual damage beyond normal use (generally deductible) — but the exact definition, itemization deadline, and any deposit limits vary by state and by the lease itself. Check your local law and lease before finalizing a number.</p>
+    <h3>Can I copy the itemization out to send to the other party?</h3>
+    <p>Yes. After you calculate the refund, &ldquo;Copy itemized statement&rdquo; puts the deposit, every named deduction and its amount, the total, and the refund or balance owed on your clipboard as plain text — ready to paste into an email, a letter, or a message. It is the same arithmetic shown on this page, so the copy can never disagree with the table. The note saying this is arithmetic and not a legal determination of what may be deducted is copied along with it, because the person receiving the statement never sees this page. If your browser blocks clipboard access, the statement appears in a text box you can select and copy instead.</p>
     <h3>Is this legal advice?</h3>
     <p>No. This calculator only totals the numbers you enter — it does not determine what is legally deductible, does not know your state's rules or deadlines, and is not a substitute for reviewing your lease or consulting a qualified professional.</p>
   </section>
@@ -146,14 +158,14 @@
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking your own lease and local law. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
-    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deposit_calculated</code>, <code>proration_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deposit_calculated</code>, <code>proration_calculated</code>, <code>statement_copied</code>, <code>example_loaded</code>) are counted only in local storage on your device. Copying the statement puts it on your clipboard and nowhere else — the text is built in this browser and is never sent anywhere. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Letting the place nightly rather than on a lease? The <a href="../str-host-payout-calculator/">short-term rental host payout calculator</a> takes one booking through platform and cleaning fees to what actually reaches you — nothing uploaded.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { computeProratedRent, computeDepositSettlement } from "./calculator.mjs";
+    import { computeProratedRent, computeDepositSettlement, formatItemizedStatement } from "./calculator.mjs";
     import { record, setUsageOptOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -182,7 +194,16 @@
       amount: $("#deposit-amount"), rows: $("#deduction-rows"),
       status: $("#deposit-status"), report: $("#deposit-report"),
       stats: $("#deposit-stats"), body: $("#deduction-body"), findings: $("#deposit-findings"),
+      copyStatus: $("#copy-statement-status"), fallback: $("#statement-fallback"), textarea: $("#statement-text"),
     };
+
+    // Held from the last calculate so the copy button can never hand out a
+    // statement that disagrees with the table above it. Recomputing from the
+    // live inputs on click would do exactly that: edit a deduction, do not
+    // press Calculate, press Copy, and the email says something the screen
+    // does not. This is the defect CLAUDE.md records against share.mjs's
+    // separate field allowlist, in a different shape.
+    let lastSettlement = null;
 
     function addDeductionRow(description = "", amount = "") {
       const row = document.createElement("div");
@@ -215,11 +236,40 @@
         : `<strong>Refund due: <span class="price">${money(result.refundDue)}</span></strong>`;
       depositEls.stats.innerHTML = `Total deductions: ${money(result.totalDeductions)} of ${money(Number(depositAmount) || 0)} deposit. ${summaryRow}`;
       renderFindings(depositEls.findings, result.findings);
+      lastSettlement = { settlement: result, depositAmount: Number(depositAmount) || 0 };
+      depositEls.fallback.hidden = true;
+      depositEls.copyStatus.textContent = COPY_HINT;
       depositEls.report.hidden = false;
       depositEls.status.textContent = "";
       record("deposit_calculated");
       depositEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
     }
+
+    const COPY_HINT = "Copies the deposit, each named deduction, the total, and the refund or balance as plain text to paste into an email or a dispute. The “arithmetic only, not a legal determination” note is copied with it.";
+
+    $("#copy-statement").addEventListener("click", async () => {
+      if (!lastSettlement) {
+        depositEls.copyStatus.innerHTML = `<span class="error">Calculate the refund first, then copy the statement.</span>`;
+        return;
+      }
+      const text = formatItemizedStatement(lastSettlement.settlement, { depositAmount: lastSettlement.depositAmount });
+      depositEls.textarea.value = text;
+      try {
+        // Absent over plain http, in some embedded webviews, and whenever the
+        // permission is refused -- so the textarea below is the route that
+        // always works, not a nicety. Revealing it on failure means the
+        // statement is never unreachable, only one step further away.
+        await navigator.clipboard.writeText(text);
+        depositEls.fallback.hidden = true;
+        depositEls.copyStatus.textContent = "Statement copied. Paste it into your email or message — read it once before sending.";
+      } catch {
+        depositEls.fallback.hidden = false;
+        depositEls.copyStatus.textContent = "This browser blocked the clipboard. The statement is in the box below — select it and copy.";
+        depositEls.textarea.focus();
+        depositEls.textarea.select();
+      }
+      record("statement_copied");
+    });
 
     $("#add-deduction").addEventListener("click", () => addDeductionRow());
 
@@ -245,6 +295,12 @@
       depositEls.amount.value = "";
       depositEls.rows.innerHTML = "";
       depositEls.report.hidden = true;
+      // Drop the held settlement with the inputs that produced it, so a copy
+      // after a clear cannot hand out the cleared tenant's figures.
+      lastSettlement = null;
+      depositEls.fallback.hidden = true;
+      depositEls.textarea.value = "";
+      depositEls.copyStatus.textContent = COPY_HINT;
       depositEls.status.textContent = "Enter the deposit amount, add each deduction, and click Calculate refund.";
     });
 

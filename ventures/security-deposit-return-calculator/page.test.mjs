@@ -34,3 +34,40 @@ test("index links one hop to the str-host-payout-calculator sibling", () => {
     "index must link ../str-host-payout-calculator/ so a reader comparing letting models reaches it in one hop",
   );
 });
+
+// --- Copy itemized statement -----------------------------------------------
+
+test("the deposit report offers a copy of the itemized statement", () => {
+  const html = page("index.html");
+  assert.match(html, /id="copy-statement"/);
+  assert.match(html, /Copy itemized statement/);
+  assert.match(html, /formatItemizedStatement/);
+});
+
+// The clipboard API is absent over plain http and in some embedded webviews.
+// Without a fallback the button would be inert exactly where it fails, with
+// no way to reach the statement at all -- so the textarea is required, not
+// decorative.
+test("a blocked clipboard still leaves the statement reachable in a labelled textarea", () => {
+  const html = page("index.html");
+  assert.match(html, /id="statement-fallback"[^>]*hidden/);
+  assert.match(html, /<label class="note" for="statement-text">/);
+  assert.match(html, /<textarea id="statement-text"[^>]*readonly/);
+  assert.match(html, /catch \{/);
+});
+
+// A copy taken after Clear, or after editing an input without recalculating,
+// must not hand out figures the screen is no longer showing.
+test("the statement is served from the last calculated settlement, and Clear drops it", () => {
+  const html = page("index.html");
+  assert.match(html, /let lastSettlement = null;/);
+  assert.match(html, /lastSettlement = \{ settlement: result, depositAmount:/);
+  assert.match(html, /if \(!lastSettlement\)/);
+  // Clear resets it rather than leaving the previous tenant's numbers behind.
+  const clearBlock = html.slice(html.indexOf('$("#clear-deposit")'));
+  assert.match(clearBlock.slice(0, 500), /lastSettlement = null;/);
+});
+
+test("copying the statement is counted as its own usage event", () => {
+  assert.match(page("index.html"), /record\("statement_copied"\)/);
+});
