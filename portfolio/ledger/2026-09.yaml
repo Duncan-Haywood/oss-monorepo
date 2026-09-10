@@ -21087,3 +21087,96 @@ entries:
         merged PR #4363) in platform/ci/browser_state.json, so `browser_state.py`
         now reports all 7 checks current rather than stale.
     mrr_end: 0
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, designated branch
+        `claude/nice-brown-7xskoy`. Owner's standing direction, matching
+        preceding sessions verbatim: prioritize deployment/CI-CD, build and
+        deploy marketing materials on the Hetzner VMs, and set up the Codex
+        CLI to spend its built-in quota there for dev work. Open-PR queue was
+        empty at session start (`list_pull_requests` and
+        `search_pull_requests(state:open)` both confirmed zero, not
+        inherited), so the three-PR merge quota was satisfied vacuously under
+        the mandate's own "if none exist, start new work" clause. Sampled two
+        stale branches directly relevant to the owner's Hetzner/CI-CD/Codex
+        wording (`agent/deploy-cicd-ledger-2868`, a ledger-only diff already
+        superseded per `check_ledger_only.py`; `ci/hetzner-ssh-key-diagnostic`,
+        confirmed superseded by blob comparison -- `main`'s
+        `bootstrap/scripts/load-ssh-key.sh` already covers the same
+        public-key/literal-\n-escape classification the branch adds inline,
+        plus a CRLF case the branch lacks) rather than auditing the full
+        ~230-branch backlog a same-day preceding session had already swept
+        with the identical priority wording and found nothing repairable.
+      - >-
+        Re-confirmed rather than re-derived: the owner's Hetzner
+        deployment/marketing/Codex-CLI ask is fully built and gated on the
+        single existing decision-queue item `hetzner-ssh-key-is-a-public-key`
+        (#3184, still first in `decision_queue.py`). `gitops/agents/host/`
+        (Codex governor, systemd-timer host mode, its own installer and
+        `--host-only` enable path) and `platform/marketing/` (the Hetzner
+        front-door generator whose output this session regenerated) are both
+        already built, tested, and wired to that exact one owner action --
+        confirmed by reading `infra_state.yaml`'s `codex-host-mode: up` and
+        `github-actions-runners: down` (re-measured 2026-09-09, run
+        34387947196, `runner_id: 0`) rows. No second ask added. This session
+        had no SSH/Hetzner credentials available to it either way, and no
+        route exists from this sandbox to install or verify anything on the
+        Hetzner boxes directly.
+      - >-
+        Shipped the run's product work instead: closed 5 of the 10
+        crawlable orphans `siblings.mjs --check` was carrying (SEO —
+        every orphan is a page a crawler cannot reach in one hop from any
+        sibling tool, unless it happens to land on it directly). Read each
+        page's own README instead of trusting the checker's weak
+        "nearest sibling" heuristic and found 4 real topical pairs, each
+        already on the orphan list: commercial-photo-license-calculator /
+        photo-booth-event-quote (a commercial licensing scope vs. a
+        one-off event booking -- the same reader's adjacent pricing
+        decision); delivery-app-margin-calculator / faire-wholesale-calculator
+        (both put one order through several channel-specific fee structures
+        to find the true take-home -- a delivery-app ticket, a wholesale
+        invoice); medical-courier-route-margin / owner-operator-cpm-calculator
+        (both cost a route's economics per vehicle-hour or per mile for a
+        self-employed driver -- a courier van, a long-haul truck);
+        str-host-payout-calculator / whatnot-seller-payout (both price one
+        transaction through platform-specific fees to find the true seller
+        payout -- a nightly stay, a livestream lot). Each page's footer now
+        names the other, with a page.test.mjs assertion on the href in both
+        ventures -- commercial-photo-license-calculator had no page.test.mjs
+        at all and gained one (`test/page.test.mjs`). Lowered the committed
+        `orphanBudget` 10 -> 5 in `platform/pages/siblings-budget.json`. The
+        5 remaining orphans (ai-engineering-academy, ats-resume-checker,
+        childcare-tuition-calculator, security-deposit-return-calculator,
+        seller-net-sheet) are catch-all-category tools with no honest
+        topical partner among each other; left rather than fabricate a
+        pairing, per the standing call in the budget file's own history.
+      - >-
+        Verified locally rather than trusting GitHub, per this file's
+        starvation policy (`infra_state.yaml`'s `github-actions-runners: down`
+        row, re-measured 2026-09-09): `node --test` on all 8 touched
+        ventures (all passing -- commercial-photo-license-calculator 1,
+        photo-booth-event-quote 55, delivery-app-margin-calculator 58,
+        faire-wholesale-calculator 119, medical-courier-route-margin 34,
+        owner-operator-cpm-calculator 57, str-host-payout-calculator 34,
+        whatnot-seller-payout 44), `platform/marketing/*.test.mjs` +
+        `platform/pages/*.test.mjs` (1192 passed), `pytest gitops/tests -q`
+        (490 passed, 25 skipped), the portfolio
+        ledger/scoring/router/usage/pipeline/infra suite (431 passed), all
+        15 `platform/ci` unittest modules plus `agent_review.test_review`,
+        `checklist_coverage.py` clean, `node platform/marketing/regen.mjs`
+        (2 generators ran, mirror + kustomization comments updated),
+        `build.mjs --out=/tmp/dist-check` + `check.mjs` (225 products, 882
+        pages, no dead links), and all 8 `portfolio-validate.yml` validators
+        individually (`router/validate.py`, `front-door-tools.mjs
+        --headroom`, `pipeline/validate_doc_consistency.py`,
+        `pipeline/validate_candidates.py`,
+        `pipeline/probes/validate_probe_index.py`,
+        `pipeline/score_sensitivity.py`, `scoring/score_ventures.py
+        --check`, `usage/validate_usage.py`) -- run individually because
+        `run_workflow_locally.py --for-changes` did not complete inside this
+        sandbox's tool timeouts and was abandoned rather than trusted
+        half-finished.
+    mrr_end: 0
