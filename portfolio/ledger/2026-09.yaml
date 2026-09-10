@@ -22272,3 +22272,73 @@ entries:
         applies vacuously this session; product work proceeded per "if none
         exist, start new work after the overlap check."
     mrr_end: 0
+  - venture: kdp-royalty-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a live analytics defect that shipped to `main` this morning in
+        #4414 and repaired it fleet-wide. The venture's new "Copy shareable
+        link" button called `recordUsage(localStorage, optedOut,
+        'link_copied')`, but this is one of the 10 ventures (of 153 shipping
+        a counter) whose `recordUsage` is declared `(event, optedOut,
+        storage)` rather than the majority `(storage, optedOut, event)`. Both
+        arguments landed in the wrong parameter: the tally key would have been
+        `[object Storage]:<date>`, and the next line called
+        `'link_copied'.getItem(...)`, which throws into the catch `usage.mjs`
+        keeps so a calculator survives a storage failure. The button worked
+        and the tally was never written.
+      - >-
+        Why it mattered rather than being a typo: `link_copied` is the number
+        the share feature exists to produce -- #4414's own rationale was that
+        a shared link is the one distribution channel not owner-blocked, and
+        that usage is the portfolio's bottleneck. The experiment would have
+        reported "nobody shares" whatever users did. Nothing went red because
+        from outside, a counter recording nothing is indistinguishable from a
+        visitor who opted out: `node --test`, the browser checks (`roundtrip`
+        drives the button and reads the link, never the tally), the privacy
+        suite and all eight validators were green over it.
+      - >-
+        Added `platform/privacy/usage-call-order.mjs` -- reads each venture's
+        own `recordUsage` declaration and each of its call sites and compares
+        them across all 153 ventures. The two signatures are a real divergence
+        rather than one rule restated, so CLAUDE.md's "import, don't restate"
+        fix does not apply here and checking is the available move. An
+        argument it cannot classify is reported unclassifiable rather than
+        accused, for the reason `run_workflow_locally.py` gives for UNRUN;
+        most of its tests prove it can fail, since the fleet is clean after
+        the fix and an always-empty checker would look identical. It lives in
+        `platform/privacy/` because that directory is already in CLAUDE.md's
+        starvation checklist -- `checklist_coverage.py` confirms no new line
+        is needed.
+      - >-
+        Verified: `node --test ventures/kdp-royalty-calculator/*.test.mjs`
+        47/47 (1 new, checked to fail against the shipped line first).
+        `platform/proposal` + `platform/privacy` + `platform/webcheck`
+        180/180, 0 skipped (clone unshallowed, so both history-pinned webcheck
+        tests really ran). `platform/marketing` + `platform/pages` 1196/1196
+        after `regen.mjs`. `pytest gitops/tests` 506 passed / 25 skipped.
+        `pytest portfolio/... infra/tests` 431 passed / 8 subtests. All 21
+        `platform/ci` unittest modules + `agent_review/test_review` OK.
+        `checklist_coverage.py` clean. Actions was starved all session
+        (`main`'s own push run 34445162050 and this branch's 34445138995 both
+        returned in seconds), so every check was run here.
+      - >-
+        On this session's explicit Hetzner ask: the blocker is unchanged and
+        already recorded above by a concurrent session -- one owner action,
+        `hetzner-ssh-key-is-a-public-key`, gates the cluster, the self-hosted
+        runners and the Codex host worker alike, and `restore-cluster.sh`
+        with `WITH_CODEX_HOST=1` does all three in one run. Worth recording
+        that a session sandbox cannot re-measure the boxes, and looks as
+        though it can: `/dev/tcp/89.167.29.39/443` connects while a
+        guaranteed-dead TEST-NET address does not, which reads like a live
+        host. It is not. `openssl s_client` to that socket returns a
+        certificate issued by `O = Anthropic, CN = Egress Gateway SDS Issuing
+        CA`, so the gateway is terminating the connection itself and the
+        reading says nothing about Hetzner. Port 22 "unreachable" is the same
+        artifact from the other side -- the sandbox allows 443 outbound and
+        not 22, which inverts the real `Outage triage` reading (22 open, 443
+        refused) and would invite exactly the wrong conclusion. Only
+        `Public surface check` / `Outage triage` on a runner can answer it,
+        and runners are starved.
+    mrr_end: 0
