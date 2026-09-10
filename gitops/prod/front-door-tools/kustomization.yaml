@@ -37,10 +37,10 @@
 #   portfolio-front-tools-1: 110 files, 555652 bytes
 #   portfolio-front-tools-2: 149 files, 548222 bytes
 #   portfolio-front-tools-3: 145 files, 550827 bytes
-#   portfolio-front-tools-4: 123 files, 556673 bytes
-#   portfolio-front-tools-5: 130 files, 556956 bytes
-#   portfolio-front-tools-6: 128 files, 554842 bytes
-#   portfolio-front-tools-7: 107 files, 542955 bytes
+#   portfolio-front-tools-4: 122 files, 555627 bytes
+#   portfolio-front-tools-5: 129 files, 557030 bytes
+#   portfolio-front-tools-6: 129 files, 553197 bytes
+#   portfolio-front-tools-7: 109 files, 549734 bytes
 #   portfolio-front-tools-8: 119 files, 555373 bytes
 #   portfolio-front-tools-9: 127 files, 554994 bytes
 #   portfolio-front-tools-10: 100 files, 546499 bytes
@@ -704,6 +704,7 @@ configMapGenerator:
       - carpet-install-bid-calculator__calc.mjs.gz=carpet-install-bid-calculator__calc.mjs.gz
       - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
       - carpet-install-bid-calculator__index.html.gz=carpet-install-bid-calculator__index.html.gz
+      - carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz=carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz
       - carpet-install-bid-calculator__usage.mjs.gz=carpet-install-bid-calculator__usage.mjs.gz
       - carpet-install-bid-calculator__vs-measuresquare.html.gz=carpet-install-bid-calculator__vs-measuresquare.html.gz
       - certified-payroll-calculator__calc.mjs.gz=certified-payroll-calculator__calc.mjs.gz
@@ -749,13 +750,13 @@ configMapGenerator:
       - cors-misconfig-check__analyze.mjs.gz=cors-misconfig-check__analyze.mjs.gz
       - cors-misconfig-check__check.mjs.gz=cors-misconfig-check__check.mjs.gz
       - cors-misconfig-check__index.html.gz=cors-misconfig-check__index.html.gz
-      - cors-misconfig-check__probe.mjs.gz=cors-misconfig-check__probe.mjs.gz
-      - cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz=cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cors-misconfig-check__probe.mjs.gz=cors-misconfig-check__probe.mjs.gz
+      - cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz=cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz
       - cors-misconfig-check__usage.mjs.gz=cors-misconfig-check__usage.mjs.gz
       - cors-misconfig-check__vs-burp-suite.html.gz=cors-misconfig-check__vs-burp-suite.html.gz
       - countertop-bid-calculator__calc.mjs.gz=countertop-bid-calculator__calc.mjs.gz
@@ -883,14 +884,14 @@ configMapGenerator:
       - einvoice-preflight__index.html.gz=einvoice-preflight__index.html.gz
       - einvoice-preflight__means.mjs.gz=einvoice-preflight__means.mjs.gz
       - einvoice-preflight__period.mjs.gz=einvoice-preflight__period.mjs.gz
-      - einvoice-preflight__reference.mjs.gz=einvoice-preflight__reference.mjs.gz
-      - einvoice-preflight__remittance.mjs.gz=einvoice-preflight__remittance.mjs.gz
-      - einvoice-preflight__report.mjs.gz=einvoice-preflight__report.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - einvoice-preflight__reference.mjs.gz=einvoice-preflight__reference.mjs.gz
+      - einvoice-preflight__remittance.mjs.gz=einvoice-preflight__remittance.mjs.gz
+      - einvoice-preflight__report.mjs.gz=einvoice-preflight__report.mjs.gz
       - einvoice-preflight__tax.mjs.gz=einvoice-preflight__tax.mjs.gz
       - einvoice-preflight__terms.mjs.gz=einvoice-preflight__terms.mjs.gz
       - einvoice-preflight__ubl.mjs.gz=einvoice-preflight__ubl.mjs.gz
@@ -1017,13 +1018,13 @@ configMapGenerator:
       - garage-door-bid-calculator__index.html.gz=garage-door-bid-calculator__index.html.gz
       - garage-door-bid-calculator__share.mjs.gz=garage-door-bid-calculator__share.mjs.gz
       - garage-door-bid-calculator__usage.mjs.gz=garage-door-bid-calculator__usage.mjs.gz
-      - garage-door-bid-calculator__vs-housecall-pro.html.gz=garage-door-bid-calculator__vs-housecall-pro.html.gz
-      - gig-driver-net-pay-calculator__calc.mjs.gz=gig-driver-net-pay-calculator__calc.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - garage-door-bid-calculator__vs-housecall-pro.html.gz=garage-door-bid-calculator__vs-housecall-pro.html.gz
+      - gig-driver-net-pay-calculator__calc.mjs.gz=gig-driver-net-pay-calculator__calc.mjs.gz
       - gig-driver-net-pay-calculator__how-much-should-i-set-aside-for-gig-driving-taxes.html.gz=gig-driver-net-pay-calculator__how-much-should-i-set-aside-for-gig-driving-taxes.html.gz
       - gig-driver-net-pay-calculator__index.html.gz=gig-driver-net-pay-calculator__index.html.gz
       - gig-driver-net-pay-calculator__share.mjs.gz=gig-driver-net-pay-calculator__share.mjs.gz
