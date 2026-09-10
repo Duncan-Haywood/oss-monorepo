@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 149 files, 548262 bytes
 #   portfolio-front-tools-3: 144 files, 554922 bytes
 #   portfolio-front-tools-4: 121 files, 556348 bytes
-#   portfolio-front-tools-5: 124 files, 540719 bytes
+#   portfolio-front-tools-5: 125 files, 544678 bytes
 #   portfolio-front-tools-6: 135 files, 555169 bytes
 #   portfolio-front-tools-7: 112 files, 551861 bytes
 #   portfolio-front-tools-8: 116 files, 556145 bytes
@@ -795,6 +795,7 @@ configMapGenerator:
       - crown-molding-bid-calculator__calc.mjs.gz=crown-molding-bid-calculator__calc.mjs.gz
       - crown-molding-bid-calculator__how-much-to-charge-to-install-crown-molding.html.gz=crown-molding-bid-calculator__how-much-to-charge-to-install-crown-molding.html.gz
       - crown-molding-bid-calculator__index.html.gz=crown-molding-bid-calculator__index.html.gz
+      - crown-molding-bid-calculator__should-i-charge-8-a-foot-for-crown-molding.html.gz=crown-molding-bid-calculator__should-i-charge-8-a-foot-for-crown-molding.html.gz
       - crown-molding-bid-calculator__usage.mjs.gz=crown-molding-bid-calculator__usage.mjs.gz
       - crown-molding-bid-calculator__vs-jobber.html.gz=crown-molding-bid-calculator__vs-jobber.html.gz
       - custom-farm-rate-calculator__calc.mjs.gz=custom-farm-rate-calculator__calc.mjs.gz
