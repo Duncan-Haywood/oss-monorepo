@@ -9311,3 +9311,70 @@ ventures:
       have to survive), never as a decision made on the operator's behalf.
       No account, no upload, no data retained anywhere but an anonymous
       local event count.
+  - slug: bounce-house-rental-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. An operator sends a real quote off
+      this number before a deposit changes hands, so every line -- rental,
+      labor minutes, mileage, generator, attendant hours, insurance on
+      replacement value -- has to be one they can check against their own
+      rate sheet, timesheet, and policy on paper. A model's guess at any of
+      those would make the quote less checkable without making it more
+      correct, which is exactly the false precision the tool exists to
+      replace.
+    basis: >-
+      Screened 2026-09-10. `duplicate_check.py` scored the closest
+      pre-existing match (`photo-booth-event-quote`) at 0.25 against the
+      final description, well under the 0.45 flag bar -- the two other
+      close scores were `portable-restroom-event-quote` (0.12) and
+      `moving-bid-calculator` (0.09). Read rather than trusted: those three
+      are the same one-off-event-booking shape (a truck makes two round
+      trips, a crew does setup/teardown, a flat unit rate misses both) but
+      price a different service with different failure modes -- a photo
+      booth's attendant hours, a restroom yard's pump-outs and days on
+      site, a mover's per-job labor -- none of which touch a wet-unit
+      attendant requirement or fleet-value insurance, which are specific to
+      inflatables and the two things this tool was built to put back into
+      the quote. Not already a `ventures/` directory or a
+      `screened-out.md` row under any name. Distribution 7: real,
+      demonstrable search volume ("how much to charge for bounce house
+      rental", "bounce house rental pricing calculator", "inflatable
+      rental insurance cost") and large, active operator communities (the
+      "Bounce House Business Owners" and similar inflatable-rental Facebook
+      groups run into the tens of thousands of members, and r/smallbusiness
+      and trade-specific rental forums carry recurring pricing threads for
+      this exact trade) -- not higher because those are groups to be found
+      in, not a channel this portfolio owns or can post into without
+      looking like an outside pitch. Time to revenue 7, defensibility 4:
+      donations-only like every other tool here, and the arithmetic is
+      public; defensibility rests on naming the specific costs a flat
+      per-unit rate omits (the second round trip, the attendant, fleet-sized
+      insurance) rather than on any moat, and a competent rival calculator
+      could reproduce it in an afternoon.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: everything runs in the visitor's browser on figures they type,
+      nothing is uploaded, and no third party's data is touched. The one
+      real exposure in this niche is a safety/insurance determination --
+      whether a wet unit legally requires an attendant, or what liability
+      coverage to carry -- and the tool makes no such determination: the
+      page, the guide, the README and the FAQ each say plainly that the
+      operator's own policy and local ordinance govern, and the
+      missing-attendant flag is phrased as a check against the operator's
+      own policy, never as a legal or insurance determination. Output is
+      phrased as arithmetic to act on (a walk-away price, a cost
+      breakdown, a flag to check), never as a decision made on the
+      operator's behalf. No account, no upload, no data retained anywhere
+      but an anonymous local event count.

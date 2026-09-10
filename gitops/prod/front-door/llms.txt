@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 235 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 236 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 235 of them — and
+Every tool in the collection is listed below — all 236 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -210,6 +210,7 @@ page that hosts it.
 - [Booth Rent vs Commission Calculator](https://marisstella.dev/tools/booth-rent-vs-commission/): Free booth rent vs commission calculator for hair stylists, barbers, and nail techs. Compare take-home and hourly pay on your own book after rent, card fees, backbar, and unpaid hours.
 - [Screen Printing & Embroidery Price Calculator — Cost Per Shirt, Setup & Margin](https://marisstella.dev/tools/apparel-decoration-price-calculator/): Free screen printing, embroidery and DTF pricing calculator for custom apparel shops: work out your real cost per shirt from screens or digitising, press or stitch time, blanks and spoilage, then see the break-even price, the margin at what you quoted, and what the same job costs at 12, 24, 48, 72, 144 and 288 pieces. Runs entirely in your browser.
 - [ATM Route Margin Calculator — Price Each Placement](https://marisstella.dev/tools/atm-route-margin/): Free calculator for independent ATM route operators: find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.
+- [Bounce House Rental Calculator](https://marisstella.dev/tools/bounce-house-rental-calculator/): Price a bounce house or inflatable rental booking from the truck's two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet's replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.
 - [Dog Walking & Pet Sitting Rate Calculator — Price Your Route](https://marisstella.dev/tools/dog-walking-route-pricing/): Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.
 - [Dumpster Rental Margin Calculator — Price a Roll-Off Job](https://marisstella.dev/tools/dumpster-rental-margin-calculator/): Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.
 - [Fire Extinguisher Inspection Route Margin Calculator](https://marisstella.dev/tools/fire-extinguisher-inspection-route-margin/): Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.

@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bounce House Rental Calculator | Price the Delivery, Attendant &amp; Insurance</title>
+  <meta name="description" content="Price a bounce house or inflatable rental booking from the truck's two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet's replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.">
+  <meta property="og:title" content="Bounce House Rental Calculator">
+  <meta property="og:description" content="A flat per-unit rate misses the truck's second trip, the crew's setup time, the generator, the attendant a water slide needs, and insurance sized to your fleet. See the real walk-away price before you quote.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bounce House Rental Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-unit fleet pricing from daily rate and event days; two-round-trip delivery mileage; setup and teardown crew labor; generator fee when the site has no outlet; wet-unit attendant labor billed only against water slides and dunk tanks; general-liability insurance costed against the deployed fleet's replacement value; overhead and target-margin pricing; proposed-price margin check; walk-away price and price per unit; missing-attendant flag for a quoted wet unit"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is delivery mileage charged twice?","acceptedAnswer":{"@type":"Answer","text":"Because the truck makes the drive twice regardless of how the booking is billed: once to deliver the units and once to pick them up, even on a same-day rental. That is four times the one-way distance, not two — a quote that prices the trip once misses the return drive on both legs, which is usually the largest line item on a short-mileage local booking."}},{"@type":"Question","name":"Does a water slide really need a paid attendant?","acceptedAnswer":{"@type":"Answer","text":"Many general-liability policies covering inflatable operators require a trained attendant on duty for the whole time a water slide or dunk tank is running, and some local ordinances do too — but this tool makes no determination about your policy or your jurisdiction. It flags a quoted wet unit with no attendant hours budgeted so the labor line is not silently missing from the quote; check your own policy and confirm the requirement before removing that cost."}},{"@type":"Question","name":"Do I really need to budget for a generator?","acceptedAnswer":{"@type":"Answer","text":"Whenever the site has no outlet within safe extension-cord reach of the blower, which describes most public parks, fields, and many backyards on an exterior circuit already loaded with other equipment. A generator is a real rental or fuel cost plus a delivery weight most trucks already carry, so it belongs in the quote whenever it is needed — this tool only charges it when you check the box."}},{"@type":"Question","name":"Why is insurance priced against the fleet, not against the quote?","acceptedAnswer":{"@type":"Answer","text":"Because the risk an inflatable-rental general-liability policy prices is the equipment on site and the chance it tips, deflates, or is misused — not the price charged for the afternoon. A $150 unit and a $350 obstacle course carry very different exposure at the same rental rate, so this tool costs insurance as a percentage of the deployed fleet's total replacement value rather than as a percentage of the price, which is what your carrier is actually pricing."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and the page makes no network requests — it runs entirely in your browser. Your fleet, your rates, your labor cost and the price worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control."}},{"@type":"Question","name":"Is this legal, tax, or insurance advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type. It makes no determination about what insurance coverage you need, whether an attendant is legally required for a given unit or municipality, or what to charge. Verify every figure against your own policy, your rate sheet, and a qualified professional before sending a quote."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2333; background: #eef1fa; }
+    body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 800px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.3rem); line-height: 1; margin: 0 0 12px; letter-spacing: -.045em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2b3f9e; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .76fr); gap: 18px; align-items: start; }
+    section { background: #fbfbfe; border: 1px solid #ccd0e6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1c233310; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5170; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a3aac2; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #93261a; background: #fdf4f2; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: .87rem; }
+    .check input { width: auto; }
+    .fleet-table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+    .fleet-table th, .fleet-table td { text-align: left; padding: 6px 6px; }
+    .fleet-table thead th { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; color: #4a5170; }
+    .fleet-table input { padding: 8px; }
+    .fleet-table .wet-tag { font-size: .72rem; font-weight: 700; color: #0f5f7a; }
+    .fleet-table .cell-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a3aac2; background: #e7eaf7; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2333; }
+    button:hover { background: #d9ddf2; }
+    .primary { background: #2b3f9e; border-color: #2b3f9e; color: #f4f5fc; }
+    .primary:hover { background: #24357f; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+    .result { position: sticky; top: 15px; background: #171d33; color: #edeffb; border-color: #171d33; }
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .negative { color: #ffb3a4; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .verdict { margin-top: 16px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff17; }
+    .verdict.bad { background: #7d2317; }
+    .verdict.warn { background: #6a4a12; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd0c6; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5170; }
+    footer a { color: #2b3f9e; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .seo-link a { color: #2b3f9e; }
+    #faq h3 { margin-bottom: 4px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .fleet-table, .fleet-table thead, .fleet-table tbody, .fleet-table tr, .fleet-table th, .fleet-table td { display: block; width: 100%; }
+      .fleet-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+      .fleet-table tr { border: 1px solid #ccd0e6; border-radius: 9px; padding: 10px; margin-bottom: 10px; }
+      .fleet-table th { padding: 4px 0 8px; font-weight: 700; }
+      .fleet-table td { padding: 4px 0; }
+      .fleet-table .cell-label { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; display: block; font-size: .78rem; color: #4a5170; margin-bottom: 3px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR INFLATABLE &amp; BOUNCE HOUSE RENTAL COMPANIES</p>
+    <h1>The truck drives it twice. Price it twice.</h1>
+    <p>A flat per-unit-per-day rate is a starting price, not a quote. It rarely carries the truck's second round trip, the crew's setup and teardown minutes, a generator when the site has no outlet, the attendant a water slide needs on duty, or liability insurance sized to what you actually deployed. Enter a real booking below and see the walk-away price before you send the quote.</p>
+    <p class="seo-link"><a href="./how-much-to-charge-for-a-bounce-house-rental.html">How much should I charge for a bounce house rental? &mdash; the worked example in full</a></p>
+  </header>
+
+  <main class="layout">
+    <form id="quoteForm">
+      <section>
+        <h2>Your fleet for this event</h2>
+        <p class="hint">Quantity 0 leaves a unit type out of the quote. Daily rate and replacement value start from common ballpark figures &mdash; replace them with your own book. Water slides and dunk tanks are marked wet because they carry the attendant line below.</p>
+        <div style="overflow-x:auto">
+        <table class="fleet-table" id="fleetTable">
+          <thead>
+            <tr><th scope="col">Unit type</th><th scope="col">Qty</th><th scope="col">Daily rate</th><th scope="col">Replacement value</th></tr>
+          </thead>
+          <tbody id="fleetBody"></tbody>
+        </table>
+        </div>
+        <div class="fields" style="margin-top:13px">
+          <label>Event days <input id="eventDays" type="number" min="1" max="30" step="1" value="1"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Labor and the truck</h2>
+        <p class="hint">Setup and teardown minutes are per unit; the crew works on all of them, so the total scales with fleet size.</p>
+        <div class="fields">
+          <label>Setup minutes per unit <input id="setupMinutesPerUnit" type="number" min="0" max="240" step="1" value="25"></label>
+          <label>Teardown minutes per unit <input id="teardownMinutesPerUnit" type="number" min="0" max="240" step="1" value="15"></label>
+          <label>Crew size <input id="crewSize" type="number" min="1" max="20" step="1" value="2"></label>
+          <label>Labor rate ($/hr per crew member) <input id="laborRate" type="number" min="0" max="200" step="0.5" value="20"></label>
+          <label>Delivery fee <input id="deliveryFee" type="number" min="0" max="2000" step="1" value="25"></label>
+          <label>Pickup fee <input id="pickupFee" type="number" min="0" max="2000" step="1" value="25"></label>
+          <label>Miles one way <input id="milesOneWay" type="number" min="0" max="500" step="0.1" value="12"></label>
+          <label>Rate per mile <input id="ratePerMile" type="number" min="0" max="20" step="0.1" value="2.50"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Mileage is two round trips: one to deliver, one to pick up (four times the one-way miles) &mdash; the truck drives it twice even on a same-day booking.</p>
+      </section>
+
+      <section>
+        <h2>Generator, attendant, insurance &amp; other</h2>
+        <div class="fields">
+          <label class="check"><input id="generatorNeeded" type="checkbox" checked> Site has no outlet &mdash; generator needed</label>
+          <label>Generator fee <input id="generatorFee" type="number" min="0" max="500" step="1" value="65"></label>
+          <label>Wet-unit attendant hours <input id="attendantHours" type="number" min="0" max="24" step="0.5" value="5"></label>
+          <label>Attendant rate ($/hr per wet unit) <input id="attendantRate" type="number" min="0" max="100" step="0.5" value="18"></label>
+          <label>Insurance rate on fleet value (%) <input id="insuranceRatePct" type="number" min="0" max="20" step="0.05" value="1.25"></label>
+          <label>Consumables per unit (stakes, tarps, fuel) <input id="consumablesPerUnit" type="number" min="0" max="200" step="0.5" value="8"></label>
+          <label>Other cost (permits, extra staff) <input id="otherCost" type="number" min="0" max="2000" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" max="100" step="0.5" value="12"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="22"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" max="100000" step="10" placeholder="e.g. 900"></label>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary">Price this booking</button>
+        </div>
+      </section>
+    </form>
+
+    <section class="result" id="result" aria-live="polite">
+      <p class="hero-label">Quoted price</p>
+      <p class="hero-number" id="heroNumber">&mdash;</p>
+      <p class="empty" id="emptyState">Press &ldquo;Price this booking&rdquo; to see the walk-away price.</p>
+      <div id="resultBody" hidden>
+        <dl>
+          <dt class="group">The quote</dt>
+          <dt>Total units</dt><dd id="outUnits">&mdash;</dd>
+          <dt>Price per unit</dt><dd id="outPerUnit">&mdash;</dd>
+          <dt>Profit</dt><dd id="outProfit">&mdash;</dd>
+
+          <dt class="group">Direct cost</dt>
+          <dt>Rental (fleet &times; days)</dt><dd id="outRental">&mdash;</dd>
+          <dt>Setup &amp; teardown labor</dt><dd id="outLabor">&mdash;</dd>
+          <dt>Haul (delivery, pickup, miles)</dt><dd id="outHaul">&mdash;</dd>
+          <dt>Generator</dt><dd id="outGenerator">&mdash;</dd>
+          <dt>Wet-unit attendant</dt><dd id="outAttendant">&mdash;</dd>
+          <dt>Insurance (on fleet value)</dt><dd id="outInsurance">&mdash;</dd>
+          <dt>Consumables &amp; other</dt><dd id="outConsumables">&mdash;</dd>
+          <dt>Overhead</dt><dd id="outOverhead">&mdash;</dd>
+          <dt>Walk-away price</dt><dd id="outBreakEven">&mdash;</dd>
+        </dl>
+        <div id="verdict" class="verdict" hidden></div>
+      </div>
+      <ul class="errors" id="errors"></ul>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>Why is delivery mileage charged twice?</h3>
+    <p>Because the truck makes the drive twice regardless of how the booking is billed: once to deliver the units and once to pick them up, even on a same-day rental. That is four times the one-way distance, not two &mdash; a quote that prices the trip once misses the return drive on both legs, which is usually the largest line item on a short-mileage local booking.</p>
+
+    <h3>Does a water slide really need a paid attendant?</h3>
+    <p>Many general-liability policies covering inflatable operators require a trained attendant on duty for the whole time a water slide or dunk tank is running, and some local ordinances do too &mdash; but this tool makes no determination about your policy or your jurisdiction. It flags a quoted wet unit with no attendant hours budgeted so the labor line is not silently missing from the quote; check your own policy and confirm the requirement before removing that cost.</p>
+
+    <h3>Do I really need to budget for a generator?</h3>
+    <p>Whenever the site has no outlet within safe extension-cord reach of the blower, which describes most public parks, fields, and many backyards on an exterior circuit already loaded with other equipment. A generator is a real rental or fuel cost plus a delivery weight most trucks already carry, so it belongs in the quote whenever it is needed &mdash; this tool only charges it when you check the box.</p>
+
+    <h3>Why is insurance priced against the fleet, not against the quote?</h3>
+    <p>Because the risk an inflatable-rental general-liability policy prices is the equipment on site and the chance it tips, deflates, or is misused &mdash; not the price charged for the afternoon. A $150 unit and a $350 obstacle course carry very different exposure at the same rental rate, so this tool costs insurance as a percentage of the deployed fleet's total replacement value rather than as a percentage of the price, which is what your carrier is actually pricing.</p>
+
+    <h3>Is any of this uploaded?</h3>
+    <p>No. There is no account and the page makes no network requests &mdash; it runs entirely in your browser. Your fleet, your rates, your labor cost and the price worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control.</p>
+
+    <h3>Is this legal, tax, or insurance advice?</h3>
+    <p>No. It is arithmetic on the figures you type. It makes no determination about what insurance coverage you need, whether an attendant is legally required for a given unit or municipality, or what to charge. Verify every figure against your own policy, your rate sheet, and a qualified professional before sending a quote.</p>
+
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or insurance advice, and it does not tell you what to charge, whether an attendant is legally required, or what insurance coverage to carry. It is arithmetic on the numbers you type, and the numbers it starts with are an illustrative example rather than market data. Verify every figure against your own rate sheet, your insurance policy, and a qualified professional before sending a quote. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your fleet, rates, labor cost and the price worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control.</p>
+    <p>Quoting a different one-off event booking? The <a href="../portable-restroom-event-quote/">portable restroom event quote calculator</a> prices days on site and pump-outs the same way, and the <a href="../photo-booth-event-quote/">photo booth event quote calculator</a> prices a booth booking from travel and attendant hours.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateQuote, UNIT_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const el = (id) => document.getElementById(id);
+    const money = (value) => {
+      const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+
+    const optedOut = () => el('usageOptOut').checked;
+    const count = (event) => recordUsage(localStorage, optedOut(), event);
+
+    // The opening example: 2 standard bounce houses and 1 water slide, so the
+    // page shows a real, non-zero quote before anyone types anything.
+    const STARTING_QUANTITIES = { 'bounce-standard': 2, 'water-slide': 1 };
+
+    const fleetBody = el('fleetBody');
+    UNIT_PRESETS.forEach((preset, index) => {
+      const row = document.createElement('tr');
+      const qtyId = `qty-${preset.id}`;
+      const rateId = `rate-${preset.id}`;
+      const valId = `val-${preset.id}`;
+      row.innerHTML = `
+        <th scope="row">${preset.label}${preset.wet ? ' <span class="wet-tag">(wet)</span>' : ''}</th>
+        <td><label class="cell-label" for="${qtyId}">Quantity, ${preset.label}</label><input id="${qtyId}" type="number" min="0" max="50" step="1" value="${STARTING_QUANTITIES[preset.id] ?? 0}"></td>
+        <td><label class="cell-label" for="${rateId}">Daily rate, ${preset.label}</label><input id="${rateId}" type="number" min="0" max="5000" step="1" value="${preset.dailyRate}"></td>
+        <td><label class="cell-label" for="${valId}">Replacement value, ${preset.label}</label><input id="${valId}" type="number" min="0" max="50000" step="10" value="${preset.replacementValue}"></td>`;
+      fleetBody.append(row);
+    });
+
+    const COST_IDS = [
+      'eventDays', 'setupMinutesPerUnit', 'teardownMinutesPerUnit', 'crewSize', 'laborRate',
+      'deliveryFee', 'pickupFee', 'milesOneWay', 'ratePerMile', 'generatorFee',
+      'attendantHours', 'attendantRate', 'insuranceRatePct', 'consumablesPerUnit', 'otherCost',
+      'overheadRate', 'targetMargin', 'proposedPrice',
+    ];
+
+    function readUnits() {
+      return UNIT_PRESETS.map((preset) => ({
+        name: preset.label,
+        wet: preset.wet,
+        quantity: el(`qty-${preset.id}`).value,
+        dailyRate: el(`rate-${preset.id}`).value,
+        replacementValue: el(`val-${preset.id}`).value,
+      })).filter((unit) => Number(unit.quantity) > 0);
+    }
+
+    function readInput() {
+      const raw = { units: readUnits(), generatorNeeded: el('generatorNeeded').checked };
+      for (const id of COST_IDS) raw[id] = el(id).value;
+      return raw;
+    }
+
+    function clearInvalid() {
+      for (const id of COST_IDS) el(id).removeAttribute('aria-invalid');
+    }
+
+    function renderErrors(message) {
+      clearInvalid();
+      el('resultBody').hidden = true;
+      el('emptyState').hidden = false;
+      el('emptyState').textContent = 'Some figures need fixing before this can be priced.';
+      el('heroNumber').textContent = '—';
+      el('heroNumber').classList.remove('negative');
+      el('errors').innerHTML = '';
+      const li = document.createElement('li');
+      li.textContent = message;
+      el('errors').append(li);
+    }
+
+    function render(result) {
+      clearInvalid();
+      el('errors').innerHTML = '';
+      el('emptyState').hidden = true;
+      el('resultBody').hidden = false;
+
+      el('heroNumber').textContent = money(result.price);
+      el('heroNumber').classList.remove('negative');
+
+      el('outUnits').textContent = result.totalUnits;
+      el('outPerUnit').textContent = result.pricePerUnit === null ? 'n/a' : money(result.pricePerUnit);
+      el('outProfit').textContent = money(result.profit);
+      el('outRental').textContent = money(result.rentalCost);
+      el('outLabor').textContent = money(result.laborCost);
+      el('outHaul').textContent = money(result.haulCost);
+      el('outGenerator').textContent = money(result.generatorCost);
+      el('outAttendant').textContent = money(result.attendantCost);
+      el('outInsurance').textContent = money(result.insuranceCost);
+      el('outConsumables').textContent = money(result.consumables + result.otherCost);
+      el('outOverhead').textContent = money(result.overhead);
+      el('outBreakEven').textContent = money(result.breakEvenPrice);
+
+      const verdict = el('verdict');
+      if (result.proposed !== null) {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this booking <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> &mdash; a ${result.proposed.margin.toFixed(1)}% margin.`;
+      } else if (result.wetUnitsMissingAttendant) {
+        verdict.hidden = false;
+        verdict.className = 'verdict warn';
+        verdict.innerHTML = 'A quoted wet unit (water slide or dunk tank) has zero attendant hours budgeted. Check your policy before dropping that line &mdash; this is a flag, not a legal determination.';
+      } else {
+        verdict.hidden = true;
+      }
+    }
+
+    function submit(event) {
+      if (event) event.preventDefault();
+      let result;
+      try {
+        result = calculateQuote(readInput());
+      } catch (error) {
+        renderErrors(error.message);
+        return null;
+      }
+      render(result);
+      return result;
+    }
+
+    el('quoteForm').addEventListener('submit', (event) => {
+      const result = submit(event);
+      if (result) count('quote_priced');
+    });
+
+    // Open on the worked example rather than an em-dash: the defaults above
+    // *are* an example booking, and the page's whole claim — that a flat
+    // per-unit rate misses the truck, the crew, the generator, the attendant
+    // and the insurance — is invisible until something is on screen. No
+    // `quote_priced` count is recorded here: a page load is not a pricing.
+    submit();
+  </script>
+</body>
+</html>

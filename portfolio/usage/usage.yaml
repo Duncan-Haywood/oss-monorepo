@@ -5032,3 +5032,30 @@ products:
           default, and honor DNT/GPC, so zero is the expected reading
           for a tool nobody has visited or switched the counter on for
           yet.
+  - slug: bounce-house-rental-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-10
+        signals:
+          live_url_visitors: null
+          quote_priced: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route from its first commit: a booking calculator for
+          independent bounce house / inflatable rental companies, pricing
+          the truck's two round trips, setup and teardown labor, a
+          generator, a wet-unit attendant, and fleet-value insurance on
+          top of the rental rate a flat per-unit price sheet stops at.
+          `quote_priced` is the signal worth watching against repeat use:
+          a flat rate that already matches the operator's real cost would
+          mean this tool changes nothing they send, so a single price with
+          no return visit is as informative as a return visit would be.
+          First-visitor channel is the large, active inflatable-rental
+          operator Facebook groups (tens of thousands of members) and
+          trade forums where booking pricing is a recurring thread, plus
+          the search phrases "how much to charge for a bounce house
+          rental" and "bounce house rental pricing calculator". Counts are
+          local, opt-in, off by default, and honor DNT/GPC, so zero is the
+          expected reading for a tool nobody has visited or switched the
+          counter on for yet.
