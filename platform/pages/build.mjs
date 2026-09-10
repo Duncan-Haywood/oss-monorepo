@@ -742,8 +742,21 @@ const CATEGORY_RULES = [
     // neighbors above are: one tool does not earn a whole family pattern,
     // and landing it here rather than the catch-all is also what keeps that
     // catch-all inside the bound `build.test.mjs` puts on it.
+    //
+    // `pwa-installability-check` joined 2026-09-10. Same shape again -- a
+    // zero-dependency CLI plus a matching browser page, run against a
+    // page/manifest/icon set the developer already has -- just for a Web App
+    // Manifest's installability fields instead of an npm/Actions/iOS/DNS
+    // supply-chain artifact. It shares `chrome-extension-permission-check`'s
+    // and `ios-privacy-manifest-check`'s "read a manifest file, cross-check
+    // it against a fixed platform-published checklist" shape, and cross-
+    // links `chrome-extension-permission-check` as Related for that reason.
+    // Listed by exact slug rather than a new prefix, the same way its
+    // neighbors above are: one tool does not earn a whole family pattern,
+    // and landing it here rather than the catch-all is also what keeps that
+    // catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check)/.test(
         slug,
       ),
   },
