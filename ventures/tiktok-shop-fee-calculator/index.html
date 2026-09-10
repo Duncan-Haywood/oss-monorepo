@@ -323,18 +323,12 @@
       compareFeeSchedules,
       compareFreeShipping,
       compareOrganicVsAffiliate,
+      FIELD_IDS,
       freeShippingNote,
       maxBuyCost,
       priceForTargetMargin,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
-
-    const FIELD_IDS = [
-      "itemPrice", "shippingCharged", "referralRate", "facilitationRate",
-      "affiliateRate", "returnRate", "cogs", "fulfillmentCost", "otherPerOrder",
-      "adSpend", "unsellableRate", "returnShipping", "targetMargin",
-      "unitsPerDay", "paymentRate", "platformDiscount", "freeShipPrice",
-    ];
 
     const money = (value) => {
       if (value === null || value === undefined) return "n/a";
