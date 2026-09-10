@@ -25268,3 +25268,42 @@ entries:
         portfolio/ledger/infra_state.yaml, re-measured 2026-09-10) so merged
         on this local verification per CLAUDE.md's standing rule.
     mrr_end: 0
+  - venture: self-storage-rate-increase-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a vs-sitelink.html competitor comparison page and test suite,
+        the same pattern as wildlife-exclusion-bid-calculator's vs-pestpac.html
+        earlier this session. SiteLink (Storable) was picked as the
+        comparison because it is a well-documented self-storage facility
+        management platform with a named "Price Optimizer" rate-automation
+        feature, verified via web search rather than invented.
+      - >-
+        A portfolio-wide test caught a real authoring bug before it shipped:
+        platform/pages/faq-visible.test.mjs failed twice in a row --  first
+        because the visible "Common questions" paragraph silently dropped a
+        sentence the FAQPage JSON-LD carried, then because the JSON-LD used a
+        literal "--" where the visible page rendered an em dash via
+        &mdash;. Both are the same class of defect this suite exists to
+        catch (JSON-LD claiming text the visitor never sees), and both are
+        now fixed; re-ran green (1219/1219).
+      - >-
+        No top-level gitops/prod/kustomization.yaml mount was needed this
+        time -- unlike vs-pestpac.html (which crossed the 2-comparisons
+        threshold for its own front-door-level aggregate page because
+        pest-control-bid-calculator already compares against PestPac),
+        SiteLink has only this one venture comparing against it, so
+        front-door.mjs correctly did not generate a vs__sitelink.html.gz
+        shard. Confirmed by checking for the file's absence rather than
+        assuming.
+      - >-
+        Verified: ventures/self-storage-rate-increase-calculator test suite
+        62/62; platform/pages build.mjs + check.mjs clean (244 tools, 946
+        pages, no dead links); platform/pages/clauses.mjs passes;
+        platform/marketing/*.test.mjs + platform/pages/*.test.mjs 1219/1219;
+        gitops/tests 533 passed / 25 skipped. Re-synced onto main mid-session
+        (another PR merged concurrently, unrelated codex-host files) and
+        re-ran every check against the fresh base before committing, per
+        this repo's high-concurrency expectations.
+    mrr_end: 0

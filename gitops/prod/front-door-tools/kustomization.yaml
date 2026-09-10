@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 114 files, 552905 bytes
 #   portfolio-front-tools-8: 113 files, 543338 bytes
 #   portfolio-front-tools-9: 120 files, 550973 bytes
-#   portfolio-front-tools-10: 123 files, 550284 bytes
+#   portfolio-front-tools-10: 124 files, 554497 bytes
 #   portfolio-front-tools-11: 106 files, 555007 bytes
 #   portfolio-front-tools-12: 103 files, 502112 bytes
 #   portfolio-front-tools-13: 55 files, 276873 bytes
@@ -1488,6 +1488,7 @@ configMapGenerator:
       - self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz=self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz
       - self-storage-rate-increase-calculator__index.html.gz=self-storage-rate-increase-calculator__index.html.gz
       - self-storage-rate-increase-calculator__usage.mjs.gz=self-storage-rate-increase-calculator__usage.mjs.gz
+      - self-storage-rate-increase-calculator__vs-sitelink.html.gz=self-storage-rate-increase-calculator__vs-sitelink.html.gz
       - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
       - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
       - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
