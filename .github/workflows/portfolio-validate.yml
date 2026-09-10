@@ -344,6 +344,22 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_form_defaults
 
+      # A calculator with both a saved draft and a shareable link restores the
+      # draft first and lets the link win. That only works if the link REPLACES
+      # the form: encode omits a blank, decode omits the missing key, and a
+      # `hasOwnProperty` guard then skips it -- so a field the sender cleared
+      # keeps the recipient's own number and the two of them read different
+      # figures from the same link, with nothing on screen saying so.
+      # Two products shipped that way on 2026-09-10 (#4424) from one pattern
+      # being rolled out a venture at a time, which is why this is a gate and
+      # not a third repair.
+      - name: Check a shared link replaces the form instead of patching it
+        run: python3 platform/ci/check_shared_link_clears.py
+
+      - name: Shared-link checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_shared_link_clears
+
       # The other direction of the same question. `check_form_defaults.py` asks
       # whether the values a page ships with satisfy the constraints it
       # declares; this asks whether those constraints are wide enough to let a
