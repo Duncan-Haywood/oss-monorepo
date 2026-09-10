@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 229,
-  "collection_total": 229,
+  "served_here": 230,
+  "collection_total": 230,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 21
+      "tool_count": 22
     },
     {
       "id": "evidence",
@@ -1301,6 +1301,14 @@
       "category": "More free tools",
       "description": "Free menu engineering calculator for independent restaurants: enter each dish's plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.",
       "pages": 3
+    },
+    {
+      "slug": "merchant-feed-check",
+      "name": "Merchant Feed Check — Catch Google/Meta Shopping Feed Errors Before They Disapprove Products",
+      "url": "https://marisstella.dev/tools/merchant-feed-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste or load a Google Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON) and get a deterministic, item-by-item report of missing required fields, invalid GTIN checksums, malformed prices, and the documented disapproval triggers -- before the crawler finds them. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "metal-roof-bid-calculator",
