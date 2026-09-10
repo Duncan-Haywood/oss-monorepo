@@ -773,6 +773,9 @@ workflows:
 - workflow: snow-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: social-preview-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: sod-install-bid-calculator-ci.yml
   classification: none
   publishes: []

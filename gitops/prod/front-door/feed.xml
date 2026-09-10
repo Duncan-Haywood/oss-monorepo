@@ -125,6 +125,15 @@
     <summary type="text">Price an existing-customer rate increase (ECRI) at your storage facility: what one induced move-out really costs once the unit re-rents at street rate, and the move-out rate at which the increase stops paying. Free, private, nothing leaves your browser.</summary>
   </entry>
   <entry>
+    <title>Social Preview Checker — Open Graph, Twitter Card, LinkedIn link previews</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/social-preview-check/"/>
+    <id>tag:marisstella.dev,2026:tool/social-preview-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter&#39;s large-image card, and the twitter:image -&gt; og:image fallback chain. Also check any image URL&#39;s real pixel dimensions right in this page. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Subresource Integrity (SRI) Checker &amp; Hash Generator</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sri-check/"/>
     <id>tag:marisstella.dev,2026:tool/sri-check</id>
