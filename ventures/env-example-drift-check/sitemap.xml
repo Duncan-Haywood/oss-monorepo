@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
   <url><loc>./why-env-example-files-drift-from-the-code-that-reads-them.html</loc></url>
+  <url><loc>./vs-dotenv-linter.html</loc></url>
 </urlset>

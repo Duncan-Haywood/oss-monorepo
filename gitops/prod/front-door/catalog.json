@@ -956,7 +956,7 @@
       "url": "https://marisstella.dev/tools/env-example-drift-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "epoxy-garage-floor-bid-calculator",
