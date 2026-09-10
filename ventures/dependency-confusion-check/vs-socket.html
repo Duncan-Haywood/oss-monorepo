@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This checker vs. Socket | Dependency Confusion Check</title>
+  <meta name="description" content="Socket is a paid, ongoing supply-chain security platform that monitors your dependency graph against live registry data for 70+ risk types, dependency confusion among them. This is a free, local, zero-network-call check for the two specific pip/npm configuration shapes that make a confusion attack possible. Not affiliated with Socket, Inc.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-socket.html">
+  <meta property="og:title" content="This checker vs. Socket">
+  <meta property="og:description" content="Two different layers: Socket watches your dependency graph and the public registries on an ongoing basis for dozens of risk types. This tool reads your own pip/npm configuration once, locally, for the two shapes that let a confusion attack succeed.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does Socket check for pip --extra-index-url or an unscoped npm name the same way this tool does?","acceptedAnswer":{"@type":"Answer","text":"Not in the way this tool does. Socket's own site describes deep package inspection and real-time monitoring across more than 70 risk categories — including dependency confusion, typosquatting, hidden code, risky install scripts, and permission creep — by watching your dependency graph against live registry data through a GitHub app, CLI, or browser extension. That is package-behavior analysis, not a read of your own requirements.txt, pip.conf, package.json, or .npmrc. This tool does the opposite and narrower thing: it never queries a registry at all, and instead reads those exact files for the two configuration shapes documented in Alex Birsan's 2021 research — a pip --extra-index-url use, and an unscoped npm dependency name behind a private .npmrc registry."}},{"@type":"Question","name":"Should I use this tool or Socket?","acceptedAnswer":{"@type":"Answer","text":"They work at different layers, and a team can reasonably run both. Socket runs on an ongoing basis against your dependency graph and the public registries, watching for a live attack — a newly published decoy package, a suspicious permission change, or dozens of other package-behavior signals — as a service that is free for public open-source use and offers paid plans for private and organization use, per Socket's own site; connecting it needs a GitHub app, CLI, or browser extension. This tool checks something Socket does not read directly: whether your own pip and npm configuration is shaped so that a confusion attack could work in the first place, entirely on your device, one time, free, no account, no network calls of its own. Socket can catch an attacker who already published a decoy; this tool tells you whether your configuration would fall for one."}},{"@type":"Question","name":"Is this page affiliated with Socket?","acceptedAnswer":{"@type":"Answer","text":"No. This page is not affiliated with, endorsed by, or sponsored by Socket, Inc. Socket is a trademark of Socket, Inc., named here only to describe what this tool is and is not, based on Socket's own publicly documented product."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    a { color: #4c1d95; overflow-wrap: anywhere; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .tableWrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; Dependency Confusion Check</a></p>
+  <h1>This checker vs. Socket</h1>
+  <p class="note">Two different layers: Socket watches your dependency graph and the public registries on an ongoing basis for 70+ risk types, dependency confusion among them. This tool reads the pip/npm configuration you already have, once, locally, for the two specific shapes that make a confusion attack possible &mdash; no account, no registry calls, nothing installed.</p>
+
+  <section class="card">
+    <h2>What each product is for</h2>
+    <p>
+      <strong>Socket</strong> is a supply-chain security platform. Its own
+      site describes deep package inspection that characterizes what a
+      dependency actually does, rather than relying only on known-vulnerability
+      databases, connected through a GitHub app, a CLI, and a browser
+      extension. It flags more than 70 categories of risk across npm, PyPI,
+      and other ecosystems &mdash; dependency confusion, typosquatting,
+      malware, hidden or obfuscated code, risky install scripts, and
+      permission creep among them &mdash; and monitors changes to a
+      project's dependency manifest on an ongoing basis. It is free for
+      public, open-source use, and Socket's own site lists paid Team,
+      Business, and Enterprise tiers for private-repository and
+      organization use; today's specific prices and contract terms are not
+      repeated here, since this session cannot verify them live against
+      Socket's own site &mdash; only its well-documented product shape is
+      described.
+    </p>
+    <p>
+      This tool does none of what Socket does. It has no account, no
+      ongoing service, no GitHub app, and no connection of any kind to a
+      package registry &mdash; it cannot tell you whether a name is
+      actually published anywhere, let alone whether it behaves
+      maliciously. It reads only the two specific, well-documented
+      configuration shapes behind the 2021 dependency-confusion incidents:
+      a pip <code>--extra-index-url</code> use, and an unscoped npm
+      dependency name while <code>.npmrc</code> sets a private default
+      registry. Paste the files you already have, or run the CLI against a
+      checkout, and get every finding with its fix &mdash; free, in your
+      browser or a zero-dependency script, with nothing uploaded and no
+      network calls of its own.
+    </p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want continuous, registry-aware scanning of my whole dependency graph for malware, typosquats, and dozens of other supply-chain risks &mdash; not just dependency confusion.</td><td>Socket &mdash; that is the ongoing, cross-ecosystem job it is built for.</td></tr>
+          <tr><td>I suspect a pip <code>--extra-index-url</code> use or an unscoped npm name in my own config might let a decoy package win, and want to check it right now, for free, without connecting anything.</td><td>This tool &mdash; paste the files, get the findings, nothing installed.</td></tr>
+          <tr><td>I want a GitHub app or CLI that watches every future pull request for newly introduced risky dependencies.</td><td>Socket &mdash; this tool has no memory between runs and does not watch anything.</td></tr>
+          <tr><td>I want zero network calls and nothing to install to check a <code>requirements.txt</code>, <code>package.json</code>, and <code>.npmrc</code> I already have.</td><td>This tool &mdash; it never queries a registry, GitHub, or anywhere else.</td></tr>
+          <tr><td>I want to know whether a specific package name is actually published on the public registry, or has ever shown malicious behavior.</td><td>Socket &mdash; this tool makes no registry calls and cannot answer that.</td></tr>
+          <tr><td>I want a one-time, local read of the configuration shape itself, split by pattern, with the exact fix.</td><td>This tool &mdash; that is the whole job, and the only one it does.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A team can reasonably run both: Socket for continuous, registry-aware
+      defense against a live attack already under way, and this tool as a
+      fast, zero-account, zero-network first pass over the two specific
+      misconfigurations that make such an attack possible in the first
+      place. This page does not evaluate Socket's detection accuracy and
+      makes no claim about it either way &mdash; it only describes Socket's
+      documented product shape and states what this tool does differently.
+      Socket catching a live decoy package and this tool flagging a
+      configuration shape are two different signals; neither replaces the
+      other, and a clean result from either one is not a supply-chain
+      security guarantee.
+    </p>
+    <p class="note">This tool needs no account and no sign-in: it is a static page, the check runs in your browser (or as a stdlib-only CLI script), and it keeps working with the network connection off.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does Socket check for pip --extra-index-url or an unscoped npm name the same way this tool does?</h3>
+    <p>Not in the way this tool does. Socket's own site describes deep package inspection and real-time monitoring across more than 70 risk categories &mdash; including dependency confusion, typosquatting, hidden code, risky install scripts, and permission creep &mdash; by watching your dependency graph against live registry data through a GitHub app, CLI, or browser extension. That is package-behavior analysis, not a read of your own <code>requirements.txt</code>, <code>pip.conf</code>, <code>package.json</code>, or <code>.npmrc</code>. This tool does the opposite and narrower thing: it never queries a registry at all, and instead reads those exact files for the two configuration shapes documented in Alex Birsan's 2021 research &mdash; a pip <code>--extra-index-url</code> use, and an unscoped npm dependency name behind a private <code>.npmrc</code> registry.</p>
+    <h3>Should I use this tool or Socket?</h3>
+    <p>They work at different layers, and a team can reasonably run both. Socket runs on an ongoing basis against your dependency graph and the public registries, watching for a live attack &mdash; a newly published decoy package, a suspicious permission change, or dozens of other package-behavior signals &mdash; as a service that is free for public open-source use and offers paid plans for private and organization use, per Socket's own site; connecting it needs a GitHub app, CLI, or browser extension. This tool checks something Socket does not read directly: whether your own pip and npm configuration is shaped so that a confusion attack could work in the first place, entirely on your device, one time, free, no account, no network calls of its own. Socket can catch an attacker who already published a decoy; this tool tells you whether your configuration would fall for one.</p>
+    <h3>Is this page affiliated with Socket?</h3>
+    <p>No. This page is not affiliated with, endorsed by, or sponsored by Socket, Inc. Socket is a trademark of Socket, Inc., named here only to describe what this tool is and is not, based on Socket's own publicly documented product.</p>
+    <p class="note">Open the <a href="./">Dependency Confusion Check</a> to scan your own config, or read <a href="./what-is-dependency-confusion.html">what is dependency confusion?</a> for the full mechanism and a worked incident.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee against dependency confusion, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+    <p class="muted">Local-only privacy: nothing you paste on the linked tool is ever uploaded, and it makes no network calls of its own. We count only anonymous feature events in localStorage, with an opt-out. This page makes no live comparison against Socket &mdash; it is a static page describing publicly documented facts. <a href="LICENSE">License</a></p>
+    <p>Free and open source. If this saved you from a substitution attack, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

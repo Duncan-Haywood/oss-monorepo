@@ -184,10 +184,19 @@ test("an item that loses money everywhere says so instead of naming a winner", (
 
 test("Faire is excluded with a stated reason and a pointer, not silently dropped", () => {
   assert.ok(EXCLUDED_CHANNELS.length >= 1);
-  const faire = EXCLUDED_CHANNELS[0];
+  const faire = EXCLUDED_CHANNELS.find((c) => c.deepTool === "faire-wholesale-calculator");
+  assert.ok(faire, "Faire must remain in EXCLUDED_CHANNELS");
   assert.match(faire.why, /wholesale/i);
   assert.equal(faire.deepTool, "faire-wholesale-calculator");
   assert.ok(!CHANNEL_IDS.includes("faire"));
+});
+
+test("Whatnot is excluded with a stated reason and a pointer, not silently dropped", () => {
+  const whatnot = EXCLUDED_CHANNELS.find((c) => c.deepTool === "whatnot-seller-payout");
+  assert.ok(whatnot, "Whatnot must be in EXCLUDED_CHANNELS");
+  assert.match(whatnot.why, /livestream|auction|hammer/i);
+  assert.equal(whatnot.deepTool, "whatnot-seller-payout");
+  assert.ok(!CHANNEL_IDS.includes("whatnot"));
 });
 
 test("every channel points at the deep calculator that carries what it cannot", () => {

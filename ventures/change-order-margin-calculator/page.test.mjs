@@ -114,3 +114,26 @@ test('the result panel is announced to screen readers when it updates', () => {
     'the result section is not a live region, so updates are never announced',
   );
 });
+
+// Closest sibling: same "Getting paid & job margin" subcategory, but a
+// dated site log / change-order evidence pack rather than a priced change
+// order. Without a crawlable link here, a crawler entering on the pricing
+// calculator never reaches the evidence log in one hop.
+test('index links one hop to the construction-evidence-log sibling', () => {
+  assert.match(
+    page,
+    /href="\.\.\/construction-evidence-log\/"/,
+    'index must link ../construction-evidence-log/ so crawlers reach the evidence log in one hop',
+  );
+});
+
+// Same subcategory, other direction: recurring retainer billing rather than
+// one-off change orders. Reciprocal of the link added to
+// freelance-retainer-calculator's index so a crawler can hop both ways.
+test('index links one hop to the freelance-retainer-calculator sibling', () => {
+  assert.match(
+    page,
+    /href="\.\.\/freelance-retainer-calculator\/"/,
+    'index must link ../freelance-retainer-calculator/ so crawlers reach the retainer calculator in one hop',
+  );
+});

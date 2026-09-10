@@ -1325,7 +1325,140 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 189 since 2026-09-06, when `home-staging-bid-calculator` shipped — same
     # shape again: a new venture with a static `index.html` from its first
     # commit, entering the mirror and the total together.
-    total = 189  # `infra/OWNER_CHECKLIST.md`'s own "N of the 189 tools" wording.
+    # 190 since 2026-09-07, when `pour-cost-calculator` shipped — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 191 since 2026-09-07, when `actions-runner-starvation-check` graduated in
+    # #3615 — same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together. The venture PR
+    # updated neither this constant nor the four hand-typed counts below it, so
+    # `main` was red on this test for three merges; that is exactly the drift
+    # this test exists to catch, working as intended.
+    # 192 since 2026-09-07, when `flaky-test-finder` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 193 since 2026-09-07, when `coverage-drop-check` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 194 since 2026-09-07, when `kdp-royalty-calculator` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 195 since 2026-09-07, when `whatnot-seller-payout` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 196 since 2026-09-07, when `ai-crawler-access-check` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 197 since 2026-09-07, when `ada-title-ii-evidence` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 198 since 2026-09-07, when `pinned-actions-check` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 199 since 2026-09-07, when `actions-injection-check` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 200 since 2026-09-07, when `childcare-tuition-calculator` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 201 since 2026-09-07, when `actions-permissions-check` graduated.
+    # 202 since 2026-09-07, when `license-drift-check` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 203 since 2026-09-07, when `gig-driver-net-pay-calculator` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 204 since 2026-09-07, when `actions-cache-poisoning-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 205 since 2026-09-07, when `npm-lifecycle-script-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 206 since 2026-09-07, when `dependency-confusion-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 207 since 2026-09-07, when `actions-self-hosted-exposure-check`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 208 since 2026-09-07, when `vscode-extension-drift-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 209 since 2026-09-07, when `3d-print-price-calculator` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 210 since 2026-09-07, when `food-truck-event-margin-calculator`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 211 since 2026-09-07, when `ats-resume-checker` graduated — same shape
+    # again: a new venture with a static `index.html` from its first commit,
+    # entering the mirror and the total together.
+    # 212 since 2026-09-07, when `menu-engineering-calculator` graduated —
+    # same shape again, and landing in the same hour as the one above, which
+    # is why this merge had to keep both rather than pick a side.
+    # 214 since 2026-09-08. Three ventures graduated within hours of each
+    # other -- `poshmark-fee-calculator`, `duplicate-payment-audit` and
+    # `ats-resume-checker` -- and each branch, correctly, raised the count by
+    # one from its own base. Merging them has to add three, not one, which is
+    # why this number has now been resolved upward twice in one evening. Same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 215 since 2026-09-08, when `certified-payroll-calculator` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 216 since 2026-09-08, when `newsletter-sponsorship-rate-calculator`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 217 since 2026-09-08, when `ios-privacy-manifest-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 218 since 2026-09-08, when `security-deposit-return-calculator`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 219 since 2026-09-09, when `structured-data-drift-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 220 since 2026-09-09, when `actions-artifact-poisoning-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 221 since 2026-09-09, when `env-example-drift-check` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 222 since 2026-09-09, when `package-exports-drift-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 223 since 2026-09-09, when `affiliate-disclosure-checker` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 224 since 2026-09-09, when `chrome-extension-permission-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 225 since 2026-09-09, when `wordpress-plugin-review-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 226 since 2026-09-10, when `cors-misconfig-check` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 227 since 2026-09-10, when `wash-and-fold-price-calculator` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 228 since 2026-09-10, when `apparel-decoration-price-calculator` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 229 since 2026-09-10, when `craft-fair-booth-calculator` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 230 since 2026-09-10, when `merchant-feed-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    total = 230  # `infra/OWNER_CHECKLIST.md`'s own "N of the 230 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
@@ -1413,6 +1546,23 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     for value in conf_matches:
         assert int(value) == actual, (
             f"default.conf's comment claims {value} mirrored tools, actual is {actual}"
+        )
+
+    # A fifth count, found stale on 2026-09-07: `OWNER_CHECKLIST.md` restates
+    # the total a second time, in the "not a tool-count difference at all"
+    # paragraph explaining what sealing `portfolio-site-repo` buys once the
+    # mirror already carries everything. It said "175" for days while the
+    # "mirrors N of the N tools directly" sentence 40 lines above it (checked
+    # above) already said 198 -- two counts in the same document disagreeing,
+    # because this sentence was never one of the four this test pinned. Same
+    # failure mode as the rest of this test, caught the same way.
+    apex_serves_matches = re.findall(r"the apex serves all (\d+)", checklist)
+    assert apex_serves_matches, (
+        "OWNER_CHECKLIST.md's 'the apex serves all N' sentence not found or reworded"
+    )
+    for value in apex_serves_matches:
+        assert int(value) == actual, (
+            f"OWNER_CHECKLIST.md's 'apex serves all' claims {value} tools, actual is {actual}"
         )
 
 

@@ -543,3 +543,22 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+// where-to-sell-calculator already hands an Etsy comparison into this page;
+// without a crawlable link back, a visitor who landed on Etsy first has no
+// path to the multi-channel ranking that owns the handoff. Amazon, Reverb,
+// and Shopify already close this loop; Etsy was the remaining gap with eBay.
+test('index links to the where-to-sell calculator', () => {
+  assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
+});
+
+// marketplace-fee-compare already deep-links here for fees a headline rate
+// cannot carry; without a crawlable link back, a visitor on Etsy never
+// reaches the six-channel triage (same orphan class as #3637).
+test('index links to the marketplace fee comparison', () => {
+  assert.match(html, /href="\.\.\/marketplace-fee-compare\/"/);
+});
+
+test('index links to the Faire wholesale fee calculator', () => {
+  assert.match(html, /href="\.\.\/faire-wholesale-calculator\/"/);
+});

@@ -81,6 +81,33 @@ matches printed when the top score clears the "read this before you write a
 candidate" bar. It is lexical overlap, not meaning — a low score is evidence
 of novelty, not proof — so read the top matches it prints either way.
 
+**The `<trade>-bid-calculator` archetype itself is now the thing to weigh,
+not just the individual niche** (added 2026-09-07). Counted directly from
+`ventures/` this session: of 200 venture directories, **141 have a slug
+ending in `-calculator`, `-margin`, `-pricing`, or containing `-route-`** —
+one deterministic arithmetic calculator for one trade, repeated. Every one
+of them clears `duplicate_check.py` on its own (a boiler is not a crown
+molding job), and every one is individually well-justified in its own
+write-up. None of that is in question. What is: `usage/usage.yaml` has
+never recorded a nonzero visitor on *any* of the 200, and the shape itself
+— not any one instance of it — has now had 141 independent tries with
+nothing to show. A 142nd instance clearing the duplicate check and the
+liability/ethics gates is necessary but no longer strong evidence that the
+*archetype* is the right next bet, separately from whether the *niche* is.
+
+This does not mean stop building bid calculators — a specific niche with an
+unusually strong, named channel (a trade forum that already discusses this
+exact pricing problem, a subreddit with real thread volume) is still worth
+building regardless of shape. It does mean: when screening a fresh niche
+with no channel stronger than "searchable, like the other 141," weigh a
+different product shape first — CLI/library, a GitHub Action or checker
+that runs in the user's own CI, or a generator (`PRODUCT_PLAYBOOK.md` §2
+ranks these above the browser calculator already, on cost grounds; this is
+the same ranking, argued from zero traffic across 141 tries rather than
+from marginal cost alone). `ventures/actions-runner-starvation-check` is
+one such attempt — a developer-niche CLI/browser tool, not a trade
+calculator, built the same session this note was added.
+
 ## Scoring
 
 Eight dimensions, 0–10. The first six are the same dimensions
@@ -165,19 +192,26 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 14 | [Custom farm rate calculator](candidates/custom-farm-rate-calculator.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/custom-farm-rate-calculator`; browser-local per-job and season pricing for custom farm operators, modeling field capacity, fuel, repairs, and annually-amortized machine ownership cost, with repeat usage and organic search demand still unmeasured |
 | 15 | [Dumpster rental margin calculator](candidates/dumpster-rental-margin-calculator.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/dumpster-rental-margin-calculator`; browser-local roll-off rental pricing, with repeat usage and organic search demand still unmeasured |
 | 16 | [Locksmith bid calculator](candidates/locksmith-bid-calculator.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/locksmith-bid-calculator`; browser-local per-call pricing for mobile locksmiths, modeling an after-hours premium scoped to billed time and a minimum-service-charge floor, with repeat usage and organic search demand still unmeasured |
-| 17 | [MLS photo spec preflight](candidates/mls-photo-spec-preflight.md) | 6.75 | 5 | Graduated 2026-08-24 as a `real-estate-agent-photo-app` product line (`process/mls-compliance.ts`) — file-spec evidence, not listing photography the venture and not web accessibility |
-| 18 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
-| 19 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Graduated 2026-08-29 as `ventures/vendor-change-watch`; free CLI to monitor vendor ToS/privacy pages, with distribution and archive value still unmeasured |
-| 20 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
-| 21 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
-| 22 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
-| 23 | [Grant reporting tracker](candidates/grant-reporting-tracker.md) | 6.625 | 1 | Graduated 2026-08-24 as `ventures/grant-reporting-tracker`; browser-local award reporting queue and restricted-balance arithmetic for small nonprofits, with repeat usage and organic search demand still unmeasured |
-| 24 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
-| 25 | [Backup verification evidence](candidates/backup-verification-evidence.md) | 6.5 | 4 | Probe; local exit-code/artifact classifier built, needs a real recurring job and a sysadmin/MSP channel |
-| 26 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
-| 27 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
-| 28 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
-| 29 | [Fire extinguisher inspection route margin calculator](candidates/fire-extinguisher-inspection-route-margin.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/fire-extinguisher-inspection-route-margin`; browser-local per-site and route profit for independent fire-extinguisher/life-safety inspection route operators, modeling the recharge/hydro-test/replacement materials split and NFPA 10's annual-visit cadence, with repeat usage and organic search demand still unmeasured. Appended out of composite order (6.875, same tier as rows 11-14) to avoid renumbering the table; see its own scoring section for the breakdown |
+| 17 | [Pour cost calculator](candidates/pour-cost-calculator.md) | 6.875 | 1 | Graduated 2026-09-07 as `ventures/pour-cost-calculator`; browser-local liquor-cost-percentage pricing for bar and restaurant beverage programs, modeling a spirit/modifier/mixer recipe against a target pour cost and the annual dollar cost of a stated over-pour, with repeat usage and organic search demand still unmeasured |
+| 18 | [Fire extinguisher inspection route margin calculator](candidates/fire-extinguisher-inspection-route-margin.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/fire-extinguisher-inspection-route-margin`; browser-local per-site and route profit for independent fire-extinguisher/life-safety inspection route operators, modeling the recharge/hydro-test/replacement materials split and NFPA 10's annual-visit cadence, with repeat usage and organic search demand still unmeasured. |
+| 19 | [Poshmark fee calculator](candidates/poshmark-fee-calculator.md) | 6.875 | 1 | Graduated 2026-09-07 as `ventures/poshmark-fee-calculator`; browser-local flat-$2.95/20% commission arithmetic for Poshmark resellers, modeling the $14.75 break-even price and the payout swing when an offer or bundle discount crosses the $15 line, with repeat usage and organic search demand still unmeasured |
+| 20 | [Duplicate payment audit](candidates/duplicate-payment-audit.md) | 6.875 | 1 | Graduated 2026-09-07 as `ventures/duplicate-payment-audit`; browser-local checker flagging likely duplicate vendor payments in an AP CSV export, with repeat usage and false-positive rate against a real ledger still unmeasured |
+| 21 | [Affiliate disclosure checker](candidates/affiliate-disclosure-checker.md) | 6.875 | 1 | Graduated 2026-09-09 as `ventures/affiliate-disclosure-checker`; browser-local + CLI checker for affiliate/sponsored-content disclosure placement (Amazon Associates tag= links, amzn.to, rel=sponsored, known affiliate-network tracking domains) against Amazon's own required exact statement and generic FTC-style disclosure phrasing, with repeat usage and organic search demand still unmeasured |
+| 22 | [Chrome extension permission checker](candidates/chrome-extension-permission-check.md) | 6.875 | 1 | Graduated 2026-09-09 as `ventures/chrome-extension-permission-check`; browser-local + CLI checker cross-referencing manifest.json permissions against detected chrome.* API usage in both directions (declared-unused, the Chrome Web Store "Purple Potassium" rejection cause, and used-undeclared, a runtime failure), plus broad host_permissions detection, with repeat usage and organic search demand still unmeasured |
+| 23 | [WordPress plugin review checker](candidates/wordpress-plugin-review-check.md) | 6.875 | 1 | Graduated 2026-09-09 as `ventures/wordpress-plugin-review-check`; browser-local + CLI checker cross-referencing a readme.txt Stable tag against the plugin header's Version, required readme/header fields, unescaped superglobal output, and $_POST handling with no nonce check, with repeat usage and organic search demand still unmeasured |
+| 24 | [MLS photo spec preflight](candidates/mls-photo-spec-preflight.md) | 6.75 | 5 | Graduated 2026-08-24 as a `real-estate-agent-photo-app` product line (`process/mls-compliance.ts`) — file-spec evidence, not listing photography the venture and not web accessibility |
+| 25 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
+| 26 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Graduated 2026-08-29 as `ventures/vendor-change-watch`; free CLI to monitor vendor ToS/privacy pages, with distribution and archive value still unmeasured |
+| 27 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
+| 28 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
+| 29 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
+| 30 | [Grant reporting tracker](candidates/grant-reporting-tracker.md) | 6.625 | 1 | Graduated 2026-08-24 as `ventures/grant-reporting-tracker`; browser-local award reporting queue and restricted-balance arithmetic for small nonprofits, with repeat usage and organic search demand still unmeasured |
+| 31 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
+| 32 | [Backup verification evidence](candidates/backup-verification-evidence.md) | 6.5 | 4 | Probe; local exit-code/artifact classifier built, needs a real recurring job and a sysadmin/MSP channel |
+| 33 | [CORS misconfiguration checker](candidates/cors-misconfig-check.md) | 6.5 | 1 | Graduated 2026-09-10 as `ventures/cors-misconfig-check`; zero-dependency CLI sending five real GET requests with crafted Origin headers to a URL the user names, classifying reflected-arbitrary-origin, accepted-null-origin, and unanchored startsWith/endsWith allow-list bypasses, plus wildcard-with-credentials and missing-Vary notices, with a browser report-viewer for the CLI's JSON output (the browser cannot probe itself -- Origin is a forbidden request header), repeat usage and organic search demand still unmeasured |
+| 34 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
+| 35 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
+| 36 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four

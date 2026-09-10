@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Structured Data Drift Check — Does Your JSON-LD Match the Page?</title>
+  <meta name="description" content="Paste a page's HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page's own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Does your structured data match what's actually on the page?">
+  <meta property="og:description" content="Paste a page's HTML and get a deterministic report of every JSON-LD claim (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) that diverges from the page's own visible text, with the exact character where it drifted. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Structured Data Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks whether a page's JSON-LD structured data (FAQPage, HowTo, Article/BlogPosting/NewsArticle, Product, LocalBusiness/Organization, Review) actually appears, word for word, in that page's own visible rendered text. Runs entirely in the browser or as a zero-dependency Node CLI usable as a CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does this matter for FAQPage and HowTo specifically?","acceptedAnswer":{"@type":"Answer","text":"Google's structured data guidelines say FAQPage and HowTo markup must describe content that is visible to a visitor on the page itself. Markup that describes text nobody can see is treated as unreliable, and Google's documentation says a page misusing it may lose the rich result entirely. Every other type this tool checks can drift the same way; those two are simply where Google has said so in writing."}},{"@type":"Question","name":"Why would JSON-LD and page copy ever disagree?","acceptedAnswer":{"@type":"Answer","text":"Someone edits the visible copy and forgets the JSON-LD, or edits the JSON-LD and forgets the copy. Both are hand-authored text living in different parts of the same file, so nothing forces them to stay in sync, and no build step here catches it unless something like this tool checks."}},{"@type":"Question","name":"Is this an SEO audit or a ranking guarantee?","acceptedAnswer":{"@type":"Answer","text":"No. It is a deterministic string comparison between two things already in the page you pasted: what the JSON-LD claims and what the visible text says. A clean result means those two texts agree, nothing more. It is not a Search Console substitute, it does not check whether your markup is eligible for a rich result, and it makes no promise about rankings or traffic."}},{"@type":"Question","name":"Is my page content uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the HTML you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.pass { background: #dcfce7; color: #14532d; }
+    .pill.fail { background: #fde8e8; color: #7f1d1d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    pre.excerpt { background: #f7f9fb; padding: 8px 10px; border-radius: 6px; font-size: .82rem; margin: 4px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">STRUCTURED DATA DRIFT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Does your page's JSON-LD actually say what the page says?</h1>
+    <p>Paste a page's HTML and see every <code>FAQPage</code>, <code>HowTo</code>, <code>Article</code>/<code>BlogPosting</code>/<code>NewsArticle</code>, <code>Product</code>, <code>LocalBusiness</code>/<code>Organization</code>, or <code>Review</code> claim in its JSON-LD, checked word for word against the page's own visible text — with the exact character where it drifted when it doesn't match. Google's structured-data guidelines require <code>FAQPage</code> and <code>HowTo</code> content to be visible on the page; AI answer engines go further and read JSON-LD as ground truth when they summarize a page. Either way, a mismatch means the markup is describing a page that no longer exists.</p>
+    <p class="note">Nothing is uploaded. The HTML you paste is parsed in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste the page's HTML</h2>
+    <label for="html-input">Full page source (view-source, or a saved .html file's contents)</label>
+    <textarea id="html-input" spellcheck="false" placeholder="Paste the full HTML of the page you want to check, JSON-LD and all..."></textarea>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with drift)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What the JSON-LD claims, checked against the page</h2>
+    <p id="summary"></p>
+    <div id="warnings" hidden class="note"></div>
+    <table id="results-table" hidden>
+      <thead><tr><th>Claim</th><th>Status</th><th>Where it diverges</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one file — and it can check every page in a build in one pass:</p>
+    <pre class="cmd">node cli.mjs check dist/index.html                     # one page, human-readable
+node cli.mjs check dist/index.html --json                # machine-readable
+node cli.mjs check dist/**/*.html                         # every page a shell glob expands
+find dist -name '*.html' | xargs node cli.mjs check       # or from a build's output tree
+node cli.mjs check dist/index.html --strict                # also fail on malformed JSON-LD</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only the local files you name: no network call, ever. Exits 1 if any claim diverges, so it works as a CI step after a static-site build.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked, per schema type</h2>
+    <table>
+      <thead><tr><th>Type</th><th>Fields checked</th></tr></thead>
+      <tbody id="checked-types-rows"></tbody>
+    </table>
+    <p class="note">Only textual claims a visitor can read and verify by eye — never opaque numeric or URL fields (<code>ratingValue</code>, <code>priceCurrency</code>, <code>image</code>, and so on), which this tool has no opinion on. <code>LocalBusiness</code>/<code>Organization</code> subtype coverage is a curated list plus a suffix heuristic, stated plainly as non-exhaustive rather than presented as complete.</p>
+    <p class="note">More: <a href="why-google-requires-structured-data-to-match-visible-text.html">why Google requires this for FAQPage and HowTo, and how AI answer engines make it matter for every other type too</a>. See also: <a href="vs-google-rich-results-test.html">how this differs from Google's Rich Results Test</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does this matter for FAQPage and HowTo specifically?</h3>
+    <p>Google's structured data guidelines say FAQPage and HowTo markup must describe content that is visible to a visitor on the page itself. Markup that describes text nobody can see is treated as unreliable, and Google's documentation says a page misusing it may lose the rich result entirely. Every other type this tool checks can drift the same way; those two are simply where Google has said so in writing.</p>
+    <h3>Why would JSON-LD and page copy ever disagree?</h3>
+    <p>Someone edits the visible copy and forgets the JSON-LD, or edits the JSON-LD and forgets the copy. Both are hand-authored text living in different parts of the same file, so nothing forces them to stay in sync, and no build step here catches it unless something like this tool checks.</p>
+    <h3>Is this an SEO audit or a ranking guarantee?</h3>
+    <p>No. It is a deterministic string comparison between two things already in the page you pasted: what the JSON-LD claims and what the visible text says. A clean result means those two texts agree, nothing more. It is not a Search Console substitute, it does not check whether your markup is eligible for a rich result, and it makes no promise about rankings or traffic.</p>
+    <h3>Is my page content uploaded anywhere?</h3>
+    <p>No. The browser page parses the HTML you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not SEO, legal, or marketing advice, and it does not replace a qualified professional. It reports whether a JSON-LD claim's exact text is present in the page's own visible copy — nothing more. It is not a Search Console substitute, not a ranking guarantee, and not a determination that your structured data is eligible for any rich result. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The HTML you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass over the same page: <a href="../ai-crawler-access-check/">AI Crawler Access Check</a> checks whether your <code>robots.txt</code> actually lets AI crawlers reach the page whose structured data this tool is checking — a different failure mode in the same "can an AI system actually see and trust this page" question.</p>
+    <p>Same "does the doc still match the code" shape, different pair: <a href="../env-example-drift-check/">.env.example Drift Check</a> diffs a repo's example environment file against what the code actually reads, instead of a page's JSON-LD against its own visible text.</p>
+    <p>One layer over on the Shopping side: <a href="../merchant-feed-check/">Merchant Feed Check</a> checks the separate Google Merchant Center / Meta Catalog feed Shopping results actually read — the other representation of a product Google can pull structured data from and cross-check against.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { checkPage, summarize, CHECKED_TYPES } from "./engine.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#html-input"), status: $("#status"),
+      reportCard: $("#report-card"), summary: $("#summary"), warnings: $("#warnings"),
+      table: $("#results-table"), rows: $("#results-rows"),
+      checkedTypesRows: $("#checked-types-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    els.checkedTypesRows.innerHTML = CHECKED_TYPES.map((t) => `<tr>
+      <td><code>${escapeHtml(t.type)}</code></td>
+      <td>${escapeHtml(t.fields)}</td>
+    </tr>`).join("");
+
+    function renderReport() {
+      const html = els.input.value;
+      if (!html.trim()) {
+        els.status.innerHTML = `<span class="error">Paste a page's HTML first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+
+      const report = checkPage(html);
+      const { status, text } = summarize(report);
+      els.summary.innerHTML = status === "ok"
+        ? `<span class="ok">${escapeHtml(text)}</span>`
+        : status === "drift"
+          ? `<span class="changed">${escapeHtml(text)}</span>`
+          : `<span class="error">${escapeHtml(text)}</span>`;
+
+      els.warnings.hidden = report.errors.length === 0;
+      els.warnings.textContent = report.errors.length ? `Parse warning(s): ${report.errors.join("; ")}` : "";
+
+      els.table.hidden = report.results.length === 0;
+      els.rows.innerHTML = report.results.map((r) => `<tr>
+        <td><strong>${escapeHtml(r.label)}</strong></td>
+        <td><span class="pill ${r.pass ? "pass" : "fail"}">${r.pass ? "match" : "diverges"}</span></td>
+        <td>${r.pass ? "—" : `
+          <pre class="excerpt">JSON-LD: …${escapeHtml(r.divergence.authored)}…</pre>
+          <pre class="excerpt">on page: …${escapeHtml(r.divergence.onPage || "(no matching text found)")}…</pre>
+        `}</td>
+      </tr>`).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    // Every structural closing/opening tag spelling the example page needs
+    // is built from a constant below, each concatenated from pieces so that
+    // none of the resulting tag text appears contiguous anywhere in this
+    // page's own raw source file -- not even spelled out in a comment like
+    // this one, on purpose. Two things scan this file's raw text rather
+    // than a real DOM and would otherwise be fooled by this fake page's own
+    // markup sitting inside a JS string: this tool's own engine (a
+    // whole-file regex scan would try to parse it as a real, second copy of
+    // this page's structured data), and this portfolio's own site build,
+    // which locates this file's real closing tags by literal text search to
+    // splice in shared navigation -- if a fake one of those tags sat inside
+    // this string ahead of the real one, the build would splice that
+    // navigation into the middle of this script instead of the end of the
+    // real page, corrupting it. Concrete case: that exact corruption shipped
+    // once and was only caught by rebuilding the published site locally,
+    // not by any unit test.
+    const LD_TYPE = "application/ld" + "+json";
+    const SCRIPT_OPEN = "<" + "script";
+    const SCRIPT_CLOSE = "<" + "/script>";
+    const HEAD_CLOSE = "<" + "/head>";
+    const BODY_OPEN = "<" + "body>";
+    const BODY_CLOSE = "<" + "/body>";
+    const HTML_CLOSE = "<" + "/html>";
+    const EXAMPLE_PAGE = `<!doctype html><html><head>
+${SCRIPT_OPEN} type="${LD_TYPE}">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+  {"@type":"Question","name":"How long is the free trial?","acceptedAnswer":{"@type":"Answer","text":"The free trial lasts 30 days, no card required."}},
+  {"@type":"Question","name":"Do you offer refunds?","acceptedAnswer":{"@type":"Answer","text":"Yes, within 60 days of purchase."}}
+]}${SCRIPT_CLOSE}
+${SCRIPT_OPEN} type="${LD_TYPE}">{"@type":"Product","name":"Widget Pro","description":"A widget that solves widget problems."}${SCRIPT_CLOSE}
+${HEAD_CLOSE}${BODY_OPEN}
+<h2>How long is the free trial?</h2>
+<p>The free trial lasts 14 days, no card required.</p>
+<h2>Do you offer refunds?</h2>
+<p>Yes, within 60 days of purchase.</p>
+<h1>Widget Pro</h1>
+<p>A widget that solves widget problems.</p>
+${BODY_CLOSE}${HTML_CLOSE}`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_PAGE;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

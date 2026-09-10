@@ -128,6 +128,7 @@ test('save-and-share is wired to the page', () => {
   assert.match(html, /A bid link carries your own rates/, 'the bid link does not say what it carries');
   assert.match(html, /wage, burden, overhead, and target margin/, 'the link caution does not name the rates it carries');
   assert.match(html, /The customer should get the price, not the link/, 'the link caution does not say who not to send it to');
+  assert.match(html, /never sent to a server/, 'the on-page note does not say the link fragment stays client-side');
   assert.match(html, /Your bid is saved in this browser/, 'the privacy note does not disclose that the bid is stored');
   assert.match(html, /treat one like your rate sheet/, 'the privacy note does not warn what a copied link holds');
 });
@@ -197,4 +198,17 @@ test('every select the visitor can set travels as a validated choice', () => {
       `select #${id} is not in CHOICE_IDS, so a shared link would carry it unvalidated or not at all`,
     );
   }
+});
+
+// Closest sibling: same wet-basement / site-water problem, but pier and strap
+// foundation repair rather than exterior trench drainage. Without a crawlable
+// link here, a crawler entering on the French-drain calculator never reaches
+// the foundation-repair tool in one hop.
+test('index links one hop to the foundation-repair-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/foundation-repair-bid-calculator\/"/,
+    'index must link ../foundation-repair-bid-calculator/ so crawlers reach the foundation repair calculator in one hop',
+  );
+  assert.match(html, /foundation repair bid calculator/i);
 });

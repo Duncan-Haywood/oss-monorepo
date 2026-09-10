@@ -19,7 +19,31 @@ test('the page imports calculate, computeRouteProfit, and incomeGap from calc.mj
 test('the page wires usage counting for both the site and route calculators', () => {
   assert.match(html, /recordEvent\('site-priced'\)/);
   assert.match(html, /recordEvent\('route-check'\)/);
-  assert.match(html, /<code>site-priced<\/code>, <code>route-check<\/code>/);
+  assert.match(html, /<code>site-priced<\/code>, <code>route-check<\/code>, <code>link-copied<\/code>, <code>reset<\/code>/);
+});
+
+test('the page wires save-and-share for the visit inputs, matching sibling route calculators', () => {
+  assert.match(html, /import \{ encodeInputs, decodeInputs, formValues \} from '\.\/share\.mjs'/);
+  assert.match(html, /id="copyLink"/);
+  assert.match(html, /id="reset"/);
+  assert.match(html, /id="linkStatus"/);
+  assert.match(html, /id="draftStatus"/);
+  assert.match(html, /recordEvent\('link-copied'\)/);
+  assert.match(html, /recordEvent\('reset'\)/);
+  assert.match(html, /DRAFT_KEY = 'fire-extinguisher-inspection-route-margin-visit-draft'/);
+});
+
+test('a shared link wins over a saved draft, applied through formValues rather than a plain spread', () => {
+  // Regression for the shared-link-clears defect (platform/ci/check_shared_link_clears.py):
+  // a plain `{ ...saved, ...fromLink }` merge looks like the link wins and is
+  // not -- a field the sender left blank falls through to the recipient's own
+  // saved draft instead of being cleared. formValues(fromLink) is what
+  // actually clears it.
+  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
+  assert.ok(scriptMatch, 'app script not found');
+  const body = scriptMatch[1];
+  assert.match(body, /applyVisitInputs\(formValues\(fromLink\)\)/);
+  assert.doesNotMatch(body, /\{\s*\.\.\.saved\s*,\s*\.\.\.fromLink\s*\}/);
 });
 
 test('the default site inputs match calc.mjs DEFAULTS and produce a positive profit', () => {
@@ -56,9 +80,10 @@ test('the page carries the standard sponsor link and a LICENSE link, and counts 
   assert.match(html, /recordEvent\('sponsor_link_clicked'\)/);
 });
 
-test('the privacy line names both stored event types and says nothing is uploaded or saved', () => {
-  assert.match(html, /never uploaded/);
-  assert.match(html, /nothing is saved when you close the tab/);
+test('the privacy line names all four stored event types, and distinguishes saved/shareable visit inputs from never-saved site rows', () => {
+  assert.match(html, /nothing is ever uploaded/);
+  assert.match(html, /are saved locally on this device/);
+  assert.match(html, /Your site rows are a different promise: they are never saved anywhere/);
 });
 
 test('the site result panel announces recalculation to screen readers', () => {
@@ -163,4 +188,30 @@ test('the guide page worked example matches calc.mjs exactly', () => {
   assert.equal(money(lean.netProfit), '$4.49');
   assert.equal(lean.profitMarginPct.toFixed(2), '32.64');
   assert.ok(guideHtml.includes('$4.49') && guideHtml.includes('32.64%'));
+});
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: the same recurring stop-based route business priced per
+// site after drive time and materials — pool accounts there, inspection stops
+// here. Rotating chrome may never pair them, so link explicitly.
+test('index links one hop to the pool-route-pricing sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/pool\-route\-pricing\/"/,
+    'index must link ../pool-route-pricing/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /pool route pricing calculator/i);
+});
+
+test('index links one hop to the medical-courier-route-margin sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/medical-courier-route-margin\/"/,
+    'index must link ../medical-courier-route-margin/ so a crawler reaches that tool in one hop',
+  );
 });

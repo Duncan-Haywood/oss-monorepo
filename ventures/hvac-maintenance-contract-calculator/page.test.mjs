@@ -78,3 +78,16 @@ test('disclaimer and usage tracking are still present', () => {
   assert.match(html, /No warranty\./);
   assert.match(scriptSource, /recordUsage\(localStorage,false,'plan_calculated'\)/);
 });
+
+// Closest MEP sibling: same subcategory, but a one-off appliance repair call
+// rather than a recurring HVAC maintenance plan. Related-tool chrome rotates
+// inside the subcategory, so without an explicit one-hop a crawler on this
+// page may never land on that tool.
+test('index links one hop to the appliance-repair-quote-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/appliance-repair-quote-calculator\/"/,
+    'index must link ../appliance-repair-quote-calculator/ so crawlers reach the appliance calculator in one hop',
+  );
+  assert.match(html, /appliance repair quote calculator/i);
+});

@@ -93,3 +93,15 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+// Closest moisture-remediation sibling: same cleaning/restoration subcategory,
+// but a wet-basement dry-out rather than containment and demo. Without a
+// crawlable link here, a crawler entering on the mold-remediation calculator
+// never reaches the waterproofing tool in one hop.
+test('index links one hop to the basement-waterproofing-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/basement-waterproofing-bid-calculator\/"/,
+    'index must link ../basement-waterproofing-bid-calculator/ so crawlers reach the waterproofing calculator in one hop',
+  );
+});

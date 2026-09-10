@@ -71,3 +71,28 @@ test('an invalid input hides stale results instead of leaving them next to a sil
   assert.match(body, /el\('price'\)\.hidden = true/, 'the price hero is not hidden on a rejected input');
   assert.match(body, /el\('errors'\)\.hidden = false/, 'the error message is never shown');
 });
+
+// Closest sibling: same "price the gig, not just the sticker" shape for an
+// independent operator, but an ongoing chair rather than a one-off event
+// booking. Without a crawlable link here, a crawler entering on the photo
+// booth quote calculator never reaches the booth rent vs commission
+// calculator in one hop.
+// Commercial photography licensing is the adjacent pricing decision for the
+// same reader: a one-off event booking vs. a licensing scope. Without this
+// link a crawler entering on this page never reaches that calculator.
+test('index links one hop to the commercial-photo-license-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/commercial-photo-license-calculator\/"/,
+    'index must link ../commercial-photo-license-calculator/ so crawlers reach the commercial photo license calculator in one hop',
+  );
+});
+
+test('index links one hop to the booth-rent-vs-commission sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/booth-rent-vs-commission\/"/,
+    'index must link ../booth-rent-vs-commission/ so crawlers reach the booth rent vs commission calculator in one hop',
+  );
+});
+

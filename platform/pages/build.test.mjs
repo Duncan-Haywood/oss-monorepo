@@ -22,6 +22,7 @@ import {
   buildSite,
   categoryFor,
   collectPageTitles,
+  copyTree,
   injectFavicon,
   discoverSurfaces,
   faqEntries,
@@ -37,6 +38,8 @@ import {
   renderFavicon,
   renderFaviconSvg,
   renderRobots,
+  INDEXNOW_KEY,
+  indexNowKeyFileName,
   renderSitemapIndex,
   renderVentureSitemap,
   searchTokens,
@@ -79,6 +82,7 @@ import {
   COMPARISON_FILE_PATTERN,
   comparisonSubject,
   comparisonSubjectKey,
+  comparisonText,
   comparisonProductGroups,
   comparisonProductSlug,
   discoverComparisons,
@@ -433,8 +437,20 @@ test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
   assert.match(hub, /entirely optional/i);
+  // `\bsubscribe\b` rather than a bare `subscribe`: the guard is about a
+  // paywall *call to action* ("Subscribe", "subscribe now", "subscribe to
+  // unlock"), and every one of those forms still matches. What no longer
+  // matches is the noun -- "subscriber", "subscribers", "subscriber count" --
+  // which is a legitimate domain word rather than an ask.
+  //
+  // It first fired on 2026-09-08 against `newsletter-sponsorship-rate-
+  // calculator`, whose entire input is a newsletter's subscriber count, and
+  // it fired *after* that venture had already merged: Actions was starved, so
+  // nothing ran this suite on the PR and `main` went red on it. Rewording the
+  // venture's copy to satisfy a substring match would have made the product
+  // worse to protect a guard from a word it never meant to catch.
   assert.ok(
-    !/subscribe|upgrade to|paid plan|free trial/i.test(visibleCopy(hub)),
+    !/\bsubscribe\b|upgrade to|paid plan|free trial/i.test(visibleCopy(hub)),
     'no paywall language',
   );
 });
@@ -526,6 +542,15 @@ test('robots.txt points at a sitemap that reaches the hub and every venture', as
 
   const hubMap = await read('sitemap-hub.xml');
   assert.ok(hubMap.includes(`<loc>${BASE}</loc>`));
+});
+
+test('the IndexNow key is published at the site root, matching the constant', async () => {
+  const keyFile = await read(indexNowKeyFileName());
+  assert.equal(keyFile, INDEXNOW_KEY);
+  // The protocol reads this file's content as the key itself -- no trailing
+  // newline or surrounding whitespace, or a verifier comparing it byte-for-
+  // byte to the key in the submission request sees a mismatch.
+  assert.equal(keyFile.trim(), keyFile);
 });
 
 test('the index points at a sitemap for every published tool', async () => {
@@ -1257,7 +1282,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 7, 'the six named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 9, 'the eight named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1280,6 +1305,11 @@ test("socialCardFileFor names a file under the category's own id, not its title"
 test('tools that belong to a named category are not left in the catch-all', () => {
   assert.equal(categoryFor('tiktok-shop-fee-calculator').id, 'marketplace');
   assert.equal(categoryFor('delivery-app-margin-calculator').id, 'marketplace');
+  assert.equal(categoryFor('kdp-royalty-calculator').id, 'marketplace');
+  // Whatnot's retail fee ranking already deep-links this payout tool; leaving
+  // it in "More free tools" hid it from every seller already reading the
+  // marketplace section that names it.
+  assert.equal(categoryFor('whatnot-seller-payout').id, 'marketplace');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
   assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');
@@ -1288,6 +1318,20 @@ test('tools that belong to a named category are not left in the catch-all', () =
   // meet those two fields would never see it.
   assert.equal(categoryFor('shop-rate-calculator').id, 'trades');
   assert.equal(subcategoryFor('shop-rate-calculator').id, 'trades-paid');
+  // Four browser+CLI developer checks sat in the catch-all as a coherent
+  // group — starved-runner triage, coverage delta, flaky-test classification,
+  // AI-crawler robots.txt audit — while related-tool chrome mixed them with
+  // Sponsor Ready. A maintainer browsing for a CI gate never saw the section.
+  assert.equal(categoryFor('actions-runner-starvation-check').id, 'ci');
+  assert.equal(categoryFor('coverage-drop-check').id, 'ci');
+  assert.equal(categoryFor('flaky-test-finder').id, 'ci');
+  assert.equal(categoryFor('ai-crawler-access-check').id, 'ci');
+  // `license-drift-check` graduated 2026-09-07 and landed in the catch-all
+  // because the rule enumerates families by prefix and its slug starts a new
+  // one — it names what it diffs rather than what it reads. Same shape as the
+  // rest: a browser-local checker plus a matching CLI, run against a
+  // dependency tree the maintainer already has.
+  assert.equal(categoryFor('license-drift-check').id, 'ci');
 });
 
 // Found 2026-09-06: five more tools sat in the catch-all for the same reason —
@@ -3544,6 +3588,19 @@ test('a deep page loading the same script, with no button, does not', async () =
   assert.equal(await pageHasOwnShareControl(dir, html, new Map()), false);
 });
 
+test('the copy-link spelling counts the same way its four cousins do', async () => {
+  // wash-and-fold-price-calculator, sponsor-ready and
+  // ai-engineering-academy/tools/rc-filter-calculator all spell their button
+  // id `copy-link` rather than one of the four spellings this gate used to
+  // recognise -- found 2026-09-10 fixing the identical gap in roundtrip.mjs.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-share-'));
+  await fs.writeFile(path.join(dir, 'app.js'), "import { encodeShare } from './share.mjs';\n");
+  await fs.writeFile(path.join(dir, 'share.mjs'), 'export const x = 1;\n');
+  const html = '<button id="copy-link" type="button">Copy shareable link</button>'
+    + '<script type="module" src="app.js"></script>';
+  assert.equal(await pageHasOwnShareControl(dir, html, new Map()), true);
+});
+
 test('a button with no share module behind it does not count either', async () => {
   // mobile-detailing-bid-calculator had a `#copyLink` button and an inline
   // one-liner that serialized `readInput()` and dropped the proposal terms.
@@ -4171,6 +4228,9 @@ test('tools whose audience browses a section are filed in it', async () => {
     // Airbnb vs Vrbo is two marketplaces' fee schedules on one booking, which
     // is the marketplace section's job, not a service quote.
     'str-host-payout-calculator': ['marketplace', null],
+    // Whatnot livestream payout is the same marketplace-seller job; slug starts
+    // with the storefront name the marketplace rule now catches.
+    'whatnot-seller-payout': ['marketplace', null],
     'notary-trip-quote': ['services', null],
     'booth-rent-vs-commission': ['services', null],
     'translator-project-quote': ['services', null],
@@ -4192,8 +4252,33 @@ test('the catch-all holds only what no section claims', async () => {
   // back past a screenful means the taxonomy has stopped keeping up, which is
   // exactly the state this change found it in (14 tools, six of them one
   // coherent category).
+  //
+  // Raised 8 -> 9 on 2026-09-07/08 when two independent sessions each
+  // graduated a venture that fits none of the six named categories in the
+  // same window: `menu-engineering-calculator` (a restaurant-menu pricing
+  // classifier — not a trade bid, not a marketplace fee, not a service
+  // quote, not logistics/evidence/backoffice/CI) and `ats-resume-checker` (a
+  // job-seeker resume format checker — a different audience from every
+  // other category, which is all small-business or developer-facing).
+  // Neither is a coherent cluster on its own yet, so this is the fallback
+  // working as designed rather than a taxonomy gap to close today; lower it
+  // back if either niche grows a sibling that lets both leave the catch-all.
+  //
+  // Lowered 9 -> 5 on 2026-09-08, which is what those two raises were waiting
+  // for. The bound was one arrival from firing again and this time the answer
+  // was the category rather than another raise: enumerating the catch-all
+  // instead of judging one arrival at a time showed that five of its nine
+  // members already shared an axis no named section had -- an individual
+  // pricing their own labour or audience, rather than a business or a
+  // developer. They are now `solo-earner` in build.mjs, and the four left
+  // here really are unrelated to each other.
+  //
+  // Note the shape of the mistake this corrects: each raise was locally
+  // correct ("my venture is not a cluster on its own") and the aggregate was
+  // wrong, because nobody was looking at the aggregate. Prefer listing the
+  // catch-all to reasoning about the one venture in front of you.
   assert.ok(
-    more.items.length <= 8,
+    more.items.length <= 5,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
   );
 });
@@ -4345,8 +4430,11 @@ test('the venture tree still has comparison pages, and every one names a product
   for (const entry of entries) {
     const surface = surfaces.find((s) => s.slug === entry.slug);
     const html = await fs.readFile(path.join(surface.sourceDir, entry.file), 'utf8');
+    // Normalised on both sides — see `comparisonText`. `entry.subject` has
+    // already had its entities decoded, so `html.includes` was asking the page
+    // to carry the heading a second time in raw form.
     assert.ok(
-      html.includes(entry.subject),
+      comparisonText(html).includes(entry.subject),
       `"${entry.subject}" is not text ${entry.slug}/${entry.file} contains`,
     );
   }
@@ -4937,4 +5025,45 @@ test('the privacy exception sentence names each tool as a distinct list item', (
   const prose = listProse(named);
   assert.equal(prose, 'DNS Change Evidence and Sponsor Ready');
   assert.ok(!prose.includes('—'), 'no tagline may survive into the exception list');
+});
+
+// A developer-tool cache must never reach the artifact, and the reason this is
+// pinned by *shape* rather than by name is that the name list already lost this
+// race twice. `EXCLUDED_DIRS` learned `__pycache__` and still did not know
+// `.ruff_cache`, which appears inside a venture the moment a session runs that
+// venture's Python suite — which CLAUDE.md's pre-merge checklist instructs.
+//
+// The consequence was measured on 2026-09-09, and it is a publish outage rather
+// than clutter: `publish-branch.sh` runs `check.mjs` fail-closed, and check.mjs
+// rejects `CACHEDIR.TAG` because nothing tells nginx how to type `.tag`. So
+// following the checklist and then publishing blocked the live catalogue's only
+// working deploy route. `.well-known` is the one dot-directory that must still
+// survive, so it is asserted here rather than left to be rediscovered.
+test('copyTree drops dot-directory tool caches but keeps .well-known', async () => {
+  const from = await fs.mkdtemp(path.join(os.tmpdir(), 'copytree-src-'));
+  const to = await fs.mkdtemp(path.join(os.tmpdir(), 'copytree-out-'));
+
+  await fs.writeFile(path.join(from, 'index.html'), '<!doctype html><p>tool</p>');
+  for (const dir of ['.ruff_cache', '.pytest_cache', '.mypy_cache', '__pycache__']) {
+    await fs.mkdir(path.join(from, dir), { recursive: true });
+    await fs.writeFile(path.join(from, dir, 'CACHEDIR.TAG'), 'Signature: 8a477f597d28d172');
+    await fs.writeFile(path.join(from, dir, 'leak.html'), '<!doctype html><p>cache</p>');
+  }
+  await fs.mkdir(path.join(from, '.well-known'), { recursive: true });
+  await fs.writeFile(path.join(from, '.well-known', 'security.txt'), 'Contact: mailto:x@y.z');
+
+  await copyTree(from, to, 'https://example.test/');
+  const landed = await fs.readdir(to);
+
+  assert.ok(landed.includes('index.html'), 'the page itself must still be published');
+  for (const dir of ['.ruff_cache', '.pytest_cache', '.mypy_cache', '__pycache__']) {
+    assert.ok(
+      !landed.includes(dir),
+      `${dir} reached the artifact; check.mjs is fail-closed on CACHEDIR.TAG, so this blocks publish-branch.sh`,
+    );
+  }
+  assert.ok(
+    landed.includes('.well-known'),
+    '.well-known is the one dot-directory a static site serves on purpose',
+  );
 });

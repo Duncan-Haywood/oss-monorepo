@@ -40,3 +40,21 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Closest sibling: the other side of the same subscription. This tool serves
+// the buyer cutting unused seats; that one serves the seller testing a price
+// rise. Rotating related-tool chrome may never pair them, so link explicitly.
+test('index links one hop to the subscription-price-impact sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/subscription\-price\-impact\/"/,
+    'index must link ../subscription-price-impact/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(siblingHtml, /Subscription price impact/i);
+});

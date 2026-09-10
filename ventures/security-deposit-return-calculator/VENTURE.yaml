@@ -1,0 +1,83 @@
+name: security-deposit-return-calculator
+description: Free browser calculator for the two arithmetic questions every residential move-out raises — how much of a security deposit is refundable once itemized deductions are listed, and what prorated rent is owed for a partial first or last month — entirely client-side.
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml: a
+# residential landlord-tenant money calculator, a niche this portfolio does
+# not otherwise serve -- the closest existing ventures (str-host-payout-calculator,
+# real-estate-agent-photo-app) are a short-term-rental host and a listing-photo
+# app, neither of which touches a traditional lease's deposit or rent
+# proration. Built the same session per portfolio/pipeline/README.md's
+# archetype-saturation note: 226 ventures exist, most a <trade>-bid-calculator
+# or a marketplace-fee calculator, so this session weighed a different
+# vertical (residential leasing, not a trade or a marketplace) rather than a
+# 227th of either.
+#
+# python3 portfolio/pipeline/duplicate_check.py against "Landlord prorated
+# rent and security deposit deduction itemization calculator for move-in
+# move-out" scored nothing >= 0.12 against any existing venture, pipeline
+# candidate, screened-out row, or ai-first-markets idea (top match:
+# security-camera-bid-calculator at 0.12, word overlap on "security" only).
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 8 -- the tool only totals numbers the user already
+#     typed in (a deposit amount, a list of deduction line items the user
+#     wrote, a monthly rent and a day count) and reports a refund or balance
+#     figure. It does not assert what is legally deductible, does not cite a
+#     state's specific statute or deadline, and does not generate the demand
+#     letter or legal notice itself -- it computes the arithmetic a landlord
+#     or tenant would otherwise do by hand or in a spreadsheet before writing
+#     one. Being wrong costs one party a miscalculated number to double-check,
+#     not a filing or a third party's money. No advice-of-record: the FAQ and
+#     footer both say explicitly that itemization deadlines and what counts
+#     as normal wear and tear vary by state and lease, and to check local law.
+#   ethical_robustness: 8 -- deterministic arithmetic, no dark patterns, no
+#     data collected server-side, does not get worse for users as traffic
+#     grows, and is symmetric between the two parties to a lease (a tenant
+#     checking a landlord's math needs the exact same calculator a landlord
+#     uses to build the itemization). Every input is a number either party
+#     already has; nothing is scraped or inferred about a third party.
+#
+# Distribution: r/Landlord (270k+ members) and r/tenant/r/legaladviceofftopic
+# both see recurring "how do I calculate what I owe back" and "can they
+# deduct this" threads every time a lease ends -- security deposit disputes
+# are one of the most common landlord-tenant friction points precisely
+# because both sides are doing ad-hoc arithmetic under a deadline. BiggerPockets'
+# landlord forums carry the same recurring question from the property-manager
+# side. Search phrases with real, recurring volume: "security deposit
+# deduction calculator", "prorated rent calculator", "security deposit
+# itemization", "how to prorate rent for partial month". Unlike the trade-bid
+# and marketplace-fee archetypes already saturating this portfolio, both
+# renters and landlords hit this exact math at the same predictable moment
+# (move-in or move-out), which is also why it pairs two small calculators
+# instead of one -- the same visit usually needs both.
+hypotheses:
+  - claim: A landlord or property manager building an itemized deposit-deduction statement will use this to get a refund/balance figure and an itemization list they did not already have, in less time than a spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A tenant checking whether a landlord's proposed deductions and prorated final month add up correctly will land here from a search or an r/tenant thread and use it to verify the math before disputing or accepting it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/security-deposit-return-calculator/
+  analytics: null

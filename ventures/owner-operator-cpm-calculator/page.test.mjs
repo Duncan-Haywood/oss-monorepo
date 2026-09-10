@@ -199,3 +199,28 @@ test('"you keep" in the verdict means take-home once a reserve is set', () => {
   // the operator actually reads.
   assert.match(scriptSource, /weeklyTakeHome\)\}<\/strong> this week after setting aside/);
 });
+
+// Both are self-employed driver economics tools this calculator's own
+// visitors ask about, and neither linked the other before this: a
+// commercial-truck owner-operator and a personal-vehicle gig delivery /
+// rideshare driver. Without a crawlable link here, a crawler entering on the
+// owner-operator page never reaches the gig-driver page in one hop.
+test('index links one hop to the gig-driver-net-pay-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/gig-driver-net-pay-calculator\/"/,
+    'index must link ../gig-driver-net-pay-calculator/ so crawlers reach the gig driver net pay calculator in one hop',
+  );
+});
+
+// Both cost a route's economics per vehicle-hour or per mile for a
+// self-employed driver -- a long-haul owner-operator and a medical courier.
+// Without a crawlable link here, a crawler entering on this page never
+// reaches the medical-courier page in one hop.
+test('index links one hop to the medical-courier-route-margin sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/medical-courier-route-margin\/"/,
+    'index must link ../medical-courier-route-margin/ so crawlers reach the medical courier route margin calculator in one hop',
+  );
+});

@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Menu Engineering Calculator | Stars, Plowhorses, Puzzles and Dogs From Your Own Sales Mix</title>
+  <meta name="description" content="Free menu engineering calculator for independent restaurants: enter each dish's plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.">
+  <meta property="og:title" content="Menu Engineering Calculator">
+  <meta property="og:description" content="Classify every dish on your menu by contribution margin and popularity, from your own plate costs and sales mix. Free, private, no account.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Menu Engineering Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Kasavana and Smith menu engineering matrix from your own plate food costs, menu prices and units sold: per-dish contribution margin, menu mix percentage and food cost percentage, classification as star, plowhorse, puzzle or dog against the menu's own weighted-average contribution margin and 70% popularity threshold, overall food cost percentage against a target, and the annualised value of a stated price increase across the plowhorses"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is menu engineering?","acceptedAnswer":{"@type":"Answer","text":"Menu engineering reads a menu as a portfolio rather than a list of dishes that each succeed or fail on their own. It crosses two axes an operator already has the numbers for — how well an item sells, and how many dollars it contributes after food cost — and sorts every item into one of four quadrants. The method is Kasavana and Smith’s, published at Michigan State in 1982, and it is still the standard because both axes come off a sales report and a recipe card rather than out of a consultant."}},{"@type":"Question","name":"What are stars, plowhorses, puzzles and dogs?","acceptedAnswer":{"@type":"Answer","text":"A star sells well and contributes above the menu average. A plowhorse sells well and contributes below it — volume is doing the work that margin should be. A puzzle contributes above average but does not sell, so the margin is already there and what is missing is covers. A dog is below the bar on both. The names are the industry’s, not a judgement on the cooking: a dog can be the dish the owner is proudest of."}},{"@type":"Question","name":"Why rank by contribution margin instead of food cost percentage?","acceptedAnswer":{"@type":"Answer","text":"Because the two disagree constantly, and only one of them pays rent. A $34 steak at 40% food cost contributes $20.40 a plate. A $9 pasta at 20% contributes $7.20. The pasta wins on the percentage the industry quotes and loses by $13 on the dollars that actually reach the bank. Ranking a menu by food cost percentage is how a kitchen ends up promoting its cheapest-to-make plate into a worse week."}},{"@type":"Question","name":"How is the popularity threshold calculated?","acceptedAnswer":{"@type":"Answer","text":"If every item on the menu sold equally, each would take an equal share of covers — 10% on a ten-item menu. The convention is to call an item popular once it clears 70% of that equal share, so the bar on a ten-item menu is 7%. It is a convention rather than a law, which is why this calculator prints the threshold it used instead of asking you to take the classification on trust."}},{"@type":"Question","name":"Why is the margin bar weighted by covers?","acceptedAnswer":{"@type":"Answer","text":"Because the bar is meant to represent what the menu actually earns per cover, and an unweighted average does not. Averaging the per-item margins lets a $40 plate that sold twice pull the bar up as hard as the $14 plate that sold four hundred times. This calculator divides total contribution margin by total covers instead, so the bar reflects the mix that actually walked through the door."}},{"@type":"Question","name":"What does the price increase figure assume?","acceptedAnswer":{"@type":"Answer","text":"That the same number of people order the same items at the new price. That assumption is the whole risk in the number, and it is why the figure is printed as arithmetic rather than as a forecast. A price move can change the mix, and nothing in four columns of your own sales data can tell you by how much — only the next period’s sales report can."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Nothing about your dish names, plate costs, menu prices, or cover counts is sent anywhere or stored anywhere but this device. The optional usage counter records only which features were used and the day, never any of your numbers."}},{"@type":"Question","name":"Is this accounting, tax, or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the plate costs, menu prices, and unit counts you type in. It has no opinion on what to charge, what to cut, how to lay out a menu, how to treat any of this for tax, or how to run your kitchen — check those against your own records, your POS reports, and a qualified professional before acting on anything here."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef1ec; }
+    body { max-width: 1180px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 780px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.3rem); line-height: .99; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f6b47; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .68fr); gap: 18px; align-items: start; }
+    section { background: #fbfdfa; border: 1px solid #c9d6cd; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #10251b0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #55645c; margin: -6px 0 14px; }
+    .table-wrap { overflow-x: auto; }
+    table.items { border-collapse: collapse; width: 100%; min-width: 460px; }
+    table.items th { text-align: left; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; color: #55645c; padding: 0 6px 7px; font-weight: 700; }
+    table.items td { padding: 3px 6px 3px 0; }
+    table.items td:last-child { padding-right: 0; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a8bdb0; border-radius: 7px; padding: 9px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #9b2c1f; background: #fdf4f2; }
+    .fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; }
+    label.stack { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a8bdb0; background: #e6efe8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2320; }
+    button:hover { background: #d6e5da; }
+    .primary { background: #1f6b47; border-color: #1f6b47; color: #f2f8f4; }
+    .primary:hover { background: #175538; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .result { position: sticky; top: 15px; background: #16261e; color: #eaf3ed; border-color: #16261e; }
+    .result a { color: inherit; }
+    .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .quadrants { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 18px; }
+    .quadrant { background: #ffffff17; border-radius: 9px; padding: 10px; }
+    .quadrant .n { font-size: 1.5rem; font-weight: 750; font-variant-numeric: tabular-nums; }
+    .quadrant .k { font-size: .78rem; opacity: .84; display: block; }
+    .move { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .move h3 { margin: 0 0 8px; font-size: .95rem; }
+    .move-hero { margin: 8px 0 0; font-size: 1.3rem; font-weight: 750; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: #9fe3bd; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .84rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; line-height: 1.45; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd2c8; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    table.out { border-collapse: collapse; width: 100%; font-size: .84rem; min-width: 420px; }
+    table.out th { text-align: left; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; padding: 8px 8px 8px 0; border-bottom: 1px solid #c9d6cd; color: #55645c; }
+    table.out td { padding: 8px 8px 8px 0; border-bottom: 1px solid #e2e9e4; font-variant-numeric: tabular-nums; }
+    table.out td.name { font-variant-numeric: normal; font-weight: 650; }
+    .badge { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: .74rem; font-weight: 700; white-space: nowrap; }
+    .badge.star { background: #d8f0e0; color: #14512f; }
+    .badge.plowhorse { background: #fdeccc; color: #6b4708; }
+    .badge.puzzle { background: #dbe7fb; color: #17386e; }
+    .badge.dog { background: #f6dcd7; color: #6f2418; }
+    footer { margin-top: 25px; font-size: .82rem; color: #55645c; }
+    footer a { color: #1f6b47; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .seo-link a, footer a { color: #1a5c3d; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT RESTAURANTS, CAFES AND KITCHENS</p>
+    <h1>Which plates on your menu are actually carrying the place?</h1>
+    <p>Food cost percentage ranks your menu by the wrong number. Enter what each dish costs to plate, what it sells for, and how many went out the door, and see every item sorted into stars, plowhorses, puzzles and dogs &mdash; against your own menu&rsquo;s average contribution margin, not a rule of thumb.</p>
+    <p class="seo-link"><a href="./how-menu-engineering-works.html">How menu engineering works (the matrix, the thresholds, and a worked menu)</a> &middot; <a href="./vs-marginedge.html">How this compares to MarginEdge</a> &middot; <a href="../pour-cost-calculator/">Pour cost calculator for the bar side</a></p>
+  </header>
+
+  <main class="layout">
+    <form id="menuForm">
+      <section>
+        <h2>Your menu</h2>
+        <p class="hint">One row per dish. Plate food cost is the recipe cost of a single portion &mdash; what your invoices say the ingredients on that plate cost, not the price with labour in it. Units sold is how many went out over the period below. Leave a row entirely blank to skip it.</p>
+        <div class="table-wrap">
+          <table class="items">
+            <thead>
+              <tr>
+                <th scope="col" style="width:38%">Dish</th>
+                <th scope="col">Units sold</th>
+                <th scope="col">Plate food cost ($)</th>
+                <th scope="col">Menu price ($)</th>
+              </tr>
+            </thead>
+            <tbody id="itemRows"></tbody>
+          </table>
+        </div>
+        <div class="actions">
+          <button type="button" id="addRow">Add another dish</button>
+          <span class="hint" id="rowCount" style="margin:0"></span>
+        </div>
+      </section>
+
+      <section>
+        <h2>The period and your target</h2>
+        <div class="fields">
+          <label class="stack">Weeks the sales cover <input id="periodWeeks" type="number" min="0.5" max="260" step="0.5" value="4"></label>
+          <label class="stack">Target food cost (%) <input id="targetFoodCostPercent" type="number" min="1" max="99" step="0.5" value="30"></label>
+          <label class="stack">Price increase to test ($) <input id="priceIncrease" type="number" min="0" max="1000" step="0.25" value="1"></label>
+        </div>
+        <p class="hint" style="margin:14px 0 0">The price increase is applied to the plowhorses only &mdash; the items that sell well and contribute below average, where a small move lands on the most plates. Set it to 0 to see the classification alone.</p>
+        <div class="actions">
+          <button type="submit" class="primary" id="calculate">Sort my menu</button>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="tableHeading">Every dish, sorted</h2>
+        <p class="hint" id="tableHint">Contribution margin is menu price minus plate food cost. Menu mix is the dish&rsquo;s share of covers.</p>
+        <div class="table-wrap">
+          <table class="out">
+            <thead>
+              <tr>
+                <th scope="col">Dish</th>
+                <th scope="col">Class</th>
+                <th scope="col">CM</th>
+                <th scope="col">Food cost %</th>
+                <th scope="col">Menu mix</th>
+                <th scope="col">CM total</th>
+              </tr>
+            </thead>
+            <tbody id="outRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </form>
+
+    <section class="result" aria-live="polite">
+      <p class="hero-label" id="heroLabel">contribution margin over this period</p>
+      <p class="hero-number" id="heroNumber">&mdash;</p>
+      <div id="output" hidden>
+        <div class="quadrants">
+          <div class="quadrant"><span class="n" id="countStar">0</span><span class="k">Stars &mdash; sell well, contribute above average</span></div>
+          <div class="quadrant"><span class="n" id="countPlowhorse">0</span><span class="k">Plowhorses &mdash; sell well, contribute below</span></div>
+          <div class="quadrant"><span class="n" id="countPuzzle">0</span><span class="k">Puzzles &mdash; good margin, few covers</span></div>
+          <div class="quadrant"><span class="n" id="countDog">0</span><span class="k">Dogs &mdash; below both bars</span></div>
+        </div>
+
+        <dl>
+          <dt class="group">The menu over this period</dt>
+          <dt>Covers counted</dt><dd id="totalUnits"></dd>
+          <dt>Sales</dt><dd id="totalRevenue"></dd>
+          <dt>Food cost</dt><dd id="totalFoodCost"></dd>
+          <dt>Food cost %</dt><dd id="overallFoodCostPercent"></dd>
+          <dt>Contribution margin a year</dt><dd id="annualCm"></dd>
+
+          <dt class="group">The bars this menu set</dt>
+          <dt>Average CM a cover</dt><dd id="averageCm"></dd>
+          <dt>Popularity bar</dt><dd id="popularityBar"></dd>
+          <dt>Target food cost</dt><dd id="targetOut"></dd>
+        </dl>
+
+        <div class="move">
+          <h3>The price move you asked about</h3>
+          <dl>
+            <dt>Plowhorse covers</dt><dd id="plowhorseUnits"></dd>
+            <dt>Over this period</dt><dd id="movePeriod"></dd>
+          </dl>
+          <p class="move-hero" id="moveYear"></p>
+        </div>
+
+        <ul class="note-list" id="notes"></ul>
+      </div>
+      <div id="problems" hidden>
+        <ul class="errors" id="errorList"></ul>
+      </div>
+      <p class="empty" id="empty">The form opens on a worked four-dish example. Replace it with your own rows and press the button.</p>
+      <p class="empty" id="exampleNote" hidden>These are the worked example&rsquo;s figures, not yours yet. Replace the rows with your own dishes and press the button.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What is menu engineering?</h3>
+      <p>Menu engineering reads a menu as a portfolio rather than a list of dishes that each succeed or fail on
+        their own. It crosses two axes an operator already has the numbers for &mdash; how well an item sells, and
+        how many dollars it contributes after food cost &mdash; and sorts every item into one of four quadrants. The
+        method is Kasavana and Smith&rsquo;s, published at Michigan State in 1982, and it is still the standard
+        because both axes come off a sales report and a recipe card rather than out of a consultant.</p>
+
+      <h3>What are stars, plowhorses, puzzles and dogs?</h3>
+      <p>A star sells well and contributes above the menu average. A plowhorse sells well and contributes below it
+        &mdash; volume is doing the work that margin should be. A puzzle contributes above average but does not
+        sell, so the margin is already there and what is missing is covers. A dog is below the bar on both. The
+        names are the industry&rsquo;s, not a judgement on the cooking: a dog can be the dish the owner is proudest
+        of.</p>
+
+      <h3>Why rank by contribution margin instead of food cost percentage?</h3>
+      <p>Because the two disagree constantly, and only one of them pays rent. A $34 steak at 40% food cost
+        contributes $20.40 a plate. A $9 pasta at 20% contributes $7.20. The pasta wins on the percentage the
+        industry quotes and loses by $13 on the dollars that actually reach the bank. Ranking a menu by food cost
+        percentage is how a kitchen ends up promoting its cheapest-to-make plate into a worse week.</p>
+
+      <h3>How is the popularity threshold calculated?</h3>
+      <p>If every item on the menu sold equally, each would take an equal share of covers &mdash; 10% on a ten-item
+        menu. The convention is to call an item popular once it clears 70% of that equal share, so the bar on a
+        ten-item menu is 7%. It is a convention rather than a law, which is why this calculator prints the threshold
+        it used instead of asking you to take the classification on trust.</p>
+
+      <h3>Why is the margin bar weighted by covers?</h3>
+      <p>Because the bar is meant to represent what the menu actually earns per cover, and an unweighted average
+        does not. Averaging the per-item margins lets a $40 plate that sold twice pull the bar up as hard as the $14
+        plate that sold four hundred times. This calculator divides total contribution margin by total covers
+        instead, so the bar reflects the mix that actually walked through the door.</p>
+
+      <h3>What does the price increase figure assume?</h3>
+      <p>That the same number of people order the same items at the new price. That assumption is the whole risk in
+        the number, and it is why the figure is printed as arithmetic rather than as a forecast. A price move can
+        change the mix, and nothing in four columns of your own sales data can tell you by how much &mdash; only the
+        next period&rsquo;s sales report can.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Nothing about your
+        dish names, plate costs, menu prices, or cover counts is sent anywhere or stored anywhere but this device.
+        The optional usage counter records only which features were used and the day, never any of your numbers.</p>
+
+      <h3>Is this accounting, tax, or business advice?</h3>
+      <p>No. It is arithmetic on the plate costs, menu prices, and unit counts you type in. It has no opinion on
+        what to charge, what to cut, how to lay out a menu, how to treat any of this for tax, or how to run your
+        kitchen &mdash; check those against your own records, your POS reports, and a qualified professional before
+        acting on anything here.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, or financial advice, and it does not tell you what to charge, what to take off your menu, or how to run your kitchen. It is arithmetic on the numbers you type. Verify every figure against your own invoices, POS reports, and accounts, and against a qualified professional, before relying on it or repricing a menu with it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Do not use it as a system of record — export or note down anything you need to keep.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your dish names, plate costs, menu prices, and cover counts are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor.</p>
+    <p class="support">Free and open source. If it changes how you price a plate, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p>Pricing the delivery-app version of that same plate? The <a href="../delivery-app-margin-calculator/">delivery app margin calculator</a> compares dine-in, pickup, and delivery-app profit on one ticket after packaging and extra labor &mdash; nothing uploaded.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateMenu, MAX_ITEMS, CLASS_LABELS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    const money2 = (value) => {
+      const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const money0 = (value) => {
+      const text = `$${Math.round(Math.abs(value)).toLocaleString('en-US')}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const pct = value => `${value.toFixed(1)}%`;
+    const num = value => value.toLocaleString('en-US');
+
+    // The worked example the page opens on: a four-dish menu chosen so each
+    // quadrant is occupied, which is the only way a first visit shows what the
+    // four names actually mean.
+    const EXAMPLE = [
+      { name: 'Smash burger', unitsSold: '500', foodCost: '5.00', menuPrice: '14.00' },
+      { name: 'Ribeye', unitsSold: '100', foodCost: '14.00', menuPrice: '34.00' },
+      { name: 'House salad', unitsSold: '300', foodCost: '3.00', menuPrice: '16.00' },
+      { name: 'Soup of the day', unitsSold: '100', foodCost: '3.00', menuPrice: '8.00' },
+    ];
+
+    const FIELDS = [
+      { key: 'name', type: 'text', label: 'Dish name', attrs: { maxlength: '80' } },
+      { key: 'unitsSold', type: 'number', label: 'Units sold', attrs: { min: '0', step: '1' } },
+      { key: 'foodCost', type: 'number', label: 'Plate food cost in dollars', attrs: { min: '0', step: '0.01' } },
+      { key: 'menuPrice', type: 'number', label: 'Menu price in dollars', attrs: { min: '0.01', step: '0.01' } },
+    ];
+
+    let rowCount = 0;
+
+    /**
+     * Build one item row.
+     *
+     * Every input gets an explicit `aria-label` naming both the column and the
+     * row. A table input whose only visible label is a column header two rows
+     * up is announced by a screen reader as "edit, number" and nothing else —
+     * the exact defect an axe sweep of this catalogue turned up 24 times in
+     * route tables, so it is designed out here rather than found later.
+     */
+    function addRow(values = {}) {
+      if (rowCount >= MAX_ITEMS) return null;
+      const index = rowCount++;
+      const tr = document.createElement('tr');
+      for (const field of FIELDS) {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = field.type;
+        input.id = `item${index}_${field.key}`;
+        input.setAttribute('aria-label', `${field.label}, row ${index + 1}`);
+        for (const [name, value] of Object.entries(field.attrs)) input.setAttribute(name, value);
+        if (values[field.key] !== undefined) input.value = values[field.key];
+        td.append(input);
+        tr.append(td);
+      }
+      el('itemRows').append(tr);
+      updateRowCount();
+      return tr;
+    }
+
+    function updateRowCount() {
+      const remaining = MAX_ITEMS - rowCount;
+      el('rowCount').textContent = remaining > 0
+        ? `${rowCount} rows — room for ${remaining} more`
+        : `${rowCount} rows — the maximum`;
+      el('addRow').disabled = remaining <= 0;
+    }
+
+    function readInput() {
+      const items = [];
+      for (let index = 0; index < rowCount; index += 1) {
+        items.push(Object.fromEntries(FIELDS.map(f => [f.key, el(`item${index}_${f.key}`).value])));
+      }
+      return {
+        items,
+        periodWeeks: el('periodWeeks').value,
+        targetFoodCostPercent: el('targetFoodCostPercent').value,
+        priceIncrease: el('priceIncrease').value,
+      };
+    }
+
+    function everyInputId() {
+      const ids = ['periodWeeks', 'targetFoodCostPercent', 'priceIncrease'];
+      for (let index = 0; index < rowCount; index += 1) {
+        for (const field of FIELDS) ids.push(`item${index}_${field.key}`);
+      }
+      return ids;
+    }
+
+    function markFields(errors) {
+      const bad = new Set(errors.map(e => e.id));
+      for (const id of everyInputId()) {
+        const node = el(id);
+        if (!node) continue;
+        if (bad.has(id)) node.setAttribute('aria-invalid', 'true');
+        else node.removeAttribute('aria-invalid');
+      }
+    }
+
+    function showProblems(errors) {
+      markFields(errors);
+      el('heroNumber').textContent = '—';
+      el('heroNumber').className = 'hero-number negative';
+      el('heroLabel').textContent = 'check the highlighted rows';
+      el('output').hidden = true;
+      el('empty').hidden = true;
+      el('exampleNote').hidden = true;
+      el('problems').hidden = false;
+      el('outRows').replaceChildren();
+      el('errorList').replaceChildren(...errors.map(error => {
+        const li = document.createElement('li');
+        li.textContent = error.message;
+        return li;
+      }));
+    }
+
+    function renderTable(result) {
+      const order = { star: 0, plowhorse: 1, puzzle: 2, dog: 3 };
+      const rows = [...result.items].sort(
+        (a, b) => order[a.classification] - order[b.classification] || b.contributionMarginTotal - a.contributionMarginTotal,
+      );
+      el('outRows').replaceChildren(...rows.map(item => {
+        const tr = document.createElement('tr');
+        const name = document.createElement('td');
+        name.className = 'name';
+        name.textContent = item.name;
+        const badgeCell = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = `badge ${item.classification}`;
+        badge.textContent = CLASS_LABELS[item.classification];
+        badgeCell.append(badge);
+        const cells = [
+          money2(item.contributionMargin),
+          pct(item.foodCostPercent),
+          pct(item.menuMixPercent),
+          money0(item.contributionMarginTotal),
+        ].map(text => {
+          const td = document.createElement('td');
+          td.textContent = text;
+          return td;
+        });
+        tr.append(name, badgeCell, ...cells);
+        return tr;
+      }));
+    }
+
+    function render(result) {
+      markFields([]);
+      el('problems').hidden = true;
+      el('empty').hidden = true;
+      el('output').hidden = false;
+      el('heroLabel').textContent = `contribution margin over ${result.periodWeeks === 1 ? 'this week' : `these ${num(result.periodWeeks)} weeks`}`;
+      el('heroNumber').className = result.totalContributionMargin < 0 ? 'hero-number negative' : 'hero-number';
+      el('heroNumber').textContent = money0(result.totalContributionMargin);
+
+      el('countStar').textContent = num(result.counts.star);
+      el('countPlowhorse').textContent = num(result.counts.plowhorse);
+      el('countPuzzle').textContent = num(result.counts.puzzle);
+      el('countDog').textContent = num(result.counts.dog);
+
+      el('totalUnits').textContent = num(result.totalUnits);
+      el('totalRevenue').textContent = money0(result.totalRevenue);
+      el('totalFoodCost').textContent = money0(result.totalFoodCost);
+      el('overallFoodCostPercent').textContent = pct(result.overallFoodCostPercent);
+      el('annualCm').textContent = money0(result.annualContributionMargin);
+
+      el('averageCm').textContent = money2(result.averageContributionMargin);
+      el('popularityBar').textContent = pct(result.popularityThresholdPercent);
+      el('targetOut').textContent = pct(result.targetFoodCostPercent);
+
+      el('plowhorseUnits').textContent = num(result.plowhorseUnits);
+      el('movePeriod').textContent = money0(result.priceMoveGainPerPeriod);
+      el('moveYear').textContent = result.priceMoveGainPerYear > 0
+        ? `${money0(result.priceMoveGainPerYear)} a year at this mix`
+        : result.counts.plowhorse === 0
+          ? 'No plowhorses on this menu — nothing sells above the popularity bar while contributing below average.'
+          : 'No increase entered — set one above to size what a move is worth.';
+
+      el('notes').replaceChildren(...result.notes.map(text => {
+        const li = document.createElement('li');
+        li.textContent = text;
+        return li;
+      }));
+
+      renderTable(result);
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    el('addRow').addEventListener('click', () => {
+      const row = addRow();
+      if (row) row.querySelector('input')?.focus();
+    });
+
+    el('menuForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const result = calculateMenu(readInput());
+      if (!result.ok) {
+        showProblems(result.errors);
+        return;
+      }
+      render(result);
+      el('exampleNote').hidden = true;
+      count('menu_classified');
+      if (result.priceIncrease > 0 && result.counts.plowhorse > 0) count('price_move_sized');
+      if (result.counts.dog > 0) count('dogs_found');
+    });
+
+    // The form opens on a worked example rather than an empty table — a first
+    // visit that shows nothing until a button press hides the whole point of
+    // the tool, and the four quadrant names mean nothing until something is
+    // sorted into them.
+    for (const item of EXAMPLE) addRow(item);
+    addRow();
+    addRow();
+    (() => {
+      const example = calculateMenu(readInput());
+      if (!example.ok) return;
+      render(example);
+      el('exampleNote').hidden = false;
+    })();
+  </script>
+</body>
+</html>

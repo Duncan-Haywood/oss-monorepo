@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Google Requires Structured Data to Match Visible Text</title>
+  <meta name="description" content="Google's structured-data guidelines require FAQPage and HowTo content to be visible on the page. Why that rule exists, how AI answer engines extend it to every schema type, how JSON-LD and page copy drift apart, and how to wire the free structured-data-drift-check CLI into CI as a gate.">
+  <link rel="canonical" href="./why-google-requires-structured-data-to-match-visible-text.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Where does Google actually say this?","acceptedAnswer":{"@type":"Answer","text":"Google's Search Central documentation for both the FAQPage and HowTo structured data types states that the markup must reflect the main content of the page, and that content used only in structured data and not shown to users is not eligible for the rich result. This tool does not quote the live page text verbatim since that text can change without notice; read the current FAQPage and HowTo structured data guidelines on developers.google.com for the exact current wording, and treat this as the sourced, dated pointer to go read it rather than a substitute for doing so."}},{"@type":"Question","name":"Why do AI answer engines make this matter beyond FAQPage and HowTo?","acceptedAnswer":{"@type":"Answer","text":"A search engine's rich-result eligibility check is one consumer of JSON-LD. An AI system summarizing or answering questions about a page is another, and it has no equivalent published policy requiring the markup to match what a human sees -- it can simply read the JSON-LD as a structured, pre-parsed statement of what the page says and repeat it. A Product, Review, or Organization block that drifted from the page's actual copy is exactly as capable of misleading a reader that way as a FAQPage block is, even though Google's written rule names only two of the six types this tool checks."}},{"@type":"Question","name":"How does the two-lockfile-style diff this tool's siblings use apply to a single page?","acceptedAnswer":{"@type":"Answer","text":"It doesn't, directly -- this tool checks one page's JSON-LD against that same page's own visible text, not two point-in-time snapshots against each other. The shared idea with this portfolio's other checkers is the same deterministic, no-network, no-verdict shape: read exactly what is already present, compare two specific things character by character, and report precisely where they part ways rather than issuing an opinion."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to Structured Data Drift Check</a></p>
+  <h1>Why Google requires structured data to match visible text</h1>
+
+  <p>Google's Search Central documentation for the <code>FAQPage</code> and
+  <code>HowTo</code> structured-data types both say the same thing in
+  substance: the markup has to reflect content that is actually on the page
+  and visible to a visitor, not text that exists only inside a
+  <code>&lt;script type="application/ld+json"&gt;</code> block. A page that
+  markets up a question and answer nobody can read is, per that guidance, not
+  eligible for the rich result the markup is meant to earn — and Google's own
+  spam policies treat structured data describing hidden or absent content as
+  a form of misleading markup, not a harmless inaccuracy. This page describes
+  the rule rather than quoting Google's current wording verbatim, because
+  that wording can change without notice; read the current guidance on
+  <code>developers.google.com</code> for the authoritative text.</p>
+
+  <h2>Why it happens: two authored strings, one source of truth for neither</h2>
+  <p>Nothing about how a page is normally built keeps its visible copy and its
+  JSON-LD in sync. A marketer edits an FAQ answer on the page and never
+  touches the schema. A developer writes the schema once at launch, off the
+  copy as it existed that day, and the copy keeps evolving underneath it. A
+  templating system interpolates the same variable into both places today and
+  a refactor six months later interpolates it into only one. In every case the
+  drift is invisible to a human reader, because nobody reads raw JSON-LD next
+  to rendered copy side by side — which is exactly the comparison this tool
+  automates.</p>
+
+  <h2>Why this extends past FAQPage and HowTo</h2>
+  <p>Google's written policy names two structured-data types. The underlying
+  reason it exists — markup should describe what is actually on the page —
+  is not specific to either one. An AI system that reads a page's JSON-LD to
+  summarize it, answer a question about it, or decide what to tell a user
+  about a product, business, or review has no equivalent published rule
+  requiring the markup to match what a human visitor sees; it can simply
+  treat the JSON-LD as a structured, pre-parsed statement of fact and repeat
+  it. A <code>Product</code> description, a <code>LocalBusiness</code>
+  address claim in prose, a fabricated-sounding <code>Review</code> body, or
+  an <code>Article</code> headline that no longer matches the page's own
+  <code>&lt;h1&gt;</code> can mislead exactly the same way a stale FAQ answer
+  can — this tool checks all six because the risk is not limited to the two
+  types Google has written a rule about.</p>
+
+  <h2>What this tool checks, and what it deliberately doesn't</h2>
+  <table>
+    <thead><tr><th>Type</th><th>Fields checked</th></tr></thead>
+    <tbody>
+      <tr><td><code>FAQPage</code></td><td><code>mainEntity[].name</code> (question), <code>mainEntity[].acceptedAnswer.text</code> (answer)</td></tr>
+      <tr><td><code>HowTo</code></td><td><code>name</code>, <code>description</code>, <code>step[].name</code>, <code>step[].text</code></td></tr>
+      <tr><td><code>Article</code> / <code>BlogPosting</code> / <code>NewsArticle</code></td><td><code>headline</code>, <code>description</code></td></tr>
+      <tr><td><code>Product</code></td><td><code>name</code>, <code>description</code></td></tr>
+      <tr><td><code>LocalBusiness</code> / <code>Organization</code> (and common subtypes)</td><td><code>name</code>, <code>description</code></td></tr>
+      <tr><td><code>Review</code></td><td><code>reviewBody</code>, <code>author.name</code></td></tr>
+    </tbody>
+  </table>
+  <p>Deliberately excluded: numeric and URL fields (<code>ratingValue</code>,
+  <code>priceCurrency</code>, <code>image</code>, <code>url</code>, dates,
+  and so on). Those aren't prose a visitor reads and confirms by eye the way
+  an FAQ answer or a headline is, and a false-positive divergence report on a
+  formatting difference in a number would train a reader to ignore real
+  findings — the same failure mode this portfolio's other checkers avoid by
+  staying narrow.</p>
+
+  <h2>Wiring it into CI as a gate</h2>
+  <p>Run it against a static build's output directory after every deploy that
+  touches copy or schema:</p>
+  <pre>- name: Check structured data against visible page text
+  run: |
+    npm run build
+    find dist -name '*.html' | xargs node ventures/structured-data-drift-check/cli.mjs check</pre>
+  <p>The command exits non-zero if any claim on any page diverges from that
+  page's own visible text. Add <code>--strict</code> to also fail on a
+  malformed <code>application/ld+json</code> block, which is a different bug
+  this tool notices but does not fail on by default.</p>
+
+  <h2>Common questions</h2>
+  <h3>Where does Google actually say this?</h3>
+  <p>Google's Search Central documentation for both the FAQPage and HowTo structured data types states that the markup must reflect the main content of the page, and that content used only in structured data and not shown to users is not eligible for the rich result. This tool does not quote the live page text verbatim since that text can change without notice; read the current FAQPage and HowTo structured data guidelines on developers.google.com for the exact current wording, and treat this as the sourced, dated pointer to go read it rather than a substitute for doing so.</p>
+  <h3>Why do AI answer engines make this matter beyond FAQPage and HowTo?</h3>
+  <p>A search engine's rich-result eligibility check is one consumer of JSON-LD. An AI system summarizing or answering questions about a page is another, and it has no equivalent published policy requiring the markup to match what a human sees -- it can simply read the JSON-LD as a structured, pre-parsed statement of what the page says and repeat it. A Product, Review, or Organization block that drifted from the page's actual copy is exactly as capable of misleading a reader that way as a FAQPage block is, even though Google's written rule names only two of the six types this tool checks.</p>
+  <h3>How does the two-lockfile-style diff this tool's siblings use apply to a single page?</h3>
+  <p>It doesn't, directly -- this tool checks one page's JSON-LD against that same page's own visible text, not two point-in-time snapshots against each other. The shared idea with this portfolio's other checkers is the same deterministic, no-network, no-verdict shape: read exactly what is already present, compare two specific things character by character, and report precisely where they part ways rather than issuing an opinion.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents report whether a JSON-LD claim's exact text is present in the page's own visible copy. Nothing here is SEO, legal, or marketing advice, a Search Console substitute, or a guarantee about rich-result eligibility or rankings. Verify by reading the actual page and Google's current documentation before relying on it.
+    <a href="./">Back to the tool</a>.</p>
+  </footer>
+</body>
+</html>

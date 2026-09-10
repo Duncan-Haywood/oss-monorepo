@@ -129,6 +129,7 @@ test('save-and-share is wired to the page', () => {
   assert.match(html, /A bid link carries your own rates/, 'the bid link does not say what it carries');
   assert.match(html, /wage, burden, overhead, and target margin/, 'the link caution does not name the rates it carries');
   assert.match(html, /The customer should get the price, not the link/, 'the link caution does not say who not to send it to');
+  assert.match(html, /never sent to a server/, 'the on-page note does not say the link fragment stays client-side');
   assert.match(html, /Your bid is saved in this browser/, 'the privacy note does not disclose that the bid is stored');
   assert.match(html, /treat one like your rate sheet/, 'the privacy note does not warn what a copied link holds');
 });
@@ -198,4 +199,17 @@ test('every select the visitor can set travels as a validated choice', () => {
       `select #${id} is not in CHOICE_IDS, so a shared link would carry it unvalidated or not at all`,
     );
   }
+});
+
+// Closest outbuilding sibling: post-frame / pole-barn (bays, eave, floor) rather
+// than a backyard shed kit with pad and delivery. Related-tool chrome rotates
+// alphabetically inside each subcategory, so without an explicit one-hop a
+// crawler on this page may never land on that tool.
+test('index links one hop to the pole-barn-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/pole-barn-bid-calculator\/"/,
+    'index must link ../pole-barn-bid-calculator/ so crawlers reach the pole-barn calculator in one hop',
+  );
+  assert.match(html, /pole barn bid calculator/i);
 });

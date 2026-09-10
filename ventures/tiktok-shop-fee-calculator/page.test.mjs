@@ -218,3 +218,23 @@ test("every published page carries Open Graph tags", () => {
     assert.match(source, /<meta property="og:description" content="[^"]+">/, `${page} is missing og:description`);
   }
 });
+
+// marketplace-fee-compare already deep-links here for fees a headline
+// referral rate cannot carry; without a crawlable link back, a visitor on
+// TikTok Shop never reaches the six-channel triage (same orphan class as #3637).
+test("index links to the marketplace fee comparison", () => {
+  assert.match(html, /href="\.\.\/marketplace-fee-compare\/"/);
+});
+
+// Closest sibling: another marketplace seller comparing take rates on the
+// same SKU. Related-tool chrome rotates inside the marketplace subcategory,
+// so without an explicit one-hop a crawler landing here may never reach the
+// Walmart calculator (platform/pages/siblings.mjs --check orphan class).
+test("index links one hop to the walmart-marketplace-calculator sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/walmart-marketplace-calculator\/"/,
+    'index must link ../walmart-marketplace-calculator/ so crawlers reach the Walmart calculator in one hop',
+  );
+  assert.match(html, /Walmart marketplace calculator/i);
+});

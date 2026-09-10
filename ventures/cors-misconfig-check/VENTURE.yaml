@@ -1,0 +1,71 @@
+name: cors-misconfig-check
+description: >-
+  A free CLI (+ a browser report viewer) for API developers: sends six real
+  HTTP GET requests to a URL with different Origin headers and classifies the
+  responses into named CORS misconfiguration patterns -- reflecting an
+  unrelated origin, accepting Origin: null, and two unanchored
+  startsWith/endsWith allow-list bypass shapes -- plus notices for
+  wildcard-with-credentials and a missing Vary: Origin header. The browser
+  page can only render a pasted report, never probe on its own, because
+  Origin is a forbidden request header browsers refuse to let a page set.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer or security researcher who suspects (or is deliberately
+      testing for) a reflected-origin, null-origin, or unanchored-allow-list
+      CORS bug will search the exact terminology ("test CORS misconfiguration",
+      "reflected origin CORS vulnerability", "CORS null origin exploit",
+      "CORS allow-list bypass checker") and find this tool, since no existing
+      free tool packages all four patterns behind one command with a
+      plain-English report naming the exact response header that proves each
+      one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      r/netsec, r/websecurity, the bug-bounty community (HackerOne and
+      Bugcrowd forums/Discords), and Hacker News carry real, recurring
+      interest in CORS misconfiguration as a bug class -- it is one of the
+      most commonly reported web API findings in public bug-bounty writeups,
+      and PortSwigger's Web Security Academy treats it as a standalone,
+      frequently-tested topic. Existing free tools in this exact space
+      (e.g. the open-source Python scanner "Corsy") show demand is real but
+      the shape is under-served by a zero-install, evidence-first, both
+      CLI-and-report-viewer tool with this portfolio's disclaimer/usage
+      conventions.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or security team that gets a clean report will wire the CLI
+      into their own staging-environment CI as a regression gate, producing
+      return usage without any action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Browsers change the Fetch spec's forbidden-header-name list to permit a
+    page setting Origin itself, or a materially better free tool covering the
+    same four patterns with the same zero-install bar becomes the obvious
+    default, such that this tool's differentiation (one command, plain-English
+    report, shared classification core tested independently of the network
+    layer) no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cors-misconfig-check/
+  analytics: null

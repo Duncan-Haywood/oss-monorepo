@@ -86,21 +86,142 @@ python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new ven
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
+python3 platform/ci/run_workflow_locally.py --for-changes  # the validators no pytest line reaches
+python3 platform/ci/run_workflow_locally.py --tree          # and: is main itself green right now?
 ```
+
+**That last line is not optional, and it is the one this block was missing
+until 2026-09-07.** Every line above it runs *tests*. `portfolio-validate.yml`
+also runs eight **validators** that no test file imports — `router/validate.py`,
+`front-door-tools.mjs --headroom`, `pipeline/validate_doc_consistency.py`,
+`pipeline/validate_candidates.py`, `probes/validate_probe_index.py`,
+`pipeline/score_sensitivity.py`, `scoring/score_ventures.py --check`,
+`usage/validate_usage.py` — and they check the thing tests cannot: whether the
+*committed data* still agrees with itself across files.
+
+Measured 2026-09-07: `main` was red on `validate_doc_consistency.py` and had
+been for at least a day. Two real inconsistencies, one of them a README row
+whose own cell said `Appended out of composite order ... to avoid renumbering
+the table`. Nothing caught it because Actions was starved, so CI never ran the
+validator, and this block — the list a session actually follows during a
+starvation window — ran every test in the repo and not one validator. The
+guard was correct, current, and shouting into an empty room.
+
+Prefer `run_workflow_locally.py` to pasting those eight commands here. It reads
+the workflow files and runs their `run:` steps, so it cannot go stale the way a
+hand-copied list does — which is the same import-don't-restate lesson this file
+records twice against the front-door mirror, and once already against
+`platform/proposal/`.
+
+**`--tree` was added 2026-09-07, and the reason is that `--for-changes` cannot
+answer the question this section is actually about.** It selects workflows by
+your *diff*, so on a clean checkout of `main` it prints `No files differ from
+origin/main; nothing to verify` and exits 0 — correct for "is my change sound?"
+and useless for "is `main` green?". Every guard in this file was therefore
+still, in one specific sense, only ever run by someone who happened to be
+changing something.
+
+Measured the same day: `scoring/score_ventures.py --check` was red on `main`
+and had been across five merges. #3615 graduated
+`actions-runner-starvation-check` without a row in `venture-scores.yaml`, and
+`--check` fails by design when the scored set and the set of `VENTURE.yaml`
+files disagree. Actions has been starved since 2026-09-04
+(`ci_starvation.py --run 34089278449`: `runner_id: 0`, 3s, no steps), so CI
+never ran it; four later merges each verified their own diff, correctly, and
+none of those diffs touched scoring. That is the third instance of this exact
+shape in ten days — 2026-08-29's two red steps, 2026-09-07's
+`validate_doc_consistency.py`, now this — and all three were found by a session
+that happened to look rather than by anything that asks.
+
+`--tree` asks. It ignores the diff and runs every workflow in
+`VERIFICATION_ONLY` against the checkout as it stands, so a red `main` is one
+command rather than a coincidence. It sweeps that list and not the whole
+directory on purpose: a sweep is the mode most likely to be run unattended,
+which is exactly where a deploying or branch-deleting step would arrive
+unnoticed. Run it after `git fetch origin main && git reset --hard origin/main`
+to read `main` itself, or on your branch to check the tree you are about to
+push. An empty selection exits 1 — "nothing ran" must never read as a pass.
 
 (`pip install pytest` first in a web session — the image has Python but not
 pytest, so that `gitops/tests` line exits `No module named pytest` rather than
 failing any test. Do not read that as a clean run. The `platform/ci` line needs
 no pytest — those suites are `unittest`.)
 
+**The same shape had a third instance, in `node --test` rather than pytest, and
+it is closed (2026-09-07).** `platform/webcheck/page-integrity.test.mjs` pins
+its checker against the exact `index.html` blobs from the commits where two
+products shipped dead — the suite's most valuable test, because it is proven
+against the real defect and not an approximation of it. It reads them with
+`git show <sha>:<path>`, and a web session's clone is **shallow** (50 commits),
+so both history-pinned tests failed with `fatal: invalid object name '1a8feb3'`
+on a clean checkout of `main`. Measured that day: a session running the block
+above sees `# fail 2` and must choose between "the checker regressed" (burn the
+run chasing nothing) and "ignore it" (learn to ignore a suite that also catches
+real regressions). `platform/webcheck/history-blob.mjs` now makes the one
+discrimination that matters — object absent **and** clone shallow is a SKIP
+naming `git fetch --unshallow`; object absent in a **full** clone still fails,
+because a test pinned to a sha that a complete history lacks has gone stale and
+must go red. Verified both ways: 20 pass / 2 skip shallow, 22 pass / 0 skip
+after unshallowing. If you want those two to actually run, `git fetch
+--unshallow` first — which `CLAUDE.md` already tells you to do before any
+supersession check, for the same underlying reason.
+
+**That parenthesis is no longer the only thing standing between a session and
+a wrong reading of `main` (changed 2026-09-07).** It warns about the raw
+`node --test`/`pytest` lines above, and `run_workflow_locally.py` — the line
+this block tells you to prefer, precisely because a hand-copied list goes
+stale — had the same hole and no warning at all. Measured that day, twice on
+the same clean checkout of `main` minutes apart, with nothing between the two
+runs but `pip install pytest`:
+
+```
+portfolio-validate.yml: 55/60 run: step(s) passed, 5 failed
+portfolio-validate.yml: 60/60 run: step(s) passed
+```
+
+All five said `No module named pytest`; `main` was green both times. The tool
+already exempted a failing *install* step from the verdict, on the stated
+grounds that reporting it as a failure "trains a reader to ignore the result"
+— and then rendered the five steps downstream of that install as ordinary
+`FAILED`, indistinguishable from an assertion failure in the repository. This
+is the same shape as the starvation signature the section above describes: a
+red that means "nothing ran" wearing the costume of a red that means "your
+code is broken."
+
+A step that cannot find its interpreter, module, or binary is now reported as
+**`UNRUN`** — named, counted as not run, listed with what to install, and
+never left reading as green. It does not fail the sweep, because a sandbox
+without pytest is not a defect in `main`. What it is *not* is a licence to
+ignore the line: an `UNRUN` step still owes an answer, and the summary says
+so. Install what it names and re-run before you claim the tree is green.
+
+The one discrimination that matters: a module the repository itself supplies
+(`No module named pages_state`) stays `FAILED`. That is not a missing tool —
+it is the documented `platform/ci` working-directory trap, and calling it
+"toolchain missing" would bury the defect the check exists to surface.
+
 **If your change touches markup a user types into, run the browser checks too —
 one `npm install` is the whole barrier, and sessions have been treating it as
 impossible** (added 2026-09-06):
 
 ```
+python3 platform/ci/browser_state.py               # has anyone run these lately?
 npm install --no-save playwright@1.56.0 axe-core   # both in ONE command
 python3 platform/ci/browser_checks.py --only <slug>
 ```
+
+**Ask the first line before you decide the other two are someone else's job**
+(added 2026-09-07). A whole-site run takes 20-30 minutes and printed its
+verdict to a terminal that then went away, so nothing in the tree said whether
+it had ever happened — which left every session choosing between spending the
+30 minutes again and skipping, and this file already records which one gets
+picked. `browser_state.py` reports, per check, the date and commit it last
+passed at, and whether anything under `ventures/`, `platform/pages/` or
+`platform/marketing/` has moved since. A docs or ledger merge does not stale a
+reading; a change to a rendered surface does. Add `--record` to a full
+`browser_checks.py` run to write the reading — it refuses a `--only` run and a
+run with skips, because a reading that laundered either into "the catalogue
+passed" would be worse than no reading at all.
 
 `platform/ci/browser_checks.py` already does the hard parts — it builds into a
 temp dir, proves with a sentinel token that the port is not answering a stale
@@ -874,6 +995,26 @@ a ledger entry into a PR waiting on the owner.
 `git fetch origin main` before appending; skip if the latest entry already
 covers your finding. The ledger *tooling* (`.py` under `portfolio/ledger/`) is
 ordinary platform code, exempt from the check and mergeable on its own.
+
+**A "set direction" brief has the same failure mode, and it now has the same
+kind of check.** `portfolio/DIRECTION.md`'s "Before rewriting this brief
+again" section asked sessions to check recent history before restating the
+north star; well over a dozen direction-only commits to `DIRECTION.md` and
+`AGENTS.md` landed anyway across 2026-09-06/07, because the check lived in
+prose a session only sees after opening the file. Run this before pushing a
+direction-setting session's work:
+
+```
+python3 portfolio/ledger/check_direction_only.py
+```
+
+Exit 1 means every file in your branch is `portfolio/DIRECTION.md` and/or
+`AGENTS.md` and nothing else — restate nothing; instead check
+`git log -5 -- portfolio/DIRECTION.md AGENTS.md`, and if the brief is
+already current, spend the session on `portfolio/router/allocate.py`'s top
+candidate or a fresh venture screened against `screened-out.md`. A genuine,
+targeted correction to either file still passes as long as it rides with
+real work in the same PR.
 
 ## Automation
 

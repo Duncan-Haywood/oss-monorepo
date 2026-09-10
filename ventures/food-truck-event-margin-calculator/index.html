@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Food Truck Event & Catering Margin Calculator — Price a Booking</title>
+<meta name="description" content="Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you're already considering against the breakeven.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Food Truck Event & Catering Margin Calculator">
+<meta property="og:description" content="A flat per-head quote prices the food but usually leaves out prep time, travel, propane, the one-off event permit, and the risk that a better turnout eats the margin. Find the real price for one booking.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Food Truck Event & Catering Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a mobile food truck event, catering, or festival booking from expected guests, food cost per guest, commissary prep time, travel, staff labor, propane, permit fees, and equipment cost, then flags the turnout risk a flat per-event price hides and checks a proposed price against breakeven."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a per-head quote need to count prep and travel time at all?","acceptedAnswer":{"@type":"Answer","text":"Because the truck and its staff are committed to the job well before service starts. Commissary prep, the drive to the venue, and breakdown afterward are real hours that a flat \"$8/head\" price does not show unless you add them in — and they happen whether the event runs 2 hours or 6."}},{"@type":"Question","name":"Why does the calculator treat turnout as a risk, not just a cost line?","acceptedAnswer":{"@type":"Answer","text":"A flat per-event quote is built from an expected or guaranteed guest count, but actual turnout depends on the event — a well-attended wedding or a festival with a longer line can serve far more guests than a corporate lunch headcount. The calculator reports what share of your price the food line already represents, so you can see how much room is left before a bigger-than-expected crowd erases the margin you built the quote on."}},{"@type":"Question","name":"How is the recommended extra-guest rate different from just charging my per-head food cost for the extra seats?","acceptedAnswer":{"@type":"Answer","text":"It marks the extra guest's food cost up the same way the rest of the quote is marked up — food cost plus your overhead rate, divided by your target margin — so seats added the week before an event still earn the same margin instead of just covering the added food at cost."}},{"@type":"Question","name":"Does anything about my event details get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only, there is no account, and nothing you type is uploaded. Nothing leaves this device unless you choose to send it: the Copy shareable link button puts the quote on the form into the page's URL fragment, which a browser never sends to a server or into a Referer header, so it reaches only the person you hand the link to. Anyone who has that link can read the quote in it, so send it the way you would send the numbers themselves. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#241a0e;background:#fbf3e8}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #ecd7b8;border-radius:16px;padding:20px;box-shadow:0 8px 24px #7a3d0708;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #f3e6cc;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#a24d0a;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #e0b978;border-radius:8px;font:inherit;background:#fffdf8}.result{background:#7a3407;color:#fff;border-color:#7a3407;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6a5642}.result .note{color:#f0d9b8}.err{color:#ffd9a6;font-weight:700}.warn{background:#fff4e0;border:1px solid #f0c987;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#4a2004;border-color:#c98a3d;color:#ffe6b0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #e0b978;background:#fff;cursor:pointer;color:#241a0e}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR INDEPENDENT FOOD TRUCK &amp; TRAILER OPERATORS</p><h1>A per-head price isn't the whole quote.</h1><p class="lede">A "$8/head, 100-guest minimum" quote prices the food but usually leaves out commissary prep time, the drive to the venue, propane, the one-off special-event permit, and the risk that a better turnout than expected quietly eats the margin. This free calculator finds the real price for one booking, flags the turnout risk, and checks a price you're already considering.</p></header>
+
+<main class="layout">
+<section><h2>Price one booking</h2>
+<fieldset><legend>Guests &amp; food</legend><div class="fields">
+<label>Expected/guaranteed guests<input id="expectedGuests" type="number" min="1" step="1" value="100"></label>
+<label>Food cost per guest ($)<input id="foodCostPerGuest" type="number" min="0" step="0.25" value="4.5"></label>
+</div></fieldset>
+<fieldset><legend>Time &amp; travel</legend><div class="fields">
+<label>Commissary prep hours<input id="prepHours" type="number" min="0" step="0.5" value="3"></label>
+<label>Service hours<input id="serviceHours" type="number" min="0" step="0.5" value="4"></label>
+<label>Breakdown hours<input id="breakdownHours" type="number" min="0" step="0.5" value="1"></label>
+<label>Round-trip drive minutes<input id="driveMinutesRoundTrip" type="number" min="0" step="5" value="40"></label>
+<label>Round-trip miles<input id="milesRoundTrip" type="number" min="0" step="1" value="30"></label>
+<label>Mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.67"></label>
+</div></fieldset>
+<fieldset><legend>Labor</legend><div class="fields">
+<label>Staff working the event<input id="staffCount" type="number" min="0" step="1" value="2"></label>
+<label>Staff pay ($/hr)<input id="staffHourlyRate" type="number" min="0" step="1" value="22"></label>
+</div></fieldset>
+<fieldset><legend>Other costs &amp; margin</legend><div class="fields">
+<label>Propane &amp; generator fuel ($)<input id="fuelPropaneCost" type="number" min="0" step="1" value="25"></label>
+<label>Commissary fee for this event ($)<input id="commissaryFeeCost" type="number" min="0" step="1" value="30"></label>
+<label>Truck &amp; equipment cost per event ($)<input id="truckEquipmentCostPerEvent" type="number" min="0" step="1" value="40"></label>
+<label>Special-event permit fee ($)<input id="permitFeeCost" type="number" min="0" step="1" value="25"></label>
+<label>Weekend/holiday premium (%)<input id="weekendHolidayPremiumPct" type="number" min="0" step="1" value="10"></label>
+<label>Overhead (% of direct cost)<input id="overheadRate" type="number" min="0" step="1" value="8"></label>
+<label>Target margin (%)<input id="targetMarginPct" type="number" min="0" max="99" step="1" value="30"></label>
+<label>Other flat cost ($)<input id="otherCost" type="number" min="0" step="1" value="0"></label>
+</div></fieldset>
+<p style="margin:6px 0 4px"><button type="button" id="copyLink">Copy shareable link</button></p>
+<p id="shareStatus" class="note" role="status"></p>
+</section>
+
+<section class="result" aria-live="polite"><h2>Quote for this booking</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="price" class="big">$0.00</div><p id="perGuestLine" class="note"></p>
+<dl>
+<dt>Staff labor</dt><dd id="laborOut"></dd>
+<dt>Mileage</dt><dd id="mileageOut"></dd>
+<dt>Weekend/holiday premium</dt><dd id="premiumOut"></dd>
+<dt>Food</dt><dd id="foodOut"></dd>
+<dt>Propane &amp; fuel</dt><dd id="fuelOut"></dd>
+<dt>Commissary fee</dt><dd id="commissaryOut"></dd>
+<dt>Truck &amp; equipment</dt><dd id="equipmentOut"></dd>
+<dt>Permit fee</dt><dd id="permitOut"></dd>
+<dt>Overhead</dt><dd id="overheadOut"></dd>
+<dt>Total cost (breakeven)</dt><dd id="totalCostOut"></dd>
+<dt>Profit</dt><dd id="profitOut"></dd>
+<dt>Recommended rate per extra guest ($)</dt><dd id="extraGuestOut"></dd>
+</dl>
+<p id="foodWarning" class="warn" hidden></p>
+<p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not add sales tax, insurance, or a rain-date/cancellation policy unless you fold those into other cost yourself.</p>
+</section>
+</main>
+
+<section><h2>Check a price you're already considering</h2><p class="note">Already told a planner or festival organizer a number? Enter it here to see the profit and margin it actually leaves once the costs above are counted.</p>
+<div class="fields">
+<label>Price you're considering ($)<input id="proposedPrice" type="number" min="0" step="1" value=""></label>
+</div>
+<p id="proposedErrors" class="err" role="alert" hidden></p>
+<dl id="proposedResult" hidden>
+<dt>Profit at that price</dt><dd id="proposedProfitOut"></dd>
+<dt>Margin at that price</dt><dd id="proposedMarginOut"></dd>
+<dt>Below breakeven?</dt><dd id="proposedBelowOut"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your event details, prices, and costs are never uploaded, there is no account, and nothing is saved when you close the tab. <em>Copy shareable link</em> is the one way a quote leaves this device, and only because you choose to send it: the figures ride in the page's URL fragment, which a browser never puts in a request line or a Referer header. Whoever holds that link can read the quote in it, so send it the way you would send the numbers themselves. We count only anonymous local feature events (<code>quote-priced</code>, <code>proposed-price-checked</code>, <code>link_copied</code>) so we can tell whether the calculator gets used — no event details, prices, or costs are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does a per-head quote need to count prep and travel time at all?</h3><p>Because the truck and its staff are committed to the job well before service starts. Commissary prep, the drive to the venue, and breakdown afterward are real hours that a flat "$8/head" price does not show unless you add them in — and they happen whether the event runs 2 hours or 6.</p>
+<h3>Why does the calculator treat turnout as a risk, not just a cost line?</h3><p>A flat per-event quote is built from an expected or guaranteed guest count, but actual turnout depends on the event — a well-attended wedding or a festival with a longer line can serve far more guests than a corporate lunch headcount. The calculator reports what share of your price the food line already represents, so you can see how much room is left before a bigger-than-expected crowd erases the margin you built the quote on.</p>
+<h3>How is the recommended extra-guest rate different from just charging my per-head food cost for the extra seats?</h3><p>It marks the extra guest's food cost up the same way the rest of the quote is marked up — food cost plus your overhead rate, divided by your target margin — so seats added the week before an event still earn the same margin instead of just covering the added food at cost.</p>
+<h3>Does anything about my event details get uploaded?</h3><p>No. Every field on this page runs in your browser only, there is no account, and nothing you type is uploaded. Nothing leaves this device unless you choose to send it: the Copy shareable link button puts the quote on the form into the page's URL fragment, which a browser never sends to a server or into a Referer header, so it reaches only the person you hand the link to. Anyone who has that link can read the quote in it, so send it the way you would send the numbers themselves. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<p class="note">New to pricing bookings? Read the guide: <a href="./how-much-to-charge-for-a-food-truck-catering-event.html">how much to charge for a food truck catering or event booking</a>.</p>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a venue or vendor contract, predict actual turnout, determine health-department or permit requirements, or replace your own contract, insurance, or accountant.</p><p>Already found through <a href="vs-roaminghunger.html">Roaming Hunger</a>'s marketplace, or thinking about listing there? See <a href="vs-roaminghunger.html">how this free calculator differs</a> from a booking marketplace and its vendor fees.</p><p>Pricing a portable-restroom event rental instead of a food booking? The <a href="../portable-restroom-event-quote/">portable restroom event quote calculator</a> prices days on site, pump-out visits, and truck round trips for a sanitation yard &mdash; nothing uploaded.</p><p>MIT licensed. If it helped you price a booking, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculateQuote } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, hasSharedInputs, formValues, REQUIRED_FIELD_IDS } from './share.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const FIELD_IDS = REQUIRED_FIELD_IDS;
+let counted = false;
+let proposedCounted = false;
+
+function fieldInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+function updateQuote(count = false) {
+  try {
+    const r = calculateQuote(fieldInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('price').hidden = false;
+    el('price').textContent = money(r.price);
+    el('perGuestLine').textContent = `${money(r.pricePerGuest)}/guest — ${r.committedHoursPerStaff.toFixed(2)} hrs actually committed per staff member`;
+    el('laborOut').textContent = money(r.laborCost);
+    el('mileageOut').textContent = money(r.mileageCost);
+    el('premiumOut').textContent = money(r.peakPremium);
+    el('foodOut').textContent = money(r.foodCost);
+    el('fuelOut').textContent = money(r.fuelPropaneCost);
+    el('commissaryOut').textContent = money(r.commissaryFeeCost);
+    el('equipmentOut').textContent = money(r.truckEquipmentCostPerEvent);
+    el('permitOut').textContent = money(r.permitFeeCost);
+    el('overheadOut').textContent = money(r.overhead);
+    el('totalCostOut').textContent = money(r.totalCost);
+    el('profitOut').textContent = money(r.profit);
+    el('extraGuestOut').textContent = money(r.recommendedExtraGuestRate);
+    if (r.foodBudgetTight) {
+      el('foodWarning').hidden = false;
+      el('foodWarning').textContent = `Food cost is already ${r.foodCostSharePct.toFixed(0)}% of this quote's price. This event's margin can absorb actual turnout up to about ${r.maxGuestsAtBreakeven} guests before profit hits zero — worth a hard headcount cap or a higher per-extra-guest rate if this is an open RSVP or a festival slot.`;
+    } else {
+      el('foodWarning').hidden = true;
+    }
+    if (count && !counted) { recordEvent('quote-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('price').hidden = true;
+    el('foodWarning').hidden = true;
+    for (const id of ['perGuestLine', 'laborOut', 'mileageOut', 'premiumOut', 'foodOut', 'fuelOut', 'commissaryOut', 'equipmentOut', 'permitOut', 'overheadOut', 'totalCostOut', 'profitOut', 'extraGuestOut']) el(id).textContent = '';
+  }
+}
+
+function updateProposed(count = false) {
+  const raw = el('proposedPrice').value;
+  if (raw === '') {
+    el('proposedResult').hidden = true;
+    el('proposedErrors').hidden = true; el('proposedErrors').textContent = '';
+    return;
+  }
+  try {
+    const r = calculateQuote({ ...fieldInputs(), proposedPrice: raw });
+    el('proposedErrors').hidden = true; el('proposedErrors').textContent = '';
+    el('proposedResult').hidden = false;
+    el('proposedProfitOut').textContent = money(r.proposed.profit);
+    el('proposedMarginOut').textContent = `${r.proposed.margin.toFixed(1)}%`;
+    el('proposedBelowOut').textContent = r.proposed.belowBreakEven ? 'Yes — below your breakeven cost' : 'No';
+    if (count && !proposedCounted) { recordEvent('proposed-price-checked'); proposedCounted = true; }
+  } catch (e) {
+    el('proposedErrors').textContent = e.message; el('proposedErrors').hidden = false;
+    el('proposedResult').hidden = true;
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { updateQuote(true); updateProposed(false); }));
+el('proposedPrice').addEventListener('input', () => updateProposed(true));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+// This quote is 18 figures plus whatever price is already on the table.
+// Reading that down the phone to a co-owner or a planner is why it mostly
+// does not happen, so the whole booking goes in the link. It rides in the
+// fragment, which a browser puts in neither a request line nor a Referer
+// header.
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs({ ...fieldInputs(), proposedPrice: el('proposedPrice').value });
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('shareStatus').textContent = 'Link copied. It carries this quote, not a usage count.';
+  } catch {
+    el('shareStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link_copied');
+});
+
+// A link replaces every field, including the ones it did not carry: see
+// share.mjs for why a plain `Object.entries` of the decoded link is not the
+// supported way in. Without `formValues`, a shared quote with no price
+// proposed yet would open on top of whatever this visitor last typed into
+// "Price you're considering", and they would check a stranger's number
+// against this quote's breakeven while believing nothing was proposed.
+const fromLink = decodeInputs(location.hash || location.search);
+if (hasSharedInputs(fromLink)) {
+  for (const [id, value] of Object.entries(formValues(fromLink))) el(id).value = value;
+  el('shareStatus').textContent = 'Opened a shared quote. Check the costs against your own numbers before you use it.';
+}
+
+updateQuote(false);
+updateProposed(false);
+</script>
+</body></html>

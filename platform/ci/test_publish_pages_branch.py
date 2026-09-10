@@ -532,5 +532,303 @@ class RefusesToPublishBackwards(unittest.TestCase):
             )
 
 
+class RefusesToPublishAnUnmergedSource(unittest.TestCase):
+    """The live site must be traceable to a reviewed commit on `main`.
+
+    `publish-branch.sh` publishes whatever HEAD is, and every guard that
+    existed before this one asked *which* main commit was being published --
+    never whether it was a main commit at all. A session sitting on its own
+    feature branch, which is the ordinary state of a session here, therefore
+    shipped unreviewed work to the live catalogue by running the same command
+    the docs give for a routine refresh, and nothing turned red.
+
+    Measured 2026-09-07: `gh-pages` was serving a snapshot whose recorded
+    source commit `077c0998` existed nowhere in the repository -- not on
+    `main`, not on any branch, not as any object. That is what a publish from
+    a branch looks like once the branch is squash-merged (this repo squash-
+    merges, so the original sha is gone) or deleted. Two costs, and the second
+    is the one that hid the first: the live site cannot be traced back to
+    anything reviewable, and the backwards guard *fails open* on it, because
+    `cat-file -e` cannot resolve a commit that no longer exists and the whole
+    `&&` chain short-circuits into the push it exists to stop.
+    """
+
+    def test_the_push_is_gated_on_head_being_on_main(self) -> None:
+        script = (ROOT / "platform" / "pages" / "publish-branch.sh").read_text()
+        self.assertTrue(
+            'merge-base --is-ancestor "$source_sha" "$main_tip"' in script,
+            "the publish must refuse when HEAD is not contained in origin/main",
+        )
+        self.assertTrue(
+            "refusing to publish a commit that is not on origin/main" in script,
+            "the refusal must say what it is refusing, not just exit",
+        )
+        self.assertTrue(
+            "ALLOW_UNMERGED_SOURCE:-" in script,
+            "a deliberate publish of unmerged work must stay possible without "
+            "editing the script",
+        )
+
+    def test_the_gate_is_inside_the_push_branch_only(self) -> None:
+        """Building a branch to look at it must stay unguarded.
+
+        Previewing a change is the normal way to check it, and only the push
+        reaches users -- a guard that also blocked `PUSH` unset would push
+        sessions toward publishing in order to see their own work.
+        """
+        script = (ROOT / "platform" / "pages" / "publish-branch.sh").read_text()
+        push_block = script.split("if [ \"${PUSH:-}\" = '1' ]; then", 1)
+        self.assertEqual(len(push_block), 2, "the PUSH gate's shape has changed")
+        self.assertNotIn(
+            "refusing to publish a commit that is not on origin/main", push_block[0],
+            "the unmerged-source guard must sit inside the PUSH branch, so a "
+            "preview build never trips it",
+        )
+
+    def test_an_unresolvable_published_commit_is_reported_not_swallowed(self) -> None:
+        """The other half: "cannot tell" must not be silent.
+
+        With the gate above in place this repairs itself -- publishing from
+        `main` is the fix for a branch serving an untraceable snapshot, so the
+        script proceeds rather than blocking the repair. What it must not do
+        is proceed *silently*, which is how the original went unnoticed.
+        """
+        script = (ROOT / "platform" / "pages" / "publish-branch.sh").read_text()
+        self.assertTrue(
+            "not a commit in this repository" in script,
+            "an unresolvable $published_from must be reported to the operator",
+        )
+        self.assertTrue(
+            '! git -C "$repo_root" cat-file -e "${published_from}^{commit}"' in script,
+            "the report must be driven by the same resolution the backwards "
+            "guard uses, so the two cannot disagree about what is resolvable",
+        )
+
+    def test_git_really_classifies_a_branch_head_as_not_on_main(self) -> None:
+        """The primitive, against real git rather than a substring.
+
+        Reproduces the measured shape: a commit on a feature branch, then the
+        same work squash-merged to `main` so the branch's own sha is no longer
+        an ancestor of anything on `main` -- which is what makes the published
+        sha untraceable afterwards.
+        """
+        import subprocess
+        import tempfile
+
+        def git(repo, *args, check=True):
+            return subprocess.run(
+                ["git", "-C", str(repo), *args],
+                capture_output=True, text=True, check=check,
+            )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "repo"
+            repo.mkdir()
+            git(repo, "init", "-q")
+            git(repo, "config", "user.email", "t@example.invalid")
+            git(repo, "config", "user.name", "t")
+            (repo / "f").write_text("base")
+            git(repo, "add", "f")
+            git(repo, "commit", "-q", "-m", "base")
+            base = git(repo, "rev-parse", "HEAD").stdout.strip()
+            # `git init` names the first branch from the user's own
+            # `init.defaultBranch`, which is `master` on some machines and
+            # `main` on others -- read it rather than assuming either.
+            default_branch = git(repo, "rev-parse", "--abbrev-ref", "HEAD").stdout.strip()
+
+            git(repo, "checkout", "-q", "-b", "feature")
+            (repo / "f").write_text("feature work")
+            git(repo, "add", "f")
+            git(repo, "commit", "-q", "-m", "feature work")
+            branch_head = git(repo, "rev-parse", "HEAD").stdout.strip()
+
+            # Squash-merge, the way this repository lands every PR: `main`
+            # gains the content under a brand-new sha and the branch's own
+            # commit is not in its ancestry.
+            git(repo, "checkout", "-q", default_branch)
+            git(repo, "merge", "-q", "--squash", "feature")
+            git(repo, "commit", "-q", "-m", "feature work (#1)")
+            main_tip = git(repo, "rev-parse", "HEAD").stdout.strip()
+
+            self.assertNotEqual(branch_head, main_tip)
+            on_main = git(
+                repo, "merge-base", "--is-ancestor", branch_head, main_tip, check=False
+            )
+            self.assertNotEqual(
+                on_main.returncode, 0,
+                "a squash-merged branch head must read as not-on-main -- if it "
+                "did not, the guard would let the measured case through",
+            )
+            merged = git(
+                repo, "merge-base", "--is-ancestor", base, main_tip, check=False
+            )
+            self.assertEqual(
+                merged.returncode, 0,
+                "an ordinary main commit must still publish without tripping "
+                "the guard",
+            )
+
+
+class AnnouncingThePublishedSnapshot(unittest.TestCase):
+    """`publish-branch.sh` announces to IndexNow; the workflow no longer does.
+
+    The announcement used to live only in this workflow's own `Notify IndexNow`
+    step. That step needs an Actions runner, runners have been starved since
+    2026-09-04, and so every publish that actually reached the live site in
+    that window was a by-hand `publish-branch.sh` run -- which had no such
+    step and announced nothing, silently. `platform/marketing/README.md`
+    covered the gap in prose ("Run it after any publish-branch.sh that
+    actually pushes"), which is the mitigation this repository has three times
+    recorded as insufficient.
+
+    It matters on this origin specifically: `pages_state.py`'s `indexing` row
+    measured that sitemap auto-discovery cannot happen from a project-Pages
+    subpath, so IndexNow is the only page-enumeration route the catalogue has.
+
+    These cases pin the three ways that fix could quietly come undone.
+    """
+
+    SHELL = ROOT / "platform" / "pages" / "publish-branch.sh"
+    FUNCTION = "announce_to_indexnow"
+
+    def setUp(self) -> None:
+        self.assertTrue(self.SHELL.is_file(), f"{self.SHELL} is missing")
+        self.source = self.SHELL.read_text()
+
+    def _function_body(self) -> str:
+        """The function's own text, so it can be run without the whole script.
+
+        Extracted rather than sourced because the script is top-to-bottom under
+        `set -euo pipefail` and would try to publish. If the function is
+        renamed this returns nothing and every case below fails by name, which
+        is the intended way for a rename to surface.
+        """
+        start = self.source.find(f"{self.FUNCTION}() {{")
+        self.assertNotEqual(
+            start, -1, f"{self.FUNCTION} is not defined in {self.SHELL.name}"
+        )
+        end = self.source.find("\n}\n", start)
+        self.assertNotEqual(end, -1, f"{self.FUNCTION} has no closing brace")
+        return self.source[start : end + 3]
+
+    def _run_function(self, node_exit: int, env: dict | None = None):
+        """Run the function alone, with a stub `node` that exits how we choose."""
+        import subprocess
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            bin_dir = tmp_path / "bin"
+            bin_dir.mkdir()
+            stub = bin_dir / "node"
+            stub.write_text(f"#!/bin/sh\nexit {node_exit}\n")
+            stub.chmod(0o755)
+
+            harness = (
+                "set -euo pipefail\n"
+                'say() { printf "%s\\n" "$*"; }\n'
+                f'repo_root="{tmp_path}"\n'
+                # The two globals the real script sets before this point.
+                # `BRANCH` in particular is load-bearing: the announcement
+                # passes `--ref "$BRANCH"`, so a non-default serving branch is
+                # announced from its own ref rather than from `gh-pages`.
+                'BRANCH="${BRANCH:-gh-pages}"\n'
+                f"{self._function_body()}\n"
+                # `|| echo` rather than a bare call: under `set -e` a non-zero
+                # return would end the harness, and "did it return 0?" is
+                # precisely what the deploy-must-not-fail case asserts.
+                f"{self.FUNCTION} || echo RETURNED_NONZERO\n"
+            )
+            run_env = {
+                "PATH": f"{bin_dir}:/usr/bin:/bin",
+                **(env or {}),
+            }
+            return subprocess.run(
+                ["bash", "-c", harness],
+                capture_output=True,
+                text=True,
+                env=run_env,
+            )
+
+    def test_the_push_branch_announces_the_snapshot(self) -> None:
+        """The call sits on the pushed path, and only there."""
+        self.assertIn(
+            self.FUNCTION + "\n",
+            self.source,
+            f"{self.SHELL.name} defines {self.FUNCTION} but never calls it",
+        )
+        pushed = self.source.find('say "pushed"')
+        not_pushed = self.source.find("not pushed (set PUSH=1 to push)")
+        self.assertNotEqual(pushed, -1)
+        self.assertNotEqual(not_pushed, -1)
+        call = self.source.find(f"  {self.FUNCTION}\n", pushed)
+        self.assertNotEqual(call, -1, "the announcement is not on the pushed path")
+        self.assertLess(
+            call,
+            not_pushed,
+            "the announcement must sit inside the PUSH=1 branch -- announcing a "
+            "snapshot that was built and verified but never pushed tells the "
+            "engines about content that is not live",
+        )
+
+    def test_the_workflow_does_not_also_submit(self) -> None:
+        """No second copy: both workflow steps go through the script."""
+        doc = load()
+        runs = [str(s.get("run", "")) for s in doc["jobs"]["publish"]["steps"]]
+        submitting = [r for r in runs if "indexnow" in r and "--submit" in r]
+        self.assertEqual(
+            submitting,
+            [],
+            "the workflow invokes indexnow.mjs --submit directly as well as "
+            "through publish-branch.sh, so a real publish would double-submit",
+        )
+
+    def test_a_host_without_egress_does_not_fail_the_publish(self) -> None:
+        """Exit 3 (EXIT_NO_EGRESS) reports; it never fails a live deploy."""
+        result = self._run_function(node_exit=3)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("RETURNED_NONZERO", result.stdout)
+        combined = result.stdout + result.stderr
+        self.assertIn("no egress", combined)
+        self.assertIn(
+            "the site is already published",
+            combined,
+            "a reader must not mistake a missed notification for a failed deploy",
+        )
+
+    def test_a_no_egress_result_is_distinguishable_from_a_real_rejection(self) -> None:
+        """The two failures must not read alike.
+
+        `gitops/tests/test_publish_branch.py` pins the shared "did not go
+        through -- not fatal" wording, and both branches carry it. What must
+        differ is *why*: exit 3 means the request never left the machine (the
+        expected outcome from an agent sandbox), and any other exit means
+        IndexNow saw the request and refused it -- a real defect in the payload
+        or the published key file. Reporting them identically is what teaches a
+        reader to ignore the line.
+        """
+        no_egress = self._run_function(node_exit=3).stdout
+        rejected = self._run_function(node_exit=1).stdout
+        self.assertIn("no egress", no_egress)
+        self.assertNotIn("no egress", rejected)
+
+    def test_any_other_failure_is_reported_and_still_does_not_fail(self) -> None:
+        result = self._run_function(node_exit=1)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("RETURNED_NONZERO", result.stdout)
+        self.assertIn("did not go through", result.stdout + result.stderr)
+
+    def test_a_successful_submission_says_so(self) -> None:
+        result = self._run_function(node_exit=0)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("IndexNow notified", result.stdout)
+
+    def test_it_can_be_switched_off_without_editing_the_script(self) -> None:
+        """INDEXNOW=0, for a rollback you deliberately do not announce."""
+        result = self._run_function(node_exit=0, env={"INDEXNOW": "0"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("skipped (INDEXNOW=0)", result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

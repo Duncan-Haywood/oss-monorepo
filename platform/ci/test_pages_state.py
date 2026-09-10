@@ -498,14 +498,15 @@ if __name__ == "__main__":
 
 
 def pages_run(conclusion="success", sha="e" * 40, branch_name="gh-pages",
-              status="completed", path="dynamic/pages/pages-build-deployment"):
+              status="completed", path="dynamic/pages/pages-build-deployment",
+              run_id=34012041708):
     return {
         "path": path,
         "status": status,
         "conclusion": conclusion,
         "head_branch": branch_name,
         "head_sha": sha,
-        "id": 34012041708,
+        "id": run_id,
         "updated_at": "2026-09-06T04:39:47Z",
     }
 
@@ -528,6 +529,25 @@ class DeploymentVote(unittest.TestCase):
         self.assertEqual(got, "served")
         self.assertIn("gh-pages", why)
         self.assertIn("already granted", why)
+
+    def test_the_reading_is_json_serialisable_on_a_healthy_repository(self):
+        """`--json` died with `Circular reference detected` on every good repo.
+
+        When the newest *completed* build is itself the successful one,
+        `latest` and `last_success` are the same summary object, so attaching
+        one to the other made the dict reference itself. Nothing that reads a
+        field off it noticed -- `verdict_deployment` only ever reads summary
+        keys -- so the only caller that walks the whole structure was the one
+        that broke, and it broke exactly when the site was fine. A repo whose
+        newest build had *failed* serialised correctly, which is the inversion
+        that let it read as "nobody uses --json".
+        """
+        deployment = ps.read_pages_deployment(fake_api(runs=[pages_run()]))
+        self.assertIsNot(deployment["last_success"], deployment)
+        json.dumps(deployment)  # would raise ValueError before the fix
+        # The copy still carries the fields `verdict_deployment` reads.
+        self.assertEqual(deployment["last_success"]["run_id"], deployment["run_id"])
+        self.assertEqual(deployment["last_success"]["conclusion"], "success")
 
     def test_a_failed_build_is_not_served_but_still_names_the_source(self):
         """A failed deploy still proves the branch is the source.
@@ -570,6 +590,104 @@ class DeploymentVote(unittest.TestCase):
             pages_run(sha="a" * 40),
         ]))
         self.assertEqual(deployment["head_sha"], "aaaaaaaa")
+
+    def test_a_superseded_build_is_not_a_failure(self):
+        """`cancelled` is GitHub abandoning a build a newer push overtook.
+
+        The check used to be `conclusion != "success"`, which reported
+        `failed` -- "this snapshot did not deploy" -- about a site that was
+        serving. Of runs 111-125 on this branch five concluded `cancelled` and
+        each was followed by a `success`, so this is the ordinary outcome of
+        two sessions publishing minutes apart, not an edge case.
+        """
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[
+                pages_run(conclusion="cancelled", sha="f" * 40, run_id=124),
+                pages_run(conclusion="success", sha="a" * 40, run_id=123),
+            ])),
+            None,
+        )
+        self.assertEqual(got, "served")
+        # It must name the build that actually deployed, not the abandoned one.
+        self.assertIn("123", why)
+        self.assertIn("aaaaaaaa", why)
+        self.assertNotIn("did not deploy", why)
+
+    def test_the_measured_false_alarm_does_not_recur(self):
+        """A replay of the 03:21 reading on 2026-09-07.
+
+        The real build (run 125) was still in progress, so the reader fell
+        through it onto run 124 -- `cancelled`, superseded 11 seconds earlier
+        -- and the row read `failed`. The same command on the same commit read
+        `served` at 03:22. `publish-branch.sh` prints this report immediately
+        after force-pushing the branch, so that window is not incidental: it
+        is exactly when a publishing session looks.
+        """
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[
+                pages_run(status="in_progress", conclusion=None,
+                          sha="d" * 40, run_id=34079370768),
+                pages_run(conclusion="cancelled",
+                          sha="2" * 40, run_id=34079362071),
+                pages_run(conclusion="success",
+                          sha="3" * 40, run_id=34079332192),
+            ])),
+            None,
+        )
+        self.assertEqual(got, "served")
+        self.assertIn("in flight", why)
+        self.assertIn("34079370768", why)
+
+    def test_a_cancelled_build_with_no_success_behind_it_is_not_served(self):
+        """Superseded is not a failure, but it is not evidence of a deploy.
+
+        Reading it as `served` would be the mirror of the bug being fixed --
+        trading a false alarm for a false all-clear.
+        """
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[
+                pages_run(conclusion="cancelled", sha="f" * 40, run_id=124),
+            ])),
+            None,
+        )
+        self.assertEqual(got, "unknown")
+        self.assertNotIn("already granted", why)
+
+    def test_a_genuine_failure_is_still_failed(self):
+        """The point is to keep this signal believable, not to soften it."""
+        for conclusion in ("failure", "timed_out", "startup_failure"):
+            with self.subTest(conclusion=conclusion):
+                got, why = ps.verdict_deployment(
+                    ps.read_pages_deployment(
+                        fake_api(runs=[pages_run(conclusion=conclusion)])
+                    ),
+                    None,
+                )
+                self.assertEqual(got, "failed")
+                self.assertIn("did not deploy", why)
+
+    def test_an_in_flight_build_is_disclosed_alongside_a_success(self):
+        """Answering about an older commit silently is its own defect."""
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[
+                pages_run(status="in_progress", conclusion=None,
+                          sha="f" * 40, run_id=999),
+                pages_run(conclusion="success", sha="a" * 40, run_id=123),
+            ])),
+            None,
+        )
+        self.assertEqual(got, "served")
+        self.assertIn("in flight", why)
+        self.assertIn("999", why)
+
+    def test_a_first_ever_build_still_running_is_unknown_not_served(self):
+        got, _ = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[
+                pages_run(status="in_progress", conclusion=None, sha="f" * 40),
+            ])),
+            None,
+        )
+        self.assertEqual(got, "unknown")
 
     def test_a_snapshot_pushed_after_the_last_build_is_flagged(self):
         """Served, but not necessarily *this* snapshot -- worth saying."""
@@ -682,3 +800,64 @@ class RequireCurrent(unittest.TestCase):
         )
         with unittest.mock.patch("sys.stdout", new=io.StringIO()):
             self.assertEqual(ps.main([], api=api), 0)
+
+
+class IndexingVerdict(unittest.TestCase):
+    """Can a crawler discover this site's sitemap on its own?
+
+    `robots.txt` is fetched per origin, at the origin root. A project Pages
+    site is served from a subpath, so the file this repository publishes is
+    not the file a crawler reads -- and nothing in the tree said so, which is
+    why this row exists rather than a paragraph somewhere.
+    """
+
+    def test_a_subpath_site_names_the_file_crawlers_actually_read(self):
+        verdict, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertEqual(verdict, "subpath-robots")
+        self.assertIn("https://duncan-haywood.github.io/robots.txt", why)
+        self.assertIn("monorepo-projects/robots.txt", why)
+
+    def test_a_subpath_site_names_both_owner_fixes(self):
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertIn("Search Console", why)
+        self.assertIn("custom domain", why)
+
+    def test_a_subpath_site_says_crawling_is_still_allowed(self):
+        """The row must not read as 'the site is blocked from search'."""
+        _, why = ps.indexing_verdict("https://duncan-haywood.github.io/monorepo-projects/")
+        self.assertIn("Crawling is still allowed", why)
+
+    def test_an_origin_root_site_is_fine_and_says_so(self):
+        for base in ("https://marisstella.dev/", "https://marisstella.dev"):
+            verdict, why = ps.indexing_verdict(base)
+            self.assertEqual(verdict, "root", base)
+            self.assertIn("discoverable", why)
+
+    def test_an_unreadable_base_url_is_unknown_never_root(self):
+        """Absence reads as unknown, never as health -- the house rule."""
+        for base in ("", None):
+            verdict, _ = ps.indexing_verdict(base)
+            self.assertEqual(verdict, "unknown", repr(base))
+
+    def test_the_row_reaches_the_rendered_report(self):
+        state = {
+            "private": True, "has_pages": True,
+            "plan_verdict": "likely-up", "plan_reason": "r",
+            "source": "branch", "source_reason": "r",
+            "deployed": "served", "deployed_reason": "r",
+            "snapshot": "current", "snapshot_reason": "r",
+            "indexing": "subpath-robots", "indexing_reason": "why " * 40,
+            "source_note": "n",
+        }
+        out = ps.render(state)
+        self.assertIn("indexing          subpath-robots", out)
+        # Wrapped rather than one long line: an unwrapped paragraph runs off a
+        # terminal and is skipped by the reader this row exists for.
+        self.assertTrue(all(len(line) <= 100 for line in out.split("\n")), out)
+
+    def test_it_does_not_change_the_exit_code(self):
+        """A subpath robots.txt is an owner action, not a broken route -- and
+        folding it into the exit code would make a green run mean two things,
+        the same reason freshness has its own gate."""
+        for verdict in ("root", "subpath-robots", "unknown"):
+            self.assertEqual(ps.exit_code({"plan_verdict": "likely-up", "indexing": verdict}), 0)

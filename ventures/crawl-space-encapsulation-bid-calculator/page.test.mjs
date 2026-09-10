@@ -72,6 +72,19 @@ test('inputs and result fields for the primary journey are present', () => {
   }
 });
 
+// Closest sibling: same cleaning/restoration subcategory, and the radon tool
+ // prices crawl membrane as part of a depressurization install. Related-tool
+ // chrome rotates inside the subcategory, so without an explicit one-hop a
+ // crawler on this page may never land on that tool.
+test('index links one hop to the radon-mitigation-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/radon-mitigation-bid-calculator\/"/,
+    'index must link ../radon-mitigation-bid-calculator/ so crawlers reach the radon calculator in one hop',
+  );
+  assert.match(html, /radon mitigation bid calculator/i);
+});
+
 test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /<title>[^<]*Crawl Space Encapsulation Bid Calculator/i);
   assert.match(html, /meta name="description"[^>]*crawl space encapsulation/i);
@@ -129,6 +142,7 @@ test('save-and-share is wired to the page', () => {
   assert.match(html, /A bid link carries your own rates/, 'the bid link does not say what it carries');
   assert.match(html, /wage, burden, overhead, and target margin/, 'the link caution does not name the rates it carries');
   assert.match(html, /The customer should get the price, not the link/, 'the link caution does not say who not to send it to');
+  assert.match(html, /never sent to a server/, 'the on-page note does not say the link fragment stays client-side');
   assert.match(html, /Your bid is saved in this browser/, 'the privacy note does not disclose that the bid is stored');
   assert.match(html, /treat one like your rate sheet/, 'the privacy note does not warn what a copied link holds');
 });

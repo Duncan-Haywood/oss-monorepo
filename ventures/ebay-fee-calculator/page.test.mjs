@@ -596,3 +596,18 @@ test('the incumbent-comparison page carries the standard disclaimer and sponsor 
   assert.match(vsSeo, /Best-effort hosting, no SLA/);
   assert.match(vsSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
+
+// where-to-sell-calculator already hands an eBay comparison into this page;
+// without a crawlable link back, a visitor who landed on eBay first has no
+// path to the multi-channel ranking that owns the handoff. Amazon, Reverb,
+// and Shopify already close this loop; eBay was the remaining gap with Etsy.
+test('index links to the where-to-sell calculator', () => {
+  assert.match(page, /href="\.\.\/where-to-sell-calculator\/"/);
+});
+
+// marketplace-fee-compare already deep-links here for fees a headline rate
+// cannot carry; without a crawlable link back, a visitor on eBay never
+// reaches the six-channel triage (same orphan class as #3637).
+test('index links to the marketplace fee comparison', () => {
+  assert.match(page, /href="\.\.\/marketplace-fee-compare\/"/);
+});

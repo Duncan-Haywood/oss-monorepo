@@ -102,6 +102,20 @@ export const REPO_ROOT = path.resolve(HERE, '..', '..');
 // project Pages site for this repository.
 export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
 
+// IndexNow (api.indexnow.org) proves ownership of a set of URLs with a key
+// file hosted at a location the submitter names in each request -- it does
+// not have to sit at the host root the way `robots.txt` does. That matters
+// here: the site is served from a project-Pages *subpath*
+// (`platform/ci/pages_state.py`'s "subpath-robots" finding), so a host-root
+// key file would be as undiscoverable as the sitemap line in `robots.txt`
+// already is. Naming the location explicitly in every submission
+// (`platform/marketing/indexnow.mjs`) sidesteps that rather than repeating
+// it. The value is not a secret -- it only proves this build controls the
+// URLs it submits -- so it is a plain committed constant, generated once
+// with `python3 -c "import secrets; print(secrets.token_hex(16))"`.
+export const INDEXNOW_KEY = '51c80c301d4b5583163e00e6c89b06cf';
+export const indexNowKeyFileName = () => `${INDEXNOW_KEY}.txt`;
+
 // The placeholder origin every venture's sitemap.xml and canonical tags were
 // written against, back when no real origin existed. Rewriting it is what
 // turns already-written SEO into SEO that points at a reachable page.
@@ -274,6 +288,30 @@ const EXCLUDED_FILES = new Set([
   'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
 ]);
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', '__pycache__']);
+// Every dot-directory is skipped unless it is named here, and the allowlist is
+// the whole reason this is a rule rather than four more entries in the set
+// above. That set is a list of names someone had already seen, and it has now
+// aged twice: it learned `__pycache__` after a Python venture shipped, and it
+// still did not know `.ruff_cache` or `.pytest_cache`, which land in a venture
+// directory the moment a session runs that venture's Python suite — which is
+// exactly what CLAUDE.md's own pre-merge checklist instructs.
+//
+// Measured 2026-09-09, and it is not cosmetic: `publish-branch.sh` runs
+// `check.mjs` against the dist and is fail-closed, and `check.mjs` rejects
+// `CACHEDIR.TAG` because nothing tells nginx how to type `.tag`. So running the
+// documented checklist and then publishing was enough to *block the publish of
+// the live catalogue* — during the starvation window in which that manual
+// publish is the only route to the live site. Two ventures were carrying the
+// cache in this session's tree, and two more carry `__pycache__` that only the
+// older entry above catches.
+//
+// A name list cannot win this race: the next tool ships its own cache and the
+// list learns about it from the outage. Skipping dot-directories by shape does
+// not go stale, and it costs nothing today — measured on a full build, not one
+// dot-directory reaches the artifact. `.well-known` is allowlisted because it
+// is the one dot-directory a static site has a real reason to serve (ACME
+// challenges, `security.txt`), so a future need for it is already answered.
+const PUBLISHABLE_DOT_DIRS = new Set(['.well-known']);
 // `foo.test.mjs` is the house convention, but it is a convention rather than a
 // rule, and two ventures did not follow it: `retainage-cashflow-calculator`
 // ships its suite as `test.mjs` and `freelance-retainer-calculator` as
@@ -317,7 +355,17 @@ const CATEGORY_RULES = [
     // marketplaces' fee schedules on one booking, which is this section's exact
     // job. It sat in the catch-all because the slug does not start with a
     // storefront's name.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host)/.test(slug),
+    // `whatnot-seller-payout` is the livestream/auction sibling the retail fee
+    // ranking already deep-links (#3682): commission on the hammer plus
+    // processing on checkout. It sat in "More free tools" because the slug
+    // starts with `whatnot-`, which no marketplace prefix above caught — same
+    // catch-all hole tiktok-shop and kdp already closed.
+    // `poshmark-fee-calculator` is the same single-channel fee-schedule shape
+    // as `reverb` and `whatnot` above — flat/percentage seller commission on
+    // one storefront — and would otherwise sit in the catch-all for the same
+    // reason those two did: the slug names the storefront, not a marketplace
+    // keyword this rule already recognised.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark)/.test(slug),
   },
   {
     id: 'trades',
@@ -391,8 +439,35 @@ const CATEGORY_RULES = [
     // `portable-restroom` above. All five shipped the same day and sat in
     // the catch-all for the same reason as every entry above them: no
     // keyword in this list started with their slug.
+    //
+    // `pour-cost-calculator` prices a menu item for a bar or restaurant
+    // beverage program the same way `notary-trip-quote` prices a visit and
+    // `booth-rent-vs-commission` prices a stall — a small service business
+    // turning its own costs into a customer-facing price, not a trade bid, a
+    // marketplace fee, or a back-office reconciliation.
+    //
+    // `wash-and-fold-price-calculator` joined 2026-09-10: a laundromat or
+    // laundry pickup-and-delivery operator turning labour minutes, machine
+    // cycles, supplies, delivery stops and overhead into a price per pound —
+    // the same "what does this cost me before I quote it" job as `pour-cost`
+    // above, and its delivery half is the per-stop drive-time arithmetic the
+    // route members of this section already share. Listed here by exact
+    // prefix rather than left in the catch-all, which is where every entry
+    // above it started.
+    //
+    // `apparel-decoration-price-calculator` joined 2026-09-10 for the same
+    // reason as `wash-and-fold` directly above: a small shop turning its own
+    // labour, machine and material costs into a number it quotes a customer.
+    // It is not a trade bid (nothing is priced by area or by site visit) and
+    // not a marketplace fee tool. The one section that could also have
+    // claimed it is `solo-earner`, which holds `3d-print-price-calculator` —
+    // the tool this one is cross-linked to and the closest thing to it by
+    // shape. That section groups on the *earner*, a person monetising their
+    // own output, and a four-person shop quoting a corporate order is not
+    // that; the axis here is a business pricing work for a customer, which is
+    // what this is.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration)/.test(
         slug,
       ),
   },
@@ -448,9 +523,256 @@ const CATEGORY_RULES = [
     // and markup — the same after-the-sale reconciliation job as this section's
     // other tools, just for a card processor's bill instead of a landlord's CAM
     // statement or a SaaS seat count.
+    // `duplicate-payment-audit` joined 2026-09-08, in the same commit that
+    // graduated it. It reads an AP payment ledger the business already exports
+    // and flags vendor payments that look paid twice -- the same
+    // after-the-sale reconciliation job as `payment-reconciliation-workbench`
+    // (matching payouts to deposits) and `card-processing-fee-audit`
+    // (splitting a processor's bill), and it cross-links the workbench as a
+    // sibling. Landing it here rather than leaving it in the catch-all is also
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    // `certified-payroll-calculator` joined 2026-09-08, in the same commit
+    // that graduated it (#4064). It checks a paid week's wages against a
+    // wage determination's required base + fringe rate and computes any
+    // shortfall -- the same after-the-fact reconciliation job as
+    // `duplicate-payment-audit` (checking a ledger against what should have
+    // been paid), just for a certified-payroll wage row instead of an AP
+    // invoice. It had been landing in the catch-all, pushing it to 9 tools
+    // and past the bound `build.test.mjs` puts on it (`the catch-all holds
+    // only what no section claims`), because the venture's own graduation
+    // commit added no category rule for it.
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator)/.test(slug),
+  },
+  {
+    id: 'ci',
+    title: 'CI checks & developer gates',
+    accent: '#1a4560',
+    blurb: 'Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning; tell a starved runner from a real failure; catch a coverage drop, classify flaky tests, see which AI crawlers your robots.txt allows, catch a dependency that just gained an install-time script or could be confused with an internal package, find a missing iOS privacy-manifest declaration before App Review does, or catch a page whose JSON-LD no longer matches its own visible text — free, local, no account.',
+    // These four sat in the catch-all together: each is a browser-local (and
+    // matching CLI) checker a maintainer runs against files or API JSON they
+    // already have, not a trade bid, marketplace fee, or compliance evidence
+    // packet. They already deep-link each other as Related, but a visitor
+    // browsing "More free tools" never met the group — and related-tool chrome
+    // mixed them with Sponsor Ready and marketplace payouts. A named section
+    // is how a developer looking for a CI gate finds all four.
+    //
+    // The workflow-YAML checkers joined 2026-09-07, when
+    // `actions-cache-poisoning-check` graduated and pushed the catch-all past
+    // the bound `build.test.mjs` puts on it. All four —
+    // `actions-cache-poisoning`, `actions-injection`, `actions-permissions`
+    // and `pinned-actions` — read a GitHub Actions workflow the visitor
+    // already has and name a specific supply-chain pattern in it. That is the
+    // same shape as `actions-runner-starvation` (which this rule already
+    // claimed only because of its prefix), and they cross-link each other as
+    // Related, so the group was already coherent everywhere except the one
+    // place a stranger browses. Written as one `actions-` prefix plus
+    // `pinned-actions` rather than four alternatives, so the next checker in
+    // the family lands here without another edit.
+    //
+    // `license-drift-check` and `npm-lifecycle-script-check` both joined
+    // 2026-09-07, within hours of each other. `license-drift-check`
+    // graduated in #3808 and landed in the catch-all because the rule above
+    // enumerates families by prefix and its slug starts a new one — it names
+    // what it diffs (licenses) rather than what it reads. It is the same
+    // shape as the rest: a browser-local checker plus a matching CLI, run by
+    // a maintainer against a dependency tree they already have, reporting
+    // which packages' declared license changed since the last snapshot.
+    // `npm-lifecycle-script-check` is a paste-a-snapshot, deterministic-diff
+    // checker for that same dependency tree, just for an install-time script
+    // instead of a declared license. Both belong beside the four workflow
+    // checkers, not below the childcare tuition calculator.
+    //
+    // `vscode-extension-drift-check` joined 2026-09-07: the same
+    // paste-a-snapshot, deterministic-diff shape as its two neighbors above,
+    // just for an installed editor extension's activation surface instead of
+    // an npm dependency's license or install-time script. It cross-links
+    // `npm-lifecycle-script-check` as Related for the same reason those two
+    // already cross-link each other.
+    // `dependency-confusion-check` joined 2026-09-08. It asks whether a public
+    // package could be substituted for an internal one -- the same
+    // supply-chain question `npm-lifecycle-script-check` asks about
+    // install-time scripts, read from a manifest the maintainer already has,
+    // and it cross-links that tool as Related. It had sat in the catch-all
+    // since it graduated only because its slug starts a family the prefix list
+    // did not name, which is the same accident this comment block records for
+    // `license-drift-check` a day earlier.
+    //
+    // `ios-privacy-manifest-check` joined the same day. Same shape again --
+    // a browser-local checker plus a matching CLI, run by a developer against
+    // source and a manifest file they already have, reporting which
+    // declarations are missing or wrong -- just for an iOS app's
+    // PrivacyInfo.xcprivacy instead of an npm/Actions supply-chain artifact.
+    // It cross-links `dependency-confusion-check` as Related. Listed by exact
+    // slug rather than a new prefix, the same way `dependency-confusion-check`
+    // itself is: one tool does not earn a whole family pattern.
+    //
+    // `structured-data-drift-check` joined 2026-09-09. Same shape again -- a
+    // browser-local checker plus a matching CLI, run by a developer against
+    // an HTML page (and its own JSON-LD) they already have, reporting
+    // exactly where a FAQPage/HowTo/Product/etc. claim diverges from the
+    // page's own visible text -- just for structured-data drift instead of
+    // an npm/Actions/iOS supply-chain artifact. It cross-links
+    // `ai-crawler-access-check` as Related (same "can an AI system actually
+    // trust this page" question, different failure mode). Listed by exact
+    // slug rather than a new prefix, the same way `dependency-confusion-check`
+    // and `ios-privacy-manifest-check` are: one tool does not earn a whole
+    // family pattern, and landing it here rather than the catch-all is also
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    //
+    // `env-example-drift-check` joined 2026-09-09. Same shape again -- a
+    // browser-local checker plus a matching CLI, run by a developer against
+    // an `.env.example` file and their own source code, reporting exactly
+    // which environment variables the code reads that the example file is
+    // missing (or declares but no longer reads) -- just for a repo's config
+    // contract instead of an npm/Actions/iOS/structured-data artifact. It
+    // cross-links `structured-data-drift-check` as Related (same "does the
+    // doc still match the code" question, different pair). Listed by exact
+    // slug rather than a new prefix, the same way `structured-data-drift-check`
+    // is: one tool does not earn a whole family pattern.
+    //
+    // `package-exports-drift-check` joined 2026-09-09, the same day. Same
+    // shape again -- a browser-local checker plus a matching CLI, run by a
+    // maintainer against their own `package.json` and a file listing they
+    // already have, reporting exactly which literal target in the `exports`
+    // map points at a file that does not exist -- just for a package's
+    // publish contract instead of an env file, a workflow, an iOS manifest,
+    // or a page's own structured data. It cross-links both
+    // `env-example-drift-check` and `structured-data-drift-check` as
+    // Related (same "does the doc still match the code/build" question,
+    // different pair). Listed by exact slug rather than a new prefix, the
+    // same way its two siblings are: one tool does not earn a whole family
+    // pattern, and landing it here rather than the catch-all is also what
+    // keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    //
+    // `chrome-extension-permission-check` joined 2026-09-09. Same shape
+    // again -- a browser-local checker plus a matching CLI, run by a
+    // developer against their own source and a manifest file they already
+    // have, reporting which declarations are missing or unused in both
+    // directions -- just for a Chrome/Edge extension's manifest.json
+    // permissions instead of an npm/Actions/iOS/structured-data/env/package
+    // artifact. It cross-links `ios-privacy-manifest-check` as Related (same
+    // "cross-check a platform-review-gating manifest against real API usage"
+    // question, different platform). Listed by exact slug rather than a new
+    // prefix, the same way its neighbors above are: one tool does not earn a
+    // whole family pattern, and landing it here rather than the catch-all is
+    // also what keeps that catch-all inside the bound `build.test.mjs` puts
+    // on it.
+    //
+    // `wordpress-plugin-review-check` joined the same day. Same shape again
+    // -- a browser-local checker plus a matching CLI, run by a developer
+    // against their own PHP source and readme.txt they already have,
+    // cross-checking a review-gating field (readme.txt's Stable tag against
+    // the plugin header's Version) in both directions plus two more patterns
+    // (unescaped superglobal output, a $_POST handler with no nonce check) --
+    // just for a WordPress plugin's Plugin Directory submission instead of a
+    // Chrome/iOS/npm/Actions artifact. It cross-links both
+    // `chrome-extension-permission-check` and `ios-privacy-manifest-check` as
+    // Related (same "cross-check a platform-review-gating manifest/header
+    // against real source" question, a third platform). Listed by exact slug
+    // rather than a new prefix, the same way its neighbors above are: one
+    // tool does not earn a whole family pattern, and landing it here rather
+    // than the catch-all is also what keeps that catch-all inside the bound
+    // `build.test.mjs` puts on it.
+    //
+    // `cors-misconfig-check` joined 2026-09-10. Same shape again -- a
+    // zero-dependency CLI plus a matching browser report-viewer, run by a
+    // developer against their own API's response headers -- just for a live
+    // network probe (crafted Origin headers) rather than a static
+    // source/manifest/config file a maintainer already has. It is the first
+    // member here where the browser page cannot run the check itself at
+    // all (Origin is a forbidden request header a page can never set), so
+    // its "browser" half only ever renders a report the CLI produced. It
+    // cross-links `actions-injection-check` and `pinned-actions-check` as
+    // Related (same "read what's actually there, name the exact evidence"
+    // question, a different vulnerability class). Listed by exact slug
+    // rather than a new prefix, the same way its neighbors above are: one
+    // tool does not earn a whole family pattern, and landing it here rather
+    // than the catch-all is also what keeps that catch-all inside the bound
+    // `build.test.mjs` puts on it.
+    //
+    // `merchant-feed-check` joined 2026-09-10. Same shape again -- a
+    // browser-local checker plus a matching CLI, run against a data file the
+    // operator already has, reporting exactly which rows fail the published
+    // specification -- just for a Google Merchant Center / Meta Catalog
+    // product feed instead of a source/manifest/config artifact. The CLI is
+    // positioned the same way as every member above it: wired into a deploy
+    // pipeline as a gate run before the feed syncs, not a one-off web-form
+    // upload. It cross-links `structured-data-drift-check` as Related (the
+    // other representation of a product Google's Shopping features read).
+    // Listed by exact slug rather than a new prefix, the same way its
+    // neighbors above are: one tool does not earn a whole family pattern,
+    // and landing it here rather than the catch-all is also what keeps that
+    // catch-all inside the bound `build.test.mjs` puts on it.
+    test: (slug) =>
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check)/.test(
+        slug,
+      ),
+  },
+  {
+    id: 'solo-earner',
+    title: 'Creator & solo earner income',
+    accent: '#7a3f8c',
+    blurb:
+      'What one person actually earns from their own work — a print, an ad slot, a delivery shift, a repo, a job application. Priced or checked before you commit to a number.',
+    // Added 2026-09-08, because the catch-all guard asked for it: `More free
+    // tools` had reached 10 and `build.test.mjs`'s bound exists to say the
+    // taxonomy has stopped keeping up. Two prior sessions raised that bound
+    // instead (8 -> 9), each correctly noting its own venture was not a
+    // coherent cluster *on its own*. Enumerating the catch-all rather than
+    // judging one arrival at a time shows the cluster was already there:
+    // five of the ten share an axis no existing category has.
+    //
+    // That axis is the *earner*, not the subject. Every other category here
+    // is small-business-facing (a trade, a marketplace seller, a back office)
+    // or developer-facing. These five are one individual working out what
+    // their own labour or audience is worth: a maker pricing a print, a
+    // newsletter operator pricing an ad slot, a maintainer trying to attract
+    // sponsors, a gig driver finding out what a shift actually netted after
+    // costs, a job seeker checking whether a resume survives parsing. Someone
+    // browsing for one of those is plausibly in the market for the others;
+    // nobody browsing "Cleaning, restoration & insulation" is.
+    //
+    // Written as an exact slug list rather than a prefix family, unlike most
+    // rules above. Those work because their members share a naming
+    // convention (`actions-*`, `*-evidence`) that a future sibling will
+    // inherit for free. This group's members are named for five unrelated
+    // domains -- there is no prefix that catches `sponsor-ready` and
+    // `gig-driver-net-pay-calculator` without also catching things that
+    // belong elsewhere (`sponsor` alone would claim any sponsorship tool a
+    // *business* uses). An exact list cannot silently steal a slug from a
+    // section above it, and the cost is that a sixth member needs one line
+    // here -- which the catch-all bound will ask for anyway.
+    //
+    // `affiliate-disclosure-checker` joined 2026-09-09: a blogger or content
+    // creator checking their own published post for a missing or too-late
+    // affiliate disclosure, protecting the same kind of self-earned income
+    // `ats-resume-checker` protects (a job seeker's own resume) rather than
+    // pricing anything -- the axis this section groups on is the earner, not
+    // whether the tool is a calculator or a checker, and `ats-resume-checker`
+    // is already the precedent for a checker-shaped member here.
+    //
+    // `craft-fair-booth-calculator` joined 2026-09-10, and it is the clearest
+    // member yet: a maker deciding whether one market booth is worth their
+    // weekend is the same person as `3d-print-price-calculator`'s maker
+    // pricing a print, asking the same question about the same labour at a
+    // different moment. It is deliberately *not* in `service-pricing`
+    // alongside `photo-booth-event-quote` and the route-margin tools, even
+    // though all of them price an event: that section groups on a business
+    // quoting work for a customer, and a maker has no customer to quote —
+    // they are deciding what their own hours are worth against a booth fee
+    // nobody negotiated with them.
+    test: (slug) =>
+      [
+        '3d-print-price-calculator',
+        'affiliate-disclosure-checker',
+        'ats-resume-checker',
+        'craft-fair-booth-calculator',
+        'gig-driver-net-pay-calculator',
+        'newsletter-sponsorship-rate-calculator',
+        'sponsor-ready',
+      ].includes(slug),
   },
 ];
 
@@ -467,7 +789,7 @@ export function categoryFor(slug) {
 
 /**
  * The share-card image a page in this category points at. One file per
- * category (7 total, named by a stable id) rather than one per tool (164,
+ * category (8 total, named by a stable id) rather than one per tool (164,
  * named by a title that renames): a rebrand or a retitled tool never breaks
  * this filename, and a share into the roofing group and a share into the
  * marketplace-fee thread render as visibly different cards without anyone
@@ -747,16 +1069,35 @@ export const COMPARISON_FILE_PATTERN = /^vs-[a-z0-9][a-z0-9-]*\.html$/i;
  * than one fewer entry, and this is a page about other companies' products.
  * Measured across all 167 pages on 2026-09-05, nothing fell through.
  */
+/**
+ * The plain text of a fragment, with the entity spellings a heading uses folded
+ * to one form: `&rsquo;` and `&#8217;` both become a straight `'`.
+ *
+ * Exported because the containment check that keeps the comparison index honest
+ * — "every product name it prints is text the linked page contains" — has to
+ * normalise *both* sides or it is comparing a decoded subject against raw
+ * markup. It did exactly that until 2026-09-07, and passed only because
+ * `vs-amazon-kdp-royalty-calculator.html` happened to carry the straight-quote
+ * spelling in its FAQ JSON-LD while its `<h1>` used `&rsquo;`. Correcting that
+ * JSON-LD to match the visible copy removed the coincidence and the check went
+ * red on a page that had never misnamed anything.
+ *
+ * A caller that re-spelled this normaliser instead of importing it would be the
+ * fourth instance of the mistake CLAUDE.md records under "168 became 169".
+ */
+export function comparisonText(value) {
+  return value
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&#0?39;|&apos;|&rsquo;|&#8217;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function comparisonSubject(html) {
-  const text = (value) =>
-    value
-      .replace(/<[^>]*>/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&#0?39;|&apos;|&rsquo;|&#8217;/g, "'")
-      .replace(/&quot;/g, '"')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
+  const text = comparisonText;
   const afterVs = (value) => {
     const matches = [...value.matchAll(/\svs\.?\s/gi)];
     if (!matches.length) return null;
@@ -1039,7 +1380,7 @@ const CATEGORY_PAGE_COPY = {
   marketplace: {
     title: 'Free marketplace seller fee calculators',
     description:
-      'Free fee and profit calculators for eBay, Etsy, Amazon, Shopify, Walmart, TikTok Shop, Faire and Reverb. Enter your cost of goods, see what an order nets.',
+      'Free fee and profit calculators for eBay, Etsy, Amazon, KDP, Shopify, Walmart, TikTok Shop, Faire and Reverb. Enter your cost of goods, see what an order nets.',
     intro:
       'Every marketplace publishes a fee schedule and none of them publish what you keep. These calculators put your own cost of goods, shipping and return rate into the arithmetic, so the number you get is the one that lands in your account — not a percentage off the sale price.',
     audience: 'people selling on marketplaces',
@@ -1084,10 +1425,18 @@ const CATEGORY_PAGE_COPY = {
       'A service business quotes work without bidding a construction job, and the arithmetic is its own: travel time nobody bills, a route that has to cover the truck, a licence term that changes what the work is worth. These tools price that, one trade at a time.',
     audience: 'small service businesses',
   },
+  ci: {
+    title: 'Free CI checks and developer gates',
+    description:
+      'Free local tools that read a GitHub Actions job JSON, two coverage XML reports, JUnit XML across runs, or a robots.txt — and report a deterministic verdict. No account, nothing uploaded.',
+    intro:
+      'A red CI check, a coverage cliff, a flaky suite, or an AI crawler you thought you blocked — each is a file or a JSON blob you already have. These tools read that input in your browser (or as a matching zero-dependency CLI) and name the verdict, without an account or an upload.',
+    audience: 'maintainers and developers running CI',
+  },
   more: {
     title: 'More free small-business calculators',
     description:
-      'The rest of the free, browser-only calculators here — everything outside the marketplace, trade, services, logistics, compliance and back-office sections.',
+      'The rest of the free, browser-only calculators here — everything outside the marketplace, trade, services, logistics, compliance, back-office and CI sections.',
     intro:
       'Tools that did not fit the other sections. Same terms as the rest of the site: free, no account, and every calculation runs in your own browser.',
     audience: 'small businesses',
@@ -1875,6 +2224,7 @@ export async function copyTree(from, to, baseUrl) {
 
     if (entry.isDirectory()) {
       if (EXCLUDED_DIRS.has(entry.name)) continue;
+      if (entry.name.startsWith('.') && !PUBLISHABLE_DOT_DIRS.has(entry.name)) continue;
       const nested = await copyTree(src, dest, baseUrl);
       // A directory that held only CLI source leaves an empty shell behind.
       if (nested.length === 0) await fs.rm(dest, { recursive: true, force: true });
@@ -5258,8 +5608,20 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
     .replace(/<\/body>/i, `${footer}\n</body>`);
 }
 
-/** A copy-link button a venture wrote itself, in any of its four spellings. */
-const OWN_COPY_BUTTON = /<button[^>]*\bid="(share|copyShare|copyLink|shareLink)"/;
+/**
+ * A copy-link button a venture wrote itself, in any of its five spellings.
+ *
+ * `copy-link` was added 2026-09-10, found while fixing the same gap in
+ * `roundtrip.mjs` (which had grown eleven recognised spellings to this file's
+ * four): `wash-and-fold-price-calculator`, `sponsor-ready` and
+ * `ai-engineering-academy/tools/rc-filter-calculator` all ship a real button
+ * under this id. None currently sit in the bid-calculator family this gate
+ * guards, so the duplicate-button bug this regex exists to prevent has not
+ * fired yet for them -- but the next venture that reuses this id and *is* a
+ * bid calculator would silently get two share controls, exactly the
+ * `freelance-retainer-calculator` failure documented below.
+ */
+const OWN_COPY_BUTTON = /<button[^>]*\bid="(share|copyShare|copyLink|shareLink|copy-link)"/;
 
 /**
  * Does this page already carry a share control of its own?
@@ -6103,6 +6465,10 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, EMBED_HOST_FILE), renderEmbedHostModule());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
+  // The IndexNow key file. Content is the key itself, per the protocol; see
+  // `INDEXNOW_KEY` above for why this lives at the site root rather than the
+  // host root.
+  await fs.writeFile(path.join(outDir, indexNowKeyFileName()), INDEXNOW_KEY);
 
   // One landing page per category, under the reserved `c/` prefix. Written
   // before the sitemaps because `renderHubSitemap` has to list exactly the

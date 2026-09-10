@@ -76,3 +76,16 @@ test("every .html file in the venture is reachable from the sitemap", () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
   }
 });
+
+// Closest sibling: same vendor-policy-diff job, but it stores pasted captures
+// in the browser and diffs on return (plus a fetch CLI). Related-tool chrome
+// rotates inside the whole evidence category, so without an explicit one-hop
+// a crawler on this page reaches that tool only via /c/evidence/.
+test("index links one hop to the vendor-change-watch sibling", () => {
+  assert.match(
+    page,
+    /href="\.\.\/vendor-change-watch\/"/,
+    "index must link ../vendor-change-watch/ so crawlers reach the watch tool in one hop",
+  );
+  assert.match(page, /vendor change watch/i);
+});

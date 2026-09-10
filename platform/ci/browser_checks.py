@@ -370,6 +370,75 @@ def discover_playwright(env) -> str | None:
     return discover_module(env, os.path.join("playwright", "index.js"))
 
 
+def _build_number(path: str) -> int:
+    match = re.search(r"chromium(?:_headless_shell)?-(\d+)", path)
+    return int(match.group(1)) if match else -1
+
+
+def chrome_candidates(env) -> list[str]:
+    """Every Chromium in the browsers tree, best first. Pure path logic.
+
+    Two shapes live under `PLAYWRIGHT_BROWSERS_PATH`, and both can drive the
+    checks: the full browser (`chromium-*/chrome-linux/chrome`) and the
+    headless shell (`chromium_headless_shell-*/chrome-linux/headless_shell`),
+    which is the binary Playwright itself launches by default for
+    `headless: true` — which is the only mode any check here runs in.
+
+    Full builds are offered first because they are the more capable binary and
+    were the only ones this ever returned. The shell is a fallback rather than
+    an equal: it is the right answer only when the full build will not start.
+    Within each shape the newest build wins, so a stale tree left by an older
+    install does not win on alphabetical order.
+
+    Ordering is all this decides. Which candidate is actually usable is
+    settled by launching it — see `chrome_launches`.
+    """
+    root = env.get("PLAYWRIGHT_BROWSERS_PATH")
+    if not root or not os.path.isdir(root):
+        return []
+
+    def matches(*patterns: str) -> list[str]:
+        found = [
+            path
+            for pattern in patterns
+            for path in glob.glob(os.path.join(root, pattern))
+            if os.access(path, os.X_OK)
+        ]
+        return sorted(set(found), key=_build_number, reverse=True)
+
+    return [
+        *matches("chromium-*/chrome-linux/chrome", "chromium/chrome-linux/chrome"),
+        *matches("chromium_headless_shell-*/chrome-linux/headless_shell"),
+    ]
+
+
+def chrome_launches(env, path: str) -> bool:
+    """Whether Playwright can actually start this binary and open a page.
+
+    A file that exists and is executable is not evidence that it runs. The
+    binaries under a browsers tree are built against the host they shipped
+    for, and a mismatch shows up as a launch that dies on a signal rather
+    than as a missing file — so the only honest test is to launch it.
+    """
+    spec = env.get("PLAYWRIGHT") or "playwright"
+    probe = (
+        "const p = await import(process.argv[1]);"
+        "const chromium = p.chromium ?? p.default?.chromium;"
+        "const b = await chromium.launch({ executablePath: process.argv[2] });"
+        "await (await b.newPage()).setContent('<p>probe</p>');"
+        "await b.close();"
+    )
+    try:
+        proc = subprocess.run(
+            ["node", "--input-type=module", "-e", probe, spec, path],
+            cwd=REPO_ROOT, env=env, timeout=120,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        return False
+    return proc.returncode == 0
+
+
 def discover_chrome(env) -> str | None:
     """A Chromium already on this machine, when `CHROME_PATH` was not given.
 
@@ -385,35 +454,31 @@ def discover_chrome(env) -> str | None:
     All this does is fill it in when the answer is discoverable, so the
     override stays available for the case where it is not.
 
-    Returns None when the caller already chose, or when nothing was found —
-    both mean "change nothing", and a launch failure then reports itself.
+    **It launches each candidate before offering it (changed 2026-09-07), and
+    the reason is that guessing here fails in the shape this repository keeps
+    paying for: a wrong answer that reads as a broken catalogue.** Measured
+    that day, on the image these sessions run on: the full
+    `chromium-1194/chrome-linux/chrome` dies on SIGTRAP the moment Playwright
+    connects to it, while `chromium_headless_shell-1194` — the build the old
+    code documented an exclusion for — starts and renders fine, and so does a
+    bare `chromium.launch()` with no `executablePath` at all. So this filled
+    in the one binary on the box that does not work, and all seven checks came
+    back `FAILED` with a stack trace about a closed target. Nothing in that
+    output says "your browser will not start"; it reads exactly like the
+    catalogue being broken, which is the reading that costs a session its run.
+
+    Returns None when the caller already chose, when nothing was found, or
+    when nothing found will start. All three mean "change nothing" — and the
+    last is not a dead end, because Playwright's own default resolution still
+    gets its turn, which on that same image is a resolution that works.
     """
     if env.get("CHROME_PATH") or env.get("CHROMIUM_PATH"):
         return None  # an explicit choice always wins
 
-    root = env.get("PLAYWRIGHT_BROWSERS_PATH")
-    if not root or not os.path.isdir(root):
-        return None
-
-    # The full browser, never `chromium_headless_shell-*`: the checks drive a
-    # real page, and the shell build is a different binary with a different
-    # name under the same tree.
-    found = [
-        path
-        for pattern in ("chromium-*/chrome-linux/chrome", "chromium/chrome-linux/chrome")
-        for path in glob.glob(os.path.join(root, pattern))
-        if os.access(path, os.X_OK)
-    ]
-    if not found:
-        return None
-
-    def build_number(path: str) -> int:
-        match = re.search(r"chromium-(\d+)", path)
-        return int(match.group(1)) if match else -1
-
-    # Newest build when a machine carries several, so a stale tree left by an
-    # older install does not win on alphabetical order.
-    return max(found, key=build_number)
+    for path in chrome_candidates(env):
+        if chrome_launches(env, path):
+            return path
+    return None
 
 
 def run_check(name: str, base: str, env, timeout: int) -> tuple[int, str]:
@@ -430,6 +495,102 @@ def run_check(name: str, base: str, env, timeout: int) -> tuple[int, str]:
         return 124, f"timed out after {timeout}s"
     tail = "\n".join(proc.stdout.strip().splitlines()[-25:])
     return proc.returncode, tail
+
+
+def _count_html(dist: str | None) -> int | None:
+    """HTML files in the built artifact, for the reading's `pages` field.
+
+    Counted from the tree rather than parsed out of a check's own output:
+    every check words its total differently, and a regex over seven message
+    formats is a maintenance bill for a number that is only ever context.
+    """
+    if not dist or not os.path.isdir(dist):
+        return None
+    total = 0
+    for _root, _dirs, files in os.walk(dist):
+        total += sum(1 for f in files if f.endswith(".html"))
+    return total or None
+
+
+def _built_at() -> str | None:
+    """HEAD right now, captured *before* the build so the reading can name it.
+
+    A whole-site run takes 20-30 minutes, and `browser_state.record` used to
+    fill the reading's commit in from `head_commit()` at the moment it wrote
+    the file -- i.e. at the end. This repository runs up to four concurrent
+    sessions in a fifteen-minute window (`session_gate.py`) and merges into a
+    working tree constantly, so a `git merge` landing mid-run stamped the
+    reading with a commit whose changes no check had ever seen: coverage
+    claimed for pages built after the artifact under test was already on
+    disk. That is the same laundering `browser_state.py`'s refusals exist to
+    prevent, arriving through the one field nobody was looking at.
+    """
+    try:
+        p = subprocess.run(("git", "-C", REPO_ROOT, "rev-parse", "HEAD"),
+                           capture_output=True, text=True)
+    except OSError:
+        return None
+    return p.stdout.strip() or None if p.returncode == 0 else None
+
+
+def _record_reading(names, only, base_url, dist, commit=None) -> None:
+    """Write a passing run to browser_state.json.
+
+    A full run is recorded as `scope: "full"` and is the only kind that can
+    establish coverage for a check.
+
+    A `--only` run is recorded as `scope: "ventures"` with the slugs it
+    named. That is not a relaxation of the FILTERED stamp -- it is what the
+    stamp means, written down. `browser_state.latest_full_for` will not let
+    a scoped reading serve as a base, so it can only ever top a full reading
+    up for the ventures it actually visited, which is the post-merge case
+    that used to cost 25 minutes or get skipped. Whole-site checks are
+    dropped from a scoped reading because `--only` does not scope them:
+    recording `journey` here would claim a narrative this run never ran
+    against the rest of the catalogue.
+
+    A `--base-url` run is still refused outright: it trusted an origin this
+    process did not build and could place no sentinel in, so it cannot
+    honestly be tied to the commit this working tree is on, which is what
+    staleness is computed against.
+    """
+    if base_url:
+        print("not recorded: --base-url trusts an origin this run did not build, "
+              "so the reading\ncannot be tied to this tree's commit.", file=sys.stderr)
+        return
+    try:
+        import browser_state
+    except ImportError:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import browser_state
+    # The reading names the commit the artifact was BUILT from, not HEAD at
+    # the moment of writing -- see `_built_at`. If they differ, the run is
+    # still honest about what it checked; it just does not get credit for
+    # whatever landed underneath it.
+    if commit and commit != browser_state.head_commit():
+        print(f"note: HEAD moved during this run; recording the commit the "
+              f"artifact was built from ({commit[:8]}).", file=sys.stderr)
+
+    if only:
+        scoped = [n for n in names if n not in browser_state.WHOLE_SITE_CHECKS]
+        dropped = [n for n in names if n in browser_state.WHOLE_SITE_CHECKS]
+        if dropped:
+            print(f"not recorded for {', '.join(dropped)}: --only does not scope "
+                  f"a whole-site check.", file=sys.stderr)
+        if not scoped:
+            return
+        reading = browser_state.record(scoped, result="pass", scope="ventures",
+                                       slugs=only, commit=commit)
+        where = os.path.relpath(browser_state.STATE, os.getcwd())
+        print(f"recorded (scoped): {', '.join(reading['checks'])} passing over "
+              f"{', '.join(reading['slugs'])} at {reading['commit'][:8]} → {where}")
+        return
+
+    reading = browser_state.record(names, result="pass", pages=_count_html(dist),
+                                   commit=commit)
+    where = os.path.relpath(browser_state.STATE, os.getcwd())
+    print(f"recorded: {', '.join(reading['checks'])} passing at "
+          f"{reading['commit'][:8]} → {where}")
 
 
 def main(argv=None) -> int:
@@ -452,6 +613,16 @@ def main(argv=None) -> int:
                          "minute instead of 25. `journey` is a whole-site narrative "
                          "and ignores this. A filtered run is stamped FILTERED in "
                          "the summary and never reports as a full one.")
+    ap.add_argument("--record", action="store_true",
+                    help="on an unskipped, passing run, write the reading to "
+                         "platform/ci/browser_state.json so the next session can "
+                         "see when these last ran instead of re-running 30 minutes "
+                         "of checks or skipping them. A full run is recorded as the "
+                         "catalogue reading; an --only run is recorded as a scoped "
+                         "reading over just those ventures, which tops a full "
+                         "reading up but can never stand in for one. Refused for "
+                         "--base-url runs, which trust an origin this process did "
+                         "not build.")
     args = ap.parse_args(argv)
 
     names = [c.strip() for c in args.checks.split(",") if c.strip()]
@@ -500,6 +671,13 @@ def main(argv=None) -> int:
     if chrome:
         env["CHROME_PATH"] = chrome
         print(f"Using the Chromium already here: {chrome}")
+    elif not (env.get("CHROME_PATH") or env.get("CHROMIUM_PATH")) and chrome_candidates(env):
+        # Said out loud, because the alternative is seven identical stack
+        # traces about a closed target and no hint that the browser, rather
+        # than the catalogue, is what did not work.
+        print("Note: a Chromium is present but would not launch, so the checks will use\n"
+              "Playwright's own resolution instead. If they now fail to start at all,\n"
+              "that is the browser and not these pages — set CHROME_PATH to override.")
 
     # Only when `contrast` is actually being run: this is the one search that
     # shells out to npm, and no other check reads AXE.
@@ -515,6 +693,10 @@ def main(argv=None) -> int:
               '  cd "$SCRATCH" && npm install axe-core\n'
               '  AXE="$SCRATCH/node_modules/axe-core/axe.min.js" ...',
               file=sys.stderr)
+
+    # Captured before the build, so a merge landing during the 20-30 minute
+    # run cannot make the reading claim pages no check ever saw.
+    built_at = _built_at()
 
     tmp = None
     httpd = None
@@ -629,8 +811,17 @@ def main(argv=None) -> int:
         if skipped:
             ran = len(results) - len(skipped)
             print(f"\nthe {ran} check(s) that ran passed against {base}{scope}")
+            # Deliberately not recorded. A skip is the outcome this repository
+            # is worst at noticing, and writing it down beside the passes is
+            # how "nothing was verified" becomes "verified" one session later.
+            if args.record:
+                print("not recorded: a run with skips says nothing about the "
+                      "checks that did not run.", file=sys.stderr)
             return 2
         print(f"\nall {len(results)} browser checks passed against {base}{scope}")
+        if args.record:
+            _record_reading(names, only, args.base_url,
+                            dist if not args.base_url else None, commit=built_at)
         return 0
     finally:
         if httpd is not None:

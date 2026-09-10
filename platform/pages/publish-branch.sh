@@ -94,6 +94,10 @@
 #   ALLOW_REGRESSION  set to 1 to publish anyway when the branch already
 #                     carries a snapshot built from a NEWER commit than this
 #                     one -- see "Publishing backwards" below
+#   ALLOW_UNMERGED_SOURCE
+#                     set to 1 to publish a HEAD that is not on `origin/main`
+#                     -- see "Publishing something that is not on `main`"
+#                     below. Building without PUSH=1 never needs this.
 set -euo pipefail
 
 readonly REQUIRED_CONFIRM='publish-pages-branch'
@@ -131,6 +135,96 @@ resolve_cname() {
     return 0
   done
   printf ''
+}
+
+# Tell IndexNow-participating engines that the snapshot just pushed exists.
+#
+# WHY THIS LIVES HERE AND NOT ONLY IN THE WORKFLOW
+#
+# `.github/workflows/publish-pages-branch.yml` has had a `Notify IndexNow` step
+# since the script was written, and `platform/marketing/README.md` closed its
+# IndexNow section with "Run it after any `publish-branch.sh` that actually
+# pushes." Both were correct and neither ran, because that workflow needs an
+# Actions runner and runners have been starved since 2026-09-04 -- so every
+# publish that has actually reached the live site in that window was a by-hand
+# run of *this* script, and every one of them skipped the announcement in
+# silence. The prose reminder was the only thing standing in the gap, which is
+# the failure mode this repository has now recorded three times against
+# `pages_state.py --require-current`, `platform/proposal/` and the front-door
+# mirror: a reminder competes with everything else in a long file, and an
+# executed step does not.
+#
+# It matters more here than the usual "keep two routes in step", because
+# IndexNow is not a nice-to-have on this origin. `pages_state.py`'s `indexing`
+# row measured that `robots.txt` -- and the `Sitemap:` line naming all 882
+# published pages -- is unreachable to a crawler on a project-Pages subpath, so
+# sitemap auto-discovery has never once happened for this catalogue. IndexNow
+# is the one enumeration route that survives that, because it names its key's
+# location in the request instead of assuming the host root. Skipping it left
+# the catalogue with no enumeration route at all.
+#
+# WHY IT NEVER FAILS THE PUBLISH
+#
+# By the time this runs the force-push has already succeeded and the site is
+# live. Failing the script here would report a *successful deploy* as a failure
+# -- and the most likely reason to fail is that the host has no egress to
+# api.indexnow.org, which is true of every agent session sandbox and is not a
+# defect in anything. So this reports and returns 0. What it must not do is
+# report *nothing*: the announcement is loud either way, which is the whole
+# point of moving it out of prose.
+#
+# `INDEXNOW=0` skips it, for a publish you deliberately do not want announced
+# (a rollback, or a snapshot you are about to replace).
+#
+# INTEGRATION NOTE (2026-09-10). #4378 landed the same core idea from another
+# session while this was in review, inline at the call site. Its version is the
+# base here rather than a thing to work around: `--ref "$BRANCH"` is its
+# improvement over what this had (a non-default `BRANCH` would otherwise have
+# been announced from the wrong ref), and its wording is what
+# `gitops/tests/test_publish_branch.py` pins, so the strings below match it
+# exactly. What this adds on top is the part that version could not express --
+# telling "this host cannot reach IndexNow" apart from "IndexNow refused what
+# we sent", which needs the distinct exit code added to `indexnow.mjs` in the
+# same change -- plus an opt-out and a guard for a host with no node.
+announce_to_indexnow() {
+  if [ "${INDEXNOW:-1}" = '0' ]; then
+    say "IndexNow: skipped (INDEXNOW=0)"
+    return 0
+  fi
+  if ! command -v node >/dev/null 2>&1; then
+    say "IndexNow: skipped -- no node on PATH. Announce with:"
+    say "    node platform/marketing/indexnow.mjs --submit --ref $BRANCH"
+    return 0
+  fi
+
+  echo
+  echo "Notifying IndexNow..."
+  local status=0
+  node "$repo_root/platform/marketing/indexnow.mjs" --submit --ref "$BRANCH" || status=$?
+
+  case "$status" in
+    0)
+      say "IndexNow notified"
+      ;;
+    # `EXIT_NO_EGRESS` in indexnow.mjs: the request never reached IndexNow, so
+    # nothing was submitted and nothing was broken. Worth its own branch rather
+    # than folding into the generic failure below: it is the *expected* outcome
+    # from an agent sandbox, and a reader who cannot tell it from a rejected
+    # payload will either chase a defect that is not there or learn to ignore
+    # the line entirely. It covers both shapes of that -- the request rejecting
+    # outright, and an egress proxy answering 403 in IndexNow's place, which is
+    # the one this sandbox actually produces.
+    3)
+      say "IndexNow submission did not go through -- not fatal, the site is already published."
+      say "    This host has no egress to api.indexnow.org, so the request never reached it."
+      say "    Re-run 'node platform/marketing/indexnow.mjs --submit --ref $BRANCH' from a"
+      say "    host with real egress (an Actions runner, or the Hetzner box under host mode)."
+      ;;
+    *)
+      say "IndexNow submission did not go through -- not fatal, the site is already published. Re-run 'node platform/marketing/indexnow.mjs --submit --ref $BRANCH' from a host with real egress to retry."
+      ;;
+  esac
+  return 0
 }
 
 # `actions/checkout` fetches one branch, so inside the publishing workflow the
@@ -246,6 +340,60 @@ say "source commit: $source_sha"
 
 if [ "${PUSH:-}" = '1' ]; then
   echo
+  # Publishing something that is not on `main`.
+  #
+  # The script publishes whatever HEAD happens to be, and every guard below
+  # this point was written about *which* main commit is being published --
+  # never about whether it is a main commit at all. So a session sitting on
+  # its own feature branch, which is the ordinary state of a session here,
+  # ships unreviewed work straight to the live catalogue by running the same
+  # command the docs give for a routine refresh. Nothing turns red.
+  #
+  # Measured 2026-09-07: `gh-pages` was serving a snapshot whose recorded
+  # source commit `077c0998` did not exist anywhere in the repository -- not
+  # on `main`, not on any branch, not as any object. That is what a publish
+  # from a branch looks like afterwards, once the branch is squash-merged
+  # (this repo squash-merges, so the original sha is gone) or deleted: the
+  # live site cannot be traced back to anything reviewable, and the backwards
+  # guard below fails open on it, because `cat-file -e` cannot resolve a
+  # commit that no longer exists and the whole condition short-circuits.
+  #
+  # So: refuse unless HEAD is contained in `origin/main`. A preview build
+  # (`PUSH` unset) is untouched -- building a branch to look at it is the
+  # normal way to check a change, and it is only the push that reaches users.
+  if [ "${ALLOW_UNMERGED_SOURCE:-}" = '1' ]; then
+    say "WARNING: publishing $source_sha without checking it is on origin/main,"
+    say "         because ALLOW_UNMERGED_SOURCE=1."
+  else
+    git -C "$repo_root" fetch --quiet origin main 2>/dev/null || true
+    main_tip="$(git -C "$repo_root" rev-parse --verify --quiet FETCH_HEAD 2>/dev/null \
+      || git -C "$repo_root" rev-parse --verify --quiet origin/main 2>/dev/null || true)"
+    if [ -z "$main_tip" ]; then
+      die "cannot read origin/main, so cannot tell whether $source_sha is reviewed work.
+  Refusing rather than guessing: this push replaces the live site.
+  Fix: restore network access to the remote and re-run, or set
+  ALLOW_UNMERGED_SOURCE=1 if you have another way to know this is right."
+    fi
+    # Shallow checkouts (actions/checkout's default) have no ancestry to walk,
+    # so unshallow first for the same reason the backwards guard below does.
+    if [ "$source_sha" != "$main_tip" ] \
+       && [ "$(git -C "$repo_root" rev-parse --is-shallow-repository 2>/dev/null)" = 'true' ]; then
+      git -C "$repo_root" fetch --quiet --unshallow origin 2>/dev/null || true
+    fi
+    if ! git -C "$repo_root" merge-base --is-ancestor "$source_sha" "$main_tip" 2>/dev/null; then
+      die "refusing to publish a commit that is not on origin/main: $source_sha
+  is not an ancestor of origin/main ($main_tip), so this would put unreviewed
+  work on the live catalogue and leave a snapshot nobody can trace back to a
+  reviewed commit -- which is exactly what a squash-merge or a deleted branch
+  makes of it afterwards.
+  Fix: merge the work first, then publish from an up-to-date checkout --
+    git fetch origin main && git reset --hard origin/main
+    CONFIRM=$REQUIRED_CONFIRM PUSH=1 $0
+  Build without PUSH=1 to preview this branch's site without shipping it.
+  Override with ALLOW_UNMERGED_SOURCE=1 only if you mean to serve unmerged work."
+    fi
+  fi
+
   # Publishing backwards.
   #
   # The force-push below is safe against losing *authored* work -- everything
@@ -285,6 +433,21 @@ if [ "${PUSH:-}" = '1' ]; then
        && [ "$(git -C "$repo_root" rev-parse --is-shallow-repository 2>/dev/null)" = 'true' ]; then
       git -C "$repo_root" fetch --quiet --unshallow origin 2>/dev/null || true
     fi
+    # "Cannot tell" must not read as "safe", but it must not block the repair
+    # either. An unresolvable $published_from means the branch is serving a
+    # snapshot built from a commit this repository does not have -- the
+    # unmerged-source case guarded above, seen from the other side, after the
+    # branch it came from was squash-merged or deleted. Publishing from `main`
+    # (which the guard above has just proved this is) is the fix for that, so
+    # proceed -- but say so, because a silent fall-through is how it went
+    # unnoticed in the first place.
+    if [ -n "$published_from" ] && [ "$published_from" != "$source_sha" ] \
+       && ! git -C "$repo_root" cat-file -e "${published_from}^{commit}" 2>/dev/null; then
+      say "NOTE: '$BRANCH' serves a snapshot built from $published_from, which is"
+      say "      not a commit in this repository -- it was published from a branch"
+      say "      that has since been squash-merged or deleted, so the live site"
+      say "      cannot be traced to a reviewed commit. This push repairs that."
+    fi
     if [ -n "$published_from" ] && [ "$published_from" != "$source_sha" ] \
        && git -C "$repo_root" cat-file -e "${published_from}^{commit}" 2>/dev/null \
        && git -C "$repo_root" merge-base --is-ancestor "$source_sha" "$published_from" 2>/dev/null; then
@@ -311,6 +474,7 @@ if [ "${PUSH:-}" = '1' ]; then
   # backwards case ruled out just above.
   git -C "$repo_root" push --force origin "refs/heads/$BRANCH:refs/heads/$BRANCH"
   say "pushed"
+  announce_to_indexnow
 else
   echo
   say "not pushed (set PUSH=1 to push)"

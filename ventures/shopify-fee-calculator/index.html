@@ -416,10 +416,10 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
-    <p>Selling the same product somewhere else too? <a href="../where-to-sell-calculator/">Compare what one item nets on Shopify, eBay, Etsy, Amazon and a direct sale</a> side by side.</p>
     <p>Already paying for a profit-analytics app? <a href="./vs-beprofit.html">How this calculator differs from BeProfit</a> &mdash; what a connected dashboard reports after the order, and what this page works out before it.</p>
+    <p>Comparing your own store to the marketplaces on one item? The <a href="../marketplace-fee-compare/">marketplace fee comparison</a> ranks Shopify against eBay, Etsy, Amazon, Walmart and TikTok Shop side by side from one set of inputs, then points here for plan-tier fees a headline rate cannot carry.</p>
     <p>Free and open source. If it saved you from an underpriced order, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
-    <p>Selling the same item somewhere else too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks your own store against eBay, Etsy, Amazon and a direct sale on one item.</p>
+    <p>Selling the same item somewhere else too? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks your own store against eBay, Etsy, Amazon and a direct sale on one item — it opens with this order's price, shipping and cost already filled in and your own store switched on, no retyping. It can also hand numbers the other way, into this page.</p>
   </footer>
   <script type="module">
     import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, compareShopPayInstallments, compareShippingLabels, compareOnlineVsPos, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
@@ -430,6 +430,7 @@
       INSTALLMENT_FIELDS as installmentIds, LABEL_FIELDS as labelIds,
       POS_FIELDS as posIds,
     } from "./share.mjs";
+    import { whereToSellUrl } from "./to-where-to-sell.mjs";
 
     const money = (value) => {
       const format = (value) => `$${value.toFixed(2)}`;
@@ -609,6 +610,9 @@
             ? "The in-person path does not recover the card reader from extra leftover on this ticket."
             : "No card-reader cost typed, so there is nothing to recover.")
           : `About ${Math.ceil(pos.ordersToRecoverHardware)} in-person order${Math.ceil(pos.ordersToRecoverHardware) === 1 ? "" : "s"} recover the ${money(pos.posHardwareCost)} reader.`;
+
+        const whereToSellLink = document.getElementById("whereToSellLink");
+        if (whereToSellLink) whereToSellLink.href = whereToSellUrl(readInput());
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -730,6 +734,11 @@
         }
       }
     }
+    document.getElementById("whereToSellLink").addEventListener("click", () => {
+      // Records only that the handoff happened, never the item — this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "handoff_where_to_sell");
+    });
     update();
   </script>
 </body>

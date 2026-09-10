@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reverb Fee Calculator — Offer vs List, Cash vs Consign</title>
-  <meta name="description" content="See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, whether consigning or taking a shop cash offer still beats listing it yourself, and how big a partial refund still beats taking a return.">
+  <meta name="description" content="See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether it is worth taking now versus waiting for a better one, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, whether consigning or taking a shop cash offer still beats listing it yourself, and how big a partial refund still beats taking a return.">
   <meta property="og:title" content="Reverb Fee Calculator">
-  <meta property="og:description" content="Net cash on a Reverb list price, on the offer in your inbox, versus eBay, versus baking shipping into the item price, versus absorbing the label, versus buying Reverb's insured label, versus a shop consignment cut or cash offer, and versus taking a return instead of refunding part of it.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reverb Fee Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reverb fee breakdown, offer versus list cash, Reverb versus eBay compare, offer that matches eBay list cash, shipping included versus buyer-pays, local pickup versus ship, absorb the label versus include shipping, bump versus take the offer, Reverb Safe Shipping versus own label, shop consignment versus self-list, shop cash offer versus Reverb, take the return versus a partial refund, break-even concession that ties a return"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn’t this know Reverb’s current fees?","acceptedAnswer":{"@type":"Answer","text":"On purpose. Every rate here is an input rather than a stored fee schedule, so the result is something you can check line by line against your own Reverb payout statement instead of a claim about what Reverb charges this month. Marketplace rates change, sellers land on different plans, and a stored table that has drifted is worse than no table — it looks authoritative and is quietly wrong. Type what your statement says and the arithmetic is yours."}},{"@type":"Question","name":"Why is the marketplace fee on the item price but the payment fee on the total?","acceptedAnswer":{"@type":"Answer","text":"Because that is the usual shape: the marketplace cut (and Reverb Gives, if you have it on) applies to what the item sold for, while card processing applies to everything the buyer paid, shipping included. It matters more than it sounds. On the worked example — $800 plus $75 shipping — processing is charged on all $875, so shipping you charge is not fee-free revenue. If your own statement folds shipping into the marketplace line instead, raise the marketplace rate or put the difference in the other-cost field."}},{"@type":"Question","name":"Does an $80 discount cost me $80?","acceptedAnswer":{"@type":"Answer","text":"No, and that is the useful part of the offer comparison. Dropping the worked example from $800 to $720 takes profit from $281.60 to $208.15 — $73.45, not $80 — because the marketplace and processing fees fall with the price too. It cuts both ways: a low offer still costs you most of the discount, so the tool shows what is left rather than whether the offer “feels” fair."}},{"@type":"Question","name":"Am I better off on Reverb or eBay?","acceptedAnswer":{"@type":"Answer","text":"On the same sale it depends almost entirely on the fee rates you type. With the worked example’s defaults Reverb’s fees come to $68.40 against eBay’s $116.24 at a 13.25% final value rate, so Reverb keeps about $48 more of the same $875. Put your actual rates in before you trust the direction — the point of the comparison is that a category rate and a promoted-listing rate can flip it."}},{"@type":"Question","name":"Is Reverb Safe Shipping worth the extra label cost?","acceptedAnswer":{"@type":"Answer","text":"That is an expected-value question, not a preference, and the tool answers it that way. The worked example pays $15 more for the protected label against a $450 claim exposure, so the break-even is a 3.33% loss rate: below that, self-insuring wins on average; above it, the protected label does. At the default 2% the expected claim is $9 and own-label comes out $6 ahead. Two honest caveats the arithmetic cannot carry: your real loss rate on vintage or fragile pieces may be well above your average, and expected value says nothing about whether you could absorb one $450 hit this month."}},{"@type":"Question","name":"How should I think about a return?","acceptedAnswer":{"@type":"Answer","text":"As three legs of freight, not one. The piece ships out, comes back, and ships out again on the relist; it is one of one, so what you recover is whatever the relist actually fetches; and the card processor generally keeps its cut even where the selling fee is credited. That last part is the 61% default — the selling fee’s share of total fees on the worked example, which you should overwrite from your own payout statement. Set the relist price to $0 for something that comes back unsellable. None of this is advice to refuse a return, and it does not change what Reverb’s policies or your local law require of you."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. The shareable link carries your numbers in the URL itself rather than sending them to a server, so whoever you send it to sees the same scenario without anything being stored. The optional usage counter records only which features were used and the day, never your prices, costs, or margins."}}]}</script>
+  <meta property="og:description" content="Net cash on a Reverb list price, on the offer in your inbox, versus eBay, versus waiting for a better offer, versus baking shipping into the item price, versus absorbing the label, versus buying Reverb's insured label, versus a shop consignment cut or cash offer, and versus taking a return instead of refunding part of it.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reverb Fee Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reverb fee breakdown, offer versus list cash, Reverb versus eBay compare, offer that matches eBay list cash, copy a counter-offer message naming that crossover price, take the offer now versus wait for a better one, break-even chance of eventually reaching list, shipping included versus buyer-pays, local pickup versus ship, absorb the label versus include shipping, bump versus take the offer, Reverb Safe Shipping versus own label, shop consignment versus self-list, shop cash offer versus Reverb, take the return versus a partial refund, break-even concession that ties a return"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn’t this know Reverb’s current fees?","acceptedAnswer":{"@type":"Answer","text":"On purpose. Every rate here is an input rather than a stored fee schedule, so the result is something you can check line by line against your own Reverb payout statement instead of a claim about what Reverb charges this month. Marketplace rates change, sellers land on different plans, and a stored table that has drifted is worse than no table — it looks authoritative and is quietly wrong. Type what your statement says and the arithmetic is yours."}},{"@type":"Question","name":"Why is the marketplace fee on the item price but the payment fee on the total?","acceptedAnswer":{"@type":"Answer","text":"Because that is the usual shape: the marketplace cut (and Reverb Gives, if you have it on) applies to what the item sold for, while card processing applies to everything the buyer paid, shipping included. It matters more than it sounds. On the worked example — $800 plus $75 shipping — processing is charged on all $875, so shipping you charge is not fee-free revenue. If your own statement folds shipping into the marketplace line instead, raise the marketplace rate or put the difference in the other-cost field."}},{"@type":"Question","name":"Does an $80 discount cost me $80?","acceptedAnswer":{"@type":"Answer","text":"No, and that is the useful part of the offer comparison. Dropping the worked example from $800 to $720 takes profit from $281.60 to $208.15 — $73.45, not $80 — because the marketplace and processing fees fall with the price too. It cuts both ways: a low offer still costs you most of the discount, so the tool shows what is left rather than whether the offer “feels” fair."}},{"@type":"Question","name":"Am I better off on Reverb or eBay?","acceptedAnswer":{"@type":"Answer","text":"On the same sale it depends almost entirely on the fee rates you type. With the worked example’s defaults Reverb’s fees come to $68.40 against eBay’s $116.24 at a 13.25% final value rate, so Reverb keeps about $48 more of the same $875. Put your actual rates in before you trust the direction — the point of the comparison is that a category rate and a promoted-listing rate can flip it."}},{"@type":"Question","name":"Is Reverb Safe Shipping worth the extra label cost?","acceptedAnswer":{"@type":"Answer","text":"That is an expected-value question, not a preference, and the tool answers it that way. The worked example pays $15 more for the protected label against a $450 claim exposure, so the break-even is a 3.33% loss rate: below that, self-insuring wins on average; above it, the protected label does. At the default 2% the expected claim is $9 and own-label comes out $6 ahead. Two honest caveats the arithmetic cannot carry: your real loss rate on vintage or fragile pieces may be well above your average, and expected value says nothing about whether you could absorb one $450 hit this month."}},{"@type":"Question","name":"How should I think about a return?","acceptedAnswer":{"@type":"Answer","text":"As three legs of freight, not one. The piece ships out, comes back, and ships out again on the relist; it is one of one, so what you recover is whatever the relist actually fetches; and the card processor generally keeps its cut even where the selling fee is credited. That last part is the 61% default — the selling fee’s share of total fees on the worked example, which you should overwrite from your own payout statement. Set the relist price to $0 for something that comes back unsellable. None of this is advice to refuse a return, and it does not change what Reverb’s policies or your local law require of you."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. The shareable link carries your numbers in the URL itself rather than sending them to a server, so whoever you send it to sees the same scenario without anything being stored. The optional usage counter records only which features were used and the day, never your prices, costs, or margins."}},{"@type":"Question","name":"Should I take this offer or wait for a better one?","acceptedAnswer":{"@type":"Answer","text":"That depends on a probability this tool cannot know for you: how often gear like yours, at your asking price, actually reaches list. On the worked example — $720 offer, $800 list, and a fallback of $680 if list is not reached — taking the offer now leaves $208.15 for certain. Waiting only pays in expectation once your real chance of reaching list clears 33.33%; below that, the certain $208.15 beats the probability-weighted average of a $281.60 list sale and a $171.43 fallback. Type your own odds and fallback price on the calculator — this is the arithmetic of a bet, not a claim about how often you personally will win it."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -36,7 +36,7 @@
   <header>
     <p>FOR REVERB SELLERS</p>
     <h1>See whether that offer still beats eBay.</h1>
-    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay. Walk the numbers on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>. A bump is cash out of this sale — compare it to taking the offer on <a href="should-i-bump-this-reverb-listing.html">should I bump this Reverb listing</a>. Marketplace fee sits on the item, so baking postage into the list costs extra — compare that to charging shipping, absorbing the label, or offering pickup on <a href="should-i-include-shipping-on-reverb.html">should I include shipping on Reverb</a> and <a href="should-i-eat-the-shipping-on-reverb.html">should I eat the shipping</a>. Reverb Safe Shipping is a more expensive label, not a different checkout — compare it to your own label on <a href="should-i-buy-reverb-safe-shipping.html">should I buy Reverb Safe Shipping</a>. A shop that will consign or buy the guitar today is a different sale — compare that on <a href="should-i-consign-this-reverb-listing.html">should I consign this Reverb listing</a>. And when a buyer opens a case, the freight runs three legs and the piece comes back worth less — see the largest concession that still beats the return on <a href="should-i-take-the-return-or-refund-on-reverb.html">should I take the return or refund part of it</a>. See how this differs from Reverb's own Selling Fees page and Earnings breakdown on <a href="vs-reverbs-selling-fees-page.html">this calculator vs. Reverb's own tools</a>.</p>
+    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay. Walk the numbers on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>, then use "Copy counter-offer message" below to paste a reply naming the crossover price straight into your Reverb inbox. Declining it does not buy a guaranteed sale at list — it buys a chance of one — so price that bet on <a href="should-i-wait-for-a-better-reverb-offer.html">should I wait for a better Reverb offer</a>. A bump is cash out of this sale — compare it to taking the offer on <a href="should-i-bump-this-reverb-listing.html">should I bump this Reverb listing</a>. Marketplace fee sits on the item, so baking postage into the list costs extra — compare that to charging shipping, absorbing the label, or offering pickup on <a href="should-i-include-shipping-on-reverb.html">should I include shipping on Reverb</a> and <a href="should-i-eat-the-shipping-on-reverb.html">should I eat the shipping</a>. Reverb Safe Shipping is a more expensive label, not a different checkout — compare it to your own label on <a href="should-i-buy-reverb-safe-shipping.html">should I buy Reverb Safe Shipping</a>. A shop that will consign or buy the guitar today is a different sale — compare that on <a href="should-i-consign-this-reverb-listing.html">should I consign this Reverb listing</a>. And when a buyer opens a case, the freight runs three legs and the piece comes back worth less — see the largest concession that still beats the return on <a href="should-i-take-the-return-or-refund-on-reverb.html">should I take the return or refund part of it</a>. See how this differs from Reverb's own Selling Fees page and Earnings breakdown on <a href="vs-reverbs-selling-fees-page.html">this calculator vs. Reverb's own tools</a>.</p>
   </header>
   <main class="layout">
     <section>
@@ -44,6 +44,8 @@
       <div class="fields">
         <label>List price <input id="price" type="number" min="0" step="0.01" value="800"></label>
         <label>Buyer offer <input id="offerPrice" type="number" min="0" step="0.01" value="720"></label>
+        <label>Chance you eventually reach list (%) <input id="waitProbListPct" type="number" min="0" max="100" step="0.1" value="30"></label>
+        <label>Expected price if you don't reach list <input id="waitFallbackPrice" type="number" min="0" step="0.01" value="680"></label>
         <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="75"></label>
         <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="65"></label>
         <label>Reverb Safe Shipping label <input id="safeShippingCost" type="number" min="0" step="0.01" value="80"></label>
@@ -86,6 +88,7 @@
       </table>
       <div class="actions">
         <button id="copyLink" type="button">Copy shareable link</button>
+        <button id="copyCounterOffer" type="button">Copy counter-offer message</button>
         <button id="reset" type="button">Reset to defaults</button>
       </div>
       <p id="status" class="note" role="status" aria-live="polite"></p>
@@ -108,6 +111,23 @@
       <tbody id="compareRows"></tbody>
     </table>
     <p class="note">Marketplace and Reverb Gives apply to the item price. Payment processing applies to item plus shipping charged. eBay's final-value fee in this compare applies to item plus shipping, the usual marketplace shape — overwrite it from your own statement.</p>
+  </section>
+  <section class="compare" id="wait-compare">
+    <h2>Take the offer now, or wait for a better one?</h2>
+    <p id="waitVerdict" class="verdict"></p>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Path</th>
+          <th scope="col">Chance</th>
+          <th scope="col">Sale price</th>
+          <th scope="col">Net cash</th>
+          <th scope="col">vs taking it now</th>
+        </tr>
+      </thead>
+      <tbody id="waitRows"></tbody>
+    </table>
+    <p class="note">Declining an offer does not buy a sale at list — it buys a chance of one, and otherwise the realistic alternative is usually another offer near (or below) the one already in hand. Type your own odds of eventually reaching list and what you expect to settle for if you don't; the two rows and the break-even chance above update.</p>
   </section>
   <section class="compare" id="shipping-compare">
     <h2>Buyer-pays, include shipping, absorb the label, or pickup</h2>
@@ -257,18 +277,29 @@
       whoever you send it to sees the same scenario without anything being stored. The optional usage
       counter records only which features were used and the day, never your prices, costs, or
       margins.</p>
+
+    <h3>Should I take this offer or wait for a better one?</h3>
+    <p>That depends on a probability this tool cannot know for you: how often gear like yours, at your
+      asking price, actually reaches list. On the worked example &mdash; $720 offer, $800 list, and a
+      fallback of $680 if list is not reached &mdash; taking the offer now leaves $208.15 for certain.
+      Waiting only pays in expectation once your real chance of reaching list clears 33.33%; below that,
+      the certain $208.15 beats the probability-weighted average of a $281.60 list sale and a $171.43
+      fallback. Type your own odds and fallback price on the calculator &mdash; this is the arithmetic of
+      a bet, not a claim about how often you personally will win it.</p>
   </section>
 
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Comparing Reverb to other channels on the same item? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks Reverb against eBay, Etsy, Amazon and your own store side by side — it opens with this item's price, shipping and cost already filled in and Reverb switched on, no retyping. It can also hand numbers the other way, into this page.</p>
     <p>Free and open source. If it stopped you from taking a $720 offer that left $73 on the table, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, compareShippingPaths, compareSafeShipping, compareConsignment, consignmentNote, compareBump, compareReturnResolution, returnResolutionNote } from './calc.mjs';
+    import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, counterOfferMessage, compareWaitForBetterOffer, waitForBetterOfferNote, compareShippingPaths, compareSafeShipping, compareConsignment, consignmentNote, compareBump, compareReturnResolution, returnResolutionNote } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+    import { whereToSellUrl } from './to-where-to-sell.mjs';
 
     const field = id => document.getElementById(id);
     const money = (value) => {
@@ -334,6 +365,13 @@
       document.getElementById('compareVerdict').textContent = offerBeatsEbayList
         ? `The $${Number(inputs.offerPrice).toFixed(2)} Reverb offer still beats eBay at your $${Number(inputs.price).toFixed(2)} list on these inputs.`
         : `The $${Number(inputs.offerPrice).toFixed(2)} Reverb offer leaves less than eBay at your list. The crossover offer is ${money(match.offerPrice)}.`;
+
+      const wait = compareWaitForBetterOffer(inputs);
+      const waitBest = Math.max(...wait.rows.map(row => row.expectedProfit));
+      document.getElementById('waitRows').innerHTML = wait.rows.map(row =>
+        `<tr class="${row.expectedProfit === waitBest ? 'winner' : ''}"><td>${row.label}</td><td>${(row.probability * 100).toFixed(0)}%</td><td>${money(row.sale.salePrice)}</td><td>${money(row.expectedProfit)}</td><td>${signed(row.vsTakeNow)}</td></tr>`
+      ).join('');
+      document.getElementById('waitVerdict').textContent = waitForBetterOfferNote(wait);
 
       const shipping = compareShippingPaths(inputs);
       const shippingBest = Math.max(...shipping.rows.map(row => row.sale.profit));
@@ -403,10 +441,13 @@
         ? `The return is dearer than the whole order on these inputs, so no concession short of a full refund ties it.`
         : `Break-even concession is ${money(resolution.breakEvenPartialRefund)} — that is ${(resolution.breakEvenPartialRefund / resolution.sold.salePrice * 100).toFixed(1)}% of the ${money(resolution.sold.salePrice)} sale price. Your typed ${money(resolution.partialRefund)} leaves ${signed(resolution.rows[1].vsReturn)} against taking it back.`;
 
+      field('whereToSellLink').href = whereToSellUrl(inputs);
+
       safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
       const optedOut = field('usageOptOut').checked;
       recordUsage(undefined, optedOut, 'reverb_sale_calculated');
       recordUsage(undefined, optedOut, 'reverb_offer_compared');
+      recordUsage(undefined, optedOut, 'reverb_wait_compared');
       recordUsage(undefined, optedOut, 'reverb_shipping_compared');
       recordUsage(undefined, optedOut, 'reverb_safe_shipping_compared');
       recordUsage(undefined, optedOut, 'reverb_consignment_compared');
@@ -425,6 +466,20 @@
         flash('Link updated in the address bar.');
       }
     });
+    field('copyCounterOffer').addEventListener('click', async () => {
+      const message = safe(() => counterOfferMessage(currentInputs()));
+      if (!message) {
+        flash('Fill in a valid offer and list price first.');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(message);
+        flash('Counter-offer message copied.');
+      } catch {
+        flash(message);
+      }
+      recordUsage(undefined, field('usageOptOut').checked, 'reverb_counter_offer_copied');
+    });
     field('reset').addEventListener('click', () => {
       apply(REVERB_DEFAULTS);
       safe(() => localStorage.removeItem(INPUTS_KEY));
@@ -435,10 +490,20 @@
     field('usageOptOut').addEventListener('change', () => {
       safe(() => localStorage.setItem('reverb-fee-usage-opt-out', field('usageOptOut').checked ? '1' : '0'));
     });
+    field('whereToSellLink').addEventListener('click', () => {
+      // Records only that the handoff happened, never the item — this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      recordUsage(undefined, field('usageOptOut').checked, 'handoff_where_to_sell');
+    });
 
+    // A shared link wins over a local draft so the recipient always sees the
+    // sender's numbers. `formValues` -- not a plain object spread -- is what
+    // makes that true: it writes every field, so one the link omitted is
+    // cleared rather than left showing the recipient's own saved draft.
     const fromLink = decodeInputs(location.hash || location.search);
     const saved = safe(() => JSON.parse(localStorage.getItem(INPUTS_KEY) || '{}')) || {};
-    apply({ ...REVERB_DEFAULTS, ...saved, ...fromLink });
+    const hasLink = Object.keys(fromLink).length > 0;
+    apply(hasLink ? formValues(fromLink) : { ...REVERB_DEFAULTS, ...saved });
     field('usageOptOut').checked = safe(() => localStorage.getItem('reverb-fee-usage-opt-out') === '1') || false;
     for (const id of INPUT_FIELDS) field(id).addEventListener('input', paint);
     paint();

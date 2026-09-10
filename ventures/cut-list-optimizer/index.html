@@ -323,6 +323,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     <h3>Is my cut list uploaded anywhere?</h3>
     <p>No. The layout, comparisons, and printable plan are all computed in your browser. An optional saved draft and anonymous local usage counts stay on this device only — both can be turned off and cleared with the checkbox and button below.</p>
     <p>Weighing this against a hosted optimizer? See <a href="vs-opticutter-and-cutlist-optimizer.html">this cut list optimizer vs. optiCutter and CutList Optimizer</a>.</p>
+    <p>Pricing a different kind of print run instead of sheet goods? See the <a href="../3d-print-price-calculator/">3D Print Price Calculator</a>, which prices a print from filament, electricity, and printer wear the same way this tool prices a cutting plan from sheet and board cost.</p>
   </section>
 
   <footer>
@@ -568,7 +569,11 @@ Top: 31.5 x 11.25 x 2</textarea>
         return null;
       }
       const comparison = compareSheetSizes({ panels, kerf, trim, allowRotation, unit, candidates });
-      const money = (value) => value == null ? 'add a price' : `$${value.toFixed(2)}`;
+      const money = (value) => {
+        if (value == null) return 'add a price';
+        const text = `$${Math.abs(value).toFixed(2)}`;
+        return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+      };
       const rows = comparison.rows.map((row) => {
         const pick = row === comparison.winner
           ? '<span class="pick">Buy this size</span>'

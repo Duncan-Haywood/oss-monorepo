@@ -14,6 +14,7 @@ import {
   compareBump,
   compareReturnResolution,
 } from './calc.mjs';
+import { whereToSellUrl } from './to-where-to-sell.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./should-i-take-this-reverb-offer.html', import.meta.url), 'utf8');
@@ -69,6 +70,8 @@ test('the calculator page wires the compare the schema.org featureList names', (
   assert.match(html, /id="bumpRows"/);
   assert.match(html, /compareBump/);
   assert.match(html, /should-i-bump-this-reverb-listing.html/);
+  assert.match(html, /id="copyCounterOffer"/);
+  assert.match(html, /counterOfferMessage/);
 });
 
 test('the SEO page uses the same worked example the calculator defaults produce', () => {
@@ -219,7 +222,7 @@ test('the incumbent-comparison page links back, names Reverb\'s own resources ho
 test('every published page carries Open Graph tags', () => {
   const dir = new URL('./', import.meta.url);
   const pages = readdirSync(dir).filter((name) => name.endsWith('.html'));
-  assert.ok(pages.length >= 9, 'expected at least the 9 known pages in this venture');
+  assert.ok(pages.length >= 10, 'expected at least the 10 known pages in this venture');
   for (const page of pages) {
     const source = readFileSync(new URL(page, dir), 'utf8');
     assert.match(source, /<meta property="og:title" content="[^"]+">/, `${page} is missing og:title`);
@@ -250,5 +253,40 @@ test('every worked-example sub-page carries a robots meta and a matching canonic
     const source = readFileSync(new URL(page, dir), 'utf8');
     assert.match(source, /<meta name="robots" content="index, follow">/, `${page} is missing a robots meta tag`);
     assert.match(source, new RegExp(`<link rel="canonical" href="${page.replace('.', '\\.')}"`), `${page} is missing (or has a mismatched) canonical link`);
+  }
+});
+
+// where-to-sell-calculator already hands a Reverb comparison into this page;
+// without a crawlable link back, a visitor who landed on Reverb first has no
+// path to the multi-channel ranking that owns the handoff.
+test('index links to the where-to-sell calculator', () => {
+  assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
+});
+
+// index.html carries a live, prefilled link into where-to-sell-calculator
+// (built by to-where-to-sell.mjs from whatever the visitor typed) but the
+// eight "should-i-..." worked-example pages are the actual search-landing
+// pages for this venture's untested hypotheses, and none of them offered a
+// way into the cross-channel comparison at all -- a seller who searched
+// "should I take this Reverb offer" and landed there first had no path to
+// the ranking against eBay, Etsy, Amazon, or their own store, only a path
+// back to this same tool's own index. These pages are static, so the link
+// carries the worked example's own numbers (REVERB_DEFAULTS) rather than a
+// live value -- computed here from the same function index.html uses, so a
+// change to the payload shape or the worked example fails this test instead
+// of quietly landing eight dead or stale links.
+test('every worked-example page hands its numbers to the where-to-sell calculator', () => {
+  const dir = new URL('./', import.meta.url);
+  const expectedHref = whereToSellUrl(REVERB_DEFAULTS);
+  const pages = readdirSync(dir).filter(
+    (name) => name.startsWith('should-i-') && name.endsWith('.html'),
+  );
+  assert.ok(pages.length >= 8, 'expected at least the 8 known worked-example pages');
+  for (const page of pages) {
+    const source = readFileSync(new URL(page, dir), 'utf8');
+    assert.ok(
+      source.includes(`href="${expectedHref}"`),
+      `${page} is missing (or has a stale) link into the where-to-sell calculator`,
+    );
   }
 });

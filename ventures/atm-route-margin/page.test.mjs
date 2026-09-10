@@ -51,9 +51,54 @@ test('the page carries the standard sponsor link and a LICENSE link, and counts 
   assert.match(html, /recordEvent\('sponsor_link_clicked'\)/);
 });
 
-test('the privacy line names both stored event types and says nothing is uploaded or saved', () => {
-  assert.match(html, /never uploaded/);
-  assert.match(html, /nothing is saved when you close the tab/);
+test('the privacy line names all four stored event types, says nothing is uploaded, and keeps the location-row promise', () => {
+  assert.match(html, /nothing is ever uploaded/);
+  // Visit inputs, and now targetMonthlyIncome, are saved locally and shared
+  // -- so the page must not claim a page-wide "nothing is saved", only the
+  // narrower promise that survives: the location rows themselves are never
+  // saved.
+  assert.match(html, /they are never saved anywhere/);
+  assert.match(html, /closing or refreshing the tab clears them/);
+  assert.match(html, /<code>link-copied<\/code>, <code>reset<\/code>/);
+});
+
+test('targetMonthlyIncome is documented as saved and shareable, not as part of the never-saved location rows', () => {
+  assert.match(html, /Target monthly income is saved on this device and carried in your shareable link/);
+  assert.match(html, /only the location rows are never saved/);
+});
+
+test('the page ships a save-and-share draft feature for the visit inputs, matching sibling route calculators', () => {
+  assert.match(html, /import \{ encodeInputs, decodeInputs, formValues \} from '\.\/share\.mjs'/);
+  assert.match(html, /id="copyLink"/);
+  assert.match(html, /id="reset"/);
+  assert.match(html, /id="draftStatus"/);
+});
+
+test('the location route table is never included in the shareable link or local draft', () => {
+  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
+  assert.ok(scriptMatch, 'app script not found');
+  const body = scriptMatch[1];
+  assert.match(body, /function visitInputs\(\) \{ return Object\.fromEntries\(VISIT_IDS\.map/);
+  // The only calls into share.mjs and the visit draft key must be built from
+  // `visitInputs()` / `VISIT_IDS`, never from the location-row inputs -- and
+  // `encodeInputs`/the draft key must appear nowhere else in the script.
+  assert.equal([...body.matchAll(/encodeInputs\(/g)].length, 1);
+  assert.match(body, /encodeInputs\(visitInputs\(\)\)/);
+  assert.equal([...body.matchAll(/localStorage\.setItem\(DRAFT_KEY,/g)].length, 1);
+  assert.match(body, /localStorage\.setItem\(DRAFT_KEY, JSON\.stringify\(visitInputs\(\)\)\)/);
+});
+
+test('a shared link wins over a saved draft, applied through formValues rather than a plain spread', () => {
+  // Regression for the shared-link-clears defect (platform/ci/check_shared_link_clears.py):
+  // a plain `{ ...saved, ...fromLink }` merge looks like the link wins and is
+  // not -- a field the sender left blank falls through to the recipient's own
+  // saved draft instead of being cleared. formValues(fromLink) is what
+  // actually clears it.
+  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
+  const body = scriptMatch[1];
+  assert.match(body, /applyVisitInputs\(formValues\(fromLink\)\)/);
+  assert.doesNotMatch(body, /\{\s*\.\.\.saved\s*,\s*\.\.\.fromLink\s*\}/);
+  assert.match(body, /applyVisitInputs\(DEFAULT_VISIT_INPUTS\)/, 'Reset to defaults must restore the page\'s own shipped values');
 });
 
 test('the location result panel announces recalculation to screen readers', () => {
@@ -143,4 +188,29 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     if (name === 'index.html') continue;
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
+});
+
+// Closest machine-route sibling: same unattended placement margin shape for
+// an independent operator, but vending machines rather than ATM placements.
+// Related-tool chrome rotates inside the subcategory, so without an explicit
+// one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the vending-machine-route-margin sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/vending-machine-route-margin\/"/,
+    'index must link ../vending-machine-route-margin/ so crawlers reach the vending machine route margin calculator in one hop',
+  );
+  assert.match(html, /vending machine route margin calculator/i);
+});
+
+// Closest service-route sibling: same route-margin shape for an independent
+// operator, but a service visit rather than a machine placement. Without a
+// crawlable link here, a crawler entering on the ATM route margin calculator
+// never reaches the dog walking route pricing calculator in one hop.
+test('index links one hop to the dog-walking-route-pricing sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/dog-walking-route-pricing\/"/,
+    'index must link ../dog-walking-route-pricing/ so crawlers reach the dog walking route pricing calculator in one hop',
+  );
 });

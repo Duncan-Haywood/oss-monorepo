@@ -122,6 +122,26 @@ jobs:
           PUSH: "1"
         run: ./platform/pages/publish-branch.sh
 
+      # There is deliberately no `Notify IndexNow` step here any more, and its
+      # absence is the fix rather than an omission.
+      #
+      # It used to sit right here, gated on the same variable as the publish
+      # above, and it was the *only* place the announcement happened. That was
+      # fine on paper and wrong in practice: this workflow needs an Actions
+      # runner, runners have been starved since 2026-09-04, and so every
+      # publish that actually reached the live site in that window was a
+      # by-hand `publish-branch.sh` run -- which had no such step, and
+      # announced nothing, silently. `platform/marketing/README.md` covered the
+      # gap with "Run it after any publish-branch.sh that actually pushes", and
+      # a prose reminder is exactly what this repository has three times
+      # recorded as insufficient.
+      #
+      # `publish-branch.sh` now announces the snapshot itself, in
+      # `announce_to_indexnow`, immediately after the push it just made. Both
+      # steps above invoke that script, so this workflow still announces on a
+      # real publish -- through the one definition of "publishing includes
+      # announcing" instead of a second copy that only the runner-borne route
+      # would ever execute. Re-adding a step here would double-submit.
       - name: Say what happened
         if: always()
         env:

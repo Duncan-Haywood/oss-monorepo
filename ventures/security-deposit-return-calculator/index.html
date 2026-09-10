@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Security Deposit Refund &amp; Prorated Rent Calculator — Free, No Sign-Up</title>
+  <meta name="description" content="Free security deposit refund calculator: itemize deductions against a tenant's deposit and see the refund or balance due. Plus a prorated rent calculator for a partial first or last month. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Security Deposit Refund & Prorated Rent Calculator — free, no sign-up">
+  <meta property="og:description" content="Itemize security deposit deductions to see the refund or balance due, and calculate prorated rent for a partial move-in or move-out month. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Security Deposit Refund & Prorated Rent Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a security deposit refund or balance owed from a deposit amount and an itemized list of deductions, and calculates prorated rent for a partial move-in or move-out month from monthly rent, days in the month, and days occupied. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you calculate a security deposit refund?","acceptedAnswer":{"@type":"Answer","text":"Add up every itemized deduction (unpaid rent, cleaning, repairs, or other charges) and subtract the total from the deposit amount. If the deductions are less than the deposit, the difference is the refund due. If deductions exceed the deposit, the difference is a balance owed instead."}},{"@type":"Question","name":"What is prorated rent and how is it calculated?","acceptedAnswer":{"@type":"Answer","text":"Prorated rent covers a partial month, usually the first or last month of a lease. It is calculated as a daily rate (monthly rent divided by the number of days in that month) multiplied by the number of days actually occupied."}},{"@type":"Question","name":"Can a landlord deduct for normal wear and tear?","acceptedAnswer":{"@type":"Answer","text":"Most landlord-tenant frameworks distinguish normal wear and tear (ordinary aging from everyday use, generally not deductible) from actual damage beyond normal use (generally deductible) — but the exact definition, itemization deadline, and any deposit limits vary by state and by the lease itself. Check your local law and lease before finalizing a number."}},{"@type":"Question","name":"Is this legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator only totals the numbers you enter — it does not determine what is legally deductible, does not know your state's rules or deadlines, and is not a substitute for reviewing your lease or consulting a qualified professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button.small { padding: 6px 10px; font-size: .85rem; margin: 4px 0 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .price.owed { color: #9a3412; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .85rem; color: #4c5a68; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    .deduction-row { display: grid; grid-template-columns: 1fr 140px auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SECURITY DEPOSIT &amp; PRORATED RENT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What's the refund, and what's the prorated rent?</h1>
+    <p>Two calculators for the arithmetic every move-in or move-out raises:
+    itemize a security deposit's deductions to see the refund or balance due,
+    and calculate prorated rent for a partial first or last month. Both run
+    entirely in this browser.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>Security deposit refund</h2>
+    <div class="grid">
+      <div>
+        <label for="deposit-amount">Deposit amount ($)</label>
+        <input type="number" id="deposit-amount" min="0" step="0.01" placeholder="e.g. 1500">
+      </div>
+    </div>
+    <h3>Itemized deductions</h3>
+    <div id="deduction-rows"></div>
+    <p><button type="button" class="secondary small" id="add-deduction">+ Add deduction</button></p>
+    <p>
+      <button type="button" id="calculate-deposit">Calculate refund</button>
+      <button type="button" class="secondary" id="load-deposit-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-deposit">Clear</button>
+    </p>
+    <p class="note" id="deposit-status">Enter the deposit amount, add each deduction, and click Calculate refund.</p>
+  </section>
+
+  <section class="card" id="deposit-report" aria-live="polite" hidden>
+    <h2>Deposit settlement</h2>
+    <p class="stats" id="deposit-stats"></p>
+    <table>
+      <thead><tr><th>Line item</th><th>Amount</th></tr></thead>
+      <tbody id="deduction-body"></tbody>
+    </table>
+    <div id="deposit-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prorated rent</h2>
+    <div class="grid">
+      <div>
+        <label for="monthly-rent">Full monthly rent ($)</label>
+        <input type="number" id="monthly-rent" min="0" step="0.01" placeholder="e.g. 1800">
+      </div>
+      <div>
+        <label for="days-in-month">Days in this month</label>
+        <input type="number" id="days-in-month" min="28" max="31" step="1" placeholder="e.g. 30">
+      </div>
+      <div>
+        <label for="days-occupied">Days occupied</label>
+        <input type="number" id="days-occupied" min="0" step="1" placeholder="e.g. 12">
+      </div>
+    </div>
+    <p>
+      <button type="button" id="calculate-proration">Calculate prorated rent</button>
+      <button type="button" class="secondary" id="load-proration-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-proration">Clear</button>
+    </p>
+    <p class="note" id="proration-status">Enter monthly rent, days in the month, and days occupied, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="proration-report" aria-live="polite" hidden>
+    <h2>Prorated rent result</h2>
+    <p class="stats" id="proration-stats"></p>
+    <div id="proration-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>Both calculators total the numbers you enter — a deposit amount and a
+    list of deductions, or a monthly rent and a day count. Neither one knows
+    your state's itemized-statement deadline, deposit limit, interest rules,
+    or what specifically counts as normal wear and tear versus damage in your
+    jurisdiction. Treat the output as the arithmetic behind your own
+    itemization or dispute, not a legal determination.</p>
+    <p>Already using a property-management platform like <a href="vs-turbotenant.html">TurboTenant</a>
+    for listings and rent collection? See <a href="vs-turbotenant.html">how this
+    differs</a> for the one-off arithmetic of settling a single deposit or
+    prorating a single partial month.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do you calculate a security deposit refund?</h3>
+    <p>Add up every itemized deduction (unpaid rent, cleaning, repairs, or other charges) and subtract the total from the deposit amount. If the deductions are less than the deposit, the difference is the refund due. If deductions exceed the deposit, the difference is a balance owed instead.</p>
+    <h3>What is prorated rent and how is it calculated?</h3>
+    <p>Prorated rent covers a partial month, usually the first or last month of a lease. It is calculated as a daily rate (monthly rent divided by the number of days in that month) multiplied by the number of days actually occupied.</p>
+    <h3>Can a landlord deduct for normal wear and tear?</h3>
+    <p>Most landlord-tenant frameworks distinguish normal wear and tear (ordinary aging from everyday use, generally not deductible) from actual damage beyond normal use (generally deductible) — but the exact definition, itemization deadline, and any deposit limits vary by state and by the lease itself. Check your local law and lease before finalizing a number.</p>
+    <h3>Is this legal advice?</h3>
+    <p>No. This calculator only totals the numbers you enter — it does not determine what is legally deductible, does not know your state's rules or deadlines, and is not a substitute for reviewing your lease or consulting a qualified professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking your own lease and local law. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>deposit_calculated</code>, <code>proration_calculated</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeProratedRent, computeDepositSettlement } from "./calculator.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    function money(n) {
+      const format = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function renderFindings(container, findings) {
+      if (findings.length === 0) {
+        container.innerHTML = "";
+        return;
+      }
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    // --- Deposit settlement ---
+
+    const depositEls = {
+      amount: $("#deposit-amount"), rows: $("#deduction-rows"),
+      status: $("#deposit-status"), report: $("#deposit-report"),
+      stats: $("#deposit-stats"), body: $("#deduction-body"), findings: $("#deposit-findings"),
+    };
+
+    function addDeductionRow(description = "", amount = "") {
+      const row = document.createElement("div");
+      row.className = "deduction-row";
+      row.innerHTML = `
+        <input type="text" class="deduction-description" placeholder="e.g. carpet cleaning" value="${description}">
+        <input type="number" class="deduction-amount" min="0" step="0.01" placeholder="Amount" value="${amount}">
+        <button type="button" class="secondary small remove-deduction">Remove</button>`;
+      row.querySelector(".remove-deduction").addEventListener("click", () => row.remove());
+      depositEls.rows.appendChild(row);
+    }
+
+    function readDeductions() {
+      return [...depositEls.rows.querySelectorAll(".deduction-row")].map((row) => ({
+        description: row.querySelector(".deduction-description").value,
+        amount: Number(row.querySelector(".deduction-amount").value),
+      }));
+    }
+
+    function runDepositCalculate() {
+      const depositAmount = Number(depositEls.amount.value);
+      const deductions = readDeductions();
+      const result = computeDepositSettlement({ depositAmount, deductions });
+
+      depositEls.body.innerHTML = result.lineItems
+        .map((d) => `<tr><td>${d.description || "(no description)"}</td><td>${money(d.amount)}</td></tr>`)
+        .join("");
+      const summaryRow = result.balanceOwed > 0
+        ? `<strong>Balance owed: <span class="price owed">${money(result.balanceOwed)}</span></strong>`
+        : `<strong>Refund due: <span class="price">${money(result.refundDue)}</span></strong>`;
+      depositEls.stats.innerHTML = `Total deductions: ${money(result.totalDeductions)} of ${money(Number(depositAmount) || 0)} deposit. ${summaryRow}`;
+      renderFindings(depositEls.findings, result.findings);
+      depositEls.report.hidden = false;
+      depositEls.status.textContent = "";
+      record("deposit_calculated");
+      depositEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#add-deduction").addEventListener("click", () => addDeductionRow());
+
+    $("#calculate-deposit").addEventListener("click", () => {
+      if (!depositEls.amount.value) {
+        depositEls.status.innerHTML = `<span class="error">Enter the deposit amount above first.</span>`;
+        return;
+      }
+      runDepositCalculate();
+    });
+
+    $("#load-deposit-example").addEventListener("click", () => {
+      depositEls.amount.value = "1500";
+      depositEls.rows.innerHTML = "";
+      addDeductionRow("Carpet cleaning, living room", "180");
+      addDeductionRow("Replace broken mini blind", "45");
+      runDepositCalculate();
+      record("example_loaded");
+      depositEls.status.textContent = "Worked example: a $1,500 deposit with two itemized deductions.";
+    });
+
+    $("#clear-deposit").addEventListener("click", () => {
+      depositEls.amount.value = "";
+      depositEls.rows.innerHTML = "";
+      depositEls.report.hidden = true;
+      depositEls.status.textContent = "Enter the deposit amount, add each deduction, and click Calculate refund.";
+    });
+
+    addDeductionRow();
+
+    // --- Prorated rent ---
+
+    const prorationEls = {
+      rent: $("#monthly-rent"), daysInMonth: $("#days-in-month"), daysOccupied: $("#days-occupied"),
+      status: $("#proration-status"), report: $("#proration-report"), stats: $("#proration-stats"),
+      findings: $("#proration-findings"),
+    };
+
+    function runProrationCalculate() {
+      const monthlyRent = Number(prorationEls.rent.value);
+      const daysInMonth = Number(prorationEls.daysInMonth.value);
+      const daysOccupied = Number(prorationEls.daysOccupied.value);
+      const result = computeProratedRent({ monthlyRent, daysInMonth, daysOccupied });
+
+      prorationEls.stats.innerHTML = `Daily rate: ${money(result.dailyRate)}. <strong>Prorated rent due: <span class="price">${money(result.proratedAmount)}</span></strong>`;
+      renderFindings(prorationEls.findings, result.findings);
+      prorationEls.report.hidden = false;
+      prorationEls.status.textContent = "";
+      record("proration_calculated");
+      prorationEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate-proration").addEventListener("click", () => {
+      if (!prorationEls.rent.value || !prorationEls.daysInMonth.value) {
+        prorationEls.status.innerHTML = `<span class="error">Enter the monthly rent and days in the month above first.</span>`;
+        return;
+      }
+      runProrationCalculate();
+    });
+
+    $("#load-proration-example").addEventListener("click", () => {
+      prorationEls.rent.value = "1800";
+      prorationEls.daysInMonth.value = "30";
+      prorationEls.daysOccupied.value = "12";
+      runProrationCalculate();
+      record("example_loaded");
+      prorationEls.status.textContent = "Worked example: $1,800 monthly rent, moving in on day 19 of a 30-day month (12 days occupied).";
+    });
+
+    $("#clear-proration").addEventListener("click", () => {
+      prorationEls.rent.value = "";
+      prorationEls.daysInMonth.value = "";
+      prorationEls.daysOccupied.value = "";
+      prorationEls.report.hidden = true;
+      prorationEls.status.textContent = "Enter monthly rent, days in the month, and days occupied, then click Calculate.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

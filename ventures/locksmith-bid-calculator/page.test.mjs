@@ -44,9 +44,34 @@ test('the page carries the standard sponsor link and a LICENSE link, and counts 
   assert.match(html, /recordEvent\('sponsor_link_clicked'\)/);
 });
 
-test('the privacy line names both stored event types and says nothing is uploaded or saved', () => {
-  assert.match(html, /never uploaded/);
-  assert.match(html, /nothing is saved when you close the tab/);
+test('the privacy line says nothing is uploaded and names what is saved', () => {
+  assert.match(html, /nothing is ever uploaded/);
+  // Call details, terms, and the daily income check are now all saved and
+  // shareable (added with the save-and-share feature), so the page must not
+  // claim any of them is never saved.
+  assert.match(html, /are saved locally on this device/);
+  assert.doesNotMatch(html, /nothing you type is saved anywhere/);
+  assert.doesNotMatch(html, /is never saved/);
+});
+
+test('the page ships a save-and-share draft feature for the call inputs, matching sibling calculators', () => {
+  assert.match(html, /import \{[\s\S]*encodeBid, saveBid, restoreBid, clearBid, withProposalTerms, readProposalTerms, overlongTermsNote,[\s\S]*\} from '\.\/share\.mjs'/);
+  assert.match(html, /id="copyLink"/);
+  assert.match(html, /id="reset"/);
+  assert.match(html, /id="draftStatus"/);
+});
+
+test('the daily income check rides in the same shareable link and local draft as the call details', () => {
+  // A colleague opening a shared link should see the same income-goal math
+  // the sender did, the same way `dog-walking-route-pricing`'s route-level
+  // planning fields ride with its visit fields — found missing there by
+  // `platform/pages/roundtrip.mjs` and fixed the same day this was written.
+  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
+  assert.ok(scriptMatch, 'app script not found');
+  const body = scriptMatch[1];
+  assert.match(body, /const DAILY_IDS = \['profitPerCall', 'callsPerDay', 'targetDailyIncome'\]/);
+  assert.match(body, /const NUMBER_IDS = \[\.\.\.VISIT_IDS\.filter\(id => !FLAG_IDS\.includes\(id\)\), \.\.\.DAILY_IDS\]/);
+  assert.match(body, /DAILY_IDS\.forEach\(id => el\(id\)\.addEventListener\('input', \(\) => \{ updateDaily\(true\); persistDraft\(\); \}\)\)/);
 });
 
 test('the price result panel announces recalculation to screen readers', () => {
@@ -66,6 +91,19 @@ test('an invalid input hides stale results instead of leaving them next to a sil
 
 test('the tool links to the service-call pricing guide page', () => {
   assert.match(html, /href="how-much-should-a-locksmith-charge-for-a-service-call\.html"/);
+});
+
+// Closest windows/doors/garage sibling: same property access job, but an
+// automatic driveway gate rather than a locksmith service call. Related-tool
+// chrome rotates inside the subcategory, so without an explicit one-hop a
+// crawler on this page may never land on that tool.
+test('index links one hop to the automatic-driveway-gate-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/automatic-driveway-gate-bid-calculator\/"/,
+    'index must link ../automatic-driveway-gate-bid-calculator/ so crawlers reach the gate calculator in one hop',
+  );
+  assert.match(html, /automatic driveway gate bid calculator/i);
 });
 
 test('the guide page links back to the calculator and carries the no-warranty clause', () => {

@@ -154,3 +154,16 @@ test('the featureList and FAQ answer describe the share/save feature that now ex
   assert.match(visibleAnswer[1], /saves? to this browser|saved.*next visit/i,
     'the visible privacy answer does not mention the local draft save');
 });
+
+// Closest outdoor sibling: same property-maintenance job, but a lawn care
+// route stop rather than a tree removal. Related-tool chrome rotates inside
+// the landscape subcategory, so without an explicit one-hop a crawler on this
+// page may never land on that tool.
+test('index links one hop to the lawn-care-bid-calculator sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/lawn-care-bid-calculator\/"/,
+    'index must link ../lawn-care-bid-calculator/ so crawlers reach the lawn calculator in one hop',
+  );
+  assert.match(index, /lawn care bid calculator/i);
+});

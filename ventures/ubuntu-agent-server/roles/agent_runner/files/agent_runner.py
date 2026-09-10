@@ -299,9 +299,44 @@ def self_directed_ready(repo: str, cooldown_hours: float) -> bool:
     return datetime.now(timezone.utc) - last >= timedelta(hours=cooldown_hours)
 
 
-def mark_self_directed_run(repo: str) -> None:
+def mark_self_directed_run(repo: str, when: datetime | None = None) -> None:
     STATE_DIR.mkdir(parents=True, exist_ok=True)
-    self_directed_cooldown_path(repo).write_text(datetime.now(timezone.utc).isoformat())
+    stamp = when or datetime.now(timezone.utc)
+    self_directed_cooldown_path(repo).write_text(stamp.isoformat())
+
+
+def github_last_self_directed_created_at(repo: str, log: RunLog) -> datetime | None:
+    """Ask GitHub itself when the most recent self-directed issue was filed.
+
+    The local cooldown file in STATE_DIR is the fast path, but it lives on
+    whatever box happens to run this poll — a reboot that lost /srv/agents
+    (not everyone partitions that as persistent), a redeploy that reset
+    AGENTS_ROOT, or a second box pointed at the same repo all make it read
+    as "no prior run" even though GitHub's issue history says otherwise.
+    Measured in production: with self_directed_cooldown_hours: 24 configured,
+    a repo self-directed on effectively every ~10-minute poll instead — the
+    signature of a box whose local state never survives between runs. GitHub
+    itself cannot lose this the same way, so it is the authoritative check
+    right before actually filing a new issue (not on every poll — that would
+    spend an extra API call for nothing on the common case where the local
+    file already says "not ready").
+    """
+    result = gh(
+        "issue", "list", "--repo", repo,
+        "--label", LABEL_SELF_DIRECTED, "--state", "all", "--limit", "1",
+        "--json", "createdAt",
+        check=False,
+    )
+    if result.returncode != 0:
+        log.write(f"[{repo}] gh issue list (self-directed history check) failed: {result.stderr.strip()}")
+        return None
+    try:
+        rows = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return None
+    if not rows or not rows[0].get("createdAt"):
+        return None
+    return datetime.fromisoformat(rows[0]["createdAt"].replace("Z", "+00:00"))
 
 
 def create_self_directed_issue(
@@ -353,6 +388,18 @@ def maybe_self_direct(cfg: dict, repo: str, trigger_label: str, log: RunLog) -> 
     if not self_directed_ready(repo, cooldown):
         log.write(f"[{repo}] self_directed cooldown not elapsed, skipping")
         return []
+    last_remote = github_last_self_directed_created_at(repo, log)
+    if last_remote is not None:
+        elapsed = datetime.now(timezone.utc) - last_remote
+        if elapsed < timedelta(hours=cooldown):
+            log.write(
+                f"[{repo}] local cooldown state said ready but GitHub's own "
+                f"self-directed issue history says only {elapsed} has passed "
+                "(local state was missing or stale) — skipping and "
+                "resyncing local state to match GitHub"
+            )
+            mark_self_directed_run(repo, when=last_remote)
+            return []
     prompt = cfg.get("self_directed_prompt") or SELF_DIRECTED_PROMPT
     new_issue = create_self_directed_issue(repo, trigger_label, log, prompt)
     if not new_issue:
@@ -428,6 +475,62 @@ def scan_for_secrets(workspace: Path, run_log: RunLog) -> bool:
     )
     run_log.write(f"--- gitleaks ---\n{result.stdout}\n{result.stderr}")
     return result.returncode == 0
+
+
+def sync_branch_to_latest(workspace: Path, base_branch: str, run_log: RunLog) -> bool:
+    """Bring the local `base_branch` ref up to `origin`'s current tip and
+    merge it into the checked-out branch, before `fold_changes_into_staged()`
+    diffs against it.
+
+    The workspace is a fresh clone taken *before* the tool runs, and the
+    tool can run for up to 30 minutes (see `_process_issue_inner`). In a
+    repo that regularly sees several merges to `base_branch` in that window,
+    `fold_changes_into_staged()`'s `git reset --soft base_branch` was
+    resetting against that clone-time tip, not the real one — so any file
+    that changed upstream during the run looked, from this branch's
+    perspective, like it still had its old (now stale) content. Folded into
+    one commit and opened as a PR, that reads as this branch *deleting* or
+    *reverting* whatever changed upstream in the meantime, even though the
+    tool never touched those files. Confirmed against two real cases the
+    same session this was fixed: PRs #4064 and #4078 each accidentally
+    deleted a venture that had merged to `main` minutes into the run.
+
+    Returns True if the branch is now current with `origin/base_branch`
+    (whether or not there was anything new to bring in). Returns False only
+    if merging produced a real conflict — the merge is aborted immediately
+    so the workspace is left clean, and the caller should treat the run as
+    failed rather than fold and push a half-merged tree. A fetch failure
+    (network hiccup) is logged and treated as non-fatal: this falls back to
+    folding against the clone-time tip, which is the pre-existing behavior
+    rather than a new failure mode.
+    """
+    fetch = subprocess.run(
+        ["git", "fetch", "origin", f"{base_branch}:{base_branch}"],
+        cwd=workspace, capture_output=True, text=True,
+    )
+    run_log.write(fetch.stdout)
+    run_log.write(fetch.stderr)
+    if fetch.returncode != 0:
+        run_log.write(
+            f"fetching latest {base_branch} failed; folding against the "
+            f"clone-time tip instead"
+        )
+        return True
+
+    merge = subprocess.run(
+        ["git", "merge", "--no-edit", base_branch],
+        cwd=workspace, capture_output=True, text=True,
+    )
+    run_log.write(merge.stdout)
+    run_log.write(merge.stderr)
+    if merge.returncode != 0:
+        abort = subprocess.run(
+            ["git", "merge", "--abort"], cwd=workspace, capture_output=True, text=True,
+        )
+        run_log.write(abort.stdout)
+        run_log.write(abort.stderr)
+        return False
+    return True
 
 
 def fold_changes_into_staged(workspace: Path, base_branch: str) -> str:
@@ -568,6 +671,27 @@ def _process_issue_inner(
             f"Agent run (`{tool}`) failed (exit {result.returncode}) and made "
             f"no changes it's willing to submit. See server log for the "
             f"transcript. Remove the `{LABEL_FAILED}` label to retry.",
+        )
+        return
+
+    # The clone is up to 30 minutes stale by now (the tool just ran) — bring
+    # base_branch up to origin's real tip before folding, or a file that
+    # changed upstream mid-run reads as this branch reverting it. See
+    # sync_branch_to_latest()'s docstring.
+    if not sync_branch_to_latest(workspace, base_branch, run_log):
+        run_log.write(
+            f"[{repo}#{number}] merging latest {base_branch} produced a "
+            f"conflict; leaving for a human rather than folding a half-merge"
+        )
+        label(repo, number, LABEL_FAILED)
+        unclaim_issue(repo, number)
+        comment(
+            repo, number,
+            f"Agent run (`{tool}`) made changes, but `{base_branch}` moved "
+            f"during the run and merging it back in produced a conflict this "
+            f"runner can't resolve unattended. Nothing was pushed. Retry "
+            f"after `{base_branch}` settles, or resolve by hand and remove "
+            f"the `{LABEL_FAILED}` label.",
         )
         return
 

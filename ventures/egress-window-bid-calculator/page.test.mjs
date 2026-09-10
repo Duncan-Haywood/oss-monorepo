@@ -214,6 +214,7 @@ test('save-and-share is wired to the page', () => {
   assert.match(html, /A bid link carries your own rates/, 'the bid link does not say what it carries');
   assert.match(html, /wage, burden, overhead, and target margin/, 'the link caution does not name the rates it carries');
   assert.match(html, /The customer should get the price, not the link/, 'the link caution does not say who not to send it to');
+  assert.match(html, /never sent to a server/, 'the on-page note does not say the link fragment stays client-side');
   assert.match(html, /Your bid is saved in this browser/, 'the privacy note does not disclose that the bid is stored');
   assert.match(html, /treat one like your rate sheet/, 'the privacy note does not warn what a copied link holds');
 });
@@ -283,4 +284,16 @@ test('every select the visitor can set travels as a validated choice', () => {
       `select #${id} is not in CHOICE_IDS, so a shared link would carry it unvalidated or not at all`,
     );
   }
+});
+
+// Closest sibling: same openings subcategory, but above-grade replacement
+// rather than a basement egress cut. Without a crawlable link here, a crawler
+// entering on the egress calculator never reaches the replacement tool in one
+// hop — same one-way orphan class as #3709 / #3729 / #3743.
+test('index links one hop to the window-replacement-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/window-replacement-bid-calculator\/"/,
+    'index must link ../window-replacement-bid-calculator/ so crawlers reach the replacement calculator in one hop',
+  );
 });

@@ -131,3 +131,16 @@ test('restoring a run’s own hours marks the row edited, so a later material ch
     'a restored run’s hours never mark the row edited, so a later material change can wipe them out');
   assert.match(addRun[1], /row\.dataset\.hoursEdited = '1'/);
 });
+
+// Closest outdoor sibling: same landscape-contractor job on one property, but
+// a deck build rather than a fence run. Related-tool chrome rotates inside the
+// outdoor subcategory, so without an explicit one-hop a crawler on this page
+// may never land on that tool.
+test('index links one hop to the deck-bid-calculator sibling', () => {
+  assert.match(
+    proposalMarkup,
+    /href="\.\.\/deck-bid-calculator\/"/,
+    'index must link ../deck-bid-calculator/ so crawlers reach the deck calculator in one hop',
+  );
+  assert.match(proposalMarkup, /deck bid calculator/i);
+});

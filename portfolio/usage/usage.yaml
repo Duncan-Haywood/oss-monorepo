@@ -4474,6 +4474,21 @@ products:
           Public URL remains owner-gated; the browser counter is local and
           opt-out. Baseline row.
 
+  - slug: kdp-royalty-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+          royalty_compared: 0
+        note: >-
+          Graduated a browser-local KDP exclusive-versus-wide royalty
+          calculator (70/35 ebook, KU page-reads, paperback print cost,
+          Ingram wholesale). GitHub Pages exposes no server-side visitor
+          count, so live_url_visitors stays null; the browser counter is
+          local and opt-out. Baseline row.
+
   - slug: pressure-washing-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -4696,3 +4711,219 @@ products:
           instrumented-but-unreachable product. Counts are local, opt-in, off
           by default, and honor DNT/GPC, so zero is the expected reading for a
           tool nobody has visited or switched the counter on for yet.
+  - slug: coverage-drop-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/coverage-drop-check/`)
+          from its first commit. Counts are local, opt-in, off by default,
+          and honor DNT/GPC, so zero is the expected reading for a tool
+          nobody has visited or switched the counter on for yet.
+  - slug: whatnot-seller-payout
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          free_shipping_compared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/whatnot-seller-payout/`)
+          from its first commit. First-visitor channel is r/whatnot,
+          r/whatnotapp, and the search phrases “whatnot seller fees” /
+          “whatnot fee calculator”. Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for
+          a tool nobody has visited or switched the counter on for yet.
+      - as_of: 2026-09-10
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          free_shipping_compared: 0
+          link_copied: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Still zero, and that is expected on a static host with no
+          server-side analytics (see portfolio/usage/README.md). Shipped a
+          save-and-share slice this session directly against the venture's
+          own kill criteria ("run a real lot twice within 90 days"): this
+          was the one bid calculator in the fleet with calc.mjs but no
+          share.mjs, so a returning seller had to retype the whole lot
+          every visit. It now persists the category preset, rates, and lot
+          to localStorage as typed and offers a shareable link
+          (`share.mjs`, 7 unit tests), matching every sibling calculator.
+          This does not manufacture usage — it removes a real reason a
+          hypothesis-testing return visit would fail even if the seller
+          wanted one.
+  - slug: ai-crawler-access-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          fetch_attempted: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/ai-crawler-access-check/`)
+          from its first commit. First-visitor channel is r/TechSEO, r/SEO,
+          r/webdev, and the search phrases “block GPTBot robots.txt” /
+          “llms.txt checker”. Counts are local, opt-in, off by default, and
+          honor DNT/GPC, so zero is the expected reading for a tool nobody
+          has visited or switched the counter on for yet.
+  - slug: ada-title-ii-evidence
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          report_generated: 0
+          deadline_looked_up: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/ada-title-ii-evidence/`)
+          from its first commit: a deadline lookup and WCAG 2.1 AA evidence
+          report for government/special-district webmasters ahead of ADA
+          Title II's April 2027/2028 dates. Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for a
+          tool nobody has visited or switched the counter on for yet.
+  - slug: license-drift-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/license-drift-check/`) from
+          its first commit: diffs two point-in-time snapshots of a dependency
+          tree's declared licenses and flags exactly which packages' license
+          changed, the gap Dependabot and Renovate leave open. First-visitor
+          channel is developers who lived through one of the four dated
+          relicensing events named in the README (MongoDB 2018, Elasticsearch
+          2021, Terraform 2023, Redis 2024) and the search phrases "detect
+          license change dependency" / "license drift npm" / "renovate
+          license change detection". Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for a
+          tool nobody has visited or switched the counter on for yet.
+  - slug: dependency-confusion-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/dependency-confusion-check/`) from its first commit: flags
+          pip `--extra-index-url` usage and unscoped npm dependency names
+          behind a private registry, the two configuration shapes behind the
+          2021 dependency-confusion incidents (Alex Birsan's research against
+          Apple, Microsoft, PayPal, Netflix, Uber, and Tesla). First-visitor
+          channel is developers who remember that research or a fresh writeup
+          of it, and the search phrases "dependency confusion check" /
+          "pip extra-index-url risk" / "npm unscoped package private
+          registry". Counts are local, opt-in, off by default, and honor
+          DNT/GPC, so zero is the expected reading for a tool nobody has
+          visited or switched the counter on for yet.
+  - slug: poshmark-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-07
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          offer_compared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/poshmark-fee-calculator/`) from its first commit.
+          First-visitor channel is r/poshmark and r/Reseller, and the
+          search phrases "poshmark fee calculator" / "poshmark seller
+          fees" / "poshmark break even price". Counts are local, opt-in,
+          off by default, and honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on
+          for yet.
+  - slug: package-exports-drift-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-09
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/package-exports-drift-check/`) from its first commit.
+          First-visitor channel is Node/TypeScript library maintainers
+          searching ERR_PACKAGE_PATH_NOT_EXPORTED / "exports field not
+          found" / "Cannot find module" after a broken publish, plus
+          r/node and r/typescript. Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for
+          a tool nobody has visited or switched the counter on for yet.
+  - slug: chrome-extension-permission-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-09
+        signals:
+          live_url_visitors: null
+          scan_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/chrome-extension-permission-check/`) from its first
+          commit: cross-checks manifest.json permissions against detected
+          chrome.* API usage in both directions, plus broad
+          host_permissions patterns. First-visitor channel is developers
+          hitting a Chrome Web Store "unused permission" / "Purple
+          Potassium" rejection and searching that exact terminology, plus
+          r/chrome_extensions and r/webdev. Counts are local, opt-in, off
+          by default, and honor DNT/GPC, so zero is the expected reading
+          for a tool nobody has visited or switched the counter on for
+          yet.
+  - slug: wordpress-plugin-review-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-09
+        signals:
+          live_url_visitors: null
+          scan_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/wordpress-plugin-review-check/`) from its first
+          commit: cross-checks a readme.txt Stable tag against the
+          plugin header's Version, required readme/header fields,
+          unescaped superglobal output, and $_POST handling with no
+          nonce check. First-visitor channel is WordPress plugin
+          developers hitting a Stable tag mismatch review note or
+          searching "readme.txt stable tag mismatch" / "wordpress
+          plugin nonce verification missing", plus r/WordPress,
+          r/ProWordPress, and the wordpress.org support forums. Counts
+          are local, opt-in, off by default, and honor DNT/GPC, so zero
+          is the expected reading for a tool nobody has visited or
+          switched the counter on for yet.

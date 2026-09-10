@@ -7,6 +7,7 @@ import {
   compareOfferToList,
   compareReverbToEbay,
   offerThatMatchesEbayList,
+  counterOfferMessage,
   compareShippingPaths,
   compareSafeShipping,
   compareConsignment,
@@ -16,6 +17,8 @@ import {
   ILLUSTRATED_BUMP_DEFAULT,
   compareReturnResolution,
   returnResolutionNote,
+  compareWaitForBetterOffer,
+  waitForBetterOfferNote,
 } from './calc.mjs';
 
 test('Reverb at the default list price keeps the published worked example', () => {
@@ -79,6 +82,21 @@ test('the crossover offer matches eBay list cash on Reverb', () => {
   assert.ok(Math.abs(atOffer.profit - match.ebayListProfit) < 1e-9);
   assert.ok(match.offerPrice > 720);
   assert.ok(match.offerPrice < 800);
+});
+
+test('counterOfferMessage asks for the crossover, rounded up to a whole dollar, when the offer falls short', () => {
+  const message = counterOfferMessage(REVERB_DEFAULTS);
+  const match = offerThatMatchesEbayList(REVERB_DEFAULTS);
+  assert.ok(Math.ceil(match.offerPrice) > 720, 'the worked example should need a counter, not an acceptance');
+  assert.match(message, /\$720\.00/);
+  assert.match(message, new RegExp(`\\$${Math.ceil(match.offerPrice)}\\b`));
+  assert.doesNotMatch(message, /glad to accept/);
+});
+
+test('counterOfferMessage reads as an acceptance once the offer already clears the crossover', () => {
+  const message = counterOfferMessage({ ...REVERB_DEFAULTS, offerPrice: 760 });
+  assert.match(message, /\$760\.00/);
+  assert.match(message, /glad to accept/);
 });
 
 test('rejects negative or non-numeric prices', () => {
@@ -427,4 +445,75 @@ test('returnResolutionNote counts two legs of freight when nothing goes back out
   assert.doesNotMatch(note, /three legs/);
   assert.match(note, /comes back unsellable/);
   assert.match(note, /Even refunding the whole \$875\.00 order/);
+});
+
+// Every comparison above treats "wait for list" as a sure thing. It is not:
+// declining an offer buys a chance of list, not list itself, and the
+// realistic alternative if that chance doesn't land is usually another
+// offer near (or below) the one already in hand.
+test('on the worked example, taking the $720 offer beats a 30% chance of list against a $680 fallback', () => {
+  const comparison = compareWaitForBetterOffer(REVERB_DEFAULTS);
+  assert.equal(Number(comparison.takeOfferNow.profit.toFixed(3)), 208.149);
+  assert.equal(Number(comparison.eventualList.profit.toFixed(3)), 281.597);
+  assert.equal(Number(comparison.eventualFallback.profit.toFixed(3)), 171.426);
+  assert.equal(Number(comparison.expectedWaitProfit.toFixed(4)), 204.4771);
+  assert.equal(Number(comparison.vsWaiting.toFixed(2)), 3.67);
+  assert.equal(comparison.waitingWins, false);
+  assert.equal(comparison.winner, 'takeNow');
+  assert.equal(Number(comparison.breakEvenProbPct.toFixed(2)), 33.33);
+});
+
+test('waiting wins once the typed probability clears the break-even chance', () => {
+  const base = compareWaitForBetterOffer(REVERB_DEFAULTS);
+  const above = compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitProbListPct: base.breakEvenProbPct + 5 });
+  const below = compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitProbListPct: base.breakEvenProbPct - 5 });
+  assert.equal(above.waitingWins, true);
+  assert.equal(above.winner, 'wait');
+  assert.equal(below.waitingWins, false);
+  assert.equal(below.winner, 'takeNow');
+});
+
+test('the fallback price defaults to the offer price when not typed', () => {
+  const comparison = compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitFallbackPrice: undefined });
+  assert.equal(comparison.fallbackPrice, REVERB_DEFAULTS.offerPrice);
+  assert.equal(comparison.eventualFallback.profit, comparison.takeOfferNow.profit);
+});
+
+test('breakEvenProbPct is null when list and the fallback pay the same, since no probability can move the answer', () => {
+  const comparison = compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitFallbackPrice: REVERB_DEFAULTS.price });
+  assert.equal(comparison.breakEvenProbPct, null);
+});
+
+test('rejects a chance of reaching list above 100%', () => {
+  assert.throws(() => compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitProbListPct: 101 }), /at most 100/);
+});
+
+test('waitForBetterOfferNote states which side wins, the crossover chance, and gives no advice', () => {
+  const note = waitForBetterOfferNote(compareWaitForBetterOffer(REVERB_DEFAULTS));
+  assert.match(note, /30\.00% chance/);
+  assert.match(note, /\$680\.00/);
+  assert.match(note, /\$720\.00 offer now still leaves \$3\.67 more/);
+  assert.match(note, /break-even chance of eventually reaching list is 33\.33%/);
+  assert.doesNotMatch(note, /you should|we recommend/i);
+});
+
+test('waitForBetterOfferNote flips its lead sentence when waiting wins', () => {
+  const comparison = compareWaitForBetterOffer({ ...REVERB_DEFAULTS, waitProbListPct: 90 });
+  const note = waitForBetterOfferNote(comparison);
+  assert.match(note, /waiting leaves \$[\d.]+ more in expectation than taking the \$720\.00 offer now/);
+});
+
+test('waitForBetterOfferNote names an always-wins edge without a false crossover', () => {
+  // A fallback above list-price profit makes waiting win regardless of the
+  // odds of reaching list — even a 0% chance still beats the offer, since
+  // the guaranteed fallback alone already does.
+  const comparison = compareWaitForBetterOffer({
+    ...REVERB_DEFAULTS,
+    waitProbListPct: 0,
+    waitFallbackPrice: REVERB_DEFAULTS.price,
+    price: 900,
+  });
+  assert.ok(comparison.breakEvenProbPct <= 0 || comparison.breakEvenProbPct === null);
+  const note = waitForBetterOfferNote(comparison);
+  assert.match(note, /Even a 0% chance of reaching list still beats the offer/);
 });

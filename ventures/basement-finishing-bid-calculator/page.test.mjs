@@ -129,6 +129,7 @@ test('save-and-share is wired to the page', () => {
   assert.match(html, /A bid link carries your own rates/, 'the bid link does not say what it carries');
   assert.match(html, /wage, burden, overhead, and target margin/, 'the link caution does not name the rates it carries');
   assert.match(html, /The customer should get the price, not the link/, 'the link caution does not say who not to send it to');
+  assert.match(html, /never sent to a server/, 'the on-page note does not say the link fragment stays client-side');
   assert.match(html, /Your bid is saved in this browser/, 'the privacy note does not disclose that the bid is stored');
   assert.match(html, /treat one like your rate sheet/, 'the privacy note does not warn what a copied link holds');
 });
@@ -232,4 +233,27 @@ test('printing sends the customer sheet and hides the contractor\u2019s own numb
 test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
+});
+
+// Closest sibling: same basement shop, but a waterproofing job rather than a
+// finish. Without a crawlable link here, a crawler entering on the finishing
+// calculator never reaches the waterproofing tool in one hop — same one-way
+// orphan class as #3709 / #3729 / #3743.
+test('index links one hop to the basement-waterproofing-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/basement-waterproofing-bid-calculator\/"/,
+    'index must link ../basement-waterproofing-bid-calculator/ so crawlers reach the waterproofing calculator in one hop',
+  );
+});
+
+// Closest interior-finishes sibling: same remodel, trimmed out afterward.
+// Without a crawlable link here, a crawler entering on the basement-finishing
+// calculator never reaches the crown-molding tool in one hop.
+test('index links one hop to the crown-molding-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/crown-molding-bid-calculator\/"/,
+    'index must link ../crown-molding-bid-calculator/ so crawlers reach the crown molding calculator in one hop',
+  );
 });

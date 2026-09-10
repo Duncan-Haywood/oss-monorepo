@@ -17,7 +17,7 @@ The route section then answers the question a single visit price can't: given yo
 
 ## Privacy and usage
 
-Everything runs in your browser. Your visit inputs and client list are never uploaded, there is no account, and nothing is saved when you close the tab — the route table clears on refresh by design. We count anonymous local feature events only (`estimate`, `route-check`), with a visible opt-out. Do Not Track and Global Privacy Control disable counting automatically. No people, prices, or client names are recorded. The counter is not sent to the maintainers.
+Everything runs in your browser and nothing is ever uploaded. Your visit inputs (on-site time, drive, mileage, pets, overhead) are saved locally on this device so you don't retype them — **Reset to defaults** clears them, and **Copy shareable link** puts them in a URL fragment your browser never sends anywhere. Your client list is a separate promise: it is never saved anywhere, and the route table clears on refresh by design. We count anonymous local feature events only (`estimate`, `route-check`, `link-copied`, `reset`), with a visible opt-out. Do Not Track and Global Privacy Control disable counting automatically. No people, prices, or client names are recorded. The counter is not sent to the maintainers.
 
 ## Disclaimer
 

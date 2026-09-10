@@ -37,3 +37,17 @@ test('robots and sitemap let crawlers find both pages', () => {
   assert.match(sitemap, /irrigation-winterization-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+// Closest sibling: same irrigation-contractor job, but a new sprinkler-system
+// install rather than a blowout. Related-tool chrome rotates inside the
+// landscape subcategory, so without an explicit one-hop a crawler on this
+// page may never land on that tool.
+test('index links one hop to the irrigation-install-bid-calculator sibling', () => {
+  const html = page('index.html');
+  assert.match(
+    html,
+    /href="\.\.\/irrigation-install-bid-calculator\/"/,
+    'index must link ../irrigation-install-bid-calculator/ so crawlers reach the install calculator in one hop',
+  );
+  assert.match(html, /irrigation install bid calculator/i);
+});

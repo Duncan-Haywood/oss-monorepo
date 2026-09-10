@@ -161,6 +161,24 @@ EOF
 and never merges. See [`../secrets/README.md`](../secrets/README.md), which
 describes the same two values in their sealed form.
 
+`CODEX_AUTH_JSON` is also the credential to *prefer*. It draws on a ChatGPT
+plan's included usage, so a tick costs nothing extra, and `worker.sh` resolves
+it before `OPENAI_API_KEY` and actively `unset`s the API key when both are
+present so a tick cannot bill by accident. The metered key is a fallback for
+having no plan to draw on, not an alternative spelling.
+
+**If you are already running the recovery, you do not need this step
+separately** (added 2026-09-10). `bootstrap/restore-cluster.sh` reads
+`CODEX_AUTH_JSON`, `OPENAI_API_KEY` and `CODEX_GH_TOKEN` (falling back to
+`GH_TOKEN` off a runner, which is what `load-secrets.sh --exec` exports) and
+hands them to this installer over stdin in the same run that installs it —
+the idiom step 11 has always used for the site's token. Until then this step
+was a second trip with `HETZNERSSHKEY`, and that key is the one owner action
+every route in this repository is blocked on, so a second trip is the
+expensive kind. Store the value once with
+`bootstrap/scripts/load-secrets.sh --put CODEX_AUTH_JSON < ~/.codex/auth.json`
+and the recovery carries it.
+
 Installing does **not** enable the governor. `policy.json` ships
 `"enabled": false`, so the timer ticks and holds until you flip it with
 `./bootstrap/scripts/enable-codex-governor.sh`, commit, and re-run the

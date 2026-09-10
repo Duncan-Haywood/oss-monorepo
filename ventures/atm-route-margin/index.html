@@ -9,9 +9,9 @@
 <meta property="og:description" content="Stop judging a placement by transaction count alone. Find real monthly profit after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"ATM Route Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds true monthly profit for one ATM location after the location's surcharge commission split and/or flat placement fee, per-transaction processor fees, vault cash cost of capital, refill labor and travel, and machine cost, and rolls a list of locations up into monthly route profit."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the location's cut come out of the surcharge before anything else?","acceptedAnswer":{"@type":"Answer","text":"Because that is how nearly every ATM placement agreement is written — the location owner is paid a percentage of the surcharge revenue, a flat monthly fee, or both, regardless of your own costs. This calculator charges that split (or flat fee) to a visit before the processor fee, vault cash cost, or your own labor."}},{"@type":"Question","name":"Why is vault cash treated as a cost at all — isn't it just my own money sitting in the machine?","acceptedAnswer":{"@type":"Answer","text":"It is your money, which is exactly why it has a cost: cash loaded into a machine cannot earn a return anywhere else, and if a cash-servicing company loads it for you, they charge for holding it. This calculator applies an annual cost-of-capital rate to your average cash balance so that cost shows up next to the surcharge revenue it makes possible, instead of disappearing as \"my own cash, no cost.\""}},{"@type":"Question","name":"Why is the processor fee a flat amount per transaction instead of a percentage like a card fee?","acceptedAnswer":{"@type":"Answer","text":"Because that is how ATM processing is actually billed — a fixed fee per withdrawal to route and settle it through the network, not a percentage of the surcharge. Modeling it as a percentage would understate the cost on a machine with a low surcharge and overstate it on one with a high surcharge."}},{"@type":"Question","name":"Does anything about my locations or transaction counts get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the location's cut come out of the surcharge before anything else?","acceptedAnswer":{"@type":"Answer","text":"Because that is how nearly every ATM placement agreement is written — the location owner is paid a percentage of the surcharge revenue, a flat monthly fee, or both, regardless of your own costs. This calculator charges that split (or flat fee) to a visit before the processor fee, vault cash cost, or your own labor."}},{"@type":"Question","name":"Why is vault cash treated as a cost at all — isn't it just my own money sitting in the machine?","acceptedAnswer":{"@type":"Answer","text":"It is your money, which is exactly why it has a cost: cash loaded into a machine cannot earn a return anywhere else, and if a cash-servicing company loads it for you, they charge for holding it. This calculator applies an annual cost-of-capital rate to your average cash balance so that cost shows up next to the surcharge revenue it makes possible, instead of disappearing as \"my own cash, no cost.\""}},{"@type":"Question","name":"Why is the processor fee a flat amount per transaction instead of a percentage like a card fee?","acceptedAnswer":{"@type":"Answer","text":"Because that is how ATM processing is actually billed — a fixed fee per withdrawal to route and settle it through the network, not a percentage of the surcharge. Modeling it as a percentage would understate the cost on a machine with a low surcharge and overstate it on one with a high surcharge."}},{"@type":"Question","name":"Does anything about my locations or transaction counts get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere — it exists only in the page while it is open. The visit inputs above and the target monthly income setting are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
 <style>
-:root{font:16px/1.5 system-ui,sans-serif;color:#12241f;background:#eef6f2}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #bfe0d1;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a3f2c08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #d3ecdf;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1c7a52;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #a9d8c2;border-radius:8px;font:inherit;background:#fbfffd}.result{background:#0f5c3c;color:#fff;border-color:#0f5c3c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4c6a5d}.result .note{color:#cdeadd}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#1c7a52}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #a9d8c2;background:#fff;cursor:pointer;color:#12241f}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+:root{font:16px/1.5 system-ui,sans-serif;color:#12241f;background:#eef6f2}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #bfe0d1;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a3f2c08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #d3ecdf;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1c7a52;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #a9d8c2;border-radius:8px;font:inherit;background:#fbfffd}.result{background:#0f5c3c;color:#fff;border-color:#0f5c3c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4c6a5d}.result .note{color:#cdeadd}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#1c7a52}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #a9d8c2;background:#fff;cursor:pointer;color:#12241f}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
 </style></head>
 <body>
 <header><p>FOR INDEPENDENT ATM ROUTE OPERATORS</p><h1>Transaction count lies. Profit per placement doesn't.</h1><p class="lede">A machine that "did 220 withdrawals this month" can still be losing you money once the location's cut, processor fees, and the cost of the cash sitting in it come out. This free calculator finds real monthly profit for one location, then rolls your whole route up into a number you can check against your income goal.</p><p class="lede">Evaluating a new placement offer before you have a machine running? See <a href="is-this-atm-placement-worth-it.html">is this ATM placement worth it?</a> for a worked example of how a withdrawal-count pitch can still lose money. Shopping for a new processor instead? See <a href="vs-atm-depot.html">this calculator vs. ATM Depot's Profit Calculator</a>.</p></header>
@@ -41,6 +41,12 @@
 <fieldset><legend>Machine</legend><div class="fields">
 <label>Machine monthly cost (lease/amortized + telecom)<input id="machineMonthlyCost" type="number" min="0" step="1" value="60"></label>
 </div></fieldset>
+<p id="draftStatus" class="note" role="status">Your visit inputs above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded. Your location list below is never saved.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
 </section>
 
 <section class="result" aria-live="polite"><h2>Profit for this location</h2><p id="errors" class="err" role="alert" hidden></p>
@@ -72,6 +78,7 @@
 <div class="fields" style="margin-top:14px">
 <label>Target monthly income<input id="targetMonthlyIncome" type="number" min="0" step="10" value="1200"></label>
 </div>
+<p class="note">Target monthly income is saved on this device and carried in your shareable link, the same as the visit inputs above — only the location rows are never saved.</p>
 <p id="routeErrors" class="err" role="alert" hidden></p>
 <dl>
 <dt>Locations counted</dt><dd id="routeLocations"></dd>
@@ -82,31 +89,50 @@
 </dl>
 </section>
 
-<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your transaction figures and location list are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>location-priced</code>, <code>route-check</code>) so we can tell whether the calculator gets used — no locations, fees, or transaction counts are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your visit inputs (withdrawal count, surcharge fee, commission split, processor fee, vault cash figures, refill labor and travel, machine cost) and your target monthly income are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. Your location rows are a different promise: they are never saved anywhere, and closing or refreshing the tab clears them. There is no account. We count only anonymous local feature events (<code>location-priced</code>, <code>route-check</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no locations, fees, or transaction counts are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
 
 <section><h2>Common questions</h2>
 <h3>Why does the location's cut come out of the surcharge before anything else?</h3><p>Because that is how nearly every ATM placement agreement is written &mdash; the location owner is paid a percentage of the surcharge revenue, a flat monthly fee, or both, regardless of your own costs. This calculator charges that split (or flat fee) to a visit before the processor fee, vault cash cost, or your own labor.</p>
 <h3>Why is vault cash treated as a cost at all &mdash; isn't it just my own money sitting in the machine?</h3><p>It is your money, which is exactly why it has a cost: cash loaded into a machine cannot earn a return anywhere else, and if a cash-servicing company loads it for you, they charge for holding it. This calculator applies an annual cost-of-capital rate to your average cash balance so that cost shows up next to the surcharge revenue it makes possible, instead of disappearing as "my own cash, no cost."</p>
 <h3>Why is the processor fee a flat amount per transaction instead of a percentage like a card fee?</h3><p>Because that is how ATM processing is actually billed &mdash; a fixed fee per withdrawal to route and settle it through the network, not a percentage of the surcharge. Modeling it as a percentage would understate the cost on a machine with a low surcharge and overstate it on one with a high surcharge.</p>
-<h3>Does anything about my locations or transaction counts get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere &mdash; it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+<h3>Does anything about my locations or transaction counts get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere &mdash; it exists only in the page while it is open. The visit inputs above and the target monthly income setting are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
 </section>
 
-<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a location placement agreement, process a live transaction, or replace your own contract, insurance, or accountant.</p><p>MIT licensed. If it helped you decide which placements to keep, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a location placement agreement, process a live transaction, or replace your own contract, insurance, or accountant.</p><p>Pricing vending machines on the same kind of unattended machine route instead of ATM placements? The <a href="../vending-machine-route-margin/">vending machine route margin calculator</a> finds real profit per location after commission, card fees, shrink, drive time, and machine cost &mdash; nothing uploaded.</p><p>Pricing a service route of visits rather than machine placements? The <a href="../dog-walking-route-pricing/">dog walking &amp; pet sitting rate calculator</a> prices a walk, drop-in, or overnight from drive time, extra pets, and overhead, then rolls a client list up into monthly route revenue &mdash; nothing uploaded.</p><p>MIT licensed. If it helped you decide which placements to keep, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
 
 <script type="module">
 import { calculate, computeRouteProfit, incomeGap, DEFAULTS } from './calc.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
 const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
 const money = (n) => {
   const format = (n) => `$${n.toFixed(2)}`;
   const text = format(Math.abs(n));
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
 const VISIT_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'atm-route-margin-visit-draft';
 let counted = false;
 let routeCounted = false;
 
 function visitInputs() { return Object.fromEntries(VISIT_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_VISIT_INPUTS = visitInputs();
+
+function applyVisitInputs(values) {
+  for (const id of VISIT_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persistVisit() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(visitInputs())));
+}
 
 function updateVisit(count = false) {
   try {
@@ -157,12 +183,53 @@ function updateRoute(count = false) {
   }
 }
 
-VISIT_IDS.forEach(id => el(id).addEventListener('input', () => updateVisit(true)));
+VISIT_IDS.forEach(id => el(id).addEventListener('input', () => { updateVisit(true); persistVisit(); }));
 document.querySelectorAll('.locationProfit').forEach(input => input.addEventListener('input', () => updateRoute(true)));
 el('targetMonthlyIncome').addEventListener('input', () => updateRoute(true));
 el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
 el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
 if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(visitInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyVisitInputs(DEFAULT_VISIT_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  updateVisit(false);
+  updateRoute(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every visit field, so one the link omitted is
+// cleared rather than left showing the recipient's own saved draft.
+(() => {
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  if (Object.keys(saved).length) applyVisitInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applyVisitInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
+      ? 'Opened a shared visit. Review the numbers before you use it.'
+      : 'Restored your last visit from this browser. Your location list below is never saved.';
+  }
+})();
+
 updateVisit(false);
 updateRoute(false);
 </script>

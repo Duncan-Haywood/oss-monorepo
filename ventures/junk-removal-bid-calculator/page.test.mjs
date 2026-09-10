@@ -80,3 +80,29 @@ test('the landing copy names the search problem before the form', () => {
   assert.match(markup, /dump ticket/);
   assert.match(markup, /<title>Junk Removal Bid Calculator/);
 });
+
+// Closest cleaning sibling: same property clear-out, but a household move rather
+// than a landfill haul. Related-tool chrome rotates inside the cleaning
+// subcategory, so without an explicit one-hop a crawler on this page may never
+// land on that tool.
+test('index links one hop to the moving-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/moving-bid-calculator\/"/,
+    'index must link ../moving-bid-calculator/ so crawlers reach the moving calculator in one hop',
+  );
+  assert.match(html, /moving company bid calculator/i);
+});
+
+// Closest disposal sibling: same landfill ticket math, but a roll-off rental
+// rather than a same-day haul. Without a crawlable link here, a crawler entering
+// on the junk-removal calculator may never reach the dumpster rental tool in
+// one hop.
+test('index links one hop to the dumpster-rental-margin-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/dumpster-rental-margin-calculator\/"/,
+    'index must link ../dumpster-rental-margin-calculator/ so crawlers reach the dumpster rental calculator in one hop',
+  );
+  assert.match(html, /dumpster rental margin calculator/i);
+});

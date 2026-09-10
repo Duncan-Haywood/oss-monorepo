@@ -1,0 +1,40 @@
+name: pour-cost-calculator
+description: Free browser calculator that prices a spirit/modifier/mixer cocktail recipe from its own bottle costs and pour sizes, reports the pour cost (liquor cost) percentage against a target the operator sets, and shows the weekly and annual cost of a stated over-pour on the primary spirit across the bar's own drink volume.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Independent bar owners, beverage directors, and restaurant managers running their own beverage program repeatedly need to check a recipe's real pour cost against a target, and currently do it in a spreadsheet or from memory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The annual dollar cost of a small, specific over-pour (not just the recipe's pour cost in isolation) is what makes the arithmetic worth returning to, because a per-drink cost in cents is easy to dismiss and an annual dollar figure is not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: r/bartenders, r/TendingBar, and the search phrases "pour cost calculator" and "how to calculate pour cost" are a reachable, free channel for this — measurable only once the tool is live and discoverable in the apex catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: every calculation runs in the visitor's own
+  # browser from numbers they type. Serving one more visitor costs a static
+  # file and nothing else.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified bar or restaurant operators use the tool to check a real recipe within 90 days of it being discoverable.
+  - Operators report that bottle-cost and pour-size figures are not something they track closely enough to make the arithmetic usable without a POS or inventory integration this tool does not have.
+  - The over-pour annual-cost framing is read as an accusation aimed at staff rather than a pricing check, making it unusable as a shared, non-punitive tool.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pour-cost-calculator/
+  analytics: null

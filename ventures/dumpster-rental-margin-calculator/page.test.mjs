@@ -90,3 +90,15 @@ test('the guide page worked example matches calc.mjs for the same inputs', () =>
   assert.match(guide, /\$351\.01/);
   assert.match(guide, /−\$14\.70|&minus;\$14\.70/);
 });
+
+// Closest disposal sibling: same landfill ticket math, but a same-day haul rather
+// than a roll-off rental. Related-tool chrome rotates inside the subcategory, so
+// without an explicit one-hop a crawler on this page may never land on that tool.
+test('index links one hop to the junk-removal-bid-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/junk-removal-bid-calculator\/"/,
+    'index must link ../junk-removal-bid-calculator/ so crawlers reach the junk removal calculator in one hop',
+  );
+  assert.match(html, /junk removal bid calculator/i);
+});

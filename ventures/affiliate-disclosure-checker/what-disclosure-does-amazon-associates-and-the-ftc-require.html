@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Disclosure Does Amazon Associates and the FTC Actually Require?</title>
+  <meta name="description" content="What Amazon's Associates Program Operating Agreement requires versus what the FTC's Endorsement Guides require, why they are two separate obligations, where to put the disclosure, and how to wire the free CLI into a pre-publish check.">
+  <link rel="canonical" href="./what-disclosure-does-amazon-associates-and-the-ftc-require.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Are the Amazon rule and the FTC rule the same thing?","acceptedAnswer":{"@type":"Answer","text":"No, and meeting one does not automatically meet the other. The FTC's Endorsement Guides are a general legal standard: a clear and conspicuous disclosure, in plain language, before a reader encounters the affiliate link. Amazon's Associates Program Operating Agreement is a specific contractual term with Amazon: it requires that exact statement, on every page carrying an Associates link, regardless of how clearly you have disclosed some other way."}},{"@type":"Question","name":"What counts as \"before\" the link?","acceptedAnswer":{"@type":"Answer","text":"FTC guidance treats a disclosure buried at the bottom of a long page, after several affiliate links, as too late — a reader who clicked the first link never saw it. A disclosure near the top of the post, or immediately next to the first affiliate mention, is the safer placement. This tool checks exactly that: whether the earliest disclosure phrase it finds comes before the earliest affiliate link it finds, in the page's own reading order."}},{"@type":"Question","name":"Does a footer-only or about-page-only disclosure count?","acceptedAnswer":{"@type":"Answer","text":"Not under FTC guidance, and not under this tool's check either — a disclosure that exists somewhere on the site but not on the page with the link is not \"clear and conspicuous\" to a reader who lands on that page from search or a shared link, which is how most affiliate content is actually read."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.5rem, 4vw, 2.2rem); color: #4a1f5c; }
+    h2 { color: #4a1f5c; margin-top: 34px; }
+    p, li { line-height: 1.6; }
+    pre { background: #f7f9fb; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; font-size: .88rem; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    footer { margin-top: 34px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to Affiliate Disclosure Checker</a></p>
+  <h1>What disclosure does Amazon Associates and the FTC actually require?</h1>
+
+  <p>Two separate obligations sit on top of each other here, and mixing them
+  up is the mistake this page exists to prevent: a general legal standard
+  from the FTC that applies to any affiliate or sponsored content, and a
+  specific contractual term from Amazon that applies only to Amazon
+  Associates links.</p>
+
+  <h2>The FTC's Endorsement Guides: a general standard</h2>
+  <p>The FTC's position, stated in its Endorsement Guides, is that a material
+  connection between an endorser and a seller — including an affiliate
+  commission — must be disclosed <strong>clearly and conspicuously</strong>,
+  in plain language, close to the claim it relates to, and
+  <strong>before</strong> the reader has to act on it (click the link, add
+  the item to a cart). A disclosure that exists only in an about page, a
+  footer, or after several affiliate links have already appeared does not
+  meet that standard for a reader who arrives partway down the page from
+  search.</p>
+
+  <h2>Amazon's Associates Program Operating Agreement: a specific term</h2>
+  <p>Separately, and in addition to the FTC standard, Amazon's own Associates
+  Program Operating Agreement requires that every page carrying an
+  Associates link include a statement to the effect of:</p>
+  <pre>As an Amazon Associate I earn from qualifying purchases.</pre>
+  <p>This is a contractual requirement with Amazon, not a suggestion, and it
+  is specific wording — a generic "this post contains affiliate links" note
+  satisfies the FTC's general standard but does not satisfy Amazon's own
+  term. Amazon has terminated Associates accounts for missing this
+  statement, which ends the account's entire earning history, not just
+  future commissions on the page in question.</p>
+
+  <h2>Where to put it</h2>
+  <table>
+    <thead><tr><th>Placement</th><th>Meets FTC guidance?</th><th>Meets Amazon's term?</th></tr></thead>
+    <tbody>
+      <tr><td>Near the top of the post, before the first affiliate link</td><td>Yes</td><td>Yes, if the exact Amazon statement is included</td></tr>
+      <tr><td>Immediately beside the first affiliate mention</td><td>Yes</td><td>Yes, if the exact Amazon statement is included</td></tr>
+      <tr><td>Only in a sitewide footer or About page</td><td>No — not conspicuous to a reader landing mid-page</td><td>No — Amazon's term is per-page, not sitewide</td></tr>
+      <tr><td>After the affiliate links, at the bottom of a long post</td><td>No — too late for a reader who already clicked</td><td>Present, but likely too late to be "clear and conspicuous" if ever reviewed</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Checking it automatically before you publish</h2>
+  <p>Run the CLI against a built site's output directory as part of your
+  publish step:</p>
+  <pre>node cli.mjs check dist --strict</pre>
+  <p>Exits non-zero if any page has an affiliate link with no disclosure
+  before it, or an Amazon link missing Amazon's own exact statement. It
+  reads only the local files you name — no network call, ever.</p>
+
+  <h2>Common questions</h2>
+  <h3>Are the Amazon rule and the FTC rule the same thing?</h3>
+  <p>No, and meeting one does not automatically meet the other. The FTC's Endorsement Guides are a general legal standard: a clear and conspicuous disclosure, in plain language, before a reader encounters the affiliate link. Amazon's Associates Program Operating Agreement is a specific contractual term with Amazon: it requires that exact statement, on every page carrying an Associates link, regardless of how clearly you have disclosed some other way.</p>
+  <h3>What counts as "before" the link?</h3>
+  <p>FTC guidance treats a disclosure buried at the bottom of a long page, after several affiliate links, as too late — a reader who clicked the first link never saw it. A disclosure near the top of the post, or immediately next to the first affiliate mention, is the safer placement. This tool checks exactly that: whether the earliest disclosure phrase it finds comes before the earliest affiliate link it finds, in the page's own reading order.</p>
+  <h3>Does a footer-only or about-page-only disclosure count?</h3>
+  <p>Not under FTC guidance, and not under this tool's check either — a disclosure that exists somewhere on the site but not on the page with the link is not "clear and conspicuous" to a reader who lands on that page from search or a shared link, which is how most affiliate content is actually read.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents report which known affiliate-link and disclosure-phrase patterns appear in a page's text, and their order — nothing more. It is not legal advice, and it is not a determination that any page complies with the FTC's Endorsement Guides or Amazon's Associates Program Operating Agreement. Read the source documents linked above and consult a professional if you need a determination you can rely on.
+    Not affiliated with, endorsed by, or sponsored by Amazon or Amazon Associates, named here only to describe the requirement this tool checks for.
+    <a href="./">Back to the tool</a>.</p>
+  </footer>
+</body>
+</html>

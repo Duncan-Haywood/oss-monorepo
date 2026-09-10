@@ -102,3 +102,16 @@ test("the share link wires encode, terms, and restore, not just the button", () 
   assert.match(html, /id="copyLink"/, "the share-link button is missing");
   assert.match(html, /s\.setItem\(DRAFT_KEY/, "the quote draft is not kept on the visitor's own device between visits");
 });
+
+// Closest MEP sibling: same subcategory, but a recurring HVAC maintenance
+// plan rather than a one-off appliance repair call. Related-tool chrome
+// rotates inside the subcategory, so without an explicit one-hop a crawler
+// on this page may never land on that tool.
+test("index links one hop to the hvac-maintenance-contract-calculator sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/hvac-maintenance-contract-calculator\/"/,
+    "index must link ../hvac-maintenance-contract-calculator/ so crawlers reach the HVAC plan calculator in one hop",
+  );
+  assert.match(html, /HVAC maintenance contract pricing calculator/i);
+});

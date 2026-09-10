@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Coverage Drop Check — Did This PR Lower Line Coverage?</title>
+  <meta name="description" content="Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.">
+  <meta property="og:title" content="Did this PR drop your coverage?">
+  <meta property="og:description" content="Compare two coverage XML reports and get a deterministic drop verdict plus the files that moved. No account, no upload, works with coverage.py, pytest-cov, nyc, and JaCoCo.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Coverage Drop Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares two Cobertura or JaCoCo coverage XML reports and reports whether line coverage dropped and which files moved. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How is a drop decided?","acceptedAnswer":{"@type":"Answer","text":"The overall line-coverage rate on the baseline report minus the same rate on the current report, in percentage points. If that number is greater than the allowance (default: any drop), the check fails. That is arithmetic on the two reports, not a guess and not a comparison against a fixed floor such as 80%."}},{"@type":"Question","name":"Why not just use --cov-fail-under or a Codecov flag?","acceptedAnswer":{"@type":"Answer","text":"A floor such as pytest-cov's --cov-fail-under=80 lets a pull request drop from 92% to 81% and still pass. Codecov and Coveralls will catch a delta, but they need an account, a token, and an upload of the report. This tool answers the delta question from two files you already have, locally."}},{"@type":"Question","name":"Which coverage formats does this work with?","acceptedAnswer":{"@type":"Answer","text":"Cobertura XML (coverage.py, pytest-cov --cov-report=xml, nyc/Istanbul --reporter=cobertura) and JaCoCo XML. Those are the reports most CI jobs already write. LCOV is not read yet."}},{"@type":"Question","name":"Is my coverage report uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the XML you paste entirely in your own browser and never sends it anywhere. The CLI reads local files and makes no network call at all."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 140px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 8px 0 4px; }
+    .pair { display: grid; gap: 14px; }
+    @media (min-width: 800px) { .pair { grid-template-columns: 1fr 1fr; } }
+    .allowance { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+    .allowance input { width: 80px; font: inherit; border: 1px solid #cdd5df; border-radius: 6px; padding: 4px 8px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.dropped { color: #9a3412; }
+    .verdict.ok, .verdict.improved { color: #14532d; }
+    .row { padding: 9px 0; border-bottom: 1px solid #e6eaf0; font-size: .92rem; }
+    .row:last-child { border-bottom: 0; }
+    .row-top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.dropped { background: #fde8e8; color: #9a3412; }
+    .pill.improved { background: #dcefe4; color: #14532d; }
+    .pill.new, .pill.removed, .pill.unchanged { background: #e3e9ef; color: #55606f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">COVERAGE DROP CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Did this PR drop your coverage?</h1>
+    <p>Paste the Cobertura or JaCoCo XML from <strong>main</strong> (or the last release) and from <strong>this pull request</strong>. This page subtracts the two line-coverage rates and lists every file that got worse, better, new, or removed.</p>
+    <p class="note">A floor such as <code>--cov-fail-under=80</code> will let a PR drop from 92% to 81% and still pass. This check answers the delta, not the floor. Nothing is uploaded.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Get two coverage XML reports</h2>
+    <p>Anything that writes Cobertura or JaCoCo XML works:</p>
+    <pre class="cmd"><code>pytest --cov --cov-report=xml:baseline.xml     # then again on the PR for current.xml
+coverage xml                                    # coverage.py, writes coverage.xml
+nyc report --reporter=cobertura --report-dir .  # Istanbul / nyc
+mvn test                                        # JaCoCo writes target/site/jacoco/jacoco.xml</code></pre>
+    <p class="note">Keep the baseline from the same suite and the same tool. Mixing a Cobertura report with a JaCoCo report is fine — both are reduced to line covered / line valid — but mixing different test sets is not.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Paste baseline and current</h2>
+    <div class="pair">
+      <div>
+        <label for="baseline">Baseline (main / last release)</label>
+        <textarea id="baseline" spellcheck="false" placeholder='<?xml version="1.0"?><coverage lines-covered="90" lines-valid="100">...</coverage>'></textarea>
+      </div>
+      <div>
+        <label for="current">Current (this PR / this commit)</label>
+        <textarea id="current" spellcheck="false" placeholder='<?xml version="1.0"?><coverage lines-covered="81" lines-valid="100">...</coverage>'></textarea>
+      </div>
+    </div>
+    <div class="allowance">
+      <label for="max-drop">Allowed drop (percentage points)</label>
+      <input id="max-drop" type="number" min="0" step="0.1" value="0" aria-label="Allowed coverage drop in percentage points">
+    </div>
+    <p>
+      <button type="button" id="check">Compare coverage</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste both reports and click "Compare coverage". Default allowance is 0 — any drop fails.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Verdict</h2>
+    <p class="verdict" id="verdict"></p>
+    <div id="rows"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py baseline.xml current.xml            # exits 1 if coverage dropped
+python3 check.py baseline.xml current.xml --max-drop 0.5
+python3 check.py baseline.xml current.xml --json</code></pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/coverage-drop-check/check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install. It reads local files and makes no network call.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How is a drop decided?</h3>
+    <p>The overall line-coverage rate on the baseline report minus the same rate on the current report, in percentage points. If that number is greater than the allowance (default: any drop), the check fails. That is arithmetic on the two reports, not a guess and not a comparison against a fixed floor such as 80%.</p>
+    <h3>Why not just use --cov-fail-under or a Codecov flag?</h3>
+    <p>A floor such as pytest-cov's <code>--cov-fail-under=80</code> lets a pull request drop from 92% to 81% and still pass. Codecov and Coveralls will catch a delta, but they need an account, a token, and an upload of the report. This tool answers the delta question from two files you already have, locally.</p>
+    <h3>Which coverage formats does this work with?</h3>
+    <p>Cobertura XML (coverage.py, pytest-cov --cov-report=xml, nyc/Istanbul --reporter=cobertura) and JaCoCo XML. Those are the reports most CI jobs already write. LCOV is not read yet.</p>
+    <h3>Is my coverage report uploaded anywhere?</h3>
+    <p>No. The browser page parses the XML you paste entirely in your own browser and never sends it anywhere. The CLI reads local files and makes no network call at all.</p>
+    <p>More: <a href="why-did-my-pr-drop-coverage.html">why coverage drops on a PR that "didn't touch tests"</a>, or how this compares to <a href="vs-codecov.html">Codecov</a>, a hosted, connected alternative with a historical dashboard.</p>
+    <p>Related: if coverage looks fine but the same tests flip between CI runs, the <a href="../flaky-test-finder/">flaky test finder</a> classifies which tests are flaky versus broken from JUnit XML you paste — nothing uploaded.</p>
+    <p>Related: if every check fails in a few seconds with an empty body before you look at coverage, first check whether GitHub assigned a runner with the <a href="../actions-runner-starvation-check/">actions runner starvation check</a> — paste the run&rsquo;s job JSON and it reads <code>runner_id</code>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a quality judgement of your code, not a substitute for reading the diff, and not advice about what coverage you should have. It only subtracts two reports you gave it. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/coverage-drop-check/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The XML you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you a Codecov bill or a silent coverage drop, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compareCoverage, summarizeCompare } from "./compare.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      baseline: $("#baseline"), current: $("#current"), maxDrop: $("#max-drop"),
+      status: $("#status"), reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function pct(rate) {
+      if (rate == null) return "—";
+      return `${(rate * 100).toFixed(1)}%`;
+    }
+
+    function render(result) {
+      const summary = summarizeCompare(result);
+      els.verdict.className = `verdict ${summary.status}`;
+      els.verdict.textContent = summary.text;
+      const interesting = result.files.filter((f) => f.verdict !== "unchanged");
+      if (!interesting.length) {
+        els.rows.innerHTML = `<p class="note">No file-level movement — every file that appeared in both reports kept its rate.</p>`;
+        return;
+      }
+      els.rows.innerHTML = interesting.map((f) => `
+        <div class="row">
+          <div class="row-top">
+            <span><strong>${escapeHtml(f.filename)}</strong></span>
+            <span><span class="pill ${f.verdict}">${f.verdict}</span> · ${pct(f.baselineRate)} → ${pct(f.currentRate)}</span>
+          </div>
+        </div>`).join("");
+    }
+
+    function runCheck() {
+      const baseline = els.baseline.value;
+      const current = els.current.value;
+      if (!baseline.trim() || !current.trim()) {
+        els.status.innerHTML = `<span class="error">Paste both a baseline report and a current report first.</span>`;
+        return;
+      }
+      let result;
+      try {
+        result = compareCoverage(baseline, current, { maxDropPct: Number(els.maxDrop.value || 0) });
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      render(result);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    const EXAMPLE_BASE = `<?xml version="1.0"?><coverage line-rate="0.92" lines-covered="92" lines-valid="100">
+  <packages><package name="app"><classes>
+    <class name="checkout" filename="checkout.py"><lines>
+      <line number="1" hits="1"/><line number="2" hits="1"/><line number="3" hits="1"/><line number="4" hits="1"/>
+    </lines></class>
+    <class name="auth" filename="auth.py"><lines>
+      <line number="1" hits="1"/><line number="2" hits="1"/>
+    </lines></class>
+  </classes></package></packages>
+</coverage>`;
+    const EXAMPLE_CUR = `<?xml version="1.0"?><coverage line-rate="0.81" lines-covered="81" lines-valid="100">
+  <packages><package name="app"><classes>
+    <class name="checkout" filename="checkout.py"><lines>
+      <line number="1" hits="1"/><line number="2" hits="0"/><line number="3" hits="0"/><line number="4" hits="1"/>
+    </lines></class>
+    <class name="auth" filename="auth.py"><lines>
+      <line number="1" hits="1"/><line number="2" hits="1"/>
+    </lines></class>
+    <class name="fees" filename="fees.py"><lines>
+      <line number="1" hits="1"/>
+    </lines></class>
+  </classes></package></packages>
+</coverage>`;
+
+    $("#check").addEventListener("click", runCheck);
+    $("#load-example").addEventListener("click", () => {
+      els.baseline.value = EXAMPLE_BASE;
+      els.current.value = EXAMPLE_CUR;
+      els.maxDrop.value = "0";
+      runCheck();
+      record("example_loaded");
+      els.status.textContent = "Worked example: overall rate 92% → 81%. checkout.py dropped; fees.py is new; auth.py unchanged.";
+    });
+    $("#clear").addEventListener("click", () => {
+      els.baseline.value = "";
+      els.current.value = "";
+      els.maxDrop.value = "0";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste both reports and click \"Compare coverage\". Default allowance is 0 — any drop fails.";
+    });
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

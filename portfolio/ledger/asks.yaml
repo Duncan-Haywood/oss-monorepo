@@ -94,6 +94,40 @@ decisions:
     — that is the whole recovery, end to end, and it needs no runner and no
     repository secret. Add `DRY_RUN=1` to the `env` for the plan and the
     detected addressing mode without changing anything.
+    **Rehearse that dry run today, before you go looking for the key**
+    (changed 2026-09-10): it used to stop at the SSH gate and print
+    nothing, so the only way to see the plan was to already hold the
+    private key — during the one session this whole recovery gets. It now
+    prints the half that needs no SSH *first*: which extras were asked
+    for, and which credential is standing behind each. Run `DRY_RUN=1
+    WITH_CODEX_HOST=1 WITH_GITHUB_RUNNER_HOST=1
+    WITH_PORTFOLIO_SITE_HOST=1 bootstrap/restore-cluster.sh` with your env
+    set and read that block. It still exits 1 without the key — it
+    genuinely could not probe the boxes — but it names what it did check,
+    so the mistake worth catching early is catchable early. The expensive
+    one is setting `OPENAI_API_KEY` where `CODEX_AUTH_JSON` was meant:
+    both credential the Codex worker, and only the second draws on your
+    plan's included quota.
+    **Two more `--put`s are worth making before that run, and as of 2026-09-10
+    they finish the job rather than starting a second one.**
+    `bootstrap/scripts/load-secrets.sh --put CODEX_AUTH_JSON < ~/.codex/auth.json`
+    (after `codex login`, on a machine where you are signed in) and
+    `bootstrap/scripts/load-secrets.sh --put RUNNER_TOKEN`. `--exec` exports
+    both into the recovery, and `restore-cluster.sh` now hands each one to its
+    installer over stdin in the same run — so the Codex worker comes back
+    credentialed against your ChatGPT plan's *included* quota, and the
+    self-hosted runner comes back registered. Until that change the two steps
+    installed and then told you to come back with the SSH key a second time,
+    which for the one key every route here is blocked on is the expensive kind
+    of friction. `CODEX_AUTH_JSON` is the credential to prefer: `worker.sh`
+    resolves it before `OPENAI_API_KEY` and withholds the API key when both are
+    present, so a tick on the plan's quota costs nothing extra where a tick on
+    the API key is billed per token.
+    One deliberate step is still yours afterwards and is not automated on
+    purpose: the Codex worker holds until you flip `policy.json`
+    (`./bootstrap/scripts/enable-codex-governor.sh --host-only`), commit, and
+    re-run the installer. Installing and credentialing are not the same act as
+    authorising unattended spend.
     The store is why this is now two pastes and not six: it lives on the
     machine that runs your agents (`infra/SECRETS.md`), so Cursor and a local
     Claude Code session can drive the same recovery without you re-pasting
@@ -163,6 +197,15 @@ decisions:
     means: on a domain whose DNS already points here, this **is** the decision
     to publish under the portfolio's public name. That is the intent; there is
     deliberately no second gate after it.
+    **You do not have to rebuild the cluster to get that one.** Added
+    2026-09-10: `bootstrap/scripts/setup-portfolio-site-from-laptop.sh` runs
+    the site step on its own, from your machine, in one command — the same
+    shape as the Codex and runner drivers, which had one and this route did
+    not. It needs no k3s, no Argo and no runner, so it is not downstream of
+    the least-proven part of the restore above (the addressing steps). If the
+    only thing you want today is `marisstella.dev` answering, run that instead
+    and skip the rest; the full recovery stays the right call when you want
+    the dev capacity and CI back in the same pass.
     **The GitHub route, for when runners come back:** paste that same private
     key as the Actions secret `HETZNERSSHKEY` (the whole file, `-----BEGIN
     OPENSSH PRIVATE KEY-----` through `-----END …-----`) and the PAT as
@@ -1388,3 +1431,87 @@ decisions:
     entries. Do not
     read the new check as license to extend either exception; it exists so a
     third instance is a red build instead of a third silent one.
+
+- id: pages-custom-domain
+  asks: []
+  prs: [4427]
+  gates: distribution
+  exposure: none
+  opened: "2026-09-10"
+  action: >-
+    **Point `marisstella.dev` at GitHub Pages instead of the dead cluster, at
+    your registrar's DNS panel, then set it as this repository's custom domain
+    in Settings → Pages.** Two records, both replacing what is there now: the
+    apex `A` records (and `AAAA` if the panel offers them) at GitHub's Pages
+    addresses, and `www` as a `CNAME` to `duncan-haywood.github.io`. Take the
+    addresses from GitHub's own "Managing a custom domain for your GitHub
+    Pages site" page rather than from any number typed into this repository --
+    a published IP restated in a file that nothing re-reads is the exact
+    failure `CLAUDE.md` records paying for twice. After the domain verifies,
+    tick "Enforce HTTPS" once the certificate issues (minutes to an hour), and
+    re-run `CONFIRM=publish-pages-branch PAGES_CNAME=marisstella.dev PUSH=1
+    ./platform/pages/publish-branch.sh` so the serving branch carries the
+    `CNAME` file. Nothing here is pasted into this repository and no secret
+    changes hands; it is reversible by putting the old record back.
+  unlocks:
+    - >-
+      Sitemap auto-discovery for all 881 published pages, which has never once
+      happened. The site is served from a project-Pages *subpath*
+      (`https://duncan-haywood.github.io/monorepo-projects/`), but a crawler
+      fetches `robots.txt` from the *host* root -- which belongs to the
+      owner's separate user-level Pages site. So the `Sitemap:` line this
+      build writes has never been read by anything, and
+      `portfolio/usage/usage.yaml` records zero visitors across all 200
+      products. At an origin root the file the build publishes is the file
+      crawlers read. This is the same defect `platform/ci/pages_state.py`
+      reports as its `indexing` row; that row names two owner fixes and this
+      is the cheaper, more permanent one -- Search Console submission is
+      per-engine and has to be repeated, a custom domain fixes it for every
+      crawler at once, including ones nobody submits to.
+    - >-
+      A public name for the portfolio. 200 finished products currently live at
+      a URL that names a GitHub account and a repository; every card, share
+      link and canonical tag they publish names it too.
+    - >-
+      IndexNow submission from a key file at the origin root rather than a
+      subpath (`platform/marketing/indexnow.mjs`), removing its dependence on
+      the `keyLocation` override.
+  blocked_by: []
+  note: >-
+    **This does not replace `hetzner-ssh-key-is-a-public-key`, and it is not a
+    second route to the same thing.** That row restores the cluster, and with
+    it the Codex worker (`gitops/agents/host/`) and the self-hosted runner
+    fallback (`gitops/ci/`) -- capacity, which this buys none of. This row
+    buys *discovery* for a catalogue that is already served and already
+    current. They are independent, and this one is cheaper by a wide margin:
+    no SSH key, no sealed secret, no runner, no cluster, nothing pasted.
+    Why it had no row until now, which is the reusable part. The queue's
+    outage banner has said since 2026-09-04 that "every other row here is
+    downstream of a host answering at all", and that sentence assumed the
+    portfolio had one origin. It has two, and the `deploy-settings` row
+    already records paying for that assumption once -- it sat at position 9
+    for 16 days for the same reason. `marisstella.dev` was read as the
+    cluster's hostname because that is what its DNS points at, so "the domain"
+    and "the dead box" became one thing; the domain is an asset the owner
+    holds independently of anything Hetzner runs, and it can point wherever a
+    working origin is.
+    Measured 2026-09-10, this session. `pages_state.py` reports the `gh-pages`
+    snapshot `current` against `main` at `f7a7b032` and `deployed` via
+    GitHub's managed builder (run 34449496624), so the catalogue this would
+    put on the domain is live and up to date rather than hypothetical.
+    A full `node platform/pages/build.mjs --base=https://marisstella.dev/`
+    was then run here to check the switch produces a correct site rather than
+    assuming it: 2,543 files, 229 sitemap `<loc>`s all on the apex, every
+    `rel="canonical"` on the apex, `robots.txt` naming
+    `https://marisstella.dev/sitemap.xml`, and **zero** surviving references
+    to the old origin anywhere in the artifact. That property is now pinned by
+    `platform/pages/custom-domain.test.mjs` -- verified against two mutants of
+    `applyBaseUrl`, because the first draft of that test passed against a
+    build with the rewrite deleted and a guard that cannot fail is worth less
+    than no guard.
+    The one thing not measured, as ever, is a logged-out fetch: no session can
+    reach `github.io` (the egress proxy answers `403 to CONNECT`), so whether
+    a stranger receives the page is still the owner's to confirm. Note also
+    that this repository is private, which is why `deploy-settings` carries
+    `requires: [github-pages-plan]`; the same plan question applies here and
+    is unchanged by the domain.

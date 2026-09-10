@@ -176,6 +176,70 @@ for.
   here is always allowed; submitting the portfolio to a directory, opening an
   account, or posting under its name is not.
 
+## `indexnow.mjs` — telling search engines the catalogue changed
+
+`platform/ci/pages_state.py`'s `indexing` row (2026-09-09, #4362) found that
+this site's `robots.txt` — and the `Sitemap:` line naming 881 published pages
+— is unreachable to a crawler, because the site is served from a project-Pages
+*subpath* while `robots.txt` is only ever fetched at the *host* root. Sitemap
+auto-discovery has therefore never happened, and `portfolio/usage/usage.yaml`
+still records zero visitors across every product. The real fix is the owner's
+(submit `sitemap.xml` directly in Search Console, or set a custom domain — see
+the `indexing` row) — but IndexNow does not have that problem, because its key
+file's location is named explicitly in every submission rather than assumed at
+the host root, so the same subpath that defeats `robots.txt` does not defeat
+it.
+
+```
+node platform/marketing/indexnow.mjs               # dry run — prints, sends nothing
+node platform/marketing/indexnow.mjs --submit       # actually notifies IndexNow
+```
+
+Reads `catalog.json` off the published `gh-pages` ref by default (what
+actually publishes, not what the next build would produce), and refuses to
+submit if the published key file does not match — a stale snapshot, not a
+silent bad submission. Covers Bing, Yandex, Seznam and Naver; there is no
+Google equivalent, so this is a complement to sitemap submission, not a
+replacement for it. A session's own sandbox cannot reach `api.indexnow.org`
+(the agent egress proxy blocks it, same as `github.io`) — `--submit` only
+does something from a host with real egress, e.g. a GitHub Actions runner.
+From a host without one it now exits `EXIT_NO_EGRESS` (3) and says so, rather
+than reading like a defect in this script.
+
+**Two shapes of "no egress", and the second is the one that actually happens
+here (measured 2026-09-10).** `EXIT_NO_EGRESS` was first added on the premise
+that a blocked host makes `fetch` *reject* — which is what `curl` sees
+(`CONNECT tunnel failed, response 403`). Running the real thing showed
+otherwise: Node's fetch resolves with an ordinary **403 carrying the proxy's
+own body**, so the first revision took the generic-failure branch and reported
+the sandbox limit as "IndexNow refused what we sent" — the exact confusion the
+exit code exists to remove. `isEgressRefusal` now catches that shape too.
+
+The match is deliberately narrow, on the proxy's own wording (`not in
+allowlist` / `network egress settings`) rather than on the status, because
+**IndexNow itself answers 403 for an invalid key** — a real defect in the
+published key file, which must stay loud. A false positive here would bury it,
+and that is the more expensive of the two mistakes.
+
+**You do not have to remember to run it after a publish (changed 2026-09-10).**
+This section used to end "Run it after any `publish-branch.sh` that actually
+pushes", and the only other caller was a step in
+`.github/workflows/publish-pages-branch.yml`. Both were correct and neither
+ran: that workflow needs an Actions runner, runners have been starved since
+2026-09-04, so every publish that actually reached the live site in that
+window was a by-hand `publish-branch.sh` run — and each one skipped the
+announcement in silence. On the origin this catalogue serves from, that is not
+a small miss: `pages_state.py`'s `indexing` row measured that sitemap
+auto-discovery cannot happen on a project-Pages subpath, so IndexNow is the
+only enumeration route the site has left.
+
+`publish-branch.sh` now calls this itself, in `announce_to_indexnow`, right
+after a successful push, and the workflow's duplicate step is gone so there is
+one definition of "publishing includes announcing". It never fails the
+publish — by then the site is already live, and a host without egress is not a
+broken deploy — but it always says which of the three outcomes happened.
+`INDEXNOW=0` skips it, for a publish you deliberately do not want announced.
+
 ## The embed offer on the apex
 
 `platform/pages/embed.mjs` calls itself "Priority 1 of the

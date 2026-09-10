@@ -18,6 +18,42 @@ test("landing page exposes searchable product, safety copy, and local app", () =
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(html, /entirely optional and never changes what the tool does/);
 });
+// Closest sibling: same break-even shape (fixed ownership/overhead cost spread
+// over bookings vs. lesson slots), but equipment rental bookings rather than
+// music lesson time. Without a crawlable link here, a crawler entering on the
+// equipment rental calculator never reaches the music lesson calculator in
+// one hop.
+test("index links one hop to the music-lesson-break-even sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/music-lesson-break-even\/"/,
+    "index must link ../music-lesson-break-even/ so crawlers reach the music lesson calculator in one hop",
+  );
+});
+// Closest equipment sibling: same ownership-cost decision for an independent
+// operator, but a lease buyout vs. return-and-replace rather than a rental
+// booking price. Without a crawlable link here, a crawler entering on the
+// rental calculator never reaches the lease buyout calculator in one hop.
+test("index links one hop to the equipment-lease-buyout-calculator sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/equipment-lease-buyout-calculator\/"/,
+    "index must link ../equipment-lease-buyout-calculator/ so crawlers reach the lease buyout calculator in one hop",
+  );
+  assert.match(html, /equipment lease buyout calculator/i);
+});
+// Same break-even shape, other direction: ranking supplier or subcontractor
+// rates on a job rather than pricing a rental booking. Reciprocal of the
+// link added to vendor-rate-break-even's index so a crawler can hop both
+// ways — and so the vendor-rate tool stops being a crawlable orphan.
+test("index links one hop to the vendor-rate-break-even sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/vendor-rate-break-even\/"/,
+    "index must link ../vendor-rate-break-even/ so crawlers reach the vendor rate calculator in one hop",
+  );
+  assert.match(html, /vendor rate break-even calculator/i);
+});
 test("app wires the share button to encode/decode and applies an incoming link on load", () => {
   assert.match(app, /import \{ encodeShare, decodeShare \} from "\.\/share\.mjs";/);
   assert.match(app, /"copy-share"\)\.addEventListener/);
@@ -103,4 +139,16 @@ test("the snapshot reports unreached break-even without inventing a percentage",
   const r = calculate(v);
   const text = buildSnapshotText(v, r, "2026-08-30T00:00:00.000Z");
   assert.match(text, /Break-even bookings per month: Not reached/);
+});
+
+// Regression: sitemap.xml listed only vs-booqable.html and missed the
+// how-much pricing walkthrough linked from index.html — same incomplete
+// hand-authored sitemap class fixed fleet-wide in #3292.
+test("every .html file in the venture is reachable from the sitemap", () => {
+  const sitemap = fs.readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+  const htmlFiles = fs.readdirSync(new URL("./", import.meta.url)).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    if (name === "index.html" || name === "offline.html") continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+  }
 });

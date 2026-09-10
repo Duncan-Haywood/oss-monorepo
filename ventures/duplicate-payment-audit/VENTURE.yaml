@@ -1,0 +1,26 @@
+name: duplicate-payment-audit
+description: Free browser tool that flags likely duplicate or double vendor payments in an accounts-payable CSV export, for small businesses too small for a contingency recovery-audit firm.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small businesses and bookkeepers exporting AP payment history from QuickBooks, Xero, or a spreadsheet will use a local CSV checker to catch double payments before requesting a refund, without hiring a recovery-audit firm.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Grouping by vendor and amount, then checking for an exact or near-identical invoice number plus a same-amount/near-date fallback, catches the duplicate-payment patterns AP guidance describes (same invoice resubmitted, same amount under a new invoice number) at a false-positive rate a non-accountant can still interpret correctly.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No organic visits, forks, or repeat local usage after 60 days of availability.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/duplicate-payment-audit/
+  analytics: null

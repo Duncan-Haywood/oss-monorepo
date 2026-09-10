@@ -16,10 +16,23 @@
  *   - some channels bundle payment processing into the commission (eBay's
  *     final value fee), others bill it separately (Etsy Payments).
  *
- * `commissionRate`, `paymentRate` and `adRate` all apply to the order total
- * (item price + shipping charged), which is how the major marketplaces
- * compute them. A seller whose channel differs can zero one field and fold the
- * rate into another.
+ * `paymentRate` and `adRate` apply to the order total (item price + shipping
+ * charged). `commissionRate` does too by default (`commissionBase: "order"`),
+ * which is how eBay, Etsy and Amazon compute their selling fees. Reverb is
+ * the exception: its selling fee applies to the item price only
+ * (`commissionBase: "item"`), matching `ventures/reverb-fee-calculator`. A
+ * seller whose channel differs can zero one field and fold the rate into
+ * another.
+ *
+ * One channel's schedule is not a rate at all. Poshmark charges a flat $2.95
+ * on a sale under $15 and 20% at $15 or more — a cliff, where the *whole*
+ * sale is taxed by whichever rule applies rather than a marginal band. A
+ * channel can say so with `commissionThreshold` (the price the rule switches
+ * at) and `commissionFlatBelow` (the flat fee charged below it), and
+ * `calculateChannel` then prices, breaks even and solves for a target on
+ * whichever side of the cliff the item actually sits. A channel that omits
+ * both fields is unaffected, down to the arithmetic: every coefficient below
+ * collapses to what it was before the cliff existed.
  */
 
 export const CHANNEL_PRESETS = [
@@ -90,14 +103,16 @@ export const CHANNEL_PRESETS = [
   {
     id: "reverb",
     label: "Reverb (musical gear)",
-    note: "Off by default because it only applies to instruments and audio gear — turn it on if that is what you sell. Reverb bills the selling fee and payment processing separately, which is why the processor rate is not zero here the way it is for eBay. Sell-through and days to sell are illustrative starting points, not a claim about Reverb velocity.",
-    // Matches ventures/reverb-fee-calculator's own defaults (5% selling fee,
-    // 3.19% + $0.49 Reverb Payments standard-seller rate, as of September
-    // 2026). Two tools in one portfolio printing different fee assumptions
-    // for the same marketplace is a credibility problem, so
+    note: "Off by default because it only applies to instruments and audio gear — turn it on if that is what you sell. Reverb bills the selling fee on the item price only (not on shipping charged) and payment processing separately, which is why the processor rate is not zero here the way it is for eBay. Sell-through and days to sell are illustrative starting points, not a claim about Reverb velocity.",
+    // Matches ventures/reverb-fee-calculator's own defaults (5% selling fee
+    // on the item price, 3.19% + $0.49 Reverb Payments on the order total, as
+    // of September 2026). Two tools in one portfolio printing different fee
+    // assumptions for the same marketplace is a credibility problem, so
     // `channel-parity.test.mjs` asserts these stay equal by importing that
-    // calculator's defaults rather than restating them.
+    // calculator's defaults rather than restating them — including that the
+    // selling fee is charged on the item, not on shipping.
     commissionRate: 5,
+    commissionBase: "item",
     paymentRate: 3.19,
     paymentFixed: 0.49,
     perListingFee: 0,
@@ -169,9 +184,117 @@ export const CHANNEL_PRESETS = [
     listingRenewalDays: 0,
   },
   {
+    id: "tiktok",
+    label: "TikTok Shop",
+    note: "Off by default because it only applies to sellers running TikTok Shop. Referral fee applies to the order total (matching `ventures/tiktok-shop-fee-calculator`'s U.S. standard rate as of September 2026), and processing is already bundled into it, which is why the separate processor rate is 0 here — the same shape as eBay. Creator affiliate commission and facilitation fees are not modelled on this page; the dedicated calculator is where that decision gets made. Sell-through and days to sell are illustrative starting points, not a claim about TikTok Shop velocity.",
+    // Matches ventures/tiktok-shop-fee-calculator's own `FEE_SCHEDULE_PRESETS.us_standard`
+    // (6% referral, processing bundled in, as of September 2026). Two tools in
+    // one portfolio printing different fee assumptions for the same channel is
+    // a credibility problem, so `channel-parity.test.mjs` asserts these stay
+    // equal by importing that calculator's own presets rather than restating
+    // them.
+    commissionRate: 6,
+    paymentRate: 0,
+    paymentFixed: 0,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions. Live and short-video commerce skews
+    // toward impulse buys, so this starts a little above eBay's.
+    returnRate: 12,
+    returnShippingCost: 6,
+    resellableRate: 85,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: a live show or a viral video can
+    // sell an item in days, far faster than a static listing, and there is no
+    // renewal cycle to charge while it waits.
+    sellThroughPct: 55,
+    daysToSell: 10,
+    listingRenewalDays: 0,
+    // Off until the seller says they sell there: enabled by default it would
+    // add a channel most sellers cannot list on to every comparison, and a
+    // channel that does not apply is noise in a ranking, not information.
+    enabled: false,
+  },
+  {
+    id: "whatnot",
+    label: "Whatnot (live auction)",
+    note: "Off by default because it only applies to sellers running live shows. Commission is on the hammer price only, not shipping (matching `ventures/whatnot-seller-payout`'s standard, uncapped category as of September 2026); processing is billed separately on the full checkout total, the same split as Reverb. The $1,500 commission cap on some categories (TCG, coins, pallets) is not modelled on this page — the dedicated calculator is where that decision gets made. Sell-through and days to sell are illustrative starting points, not a claim about Whatnot velocity.",
+    // Matches ventures/whatnot-seller-payout's own `CATEGORY_PRESETS.standard`
+    // commission rate and `DEFAULT_PAYMENT_RATE` / `DEFAULT_PAYMENT_FIXED`, as
+    // of September 2026. `channel-parity.test.mjs` imports those constants
+    // directly rather than restating them, for the same reason as the Reverb
+    // and TikTok Shop rows above.
+    commissionRate: 8,
+    commissionBase: "item",
+    paymentRate: 2.9,
+    paymentFixed: 0.3,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions. A live auction is watched in real time
+    // and often shipped fast, so this starts a little below eBay's.
+    returnRate: 5,
+    returnShippingCost: 6,
+    resellableRate: 90,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: a lot sells (or does not) inside
+    // one show, not over weeks, and there is no renewal cycle to charge.
+    sellThroughPct: 45,
+    daysToSell: 3,
+    listingRenewalDays: 0,
+    // Off until the seller says they run live shows there: enabled by default
+    // it would add a channel most sellers cannot list on to every comparison.
+    enabled: false,
+  },
+  {
+    id: "poshmark",
+    label: "Poshmark (fashion resale)",
+    note: "Off by default because it only applies to clothing, shoes and accessories. Poshmark's fee is a cliff, not a rate: a flat $2.95 on a sale under $15 and 20% at $15 or more, charged on the item price only — the buyer pays a prepaid label that never reaches your payout, so shipping charged and shipping you pay both start at zero here. Below $14.75 the flat fee costs more than 20% would (a $10 sale pays an effective 29.5%), which is the arithmetic a per-item comparison can show and a headline-rate table cannot. Sell-through and days to sell are illustrative starting points, not a claim about Poshmark velocity.",
+    // Matches ventures/poshmark-fee-calculator's own PERCENT_RATE, FLAT_FEE
+    // and COMMISSION_THRESHOLD as of September 2026. `channel-parity.test.mjs`
+    // imports those constants directly rather than restating them, for the
+    // same reason as the Reverb, TikTok Shop and Whatnot rows above.
+    commissionRate: 20,
+    commissionBase: "item",
+    commissionThreshold: 15,
+    commissionFlatBelow: 2.95,
+    // Poshmark's commission covers payment processing; there is no separate
+    // processor line and no per-listing or monthly charge.
+    paymentRate: 0,
+    paymentFixed: 0,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // The buyer buys the prepaid USPS label from Poshmark at checkout. It is
+    // not seller revenue and not a seller cost, so both sides start at zero
+    // rather than inheriting the shared figures — override them on this
+    // channel if you cover a label upgrade yourself.
+    shippingCharged: 0,
+    shippingCost: 0,
+    // Illustrative return assumptions. Poshmark has no buyer's-remorse
+    // return: a buyer must open a not-as-described case and Poshmark rules on
+    // it, so returns are rarer than on eBay and the return label is Poshmark's
+    // rather than the seller's.
+    returnRate: 2,
+    returnShippingCost: 0,
+    resellableRate: 90,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: a closet listing does not expire
+    // and is never charged again, but fashion resale sits longer than a
+    // general-marketplace item of the same price.
+    sellThroughPct: 30,
+    daysToSell: 60,
+    listingRenewalDays: 0,
+    // Off until the seller says this is apparel: enabled by default it would
+    // add a channel most sellers cannot list on to every comparison, the same
+    // reason Reverb and Whatnot start off.
+    enabled: false,
+  },
+  {
     id: "other",
     label: "Other channel",
-    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — Mercari, Poshmark, Depop, a craft fair, a wholesale account.",
+    note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — Mercari, Depop, a craft fair, a wholesale account. Poshmark has its own row above.",
     commissionRate: 0,
     paymentRate: 0,
     paymentFixed: 0,
@@ -242,6 +365,11 @@ export function calculateChannel(channel, shared = {}) {
   const fulfilmentCost = number(channel.fulfilmentCost, `${label} fulfilment cost`, 0);
 
   const commissionRate = number(channel.commissionRate, `${label} commission rate`, 0);
+  // A fee cliff, for a channel whose commission is not a rate below some
+  // price. Zero threshold means "no cliff", which is every channel but
+  // Poshmark, and leaves every coefficient below exactly as it was.
+  const commissionThreshold = number(channel.commissionThreshold, `${label} commission threshold`, 0);
+  const commissionFlatBelow = number(channel.commissionFlatBelow, `${label} flat commission`, 0);
   const paymentRate = number(channel.paymentRate, `${label} payment rate`, 0);
   const adRate = number(channel.adRate, `${label} ads rate`, 0);
   const paymentFixed = number(channel.paymentFixed, `${label} payment fixed fee`, 0);
@@ -291,13 +419,50 @@ export function calculateChannel(channel, shared = {}) {
   }
 
   const revenue = price + shippingCharged;
-  const percentRate = (commissionRate + paymentRate + adRate) / 100;
+  // Most marketplaces take the selling fee on the order total. Reverb takes
+  // it on the item price only; payment processing still runs on the order.
+  // Splitting the two bases is what keeps this page's Reverb row equal to
+  // `reverb-fee-calculator` when shipping charged is non-zero.
+  const commissionBase = channel.commissionBase === "item" ? "item" : "order";
+
+  // Below a fee cliff the percentage is not charged at all — a flat fee stands
+  // in its place — so the rate leaves the coefficients entirely and the flat
+  // fee joins the fixed cash instead. Every price-solving closed form below is
+  // therefore written against *one side* of the cliff, and the two solvers pick
+  // the side whose answer actually lands in its own price range.
+  const hasFeeCliff = commissionThreshold > 0;
+  const commissionBaseAt = (itemPrice) =>
+    commissionBase === "item" ? itemPrice : itemPrice + shippingCharged;
+  // `chargesRate` false is the flat-fee side of the cliff.
+  const branchRates = (chargesRate) => {
+    const rate = chargesRate ? commissionRate : 0;
+    return {
+      orderRate: (paymentRate + adRate + (commissionBase === "order" ? rate : 0)) / 100,
+      itemRate: (commissionBase === "item" ? rate : 0) / 100,
+    };
+  };
+  const flatCommissionOn = (chargesRate) => (chargesRate ? 0 : commissionFlatBelow);
+
+  const commissionBaseAmount = commissionBaseAt(price);
+  // Which side this item is actually on. Poshmark's switch is at exactly
+  // $15.00 and the higher rule owns the boundary: a $15.00 sale pays 20%, not
+  // the flat fee.
+  const chargesRate = !(hasFeeCliff && commissionBaseAmount < commissionThreshold);
+  const { orderRate, itemRate } = branchRates(chargesRate);
+  const percentRate = orderRate + itemRate;
   if (percentRate >= 1) {
     throw new Error(`${label}: commission, payment and ad rates add up to 100% or more of the order`);
   }
 
   const fees = {
-    commission: (revenue * commissionRate) / 100,
+    commission: chargesRate
+      ? (commissionBaseAmount * commissionRate) / 100
+      // A flat fee cannot take more than the sale it is charged on, which is
+      // how `poshmark-fee-calculator`'s own `commissionFor` caps it. Only
+      // reachable below the flat fee itself, and never inside a break-even
+      // answer: the solved flat-branch price is at least the flat fee
+      // whenever there is any cash to recover.
+      : Math.min(commissionFlatBelow, commissionBaseAmount),
     payment: (revenue * paymentRate) / 100 + paymentFixed,
     ads: (revenue * adRate) / 100,
     listing: perListingFee,
@@ -312,8 +477,51 @@ export function calculateChannel(channel, shared = {}) {
   const profit = revenue - feeTotal - cashInvested;
 
   // Cash that must be recovered before any percentage fee is covered. Used for
-  // both break-even and the price that reaches a given profit.
-  const fixedCash = paymentFixed + perListingFee + subscriptionShare + cashInvested;
+  // both break-even and the price that reaches a given profit. Below a fee
+  // cliff the flat commission is exactly that kind of cash, so it belongs
+  // here — and is zero on the percentage side and for every channel with no
+  // cliff at all.
+  const fixedCashOn = (chargesRateOnBranch) =>
+    paymentFixed + perListingFee + subscriptionShare + cashInvested
+    + flatCommissionOn(chargesRateOnBranch);
+  const fixedCash = fixedCashOn(chargesRate);
+
+  // profit = price*(1 - orderRate - itemRate) + shippingCharged*(1 - orderRate) - fixedCash
+  // Collapses to the familiar fixedCash/(1 - percentRate) - shippingCharged
+  // whenever commission also runs on the order (itemRate === 0). The
+  // coefficient is taken per branch below rather than once here, because a
+  // cliff channel has a different one on each side.
+
+  /**
+   * Item price at which the *sold-sale* keep equals `target`, solved on one
+   * side of a fee cliff. Null when the rates leave no reachable price.
+   */
+  const soldPriceOnBranch = (target, chargesRateOnBranch) => {
+    const { orderRate: order, itemRate: item } = branchRates(chargesRateOnBranch);
+    const coeff = 1 - order - item;
+    if (coeff <= 0) return null;
+    const solved = (fixedCashOn(chargesRateOnBranch) + target - shippingCharged * (1 - order)) / coeff;
+    return Math.max(0, solved);
+  };
+
+  /**
+   * Pick the side of the cliff a solved price actually belongs to.
+   *
+   * The flat branch only owns an answer that lands below the threshold; the
+   * percentage branch owns everything else. Exactly one of them always does,
+   * because the fee steps *up* at the threshold (Poshmark: $2.95 becomes 20%
+   * of $15, i.e. $3.00), so a target the flat side cannot reach below the
+   * cliff is one the percentage side reaches only above it. Without a cliff
+   * this is one call with the same arithmetic as before.
+   */
+  const solveOnCliff = (onBranch) => {
+    if (!hasFeeCliff) return onBranch(true);
+    const flatSide = onBranch(false);
+    if (flatSide !== null && commissionBaseAt(flatSide) < commissionThreshold) return flatSide;
+    return onBranch(true);
+  };
+
+  const breakEvenPrice = solveOnCliff((onBranch) => soldPriceOnBranch(0, onBranch));
   // Profit already carries the amortized plan share. Adding it back answers
   // "how many whole sales of this item recover the monthly fee?" — 0 when
   // there is no plan, null when the unit economics cannot recover it.
@@ -342,23 +550,55 @@ export function calculateChannel(channel, shared = {}) {
   const expectedProfit = (1 - returnedShare) * profit + returnedShare * returnedProfit;
   const returnDrag = profit - expectedProfit;
 
-  // expectedProfit is linear in revenue, so break-even and a target expected
-  // profit have a closed form. When the return rate is zero this collapses
-  // to the sold-sale break-even already on `breakEvenPrice`.
+  // expectedProfit is linear in the item price once shipping charged is held
+  // constant, so break-even and a target expected profit have a closed form.
+  // Commission-on-item (Reverb) and commission-on-order (everyone else) both
+  // land in the same shape: the sold-sale price coefficient above, and the
+  // weighted revCoeff below once returns are folded in. When the return rate
+  // is zero this collapses to the sold-sale break-even already on
+  // `breakEvenPrice`. Both are per branch, for the cliff reason above.
   const listingAndSub = fees.listing + fees.subscription;
-  const revCoeff = (1 - returnedShare) * (1 - percentRate)
-    - returnedShare * (1 - feeRefundShare) * percentRate;
-  const expectedConstant = (1 - returnedShare) * (-paymentFixed - listingAndSub - cashInvested)
-    + returnedShare * (
-      -listingAndSub
-      - paymentFixed * (1 - feeRefundShare)
-      - spentRegardless
-      - returnShippingCost
-      - unsellableLoss
-    );
-  const expectedBreakEvenPrice = revCoeff > 0
-    ? Math.max(0, -expectedConstant / revCoeff - shippingCharged)
-    : null;
+
+  /**
+   * The two coefficients of `expectedProfit(price)` on one side of a fee
+   * cliff, so `expectedProfit = revCoeff * price + expectedConstant`.
+   *
+   * A flat commission below the cliff behaves like the fixed payment fee in
+   * both places it appears: it is cash to recover on a sold sale (already
+   * inside `fixedCashOn`), and it is a fee the channel keeps its unrefunded
+   * share of when the item comes back. It carries no price coefficient,
+   * which is exactly why the cliff cannot be folded into a rate.
+   */
+  const expectedCoeffsOn = (chargesRateOnBranch) => {
+    const { orderRate: order, itemRate: item } = branchRates(chargesRateOnBranch);
+    const flat = flatCommissionOn(chargesRateOnBranch);
+    return {
+      revCoeff: (1 - returnedShare) * (1 - order - item)
+        - returnedShare * (1 - feeRefundShare) * (item + order),
+      expectedConstant: (1 - returnedShare) * (shippingCharged * (1 - order) - fixedCashOn(chargesRateOnBranch))
+        + returnedShare * (
+          -listingAndSub
+          - (1 - feeRefundShare) * (order * shippingCharged + paymentFixed + flat)
+          - spentRegardless
+          - returnShippingCost
+          - unsellableLoss
+        ),
+    };
+  };
+  const { revCoeff, expectedConstant } = expectedCoeffsOn(chargesRate);
+
+  /**
+   * Item price at which the *expected* keep after returns equals `target`,
+   * solved on one side of a fee cliff. Null when the rates leave no
+   * reachable price.
+   */
+  const expectedPriceOnBranch = (target, chargesRateOnBranch) => {
+    const coeffs = expectedCoeffsOn(chargesRateOnBranch);
+    if (coeffs.revCoeff <= 0) return null;
+    return Math.max(0, (target - coeffs.expectedConstant) / coeffs.revCoeff);
+  };
+
+  const expectedBreakEvenPrice = solveOnCliff((onBranch) => expectedPriceOnBranch(0, onBranch));
 
   // ---------------------------------------------------------------------
   // Shelf time: what a *listing* is worth, not what a sale is worth.
@@ -486,7 +726,7 @@ export function calculateChannel(channel, shared = {}) {
     monthlyProfit: expectedMonthlySales >= 1
       ? profit * expectedMonthlySales
       : -unamortizedMonthlyFee,
-    breakEvenPrice: Math.max(0, fixedCash / (1 - percentRate) - shippingCharged),
+    breakEvenPrice,
     daysToSell,
     // Cash this sale leaves you per day it sits unsold. Null when the seller
     // has not given a pace — inventing one would rank channels on a guess
@@ -509,7 +749,11 @@ export function calculateChannel(channel, shared = {}) {
     priceForProfit(targetProfit) {
       const target = Number(targetProfit);
       if (!Number.isFinite(target)) throw new Error("Target profit must be a number");
-      return Math.max(0, (fixedCash + target) / (1 - percentRate) - shippingCharged);
+      const solved = solveOnCliff((onBranch) => soldPriceOnBranch(target, onBranch));
+      if (solved === null) {
+        throw new Error(`${label}: target profit cannot be solved at these fee rates`);
+      }
+      return solved;
     },
     /**
      * Item price this channel needs so the *expected* keep after returns
@@ -519,10 +763,11 @@ export function calculateChannel(channel, shared = {}) {
     priceForExpectedProfit(targetProfit) {
       const target = Number(targetProfit);
       if (!Number.isFinite(target)) throw new Error("Target profit must be a number");
-      if (revCoeff <= 0) {
+      const solved = solveOnCliff((onBranch) => expectedPriceOnBranch(target, onBranch));
+      if (solved === null) {
         throw new Error(`${label}: expected profit cannot be solved at these return and fee rates`);
       }
-      return Math.max(0, (target - expectedConstant) / revCoeff - shippingCharged);
+      return solved;
     },
   };
 }

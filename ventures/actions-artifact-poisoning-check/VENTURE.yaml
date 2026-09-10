@@ -1,0 +1,56 @@
+name: actions-artifact-poisoning-check
+description: 'Free, read-only checker that scans GitHub Actions workflow YAML for a workflow_run-triggered job that downloads an artifact (actions/download-artifact or dawidd6/action-download-artifact) and later executes something from it, and for a download-artifact step with no name: input -- the "artifact poisoning" pattern documented by GitHub''s Actions Security Lab and independent research (Wiz, Legit Security, Orca Security), each finding printed with the exact fix, browser or zero-dependency CLI, no upload, no network calls of its own.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as
+# actions-cache-poisoning-check, actions-injection-check, and
+# pinned-actions-check -- a direct, obvious, low-risk dev-tool idea grounded
+# in documented, published security research rather than a pipeline-candidate
+# write-up.
+# Not a duplicate of any existing checker: duplicate_check.py's top match
+# against actions-cache-poisoning-check scored 0.28, and its top match
+# against the pwn-request-shaped phrasing scored 0.34 against
+# actions-injection-check -- both well below the 0.45 flag bar. All three
+# share a trigger gate (a job reachable from an untrusted fork trusted by a
+# privileged handler) but each targets a different sink: actions-injection-check
+# is checkout/shell-interpolation, actions-cache-poisoning-check is the
+# Actions cache, this is a downloaded artifact's file contents. Confirmed
+# 2026-09-09.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are both
+# high -- a mechanical, read-only linter with no advice-of-record, no
+# compliance claim, no data leaving the user's device, and no scraping. It
+# makes no network calls of its own anywhere in the code (check.py,
+# classify.mjs): findings are printed with a suggested fix for the user to
+# apply themselves. This is defensive security tooling (detecting a
+# documented CI/CD supply-chain risk in the user's own repository), not an
+# offensive or dual-use capability.
+hypotheses:
+  - claim: A maintainer or security engineer who read about GitHub Actions artifact poisoning (GitHub's Actions Security Lab, or the Wiz/Legit Security/Orca Security write-ups) will paste their workflow_run workflow here and find a downloaded artifact getting executed that no existing local-only tool flags.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team will wire check.py --fail-on-risk into their own CI to block a newly-added artifact-execution step or unscoped download before it merges.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/actions-artifact-poisoning-check/
+  analytics: null

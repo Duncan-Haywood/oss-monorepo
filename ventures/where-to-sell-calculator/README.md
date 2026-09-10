@@ -9,12 +9,40 @@ month. Then it asks the question a fee table cannot: **how often does it
 actually sell there**, and what is one listing worth per month of shelf once
 you count that.
 
-**Reverb** is a sixth channel, switched off until you turn it on. It only
-applies to musical instruments and audio gear, and a channel a seller cannot
-list on is noise in a ranking rather than information. Its fee assumptions are
-not restated here — `channel-parity.test.mjs` imports them from
-[`../reverb-fee-calculator`](../reverb-fee-calculator/) and fails if the two
-tools ever quote the same marketplace differently.
+**Reverb, TikTok Shop, Whatnot and Poshmark** are four more channels, each
+switched off until you turn it on. Reverb only applies to musical instruments
+and audio gear; Poshmark only to clothing, shoes and accessories; TikTok Shop
+and Whatnot only if you sell through those platforms — a channel a seller
+cannot list on is noise in a ranking rather than information. None of their
+fee assumptions are restated here — `channel-parity.test.mjs` imports them
+from [`../reverb-fee-calculator`](../reverb-fee-calculator/),
+[`../tiktok-shop-fee-calculator`](../tiktok-shop-fee-calculator/),
+[`../whatnot-seller-payout`](../whatnot-seller-payout/) and
+[`../poshmark-fee-calculator`](../poshmark-fee-calculator/) and fails if any of
+the five tools ever quote the same marketplace differently.
+
+### Poshmark is the one channel whose fee is not a rate
+
+Poshmark charges a **flat $2.95 on a sale under $15, and 20% at $15 or more**,
+on the item price only. That is a cliff, not a marginal band: the whole sale is
+taxed by whichever rule applies. Two consequences the seller can act on, and
+neither is visible in a headline-rate table:
+
+- Below **$14.75** — where 20% would have been exactly $2.95 — the flat fee
+  costs *more* than the percentage would. A $10 sale pays an effective 29.5%,
+  a $5 sale 59%. That is often the worst rate on the whole comparison, and it
+  is exactly the price band a closet clear-out lives in.
+- Because the switch is at exactly $15.00, the price this page says Poshmark
+  needs to reach a target profit can land on either side of it. The solver
+  works both branches and returns the one that actually holds, rather than
+  dividing by one rate and printing a price the fee schedule does not agree
+  with.
+
+This is also why [`../marketplace-fee-compare`](../marketplace-fee-compare/)
+leaves Poshmark out and says so on the page: that tool ranks channels by a
+single headline rate, and Poshmark does not have one. This page prices a
+specific item at a specific price, where the cliff is exactly computable — so
+the same fact that disqualifies Poshmark there is what makes it rankable here.
 
 It runs entirely in the browser: static ES modules, no build step, no
 dependencies, no server, no account, no API key.
@@ -68,7 +96,8 @@ what the item is still worth to you unsold) apply to every channel. Anything a c
 price on Etsy, no postage on a local sale, an FBA fee on Amazon — goes in that
 channel's own panel under the table, along with its rates. Channels can be
 switched out of the comparison; "Other channel" starts switched off and blank
-for anything not listed (Mercari, Poshmark, Depop, a craft fair, wholesale).
+for anything not listed (Mercari, Depop, a craft fair, wholesale). Poshmark has
+its own row, since the portfolio prices it in depth.
 
 Entries are saved in your own browser so the page remembers them next time.
 "Reset everything" clears them.
@@ -173,8 +202,32 @@ tool sits unused and the comparison ends at a ranking nobody acts on.
 
 So under the verdict, every channel that has a dedicated calculator **and** can
 accept inputs from a link gets a "keep going with this item" link, built from
-what is on screen. Today that is eBay and Etsy; a channel gains one the day its
+what is on screen. Today that is eBay, Etsy, Amazon, Reverb, TikTok Shop,
+Whatnot, Poshmark and an own store (Shopify); a channel gains one the day its
 calculator learns to read a link.
+
+**The handoff now runs both ways for every channel that has one.** Each of
+`../ebay-fee-calculator/`, `../etsy-profit-calculator/`,
+`../amazon-fba-calculator/`, `../reverb-fee-calculator/`,
+`../shopify-fee-calculator/`, `../tiktok-shop-fee-calculator/`,
+`../whatnot-seller-payout/` and `../poshmark-fee-calculator/` carries its own
+item back into this page with
+that channel already switched on (each ships its own `to-where-to-sell.mjs`,
+mirroring this page's `handoff.mjs` in reverse). Reverb was first; eBay, Etsy,
+Amazon and Shopify followed the same day. TikTok Shop and Whatnot followed
+later, and Poshmark last — each calculator had already exported the field-name
+contract this handoff needs (see each one's own `FIELD_IDS` / `INPUT_IDS`), but
+none had a where-to-sell channel preset or a `to-where-to-sell.mjs` module
+wired up, so a seller who landed on any of those pages first had no way into
+this comparison at all, in either direction. Poshmark took longest because it
+needed more than wiring: its fee is a cliff rather than a rate, so the ranking
+engine had to learn to price, break even and solve for a target on whichever
+side of $15 the item sits. This is the direct test of this venture's first
+untested hypothesis — until now a seller who searched their way to a
+single-channel calculator first (which, for the highest-traffic channels, is
+the more likely entry point) had no way into this comparison without
+retyping, so the "deeper scenarios never get opened" failure the hypothesis
+names could happen from either direction and only one was fixed.
 
 Two details that are not obvious:
 
@@ -185,6 +238,13 @@ Two details that are not obvious:
   separate packaging input because packaging is part of what it calls
   materials, so packaging is added to `materialCost` on the way over. Dropping
   it would understate cost and overstate profit on arrival.
+- **A number the target has no *concept* for is left out, and that is not the
+  same thing.** Poshmark's buyer buys a prepaid label at checkout, so postage
+  is neither seller revenue nor a seller cost and its calculator has no
+  shipping input at all. Folding postage in anywhere would put it inside a
+  payout that never sees it, so both shipping fields stay behind — and this
+  page's own Poshmark preset starts them at zero for the same reason, so the
+  row a seller sees here already agrees with the page they land on.
 
 Nothing is uploaded. The values ride in the URL fragment — the same mechanism
 the "Copy share link" button already uses — which browsers never send to a
@@ -296,7 +356,9 @@ device.
 The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
 `channel_volume_edited`, `returns_compared`, `shelf_time_compared`,
-`share_link_copied`, `comparison_csv_downloaded`, `handoff_ebay`, `handoff_etsy`) and the
+`share_link_copied`, `comparison_csv_downloaded`, `handoff_ebay`, `handoff_etsy`,
+`handoff_amazon`, `handoff_reverb`, `handoff_own-store`, `handoff_tiktok`,
+`handoff_whatnot`, `handoff_poshmark`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was

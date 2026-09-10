@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Actions Runner Starvation Check — Is Your Red CI Even Real?</title>
+  <meta name="description" content="Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="Is your red GitHub Actions check even real?">
+  <meta property="og:description" content="runner_id: 0 means GitHub never scheduled the job — no runner, no step ran, and it is not your code's fault. Paste your run's JSON and get the verdict.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Actions Runner Starvation Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Tells you whether a red GitHub Actions check is a real failure or a job GitHub never assigned a runner to, from the run's own runner_id field. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why did my check fail in 3 seconds with no output?","acceptedAnswer":{"@type":"Answer","text":"That is the signature of a job GitHub never assigned a runner to — included minutes spent, a spending limit, a payment problem, or Actions disabled on the account. Every check fails within a few seconds with an empty body, and it looks identical to a real fast failure from the checks list alone."}},{"@type":"Question","name":"Why not just go by how fast it failed?","acceptedAnswer":{"@type":"Answer","text":"Because a real job can fail in three seconds too — a syntax error or a failing assertion on the first test does not need a runner-minute to fail. Duration looks the same either way; only runner_id tells them apart, which is the one field this tool decides on."}},{"@type":"Question","name":"Does this tell me why my account stopped getting runners?","acceptedAnswer":{"@type":"Answer","text":"No — only whether a runner was assigned. GitHub's own run-timing endpoint reports zero billable time for private repos regardless of what ran, so it cannot attribute cost either. That answer is on your GitHub billing page; this tool only tells you whether the next few minutes are worth spending on your code or on your Actions usage."}},{"@type":"Question","name":"Why do I have to paste JSON instead of it just checking for me?","acceptedAnswer":{"@type":"Answer","text":"Checking for you would mean either a server that sees every token pasted into it, or this page fetching on your behalf with a token it would have to hold. Neither is worth the convenience next to pasting the response you already fetched yourself with your own credentials."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.starved { color: #9a3412; }
+    .verdict.pending { color: #7c5e10; }
+    .row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid #e6eaf0; font-size: .92rem; }
+    .row:last-child { border-bottom: 0; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.starved { background: #fde8e8; color: #9a3412; }
+    .pill.ran { background: #dcefe4; color: #14532d; }
+    .pill.pending { background: #fdf0d5; color: #7c5e10; }
+    .pill.skipped { background: #e3e9ef; color: #55606f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ACTIONS RUNNER STARVATION CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Is your red GitHub Actions check even real?</h1>
+    <p>A job GitHub never assigns a runner to fails in a few seconds with an empty output — indistinguishable at a glance from a real, fast failure. Paste the run's own JSON below and this page reads the one field that actually decides: <code>runner_id</code>. Zero means no runner was ever scheduled, so no step ever ran — the failure is not your code.</p>
+    <p class="note">Nothing is uploaded. The JSON you paste is read in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Get the run's job JSON</h2>
+    <p>Run this for the failing run (needs the <a href="https://cli.github.com/" rel="noopener">gh CLI</a>, already logged in):</p>
+    <pre class="cmd"><code>gh api repos/OWNER/REPO/actions/runs/RUN_ID/jobs</code></pre>
+    <p class="note">No <code>gh</code> CLI? Open <code>https://api.github.com/repos/OWNER/REPO/actions/runs/RUN_ID/jobs</code> in a browser tab authenticated with a token that has <code>Actions: read</code>, and copy the response body.</p>
+  </section>
+
+  <section class="card">
+    <h2>2. Paste it here</h2>
+    <textarea id="payload" spellcheck="false" placeholder='{"jobs": [{"id": 1, "name": "validate", "runner_id": 0, "runner_name": "", "status": "completed", "conclusion": "failure", ...}]}'></textarea>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste the JSON from step 1 and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Verdict</h2>
+    <p class="verdict" id="verdict"></p>
+    <div id="rows"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in a workflow step?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py --run RUN_ID          # exits 1 if any job was starved
+python3 check.py --run RUN_ID --json   # machine-readable
+python3 check.py --from-json jobs.json # classify a payload you already have, no API call</code></pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-runner-starvation-check/check.py" rel="noopener">check.py from the repo</a> — stdlib only, nothing to install. It talks to the API itself via the <code>gh</code> CLI or a <code>GH_TOKEN</code>/<code>GITHUB_TOKEN</code> it finds in your environment, which is the route a hosted CI step or an agent session actually has.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why did my check fail in 3 seconds with no output?</h3>
+    <p>That is the signature of a job GitHub never assigned a runner to — included minutes spent, a spending limit, a payment problem, or Actions disabled on the account. Every check fails within a few seconds with an empty body, and it looks identical to a real fast failure from the checks list alone.</p>
+    <h3>Why not just go by how fast it failed?</h3>
+    <p>Because a real job can fail in three seconds too — a syntax error or a failing assertion on the first test does not need a runner-minute to fail. Duration looks the same either way; only <code>runner_id</code> tells them apart, which is the one field this tool decides on.</p>
+    <h3>Does this tell me <em>why</em> my account stopped getting runners?</h3>
+    <p>No — only whether a runner was assigned. GitHub's own run-timing endpoint reports zero billable time for private repos regardless of what ran, so it cannot attribute cost either. That answer is on your GitHub billing page; this tool only tells you whether the next few minutes are worth spending on your code or on your Actions usage.</p>
+    <h3>Why do I have to paste JSON instead of it just checking for me?</h3>
+    <p>Checking for you would mean either a server that sees every token pasted into it, or this page fetching on your behalf with a token it would have to hold. Neither is worth the convenience next to pasting the response you already fetched yourself with your own credentials.</p>
+    <p>More: <a href="why-is-my-github-actions-check-red-in-seconds.html">why a GitHub Actions check goes red in seconds with no output</a>.</p>
+    <p>Related: if the job did get a runner and tests flip between runs, the <a href="../flaky-test-finder/">flaky test finder</a> classifies which tests are flaky versus broken from JUnit XML you paste — nothing uploaded.</p>
+    <p>Related: if the job did get a runner and line coverage fell on the PR, the <a href="../coverage-drop-check/">coverage drop check</a> compares two Cobertura or JaCoCo reports and names the files that got worse — nothing uploaded.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a substitute for reading GitHub's own billing and Actions usage pages, and it does not tell you why your account stopped receiving runners, only whether a specific job got one. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-runner-starvation-check/check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The JSON you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you a debugging session, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { report, jobsFromPayload, summarize } from "./classify.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      payload: $("#payload"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    const EXAMPLE = {
+      jobs: [
+        { id: 1, name: "portfolio-validate", status: "completed", conclusion: "failure",
+          runner_id: 0, runner_name: "", started_at: "2026-09-04T22:39:30Z", completed_at: "2026-09-04T22:39:34Z" },
+        { id: 2, name: "duplicate-symbols", status: "completed", conclusion: "failure",
+          runner_id: 0, runner_name: "", started_at: "2026-09-04T22:39:31Z", completed_at: "2026-09-04T22:39:36Z" },
+      ],
+    };
+
+    function renderRows(rows) {
+      const marks = { starved: "starved", ran: "ran", pending: "pending", skipped: "skipped" };
+      els.rows.innerHTML = rows.map((r) => `
+        <div class="row">
+          <span><strong>${escapeHtml(r.name || "(unnamed job)")}</strong> — ${escapeHtml(r.reason)}</span>
+          <span><span class="pill ${r.verdict}">${marks[r.verdict] || r.verdict}</span> ${r.seconds === null ? "" : `· ${r.seconds}s`}</span>
+        </div>`).join("");
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function runCheck(payload) {
+      let rows;
+      try {
+        rows = report(jobsFromPayload(payload));
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const { status, text } = summarize(rows);
+      els.verdict.className = `verdict ${status}`;
+      els.verdict.textContent = text;
+      renderRows(rows);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", () => {
+      const text = els.payload.value.trim();
+      if (!text) {
+        els.status.innerHTML = `<span class="error">Paste the JSON from step 1 first.</span>`;
+        return;
+      }
+      let payload;
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        els.status.innerHTML = `<span class="error">That is not valid JSON — paste the whole response body from the API call in step 1.</span>`;
+        return;
+      }
+      runCheck(payload);
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      els.payload.value = JSON.stringify(EXAMPLE, null, 2);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: two jobs from the same run, both never assigned a runner.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.payload.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste the JSON from step 1 and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

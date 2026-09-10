@@ -10,8 +10,10 @@ must come from the ledger rather than from constants.
 
 from __future__ import annotations
 
+import sys
 import time
 
+import pytest
 import yaml
 
 import session_gate as sg
@@ -162,6 +164,43 @@ def test_build_targets_skips_what_has_already_graduated(tmp_path, monkeypatch):
     monkeypatch.setattr(sg, "CANDIDATES", candidates)
 
     assert [c["slug"] for c in sg.build_targets()] == ["pending"]
+
+
+# --- the ledger file itself must track the current month, not a fixed one ----
+
+
+def test_latest_ledger_path_picks_the_newest_month_present(tmp_path):
+    """Regression test for the 2026-09-10 finding: `LEDGER` was hardcoded to
+    `2026-08.yaml` and stayed pinned there past the month rollover, so this
+    gate quietly read a frozen August tail for the first ten days of
+    September. Sorting the filenames must pick whichever month is newest,
+    not the one this test (or the module) happens to be written against."""
+    for name in ("2026-07.yaml", "2026-08.yaml", "2026-09.yaml", "asks.yaml"):
+        (tmp_path / name).write_text("entries: []\n")
+
+    assert sg.latest_ledger_path(tmp_path) == tmp_path / "2026-09.yaml"
+
+
+def test_latest_ledger_path_ignores_non_month_yaml_files(tmp_path):
+    """`asks.yaml`, `infra_state.yaml`, `verifications.yaml` and the like sit
+    in the same directory and must never be mistaken for a month's ledger."""
+    (tmp_path / "asks.yaml").write_text("asks: []\n")
+    (tmp_path / "2026-09.yaml").write_text("entries: []\n")
+
+    assert sg.latest_ledger_path(tmp_path) == tmp_path / "2026-09.yaml"
+
+
+def test_latest_ledger_path_raises_when_none_exist(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        sg.latest_ledger_path(tmp_path)
+
+
+def test_module_ledger_resolves_to_a_real_current_month_file():
+    """The module-level `LEDGER` this whole test file already relies on via
+    `sg.LEDGER.read_text()` must itself be the product of the resolver, not a
+    leftover constant sitting next to it unused."""
+    assert sg.LEDGER == sg.latest_ledger_path()
+    assert sg.LEDGER.exists()
 
 
 def _pipeline(tmp_path, monkeypatch, body: str):
@@ -378,8 +417,24 @@ def test_meta_threshold_is_crossable_by_the_real_ledger():
     Measured on 2026-08: 25-entry windows span 56%-100%, and 29 of 140 sit
     below 70%. If a future month never crosses it the gate has stopped being
     a reading and become a constant, and this test is where that shows up.
+
+    Pinned to `2026-08.yaml` explicitly rather than `sg.LEDGER`. Before
+    2026-09-10 those were the same path, because `LEDGER` was itself
+    hardcoded to August — this test happened to be validated against "the
+    live ledger" only by that coincidence. Once `LEDGER` was fixed to track
+    whichever month is actually current (see `latest_ledger_path`), the same
+    assertion against September's much larger, much lower-meta-work dataset
+    failed outright (max observed window there is 68%, never crossing 70%) —
+    not because the detector regressed, but because this specific test's job
+    is to pin the threshold against the *known* dataset it was calibrated
+    from, and that dataset is `2026-08.yaml`, not "whatever `LEDGER` resolves
+    to when the test happens to run." Recalibrating `META_SHARE_THRESHOLD`
+    itself against September's healthier distribution is a live-gate policy
+    call for a session with visibility into current fleet dynamics, not a
+    side effect of a ledger-path bugfix.
     """
-    entries = yaml.safe_load(sg.LEDGER.read_text())["entries"]
+    fixture = sg.REPO / "portfolio" / "ledger" / "2026-08.yaml"
+    entries = yaml.safe_load(fixture.read_text())["entries"]
     windows = [
         sg.meta_share(entries[i : i + sg.WINDOW], window=sg.WINDOW)
         for i in range(0, len(entries) - sg.WINDOW + 1)
@@ -663,8 +718,19 @@ def test_stale_pr_check_streak_measured_on_the_real_ledger():
     "the last N" would make this test flake as soon as the next session's
     entry lands, which is exactly the kind of churn the gate has to tolerate
     rather than assume away.
+
+    Pinned to `2026-08.yaml` explicitly, for the same reason as the meta-share
+    threshold test above: this is a regression fixture proving the detector
+    still finds a known historical streak, not a live assertion about
+    whatever month `sg.LEDGER` currently resolves to. September's ledger
+    (post the 2026-09-10 ledger-path fix) doesn't happen to carry a streak
+    this long yet -- a good sign about current session behavior, not a
+    detector regression -- so asserting against it here would conflate "the
+    pattern-matcher still works" with "the fleet is still repeating this
+    waste," which are two different claims.
     """
-    entries = yaml.safe_load(sg.LEDGER.read_text())["entries"]
+    fixture = sg.REPO / "portfolio" / "ledger" / "2026-08.yaml"
+    entries = yaml.safe_load(fixture.read_text())["entries"]
     longest = max(
         (sg.stale_pr_check_streak(entries[: i + 1]) for i in range(len(entries))),
         default=0,
@@ -799,3 +865,114 @@ def test_main_does_not_trust_a_reading_the_fetch_could_not_refresh(monkeypatch, 
     # lane alone would pass even if main() stopped propagating `fetched`.
     assert captured["cadence_reliable"] is False
     assert captured["origin_fetched"] is False
+
+
+# --- the published snapshot ---------------------------------------------------
+#
+# DIRECTION.md's North star ranks refreshing a stale snapshot above all new
+# work. Until 2026-09-07 the gate never read it, so a session could follow a
+# complete PROCEED verdict while the live site sat behind `main`. These tests
+# pin the two directions that matter: a stale reading must be impossible to
+# miss, and an unreadable one must never be laundered into a healthy one.
+
+
+def _entries():
+    return [entry("some-venture") for _ in range(sg.WINDOW)]
+
+
+def test_a_stale_snapshot_leads_the_reasons_ahead_of_the_verdicts_own():
+    r = sg.report(_entries(), 1.0, snapshot=("stale", "built from abc1234"))
+    assert r["published_snapshot"] == "stale"
+    assert "THE LIVE SITE IS BEHIND" in r["reasons"][0]
+    assert "publish-branch.sh" in r["reasons"][0]
+    assert "built from abc1234" in r["reasons"][0]
+
+
+def test_a_current_snapshot_adds_no_reason_and_no_warning_marker():
+    r = sg.report(_entries(), 1.0, snapshot=("current", "built from the tip"))
+    assert r["published_snapshot"] == "current"
+    assert not any("LIVE SITE IS BEHIND" in reason for reason in r["reasons"])
+    assert not any("Published-snapshot state" in reason for reason in r["reasons"])
+    assert "the live site is not known to match" not in sg.render(r)
+
+
+def test_an_unreadable_snapshot_is_flagged_rather_than_read_as_healthy():
+    """The direction this must never be wrong in: `unknown` is not `current`."""
+    r = sg.report(_entries(), 1.0, snapshot=("unknown", "no GH_TOKEN"))
+    assert r["published_snapshot"] == "unknown"
+    flagged = [x for x in r["reasons"] if "Published-snapshot state" in x]
+    assert len(flagged) == 1
+    assert "never as fine" in flagged[0]
+    assert "the live site is not known to match" in sg.render(r)
+
+
+def test_an_absent_gh_pages_branch_is_not_silently_fine():
+    r = sg.report(_entries(), 1.0, snapshot=("absent", "no `gh-pages` branch"))
+    assert any("Published-snapshot state is `absent`" in x for x in r["reasons"])
+
+
+def test_report_without_a_snapshot_argument_defaults_to_unknown_not_current():
+    """A caller that forgets to pass the reading must not get a green line."""
+    r = sg.report(_entries(), 1.0)
+    assert r["published_snapshot"] == "unknown"
+    assert "the live site is not known to match" in sg.render(r)
+
+
+def test_render_shows_the_snapshot_row_in_every_state():
+    for state in ("current", "stale", "unknown", "absent"):
+        out = sg.render(sg.report(_entries(), 1.0, snapshot=(state, "why")))
+        assert f"published snapshot ............. {state}" in out
+
+
+def _pages_state():
+    """Import `pages_state` the way `published_snapshot` does.
+
+    A bare `import pages_state` here passes only when some earlier test in the
+    session has already called `sg.published_snapshot()` and left that path on
+    `sys.path` — so the test would go green in a full run and fail on its own,
+    which is the least useful way for a test to be wrong.
+    """
+    sys.path.insert(0, str(sg.REPO / "platform" / "ci"))
+    import pages_state
+
+    return pages_state
+
+
+def test_published_snapshot_returns_unknown_when_no_token_is_available(monkeypatch):
+    pages_state = _pages_state()
+
+    monkeypatch.setattr(pages_state, "api_token", lambda *_a, **_k: None)
+    state, reason = sg.published_snapshot()
+    assert state == "unknown"
+    assert "GH_TOKEN" in reason
+
+
+def test_published_snapshot_swallows_a_failure_rather_than_crashing_the_gate(monkeypatch):
+    """A network hiccup in a reporting helper must not take the gate down."""
+    pages_state = _pages_state()
+
+    monkeypatch.setattr(pages_state, "api_token", lambda *_a, **_k: "t")
+
+    def boom(*_a, **_k):
+        raise RuntimeError("connection reset")
+
+    monkeypatch.setattr(pages_state, "collect", boom)
+    state, reason = sg.published_snapshot()
+    assert state == "unknown"
+    assert "connection reset" in reason
+
+
+def test_main_propagates_the_snapshot_reading(monkeypatch, capsys):
+    monkeypatch.setattr(sg, "refresh_origin_main", lambda: True)
+    monkeypatch.setattr(sg, "sessions_per_hour", lambda: (1.0, True))
+    monkeypatch.setattr(sg, "max_concurrent_sessions", lambda *_a, **_k: 0)
+    monkeypatch.setattr(sg, "commits_with_sessions", lambda *_a, **_k: [])
+    monkeypatch.setattr(sg, "load_entries", lambda *_a, **_k: _entries())
+    monkeypatch.setattr(sg, "published_snapshot", lambda *_a, **_k: ("stale", "one merge behind"))
+    monkeypatch.setattr(sg.sys, "argv", ["session_gate.py"])
+
+    sg.main()
+
+    out = capsys.readouterr().out
+    assert "published snapshot ............. stale" in out
+    assert "THE LIVE SITE IS BEHIND `main`" in out
