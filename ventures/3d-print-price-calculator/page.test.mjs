@@ -114,3 +114,10 @@ test('every page in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+test("index links one hop to the apparel-decoration-price-calculator sibling", () => {
+  assert.ok(
+    html.includes('href="../apparel-decoration-price-calculator/"'),
+    "index must link ../apparel-decoration-price-calculator/ so a crawler reaches that tool in one hop",
+  );
+});
