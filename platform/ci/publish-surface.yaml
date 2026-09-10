@@ -488,6 +488,9 @@ workflows:
 - workflow: menu-engineering-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: merchant-feed-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: metal-roof-bid-calculator-ci.yml
   classification: none
   publishes: []

@@ -22665,3 +22665,131 @@ entries:
         platform/ci/build_pages_site.py + check_pages_links.py directly:
         861 pages built, every local reference resolves).
     mrr_end: 0
+  - venture: merchant-feed-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/merchant-feed-check`, a free
+        zero-dependency CLI + browser checker that validates a Google
+        Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON)
+        against the published product-data specification: required fields
+        present, price/availability format, GTIN/MPN identifier rules (with
+        the real GS1 check-digit algorithm, verified against the canonical
+        EAN-13 worked example), promotional-text disapproval triggers, and
+        duplicate item IDs. Explicitly scoped to data-specification
+        conformance, not Shopping/Catalog policy compliance -- it states
+        plainly, in the README, the page footer, and its own FAQ, that it
+        cannot see account trust signals, prohibited-product policy, or a
+        landing-page price/availability match, and never claims an approval
+        determination.
+      - >-
+        Picked over another `<trade>-bid-calculator` per
+        `portfolio/pipeline/README.md`'s "archetype itself" section (CLI/
+        checker over the saturated browser-calculator shape).
+        `duplicate_check.py` scored every existing venture, screened-out.md
+        row, ai-first-markets idea, and pipeline candidate below 0.10
+        against the final description. Two candidate niches were screened
+        and rejected before this one: an SPF/DKIM/DMARC DNS-record checker
+        (real, current demand -- Google/Yahoo's 2024 bulk-sender rules --
+        but confirmed by web search to already have several free
+        open-source CLI checkers covering the exact same space, e.g.
+        fdzdev/DMARC-SPF-Checker and GlobalCyberAlliance/
+        DomainSecurityScanner, with no clear differentiation left for a
+        237th venture).
+      - >-
+        Named channel, verified by web search rather than assumed: Shopify's
+        own community forum carries recurring, actively-answered threads on
+        exactly this problem ("Why is Google Merchant Center disapproving
+        all my products?", disapprovals "Due To Violation Of Shopping Ads
+        Policies"), and at least six unrelated businesses (Adsmurai,
+        Kontrolit, FeedRevision, ProductPrime, ecomseo,
+        mysitemapgenerator) each built a free web-form feed validator
+        landing page -- evidence of real, sustained search demand. None of
+        those, or the open-source DNS checkers above, is a scriptable,
+        zero-account CLI a merchant can wire into their own CI/deploy
+        pipeline the way a linter runs before a merge; that gap is this
+        tool's differentiated wedge, reflected in `venture-scores.yaml`
+        holding `distribution` at 6 (below the 7 given to
+        wordpress-plugin-review-check/cors-misconfig-check) precisely
+        because that CI-gate conversion is untested.
+      - >-
+        Liability/ethics gates scored honestly, not fudged: both `pass` in
+        `venture-scores.yaml`. Liability: the tool checks feed data against
+        a published public specification and states, in three places, the
+        two categories of disapproval it cannot see and never claims to
+        determine. No scraped or third-party personal data -- the feed a
+        user loads is their own product catalog, processed entirely on
+        their own device (browser) or machine (CLI), never transmitted. No
+        payment code (`check_no_payment_code.py` clean). Ethics: gets
+        strictly more useful to a seller as more of the spec's documented
+        failure modes are covered; no dark pattern, nothing collected.
+      - >-
+        Shipped registered and linked in the same commit rather than left
+        to close later: the orphan budget was at its 3/3 ceiling, so
+        `structured-data-drift-check`'s footer names this tool (the other
+        representation of a product Google's Shopping features read -- a
+        page's own JSON-LD vs. the separate Merchant Center feed) and this
+        tool's footer names it back, with a `page.test.mjs` assertion on
+        the href in both ventures -- `siblings.mjs --check` still reads 3
+        orphans and `siblings-budget.json` needed no raise. Also in the
+        same commit: the CI workflow
+        (`.github/workflows/merchant-feed-check-ci.yml`), the
+        `venture-scores.yaml` row (composite 6.0, floor 1 `ai_leverage`),
+        `publish-surface.yaml` (`--write`, classifying the new workflow),
+        `launched.json` (so it enters `/feed.xml`), the `build.mjs` `ci`
+        category (CI checks & developer gates) with the reason for joining
+        that family rather than a new one, the front-door mirror regen,
+        the six hand-typed mirrored-tool counts (228 -> 229, across
+        `infra/OWNER_CHECKLIST.md` and `gitops/prod/{usage/aggregate.py,
+        front-door/default.conf}`) plus the `total` constant inside
+        `test_manifests.py` itself, and the `runs-on` count via
+        `gitops/ci/sync_readme_counts.py`.
+      - >-
+        One real defect caught by the repo's own guards and fixed before
+        shipping: `sideways.mjs` found a 6px phone-width (360px) overflow
+        on the tool's own page, traced (by bisecting sections, then
+        binary-searching the offending markup) to an unbroken
+        slash-joined phrase, "Shopify/WooCommerce/BigCommerce", with no
+        break opportunity at that width -- rewritten as
+        "Shopify, WooCommerce, or BigCommerce" in both the visible FAQ
+        text and its FAQPage JSON-LD (kept character-for-character
+        identical per `faq-visible.test.mjs`). Also fixed two rounds of
+        JSON-LD/visible-text em-dash punctuation drift (`--` in the
+        authored JSON-LD vs. `—` in the visible copy) on both the tool
+        page and its docs page, and added a visible Q&A section to the
+        docs page to match FAQPage JSON-LD that had no rendered
+        counterpart at all -- all three caught by
+        `platform/pages/faq-visible.test.mjs`, none visible in a `node
+        --test` run of the venture's own suite alone.
+      - >-
+        Verified locally (Actions starved -- see the starvation check
+        below): `node --test` 50/50 in this venture, 99/99 combined with
+        `structured-data-drift-check` (the sibling this PR also edits);
+        `platform/marketing`+`platform/pages` 1202/1202 (run twice, before
+        and after the sideways-scroll fix and its `regen.mjs` re-run);
+        `platform/proposal` 101/101; `platform/privacy`+`platform/webcheck`
+        79/79; `pytest gitops/tests` 525 passed / 25 skipped (0 skipped
+        from a shallow clone -- `git fetch --unshallow` run first); `pytest
+        portfolio/{scoring,router}` 88/88, `portfolio/{ledger,usage,
+        pipeline} infra/tests` 347 passed / 8 subtests; all 15 `platform/ci`
+        unittest modules OK plus `agent_review/test_review` 21/21;
+        `browser_checks.py --only merchant-feed-check --checks
+        contrast,sideways,presets,roundtrip` all pass (0 WCAG A/AA
+        violations across 2 pages x 2 viewports, no sideways scroll at
+        360px after the fix); `checklist_coverage.py`, `clauses.mjs`,
+        `check_no_payment_code.py`, `score_ventures.py --check` (238),
+        `router/validate.py` (237), `usage/validate_usage.py`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `siblings.mjs --check` (3 orphans, in budget),
+        `publish_surface.py --check` all clean.
+        `run_workflow_locally.py --for-changes`: 17/19 selected workflows
+        passed; the one failure (`pages.yml`'s "Check every hub link
+        resolves") is the tool's own documented limitation -- its "Build
+        the site" step contains a `${{ }}` expression the local runner
+        cannot evaluate and is skipped, so the downstream step that reads
+        `_site` fails on a directory that step never created, unrelated to
+        this change. The sibling `portfolio-pages.yml`, which runs its
+        build step with real values rather than skipping it, built and
+        checked the artifact clean (3/3).
+    mrr_end: 0
