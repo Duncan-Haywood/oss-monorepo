@@ -23077,3 +23077,61 @@ entries:
         answers `403 host_not_allowed`, so it is a reading of the proxy and
         not of the host. Recorded because the false positive is convincing.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed the last three crawlable orphans, taking
+        `platform/pages/siblings-budget.json` from 3 to 0 across 230 tools.
+        This matters more on this origin than the number suggests: the
+        catalogue is served from a project-Pages *subpath*, so the
+        `robots.txt` a crawler actually reads belongs to the owner's separate
+        user-level site and the `Sitemap:` line has never been seen. Sitemap
+        enumeration is therefore unavailable, and a page reachable only from
+        the sitemap is today reachable from nothing. An orphan is not a
+        cosmetic gap here — it is a page with no crawl path at all.
+      - >-
+        The three had been recorded twice in the budget file as unpairable.
+        They were unpairable only against *each other* — the standing method
+        was to look for a second orphan to pair with, and all three partners
+        found here (freelance-retainer-calculator, str-host-payout-calculator,
+        3d-print-price-calculator) were never orphans themselves. That is the
+        same blind spot the childcare/music-lesson entry names and does not
+        fully fix, now stated plainly in the budget file's `why`.
+      - >-
+        The pairings, and why each is honest rather than manufactured to move
+        the number: security-deposit-return-calculator / str-host-payout —
+        one property owner's two letting models, and the deposit venture's
+        own README already named the STR host calculator as its closest
+        neighbour, so the pairing was written down in the tree before anyone
+        looked for it. ats-resume-checker / freelance-retainer — both answer
+        "how do I get paid" for one person working for themselves, both filed
+        under `solo-earner`. ai-engineering-academy / 3d-print-price — one
+        maker, the printed enclosure and the circuit inside it; the academy's
+        published surface is six electronics calculators.
+      - >-
+        A defect the work turned up in itself: the academy's entry is
+        ENTRY_OVERRIDES-mapped to `tools/`, so it publishes at
+        `/tools/ai-engineering-academy/` and a sibling href is `../<slug>/`,
+        not `../../<slug>/`. The first draft used two levels and would have
+        shipped a dead link that only a browser check would catch, and only
+        if it happened to crawl that page. `hub-page.test.mjs` now pins the
+        depth as well as the link.
+      - >-
+        Budget lowered to 0 rather than to 3-minus-three, so the next tool
+        shipping without an inbound sibling link turns a run red on the day
+        it lands instead of joining a worklist. Raising it again for a
+        genuinely new vertical with no honest partner is still allowed and
+        still belongs in a PR body with a reason; fabricating a pairing to
+        hold the number at 0 is not.
+      - >-
+        Verified locally (Actions intermittently starved): `siblings.mjs
+        --check` 0 of 230 within a budget of 0; `siblings.test.mjs` 14/14;
+        `platform/marketing` + `platform/pages` + `platform/proposal` +
+        `platform/privacy` + `platform/webcheck` 1382/1382, 0 skipped (clone
+        unshallowed, so both history-pinned webcheck tests really ran); the
+        five touched ventures' suites 160/160; the academy's 230/230;
+        `regen.mjs` clean; `checklist_coverage.py` clean. `ats-resume-checker`
+        and the academy hub had no page-level test at all and gained one.
+    mrr_end: 0
