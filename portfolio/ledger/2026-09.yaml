@@ -22219,3 +22219,56 @@ entries:
         the fleet's other concurrent PRs), so every check above was run
         locally rather than trusted from a red or absent GitHub check.
     mrr_end: 0
+  - venture: wash-and-fold-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a vs-Cents comparison page. This venture's own VENTURE.yaml
+        already named Cents, CleanCloud and Curbside Laundries as the
+        category's subscription POS/route vendors, but it was one of 22
+        ventures (out of 236) with no `vs-*.html` anywhere in the tree
+        (checked both the venture root and the `site/` subdirectory some
+        ventures use, per CLAUDE.md's "168 became 169" lesson about
+        `venturePageRoot`'s two candidate paths). Cents is the most
+        commonly-searched-for vendor in the niche. Follows the existing
+        vs-page discipline (see equipment-rental-break-even/site/vs-booqable.html):
+        no invented pricing for the named platform, an explicit
+        not-affiliated statement, FAQPage JSON-LD matched verbatim to
+        visible copy, no disparagement. Linked from index.html, listed in
+        sitemap.xml, regenerated into the front-door mirror with
+        `platform/marketing/regen.mjs`.
+      - >-
+        Verified: `node --test ventures/wash-and-fold-price-calculator/*.test.mjs`
+        (59/59, after merging a concurrent session's share-link feature
+        added to the same venture mid-session), `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` (1196/1196),
+        `platform/pages/build.mjs` + `check.mjs` (227 products, 889 pages,
+        no dead links) both before and after the merge.
+      - >-
+        Also worked this session's explicit ask to prioritize Hetzner
+        deployment/CI-CD and a Codex CLI worker there. Confirms the same
+        blocker another concurrent session recorded earlier today: every
+        route to the Hetzner boxes (`k3s-cluster`, the self-hosted CI
+        runners in `gitops/ci/`, and the systemd-timer Codex host mode in
+        `gitops/agents/host/` -- code-complete and verified this session,
+        `python3 -m pytest gitops/tests/test_host_governor.py
+        gitops/tests/test_install_codex_host.py` 45/45 and
+        `systemd-analyze verify` clean on both unit files) is blocked on the
+        single owner action `hetzner-ssh-key-is-a-public-key` (decision
+        queue item #1, unresolved since 2026-09-04). No session can rotate
+        it: `agent-session-egress` is `down` for this session too --
+        `/dev/tcp/89.167.29.39/22` does not connect and there is no `ssh`
+        binary in the image. GitHub Pages remains the one working,
+        Hetzner-independent deploy route (`pages_state.py`: `deployed:
+        served`, snapshot `current` as of this session), which is what this
+        entry's marketing page publishes through once merged and
+        `publish-branch.sh` is re-run.
+      - >-
+        Sampled ~26 of the ~177 open branches with commits ahead of `main`
+        via `supersede_check.py` (12 hand-checked here, plus a background
+        sweep of the rest): every one checked came back SUPERSEDED. No open
+        PRs existed at session start (0), so the mandate's 3-PR merge quota
+        applies vacuously this session; product work proceeded per "if none
+        exist, start new work after the overlap check."
+    mrr_end: 0
