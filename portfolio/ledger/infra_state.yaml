@@ -33,8 +33,8 @@ readings:
 
   github-actions-runners:
     verdict: down
-    measured: "2026-09-09"
-    run: 34387947196
+    measured: "2026-09-10"
+    run: 34423728610
     how: >-
       Cheapest route, and it costs nothing at all: classify a check that
       already ran on any open PR, by its **job** id rather than a run id --
@@ -180,6 +180,20 @@ readings:
       `run_workflow_locally.py --tree` against the tip and it came back 9/9
       workflows, 63/63 `run:` steps in `portfolio-validate.yml` — so `main`
       is genuinely green right now, measured rather than assumed.
+      Re-measured 2026-09-10T01:01Z from a scheduled autonomous session, off
+      ordinary PR traffic rather than a dispatch: every one of 14 distinct
+      check names on PR #4374 (`validate`, `check`, `scripts`,
+      `page-integrity`, `test` x6, `site-test` x2, `build` x2,
+      `sibling-links`, `resolve-pr`, `gitops`, `hcloud-scope`, `coverage`,
+      `link-contrast`, `tofu`) came back `failure` within 2-3s.
+      `ci_starvation.py --run 34423728610` and `--run 34423728696` both exit
+      1 on `runner_id: 0` — a still-open window, one day past the 09-09
+      reading and unmoved from the 2026-10-01 allowance-reset expectation.
+      Merged that PR on local verification only (node --test, pytest, all 15
+      `platform/ci` unittest modules, all 8 `portfolio-validate.yml`
+      validators, `build.mjs` + `check.mjs`), per this file's own standing
+      guidance -- and re-confirmed `main` is green independent of that PR's
+      own red checks by running the same suites again post-merge.
 
   k3s-cluster:
     verdict: down
