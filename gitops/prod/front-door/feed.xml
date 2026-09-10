@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 236 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 237 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free screen printing, embroidery and DTF pricing calculator for custom apparel shops: work out your real cost per shirt from screens or digitising, press or stitch time, blanks and spoilage, then see the break-even price, the margin at what you quoted, and what the same job costs at 12, 24, 48, 72, 144 and 288 pieces. Runs entirely in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Bounce House Rental Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/bounce-house-rental-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/bounce-house-rental-calculator</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Price a bounce house or inflatable rental booking from the truck&#39;s two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet&#39;s replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.</summary>
   </entry>
   <entry>
     <title>CORS Misconfiguration Checker — Reflected Origin, Null Origin, Unanchored Allow-Lists</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="Marketplace seller tools"/>
     <summary type="text">See what a Kindle book keeps on KDP exclusive (paid sales plus Kindle Unlimited page reads) versus going wide. Paperback print cost, 70% vs 35% ebook, and Ingram wholesale are boxes you type from your own dashboard. Free, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>License Drift Check — Did a Dependency&#39;s License Change Since Your Last Snapshot?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/license-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/license-drift-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste two snapshots of your dependency tree&#39;s declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

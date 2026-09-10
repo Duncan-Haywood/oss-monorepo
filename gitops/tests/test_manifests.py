@@ -1479,7 +1479,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 236 since 2026-09-10, when `security-headers-check` also graduated the
     # same day — same shape again: a new venture with a static `index.html`
     # from its first commit, entering the mirror and the total together.
-    total = 236  # `infra/OWNER_CHECKLIST.md`'s own "N of the 236 tools" wording.
+    # 237 since 2026-09-10, when `bounce-house-rental-calculator` also
+    # graduated the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    total = 237  # `infra/OWNER_CHECKLIST.md`'s own "N of the 237 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
