@@ -2,29 +2,6 @@
   "readings": [
     {
       "checks": [
-        "contrast",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
-      "measured": "2026-09-10",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "childcare-tuition-calculator",
-        "dog-walking-route-pricing",
-        "package-exports-drift-check"
-      ],
-      "surface": {
-        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
-        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
-        "ventures": "49f69ac3bebf27f030d84206ef0d3c1596214ba6"
-      }
-    },
-    {
-      "checks": [
         "journey"
       ],
       "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
@@ -382,6 +359,27 @@
         "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
         "platform/pages": "825f95e59591b3ad17e8c5e2523737191600a58d",
         "ventures": "b21d7f47aeb5bd498f3631ce0b4d032bd7a0745c"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "dd61b1a412020cb0fc47016d1198d3abc623c6dc",
+      "measured": "2026-09-10",
+      "pages": 912,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "d2f8b771a35579bb2096baadc1f513d47b29ddaa",
+        "ventures": "2c1f1acdcee21f4ceeb54a8ee7251a8d53f26d17"
       }
     }
   ]
