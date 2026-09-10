@@ -22836,6 +22836,114 @@ entries:
         types into changed. `run_workflow_locally.py --tree` run against
         this branch; see the PR body for its result.
     mrr_end: 0
+  - venture: ai-crawler-access-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped ventures/ai-crawler-access-check/vs-known-agents.html, the
+        venture's first vs-<competitor> comparison page. Re-ran
+        portfolio/router/allocate.py; every venture the brief's own example
+        list named (reverb-fee-calculator, where-to-sell-calculator,
+        invoice-payment-terms-calculator, marketplace-fee-compare,
+        owner-operator-cpm-calculator) had already gained one in commits
+        merged since that list was written, confirming the brief's own
+        warning that main had moved. Enumerated all 239 venture slugs
+        against every vs-*.html file in the tree instead of trusting either
+        list: 17 ventures had none at all, and ai-crawler-access-check was
+        the highest-merit one among those not BLOCKED (unpublished).
+        Competitor: Known Agents (renamed from Dark Visitors in Feb 2026 --
+        darkvisitors.com now redirects to knownagents.com), a hosted,
+        account-based AI-agent directory / auto-updating robots.txt /
+        bot-traffic analytics service -- the natural "hosted service"
+        counterpoint to this tool's free, static, no-account audit. Sourced
+        to Known Agents' own site and WordPress plugin listing via web
+        search (the agent egress proxy refuses direct fetches to arbitrary
+        hosts); no price, tier, or user-count claim anywhere on the page,
+        per this repo's own convention for figures no session here can
+        verify.
+      - >-
+        Verified locally (Actions starved as of 2026-09-10 -- runners
+        assign `runner_id: 0` within seconds): venture's own `node --test
+        *.test.mjs` 41/41; `node platform/pages/clauses.mjs
+        ai-crawler-access-check` clean (3 pages); `checklist_coverage.py`
+        clean; `regen.mjs` run twice (once before, once after merging
+        `origin/main` to pick up merchant-feed-check #4451 -- the first
+        `run_workflow_locally.py --for-changes` caught the venture-regression
+        check reading the stale branch as having dropped that venture;
+        merged, re-ran regen, re-verified clean) and its mirror/derived
+        output committed both times; `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1202/1202
+        (post-merge); `python3 -m pytest gitops/tests -q` 525 passed/25
+        skipped; all 22 `platform/ci` unittest modules (`test_*.py`) 838
+        tests OK; `agent_review/test_review` 21/21; `pytest
+        portfolio/{ledger,scoring,router,usage,pipeline} infra/tests` 435
+        passed/8 subtests; all 8 `portfolio-validate.yml` validators
+        (`router/validate.py` 238 valid, `front-door-tools.mjs --headroom`
+        84.1% used, `validate_doc_consistency.py`, `validate_candidates.py`,
+        `probes/validate_probe_index.py`, `score_sensitivity.py`,
+        `score_ventures.py --check` 239 consistent, `usage/validate_usage.py`
+        200 products) clean; `run_workflow_locally.py --for-changes`
+        (post-merge) 65/65 `portfolio-validate.yml` run: steps passed
+        (including the venture-regression check), 2/2 `sibling-links-ci.yml`,
+        3/3 `portfolio-pages.yml` build steps -- only `uses:` steps and
+        secret-gated deploy/review jobs (`hetzner-gitops-ci.yml`,
+        `agent-cross-review.yml`, the `deploy`/`publish` steps of
+        `portfolio-pages.yml`/`publish-pages-branch.yml`) did not run, as
+        documented. This change touches markup, so ran the browser checks
+        scoped rather than skipped: `npm install --no-save
+        playwright@1.56.0 axe-core` then `browser_checks.py --only
+        ai-crawler-access-check` -- sideways/presets/roundtrip/contrast/
+        sweep/journey all ok (highlight skipped, this venture makes no
+        highlight promise), 0 WCAG A/AA violations across 3 pages x 2
+        viewports, 899/899 sitemap URLs resolve.
+    mrr_end: 0
+  - venture: apparel-decoration-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second decision-support worked-example page,
+        should-i-charge-extra-for-a-second-print-location.html, following the
+        should-i-* pattern already used by carpet-install-bid-calculator,
+        egress-window-bid-calculator and invoice-payment-terms-calculator.
+        Chosen because this venture's own calculator.mjs docstring names the
+        exact defect the page explains: a second print/embroidery placement
+        is not "one more design" on the same setup, it is its own full set of
+        screens, and the engine already prices that correctly (screenCount =
+        colorsPerLocation * locations) but nothing on the site explained the
+        consequence in dollars.
+      - >-
+        Every figure in the article is recomputed in its test file directly
+        from computeDecorationJob rather than hand-typed: on the venture's own
+        documented 24-piece worked example (3-color design, $18/screen, $20
+        wage), a front-only job needs 3 screens ($65.80 setup) and a
+        front+back job needs 6 ($119.80). Keeping the same $14/piece price
+        across both drops profit from $102.81 to $38.20 (a $64.61 giveaway)
+        and margin from 30.6% to 11.4%, well under a 40% target.
+      - >-
+        Second, non-obvious point pinned by its own test: the added cost per
+        piece shrinks with volume ($2.69 at 24 pieces down to $0.63 at 288,
+        since the extra screens are a one-off spread over more pieces) but the
+        added cost for the whole job grows ($64.61 to $181.36), since the
+        extra ink and press-pass time is a true per-piece cost that never
+        shrinks. The test asserts the direction of both trends across four
+        quantities, not just the individual numbers, so a change to the cost
+        model that breaks this shape fails loudly.
+      - >-
+        Verified locally (Actions runners starved per infra_state.yaml,
+        re-confirmed this session on PR #4446/#4447's checks via
+        ci_starvation.py, all runner_id 0): node --test
+        ventures/apparel-decoration-price-calculator/*.test.mjs 63/63 (new
+        file adds 5 tests: structural, disclaimer, the 24-piece worked
+        example, the four-quantity shape assertion, sitemap listing);
+        node platform/pages/clauses.mjs apparel-decoration-price-calculator
+        clean; checklist_coverage.py clean; regen.mjs run and
+        gitops/prod/front-door mirror + sitemap committed; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs 1202/1202;
+        python3 -m pytest gitops/tests -q 525 passed/25 skipped;
+        score_ventures.py --check, usage/validate_usage.py, router/validate.py
+        all clean.
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
