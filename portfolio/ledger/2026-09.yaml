@@ -24039,6 +24039,88 @@ entries:
         whole-catalogue --record sweep, which browser_state.py reports
         stale for reasons predating this branch.
     mrr_end: 0
+  - venture: bounce-house-rental-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a new venture: a browser calculator for
+        independent bounce house / inflatable party rental companies
+        that prices a booking from what a flat per-unit-per-day rate
+        sheet omits -- the truck's two round trips (delivery and pickup,
+        four times the one-way miles), setup/teardown crew labor, a
+        generator when the site has no outlet, a paid attendant for a
+        water slide or dunk tank, and general-liability insurance sized
+        to the deployed fleet's replacement value rather than to the
+        quote. Reports the walk-away price, a full cost breakdown, a
+        margin check against a price already on the table, and a flag
+        for a quoted wet unit with zero attendant hours budgeted.
+        Screened against screened-out.md and duplicate_check.py (closest
+        pre-existing match photo-booth-event-quote at 0.25, well under
+        the 0.45 flag bar); not payment/payout, not advice-of-record, no
+        scraped personal data.
+      - >-
+        Full vertical slice: calc.mjs (pure pricing functions, 21 unit
+        tests covering the empty-fleet, negative-input, zero-margin,
+        mileage-doubling, attendant-flag and insurance-scaling edge
+        cases), index.html (mobile-responsive, labelled inputs including
+        a per-row accessible name on the generated fleet table, FAQ +
+        JSON-LD, disclaimer, sponsor link), a worked-example companion
+        page (how-much-to-charge-for-a-bounce-house-rental.html) whose
+        prose figures are asserted against calc.mjs's own output rather
+        than hand-typed, usage.mjs (local, opt-out, DNT/GPC-honouring,
+        never a figure), README, LICENSE, robots.txt, sitemap.xml,
+        VENTURE.yaml, a CI workflow on the sibling template, a
+        venture-scores row (composite 6.5), a usage baseline, a launch
+        date so it enters the Atom feed, and a publish-surface.yaml row.
+        Filed under `services` (Service business pricing & quotes) on
+        its first commit rather than after a spell in the catch-all --
+        the same shape as photo-booth-event-quote and
+        portable-restroom-event-quote -- and cross-linked with both,
+        closing the orphan siblings.mjs would otherwise report (0 of 236
+        orphans after; added the reciprocal link from
+        photo-booth-event-quote's footer in the same commit).
+      - >-
+        Counter drift a new venture leaves behind was fixed in the same
+        commit: infra/OWNER_CHECKLIST.md (3 places),
+        gitops/prod/usage/aggregate.py, gitops/prod/front-door/default.conf
+        (2 places) and gitops/tests/test_manifests.py's own hardcoded
+        `total` (235 -> 236), plus platform/ci/publish-surface.yaml for
+        the new venture's CI workflow (classification: none).
+      - >-
+        Verified locally (Actions runners starved -- confirmed today,
+        2026-09-10: the last merged PR's 26 check runs all came back
+        runner_id: 0 in ~3s): node --test on the venture, 45/45; node
+        --test across platform/marketing + platform/pages, 1206/1206;
+        node --test on platform/proposal, 101/101; node --test on
+        platform/privacy + platform/webcheck, 79/79; checklist_coverage.py
+        clean; clauses.mjs clean on both pages; siblings.mjs 0 orphans
+        (after closing the one this venture opened); pytest gitops/tests
+        532 passed / 25 skipped; pytest across portfolio/ledger, scoring,
+        router, usage, pipeline and infra/tests 435 passed; all 15
+        platform/ci unittest modules and agent_review's 21 tests pass
+        (test_validate_workflows.py and test_publish_surface.py both
+        caught real gaps -- missing CI workflow and missing
+        publish-surface.yaml row -- fixed in the same commit);
+        score_ventures.py --check, validate_usage.py,
+        validate_doc_consistency.py, validate_candidates.py,
+        probes/validate_probe_index.py, score_sensitivity.py,
+        router/validate.py, front-door-tools.mjs --headroom and
+        check_no_payment_code.py all clean. Browser checks were run
+        rather than skipped: npm install --no-save playwright@1.56.0
+        axe-core, then browser_checks.py --only
+        bounce-house-rental-calculator -- 6 of 7 passed including
+        contrast/axe (0 WCAG A/AA violations), sweep, journey, presets
+        and roundtrip, with `highlight` reporting nothing to verify (the
+        tool makes no highlight promise) and `sideways` reporting no
+        picker to test -- both are "nothing applicable", not failures.
+        run_workflow_locally.py --for-changes hung past several minutes
+        (no output, no error) and was aborted; the eight validators it
+        wraps were each run individually above instead, all clean. Not
+        run: the whole-catalogue --record browser sweep, which
+        browser_state.py reports stale for reasons predating this
+        branch (the builder/front-door changed).
+    mrr_end: 0
   - venture: security-headers-check
     agent_spend_usd: null
     human_hours: 0
