@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 125 files, 555306 bytes
 #   portfolio-front-tools-5: 129 files, 556681 bytes
 #   portfolio-front-tools-6: 126 files, 551055 bytes
-#   portfolio-front-tools-7: 109 files, 547844 bytes
+#   portfolio-front-tools-7: 110 files, 551613 bytes
 #   portfolio-front-tools-8: 118 files, 543565 bytes
 #   portfolio-front-tools-9: 122 files, 548724 bytes
 #   portfolio-front-tools-10: 101 files, 556212 bytes
@@ -1126,6 +1126,7 @@ configMapGenerator:
       - junk-removal-bid-calculator__vs-workiz.html.gz=junk-removal-bid-calculator__vs-workiz.html.gz
       - kdp-royalty-calculator__calc.mjs.gz=kdp-royalty-calculator__calc.mjs.gz
       - kdp-royalty-calculator__index.html.gz=kdp-royalty-calculator__index.html.gz
+      - kdp-royalty-calculator__share.mjs.gz=kdp-royalty-calculator__share.mjs.gz
       - kdp-royalty-calculator__should-i-enroll-this-book-in-kindle-unlimited.html.gz=kdp-royalty-calculator__should-i-enroll-this-book-in-kindle-unlimited.html.gz
       - kdp-royalty-calculator__usage.mjs.gz=kdp-royalty-calculator__usage.mjs.gz
       - kdp-royalty-calculator__vs-amazon-kdp-royalty-calculator.html.gz=kdp-royalty-calculator__vs-amazon-kdp-royalty-calculator.html.gz
