@@ -209,12 +209,12 @@
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Selling the same product somewhere else too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks Etsy against eBay, Amazon, Reverb and your own store on one item, and can hand these numbers into this page.</p>
+    <p>Selling the same product somewhere else too? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks Etsy against eBay, Amazon, Reverb and your own store on one item — it opens with this order's price, shipping and cost already filled in and Etsy switched on, no retyping. It can also hand numbers the other way, into this page.</p>
     <p>Comparing Etsy to other marketplaces on the same item? The <a href="../marketplace-fee-compare/">marketplace fee comparison</a> ranks Etsy against eBay, Amazon, Walmart, TikTok Shop and your own store side by side from one set of inputs, then points here for the parts a headline rate cannot carry.</p>
     <p>Free and open source. If it stopped you from paying $10 for unused credits, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, priceForMargin, priceForProfit, compareEtsyPlus, comparePersonalization, personalizationNote, compareEtsyAds, etsyAdsNote, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareProductionPartner, productionPartnerNote, compareStarSeller, starSellerNote, compareShopSale, shopSaleNote, compareFreeShipping, freeShippingNote, compareEtsyLabels, etsyLabelsNote } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs'; import { formatOrderSummary } from './summary.mjs';
+    import { calculateOrder, priceForMargin, priceForProfit, compareEtsyPlus, comparePersonalization, personalizationNote, compareEtsyAds, etsyAdsNote, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareProductionPartner, productionPartnerNote, compareStarSeller, starSellerNote, compareShopSale, shopSaleNote, compareFreeShipping, freeShippingNote, compareEtsyLabels, etsyLabelsNote } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs'; import { formatOrderSummary } from './summary.mjs'; import { whereToSellUrl } from './to-where-to-sell.mjs';
     const ids = FIELD_IDS;
     const INPUTS_KEY = 'etsy-profit-inputs';
     const field = id => document.getElementById(id);
@@ -613,6 +613,8 @@
         document.getElementById('labelsRows').replaceChildren();
         document.getElementById('labelsNote').textContent = '';
       }
+      const whereToSellLink = document.getElementById('whereToSellLink');
+      if (whereToSellLink) whereToSellLink.href = whereToSellUrl(currentInputs());
     }
 
     // Repricing panel: the target-margin price and the +/- $10 scenario rows.
@@ -715,6 +717,12 @@
       history.replaceState(null, '', location.pathname);
       apply({ price: 30, shippingCharged: 5, listingFee: 0.20, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 0, listingsPerMonth: 15, monthlyPlusFee: 10, listingCredits: 15, adsCredit: 5, monthlyAdSpend: 5, otherPlusValue: 0, personalizationUpcharge: 8, extraMaterialCost: 1.50, extraTimeCost: 6, monthlyCustomOrders: 12, etsyAdsAcosPct: 12, yourTimeCost: 8, partnerUnitCost: 14, partnerHandlingCost: 1, yourMonthlyCapacity: 20, monthlyDemand: 40, partnerRejectRatePercent: 0, starSellerShippingCost: 9, starSellerMessageMinutes: 8, starSellerHourlyWage: 18, unsignedSellThroughPct: 40, starSellerSellThroughPct: 50, starSellerListings: 40, salePercent: 20, saleDollar: 5, listedSellThroughPct: 40, saleSellThroughPct: 55, saleListings: 40, freeShipPrice: 32, monthlyOrders: 40, etsyLabelCost: 6, thirdPartyLabelCost: 5.10, etsyLabelClaimRatePercent: 0.8, thirdPartyClaimRatePercent: 2.5, labelUploadMinutes: 4, labelUploadWage: 18, labelFeeRefundOnClaimPercent: 100, monthlyLabelShipments: 40 });
       update(); flash('Reset to the default example order.');
+    });
+
+    document.getElementById('whereToSellLink').addEventListener('click', () => {
+      // Records only that the handoff happened, never the item — this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      recordUsage(safe(() => localStorage), field('usageOptOut').checked, 'handoff_where_to_sell');
     });
 
     update();
