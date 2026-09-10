@@ -55,7 +55,7 @@
         "name": "Is my data uploaded anywhere?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No. Parsing and arithmetic happen entirely in your browser. Sale prices, costs, and payouts are never uploaded. The optional usage counter records only which features were used and the day, never any of your numbers."
+          "text": "No. Parsing and arithmetic happen entirely in your browser. Sale prices, costs, and payouts are never uploaded. If you use the save button, your numbers are written to this browser’s own local storage on this device only, and the forget button deletes them. The Copy shareable link button puts the same numbers in the page’s URL fragment, which your browser never sends to a server — nothing is uploaded that way either. The optional usage counter records only which features were used and the day, never any of your numbers."
         }
       }
     ]
@@ -134,7 +134,11 @@
         </div>
         <div class="actions">
           <button class="primary" type="submit">Price this sale</button>
+          <button type="button" id="save">Save on this device</button>
+          <button type="button" id="forget">Forget saved numbers</button>
+          <button type="button" id="copyLink">Copy shareable link</button>
         </div>
+        <p class="hint" id="saveStatus" role="status" style="margin:8px 0 0"></p>
       </section>
 
       <section id="offer-compare">
@@ -192,14 +196,14 @@
     <h3>Does a lower offer near $15 cost me more than the discount?</h3>
     <p>Usually the opposite. Crossing from the 20% tier down into the flat fee is a one-time reduction in commission, not an increase, because 20% of anything at or above $14.75 is already at least $2.95. Very close to $15 this can even raise your payout on a lower sale price — for example dropping from $15.00 to $14.99 increases what you keep by four cents. The catch is once you are under $15, the fee is fixed, so any further discount comes entirely out of your own payout.</p>
     <h3>Is my data uploaded anywhere?</h3>
-    <p>No. Parsing and arithmetic happen entirely in your browser. Sale prices, costs, and payouts are never uploaded. The optional usage counter records only which features were used and the day, never any of your numbers.</p>
+    <p>No. Parsing and arithmetic happen entirely in your browser. Sale prices, costs, and payouts are never uploaded. If you use the save button, your numbers are written to this browser&rsquo;s own local storage on this device only, and the forget button deletes them. The Copy shareable link button puts the same numbers in the page&rsquo;s URL fragment, which your browser never sends to a server &mdash; nothing is uploaded that way either. The optional usage counter records only which features were used and the day, never any of your numbers.</p>
   </section>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or selling advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Sale prices, costs, and payouts are never uploaded and never appear in a usage count — those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Sale prices, costs, and payouts are never uploaded and never appear in a usage count — those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget saved numbers</em> deletes them. <em>Copy shareable link</em> puts the same numbers in the page's URL fragment instead of a server — nothing about your sale leaves your device either way.</p>
     <p>Not affiliated with, endorsed by, or sponsored by Poshmark. Poshmark is a trademark of its owner, named here only to describe the published fee schedule this tool computes against. Poshmark changed this schedule once already, briefly, in October 2024, then reverted it — see <a href="./vs-poshmarks-how-it-works-page.html">this calculator vs. Poshmark's own How It Works page</a> if you are unsure which structure currently applies.</p>
     <p>Free and open source. If it changes how you price a closet, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
     <p>Selling the same item across more than one channel? The <a href="../marketplace-fee-compare/">marketplace fee compare</a> ranks eBay, Etsy, Amazon, Walmart, TikTok Shop, and an own Shopify store from one set of inputs — Poshmark's flat/percent cliff is different enough from those referral-rate marketplaces that it stays a separate calculator here.</p>
@@ -208,7 +212,9 @@
   <script type="module">
     import { calculateSale, compareOffer, INPUT_IDS, OFFER_INPUT_IDS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { FIELD_IDS, encodeInputs, decodeInputs } from './share.mjs';
 
+    const DRAFT_KEY = 'poshmark-fee-calculator-draft';
     const el = id => document.getElementById(id);
     const money = (value) => {
       const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -229,6 +235,16 @@
       values.itemCost = el('itemCost').value;
       values.otherCost = el('otherCost').value;
       return values;
+    }
+
+    function readAllInputs() {
+      return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+    }
+
+    function writeAllInputs(values) {
+      for (const id of FIELD_IDS) {
+        if (Object.prototype.hasOwnProperty.call(values, id)) el(id).value = values[id];
+      }
     }
 
     function markFields(ids, errors) {
@@ -287,6 +303,29 @@
       count('sale_calculated');
     });
 
+    // Keep the payout on screen matching the form.
+    //
+    // This page rendered on submit alone, so an edit left the *previous*
+    // payout standing above the edited inputs. On its own that is a small
+    // staleness. With a share link it is two people reading different
+    // numbers: the link carries the edited form, the seller's screen still
+    // shows the old figure, and whoever opens it sees a payout the sender
+    // never saw. `platform/pages/roundtrip.mjs` caught exactly that -- every
+    // field survived the link and only the headline differed, $40.00
+    // against $39.94.
+    //
+    // Errors stay with the submit handler: complaining midway through a
+    // typed price is noise. Nothing is counted here either -- a keystroke is
+    // not a calculation the seller asked for, and counting it would inflate
+    // `sale_calculated` to the point where the usage reading stops meaning
+    // what `portfolio/usage/` says it means.
+    el('saleForm').addEventListener('input', () => {
+      const result = calculateSale(readInput());
+      if (!result.ok) return;
+      render(result);
+      el('exampleNote').hidden = true;
+    });
+
     el('compareOfferBtn').addEventListener('click', () => {
       const result = compareOffer(readOfferInput());
       markFields(OFFER_INPUT_IDS, result.ok ? [] : result.errors);
@@ -307,11 +346,61 @@
       count('offer_compared');
     });
 
+    el('save').addEventListener('click', () => {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(readAllInputs()));
+        el('saveStatus').textContent = 'Saved to this browser on this device. Nothing was uploaded.';
+        count('numbers_saved');
+      } catch {
+        el('saveStatus').textContent = 'This browser refused to save (private mode or blocked storage) — your numbers are still on screen.';
+      }
+    });
+
+    el('forget').addEventListener('click', () => {
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+      } catch { /* storage is optional */ }
+      el('saveStatus').textContent = 'Saved numbers deleted from this browser.';
+    });
+
+    el('copyLink').addEventListener('click', async () => {
+      const query = encodeInputs(readAllInputs());
+      const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+      history.replaceState(null, '', url);
+      try {
+        await navigator.clipboard.writeText(location.href);
+        el('saveStatus').textContent = 'Link copied. Nothing was uploaded to make it.';
+      } catch {
+        el('saveStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
+      }
+      count('link_copied');
+    });
+
+    // A saved draft or a shared link takes priority over the shipped worked
+    // example, and a link wins over a saved draft: whatever the link omits
+    // still falls back to the draft, then to the form's own shipped
+    // defaults.
+    let restored = false;
+    try {
+      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+      if (saved && typeof saved === 'object') {
+        writeAllInputs(saved);
+        restored = true;
+      }
+    } catch { /* storage is optional */ }
+
+    const fromLink = decodeInputs(location.hash || location.search);
+    if (Object.keys(fromLink).length > 0) {
+      writeAllInputs(fromLink);
+      restored = true;
+      el('saveStatus').textContent = 'Opened a shared sale. Review the numbers before you use them.';
+    }
+
     (() => {
       const example = calculateSale(readInput());
       if (!example.ok) return;
       render(example);
-      el('exampleNote').hidden = false;
+      el('exampleNote').hidden = restored;
     })();
   </script>
 </body>

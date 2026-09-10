@@ -9,9 +9,9 @@
 <meta property="og:description" content="Stop guessing at a lockout price on the phone. Price one service call with the after-hours premium and minimum charge built in, then see whether today's calls hit your income goal.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Locksmith Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a single mobile locksmith service call from labor and travel time, an after-hours/emergency premium, parts cost and markup, a callback reserve, overhead, target margin, and a minimum service charge floor, then checks a day's worth of calls against an income goal.","featureList":"service call pricing, after-hours premium, minimum service charge floor, daily income goal check, printable customer proposal with scope, price-held date and signature line"}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the after-hours premium apply to labor and travel time but not to parts?","acceptedAnswer":{"@type":"Answer","text":"Because a cylinder or key blank costs the same at 2am as it does at 2pm — what changes at 2am is your own availability. This calculator applies the emergency premium to billed time only, so the parts markup stays honest regardless of when the call happens."}},{"@type":"Question","name":"Why does the calculator compare the calculated price against a minimum service charge?","acceptedAnswer":{"@type":"Answer","text":"Because a short job — a five-minute car unlock, a single cut key — can price below what the trip itself costs once you count drive time, fuel, and the overhead that applies whether or not this specific call happens. A minimum service charge is a floor: whichever number is higher, the calculated price or your stated minimum, is what you should quote."}},{"@type":"Question","name":"Why is there a separate callback reserve on top of overhead?","acceptedAnswer":{"@type":"Answer","text":"A rekey or hardware install occasionally needs a free return visit — a key that doesn't turn quite right, a strike plate that needs adjusting. The callback reserve sets aside a percentage of the job's direct cost to absorb that risk instead of it silently eating into margin on every job where it happens."}},{"@type":"Question","name":"Does anything I type get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the after-hours premium apply to labor and travel time but not to parts?","acceptedAnswer":{"@type":"Answer","text":"Because a cylinder or key blank costs the same at 2am as it does at 2pm — what changes at 2am is your own availability. This calculator applies the emergency premium to billed time only, so the parts markup stays honest regardless of when the call happens."}},{"@type":"Question","name":"Why does the calculator compare the calculated price against a minimum service charge?","acceptedAnswer":{"@type":"Answer","text":"Because a short job — a five-minute car unlock, a single cut key — can price below what the trip itself costs once you count drive time, fuel, and the overhead that applies whether or not this specific call happens. A minimum service charge is a floor: whichever number is higher, the calculated price or your stated minimum, is what you should quote."}},{"@type":"Question","name":"Why is there a separate callback reserve on top of overhead?","acceptedAnswer":{"@type":"Answer","text":"A rekey or hardware install occasionally needs a free return visit — a key that doesn't turn quite right, a strike plate that needs adjusting. The callback reserve sets aside a percentage of the job's direct cost to absorb that risk instead of it silently eating into margin on every job where it happens."}},{"@type":"Question","name":"Does anything I type get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only, and nothing is sent to a server or an account. Your call details, deposit and terms, and today's income-check numbers are saved locally on this device so you don't retype them, and a shareable link can carry them to a partner covering the dispatch or to the customer. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
 <style>
-:root{font:16px/1.5 system-ui,sans-serif;color:#231c12;background:#f7f1e6}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e6d3ac;border-radius:16px;padding:20px;box-shadow:0 8px 24px #3f2a0a08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #f0e2c1;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a5a12;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}label.checkbox{display:flex;flex-direction:row;align-items:center;gap:8px;font-weight:650}label.checkbox input{width:auto}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #dcbf85;border-radius:8px;font:inherit;background:#fffdf8}.result{background:#7a3e0f;color:#fff;border-color:#7a3e0f;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6b5a3d}.result .note{color:#f3ddc0}.err{color:#ffd9a6;font-weight:700}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #dcbf85;background:#fff;cursor:pointer;color:#231c12}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+:root{font:16px/1.5 system-ui,sans-serif;color:#231c12;background:#f7f1e6}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e6d3ac;border-radius:16px;padding:20px;box-shadow:0 8px 24px #3f2a0a08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #f0e2c1;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a5a12;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}label.checkbox{display:flex;flex-direction:row;align-items:center;gap:8px;font-weight:650}label.checkbox input{width:auto}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #dcbf85;border-radius:8px;font:inherit;background:#fffdf8}.result{background:#7a3e0f;color:#fff;border-color:#7a3e0f;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6b5a3d}.result .note{color:#f3ddc0}.err{color:#ffd9a6;font-weight:700}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #dcbf85;background:#fff;cursor:pointer;color:#231c12}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
 /* proposal:begin — generated by platform/proposal/adopt.mjs */
     .proposal-status { font-size: .8rem; color: #5c5854; }
 
@@ -107,6 +107,12 @@
 <label>Target margin (%)<input id="targetMargin" type="number" min="0" max="99" step="1" value="30"></label>
 <label>Minimum service charge ($)<input id="minimumServiceCharge" type="number" min="0" step="1" value="89"></label>
 </div></fieldset>
+<p id="draftStatus" class="note" role="status">Your call details above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers — plus any deposit, terms, and today's income-check figures — in the URL fragment; nothing is uploaded.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
 </section>
 
 <section class="result" aria-live="polite"><h2>Price for this call</h2><p id="errors" class="err" role="alert" hidden></p>
@@ -167,7 +173,7 @@
   <div id="proposalDoc" class="pr-shell" hidden></div>
 <!-- proposal:end -->
 
-<section><h2>Today's income check</h2><p class="note">Use the profit for this call (or your own estimate) to check whether a day's worth of calls hits your income goal. Nothing here is saved — refreshing the page clears it.</p>
+<section><h2>Today's income check</h2><p class="note">Use the profit for this call (or your own estimate) to check whether a day's worth of calls hits your income goal. These numbers are saved locally and travel in a shareable link along with the call details above.</p>
 <div class="fields">
 <label>Profit per call ($)<input id="profitPerCall" type="number" step="1" value="85"></label>
 <label>Calls scheduled today<input id="callsPerDay" type="number" min="0" step="1" value="4"></label>
@@ -181,13 +187,13 @@
 </dl>
 </section>
 
-<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your call details and income figures are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>call-priced</code>, <code>daily-goal-check</code>) so we can tell whether the calculator gets used — no prices, parts, or income figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your call details, deposit and terms, and today's income-check numbers are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. We count only anonymous local feature events (<code>call-priced</code>, <code>daily-goal-check</code>, <code>link-copied</code>) so we can tell whether the calculator gets used — no prices, parts, or income figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
 
 <section><h2>Common questions</h2>
 <h3>Why does the after-hours premium apply to labor and travel time but not to parts?</h3><p>Because a cylinder or key blank costs the same at 2am as it does at 2pm &mdash; what changes at 2am is your own availability. This calculator applies the emergency premium to billed time only, so the parts markup stays honest regardless of when the call happens.</p>
 <h3>Why does the calculator compare the calculated price against a minimum service charge?</h3><p>Because a short job &mdash; a five-minute car unlock, a single cut key &mdash; can price below what the trip itself costs once you count drive time, fuel, and the overhead that applies whether or not this specific call happens. A minimum service charge is a floor: whichever number is higher, the calculated price or your stated minimum, is what you should quote.</p>
 <h3>Why is there a separate callback reserve on top of overhead?</h3><p>A rekey or hardware install occasionally needs a free return visit &mdash; a key that doesn't turn quite right, a strike plate that needs adjusting. The callback reserve sets aside a percentage of the job's direct cost to absorb that risk instead of it silently eating into margin on every job where it happens.</p>
-<h3>Does anything I type get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere &mdash; it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+<h3>Does anything I type get uploaded?</h3><p>No. Every field on this page runs in your browser only, and nothing is sent to a server or an account. Your call details, deposit and terms, and today's income-check numbers are saved locally on this device so you don't retype them, and a shareable link can carry them to a partner covering the dispatch or to the customer. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
 
 <p><a href="how-much-should-a-locksmith-charge-for-a-service-call.html">Guide: how much should a locksmith charge for a service call?</a> &middot; <a href="./vs-workiz.html">This calculator vs. Workiz</a> &middot; <a href="./vs-jobber.html">This calculator vs. Jobber</a></p>
 </section>
@@ -199,6 +205,10 @@
 <script type="module">
 import { calculateQuote, dailyIncomeGap, DEFAULTS } from './calc.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import {
+  encodeBid, saveBid, restoreBid, clearBid, withProposalTerms, readProposalTerms, overlongTermsNote,
+  PROPOSAL_TERM_NUMBERS, PROPOSAL_TERM_TEXT,
+} from './share.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -211,6 +221,14 @@ const money = (n) => {
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
 const VISIT_IDS = Object.keys(DEFAULTS);
+const FLAG_IDS = VISIT_IDS.filter(id => typeof DEFAULTS[id] === 'boolean');
+// The daily-income-check ids ride in the same link and draft as the visit
+// fields: they hold no customer-identifying content, unlike the client rows
+// on this portfolio's route calculators, and a colleague opening a shared
+// call should see the same income-goal math the sender did.
+const DAILY_IDS = ['profitPerCall', 'callsPerDay', 'targetDailyIncome'];
+const NUMBER_IDS = [...VISIT_IDS.filter(id => !FLAG_IDS.includes(id)), ...DAILY_IDS];
+const BID_SPEC = { key: 'locksmith-bid-calculator', numbers: NUMBER_IDS, flags: FLAG_IDS };
 let counted = false;
 let dailyCounted = false;
 
@@ -218,7 +236,28 @@ function readInput() {
   return Object.fromEntries(VISIT_IDS.map(id => [id, id === 'emergencyCall' ? el(id).checked : el(id).value]));
 }
 
+// The full set that rides in the link and the local draft: readInput()'s
+// visit fields plus the daily-income-check fields, which are outside
+// calculateQuote()'s own input contract and so outside readInput() itself.
+function persistedInputs() {
+  return { ...readInput(), ...Object.fromEntries(DAILY_IDS.map(id => [id, el(id).value])) };
+}
+
 function count(event) { recordEvent(event); }
+
+function persistDraft() {
+  saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(persistedInputs(), el));
+}
+
+function applyValues(values) {
+  const spec = withProposalTerms(BID_SPEC);
+  for (const id of [...spec.numbers, ...(spec.text ?? [])]) {
+    if (values[id] !== undefined && el(id)) el(id).value = values[id];
+  }
+  for (const id of spec.flags) {
+    if (values[id] !== undefined && el(id)) el(id).checked = values[id];
+  }
+}
 
 function updateQuote(count = false) {
   try {
@@ -262,11 +301,57 @@ function updateDaily(count = false) {
   }
 }
 
-VISIT_IDS.forEach(id => el(id).addEventListener(id === 'emergencyCall' ? 'change' : 'input', () => updateQuote(true)));
-['profitPerCall', 'callsPerDay', 'targetDailyIncome'].forEach(id => el(id).addEventListener('input', () => updateDaily(true)));
+VISIT_IDS.forEach(id => el(id).addEventListener(id === 'emergencyCall' ? 'change' : 'input', () => { updateQuote(true); persistDraft(); }));
+[...PROPOSAL_TERM_NUMBERS, ...PROPOSAL_TERM_TEXT].forEach(id => el(id)?.addEventListener('input', () => persistDraft()));
+DAILY_IDS.forEach(id => el(id).addEventListener('input', () => { updateDaily(true); persistDraft(); }));
 el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
 el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
 if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+async function copyLink() {
+  const values = readProposalTerms(persistedInputs(), el);
+  const encoded = encodeBid(withProposalTerms(BID_SPEC), values);
+  const url = `${location.origin}${location.pathname}#${encoded}`;
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch {
+    const fallback = document.createElement('textarea');
+    fallback.value = url;
+    fallback.setAttribute('readonly', '');
+    fallback.style.position = 'fixed';
+    fallback.style.opacity = '0';
+    document.body.append(fallback);
+    fallback.select();
+    document.execCommand('copy');
+    fallback.remove();
+  }
+  history.replaceState(null, '', `#${encoded}`);
+  count('link-copied');
+  const leftBehind = overlongTermsNote(values);
+  el('linkStatus').textContent = leftBehind ? ` Link copied — ${leftBehind}.` : ' Link copied — deposit and terms included.';
+}
+el('copyLink').addEventListener('click', () => {
+  copyLink().catch(() => { el('linkStatus').textContent = ' Copy failed; copy the address bar instead.'; });
+});
+
+el('reset').addEventListener('click', () => {
+  clearBid(localStorage, withProposalTerms(BID_SPEC));
+  history.replaceState(null, '', location.pathname);
+  location.reload();
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers; the page's own defaults fill any field the link omitted.
+(() => {
+  const { values, source } = restoreBid(withProposalTerms(BID_SPEC), { search: location.hash || location.search, storage: localStorage });
+  if (Object.keys(values).length > 0) {
+    applyValues(values);
+    el('draftStatus').textContent = source === 'link'
+      ? 'Opened a shared call. Review the numbers before you quote.'
+      : 'Restored your last call from this browser.';
+  }
+})();
+
 updateQuote(false);
 updateDaily(false);
 // proposal:begin — generated by platform/proposal/adopt.mjs

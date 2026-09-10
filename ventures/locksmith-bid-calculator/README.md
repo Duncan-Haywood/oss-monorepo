@@ -37,10 +37,14 @@ for a worked emergency-lockout example.
 
 ## Privacy and usage
 
-Everything runs in your browser. Your call details and income figures are
-never uploaded, there is no account, and nothing is saved when you close the
-tab. We count anonymous local feature events only (`call-priced`,
-`daily-goal-check`), with a visible opt-out. Do Not Track and Global Privacy
+Everything runs in your browser and nothing is ever uploaded. Your call
+details (time, rates, the emergency premium, parts, overhead, any deposit or
+terms, and today's income-check numbers) are saved locally on this device so
+you don't retype them — **Reset to defaults** clears them, and **Copy
+shareable link** puts them in a URL fragment your browser never sends
+anywhere. We
+count anonymous local feature events only (`call-priced`,
+`daily-goal-check`, `link-copied`), with a visible opt-out. Do Not Track and Global Privacy
 Control disable counting automatically. No prices, parts, or income figures
 are recorded. The counter is not sent to the maintainers.
 

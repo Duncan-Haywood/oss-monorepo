@@ -217,7 +217,7 @@
   <script type="module">
     import { calculatePourCost, ALL_INPUT_IDS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { encodeInputs, decodeInputs, formValues } from './share.mjs';
 
     const DRAFT_KEY = 'pour-cost-calculator-draft';
     const el = id => document.getElementById(id);
@@ -321,9 +321,30 @@
       if (result.overPourOzPerDrink > 0) count('overpour_checked');
     });
 
+    // Keep the figure on screen matching the form.
+    //
+    // This used to leave the last result standing after an edit, so a bar
+    // manager who changed the pour size read the *previous* recipe's
+    // percentage. On its own that is a small staleness. Once the page has a
+    // share link it is two people reading different numbers: the link
+    // carries the edited form, the sender's screen still shows the old
+    // figure, and the recipient opens a pour cost the sender never saw.
+    // `platform/pages/roundtrip.mjs` caught exactly that -- all fifteen
+    // fields survived the link and only the headline differed, 15.4%
+    // against 14.6%.
+    //
+    // Errors stay with the submit handler: complaining midway through a
+    // typed bottle cost is noise, so an input that does not yet compute
+    // leaves the last good figure up until the visitor asks for it.
     el('pourForm').addEventListener('input', () => {
-      if (!current) return;
-      current = null;
+      const result = calculatePourCost(readInput());
+      if (!result.ok) {
+        current = null;
+        return;
+      }
+      render(result);
+      showingExample = false;
+      el('exampleNote').hidden = true;
     });
 
     el('save').addEventListener('click', () => {
@@ -371,9 +392,16 @@
       }
     } catch { /* storage is optional */ }
 
+    // Every field the form owns is written from a shared link, via
+    // `formValues` -- not just the ones the link carried. Modifier and mixer
+    // are optional slots, so a spirit-only pour encodes with those six
+    // fields absent; writing only what is present would leave this page's
+    // own shipped defaults sitting in them, and the recipient would price a
+    // three-ingredient cocktail believing they were looking at the sender's
+    // highball. See share.mjs for the full reasoning.
     const fromLink = decodeInputs(location.hash || location.search);
     if (Object.keys(fromLink).length > 0) {
-      writeInput(fromLink);
+      writeInput(formValues(fromLink));
       restored = true;
       el('saveStatus').textContent = 'Opened a shared recipe. Review the numbers before you use it.';
     }

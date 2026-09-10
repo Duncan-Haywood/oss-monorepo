@@ -22151,6 +22151,74 @@ entries:
         fast-forwarded to `bb1b7bfc`) for the requesting session to review
         and commit. Only file touched: `platform/ci/browser_state.json`.
     mrr_end: 0
+  - venture: locksmith-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added save-and-share to `locksmith-bid-calculator`, matching the
+        pattern this session found several other concurrent sessions shipping
+        the same day (`dog-walking-route-pricing`, `childcare-tuition-
+        calculator`, `wash-and-fold-price-calculator`, `pour-cost-
+        calculator`): every editable number and checkbox on the page is now
+        saved locally between visits and carried in a "Copy shareable link",
+        using the portfolio's shared bid-spec module
+        (`encodeBid`/`decodeBid`/`saveBid`/`restoreBid`/`withProposalTerms`,
+        the same shape as `tuckpointing-bid-calculator`), so the deposit and
+        terms this venture's already-adopted proposal panel collects also
+        ride in the link and the local draft rather than silently resetting
+        to this venture's defaults on the recipient's screen.
+      - >-
+        `platform/pages/roundtrip.mjs` caught two real gaps before this
+        shipped, not after. First pass: the "Today's income check" section
+        (profit per call, calls scheduled today, target daily income) did not
+        round-trip at all -- these three fields were never part of any saved
+        or shared state, so the page's own documented promise ("Nothing here
+        is saved") was accurate but meant a colleague opening a shared call
+        saw the sender's price next to different, stale income-goal numbers.
+        Folded them into the same shared spec as the call details, following
+        the precedent this session watched land the same day on
+        `dog-walking-route-pricing` for its own route-level planning fields.
+        Second pass, after wiring the spec: still failed, because `copyLink`
+        and the local-draft writer were built from `readInput()`, which only
+        maps `calc.mjs`'s `DEFAULTS` keys (the single-visit fields) and
+        therefore never included the three daily-income fields even though
+        `BID_SPEC.numbers` now named them. Added a `persistedInputs()` reader
+        that unions both sets and pointed both call sites at it; the browser
+        check passed clean on the next run (29 fields, 0 dropped).
+      - >-
+        Updated the visible privacy copy, its FAQPage JSON-LD twin, and
+        README.md to state plainly what changed -- the page no longer claims
+        "nothing you type is saved anywhere" or that the income check "is
+        never saved", both of which the new feature made false. Ran
+        `platform/proposal/term-ids.test.mjs` and found the first draft used
+        a hand-wrapped `storage()` accessor instead of the literal
+        `localStorage` the shared test expects at the `saveBid(localStorage,
+        withProposalTerms(BID_SPEC)` call site; switched to the bare global,
+        matching every other venture on this same shared spec, and the
+        suite went from 100/101 to 101/101.
+      - >-
+        Verified: `node --test` in the venture, 123/123 (includes a new
+        `share.test.mjs` covering the bid spec, the proposal-terms fold-in,
+        and storage edge cases). `platform/ci/browser_checks.py --checks
+        roundtrip,sideways,presets,contrast,sweep --only
+        locksmith-bid-calculator` against a real Chromium build: all pass, 0
+        WCAG A/AA violations, 29/29 fields round-trip. `node
+        platform/marketing/regen.mjs` (mirror + kustomization refreshed,
+        committed). `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs`: 1196/1196. `platform/proposal/*.test.mjs`:
+        101/101. `pytest gitops/tests`: 506 passed / 25 skipped. `pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests`: 431 passed / 8 subtests. All 20
+        `platform/ci` unittest modules + `agent_review/test_review`: OK.
+        `router/validate.py`, `score_ventures.py --check`,
+        `usage/validate_usage.py`, `pipeline/validate_doc_consistency.py`,
+        `validate_candidates.py`, `checklist_coverage.py`,
+        `front-door-tools.mjs --headroom`: all clean. Actions runners were
+        starved this session (`ci_starvation.py` confirmed `runner_id: 0` on
+        the fleet's other concurrent PRs), so every check above was run
+        locally rather than trusted from a red or absent GitHub check.
+    mrr_end: 0
   - venture: wash-and-fold-price-calculator
     agent_spend_usd: null
     human_hours: 0
