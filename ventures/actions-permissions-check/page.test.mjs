@@ -117,3 +117,16 @@ test('index links one hop to the pinned-actions-check and actions-injection-chec
     'index must link ../actions-injection-check/ so crawlers reach the injection checker in one hop',
   );
 });
+
+// The reciprocal half of oidc-trust-policy-check's own link back here. That
+// tool reads the *cloud* end of the same trust boundary this one reads from
+// the repository end, and it was a crawlable orphan until this link existed —
+// `platform/pages/siblings.mjs` fails on an orphan, so removing this without
+// replacing the inbound hop turns that suite red rather than failing silently.
+test('index links one hop to the oidc-trust-policy-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/oidc-trust-policy-check\/"/,
+    'index must link ../oidc-trust-policy-check/ so crawlers reach the trust-policy checker in one hop',
+  );
+});
