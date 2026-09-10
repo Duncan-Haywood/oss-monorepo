@@ -94,6 +94,34 @@ test('the page opens on the worked example rather than an em-dash', async () => 
   assert.match(markup, /not yours yet/, 'the note must not let the example read as the visitor’s own recipe');
 });
 
+test('a shared recipe is not labelled as this page’s worked example', () => {
+  // The example note says the numbers are "not yours yet". On a shared link
+  // they are the sender's, which is a third thing — and leaving the note up
+  // would invite the recipient to ignore figures they are meant to check.
+  assert.match(script, /showingExample = !sharedRecipe/);
+  assert.match(script, /el\('exampleNote'\)\.hidden = sharedRecipe/);
+});
+
+test('a shared link replaces every field, including the ones it did not carry', () => {
+  // The defect this guards: a spirit-only pour opening on top of this page's
+  // own default modifier and mixer, so the recipient prices a
+  // three-ingredient cocktail believing it is the sender's highball. Reading
+  // the link with `decodeInputs` alone would do exactly that; `formValues`
+  // is the function that clears the rest.
+  assert.match(script, /formValues\(fromLink\)/);
+  assert.doesNotMatch(
+    script,
+    /Object\.entries\(fromLink\)/,
+    'writing the decoded link straight onto the form leaves the recipient’s own defaults in the slots it omitted',
+  );
+});
+
+test('the shared recipe rides in the fragment, never the query string', () => {
+  // A query string is sent in the request line a server logs and in the
+  // Referer header a later click carries. A fragment is neither.
+  assert.match(script, /\$\{query \? `#\$\{query\}` : ''\}/);
+});
+
 test('opening the page counts nothing', () => {
   const initial = /\(\(\) => \{[\s\S]*?\}\)\(\);/.exec(script);
   assert.ok(initial, 'expected the load-time render to be a self-calling block');

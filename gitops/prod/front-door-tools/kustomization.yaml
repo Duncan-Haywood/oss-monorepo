@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 126 files, 551055 bytes
 #   portfolio-front-tools-7: 109 files, 547844 bytes
 #   portfolio-front-tools-8: 119 files, 556786 bytes
-#   portfolio-front-tools-9: 124 files, 553758 bytes
+#   portfolio-front-tools-9: 125 files, 556826 bytes
 #   portfolio-front-tools-10: 100 files, 554824 bytes
 #   portfolio-front-tools-11: 113 files, 555076 bytes
 #   portfolio-front-tools-12: 58 files, 278842 bytes
@@ -1314,6 +1314,7 @@ configMapGenerator:
       - pour-cost-calculator__calc.mjs.gz=pour-cost-calculator__calc.mjs.gz
       - pour-cost-calculator__how-to-calculate-pour-cost.html.gz=pour-cost-calculator__how-to-calculate-pour-cost.html.gz
       - pour-cost-calculator__index.html.gz=pour-cost-calculator__index.html.gz
+      - pour-cost-calculator__share.mjs.gz=pour-cost-calculator__share.mjs.gz
       - pour-cost-calculator__usage.mjs.gz=pour-cost-calculator__usage.mjs.gz
       - pour-cost-calculator__vs-binwise.html.gz=pour-cost-calculator__vs-binwise.html.gz
       - pour-cost-calculator__vs-wisk.html.gz=pour-cost-calculator__vs-wisk.html.gz
