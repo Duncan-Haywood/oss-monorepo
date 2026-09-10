@@ -691,8 +691,22 @@ const CATEGORY_RULES = [
     // tool does not earn a whole family pattern, and landing it here rather
     // than the catch-all is also what keeps that catch-all inside the bound
     // `build.test.mjs` puts on it.
+    //
+    // `merchant-feed-check` joined 2026-09-10. Same shape again -- a
+    // browser-local checker plus a matching CLI, run against a data file the
+    // operator already has, reporting exactly which rows fail the published
+    // specification -- just for a Google Merchant Center / Meta Catalog
+    // product feed instead of a source/manifest/config artifact. The CLI is
+    // positioned the same way as every member above it: wired into a deploy
+    // pipeline as a gate run before the feed syncs, not a one-off web-form
+    // upload. It cross-links `structured-data-drift-check` as Related (the
+    // other representation of a product Google's Shopping features read).
+    // Listed by exact slug rather than a new prefix, the same way its
+    // neighbors above are: one tool does not earn a whole family pattern,
+    // and landing it here rather than the catch-all is also what keeps that
+    // catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check)/.test(
         slug,
       ),
   },
