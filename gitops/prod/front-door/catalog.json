@@ -1356,7 +1356,7 @@
       "url": "https://marisstella.dev/tools/package-exports-drift-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your package.json and a listing of the files you actually publish and see every literal target in the \"exports\" map that points at a file that doesn't exist -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module right after npm install. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "parking-lot-striping-bid-calculator",
