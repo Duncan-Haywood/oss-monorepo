@@ -1532,7 +1532,7 @@
       "url": "https://marisstella.dev/tools/pwa-installability-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: run a CLI that fetches your page, its Web App Manifest, and every icon it lists, then paste the JSON here for a plain-English report against Chrome's installability criteria -- the same checks Lighthouse's installable-manifest audit runs, no Chrome required. Nothing uploaded.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "quote-margin-check",
