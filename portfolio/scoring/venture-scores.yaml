@@ -9452,3 +9452,72 @@ ventures:
       report is evidence from one specific request against a specific set
       of named patterns, not a full security assessment or a determination
       that the target is secure.
+
+  - slug: canonical-tag-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether two canonical tags name
+      different URLs, whether a canonical's host matches the page's own
+      host, or whether the page it points at carries a noindex directive,
+      is decided by parsing the tag's own markup and the target's own
+      response headers against a fixed rule set -- a factual, deterministic
+      comparison, not a model judgment, and it never claims an SEO
+      assessment.
+    basis: >-
+      Screened 2026-09-10. duplicate_check.py scored every existing venture
+      well under the 0.45 flag bar (pwa-installability-check 0.13,
+      sri-check 0.12, affiliate-disclosure-checker and
+      wordpress-plugin-review-check 0.09) -- no existing venture reads a
+      canonical link tag. Same "real fetch, name the exact response
+      evidence" shape as cors-misconfig-check, security-headers-check and
+      sri-check, just for canonicalization signals rather than a reflected
+      Origin, a CSP directive, or a stale integrity hash. Autonomous ops
+      10 / gross margin 10: the CLI's one or two fetches run from the
+      user's own machine against URLs they choose, and the browser page
+      only renders a report already produced, so serving one more user
+      costs a static file and needs no human review of any output.
+      Distribution 7: canonicalization is one of the most commonly
+      misconfigured on-page SEO signals in practice, and the audience spans
+      both technical SEO practitioners (r/TechSEO, r/SEO, Google Search
+      Central's own help forum, where canonical questions are a recurring
+      thread) and any developer auditing a domain migration or a CMS
+      change for mixed http/https or leftover staging-URL canonicals --
+      specific, recurring search phrases ("conflicting canonical tags",
+      "canonical points to noindex page", "cross-domain canonical URL")
+      that this tool's plain-English, named-pattern report answers more
+      directly than a general full-site crawler's summary view does.
+      Time to revenue 6, defensibility 3: donations-only like every other
+      tool here; a transparent probe-and-classify tool over one HTML tag
+      and up to two HTTP fetches is easy to reimplement, and general SEO
+      crawlers already check canonicals as one signal among many, so
+      defensibility rests only on the specific pattern set, the
+      canonical-target follow-through (checking the page a canonical
+      points at actually resolves and isn't itself noindexed, which a
+      same-page-only canonical audit would not surface), and this
+      portfolio's disclaimer/usage conventions -- not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only ordinary, unauthenticated GET requests from
+      the user's own machine to URL(s) the user chooses -- never this
+      portfolio's infrastructure touching a third party, no different in
+      kind from curl. Both pages carry an explicit "only check systems you
+      own or are authorised to check" caution, the same posture as this
+      portfolio's other request-based checkers. A fetch that fails is
+      reported as incomplete rather than silently skipped or guessed at,
+      and a finding is only ever raised from a tag or response header this
+      tool actually observed. Both pages' footers and FAQs state plainly
+      that a clean report is evidence from one or two specific fetches
+      against a specific set of named patterns, not a full SEO audit or a
+      determination that the page has no other SEO issues.

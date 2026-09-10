@@ -39,7 +39,7 @@
     {
       "@type": "Question",
       "name": "What does a canonical tag actually do?",
-      "acceptedAnswer": { "@type": "Answer", "text": "A <link rel=\"canonical\" href=\"...\"> tag in a page's <head> tells search engines which URL is the authoritative version of this content, so duplicate or near-duplicate URLs (with tracking parameters, alternate sort orders, http vs https, www vs no-www) consolidate their ranking signal onto one page instead of splitting it." }
+      "acceptedAnswer": { "@type": "Answer", "text": "A link tag with rel=canonical and an href in a page's head tells search engines which URL is the authoritative version of this content, so duplicate or near-duplicate URLs (with tracking parameters, alternate sort orders, http vs https, www vs no-www) consolidate their ranking signal onto one page instead of splitting it." }
     },
     {
       "@type": "Question",
@@ -93,7 +93,7 @@
 <body>
 <h1>Canonical Tag Checker</h1>
 <p>
-  Fetches a URL you choose for real, reads its <code>&lt;link rel="canonical"&gt;</code> tag(s), and --
+  Fetches a URL you choose for real, reads its canonical <code>link</code> tag(s), and --
   when there is exactly one -- fetches that URL too, then classifies the evidence into named
   canonicalization misconfiguration patterns: <strong>multiple conflicting canonical tags</strong>,
   a <strong>relative</strong> or <strong>cross-domain</strong> canonical, a
@@ -135,15 +135,15 @@
 <section class="card">
   <h2>Common questions</h2>
   <h3>What does a canonical tag actually do?</h3>
-  <p>A <code>&lt;link rel="canonical" href="..."&gt;</code> tag in a page's <code>&lt;head&gt;</code> tells search engines which URL is the authoritative version of this content, so duplicate or near-duplicate URLs (tracking parameters, alternate sort orders, http vs https, www vs no-www) consolidate their ranking signal onto one page instead of splitting it.</p>
+  <p>A <code>link</code> tag with <code>rel=canonical</code> and an <code>href</code> in a page's <code>head</code> tells search engines which URL is the authoritative version of this content, so duplicate or near-duplicate URLs (with tracking parameters, alternate sort orders, http vs https, www vs no-www) consolidate their ranking signal onto one page instead of splitting it.</p>
   <h3>Why does this need a CLI instead of just checking a URL I type into the page?</h3>
-  <p>Reading another origin's response headers and body from inside a browser tab is CORS-gated, and most sites set no <code>Access-Control-Allow-Origin</code> at all — so a page running in your browser cannot reliably fetch an arbitrary URL and read what came back, even a URL you own. Only a non-browser HTTP client, like the CLI here (or curl), can do that. Run the CLI, then paste its JSON output here for a rendered report.</p>
+  <p>Reading another origin's response headers and body from inside a browser tab is CORS-gated, and most sites set no <code>Access-Control-Allow-Origin</code> at all -- so a page running in your browser cannot reliably fetch an arbitrary URL and read what came back, even a URL you own. Only a non-browser HTTP client, like the CLI here (or curl), can do that. Run the CLI, then paste its JSON output here for a rendered report.</p>
   <h3>Why does it sometimes make a second request?</h3>
-  <p>When the page names exactly one canonical URL that differs from the page you fetched, the tool follows it — the same way a search engine would — to check the canonical target actually resolves, does not redirect further, and is not itself marked noindex. A canonical is only useful if the page it points at is a real, indexable page.</p>
+  <p>When the page names exactly one canonical URL that differs from the page you fetched, the tool follows it -- the same way a search engine would -- to check the canonical target actually resolves, does not redirect further, and is not itself marked noindex. A canonical is only useful if the page it points at is a real, indexable page.</p>
   <h3>Is a cross-domain canonical always wrong?</h3>
-  <p>No — it is a real, supported pattern for syndicated content, where a republished article points its canonical back at the original source. It is flagged as a notice worth checking because it is also exactly what a hardcoded staging URL or a copy-pasted template leaves behind, and either mistake silently tells search engines to index a different site's page instead of yours.</p>
+  <p>No -- it is a real, supported pattern for syndicated content, where a republished article points its canonical back at the original source. It is flagged as a notice worth checking because it is also exactly what a hardcoded staging URL or a copy-pasted template leaves behind, and either mistake silently tells search engines to index a different site's page instead of yours.</p>
   <h3>Does a clean report mean the page has no SEO issues?</h3>
-  <p>No. This checks canonical-tag evidence from one or two real fetches — it is not a full SEO audit, does not crawl your whole site, and cannot see an issue outside what a canonical tag and its target page can show. Treat a clean report as evidence about this specific page's canonicalization, not a determination that the page or site has no other SEO problems.</p>
+  <p>No. This checks canonical-tag evidence from one or two real fetches -- it is not a full SEO audit, does not crawl your whole site, and cannot see an issue outside what a canonical tag and its target page can show. Treat a clean report as evidence about this specific page's canonicalization, not a determination that the page or site has no other SEO problems.</p>
   <p>Already running a full-site crawl? See <a href="vs-screaming-frog.html">how this checker compares to
   Screaming Frog SEO Spider</a> — a one-URL CI gate next to a whole-site crawler, and when each one is
   the right tool.</p>
@@ -171,8 +171,8 @@
       xRobotsTag: null,
       metaRobots: null,
       canonicalLinks: [
-        { href: 'https://example.com/blog/widgets-guide/', raw: '<link rel="canonical" href="https://example.com/blog/widgets-guide/">' },
-        { href: 'https://example.com/blog/widgets-guide/?utm_source=newsletter', raw: '<link rel="canonical" href="https://example.com/blog/widgets-guide/?utm_source=newsletter">' },
+        { href: 'https://example.com/blog/widgets-guide/', raw: '(tag 1 -- see the raw fetch, not reproduced here to avoid a second canonical-looking tag on this page)' },
+        { href: 'https://example.com/blog/widgets-guide/?utm_source=newsletter', raw: '(tag 2 -- see the raw fetch, not reproduced here to avoid a second canonical-looking tag on this page)' },
       ],
     },
     canonicalTarget: null,
