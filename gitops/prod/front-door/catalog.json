@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 237,
-  "collection_total": 237,
+  "served_here": 238,
+  "collection_total": 238,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 26
+      "tool_count": 27
     },
     {
       "id": "evidence",
@@ -1389,6 +1389,14 @@
       "category": "CI checks & developer gates",
       "description": "Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 3
+    },
+    {
+      "slug": "oidc-trust-policy-check",
+      "name": "GitHub Actions OIDC Trust Policy Checker — AWS sub/aud conditions",
+      "url": "https://marisstella.dev/tools/oidc-trust-policy-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: paste an AWS IAM role trust policy and see whether its GitHub Actions OIDC conditions actually restrict which repository, branch or environment can assume the role. Catches a missing sub condition, a wildcard that spans repositories, repo:org/name:* (which includes pull requests from forks), and a literal * under StringEquals. Nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "package-exports-drift-check",
