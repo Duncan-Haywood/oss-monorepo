@@ -1,6 +1,6 @@
 # CORS Misconfiguration Checker
 
-A free tool for API developers: sends **five real HTTP GET requests** to a URL
+A free tool for API developers: sends **six real HTTP GET requests** to a URL
 you choose, each with a different `Origin` header, and classifies the
 responses into the CORS misconfiguration patterns that actually get exploited:
 
@@ -20,6 +20,18 @@ with `Access-Control-Allow-Credentials: true` (invalid per the Fetch spec;
 modern browsers block it, but it signals a sloppy policy), and a dynamic
 `Access-Control-Allow-Origin` with no `Vary: Origin` (a shared-cache risk).
 
+That last notice is why there are six requests rather than five. Four carry
+an origin an attacker could control, one carries no `Origin` header at all,
+and the sixth carries **your own origin** — not an attack, and never a
+finding on its own. It is there because the `Vary: Origin` notice is really
+about the caching layer in front of the API rather than the allow-list
+behind it: on a server whose allow-list *works*, all four attack origins are
+correctly rejected, so nothing else in the run would ever show that the
+response still changes with the request. The no-`Origin` request is what
+tells a dynamic header from a static one — a value that is identical whether
+or not you send an `Origin` is the same response for everybody, and owes no
+`Vary`.
+
 After using this, you can name the exact response header that proves a CORS
 misconfiguration exists — instead of guessing from documentation or waiting
 for a pentest or bug bounty report to find it first.
@@ -37,7 +49,7 @@ authentication or reads protected data — but treat it the same as you would
 node check.mjs https://api.example.com/some/endpoint [--json] [--timeout <ms>]
 ```
 
-Sends the five requests directly from your machine to the URL you name —
+Sends the six requests directly from your machine to the URL you name —
 nothing goes through this portfolio. Exit code `0` when every probe completed
 and no danger-severity finding was produced; `1` otherwise, so it's usable
 directly as a CI gate against your own staging environment:
@@ -59,11 +71,11 @@ you paste is uploaded; the page reads it in memory in your tab.
 
 ## What this is, and isn't
 
-**Evidence, not a determination.** Five specific requests testing four named
+**Evidence, not a determination.** Six specific requests testing four named
 patterns — not a penetration test, not a full security assessment. It does
 not send real credentials, does not test authenticated behaviour, and cannot
-see a misconfiguration shape none of its five probes happens to trigger. A
-clean report means these five requests found nothing, not that the API has
+see a misconfiguration shape none of its six probes happens to trigger. A
+clean report means these six requests found nothing, not that the API has
 no CORS issues.
 
 **Real requests, real risk to be honest about.** This CLI sends actual

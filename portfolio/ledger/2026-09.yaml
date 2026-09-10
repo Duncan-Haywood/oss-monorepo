@@ -21941,3 +21941,71 @@ entries:
         `usage/validate_usage.py` and `checklist_coverage.py` clean;
         `pytest gitops/tests` 506 passed / 25 skipped.
     mrr_end: 0
+  - venture: cors-misconfig-check
+    agent_spend_usd: null
+    human_hours: null
+    outcomes:
+      - >-
+        Reviewed and repaired the open PR queue first. #4390 (apex mirror
+        refresh) verified clean locally -- regen produced no diff on its
+        branch, `platform/marketing`+`platform/pages` 1196/1196, `pytest
+        gitops/tests` 493/25, `portfolio` suites 431, all 15 `platform/ci`
+        unittest modules, `agent_review` 21, and all eight
+        `portfolio-validate.yml` validators -- and merged. #4391 (the
+        cors-misconfig-check venture) arrived `dirty` after #4392/#4393
+        landed; the two conflicts were both generated files
+        (`front-door-tools/ios-privacy-manifest-check__index.html.gz` and
+        `kustomization.yaml`), resolved by taking `main` and re-running
+        `regen.mjs` rather than hand-editing generator output, re-verified on
+        the merged tree (`--for-changes`: 63/63 and 2/2 `run:` steps), pushed
+        to the PR branch, and merged. `ci_starvation.py --run 34432407746`
+        read starvation (4 of 6 jobs `runner_id: 0`, 2-3s, no steps), so every
+        red check on both PRs is absent CI, not a result.
+      - >-
+        Then fixed a false negative in the venture just merged. Its
+        `missing-vary-origin` notice -- advertised on the page, the README and
+        the JSON-LD as one of the two things this tool reports -- could only
+        ever fire on the `reflect` probe, which by construction only echoes
+        back on a server that has ALREADY been flagged for trusting arbitrary
+        origins. So for the population the finding is actually about (a
+        working allow-list behind a shared cache, the ordinary shape of CORS
+        cache poisoning) the check was dead: every such server reported
+        perfectly clean.
+      - >-
+        Added a sixth probe, `same-origin`, sending the target's own origin.
+        It is never a finding on its own -- echoing back your own origin is
+        the correct answer -- and exists solely to give the Vary check a case
+        it can see. The false positive it would otherwise introduce is ruled
+        out by comparing against the `baseline` probe: a server that sends the
+        same `Access-Control-Allow-Origin` with no `Origin` header at all is
+        answering statically, and a response identical for everybody owes no
+        `Vary`. Only a header that changes with the request is reported.
+      - >-
+        Verified end to end against two local servers rather than only in
+        unit tests: a correct allow-list without `Vary: Origin` now produces
+        the notice and exits 0 (notice, not danger); the same server with
+        `Vary: Origin` present reports clean. Four new `analyze.test.mjs`
+        cases pin both directions plus the static-header non-finding; the
+        venture suite is 57/57 (was 53). Copy, JSON-LD FAQ and the satellite
+        page updated from five requests to six with a new Q&A explaining why
+        one request carries the user's own origin, kept identical between
+        JSON-LD and visible text for `faq-visible.test.mjs`.
+      - >-
+        Ran `regen.mjs` and committed the five mirror shards plus
+        `kustomization.yaml` it rewrote. Verified on the branch:
+        `ventures/cors-misconfig-check` 57/57, `platform/marketing` +
+        `platform/pages` 1196/1196, `platform/proposal` + `platform/privacy` +
+        `platform/webcheck` 172/172 (0 skipped -- `git fetch --unshallow`
+        first, so both history-pinned `page-integrity` tests actually ran),
+        `pytest gitops/tests` 506 passed / 25 skipped, `checklist_coverage`,
+        `router/validate.py`, `score_ventures.py --check`,
+        `validate_usage.py`, `validate_doc_consistency.py` and
+        `validate_candidates.py` all clean.
+      - >-
+        Also re-ran the full browser/accessibility sweep, which
+        `browser_state.py` reported STALE on all seven checks after the day's
+        venture merges. CLAUDE.md records that sessions skip these because
+        they believe Playwright is unavailable; it is one `npm install
+        --no-save playwright@1.56.0 axe-core` away, and the last first-time
+        run of it found 48 critical axe violations across three live products.
+    mrr_end: 0
