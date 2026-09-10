@@ -25069,3 +25069,72 @@ entries:
         portfolio-validate 66/66 run steps passed, the 4 not run being the
         external agent-cross-review reviewer jobs.
     mrr_end: 0
+  - venture: cache-control-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session. Drained the open-PR queue first per the session's
+        mandate: only one PR existed (#4502, social-preview-check), already
+        fully reviewed and its merge conflict resolved by this session before
+        a concurrent session landed the equivalent fix and merged it first --
+        no duplicate work pushed. Sampled 5 recent stale branches with
+        supersede_check.py; all 5 confirmed already correctly closed
+        (identical-merge or stale-draft matches against already-shipped
+        ventures), nothing to reopen. Ran the full-catalogue browser/
+        accessibility sweep (all 7 checks clean, 938 pages); a concurrent
+        session recorded an equivalent clean reading first, and a further
+        venture graduation staled it again minutes later, so the reading was
+        not pushed as a duplicate.
+      - >-
+        Graduated a new venture: a free CLI (+ browser report-viewer) that
+        fetches a page's HTTP caching headers and classifies them into named
+        misconfiguration patterns -- Vary: * (RFC 9111: never cacheable by any
+        compliant cache, ever), Cache-Control: public alongside a Set-Cookie
+        header (a shared/CDN cache not configured to strip Set-Cookie on
+        write can serve one visitor's cookie to the next), plus notices for
+        no-store alongside a now-meaningless max-age, Expires silently
+        overridden by Cache-Control's max-age, an Expires value already at or
+        before the response's own Date header, a weak ETag on a response that
+        advertises byte-range support (RFC 9110 requires a strong validator
+        for a conditional Range request), and a static-asset-shaped path with
+        no caching headers at all. Same CLI-plus-browser-report-viewer
+        archetype as security-headers-check/cookie-security-check/
+        cors-misconfig-check, reading a fifth, genuinely distinct
+        response-header evidence class none of those siblings cover.
+      - >-
+        Screened with duplicate_check.py before any code was written: top
+        match cookie-security-check at 0.27, well under the 0.45 flag bar --
+        nothing in screened-out.md or the existing venture set reads
+        Cache-Control, Vary, Expires, ETag, or Accept-Ranges. Scored per
+        portfolio/scoring's rubric: composite 6.167, floor 1 on ai_leverage
+        (no AI in the product, deliberately -- deterministic header-grammar
+        parsing against RFC 9111/9110 rules). Both gates pass:
+        liability_containment and ethical_robustness, on the same grounds as
+        the sibling header-evidence tools (one ordinary unauthenticated GET
+        request from the user's own machine, no different in kind from curl).
+      - >-
+        Verified before pushing: node --test in the venture, 57/57 (probe/
+        analyze/check/usage/page, covering every finding's true-positive and
+        true-negative case). node --test across platform/marketing +
+        platform/pages: 236 + 983, all pass (caught and fixed one real miss
+        first: launched.mjs --write had not been run, which failed the
+        launch-date-committed and byte-identical-refresh tests -- fixed
+        forward, reran clean). python3 -m pytest gitops/tests: 533 passed /
+        25 skipped (skips are this sandbox's own missing nginx/ssh-keygen,
+        unrelated to this change). python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline
+        infra/tests: 435 passed. Full platform/ci unittest sweep (all
+        test_*.py) + agent_review's test_review: all green. validate_candidates.py,
+        validate_doc_consistency.py, score_ventures.py --check, router/validate.py,
+        validate_usage.py, checklist_coverage.py, check_no_payment_code.py: all
+        clean. Regenerated the front-door-tools mirror (244 tools) and the
+        front-door pages via regen.mjs; bumped the mirrored-tool-count wording
+        in the four places CLAUDE.md names (OWNER_CHECKLIST.md, aggregate.py,
+        default.conf x2) plus gitops/tests/test_manifests.py's own pinned
+        constant, and synced gitops/ci/README.md's runs-on count via
+        sync_readme_counts.py. Added reciprocal cross-links from
+        security-headers-check. CI is starved this session
+        (ci_starvation.py on the latest push run: runner_id 0, no steps) --
+        verified entirely locally per CLAUDE.md's starvation protocol.
+    mrr_end: 0

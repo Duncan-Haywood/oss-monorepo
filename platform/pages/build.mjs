@@ -877,8 +877,20 @@ const CATEGORY_RULES = [
     // its neighbors above are: one tool does not earn a whole family
     // pattern, and landing it here rather than the catch-all is also what
     // keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    //
+    // `cache-control-check` joined 2026-09-10, the same day. Same shape
+    // once more -- a zero-dependency CLI plus a matching browser report-
+    // viewer, run by a developer against their own site's response headers
+    // -- just for HTTP caching headers (Vary, Cache-Control, Expires,
+    // ETag) instead of CSP/frame-ancestors, Set-Cookie attributes, or a
+    // reflected CORS Origin. It shares `security-headers-check` and
+    // `cookie-security-check`'s "browser half only renders a pasted
+    // report" shape for the same underlying reason, and cross-links both
+    // as Related (same "real request, name the exact response-header
+    // evidence" question, a fifth header-evidence class). Listed by exact
+    // slug rather than a new prefix, the same way its neighbors above are.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check)/.test(
         slug,
       ),
   },

@@ -8,7 +8,7 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 243,
+  "served_here": 244,
   "collection_total": 243,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 31
+      "tool_count": 32
     },
     {
       "id": "evidence",
@@ -701,6 +701,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a kitchen cabinet refinish from doors, drawer fronts, face frames, hardware, degrease, and a dark-to-light extra coat — then see price per door, price per painted piece, and the walk-away number.",
       "pages": 3
+    },
+    {
+      "slug": "cache-control-check",
+      "name": "Cache-Control Checker — Vary: *, public + Set-Cookie, weak ETags",
+      "url": "https://marisstella.dev/tools/cache-control-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor's cookie to another), and lower-severity caching directive conflicts. Nothing uploaded.",
+      "pages": 1
     },
     {
       "slug": "canonical-tag-check",
