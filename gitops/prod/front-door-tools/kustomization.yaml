@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 136 files, 556229 bytes
 #   portfolio-front-tools-1: 110 files, 555644 bytes
 #   portfolio-front-tools-2: 149 files, 548217 bytes
-#   portfolio-front-tools-3: 145 files, 551051 bytes
+#   portfolio-front-tools-3: 146 files, 555226 bytes
 #   portfolio-front-tools-4: 122 files, 555557 bytes
 #   portfolio-front-tools-5: 126 files, 555711 bytes
 #   portfolio-front-tools-6: 133 files, 556773 bytes
@@ -606,6 +606,7 @@ configMapGenerator:
       - ai-engineering-academy__vs-omni-calculator.html.gz=ai-engineering-academy__vs-omni-calculator.html.gz
       - apparel-decoration-price-calculator__calculator.mjs.gz=apparel-decoration-price-calculator__calculator.mjs.gz
       - apparel-decoration-price-calculator__index.html.gz=apparel-decoration-price-calculator__index.html.gz
+      - apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz=apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz
       - apparel-decoration-price-calculator__usage.mjs.gz=apparel-decoration-price-calculator__usage.mjs.gz
       - apparel-decoration-price-calculator__vs-printavo.html.gz=apparel-decoration-price-calculator__vs-printavo.html.gz
       - appointment-deposit-calculator__app.mjs.gz=appointment-deposit-calculator__app.mjs.gz
