@@ -36,8 +36,8 @@
 #   portfolio-front-tools-0: 136 files, 556319 bytes
 #   portfolio-front-tools-1: 110 files, 555644 bytes
 #   portfolio-front-tools-2: 149 files, 548207 bytes
-#   portfolio-front-tools-3: 146 files, 556541 bytes
-#   portfolio-front-tools-4: 122 files, 551610 bytes
+#   portfolio-front-tools-3: 146 files, 555310 bytes
+#   portfolio-front-tools-4: 123 files, 556865 bytes
 #   portfolio-front-tools-5: 123 files, 555955 bytes
 #   portfolio-front-tools-6: 135 files, 554594 bytes
 #   portfolio-front-tools-7: 111 files, 546698 bytes
@@ -570,6 +570,7 @@ configMapGenerator:
       - affiliate-disclosure-checker__engine.mjs.gz=affiliate-disclosure-checker__engine.mjs.gz
       - affiliate-disclosure-checker__index.html.gz=affiliate-disclosure-checker__index.html.gz
       - affiliate-disclosure-checker__usage.mjs.gz=affiliate-disclosure-checker__usage.mjs.gz
+      - affiliate-disclosure-checker__vs-post-affiliate-pro.html.gz=affiliate-disclosure-checker__vs-post-affiliate-pro.html.gz
       - affiliate-disclosure-checker__what-disclosure-does-amazon-associates-and-the-ftc-require.html.gz=affiliate-disclosure-checker__what-disclosure-does-amazon-associates-and-the-ftc-require.html.gz
       - ai-crawler-access-check__audit.mjs.gz=ai-crawler-access-check__audit.mjs.gz
       - ai-crawler-access-check__cli.mjs.gz=ai-crawler-access-check__cli.mjs.gz
@@ -623,12 +624,12 @@ configMapGenerator:
       - appointment-deposit-calculator__usage.mjs.gz=appointment-deposit-calculator__usage.mjs.gz
       - appointment-deposit-calculator__vs-square-appointments.html.gz=appointment-deposit-calculator__vs-square-appointments.html.gz
       - appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz=appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz
-      - artificial-turf-bid-calculator__calc.mjs.gz=artificial-turf-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - artificial-turf-bid-calculator__calc.mjs.gz=artificial-turf-bid-calculator__calc.mjs.gz
       - artificial-turf-bid-calculator__how-much-to-charge-for-artificial-turf.html.gz=artificial-turf-bid-calculator__how-much-to-charge-for-artificial-turf.html.gz
       - artificial-turf-bid-calculator__index.html.gz=artificial-turf-bid-calculator__index.html.gz
       - artificial-turf-bid-calculator__share.mjs.gz=artificial-turf-bid-calculator__share.mjs.gz
