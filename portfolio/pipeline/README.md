@@ -208,9 +208,10 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 30 | [Grant reporting tracker](candidates/grant-reporting-tracker.md) | 6.625 | 1 | Graduated 2026-08-24 as `ventures/grant-reporting-tracker`; browser-local award reporting queue and restricted-balance arithmetic for small nonprofits, with repeat usage and organic search demand still unmeasured |
 | 31 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
 | 32 | [Backup verification evidence](candidates/backup-verification-evidence.md) | 6.5 | 4 | Probe; local exit-code/artifact classifier built, needs a real recurring job and a sysadmin/MSP channel |
-| 33 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
-| 34 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
-| 35 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
+| 33 | [CORS misconfiguration checker](candidates/cors-misconfig-check.md) | 6.5 | 1 | Graduated 2026-09-10 as `ventures/cors-misconfig-check`; zero-dependency CLI sending five real GET requests with crafted Origin headers to a URL the user names, classifying reflected-arbitrary-origin, accepted-null-origin, and unanchored startsWith/endsWith allow-list bypasses, plus wildcard-with-credentials and missing-Vary notices, with a browser report-viewer for the CLI's JSON output (the browser cannot probe itself -- Origin is a forbidden request header), repeat usage and organic search demand still unmeasured |
+| 34 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
+| 35 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
+| 36 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four

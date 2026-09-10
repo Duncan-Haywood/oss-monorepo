@@ -9,9 +9,9 @@
 <meta property="og:description" content="Stop guessing at a flat per-walk rate. Price one visit from time, drive, mileage, extra pets, and overhead, then see whether your whole route hits your income goal.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Dog Walking & Pet Sitting Rate Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a dog walk, drop-in visit, or overnight pet-sitting stay from labor time, drive time, mileage, extra-pet surcharges, overhead, and target margin, and rolls a client list up into monthly route revenue."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does drive time count as billable time if I'm not with a dog yet?","acceptedAnswer":{"@type":"Answer","text":"Because it is time you cannot spend on another visit or anything else that pays. A route of five stops with ten minutes of driving between each one spends nearly an hour a day just driving — leave that out of the price and every visit is quietly subsidizing the commute to the next one."}},{"@type":"Question","name":"Why is an overnight priced with on-call hours instead of just the minutes I'm actually up and working?","acceptedAnswer":{"@type":"Answer","text":"An overnight stay commits your whole night to one client even during the hours nothing goes wrong — you cannot book another job, sleep at home, or leave. Pricing only the arrival, walk, and departure minutes treats being on call as free, which is why a flat per-night rate that ignores it usually undercharges the job with the most exposure."}},{"@type":"Question","name":"Why does the calculator gross up the price for a payment processing fee instead of just subtracting it from what I planned to charge?","acceptedAnswer":{"@type":"Answer","text":"If a payment app takes 3% and you quote the pre-fee number, you net 3% less than you planned on every single visit. Grossing the price up so the fee comes out of the client's payment, not your margin, is the only way the number you typed as your target margin is the number you actually keep."}},{"@type":"Question","name":"Does anything about my clients or route get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the client names and prices you type into the route section are never saved anywhere — they exist only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does drive time count as billable time if I'm not with a dog yet?","acceptedAnswer":{"@type":"Answer","text":"Because it is time you cannot spend on another visit or anything else that pays. A route of five stops with ten minutes of driving between each one spends nearly an hour a day just driving — leave that out of the price and every visit is quietly subsidizing the commute to the next one."}},{"@type":"Question","name":"Why is an overnight priced with on-call hours instead of just the minutes I'm actually up and working?","acceptedAnswer":{"@type":"Answer","text":"An overnight stay commits your whole night to one client even during the hours nothing goes wrong — you cannot book another job, sleep at home, or leave. Pricing only the arrival, walk, and departure minutes treats being on call as free, which is why a flat per-night rate that ignores it usually undercharges the job with the most exposure."}},{"@type":"Question","name":"Why does the calculator gross up the price for a payment processing fee instead of just subtracting it from what I planned to charge?","acceptedAnswer":{"@type":"Answer","text":"If a payment app takes 3% and you quote the pre-fee number, you net 3% less than you planned on every single visit. Grossing the price up so the fee comes out of the client's payment, not your margin, is the only way the number you typed as your target margin is the number you actually keep."}},{"@type":"Question","name":"Does anything about my clients or route get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the client names and prices you type into the route section are never saved anywhere — they exist only in the page while it is open. The visit inputs on the left are different: those are saved locally on this device (never the client list), so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
 <style>
-:root{font:16px/1.5 system-ui,sans-serif;color:#2b1d12;background:#fdf3e7}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e7c9a3;border-radius:16px;padding:20px;box-shadow:0 8px 24px #5a381208;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #edd9bb;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a5a20;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9b98c;border-radius:8px;font:inherit;background:#fffdfa}.result{background:#8a3d1f;color:#fff;border-color:#8a3d1f;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6b563f}.result .note{color:#f6dcc9}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#8a5a20}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #d9b98c;background:#fff;cursor:pointer;color:#2b1d12}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+:root{font:16px/1.5 system-ui,sans-serif;color:#2b1d12;background:#fdf3e7}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e7c9a3;border-radius:16px;padding:20px;box-shadow:0 8px 24px #5a381208;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #edd9bb;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a5a20;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9b98c;border-radius:8px;font:inherit;background:#fffdfa}.result{background:#8a3d1f;color:#fff;border-color:#8a3d1f;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6b563f}.result .note{color:#f6dcc9}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#8a5a20}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #d9b98c;background:#fff;cursor:pointer;color:#2b1d12}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
 </style></head>
 <body>
 <header><p>FOR INDEPENDENT DOG WALKERS &amp; PET SITTERS</p><h1>Price the visit, then price the route.</h1><p class="lede">A flat "$20 a walk" rate ignores drive time, extra dogs, overnight on-call hours, and what your app takes in fees. This free calculator prices one visit from your real time and costs, then rolls your whole client list up into a monthly number you can check against your income goal.</p></header>
@@ -40,6 +40,12 @@
 <label>Expected visits per month<input id="expectedVisitsPerMonth" type="number" min="0" step="1" value="60"></label>
 <label>Target margin (%)<input id="targetMarginPct" type="number" min="0" max="99.9" step="1" value="15"></label>
 </div></fieldset>
+<p id="draftStatus" class="note" role="status">Your visit inputs above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded. Your client list below is never saved.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
 </section>
 
 <section class="result" aria-live="polite"><h2>Price for this visit</h2><p id="errors" class="err" role="alert" hidden></p>
@@ -82,13 +88,13 @@
 </dl>
 </section>
 
-<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your visit inputs and client list are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>estimate</code>, <code>route-check</code>) so we can tell whether the calculator gets used — no names, prices, or route content are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your visit inputs (on-site time, drive, mileage, pets, overhead) are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. Your client list is a different promise: it is never saved anywhere, and closing or refreshing the tab clears it. There is no account. We count only anonymous local feature events (<code>estimate</code>, <code>route-check</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no names, prices, or route content are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
 
 <section><h2>Common questions</h2>
 <h3>Why does drive time count as billable time if I'm not with a dog yet?</h3><p>Because it is time you cannot spend on another visit or anything else that pays. A route of five stops with ten minutes of driving between each one spends nearly an hour a day just driving &mdash; leave that out of the price and every visit is quietly subsidizing the commute to the next one.</p>
 <h3>Why is an overnight priced with on-call hours instead of just the minutes I'm actually up and working?</h3><p>An overnight stay commits your whole night to one client even during the hours nothing goes wrong &mdash; you cannot book another job, sleep at home, or leave. Pricing only the arrival, walk, and departure minutes treats being on call as free, which is why a flat per-night rate that ignores it usually undercharges the job with the most exposure.</p>
 <h3>Why does the calculator gross up the price for a payment processing fee instead of just subtracting it from what I planned to charge?</h3><p>If a payment app takes 3% and you quote the pre-fee number, you net 3% less than you planned on every single visit. Grossing the price up so the fee comes out of the client's payment, not your margin, is the only way the number you typed as your target margin is the number you actually keep.</p>
-<h3>Does anything about my clients or route get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the client names and prices you type into the route section are never saved anywhere &mdash; they exist only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+<h3>Does anything about my clients or route get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the client names and prices you type into the route section are never saved anywhere &mdash; they exist only in the page while it is open. The visit inputs on the left are different: those are saved locally on this device (never the client list), so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
 </section>
 
 <p class="note">New to setting rates? Read the guide: <a href="./how-much-to-charge-for-a-dog-walk.html">how much to charge for a dog walk</a>.</p>
@@ -98,17 +104,36 @@
 <script type="module">
 import { calculate, computeRouteRevenue, incomeGap, DEFAULTS } from './calc.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs } from './share.mjs';
 const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
 const money = (n) => {
   const format = (n) => `$${n.toFixed(2)}`;
   const text = format(Math.abs(n));
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
 const VISIT_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'dog-walking-route-pricing-visit-draft';
 let counted = false;
 let routeCounted = false;
 
 function visitInputs() { return Object.fromEntries(VISIT_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_VISIT_INPUTS = visitInputs();
+
+function applyVisitInputs(values) {
+  for (const id of VISIT_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persistVisit() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(visitInputs())));
+}
 
 function updateVisit(count = false) {
   try {
@@ -160,12 +185,49 @@ function updateRoute(count = false) {
   }
 }
 
-VISIT_IDS.forEach(id => el(id).addEventListener('input', () => updateVisit(true)));
+VISIT_IDS.forEach(id => el(id).addEventListener('input', () => { updateVisit(true); persistVisit(); }));
 document.querySelectorAll('.clientPrice, .clientVisits').forEach(input => input.addEventListener('input', () => updateRoute(true)));
 el('weeksPerMonth').addEventListener('input', () => updateRoute(true));
 el('targetMonthlyIncome').addEventListener('input', () => updateRoute(true));
 el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
 if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(visitInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyVisitInputs(DEFAULT_VISIT_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  updateVisit(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers; the page's own defaults fill any field the link omitted.
+(() => {
+  const fromLink = decodeInputs(location.hash || location.search);
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  const restored = { ...saved, ...fromLink };
+  if (Object.keys(restored).length) {
+    applyVisitInputs(restored);
+    el('draftStatus').textContent = Object.keys(fromLink).length
+      ? 'Opened a shared visit. Review the numbers before you quote.'
+      : 'Restored your last visit from this browser. Your client list below is never saved.';
+  }
+})();
+
 updateVisit(false);
 updateRoute(false);
 </script>

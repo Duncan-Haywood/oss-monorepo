@@ -21725,6 +21725,53 @@ entries:
         publish is what surfaced the defect above -- the announcement fired on
         the real path for the first time.
     mrr_end: 0
+  - venture: dog-walking-route-pricing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped save-and-share for the visit-pricing calculator, matching the
+        pattern already on sibling calculators (most recently
+        whatnot-seller-payout in #4389): the on-site/drive/mileage/overnight
+        visit inputs are now saved to `localStorage` between visits and
+        encodable into a shareable URL fragment (`share.mjs`, restored on load
+        with a shared link winning over a local draft), plus a "Reset to
+        defaults" control. Verified end to end in a real headless Chromium
+        session (not just unit tests): edit a field, copy the link, reload the
+        page fresh -- the draft restores; open the copied link in a fresh page
+        load -- the same visit restores; reset returns the page defaults.
+      - >-
+        Deliberately did not extend this to the "Your route this month" client
+        table. That table's own copy has always promised client names and
+        per-client prices are never saved anywhere -- a real, load-bearing
+        privacy claim, not incidental copy -- so share.mjs only touches the
+        visit-pricing fields (imported from calc.mjs's DEFAULTS, not restated)
+        and a dedicated test (page.test.mjs) asserts encodeInputs/persist are
+        only ever called with `visitInputs()`, never a client-row value.
+      - >-
+        Updated the privacy section, the FAQ answer, and its FAQPage JSON-LD
+        to describe the new behaviour honestly (visit inputs saved locally and
+        shareable; client list still never saved). Caught by
+        `platform/pages/faq-visible.test.mjs` that the visible FAQ copy and its
+        JSON-LD twin had drifted by a few words after a first pass -- fixed to
+        be byte-identical before merge, which is exactly the defect that check
+        exists to catch.
+      - >-
+        Verified: full venture suite 64/64 (`node --test
+        ventures/dog-walking-route-pricing/*.test.mjs`, up from 58, including 7
+        new `share.test.mjs` tests and 3 new page.test.mjs assertions);
+        `checklist_coverage.py` clean; `regen.mjs` rewrote the front-door
+        mirror shard and gzip for this venture only; `clauses.mjs
+        dog-walking-route-pricing` clean; `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1196/1196
+        after the JSON-LD fix; `platform/proposal`, `platform/privacy`,
+        `platform/webcheck` suites all green (unaffected, run per CLAUDE.md's
+        directory-enumeration rule); all 21 `platform/ci` unittest modules OK;
+        `gitops/tests` 506 passed / 25 skipped; `portfolio/ledger`,
+        `scoring`, `router`, `usage`, `pipeline`, `infra/tests` 431 passed.
+        Ran the actual product in a headless browser, not just its tests, per
+        the playbook's "run the product itself" rule.
+    mrr_end: 0
   - venture: reverb-fee-calculator
     agent_spend_usd: null
     human_hours: 0
