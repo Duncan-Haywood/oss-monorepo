@@ -125,3 +125,15 @@ test("DoorDash vs Uber Eats page names all three apps and matches the calculator
   assert.match(versus, /No warranty/);
   assert.match(versus, /href="doordash-fees-for-restaurants\.html"/);
 });
+
+// Both put one order through several channels to find the true take-home
+// after fees -- a per-ticket delivery menu and a wholesale invoice. Without
+// this link a crawler entering on this page never reaches the
+// faire-wholesale-calculator in one hop.
+test("index links one hop to the faire-wholesale-calculator sibling", () => {
+  assert.match(
+    page,
+    /href="\.\.\/faire-wholesale-calculator\/"/,
+    "index must link ../faire-wholesale-calculator/ so crawlers reach the Faire wholesale calculator in one hop",
+  );
+});
