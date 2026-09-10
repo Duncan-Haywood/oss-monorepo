@@ -772,7 +772,7 @@
       "url": "https://marisstella.dev/tools/cors-misconfig-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: run a CLI that sends real requests with crafted Origin headers to your API, then paste the JSON here for a plain-English report on reflected-origin, null-origin, and unanchored allow-list CORS misconfigurations. Nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "countertop-bid-calculator",
