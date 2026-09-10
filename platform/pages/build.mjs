@@ -654,8 +654,24 @@ const CATEGORY_RULES = [
     // tool does not earn a whole family pattern, and landing it here rather
     // than the catch-all is also what keeps that catch-all inside the bound
     // `build.test.mjs` puts on it.
+    //
+    // `cors-misconfig-check` joined 2026-09-10. Same shape again -- a
+    // zero-dependency CLI plus a matching browser report-viewer, run by a
+    // developer against their own API's response headers -- just for a live
+    // network probe (crafted Origin headers) rather than a static
+    // source/manifest/config file a maintainer already has. It is the first
+    // member here where the browser page cannot run the check itself at
+    // all (Origin is a forbidden request header a page can never set), so
+    // its "browser" half only ever renders a report the CLI produced. It
+    // cross-links `actions-injection-check` and `pinned-actions-check` as
+    // Related (same "read what's actually there, name the exact evidence"
+    // question, a different vulnerability class). Listed by exact slug
+    // rather than a new prefix, the same way its neighbors above are: one
+    // tool does not earn a whole family pattern, and landing it here rather
+    // than the catch-all is also what keeps that catch-all inside the bound
+    // `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check)/.test(
         slug,
       ),
   },
