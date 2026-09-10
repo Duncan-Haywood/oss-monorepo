@@ -236,3 +236,20 @@ test('the incumbent-comparison page links back, names Poshmark\'s own resource h
     assert.match(markup, new RegExp(`id="${anchor}"`), `index.html should have id="${anchor}"`);
   }
 });
+
+test('an edit updates the payout on screen rather than leaving the last one standing', () => {
+  // Found by `platform/pages/roundtrip.mjs` the morning the share link
+  // shipped: every field survived the link and only the headline differed,
+  // $40.00 on the seller's screen against $39.94 on the recipient's. The
+  // link was right; the screen was stale, because the page rendered on
+  // submit alone.
+  const listener = /el\('saleForm'\)\.addEventListener\('input', \(\) => \{[\s\S]*?\n    \}\);/.exec(script);
+  assert.ok(listener, 'expected an input listener on the sale form');
+  assert.match(listener[0], /calculateSale\(readInput\(\)\)/);
+  assert.match(listener[0], /render\(result\)/);
+  // Errors stay with submit, and a keystroke is not a calculation the seller
+  // asked for -- counting it would inflate `sale_calculated` past what
+  // portfolio/usage/ says that reading means.
+  assert.doesNotMatch(listener[0], /showProblems/);
+  assert.doesNotMatch(listener[0], /count\(/);
+});
