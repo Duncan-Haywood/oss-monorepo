@@ -1999,6 +1999,9 @@
     <loc>https://marisstella.dev/tools/pwa-installability-check/add-to-home-screen-not-showing.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/pwa-installability-check/vs-lighthouse.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/quote-margin-check/</loc>
   </url>
   <url>
@@ -2150,6 +2153,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/security-headers-check/clickjacking-and-csp-frame-ancestors.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/security-headers-check/vs-securityheaders.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/self-storage-rate-increase-calculator/</loc>
