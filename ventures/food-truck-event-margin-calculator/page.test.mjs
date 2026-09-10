@@ -2,8 +2,11 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculateQuote, DEFAULTS } from './calc.mjs';
+import { FIELD_IDS, OPTIONAL_FIELD_IDS, REQUIRED_FIELD_IDS } from './share.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
+const script = html.match(/<script type="module">([\s\S]*)<\/script>/)[1];
 
 test('every DEFAULTS field has a matching input on the page', () => {
   for (const id of Object.keys(DEFAULTS)) {
@@ -11,8 +14,16 @@ test('every DEFAULTS field has a matching input on the page', () => {
   }
 });
 
-test('the page imports calculateQuote and DEFAULTS from calc.mjs', () => {
-  assert.match(html, /import \{ calculateQuote, DEFAULTS \} from '\.\/calc\.mjs'/);
+test('the page imports calculateQuote from calc.mjs and the field list from share.mjs', () => {
+  assert.match(html, /import \{ calculateQuote \} from '\.\/calc\.mjs'/);
+  assert.match(
+    html,
+    /import \{ encodeInputs, decodeInputs, hasSharedInputs, formValues, REQUIRED_FIELD_IDS \} from '\.\/share\.mjs'/,
+  );
+});
+
+test("the page's REQUIRED_FIELD_IDS is calc.mjs's own DEFAULTS keys, not a copy", () => {
+  assert.deepEqual([...REQUIRED_FIELD_IDS], Object.keys(DEFAULTS));
 });
 
 test('the page wires usage counting for both the quote and the proposed-price checker', () => {
@@ -63,13 +74,63 @@ test('the quote result panel announces recalculation to screen readers', () => {
 
 test('an invalid input hides stale results instead of leaving them next to a silent error', () => {
   assert.match(html, /id="errors" class="err" role="alert"/, 'a dedicated, announced error region is missing');
-  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
-  assert.ok(scriptMatch, 'app script not found');
-  const catchBlock = scriptMatch[1].match(/function updateQuote[\s\S]*?catch \(e\) \{([\s\S]*?)\n  \}\n\}/);
+  const catchBlock = script.match(/function updateQuote[\s\S]*?catch \(e\) \{([\s\S]*?)\n  \}\n\}/);
   assert.ok(catchBlock, 'updateQuote() catch block not found');
   const body = catchBlock[1];
   assert.match(body, /el\('price'\)\.hidden = true/, 'the price hero is not hidden on a rejected input');
   assert.match(body, /el\('errors'\)\.hidden = false/, 'the error message is never shown');
+});
+
+test('page wires a shareable link, matching sibling calculators', () => {
+  for (const id of ['copyLink', 'shareStatus']) {
+    assert.ok(ids.has(id), `missing #${id}`);
+  }
+  assert.match(script, /el\('copyLink'\)\.addEventListener\('click'/);
+  assert.match(script, /recordEvent\('link_copied'\)/);
+  assert.match(html, /<code>link_copied<\/code>/);
+});
+
+test('the shared quote rides in the fragment, never the query string', () => {
+  // A query string is sent in the request line a server logs and in the
+  // Referer header a later click carries. A fragment is neither.
+  assert.match(script, /\$\{query \? `#\$\{query\}` : ''\}/);
+});
+
+test('a shared link replaces every field, including proposedPrice when the link did not carry one', () => {
+  // The trap this venture has: without `formValues`, a shared no-proposal
+  // quote opens on top of whatever this visitor already typed into "Price
+  // you're considering", and they check a stranger's number against this
+  // quote's breakeven while believing nothing was proposed. See share.mjs.
+  assert.match(script, /formValues\(fromLink\)/);
+  assert.doesNotMatch(
+    script,
+    /Object\.entries\(fromLink\)/,
+    "writing the decoded link straight onto the form would leave a stale proposedPrice value behind",
+  );
+});
+
+test('proposedPrice travels with the rest of the quote when a link is copied', () => {
+  assert.match(script, /encodeInputs\(\{ \.\.\.fieldInputs\(\), proposedPrice: el\('proposedPrice'\)\.value \}\)/);
+});
+
+test('opening the page on a shared link says so, without counting it as a calculation', () => {
+  assert.match(script, /hasSharedInputs\(fromLink\)/);
+  assert.match(script, /Opened a shared quote/);
+  const restoreBlock = script.match(/const fromLink[\s\S]*?\n\}/);
+  assert.ok(restoreBlock, 'the restore-from-link block was not found');
+  assert.doesNotMatch(restoreBlock[0], /recordEvent\(/, 'opening a shared link is not a calculation');
+});
+
+test('the field list a shared link carries matches every input calculateQuote and the optional price checker read', () => {
+  for (const id of FIELD_IDS) {
+    assert.ok(ids.has(id), `#${id} is on share.mjs's field list but missing from the page`);
+  }
+  assert.deepEqual([...OPTIONAL_FIELD_IDS], ['proposedPrice']);
+});
+
+test('the FAQ answer about uploads names the share control honestly', () => {
+  assert.match(html, /Copy shareable link button puts the quote on the form into the page.s URL fragment/);
+  assert.match(html, /Anyone who has that link can read the quote in it/);
 });
 
 test('every .html file in the venture is reachable from the sitemap', () => {
