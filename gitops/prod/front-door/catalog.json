@@ -716,7 +716,7 @@
       "url": "https://marisstella.dev/tools/carpet-install-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a carpet install from floor yards, stairs, stretch-in versus glue-down versus carpet tile, patterned waste, and extras — plus the walk-away price a $2-a-yard special cannot see.",
-      "pages": 4
+      "pages": 5
     },
     {
       "slug": "certified-payroll-calculator",
@@ -1532,7 +1532,7 @@
       "url": "https://marisstella.dev/tools/pwa-installability-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: run a CLI that fetches your page, its Web App Manifest, and every icon it lists, then paste the JSON here for a plain-English report against Chrome's installability criteria -- the same checks Lighthouse's installable-manifest audit runs, no Chrome required. Nothing uploaded.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "quote-margin-check",
