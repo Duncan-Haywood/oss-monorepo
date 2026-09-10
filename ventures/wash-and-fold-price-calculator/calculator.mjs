@@ -25,6 +25,20 @@
 
 export const SEVERITY = { HIGH: "high", MEDIUM: "medium", LOW: "low", INFO: "info" };
 
+// The full set of numeric inputs the page reads. Exported so share.mjs (the
+// shareable-link encoder) reads the same list the page's own form uses,
+// rather than a second, hand-typed copy that a future field can drift out of
+// sync with — the exact bug class already fixed twice elsewhere in this
+// repo (dog-walking-route-pricing, childcare-tuition-calculator).
+export const INPUT_FIELDS = [
+  "pricePerPound", "avgOrderPounds", "minimumCharge", "minimumOrderPounds",
+  "laborMinutesPerPound", "fixedMinutesPerOrder", "wagePerHour", "payrollLoadPct",
+  "poundsPerWasherLoad", "washCostPerLoad", "poundsPerDryerLoad", "dryCostPerLoad",
+  "suppliesCostPerPound", "deliveryStopsPerOrder", "driveMinutesPerStop", "milesPerStop",
+  "vehicleCostPerMile", "monthlyOverhead", "monthlyPounds", "targetMarginPct",
+  "monthlyProfitGoal",
+];
+
 function round(n, places = 2) {
   const factor = 10 ** places;
   return Math.round((n + Number.EPSILON) * factor) / factor;

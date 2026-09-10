@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { computeWashAndFold } from "./calculator.mjs";
+import { computeWashAndFold, INPUT_FIELDS } from "./calculator.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const html = page("index.html");
@@ -17,7 +17,7 @@ test("the page carries the no-warranty, no-SLA and privacy clauses and the spons
 });
 
 test("the privacy copy names every event counted and says nothing is uploaded", () => {
-  for (const event of ["estimate", "example_loaded", "inputs_saved"]) {
+  for (const event of ["estimate", "example_loaded", "inputs_saved", "link_copied"]) {
     assert.match(html, new RegExp(`<code>${event}</code>`), `${event} must be disclosed`);
   }
   assert.match(html, /never uploaded/);
@@ -103,9 +103,13 @@ test("every field the calculator reads has a labelled input on the page", () => 
       `${field} needs a label, or a screen reader announces it as "edit, number" and nothing else`,
     );
   }
-  const listed = html.match(/const FIELDS = \[([\s\S]*?)\];/)[1];
+  // The page reads its field list from calculator.mjs's INPUT_FIELDS rather
+  // than a second, hand-typed array in the page script -- so a field added
+  // to the arithmetic is read back and shareable the moment it exists,
+  // instead of silently dropping out of sync the way a hardcoded copy would.
+  assert.match(html, /const FIELDS = INPUT_FIELDS;/);
   for (const field of fields) {
-    assert.ok(listed.includes(`"${field}"`), `${field} must be read back by the page script`);
+    assert.ok(INPUT_FIELDS.includes(field), `${field} must be in calculator.mjs's INPUT_FIELDS`);
   }
 });
 
@@ -139,9 +143,23 @@ test("the page's EXAMPLE button values match the shipped input defaults", () => 
   assert.deepEqual(example, defaults);
 });
 
-test("the page imports the calculation and the usage counter rather than reimplementing them", () => {
-  assert.match(html, /import \{ computeWashAndFold \} from "\.\/calculator\.mjs"/);
+test("the page imports the calculation, the usage counter, and the share codec rather than reimplementing them", () => {
+  assert.match(html, /import \{ computeWashAndFold, INPUT_FIELDS \} from "\.\/calculator\.mjs"/);
   assert.match(html, /import \{ recordUsage, setUsageOptOut, usageOptedOut \} from "\.\/usage\.mjs"/);
+  assert.match(html, /import \{ encodeInputs, decodeInputs \} from "\.\/share\.mjs"/);
   assert.match(html, /run\("estimate"\)/, "calculating counts an estimate event");
   assert.match(html, /recordUsage\("inputs_saved"\)/, "saving a draft counts its own event");
+  assert.match(html, /recordUsage\("link_copied"\)/, "copying a link counts its own event");
+});
+
+test("a shared link round-trips through the page's own encode/decode functions", async () => {
+  const { encodeInputs, decodeInputs } = await import("./share.mjs");
+  const sample = Object.fromEntries(INPUT_FIELDS.map((id, i) => [id, i + 1]));
+  const encoded = encodeInputs(sample);
+  assert.deepEqual(decodeInputs(`#${encoded}`), sample);
+});
+
+test("copying a link is wired to the id the page actually renders", () => {
+  assert.match(html, /id="copy-link"/);
+  assert.match(html, /\$\("#copy-link"\)\.addEventListener\("click"/);
 });
