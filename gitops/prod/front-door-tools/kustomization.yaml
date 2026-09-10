@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 112 files, 556444 bytes
 #   portfolio-front-tools-2: 147 files, 545235 bytes
 #   portfolio-front-tools-3: 144 files, 546723 bytes
-#   portfolio-front-tools-4: 123 files, 554425 bytes
+#   portfolio-front-tools-4: 124 files, 556983 bytes
 #   portfolio-front-tools-5: 131 files, 553869 bytes
 #   portfolio-front-tools-6: 126 files, 555147 bytes
 #   portfolio-front-tools-7: 108 files, 554716 bytes
@@ -645,6 +645,7 @@ configMapGenerator:
       - atm-route-margin__calc.mjs.gz=atm-route-margin__calc.mjs.gz
       - atm-route-margin__index.html.gz=atm-route-margin__index.html.gz
       - atm-route-margin__is-this-atm-placement-worth-it.html.gz=atm-route-margin__is-this-atm-placement-worth-it.html.gz
+      - atm-route-margin__share.mjs.gz=atm-route-margin__share.mjs.gz
       - atm-route-margin__usage.mjs.gz=atm-route-margin__usage.mjs.gz
       - atm-route-margin__vs-atm-depot.html.gz=atm-route-margin__vs-atm-depot.html.gz
       - ats-resume-checker__checker.mjs.gz=ats-resume-checker__checker.mjs.gz
