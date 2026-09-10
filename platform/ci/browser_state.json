@@ -306,6 +306,27 @@
         "platform/pages": "304cd8726ec58ba8c01300094b6b68d8288ec6d0",
         "ventures": "d4dcdc58027884a22974b03581b99fcdd722cec3"
       }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "7252cf73e79dc3387284853121ad4c01bfc87da7",
+      "measured": "2026-09-10",
+      "pages": 881,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "87242bf37ae718404c186750158b7c576db11072",
+        "platform/pages": "304cd8726ec58ba8c01300094b6b68d8288ec6d0",
+        "ventures": "d4dcdc58027884a22974b03581b99fcdd722cec3"
+      }
     }
   ]
 }

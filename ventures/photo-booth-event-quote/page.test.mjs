@@ -77,6 +77,17 @@ test('an invalid input hides stale results instead of leaving them next to a sil
 // booking. Without a crawlable link here, a crawler entering on the photo
 // booth quote calculator never reaches the booth rent vs commission
 // calculator in one hop.
+// Commercial photography licensing is the adjacent pricing decision for the
+// same reader: a one-off event booking vs. a licensing scope. Without this
+// link a crawler entering on this page never reaches that calculator.
+test('index links one hop to the commercial-photo-license-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/commercial-photo-license-calculator\/"/,
+    'index must link ../commercial-photo-license-calculator/ so crawlers reach the commercial photo license calculator in one hop',
+  );
+});
+
 test('index links one hop to the booth-rent-vs-commission sibling', () => {
   assert.match(
     html,
@@ -85,10 +96,3 @@ test('index links one hop to the booth-rent-vs-commission sibling', () => {
   );
 });
 
-test('index links one hop to the commercial photo license calculator sibling', () => {
-  assert.match(
-    html,
-    /href="\.\.\/commercial-photo-license-calculator\/"/,
-    'index must link ../commercial-photo-license-calculator/ so crawlers reach that tool in one hop',
-  );
-});

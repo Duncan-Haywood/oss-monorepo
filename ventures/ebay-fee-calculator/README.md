@@ -435,8 +435,11 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `international_compared`,
 `free_shipping_compared`,
 `package_protection_compared`,
-`ebay_labels_compared`, and
-`price_sensitivity_viewed`.
+`ebay_labels_compared`,
+`price_sensitivity_viewed`, and `handoff_where_to_sell` — the last one is
+recorded only when the footer's link into
+[where-to-sell-calculator](../where-to-sell-calculator/) is followed, and
+counts that the handoff happened, never the item.
 `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
