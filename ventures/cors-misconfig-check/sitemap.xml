@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://example.invalid/cors-misconfig-check/</loc></url>
 <url><loc>https://example.invalid/cors-misconfig-check/reflected-origin-cors-vulnerability.html</loc></url>
+<url><loc>https://example.invalid/cors-misconfig-check/vs-burp-suite.html</loc></url>
 </urlset>

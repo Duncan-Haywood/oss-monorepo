@@ -83,6 +83,11 @@ network traffic to whatever URL you give it. Only run it against systems you
 own or are authorised to test — the same rule that applies to any HTTP
 client aimed at someone else's server.
 
+**Not a replacement for a web security testing platform.** If you are
+assessing a whole application interactively, that is a different tool's job —
+[`vs-burp-suite.html`](vs-burp-suite.html) sets out which question each one
+answers and why the two compose rather than compete.
+
 ## Privacy
 
 The CLI's requests go straight from your machine to the target URL — never

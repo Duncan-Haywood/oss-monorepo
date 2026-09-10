@@ -44,5 +44,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Run analyze, probe, check, usage, and page-wiring tests
-        run: node --test analyze.test.mjs probe.test.mjs check.test.mjs usage.test.mjs page.test.mjs
+      # Discovered, not enumerated. This step used to list the five test
+      # files by name, and `vs-burp-suite.test.mjs` landed beside them
+      # without being added -- so the venture's own CI would have reported
+      # green while never running the guard on its newest page. That is the
+      # exact failure CLAUDE.md records against `platform/proposal/` and the
+      # merge checklist: a test nobody runs is worth less than no test,
+      # because it also tells the next session the ground is covered. Bare
+      # `node --test` walks the working directory, which is what this
+      # venture's own README already tells a contributor to run, and it
+      # cannot fall behind a file added later. It is also what 39 other
+      # venture workflows here already do.
+      - name: Run every test in the venture
+        run: node --test
