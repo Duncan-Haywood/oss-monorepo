@@ -8722,6 +8722,65 @@ ventures:
       requests, not a full security assessment or a determination that
       the target is secure.
 
+  - slug: sri-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a hash generated from
+      the bytes just fetched matches the hash declared in a page's
+      integrity attribute is decided by exact string comparison, not a
+      model judgment, and it never claims a security assessment.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool, not another
+      trade calculator. duplicate_check.py scored the closest existing
+      venture (cors-misconfig-check, a different tag-and-response check)
+      at 0.20 against the final description, well under the 0.45 flag
+      bar; no existing venture generates or re-verifies a Subresource
+      Integrity hash. Autonomous ops 10 / gross margin 10: the hash
+      generator hashes pasted content entirely client-side via Web
+      Crypto, and the CLI's requests run from the user's own machine, so
+      serving one more user costs a static file and needs no human
+      review of any output.
+      Distribution 7: OWASP's cheat sheets and MDN both document SRI as
+      commonly misconfigured (the crossorigin-attribute requirement is
+      easy to miss because a tag with only integrity still loads,
+      unprotected, so nothing about it looks broken), and "sri hash
+      generator" / "subresource integrity checker" / "integrity
+      attribute crossorigin" are specific, recurring developer search
+      phrases distinct from this portfolio's existing GitHub
+      Actions/npm/platform-manifest checkers.
+      Time to revenue 6, defensibility 3: donations-only; several free
+      SRI hash generators already exist online, so defensibility rests
+      on pairing the generator with a checker that re-verifies the
+      declared hash against what the CDN serves right now (hash drift),
+      which this portfolio found no existing free tool doing, plus this
+      portfolio's disclaimer/usage conventions -- not on any moat or
+      first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the hash generator only hashes content pasted into the
+      browser locally, and the CLI sends only ordinary, unauthenticated
+      GET requests from the user's own machine to the page and asset
+      URLs that page itself references -- never this portfolio's
+      infrastructure touching a third party, no different in kind from
+      curl. A probe that fails at the network level is reported as a
+      notice rather than silently skipped, and a finding is only ever
+      raised from a hash this tool actually computed. Both pages state
+      plainly that a clean report is evidence about one specific
+      protection, not a full security assessment.
+
   - slug: wash-and-fold-price-calculator
     scores:
       ai_leverage: 1
