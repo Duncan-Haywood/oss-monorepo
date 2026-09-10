@@ -51,6 +51,24 @@ recurring weekly thread, and the search phrases "whatnot seller fees",
 either restate the headline 8% or run the $50 example without the
 shipping-base trap or the $1,500 cap.
 
+## Save and share your numbers
+
+Retyping the category preset, your rates, and the lot every time you price a
+show is the retyping this tool's own kill criteria asks whether a seller will
+put up with twice in 90 days — so it keeps the form for you:
+
+- **Restored on return.** Your category preset, rates, and lot are saved in
+  your browser and reappear the next time you open the page. **Reset to
+  defaults** clears them and puts back Whatnot's published $50 TCG example.
+- **Shareable link.** **Copy shareable link** writes your current inputs into
+  the page URL and copies it. A link's values always take precedence over
+  whatever a browser had saved, because opening a link means you meant to see
+  that lot.
+
+The link and the saved copy contain only the numbers and preset you chose.
+They travel in the URL's fragment (`#...`), which a browser never sends to a
+server or a `Referer` header, so nothing is uploaded either way.
+
 ## Privacy
 
 Everything runs in your browser. Hammers, costs, and leftovers are never

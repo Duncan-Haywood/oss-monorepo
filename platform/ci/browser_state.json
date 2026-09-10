@@ -2,6 +2,16 @@
   "readings": [
     {
       "checks": [
+        "journey"
+      ],
+      "commit": "777a87f9461dbe73c47befc4a6bdb2873ac7967f",
+      "measured": "2026-09-09",
+      "pages": 854,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
         "contrast",
         "highlight",
         "journey",
