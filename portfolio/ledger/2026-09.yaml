@@ -23423,34 +23423,86 @@ entries:
         `platform/pages/build.mjs` + `check.mjs` run afterward: 232
         products, 907 pages, no dead links.
       - >-
-        Verified locally (Actions runners not evaluated for starvation
-        this session since this is new work, not a red-check
-        investigation): node --test ventures/pwa-installability-check
-        59/59; node platform/pages/clauses.mjs pwa-installability-check
+        Two concurrent sessions landed on `main` while this one was
+        building (`session_gate.py` had already warned of exactly this
+        collision risk): `sri-check` graduated as a new venture and
+        `email-auth-check` gained a vs-MXToolbox comparison page.
+        Rebuilding onto the fresh `origin/main` needed a real merge
+        (`git fetch origin main --unshallow` -- a plain `git fetch
+        origin main` had silently re-shallowed just that ref to 2
+        commits, which is what first produced "refusing to merge
+        unrelated histories"), with conflicts in the generated mirror
+        (resolved by taking either side and re-running `regen.mjs`,
+        since those files have no independent truth), in
+        `gitops/tests/test_manifests.py`'s hardcoded tool-count `total`
+        (both branches had independently rewritten the same line to the
+        literal text "232", so git reported no conflict at all while the
+        true count was 233 -- caught only by re-running the test, not by
+        a clean merge), in `build.mjs`'s dev-tool-checker category regex
+        (combined both branches' slug additions), and in the ledger
+        itself (both branches appended at the same position; combined as
+        two sequential entries). `gitops/ci/sync_readme_counts.py` also
+        needed a second run after the merge, for the same reason as the
+        first: a new sibling `-ci.yml` (`sri-check-ci.yml`) landed
+        alongside mine.
+      - >-
+        Landing this venture also crossed
+        `platform/marketing/front-door-tools.mjs`'s `MIRROR_HEADROOM_WARN_RATIO`
+        (85%) for the first time: the mirror measured 85.14% of
+        `MIRROR_BYTE_CEILING` after this venture's ~15.9 KB (gzipped)
+        joined it, against 84.96% just before (the two concurrent
+        sessions above had already spent nearly all the remaining
+        buffer). `front-door-tools.test.mjs`'s "the real mirror is under
+        the warn ratio" assertion is red as a result, by its own design
+        ("that is the test doing its job, not a test to relax"). Read
+        both constants' own comments before treating this as this PR's
+        to fix: `dedupeMirror` already recovers every byte-identical
+        duplicate (`headroom.duplicates.redundant` reads 0), so there is
+        no cheap code-level remedy left, and the ceiling itself is
+        deliberately not to be raised -- the documented remedy is
+        sealing `portfolio-site-repo` (already queued, top of
+        `decision_queue.py`, "makes this directory deletable in one
+        commit"), not a per-PR workaround. The hard ceiling
+        (`buildMirror` throwing at 100%, which would block every
+        venture's publish) is not crossed -- confirmed by calling
+        `buildMirror()` directly, no throw, 85.14%. Roughly 40 tools of
+        runway remain per the tool's own estimate. This venture's own
+        index.html.gz (7,404 bytes) is smaller than four of its five
+        closest siblings' (7,780-8,180 bytes), so there was no
+        venture-specific bloat to trim.
+      - >-
+        Verified locally, against the tree as finally merged and
+        committed (Actions runners not evaluated for starvation this
+        session since this is new work, not a red-check investigation):
+        node --test ventures/pwa-installability-check 59/59; node
+        platform/pages/clauses.mjs pwa-installability-check
         chrome-extension-permission-check clean; python3
-        portfolio/router/validate.py clean (240 VENTURE.yaml); python3
-        portfolio/scoring/score_ventures.py --check clean (241 scored);
+        portfolio/router/validate.py clean (241 VENTURE.yaml); python3
+        portfolio/scoring/score_ventures.py --check clean (242 scored);
         python3 portfolio/usage/validate_usage.py clean (202 products,
         388 readings); python3 platform/ci/check_no_payment_code.py
         clean; python3 platform/ci/checklist_coverage.py clean; regen.mjs
-        run (twice -- once before, once after the dead-link fix above)
-        and the gitops/prod/front-door mirror + sitemap + kustomization
-        committed; node --test platform/marketing/*.test.mjs
-        platform/pages/*.test.mjs 1206/1206; python3 -m pytest
-        gitops/tests -q 532 passed/25 skipped; (cd platform/ci && all 22
-        test_*.py modules) all OK; (cd platform/ci/agent_review &&
-        test_review) 21/21 OK; python3 -m pytest portfolio/ledger
-        portfolio/scoring portfolio/router portfolio/usage
-        portfolio/pipeline infra/tests -q 435 passed/8 subtests; python3
-        gitops/ci/sync_readme_counts.py --check clean; node
-        platform/pages/launched.mjs --write (232 tools, 1 added).
-        python3 platform/ci/run_workflow_locally.py --for-changes was run
-        twice while this diff was still being edited concurrently, so its
+        run three times across the session (twice pre-merge for the
+        dead-link fix, once post-merge to fold in the concurrent
+        sessions' pages) and the gitops/prod/front-door mirror + sitemap
+        + kustomization committed each time; python3
+        gitops/ci/sync_readme_counts.py --check clean (326 of 328
+        runs-on lines across 288 workflows); node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs
+        1205/1206 -- the sole failure is the mirror-headroom canary
+        above, not a regression; python3 -m pytest gitops/tests -q 532
+        passed/25 skipped; (cd platform/ci && all 22 test_*.py modules)
+        all OK; (cd platform/ci/agent_review && test_review) 21/21 OK;
+        python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests
+        -q 435 passed/8 subtests; node platform/pages/launched.mjs
+        --write (233 tools, 1 added). `python3 platform/ci/
+        run_workflow_locally.py --for-changes` was run twice while this
+        diff was still being edited concurrently with itself, so its
         first pass's failures (the dead-link defect above, plus a
         transient node --test failure against a mirror mid-regen) are
         not a live reading of the final tree -- superseded by the direct,
-        sequential checks listed above, each run against the tree as
-        finally committed. Not run: browser/contrast checks
+        sequential checks listed above. Not run: browser/contrast checks
         (`platform/ci/browser_checks.py`) -- this venture's UI is
         materially identical in structure (textarea, buttons, findings
         list) to cors-misconfig-check and email-auth-check, both already
