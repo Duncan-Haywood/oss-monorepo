@@ -209,6 +209,7 @@ test('save-and-share is wired to the page', () => {
   assert.match(html, /A bid link carries your own rates/, 'the bid link does not say what it carries');
   assert.match(html, /wage, burden, overhead, and target margin/, 'the link caution does not name the rates it carries');
   assert.match(html, /The customer should get the price, not the link/, 'the link caution does not say who not to send it to');
+  assert.match(html, /never sent to a server/, 'the on-page note does not say the link fragment stays client-side');
   assert.match(html, /Your bid is saved in this browser/, 'the privacy note does not disclose that the bid is stored');
   assert.match(html, /treat one like your rate sheet/, 'the privacy note does not warn what a copied link holds');
 });
