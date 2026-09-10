@@ -21506,3 +21506,177 @@ entries:
         touching payment/checkout code (none exists here or was added).
         Nothing needed owner action beyond what is already queued.
     mrr_end: 0
+  - venture: npm-lifecycle-script-check
+    agent_spend_usd: null
+    human_hours: null
+    outcomes:
+      - >-
+        Scheduled autonomous session. Three-PR merge quota: 0 open PRs
+        existed at the start (`list_pull_requests`, state=open, verified
+        fresh). Sampled the 174-of-393 remote branches carrying commits not
+        on `main` (weighted toward highest commit count, most recent, and
+        every branch an earlier automated pass had flagged with unmatched
+        lines) with `supersede_check.py --no-fetch`: ~28 checked by hand plus
+        51 more via a parallel background sweep (killed once the pattern was
+        unambiguous), 79 of 174 total. Every one was SUPERSEDED (identical-
+        merge proof) or STALE DRAFT SUSPECTED (`main` already carries a
+        later, fuller rewrite of the same lines) -- matches this repo's own
+        repeated finding on 2026-09-05 and 2026-09-07 that the branch backlog
+        is spent. No repairable PR/branch found; quota not met because the
+        queue was empty, not because it was skipped.
+      - >-
+        The owner's direction relayed this session ("make sure deployment
+        and cicd is a priority and building and deploying marketing
+        materials on the hetzner vms... set up codex cli to use the built-in
+        quota... on the hetzner vm") is the same sentence already recorded
+        verbatim in `gitops/agents/queue/deploy-cicd-readiness.yaml` and
+        `marketing-distribution.yaml` (both re-prioritized to 7/6 on
+        2026-09-01 on this exact direction) and already the reason
+        `gitops/agents/host/` (Codex worker, systemd-timer host mode,
+        `codex-host-mode` reading in `infra_state.yaml`: `up`/installable)
+        exists. All of it is built, tested, and idle -- gated on one owner
+        action, `hetzner-ssh-key-is-a-public-key` (#3184, top of
+        `decision_queue.py`): `HETZNERSSHKEY` holds a public key, and no
+        agent session can supply a private one or reach `:22` (egress
+        confirmed blocked again this session: no `ssh` binary,
+        `api.hetzner.cloud:443` gives `gateway answered 403 to CONNECT`).
+        Re-verified rather than assumed: `github-actions-runners` still
+        `down` today (`ci_starvation.py --run 34423728610`, `runner_id: 0`),
+        `k3s-cluster` still `down` since 2026-09-04. No second ask added.
+      - >-
+        Given that, spent the session's product-work slot on the one
+        deployment/marketing lever this sandbox can actually pull: GitHub
+        Pages, confirmed live and current (`pages_state.py`: `deployed:
+        served`, snapshot at `main`'s own tip), and a marketing asset that
+        ships through it. Added `ventures/npm-lifecycle-script-check/vs-
+        socket.html` (+ test), a nominative-fair-use comparison page
+        (`PRODUCT_PLAYBOOK.md` §5f) against Socket -- same real competitor
+        and pattern already shipped for `dependency-confusion-check` (#4345,
+        one of 31 ventures with no comparison page before this one, picked
+        for a well-documented, honestly comparable competitor in the same
+        CI/CD-supply-chain-security niche the owner's direction emphasizes).
+        Describes Socket's own documented product shape with no invented
+        pricing and no claim about its detection accuracy either way.
+      - >-
+        Crossed the two-venture threshold for "socket" as a compared
+        product, so `front-door.mjs` emitted a combined
+        `gitops/prod/front-door/vs__socket.html.gz` shard; added its mount
+        line to `gitops/prod/kustomization.yaml` (hand-kept, matches every
+        other `vs__*.html.gz` line there -- `front-door.test.mjs` catches a
+        missing one) and reran `regen.mjs`.
+      - >-
+        Caught and fixed, before merge, the exact "FAQPage JSON-LD diverges
+        from visible copy" defect class `CLAUDE.md` records costing live
+        product twice before: the new page's JSON-LD used `--` where the
+        visible prose used `&mdash;`. `faq-visible.test.mjs` caught it;
+        fixed by matching the visible em dash in the JSON-LD text.
+      - >-
+        Verified: `node --test` on the venture (60/60), full
+        `platform/marketing/*.test.mjs` (232/232) and `platform/pages/*.test.mjs`
+        (960/960, including the fixed `faq-visible` case), `gitops/tests`
+        (493 passed/25 skipped), `clauses.mjs npm-lifecycle-script-check`
+        (3/3), `checklist_coverage.py`, `validate_doc_consistency.py`,
+        `score_ventures.py --check`, `validate_usage.py`, `router/validate.py`,
+        `front-door-tools.mjs --headroom` (49 tools of headroom left) --
+        all clean, after merging `origin/main` (which had advanced twice
+        during this session) and re-running the full suite post-merge.
+      - >-
+        CI could not verify this independently: Actions still starved this
+        session (see above). Merged on the local verification above per
+        CLAUDE.md's starvation policy.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session under the standing product-first mandate.
+        Open-PR queue was empty at the start (`list_pull_requests` state=open
+        and a `search_pull_requests` cross-check both returned 0) and
+        `git branch -r --no-merged origin/main` returned 0 branches, so the
+        three-PR merge quota was met with an empty queue rather than skipped.
+      - >-
+        Confirmed `main` itself is green before building on it:
+        `run_workflow_locally.py --tree` passed 9/9 selected workflows. The
+        only not-run steps were `uses:` steps and `portfolio-pages.yml/deploy`,
+        which the tool reports separately and which are not failures.
+      - >-
+        Picked the same gap the session immediately above picked, independently
+        and in the same window: the IndexNow announcement -- this catalogue's
+        only page-enumeration route, because `pages_state.py`'s `indexing` row
+        measured that sitemap auto-discovery cannot happen from a
+        project-Pages subpath -- existed only as a step in
+        `.github/workflows/publish-pages-branch.yml`, which needs an Actions
+        runner. Runners have been starved since 2026-09-04, so every publish
+        that actually reached the live site in that window was a by-hand
+        `publish-branch.sh` run that announced nothing, silently.
+      - >-
+        #4378 landed that core fix first, from the other session. Rather than
+        close this as a duplicate or re-land a parallel implementation, took
+        #4378 as the base and kept only what it could not express, per the
+        mandate's "integrate, do not duplicate" rule. Its `--ref "$BRANCH"` is
+        an improvement this branch did not have (a non-default `BRANCH` would
+        otherwise be announced from the wrong ref) and its wording is what
+        `gitops/tests/test_publish_branch.py` pins, so the merged version
+        matches its strings exactly.
+      - >-
+        Three things #4378 left open, all fixed here. (1) It added the call to
+        `publish-branch.sh` but left the workflow's own `Notify IndexNow` step
+        in place -- so a runner-borne publish would have submitted twice, once
+        through the script and once through the step. Removed the step, since
+        both workflow steps invoke the script; there is now one definition of
+        "publishing includes announcing" rather than a second copy only the
+        runner-borne route would execute. (2) `indexnow.mjs`'s `submit()`
+        called `fetch` with no catch and the CLI had no handler, so a
+        transport failure rejected out of the process -- making the likeliest
+        outcome of `--submit` from an agent sandbox (the egress proxy answers
+        `403 to CONNECT` for `api.indexnow.org`, re-measured this session) a
+        raw `TypeError: fetch failed` stack trace, indistinguishable at a
+        glance from the script being broken. It now returns
+        `{status: 0, ok: false, error}` and exits `EXIT_NO_EGRESS` (3),
+        distinct from 1, which is what lets the shell caller tell "this host
+        cannot reach IndexNow" from "IndexNow refused what we sent" -- the
+        expected case and the real-defect case, which #4378's single
+        best-effort branch reported identically. (3) Added an `INDEXNOW=0`
+        opt-out for a rollback you deliberately do not want announced, and a
+        guard for a host with no node.
+      - >-
+        Verified (Actions starved -- `ci_starvation.py --run 34423728610`
+        classified `runner_id: 0`, and the PR itself drew zero check runs, read
+        from the check-runs endpoint rather than the bare status call):
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        1194 passing; all 21 `platform/ci` unittest modules OK; `gitops/tests`
+        490 passed / 25 skipped before the merge and re-run after it;
+        portfolio ledger/scoring/router/usage/pipeline/infra 431 passed;
+        `agent_review` 21 OK; proposal/privacy/webcheck 172 passing;
+        `checklist_coverage.py` clean; `regen.mjs` rewrote nothing (this change
+        touches no served surface); `build.mjs` + `check.mjs` clean (225
+        products, 882 pages, no dead links); `bash -n` clean.
+        `run_workflow_locally.py --for-changes` passed 8/9 -- the ninth,
+        `publish-pages-branch.yml/publish`, is refused by design because it
+        pushes and is not in `VERIFICATION_ONLY`; its correctness is covered by
+        `test_publish_pages_branch.py` instead.
+      - >-
+        The new cases in `test_publish_pages_branch.AnnouncingThePublishedSnapshot`
+        were checked against the pre-fix tree and all fail there, so they are
+        not vacuous.
+      - >-
+        Measured rather than assumed, and it closed an avenue rather than
+        opening one: with sitemap auto-discovery unavailable a crawler can only
+        reach a page by following links, so the internal link graph is now
+        load-bearing for the whole catalogue's indexability. Crawled the built
+        site from `index.html` -- 880 of 882 pages reachable, and the 2 that
+        are not are `404.html` and `offline.html`, which must be. No orphan
+        work was needed.
+      - >-
+        Re-confirmed the owner's three named priorities are architecturally
+        complete and blocked on one action, so no new asks were added.
+        Deployment: `pages_state.py` reports `deployed: served`, snapshot
+        `current`. Codex CLI on the Hetzner box against the owner's ChatGPT
+        subscription quota (`CODEX_AUTH_JSON`, not an API key): built in
+        `gitops/agents/host/`, 45 tests passing, its worker mandate already
+        carrying this same three-PR-drain direction. Marketing on the Hetzner
+        VMs: `install-portfolio-site-host.sh` exists and is tested. All three
+        wait on `hetzner-ssh-key-is-a-public-key`, already ranked first in the
+        decision queue.
+    mrr_end: 0
