@@ -69,6 +69,8 @@ test('the calculator page wires the compare the schema.org featureList names', (
   assert.match(html, /id="bumpRows"/);
   assert.match(html, /compareBump/);
   assert.match(html, /should-i-bump-this-reverb-listing.html/);
+  assert.match(html, /id="copyCounterOffer"/);
+  assert.match(html, /counterOfferMessage/);
 });
 
 test('the SEO page uses the same worked example the calculator defaults produce', () => {

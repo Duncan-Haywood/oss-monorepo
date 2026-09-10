@@ -7,6 +7,7 @@ import {
   compareOfferToList,
   compareReverbToEbay,
   offerThatMatchesEbayList,
+  counterOfferMessage,
   compareShippingPaths,
   compareSafeShipping,
   compareConsignment,
@@ -81,6 +82,21 @@ test('the crossover offer matches eBay list cash on Reverb', () => {
   assert.ok(Math.abs(atOffer.profit - match.ebayListProfit) < 1e-9);
   assert.ok(match.offerPrice > 720);
   assert.ok(match.offerPrice < 800);
+});
+
+test('counterOfferMessage asks for the crossover, rounded up to a whole dollar, when the offer falls short', () => {
+  const message = counterOfferMessage(REVERB_DEFAULTS);
+  const match = offerThatMatchesEbayList(REVERB_DEFAULTS);
+  assert.ok(Math.ceil(match.offerPrice) > 720, 'the worked example should need a counter, not an acceptance');
+  assert.match(message, /\$720\.00/);
+  assert.match(message, new RegExp(`\\$${Math.ceil(match.offerPrice)}\\b`));
+  assert.doesNotMatch(message, /glad to accept/);
+});
+
+test('counterOfferMessage reads as an acceptance once the offer already clears the crossover', () => {
+  const message = counterOfferMessage({ ...REVERB_DEFAULTS, offerPrice: 760 });
+  assert.match(message, /\$760\.00/);
+  assert.match(message, /glad to accept/);
 });
 
 test('rejects negative or non-numeric prices', () => {
