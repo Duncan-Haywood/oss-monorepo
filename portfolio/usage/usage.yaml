@@ -4743,6 +4743,26 @@ products:
           “whatnot fee calculator”. Counts are local, opt-in, off by
           default, and honor DNT/GPC, so zero is the expected reading for
           a tool nobody has visited or switched the counter on for yet.
+      - as_of: 2026-09-10
+        signals:
+          live_url_visitors: null
+          sale_calculated: 0
+          free_shipping_compared: 0
+          link_copied: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Still zero, and that is expected on a static host with no
+          server-side analytics (see portfolio/usage/README.md). Shipped a
+          save-and-share slice this session directly against the venture's
+          own kill criteria ("run a real lot twice within 90 days"): this
+          was the one bid calculator in the fleet with calc.mjs but no
+          share.mjs, so a returning seller had to retype the whole lot
+          every visit. It now persists the category preset, rates, and lot
+          to localStorage as typed and offers a shareable link
+          (`share.mjs`, 7 unit tests), matching every sibling calculator.
+          This does not manufacture usage — it removes a real reason a
+          hypothesis-testing return visit would fail even if the seller
+          wanted one.
   - slug: ai-crawler-access-check
     surface: github-pages
     readings:
