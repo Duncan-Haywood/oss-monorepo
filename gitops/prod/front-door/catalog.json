@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 238,
-  "collection_total": 238,
+  "served_here": 243,
+  "collection_total": 243,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 26
+      "tool_count": 31
     },
     {
       "id": "evidence",
@@ -703,6 +703,14 @@
       "pages": 3
     },
     {
+      "slug": "canonical-tag-check",
+      "name": "Canonical Tag Checker — Conflicting, Cross-Domain & Dead-End Canonicals",
+      "url": "https://marisstella.dev/tools/canonical-tag-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical that 404s or is itself marked noindex. Nothing uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "card-processing-fee-audit",
       "name": "Card Processing Fee Audit — Split Your Statement Into Interchange and Markup",
       "url": "https://marisstella.dev/tools/card-processing-fee-audit/",
@@ -773,6 +781,14 @@
       "category": "Compliance checks & evidence records",
       "description": "Compare before-and-after consent browser traces and create a local request and storage change record.",
       "pages": 4
+    },
+    {
+      "slug": "cookie-security-check",
+      "name": "Cookie Security Checker — SameSite=None, __Host-/__Secure- prefixes",
+      "url": "https://marisstella.dev/tools/cookie-security-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on SameSite=None cookies missing Secure (which current browsers reject outright), broken __Host-/__Secure- prefix cookies, and missing Secure/HttpOnly/SameSite. Nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "cors-misconfig-check",
@@ -884,6 +900,14 @@
       "url": "https://marisstella.dev/tools/dns-configuration-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.",
+      "pages": 3
+    },
+    {
+      "slug": "docker-base-image-pin-check",
+      "name": "Docker Base Image Pin Check — Are Your FROM Lines Pinned to a Digest?",
+      "url": "https://marisstella.dev/tools/docker-base-image-pin-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your Dockerfile and find every FROM line referencing a base image by a mutable tag like node:18 instead of a pinned content digest (@sha256:...). Free, runs in your browser, nothing uploaded.",
       "pages": 3
     },
     {
@@ -1391,6 +1415,14 @@
       "pages": 3
     },
     {
+      "slug": "oidc-trust-policy-check",
+      "name": "GitHub Actions OIDC Trust Policy Checker — AWS sub/aud conditions",
+      "url": "https://marisstella.dev/tools/oidc-trust-policy-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: paste an AWS IAM role trust policy and see whether its GitHub Actions OIDC conditions actually restrict which repository, branch or environment can assume the role. Catches a missing sub condition, a wildcard that spans repositories, repo:org/name:* (which includes pull requests from forks), and a literal * under StringEquals. Nothing is uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "package-exports-drift-check",
       "name": "package.json Exports Drift Check — Does \"exports\" Point at Files That Exist?",
       "url": "https://marisstella.dev/tools/package-exports-drift-check/",
@@ -1540,7 +1572,7 @@
       "url": "https://marisstella.dev/tools/pwa-installability-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: run a CLI that fetches your page, its Web App Manifest, and every icon it lists, then paste the JSON here for a plain-English report against Chrome's installability criteria -- the same checks Lighthouse's installable-manifest audit runs, no Chrome required. Nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "quote-margin-check",
@@ -1701,6 +1733,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a snow-removal winter from route minutes, truck cost, salt, and expected storms. Compare per-push vs seasonal, see the ice-event drain, and the storm count where a cheap seasonal goes underwater.",
       "pages": 3
+    },
+    {
+      "slug": "social-preview-check",
+      "name": "Social Preview Checker — Open Graph, Twitter Card, LinkedIn link previews",
+      "url": "https://marisstella.dev/tools/social-preview-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter's large-image card, and the twitter:image -> og:image fallback chain. Also check any image URL's real pixel dimensions right in this page. Nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "sod-install-bid-calculator",

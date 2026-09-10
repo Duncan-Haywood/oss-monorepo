@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Canonical Tag Checker — Conflicting, Cross-Domain &amp; Dead-End Canonicals</title>
+<meta name="description" content="Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical that 404s or is itself marked noindex. Nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/canonical-tag-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Canonical Tag Checker">
+<meta property="og:description" content="Fetch a URL for real and get a plain-English report on canonical-tag misconfigurations: conflicting tags, cross-domain canonicals, and canonicals pointing at a dead or noindexed page. Free, local, no upload.">
+<meta property="og:url" content="https://example.invalid/canonical-tag-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Canonical Tag Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (report viewer runs in a web browser); a Node.js CLI performs the actual fetch",
+  "description": "Fetches a URL for real, reads its <link rel=canonical> tag(s), and -- when there is exactly one -- fetches that URL too, classifying the evidence into named canonicalization misconfiguration patterns: multiple conflicting canonical tags, a relative or cross-domain canonical, a protocol mismatch, and a canonical target that is unreachable, redirects, or is itself marked noindex.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Fetches a URL you choose and reads every <link rel=canonical> tag in its <head>",
+    "Flags multiple canonical tags naming different URLs -- browsers and crawlers only honor the first",
+    "Flags a canonical URL that is relative rather than absolute",
+    "Flags a canonical whose protocol (http/https) does not match the page it is on",
+    "Flags a canonical pointing at a different registrable domain",
+    "Follows a single, distinct canonical to its own URL and flags a 404/5xx, a redirect chain, or a noindex directive on the target",
+    "CLI makes the actual requests; the browser page only renders a report you paste in -- nothing uploaded"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does a canonical tag actually do?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A link tag with rel=canonical and an href in a page's head tells search engines which URL is the authoritative version of this content, so duplicate or near-duplicate URLs (with tracking parameters, alternate sort orders, http vs https, www vs no-www) consolidate their ranking signal onto one page instead of splitting it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this need a CLI instead of just checking a URL I type into the page?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Reading another origin's response headers and body from inside a browser tab is CORS-gated, and most sites set no Access-Control-Allow-Origin at all -- so a page running in your browser cannot reliably fetch an arbitrary URL and read what came back, even a URL you own. Only a non-browser HTTP client, like the CLI here (or curl), can do that. Run the CLI, then paste its JSON output here for a rendered report." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does it sometimes make a second request?",
+      "acceptedAnswer": { "@type": "Answer", "text": "When the page names exactly one canonical URL that differs from the page you fetched, the tool follows it -- the same way a search engine would -- to check the canonical target actually resolves, does not redirect further, and is not itself marked noindex. A canonical is only useful if the page it points at is a real, indexable page." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is a cross-domain canonical always wrong?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No -- it is a real, supported pattern for syndicated content, where a republished article points its canonical back at the original source. It is flagged as a notice worth checking because it is also exactly what a hardcoded staging URL or a copy-pasted template leaves behind, and either mistake silently tells search engines to index a different site's page instead of yours." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean the page has no SEO issues?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks canonical-tag evidence from one or two real fetches -- it is not a full SEO audit, does not crawl your whole site, and cannot see an issue outside what a canonical tag and its target page can show. Treat a clean report as evidence about this specific page's canonicalization, not a determination that the page or site has no other SEO problems." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 0.6rem; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>Canonical Tag Checker</h1>
+<p>
+  Fetches a URL you choose for real, reads its canonical <code>link</code> tag(s), and --
+  when there is exactly one -- fetches that URL too, then classifies the evidence into named
+  canonicalization misconfiguration patterns: <strong>multiple conflicting canonical tags</strong>,
+  a <strong>relative</strong> or <strong>cross-domain</strong> canonical, a
+  <strong>protocol mismatch</strong>, and a canonical target that is
+  <strong>unreachable</strong>, <strong>redirects</strong>, or is itself marked
+  <strong>noindex</strong>.
+</p>
+
+<div class="card">
+  <h2>1. Run the CLI against your page</h2>
+  <p>Node.js, no dependencies to install:</p>
+  <pre class="cmd"><code>node check.mjs https://example.com/some/page --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/canonical-tag-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a>
+    — plain Node, nothing to install. It only ever talks to the page's URL, and (when relevant) the one
+    canonical URL it names; nothing goes through this site.
+  </p>
+</div>
+
+<div class="card">
+  <h2>2. Paste the JSON output here</h2>
+  <textarea id="payload" spellcheck="false" placeholder='{"target": "https://example.com/...", "page": {...}, "canonicalTarget": null}'></textarea>
+  <p>
+    <button type="button" class="primary" id="check">Check</button>
+    <button type="button" id="load-example">Load worked example (conflicting canonicals)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Paste the JSON from step 1 and click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <h3>What was fetched</h3>
+  <table id="fetch-table"><thead><tr><th>Fetch</th><th>URL</th><th>Status</th><th>Redirects</th></tr></thead><tbody></tbody></table>
+</section>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>What does a canonical tag actually do?</h3>
+  <p>A <code>link</code> tag with <code>rel=canonical</code> and an <code>href</code> in a page's <code>head</code> tells search engines which URL is the authoritative version of this content, so duplicate or near-duplicate URLs (with tracking parameters, alternate sort orders, http vs https, www vs no-www) consolidate their ranking signal onto one page instead of splitting it.</p>
+  <h3>Why does this need a CLI instead of just checking a URL I type into the page?</h3>
+  <p>Reading another origin's response headers and body from inside a browser tab is CORS-gated, and most sites set no <code>Access-Control-Allow-Origin</code> at all -- so a page running in your browser cannot reliably fetch an arbitrary URL and read what came back, even a URL you own. Only a non-browser HTTP client, like the CLI here (or curl), can do that. Run the CLI, then paste its JSON output here for a rendered report.</p>
+  <h3>Why does it sometimes make a second request?</h3>
+  <p>When the page names exactly one canonical URL that differs from the page you fetched, the tool follows it -- the same way a search engine would -- to check the canonical target actually resolves, does not redirect further, and is not itself marked noindex. A canonical is only useful if the page it points at is a real, indexable page.</p>
+  <h3>Is a cross-domain canonical always wrong?</h3>
+  <p>No -- it is a real, supported pattern for syndicated content, where a republished article points its canonical back at the original source. It is flagged as a notice worth checking because it is also exactly what a hardcoded staging URL or a copy-pasted template leaves behind, and either mistake silently tells search engines to index a different site's page instead of yours.</p>
+  <h3>Does a clean report mean the page has no SEO issues?</h3>
+  <p>No. This checks canonical-tag evidence from one or two real fetches -- it is not a full SEO audit, does not crawl your whole site, and cannot see an issue outside what a canonical tag and its target page can show. Treat a clean report as evidence about this specific page's canonicalization, not a determination that the page or site has no other SEO problems.</p>
+  <p>Already running a full-site crawl? See <a href="vs-screaming-frog.html">how this checker compares to
+  Screaming Frog SEO Spider</a> — a one-URL CI gate next to a whole-site crawler, and when each one is
+  the right tool.</p>
+</section>
+
+<script type="module">
+  import { buildReport } from './analyze.mjs';
+  import { recordUsage } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    payload: $('#payload'), status: $('#status'), reportCard: $('#report-card'),
+    verdict: $('#verdict'), findings: $('#findings'), fetchTable: $('#fetch-table tbody'),
+  };
+
+  const EXAMPLE = {
+    target: 'https://example.com/blog/widgets-guide/',
+    page: {
+      requestedUrl: 'https://example.com/blog/widgets-guide/',
+      finalUrl: 'https://example.com/blog/widgets-guide/',
+      redirectCount: 0,
+      ok: true,
+      status: 200,
+      error: null,
+      xRobotsTag: null,
+      metaRobots: null,
+      canonicalLinks: [
+        { href: 'https://example.com/blog/widgets-guide/', raw: '(tag 1 -- see the raw fetch, not reproduced here to avoid a second canonical-looking tag on this page)' },
+        { href: 'https://example.com/blog/widgets-guide/?utm_source=newsletter', raw: '(tag 2 -- see the raw fetch, not reproduced here to avoid a second canonical-looking tag on this page)' },
+      ],
+    },
+    canonicalTarget: null,
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.incomplete) {
+      els.verdict.textContent = `Could not fetch the page: ${report.page?.error || 'unknown error'} -- re-run and try again.`;
+    } else if (report.dangerCount > 0) {
+      els.verdict.textContent = `${report.dangerCount} danger-level finding(s), ${report.noticeCount} notice(s).`;
+    } else if (report.noticeCount > 0) {
+      els.verdict.textContent = `No danger-level findings. ${report.noticeCount} notice(s) worth a look.`;
+    } else {
+      els.verdict.textContent = 'No canonical-tag issues found in this page.';
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No findings to show.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">${escapeHtml(f.evidence)}</p>
+        </div>`).join('');
+
+    const rows = [];
+    if (report.page) {
+      rows.push(['page', report.page.finalUrl ?? report.page.requestedUrl, report.page.ok ? String(report.page.status) : `failed: ${report.page.error}`, String(report.page.redirectCount ?? 0)]);
+    }
+    if (report.canonicalTarget) {
+      rows.push(['canonical target', report.canonicalTarget.finalUrl ?? report.canonicalTarget.requestedUrl, report.canonicalTarget.ok ? String(report.canonicalTarget.status) : `failed: ${report.canonicalTarget.error}`, String(report.canonicalTarget.redirectCount ?? 0)]);
+    }
+    els.fetchTable.innerHTML = rows.map((r) => `<tr>${r.map((c) => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function runCheck(payload, event) {
+    let report;
+    try {
+      if (!payload || typeof payload !== 'object' || typeof payload.target !== 'string') {
+        throw new Error('Expected an object with "target" and "page" -- the exact shape "node check.mjs <url> --json" prints.');
+      }
+      report = buildReport(payload.target, payload.page, payload.canonicalTarget ?? null);
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+      els.reportCard.hidden = true;
+      return;
+    }
+    render(report);
+    els.status.textContent = '';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+  }
+
+  $('#check').addEventListener('click', () => {
+    const text = els.payload.value.trim();
+    if (!text) {
+      els.status.innerHTML = '<span class="error">Paste the JSON from step 1 first.</span>';
+      return;
+    }
+    let payload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node check.mjs &lt;url&gt; --json".</span>';
+      return;
+    }
+    runCheck(payload, 'check_run');
+  });
+
+  $('#load-example').addEventListener('click', () => {
+    els.payload.value = JSON.stringify(EXAMPLE, null, 2);
+    runCheck(EXAMPLE, 'example_loaded');
+    els.status.textContent = 'Worked example: two canonical tags on the same page naming different URLs.';
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.payload.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Paste the JSON from step 1 and click Check.';
+  });
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks canonical-tag evidence from one or two
+  real fetches. It is not a full SEO audit, does not crawl your whole site, and cannot see an issue
+  outside what a canonical tag and its target page can show. A clean report describes what these
+  fetches found, not a guarantee the page has no other SEO issues.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not SEO advice, and it does not replace a qualified SEO review.
+  <strong>You are responsible for reviewing and verifying its output before relying on it</strong>,
+  and for having authorisation to check any URL you point the CLI at. To the maximum extent
+  permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI's requests go straight from your
+  machine to the URL(s) it needs — never through this site. The page you're reading now only
+  parses JSON you paste into it locally; nothing is uploaded. The only thing stored is an
+  anonymous local count of which features were used and the day — no target URLs, no response
+  headers, no account, no tracking cookies, no analytics vendor. Turn it off with the checkbox
+  above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass: <a href="../structured-data-drift-check/">Structured Data drift checker</a>
+  covers a different "does what search engines read still match the page" question — whether a
+  page's own JSON-LD still matches its visible text, rather than which URL the page claims is
+  canonical — and <a href="../security-headers-check/">Security Headers checker</a> covers a third,
+  unrelated response-header evidence class: clickjacking protection and Content-Security-Policy
+  strength.</p>
+</footer>
+</body>
+</html>

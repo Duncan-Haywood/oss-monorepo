@@ -24362,6 +24362,552 @@ entries:
         checklist_coverage.py clean (platform/pages was already a named
         directory, so the new suite needs no CLAUDE.md line).
     mrr_end: 0
+  - venture: docker-base-image-pin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `docker-base-image-pin-check`, a free
+        read-only checker (zero-dependency Python CLI + browser page) that
+        scans Dockerfiles for `FROM` lines referencing a base image by a
+        mutable tag (`node:18`, bare `latest`, or no tag at all) instead of
+        a pinned content digest (`@sha256:...`). Same shape as
+        `pinned-actions-check` (the fleet's proven "mutable tag vs. pinned
+        reference" CLI/browser/comparison-page archetype,
+        `pipeline/README.md`'s recommended shape over a 248th
+        `<trade>-bid-calculator`), applied to a different, equally
+        well-documented supply-chain surface: a container build's base
+        image rather than a GitHub Actions `uses:` line. The distinguishing
+        finding: a specific-looking tag like `node:18` is still mutable,
+        and Hadolint's own documented DL3006/DL3007 rules stop at "has an
+        explicit, non-latest tag" without requiring a digest -- the gap
+        `vs-hadolint.html` names with sourced facts, no live comparison.
+      - >-
+        `duplicate_check.py` scored every existing venture, screened-out
+        row, ai-first-markets idea, and pipeline candidate below 0.13
+        against the draft description and below 0.38 (pinned-actions-check
+        itself) against the final one -- both well under the 0.45 bar.
+        Liability/ethics gates: pass/pass -- a read-only static-text
+        scanner, no network call of its own, no advice-of-record, no
+        personal data; every mutable finding prints a `docker buildx
+        imagetools inspect` command for the user to run themselves rather
+        than resolving or pinning anything on the tool's behalf.
+      - >-
+        Full vertical slice in one commit: check.py + classify.mjs (43 + 31
+        tests, including a CLI/browser parity test), test_check.py,
+        classify.test.mjs, index.html (interactive checker + FAQPage/
+        SoftwareApplication JSON-LD), a how-to guide page and a
+        vs-hadolint.html comparison page (11 page.test.mjs assertions),
+        usage.mjs (local-only, DNT/GPC-honouring), README, LICENSE,
+        robots.txt, sitemap.xml, VENTURE.yaml, a dedicated CI workflow, a
+        venture-scores.yaml row (composite 6.0, both gates pass), and a
+        usage.yaml zero baseline. Filed under the `ci` category in
+        build.mjs on this first commit. Added a reciprocal link from
+        `pinned-actions-check` (closing the sibling pair the fleet's own
+        `siblings.test.mjs` orphan-budget check enforces at 0 headroom).
+        Fixed the mirrored-tool-count drift the new venture otherwise
+        leaves behind in `infra/OWNER_CHECKLIST.md` (237->238, 3 places),
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/
+        default.conf` (2 places), and `gitops/tests/test_manifests.py`'s
+        hardcoded `total`; ran `gitops/ci/sync_readme_counts.py` for the
+        new workflow's `runs-on` count and `platform/ci/publish_surface.py
+        --write` for its publish-surface row; ran
+        `node platform/pages/launched.mjs --write` and
+        `node platform/marketing/regen.mjs` and committed what both
+        rewrote (mirror shards + front-door static site).
+      - >-
+        Verified locally (Actions runners starved per infra_state.yaml):
+        node --test on the venture's own 3 files 42/42; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs green
+        (this catalogue's whole-portfolio guards, including
+        faq-visible.test.mjs and siblings.test.mjs's orphan budget, both
+        of which caught real authoring mistakes on this venture's pages
+        before this entry was written -- see the PR for the fixes);
+        python3 -m pytest gitops/tests -q 533 passed / 25 skipped;
+        python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
+        green; platform/ci's 15 unittest modules green;
+        checklist_coverage.py clean; score_ventures.py --check and
+        router/validate.py clean over all 248 ventures;
+        usage/validate_usage.py clean; clauses.mjs docker-base-image-pin-
+        check clean; platform/proposal and platform/privacy +
+        platform/webcheck suites green (pre-existing, unaffected).
+    mrr_end: 0
+  - venture: pwa-installability-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed a real, unshipped discoverability gap on an already-live
+        venture rather than rebuilding router/allocate.py's top-ranked
+        cross-tool handoff (already shipped fleet-wide: all ten
+        marketplace-fee calculators carry to-where-to-sell.mjs or
+        handoff.mjs, confirmed by reading each directory, not trusting
+        VENTURE.yaml's untested status). Checked several other in-repo
+        hypotheses first (freight-accessorial-auditor's CSV import,
+        appointment-deposit-calculator's deposit-vs-no-show-fee page,
+        menu-engineering-calculator's weighted-margin bar,
+        invoice-payment-terms-calculator's AP-run modelling) and found
+        each already built -- only pwa-installability-check,
+        ios-privacy-manifest-check and sri-check had zero vs-<competitor>
+        comparison pages despite index.html's own FAQ already discussing
+        the natural competitor (Lighthouse) at length.
+      - >-
+        Shipped vs-lighthouse.html: a static PRODUCT_PLAYBOOK 5f-compliant
+        comparison page naming what Lighthouse's installable-manifest
+        audit covers versus this checker's zero-dependency, no-Chrome
+        CLI, with the not-affiliated-with-Google trademark disclaimer, a
+        decision table, and a 4-question FAQPage schema matched to visible
+        headings. Linked from index.html's footer, added to sitemap.xml,
+        and README's "what this is, and isn't" section now points to it.
+      - >-
+        Verified locally (Actions runners still starved per
+        infra_state.yaml). node --test ventures/pwa-installability-check
+        69/69 (up from 60, the 9 new assertions in
+        vs-lighthouse.test.mjs); node platform/pages/clauses.mjs
+        pwa-installability-check clean; node platform/marketing/regen.mjs
+        ran clean with an 11-file diff (the new page plus its mirror
+        shard, catalog.json, sitemap.xml, llms.txt and compare.html);
+        node --test across platform/marketing + platform/pages 1218/1218,
+        no regression; checklist_coverage.py clean.
+    mrr_end: 0
+  - venture: oidc-trust-policy-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture. The open-PR queue was empty at the start of
+        the run (0 open PRs, verified against the API rather than an earlier
+        session's list), so the standing three-PR merge floor was satisfied
+        vacuously and the run went straight to product work.
+        session_gate.py returned PROCEED with an empty build-now pipeline,
+        and DIRECTION.md's 2026-09-06 owner note ranks a genuine fresh niche
+        above another parity feature on a prototype nobody has visited.
+        Picked the browser-tool/CLI-checker archetype over a 239th
+        <trade>-bid-calculator.
+      - >-
+        Shipped a free browser tool (+ zero-dependency CLI) that reads an AWS
+        IAM role trust policy federating GitHub Actions over OIDC and reports
+        whether its conditions actually restrict which repository, branch or
+        environment may assume the role. Findings: no `sub` condition at all
+        (assumable by any repository on GitHub), a wildcard reaching past one
+        owner/repo pair, `repo:owner/name:*` (which admits the
+        `pull_request` context and therefore a fork's pull request), an
+        explicit `pull_request` context, a negated operator that excludes
+        rather than pins, GitHub claim keys on a non-GitHub principal, and a
+        missing or wildcarded `aud`.
+      - >-
+        The differentiation is operator semantics in both directions, which
+        is what a naive asterisk grep gets wrong. A `*` under `StringEquals`
+        is a literal, so the condition never matches a real token and the
+        role cannot be assumed at all -- that fails CLOSED and is reported as
+        a notice, not a wildcard danger, because a checker that called it
+        critical would send its reader to tighten a policy that is already
+        refusing everybody while the real symptom is a broken deploy. In the
+        other direction, IAM grants when ANY value in a multi-value condition
+        matches, so the tool reports the WIDEST entry rather than the first:
+        four pinned branches plus one `repo:org/name:*` is as open as the
+        wildcard alone, and reading the list top-down finds the four good
+        rows first. The bundled worked example is exactly that case.
+      - >-
+        Also recorded, because it is the misconception the tool exists to
+        correct: pinning `aud` restricts nothing about WHO. Every AWS/GitHub
+        OIDC integration uses the audience `sts.amazonaws.com`, so a policy
+        that pins `aud` and leaves `sub` unconstrained is assumable by a
+        workflow in any repository on GitHub, while looking like a condition
+        block that does its job.
+      - >-
+        Screened with duplicate_check.py before building: closest matches
+        were package-exports-drift-check, actions-self-hosted-exposure-check,
+        actions-cache-poisoning-check and actions-injection-check, all at
+        0.11 against the final description -- far under the 0.45 flag bar.
+        The distinction is load-bearing rather than cosmetic: every existing
+        actions-* venture scans the repository's workflow YAML, and this
+        reads the cloud IAM trust policy those workflows authenticate
+        against -- the opposite end of the same trust boundary, in a
+        different document. Scored per pipeline/README.md's 8-dimension
+        rubric: composite 6.333, floor 1 on ai_leverage (no AI in the
+        product, deliberately -- deterministic grammar parsing), both gates
+        (liability_containment, ethical_robustness) pass. Basis and gate
+        notes in portfolio/scoring/venture-scores.yaml.
+      - >-
+        Two guards caught real defects in this venture's own first draft, and
+        both are the kind CLAUDE.md records as having cost live product
+        before. `faq-visible.test.mjs` found the page's FAQPage JSON-LD
+        diverging from its visible copy by punctuation (`--` against `—`) in
+        four answers -- the same divergence class that shipped in #3671.
+        `siblings.test.mjs` found the new tool was a crawlable orphan: it
+        linked out to two sibling checkers and nothing linked back, so no
+        crawler could reach it from another tool in one hop. That matters
+        more than usual on this origin, where sitemap enumeration is
+        unavailable (pages_state.py's `indexing` row) and an internal link is
+        the only route. Closed the pair reciprocally from
+        actions-permissions-check, with a test on each side pinning the href,
+        so the orphan budget stays at 0 rather than being raised.
+      - >-
+        Verified before pushing, with runners starved (ci_starvation.py):
+        the venture's own 72 `node --test` assertions across
+        analyze/check/usage/page, covering true positives AND true negatives
+        (a correctly pinned policy must return zero findings, or the tool is
+        noise) plus every operator-semantics edge case. Both CLI journeys
+        exercised by hand -- the headline "aud pinned, sub absent" policy
+        exits 1 naming the finding, a correctly pinned policy exits 0, and
+        the `aws iam get-role | node check.mjs -` stdin route works.
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        1206/1206. `pytest gitops/tests` 532 passed (after fixing forward the
+        mirrored-tool count 237 -> 238 in the four places CLAUDE.md names,
+        and re-running gitops/ci/sync_readme_counts.py for the added
+        workflow). `pytest portfolio/...` 435 passed. All 20 platform/ci
+        unittest modules OK; agent_review's 21 OK. score_ventures.py --check,
+        checklist_coverage.py and build+check.mjs (238 products, 929 pages,
+        no dead links) all clean.
+    mrr_end: 0
+  - venture: canonical-tag-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First cleared the open-PR queue for this session: PR #4492
+        (bounce-house-rental-calculator) was reviewed, its mirror-conflict
+        with a newly-merged sibling PR resolved (conflicting front-door
+        gzip shards taken from main's side, gitops/tests/test_manifests.py
+        and the ledger/scoring/usage YAML conflicts hand-merged, then
+        regen.mjs rerun), and the fix was ready to push when a concurrent
+        session merged the identical PR first -- confirmed via
+        pull_request_read that #4492 was already merged, so the duplicate
+        work was discarded rather than pushed. No other PRs were open
+        (checked via list_pull_requests before and after). Checked
+        infra_state.yaml and decision_queue.py for the session's Hetzner/
+        Codex-CLI ask: both the marketing deployment route and a
+        systemd-timer Codex worker (gitops/agents/host/, spending the
+        owner's ChatGPT plan quota rather than a billed API key) are
+        already built and already queued as part of decision #1
+        (hetzner-ssh-key-is-a-public-key) -- blocked on the owner rotating
+        a real SSH private key from their own machine, which no session
+        can do. GitHub Pages deployment was confirmed current
+        (pages_state.py --require-current, built from the tip of main)
+        with nothing to refresh.
+      - >-
+        Graduated and shipped a new venture: a CLI + browser report-viewer
+        that fetches a URL for real, reads its canonical link tag(s), and
+        -- when there is exactly one -- fetches that URL too, classifying
+        the evidence into eight named canonicalization misconfiguration
+        patterns: multiple conflicting canonical tags, a relative or
+        cross-domain canonical, a protocol mismatch, and a canonical
+        target that is unreachable, redirects, or is itself marked
+        noindex. Screened with duplicate_check.py (closest match
+        pwa-installability-check at 0.13, well under the 0.45 flag bar --
+        no existing venture reads a canonical tag); scored per
+        pipeline/README.md's 8-dimension rubric (composite 6.167, floor 1
+        on ai_leverage, both gates pass). Filed under the `ci` category in
+        platform/pages/build.mjs on its first commit, cross-linked with
+        structured-data-drift-check and security-headers-check as
+        Related, and added the reciprocal link from
+        structured-data-drift-check's footer in the same commit (closing
+        the one crawlable orphan siblings.mjs would otherwise have
+        reported -- 0 of 238 orphans after).
+      - >-
+        Full vertical slice: probe.mjs (redirect-following fetch plus a
+        regex HTML head parser for canonical link tags and meta robots,
+        21 tests against a local loopback server, never the real
+        internet), analyze.mjs (pure classification engine, 20 tests),
+        check.mjs (CLI entry point), usage.mjs (local, opt-out,
+        DNT/GPC-honouring), index.html (paste-JSON report viewer with a
+        worked example demonstrating a real danger finding), a
+        vs-screaming-frog.html comparison page (trademark disclaimer, no
+        unverifiable pricing/traction claims, static/no-script), README,
+        LICENSE, robots.txt, sitemap.xml, VENTURE.yaml, a CI workflow
+        copied from the sibling template, a venture-scores.yaml row, a
+        usage.yaml baseline, and a launched.json entry.
+      - >-
+        Two real bugs caught and fixed during verification rather than
+        found later. First: the worked example's illustrative `raw` tag
+        strings and two prose sentences describing the tag syntax
+        (`<link rel="canonical">`, entity-escaped in one case) were
+        themselves literal canonical-tag-shaped text, which both
+        front-door-tools.test.mjs's per-mirrored-page canonical count and
+        build.test.mjs's per-published-page canonical count correctly
+        flagged as "more than one canonical" on the checker's own page --
+        rewritten to describe the tag without reproducing its exact
+        markup. Second: faq-visible.test.mjs caught the FAQPage JSON-LD
+        answers using "--" while the matching visible paragraphs used a
+        real em-dash ("—") in several places, plus one visible answer
+        missing a word ("with tracking parameters") present in the
+        JSON-LD -- both fixed to be textually identical after tag-
+        stripping, the same class of defect CLAUDE.md already records
+        against carpet-molding-style duplicate pages.
+      - >-
+        Fixed the mirrored-tool-count drift a new venture leaves behind,
+        in the four places CLAUDE.md names (infra/OWNER_CHECKLIST.md x3,
+        gitops/prod/usage/aggregate.py, gitops/prod/front-door/
+        default.conf x2, and gitops/tests/test_manifests.py's own
+        hardcoded `total`, 237 -> 238), plus a stale runs-on count in
+        gitops/ci/README.md fixed via
+        `python3 gitops/ci/sync_readme_counts.py` (the new CI workflow
+        added two more runs-on lines since that sentence was last
+        synced), and a publish-surface.yaml row for the new workflow.
+      - >-
+        Verified locally (Actions runners confirmed starved today --
+        every check run 26 checks on the last merged PR came back
+        runner_id: 0 in ~3s): node --test on the venture, 77/77; node
+        --test across platform/marketing + platform/pages, 1218/1218
+        (after the two rounds of fixes above); node --test on
+        platform/proposal, 101/101; node --test on platform/privacy +
+        platform/webcheck, 79/79; checklist_coverage.py clean; clauses.mjs
+        clean on both pages; siblings.mjs 0 of 238 orphans; pytest
+        gitops/tests 533 passed / 25 skipped (initially 2 failed on the
+        stale runs-on count, fixed forward above, then clean); pytest
+        across portfolio/ledger, scoring, router, usage, pipeline and
+        infra/tests 435 passed; all 22 platform/ci unittest modules
+        (including agent_review's 21 tests) pass; score_ventures.py
+        --check, validate_usage.py, router/validate.py,
+        validate_doc_consistency.py, validate_candidates.py,
+        validate_probe_index.py, score_sensitivity.py,
+        front-door-tools.mjs --headroom, and check_no_payment_code.py all
+        clean. run_workflow_locally.py --for-changes was still running at
+        push time (this repo's own prior sessions record it hanging past
+        several minutes with no output); the eight validators it wraps
+        were each run individually above instead, all clean.
+      - >-
+        Not run: the whole-catalogue --record browser sweep (a 20-30
+        minute separate undertaking) and a live browser_checks.py --only
+        pass (this session's sandbox has no Playwright browser install
+        step run yet this session). Both pages were verified structurally
+        (JSON-LD validity, FAQ visible-text parity, disclaimer/privacy/
+        authorisation clauses, sponsor link, MIT license link, usage
+        opt-out control) via the automated test suite above rather than a
+        rendered-browser pass.
+    mrr_end: 0
+  - venture: social-preview-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "direction setting" brief; DIRECTION.md's own north star
+        and "Before rewriting this brief again" section were both current
+        (last substantive rewrite same day, commit 2737beca8), so per that
+        section's own instruction this session built instead of restating
+        it. session_gate.py said PROCEED, the build-now pipeline
+        (candidates.yaml) was empty of unbuilt items, pages_state.py showed
+        the published snapshot current, and there were zero open PRs -- so
+        per DIRECTION.md's fast-scan priority order, screening and
+        graduating a fresh niche was the correct next action.
+      - >-
+        Graduated a new venture: a free CLI (+ browser report-viewer, plus a
+        standalone in-browser image-dimension tool) that fetches a page's
+        Open Graph/Twitter Card meta tags and enough of its
+        og:image/twitter:image to read the real pixel dimensions out of the
+        image file's own byte header (PNG/JPEG baseline+progressive/GIF/WebP
+        VP8+VP8L+VP8X, all decoded from scratch, zero dependency), then
+        classifies missing tags, a relative og:image URL (Open Graph
+        requires it be absolute), an image below Facebook's/Twitter's
+        documented minimum size, a duplicated og:*/twitter:* tag, and an
+        og:url mismatch -- applying the twitter:image/title/description ->
+        og:* fallback chain platforms document rather than flagging a
+        missing twitter:image as an error on its own. Picked the
+        CLI/checker archetype per pipeline/README.md's "archetype itself"
+        section over a 239th <trade>-bid-calculator, and a niche distinct
+        from the fleet's existing developer-checker family (reads a
+        different metadata surface than cors-misconfig-check/
+        security-headers-check/sri-check/structured-data-drift-check: none
+        of them reads og:*/twitter:* tags or decodes an image file's byte
+        header). Named channel: r/webdev, r/SEO, r/marketing,
+        r/DigitalMarketing, and Stack Overflow, where "og:image not
+        showing", "twitter card validator not working", "linkedin post
+        inspector alternative" and "slack link preview broken" are real,
+        recurring search phrases and threads.
+      - >-
+        Screened with duplicate_check.py before any code was written:
+        top match was pwa-installability-check at 0.11 (security-headers-
+        check also 0.11), well under the 0.45 flag bar -- nothing in
+        screened-out.md or the existing venture set reads Open Graph or
+        Twitter Card tags. Scored per pipeline/README.md's 8-dimension
+        rubric: composite 6.875, floor 1 on ai_leverage (no AI in the
+        product, deliberately -- deterministic tag parsing and byte-level
+        image decoding), both gates (liability_containment 8,
+        ethical_robustness 9) pass with room. Full write-up in
+        portfolio/pipeline/candidates/social-preview-check.md; candidates.yaml
+        entry and README.md table row (#24) added in the same commit.
+      - >-
+        Verified before pushing: check_no_payment_code.py, router/validate.py
+        clean. `node --test` in the venture (87 assertions across
+        metatags/imagesize/analyze/probe/check/usage/page) all pass, covering
+        every finding's true-positive and true-negative case plus the
+        fallback-chain edge cases. `node --test` across platform/marketing,
+        platform/pages, platform/proposal, platform/privacy, platform/webcheck:
+        1206 + 101 + 79 all pass (two rounds -- the first caught the venture
+        landing in the "catch-all" category past its 5-tool bound, its FAQ
+        JSON-LD not matching its own visible text verbatim, no launch date,
+        and 1 sibling-link orphan; all four fixed forward in the same commit:
+        filed under the `ci` category alongside its closest developer-checker
+        siblings, made the visible FAQ prose byte-identical to the JSON-LD
+        answers, ran `launched.mjs --write`, and added a reciprocal link from
+        structured-data-drift-check). `python3 -m pytest gitops/tests`
+        initially failed the mirrored-tool count (237 -> 238) -- fixed
+        forward across the four places CLAUDE.md names (OWNER_CHECKLIST.md,
+        aggregate.py, default.conf x2, and test_manifests.py's own pinned
+        constant), then reran clean (532 passed/25 skipped). The full
+        `platform/ci` unittest sweep (37 modules via `python3 -m unittest`)
+        initially failed two of the same shape -- `test_validate_workflows.py`
+        (no per-venture CI workflow yet; added `social-preview-check-ci.yml`,
+        copied from `security-headers-check-ci.yml`) and `test_publish_surface.py`
+        (new workflow not yet classified; added a `classification: none` row
+        to publish-surface.yaml) -- both fixed forward, then reran clean.
+        `score_ventures.py --check` and its own unit tests, and
+        `test_allocate.py`'s merit-coverage test, likewise failed until the
+        `venture-scores.yaml` row was added, then passed.
+        `pytest portfolio/pipeline portfolio/scoring portfolio/router
+        portfolio/usage`: 155 passed. `run_workflow_locally.py --for-changes`:
+        13/16 selected workflows fully green; the 3 not run are external/
+        deploy jobs this runner correctly skips (agent-cross-review.yml's
+        three reviewer jobs, hetzner-gitops-ci.yml, portfolio-pages.yml's
+        deploy job, publish-pages-branch.yml) -- the sole apparent failure,
+        pages.yml, is the same pre-diagnosed non-defect the
+        security-headers-check and carpet-install-bid-calculator entries
+        above already recorded: its "Build the site" step contains a
+        `${{ }}` expression this local runner cannot evaluate, so the
+        downstream link-check step correctly reports no `_site` directory.
+        Browser checks (`browser_checks.py --only social-preview-check`,
+        after `npm install --no-save playwright@1.56.0 axe-core`): first run
+        found a real WCAG 1.4.10 reflow defect (`sideways`, +28px at 360px --
+        a long unbroken URL in FAQ prose with no break opportunity, not the
+        `pre.cmd` install-command block reflow.mjs already handles); fixed
+        with `overflow-wrap: anywhere` on both pages, reran clean: 6 of 7
+        checks passed (sideways, presets, roundtrip, contrast, sweep,
+        journey), `highlight` skipped (this tool makes no highlight
+        promise). Not run: the whole-catalogue `--record` sweep, which
+        `browser_state.py` already reported stale for reasons predating this
+        branch.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Zero open PRs existed; sampled 12 of
+        the ~188 stale branches carrying commits not on `main` (highest
+        unique-commit-count, highest net-insertion, and the ones most
+        relevant to deployment/secrets/marketing distribution) and every
+        one was already fully superseded -- venture/file already shipped
+        on `main` with equal or fuller content. No repairable PR backlog
+        existed to drain this run.
+      - >-
+        Confirmed gitops/agents/host/ (Codex worker, systemd-timer host
+        mode on the Hetzner box) is already built and verified up as of
+        today, genuinely blocked only on hetzner-ssh-key-is-a-public-key
+        (owner-only credential rotation, already #1 in decision_queue.py).
+        Confirmed the GitHub Pages snapshot is current with `main`. No new
+        owner ask added.
+      - >-
+        Attempted a pwa-installability-check vs-lighthouse.html comparison
+        page; a concurrent session merged the identical page (#4497) while
+        it was in progress. Recognised the collision via git status after
+        a routine `git merge origin/main`, discarded the duplicate
+        cleanly, verified the shipped version's own test suite (69/69)
+        instead of re-doing the work.
+      - >-
+        Ran the full-catalogue browser/accessibility sweep
+        (browser_checks.py --record; Playwright was stale as of today per
+        browser_state.py). Found one real WCAG 1.4.10 reflow defect on the
+        page merged in #4496:
+        security-headers-check/vs-securityheaders.html scrolled 5px
+        sideways at a 360px viewport (an unbroken "(securityheaders.com)"
+        token in the bare-default-styled <h1>, the one vs-*.html page in
+        this format missing overflow-wrap among its siblings). Fixed with
+        `h1 { overflow-wrap: anywhere; }` plus the same on `code`;
+        confirmed scrollWidth == clientWidth (360) after the fix via a
+        direct Playwright measurement. venture suite 63/63,
+        platform/marketing + platform/pages 1218/1218, gitops/tests 533
+        passed / 25 skipped, checklist_coverage.py clean, regen.mjs run
+        and its output committed. Noted but did not fix: canonical-tag-check
+        (merged concurrently as #4499) trips two check.mjs
+        "dead link" false positives on its own .mjs source
+        (`${href}` / `...` inside JS template strings, not real hrefs) --
+        confirmed pre-existing on origin/main before this session's
+        change, out of this session's scope.
+      - >-
+        The full --record sweep (sideways/presets/roundtrip/highlight/
+        contrast/sweep/journey) was still running against its own
+        pre-fix build snapshot when this entry was written and will
+        record the pre-fix sideways failure; a follow-up session should
+        re-run `browser_state.py` and, if still stale, a fresh --record
+        pass now that the fix is on `main`.
+    mrr_end: 0
+  - venture: cookie-security-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a free zero-dependency CLI plus a matching
+        browser report-viewer that sends one real HTTP GET request to a URL
+        and classifies the response's Set-Cookie headers. Same archetype as
+        security-headers-check, cors-misconfig-check, and sri-check, and a
+        named gap rather than a guessed one -- security-headers-check's own
+        README explicitly lists cookie flags as out of scope.
+      - >-
+        Two "danger"-severity findings, reserved for facts about what the
+        browser does rather than a judgment call: SameSite=None set without
+        Secure, which Chrome/Firefox/Safari reject outright (the cookie is
+        never stored, not merely weakened); and a __Host-/__Secure- prefixed
+        cookie that violates the attribute rules those prefixes require
+        (also a silent browser rejection). Three lower-severity notices --
+        missing Secure, missing HttpOnly, missing SameSite -- for patterns
+        that are real but context-dependent rather than unconditional.
+      - >-
+        Reads Set-Cookie from Node's http/https client as the already-split
+        array it provides, rather than joining repeated headers into one
+        string and re-splitting on commas the way this venture's own probe.mjs
+        does for every other header name -- a naive port of that pattern
+        would silently corrupt any cookie carrying an Expires date, since
+        "Expires=Wed, 21 Oct 2026 07:28:00 GMT" contains a comma of its own.
+        Pinned by a probe.test.mjs case with an Expires attribute against a
+        real local HTTP server.
+      - >-
+        duplicate_check.py scored the closest existing venture
+        (security-headers-check) at 0.42 against the final description,
+        under the 0.45 flag bar. Added the venture-scores.yaml row (both
+        liability/ethics gates pass) and a reciprocal sibling link from
+        security-headers-check's footer, which also closed a crawlable-orphan
+        finding from siblings.test.mjs.
+      - >-
+        Fixed forward two portfolio-wide traps this graduation surfaced
+        rather than working around them: the FAQPage JSON-LD text must be
+        byte-identical (modulo punctuation) to the visible page prose
+        (faq-visible.test.mjs), and build.mjs's front-door catch-all
+        category has a hard cap of 5 tools before a new one graduates
+        (build.test.mjs) -- added the exact-slug match to the existing
+        security-checker category instead of letting the catch-all overflow.
+        Also bumped the "237 tools" mirrored-count wording in the four
+        places CLAUDE.md names (infra/OWNER_CHECKLIST.md twice,
+        gitops/prod/usage/aggregate.py, gitops/prod/front-door/default.conf)
+        to 238, added .github/workflows/cookie-security-check-ci.yml and its
+        publish-surface.yaml row (both required by platform/ci's own
+        unittest suite), and ran platform/marketing/regen.mjs.
+      - >-
+        Verified locally (Actions runners starved per infra_state.yaml, not
+        re-dispatched to reconfirm a window still open as of today).
+        node --test for the venture: 53/53. node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs: 1218/1218 (0
+        regressions after fixing the FAQ-visibility, orphan, and catch-all
+        findings). platform/pages build.mjs + check.mjs against a full build:
+        238 products, 930 pages, no dead links. python3 -m pytest gitops/tests:
+        533 passed, 25 skipped (was 1 failure on the stale mirrored-count
+        assertion before the four-file fix). All 15 platform/ci unittest
+        modules: clean (was 2 failures -- missing per-venture CI workflow and
+        missing publish-surface.yaml row -- both fixed). platform/ci/agent_review
+        test_review: 21/21. checklist_coverage.py, guide-coverage.mjs
+        (238/238), clauses.mjs (238 surfaces), score_ventures.py --check (247
+        scores), router/validate.py, front-door-tools.mjs --headroom,
+        validate_doc_consistency.py, validate_candidates.py,
+        score_sensitivity.py, validate_probe_index.py, validate_usage.py:
+        all clean. Manually ran check.mjs against a local HTTP server serving
+        a deliberately vulnerable and a deliberately correct cookie and
+        confirmed the CLI's exit code and report matched.
+      - >-
+        Deployment: published the gh-pages branch snapshot after this merge
+        per platform/pages/publish-branch.sh so the live GitHub Pages catalogue
+        carries the new tool rather than lagging main.
+    mrr_end: 0
   - venture: wildlife-exclusion-bid-calculator
     agent_spend_usd: null
     human_hours: 0

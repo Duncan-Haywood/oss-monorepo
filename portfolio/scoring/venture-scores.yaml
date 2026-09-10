@@ -9453,6 +9453,354 @@ ventures:
       of named patterns, not a full security assessment or a determination
       that the target is secure.
 
+  - slug: docker-base-image-pin-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic regex classification of a `FROM` line already present in
+      the Dockerfile on disk. There is nothing to infer: a base image
+      reference either carries a content digest or it does not.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as pinned-actions-check, not a 248th <trade>-bid-calculator.
+      duplicate_check.py scored the closest existing venture
+      (pinned-actions-check, the same "mutable tag vs. immutable pinned
+      reference" question applied to a GitHub Actions `uses:` line rather
+      than a container base image) at 0.38 against the final description,
+      under the 0.45 flag bar; no existing venture reads a Dockerfile.
+      Autonomous ops 10 / gross margin 10: nothing to host -- the browser
+      page classifies pasted text client-side and the CLI runs on the
+      user's own machine against files already on disk, so serving one more
+      user costs a static file and needs no human review of any output.
+      Distribution 5: any developer maintaining a Dockerfile is a plausible
+      searcher, and the specific-tag trap this tool names (`node:18` reads
+      as pinned and is not) is the same "obvious in hindsight, unnamed in
+      practice" gap `pinned-actions-check` found for GitHub Actions --
+      Hadolint's own DL3006/DL3007 rules stop at "has an explicit,
+      non-latest tag" and do not require a digest (see the venture's
+      `vs-hadolint.html`), which is the concrete, sourced wedge the
+      comparison page argues rather than an assumed one. Docker's own
+      "Pin base image versions" guidance and the SLSA build-provenance
+      requirements both name this exact practice, which is evidence of a
+      real, recurring question rather than an invented one, but no forum
+      volume specific to this portfolio has been measured yet -- set level
+      with `pinned-actions-check` rather than above it for that reason.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      line-classifier over one well-known reference grammar is easy to
+      reimplement, so defensibility rests on the specific-tag-is-not-pinned
+      framing and this portfolio's disclaimer/usage conventions, not on any
+      moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only static-text scanner over Dockerfile content the user
+      already has on disk or pastes in -- no network call of its own, no
+      registry credential, no data leaving the browser or the user's own
+      machine. Every mutable finding prints a `docker buildx imagetools
+      inspect` command for the user to run themselves rather than resolving
+      or pinning anything on the tool's behalf. Both pages' footers and FAQs
+      state plainly that a clean scan is evidence about one narrow question
+      -- digest pinning -- not a security audit, a compliance attestation,
+      or a claim that the build is safe from supply-chain attacks.
+
+  - slug: oidc-trust-policy-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether an IAM condition pins the
+      GitHub `sub` claim to one repository is decided by parsing the claim's
+      documented grammar (`repo:<owner>/<repo>:<context>`) against IAM's
+      documented operator semantics (`*` is a wildcard under StringLike and
+      a literal under StringEquals; a multi-value condition grants when any
+      value matches) -- a factual, deterministic comparison, not a model
+      judgment, and it never claims a security assessment or penetration
+      test.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a browser tool + zero-dependency CLI in the same
+      shape as the actions-* checkers, not a 239th <trade>-bid-calculator.
+      duplicate_check.py scored the closest existing ventures
+      (package-exports-drift-check, actions-self-hosted-exposure-check,
+      actions-cache-poisoning-check, actions-injection-check) at 0.11
+      against the final description, far under the 0.45 flag bar. The
+      distinction is load-bearing rather than cosmetic: every existing
+      actions-* venture scans the *repository's workflow YAML*, and this
+      reads the *cloud IAM trust policy* those workflows authenticate
+      against -- the opposite end of the same trust boundary, in a
+      different document, owned by a different team in most organisations.
+      Autonomous ops 10 / gross margin 10: the page computes in the
+      visitor's own browser and the CLI reads a local file, so it makes no
+      network request at all and needs no credential of any kind; serving
+      one more user costs a static file and needs no human review of any
+      output.
+      Distribution 7: the population is every team that has moved GitHub
+      Actions from a long-lived AWS_SECRET_ACCESS_KEY to keyless OIDC,
+      which is what both AWS's and GitHub's own documentation now steer
+      users to, so it is large and growing rather than a fixed niche.
+      Specific, recurring search phrases ("GitHub Actions OIDC trust policy
+      sub wildcard", "repo:org/repo:* pull_request fork", "StringLike vs
+      StringEquals sub claim", "AssumeRoleWithWebIdentity any repository").
+      The existing free material on this is prose -- AWS documentation and
+      blog posts -- rather than a tool that reads the reader's own policy
+      and names the finding, which is the gap.
+      Time to revenue 6, defensibility 4: donations-only; the rules are
+      public and reimplementable, so defensibility rests on getting the
+      operator semantics right in both directions -- notably reporting a
+      literal `*` under StringEquals as a fails-closed notice rather than a
+      wildcard danger, which is the finding a naive asterisk grep inverts,
+      and reporting the widest entry of a multi-value condition rather than
+      the first -- plus a zero-install, zero-credential path that a
+      security-conscious reader can actually use on a production policy.
+      Slightly above security-headers-check's 3 because the input is a
+      document the user already holds, so there is no probe step to
+      reimplement around and the correctness surface is the whole product.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      liability_containment passes -- the tool reads a policy the
+      user pastes, makes no network request, stores nothing but an
+      anonymous local event count, and the copy states plainly and
+      repeatedly that it reads the trust policy only (not the role's
+      permissions, not who can push to a pinned branch, not whether an
+      environment has reviewers), so a clean report is evidence about named
+      conditions rather than a determination that the setup is secure.
+      ethical_robustness passes -- it inspects a document its own user
+      supplies about infrastructure they control, touches no third-party
+      system, and cannot be pointed at anyone else.
+
+  - slug: canonical-tag-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether two canonical tags name
+      different URLs, whether a canonical's host matches the page's own
+      host, or whether the page it points at carries a noindex directive,
+      is decided by parsing the tag's own markup and the target's own
+      response headers against a fixed rule set -- a factual, deterministic
+      comparison, not a model judgment, and it never claims an SEO
+      assessment.
+    basis: >-
+      Screened 2026-09-10. duplicate_check.py scored every existing venture
+      well under the 0.45 flag bar (pwa-installability-check 0.13,
+      sri-check 0.12, affiliate-disclosure-checker and
+      wordpress-plugin-review-check 0.09) -- no existing venture reads a
+      canonical link tag. Same "real fetch, name the exact response
+      evidence" shape as cors-misconfig-check, security-headers-check and
+      sri-check, just for canonicalization signals rather than a reflected
+      Origin, a CSP directive, or a stale integrity hash. Autonomous ops
+      10 / gross margin 10: the CLI's one or two fetches run from the
+      user's own machine against URLs they choose, and the browser page
+      only renders a report already produced, so serving one more user
+      costs a static file and needs no human review of any output.
+      Distribution 7: canonicalization is one of the most commonly
+      misconfigured on-page SEO signals in practice, and the audience spans
+      both technical SEO practitioners (r/TechSEO, r/SEO, Google Search
+      Central's own help forum, where canonical questions are a recurring
+      thread) and any developer auditing a domain migration or a CMS
+      change for mixed http/https or leftover staging-URL canonicals --
+      specific, recurring search phrases ("conflicting canonical tags",
+      "canonical points to noindex page", "cross-domain canonical URL")
+      that this tool's plain-English, named-pattern report answers more
+      directly than a general full-site crawler's summary view does.
+      Time to revenue 6, defensibility 3: donations-only like every other
+      tool here; a transparent probe-and-classify tool over one HTML tag
+      and up to two HTTP fetches is easy to reimplement, and general SEO
+      crawlers already check canonicals as one signal among many, so
+      defensibility rests only on the specific pattern set, the
+      canonical-target follow-through (checking the page a canonical
+      points at actually resolves and isn't itself noindexed, which a
+      same-page-only canonical audit would not surface), and this
+      portfolio's disclaimer/usage conventions -- not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only ordinary, unauthenticated GET requests from
+      the user's own machine to URL(s) the user chooses -- never this
+      portfolio's infrastructure touching a third party, no different in
+      kind from curl. Both pages carry an explicit "only check systems you
+      own or are authorised to check" caution, the same posture as this
+      portfolio's other request-based checkers. A fetch that fails is
+      reported as incomplete rather than silently skipped or guessed at,
+      and a finding is only ever raised from a tag or response header this
+      tool actually observed. Both pages' footers and FAQs state plainly
+      that a clean report is evidence from one or two specific fetches
+      against a specific set of named patterns, not a full SEO audit or a
+      determination that the page has no other SEO issues.
+  - slug: cookie-security-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a SameSite=None cookie is
+      missing Secure, or a __Host-/__Secure- prefixed cookie violates the
+      attribute rules those prefixes require, is decided by parsing the
+      Set-Cookie header's own grammar against the documented browser
+      rejection rules -- a factual, deterministic comparison, not a model
+      judgment, and it never claims a security assessment or penetration
+      test.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser report-viewer in the
+      same shape as security-headers-check, cors-misconfig-check, and
+      sri-check, not a 248th <trade>-bid-calculator. duplicate_check.py
+      scored the closest existing venture (security-headers-check, a
+      different response-header evidence class -- CSP/frame-protection
+      rather than Set-Cookie attributes) at 0.42 against the final
+      description, under the 0.45 flag bar; security-headers-check's own
+      README explicitly lists cookie flags as out of scope, which is what
+      made this a named gap rather than a guessed one. Autonomous ops 10 /
+      gross margin 10: the CLI's request runs from the user's own machine
+      against a URL they choose, and the browser page only renders a report
+      already produced, so serving one more user costs a static file and
+      needs no human review of any output.
+      Distribution 7: any web developer or security researcher is a
+      plausible searcher, the same breadth as the sibling header-evidence
+      tools; specific, recurring search phrases ("SameSite=None without
+      Secure", "__Host- cookie prefix rejected", "__Secure- cookie not
+      set"), plus r/netsec, r/websecurity, the bug-bounty community
+      (HackerOne/Bugcrowd forums and Discords), and Hacker News as named,
+      active forums where cookie-attribute misconfiguration is a standing,
+      frequently-tested topic (PortSwigger Web Security Academy treats
+      SameSite bypass as a standalone module). General cookie scanners
+      exist as part of broader security-header tools, which is evidence of
+      real demand rather than an unserved niche, but none found in this
+      portfolio's research packages the SameSite=None/Secure rejection rule
+      and the __Host-/__Secure- prefix contract specifically, or documents
+      the Set-Cookie comma-splitting trap other response headers don't have.
+      Time to revenue 6, defensibility 3: donations-only; a transparent
+      probe-and-classify tool over one header name is easy to reimplement
+      and general scanners already exist, so defensibility rests only on
+      getting the two browser-rejection rules right, the correct Set-Cookie
+      parsing (never comma-joined and re-split), a lower-friction
+      zero-install report-viewing path, and this portfolio's
+      disclaimer/usage conventions, not on any moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only one ordinary, unauthenticated GET request
+      from the user's own machine to a URL the user chooses -- never this
+      portfolio's infrastructure touching a third party, no different in
+      kind from curl. Every page and the README carry an explicit "only
+      test systems you own or are authorised to test" caution, the same
+      posture as any request-based security tool. A probe that fails at the
+      network level is reported as incomplete rather than silently skipped
+      or guessed at, and a finding is only ever raised from a Set-Cookie
+      header this tool actually observed, applying the documented SameSite
+      and cookie-prefix specification rules rather than an invented
+      heuristic. The page's footer and FAQ state plainly that a clean
+      report is evidence from one specific request against a specific set
+      of named patterns, not a full security assessment or a determination
+      that the target's cookies are secure.
+  - slug: social-preview-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether an og:image URL is
+      absolute, whether a fetched image's real pixel dimensions clear a
+      platform's documented minimum, and which tag wins when a CMS plugin
+      duplicates one are all decided by deterministic tag parsing and
+      byte-level image-header reads, not a model judgment, and it never
+      claims a guarantee about how any platform will render a result.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser report-viewer (plus
+      a standalone in-browser image-dimension tool), not a 238th
+      <trade>-bid-calculator, and a different metadata surface from the
+      portfolio's other response-header checkers (cors-misconfig-check,
+      security-headers-check, sri-check) -- none of them reads og:*/
+      twitter:* tags or decodes an image file's own byte header.
+      duplicate_check.py, run before any code existed, scored the closest
+      existing venture (pwa-installability-check, a different manifest/
+      icon-fetch checker) at 0.11 against the final description, well
+      under the 0.45 flag bar. Autonomous ops 10 / gross margin 10: the
+      CLI's requests run from the user's own machine against a URL and
+      image they choose, and the browser page only renders a report
+      already produced or an image URL's dimensions read via a plain
+      <img> load, so serving one more user costs a static file and needs
+      no human review of any output.
+      Distribution 7: any web developer, marketer, or content creator
+      whose shared link renders wrong is a plausible searcher; specific,
+      recurring search phrases ("og:image not showing", "twitter card
+      validator not working", "linkedin post inspector alternative",
+      "slack link preview broken"), plus r/webdev, r/SEO, r/marketing, and
+      r/DigitalMarketing as named, active forums where this exact
+      failure is a recurring thread. Facebook's Sharing Debugger and
+      LinkedIn's Post Inspector are each platform-specific cache-refresh
+      tools, not a free checker of the tags and real image bytes before a
+      link is ever shared, which is evidence of real demand rather than
+      an unserved niche.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      tag-and-byte parser is easy to reimplement, so defensibility rests
+      on the fallback-chain correctness and the real-byte image-size
+      read (rather than trusting a possibly-stale og:image:width tag),
+      plus this portfolio's disclaimer/usage conventions, not on any
+      moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends real GET requests only to the page URL and
+      image URLs the user names, from the user's own machine -- never
+      this portfolio's infrastructure touching a third party, no
+      different in kind from curl. Findings are evidence from one page
+      fetch against documented Open Graph/Twitter Card rules and each
+      platform's own published size guidance, never a guarantee of how a
+      specific platform will render the result -- both pages state this
+      explicitly, and platform size numbers are attributed to each
+      platform's own documentation rather than asserted as this
+      portfolio's claim. An unrecognised image format or a truncated
+      byte read is reported as "not decoded"/"dimensions undetermined",
+      never guessed at.
+
   - slug: wildlife-exclusion-bid-calculator
     scores:
       ai_leverage: 1

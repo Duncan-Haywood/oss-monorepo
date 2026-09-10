@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 238 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 243 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -26,6 +26,24 @@
     <summary type="text">Price a bounce house or inflatable rental booking from the truck&#39;s two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet&#39;s replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.</summary>
   </entry>
   <entry>
+    <title>Canonical Tag Checker — Conflicting, Cross-Domain &amp; Dead-End Canonicals</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/canonical-tag-check/"/>
+    <id>tag:marisstella.dev,2026:tool/canonical-tag-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical that 404s or is itself marked noindex. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Cookie Security Checker — SameSite=None, __Host-/__Secure- prefixes</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cookie-security-check/"/>
+    <id>tag:marisstella.dev,2026:tool/cookie-security-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on SameSite=None cookies missing Secure (which current browsers reject outright), broken __Host-/__Secure- prefix cookies, and missing Secure/HttpOnly/SameSite. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>CORS Misconfiguration Checker — Reflected Origin, Null Origin, Unanchored Allow-Lists</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cors-misconfig-check/"/>
     <id>tag:marisstella.dev,2026:tool/cors-misconfig-check</id>
@@ -44,6 +62,15 @@
     <summary type="text">Free calculator for makers: find what one craft fair, farmers market, or art festival booth has to sell to break even after booth fee, jury fee, mileage, materials, and card fees — plus your real hourly rate for the weekend and the most a booth could cost and still be worth it. Unsold stock is treated as inventory, not a loss.</summary>
   </entry>
   <entry>
+    <title>Docker Base Image Pin Check — Are Your FROM Lines Pinned to a Digest?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/docker-base-image-pin-check/"/>
+    <id>tag:marisstella.dev,2026:tool/docker-base-image-pin-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your Dockerfile and find every FROM line referencing a base image by a mutable tag like node:18 instead of a pinned content digest (@sha256:...). Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Email Authentication Checker — Free SPF, DKIM, DMARC &amp; BIMI Checker</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/email-auth-check/"/>
     <id>tag:marisstella.dev,2026:tool/email-auth-check</id>
@@ -60,6 +87,15 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste or load a Google Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON) and get a deterministic, item-by-item report of missing required fields, invalid GTIN checksums, malformed prices, and the documented disapproval triggers -- before the crawler finds them. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>GitHub Actions OIDC Trust Policy Checker — AWS sub/aud conditions</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/oidc-trust-policy-check/"/>
+    <id>tag:marisstella.dev,2026:tool/oidc-trust-policy-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste an AWS IAM role trust policy and see whether its GitHub Actions OIDC conditions actually restrict which repository, branch or environment can assume the role. Catches a missing sub condition, a wildcard that spans repositories, repo:org/name:* (which includes pull requests from forks), and a literal * under StringEquals. Nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>PWA Installability Checker — Manifest, Icons, Display Mode</title>
@@ -87,6 +123,15 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Price an existing-customer rate increase (ECRI) at your storage facility: what one induced move-out really costs once the unit re-rents at street rate, and the move-out rate at which the increase stops paying. Free, private, nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Social Preview Checker — Open Graph, Twitter Card, LinkedIn link previews</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/social-preview-check/"/>
+    <id>tag:marisstella.dev,2026:tool/social-preview-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter&#39;s large-image card, and the twitter:image -&gt; og:image fallback chain. Also check any image URL&#39;s real pixel dimensions right in this page. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Subresource Integrity (SRI) Checker &amp; Hash Generator</title>
@@ -321,50 +366,5 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.</summary>
-  </entry>
-  <entry>
-    <title>Dependency Confusion Check — pip --extra-index-url &amp; Unscoped npm Names</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dependency-confusion-check/"/>
-    <id>tag:marisstella.dev,2026:tool/dependency-confusion-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.</summary>
-  </entry>
-  <entry>
-    <title>Duplicate Payment Audit — Find Double Vendor Payments in Your AP Ledger</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/duplicate-payment-audit/"/>
-    <id>tag:marisstella.dev,2026:tool/duplicate-payment-audit</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.</summary>
-  </entry>
-  <entry>
-    <title>Flaky Test Finder — Which Tests Flipped Between CI Runs?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/flaky-test-finder/"/>
-    <id>tag:marisstella.dev,2026:tool/flaky-test-finder</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Food Truck Event &amp; Catering Margin Calculator — Price a Booking</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/food-truck-event-margin-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/food-truck-event-margin-calculator</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you&#39;re already considering against the breakeven.</summary>
-  </entry>
-  <entry>
-    <title>Gig Driver Net Pay Calculator — What You Keep After Gas</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gig-driver-net-pay-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/gig-driver-net-pay-calculator</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session&#39;s gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.</summary>
   </entry>
 </feed>

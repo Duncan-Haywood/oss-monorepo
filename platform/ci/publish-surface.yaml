@@ -140,6 +140,9 @@ workflows:
 - workflow: booth-rent-vs-commission-ci.yml
   classification: none
   publishes: []
+- workflow: bounce-house-rental-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
@@ -150,6 +153,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: cam-reconciliation-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: canonical-tag-check-ci.yml
   classification: none
   publishes: []
 - workflow: card-processing-fee-audit-ci.yml
@@ -215,19 +221,22 @@ workflows:
 - workflow: contractor-bid-readiness-ci.yml
   classification: none
   publishes: []
+- workflow: cookie-security-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: cors-misconfig-check-ci.yml
   classification: none
   publishes: []
 - workflow: countertop-bid-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: craft-fair-booth-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: coverage-drop-check-ci.yml
   classification: none
   publishes: []
 - workflow: cra-evidence-desk-ci.yml
+  classification: none
+  publishes: []
+- workflow: craft-fair-booth-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: crawl-space-encapsulation-bid-calculator-ci.yml
@@ -258,6 +267,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: dns-configuration-evidence-ci.yml
+  classification: none
+  publishes: []
+- workflow: docker-base-image-pin-check-ci.yml
   classification: none
   publishes: []
 - workflow: dog-walking-route-pricing-ci.yml
@@ -530,6 +542,9 @@ workflows:
 - workflow: npm-reachability-triage-ci.yml
   classification: none
   publishes: []
+- workflow: oidc-trust-policy-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: opencode-high-throughput.yml
   classification: none
   publishes: []
@@ -719,12 +734,6 @@ workflows:
 - workflow: self-storage-rate-increase-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: bounce-house-rental-calculator-ci.yml
-  classification: none
-  publishes: []
-- workflow: wildlife-exclusion-bid-calculator-ci.yml
-  classification: none
-  publishes: []
 - workflow: seller-net-sheet-ci.yml
   classification: none
   publishes: []
@@ -764,6 +773,9 @@ workflows:
 - workflow: snow-removal-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: social-preview-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: sod-install-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -785,10 +797,10 @@ workflows:
 - workflow: sri-check-ci.yml
   classification: none
   publishes: []
-- workflow: stair-lift-bid-calculator-ci.yml
+- workflow: staffing-markup-calculator-ci.yml
   classification: none
   publishes: []
-- workflow: staffing-markup-calculator-ci.yml
+- workflow: stair-lift-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: standby-generator-bid-calculator-ci.yml
@@ -897,6 +909,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: which-job-first-ci.yml
+  classification: none
+  publishes: []
+- workflow: wildlife-exclusion-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: window-cleaning-bid-calculator-ci.yml

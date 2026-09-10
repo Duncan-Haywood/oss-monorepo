@@ -5084,6 +5084,59 @@ products:
           alone. Counts are local, opt-in, off by default, and honor
           DNT/GPC, so zero is the expected reading for a tool nobody has
           visited or switched the counter on for yet.
+  - slug: docker-base-image-pin-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-10
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. New venture, shipped today with a public
+          route in the front-door mirror
+          (`/tools/docker-base-image-pin-check/`) from its first commit:
+          scans a pasted Dockerfile's `FROM` lines and flags every base
+          image referenced by a mutable tag (even a specific-looking one
+          like `node:18`) instead of a content digest, the same
+          "mutable-vs-pinned reference" question `pinned-actions-check`
+          already answers for GitHub Actions, applied to a container base
+          image instead. First-visitor channel is developers hardening a
+          Dockerfile after reading Docker's own base-image pinning
+          guidance or the SLSA build-provenance requirements, searching
+          the specific tagging question ("docker pin base image digest",
+          "FROM node:18 not pinned"), plus r/docker and r/devops threads on
+          image hardening -- Hadolint's own DL3006/DL3007 rules stop at "an
+          explicit, non-latest tag" and do not require a digest, which is
+          the gap this tool's `vs-hadolint.html` names directly. Counts are
+          local, opt-in, off by default, and honor DNT/GPC, so zero is the
+          expected reading for a tool nobody has visited or switched the
+          counter on for yet.
+  - slug: canonical-tag-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-10
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route from its first commit: a CLI + browser report
+          viewer that fetches a URL for real, reads its canonical tag(s),
+          and follows a single canonical to check it actually resolves and
+          isn't itself noindexed. `check_run` is the signal worth watching
+          against repeat use: a developer or SEO practitioner debugging one
+          page returns to run it again after a fix, or wires the CLI into
+          their own CI as a regression gate (which would not register here
+          at all, since that traffic never touches this page). First-
+          visitor channel is technical-SEO forums (r/TechSEO, r/SEO,
+          Google Search Central's help forum) and developers searching the
+          specific failure ("conflicting canonical tags", "canonical
+          points to noindex page"). Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for
+          a tool nobody has visited or switched the counter on for yet.
   - slug: wildlife-exclusion-bid-calculator
     surface: github-pages
     readings:
