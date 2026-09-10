@@ -54,3 +54,7 @@ test('robots and sitemap let crawlers find the new page', () => {
   assert.match(sitemap, /commercial-photo-license-calculator\/<\/loc>/);
   assert.match(sitemap, /how-much-more-does-a-national-or-worldwide-license-cost\.html/);
 });
+
+test('links to the photo booth event quote calculator', () => {
+  assert.match(index, /href="\.\.\/photo-booth-event-quote\/"/, 'the sibling-tool link is missing');
+});

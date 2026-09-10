@@ -182,3 +182,11 @@ test('index links one hop to the pool-route-pricing sibling', () => {
   );
   assert.match(siblingHtml, /pool route pricing calculator/i);
 });
+
+test('index links one hop to the medical-courier-route-margin sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/medical-courier-route-margin\/"/,
+    'index must link ../medical-courier-route-margin/ so a crawler reaches that tool in one hop',
+  );
+});

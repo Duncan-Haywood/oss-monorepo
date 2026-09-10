@@ -86,3 +86,7 @@ test("share encoding is the allowlisted numeric payload, not free text", () => {
     false,
   );
 });
+
+test("links to the seller net sheet calculator", () => {
+  assert.match(html, /href="\.\.\/seller-net-sheet\/"/, "the sibling-tool link is missing");
+});

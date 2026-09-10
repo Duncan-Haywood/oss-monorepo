@@ -84,3 +84,11 @@ test('index links one hop to the booth-rent-vs-commission sibling', () => {
     'index must link ../booth-rent-vs-commission/ so crawlers reach the booth rent vs commission calculator in one hop',
   );
 });
+
+test('index links one hop to the commercial photo license calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/commercial-photo-license-calculator\/"/,
+    'index must link ../commercial-photo-license-calculator/ so crawlers reach that tool in one hop',
+  );
+});

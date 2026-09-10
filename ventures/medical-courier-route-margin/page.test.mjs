@@ -76,3 +76,11 @@ test('every .html file in the venture is reachable from the sitemap', () => {
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });
+
+test('index links one hop to the fire-extinguisher-inspection-route-margin sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/fire-extinguisher-inspection-route-margin\/"/,
+    'index must link ../fire-extinguisher-inspection-route-margin/ so a crawler reaches that tool in one hop',
+  );
+});

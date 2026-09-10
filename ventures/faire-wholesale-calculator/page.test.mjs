@@ -250,3 +250,11 @@ test("index links to the related marketplace fee compare hub", () => {
     "index must link ../marketplace-fee-compare/ so crawlers can reach the retail fee ranking",
   );
 });
+
+test("index links to the Etsy profit calculator", () => {
+  assert.match(
+    brand,
+    /href="\.\.\/etsy-profit-calculator\/"/,
+    "index must link ../etsy-profit-calculator/ so a crawler reaches the retail-side calculator in one hop",
+  );
+});
