@@ -79,6 +79,14 @@ test('an invalid visit input hides stale results instead of leaving them next to
 // Without a crawlable link here, a crawler entering on the dog walking route
 // pricing calculator never reaches the ATM route margin calculator in one
 // hop.
+test('index links one hop to the wash-and-fold-price-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/wash-and-fold-price-calculator\/"/,
+    'index must link ../wash-and-fold-price-calculator/ so crawlers reach the wash and fold price per pound calculator in one hop',
+  );
+});
+
 test('index links one hop to the atm-route-margin sibling', () => {
   assert.match(
     html,

@@ -445,8 +445,17 @@ const CATEGORY_RULES = [
     // `booth-rent-vs-commission` prices a stall — a small service business
     // turning its own costs into a customer-facing price, not a trade bid, a
     // marketplace fee, or a back-office reconciliation.
+    //
+    // `wash-and-fold-price-calculator` joined 2026-09-10: a laundromat or
+    // laundry pickup-and-delivery operator turning labour minutes, machine
+    // cycles, supplies, delivery stops and overhead into a price per pound —
+    // the same "what does this cost me before I quote it" job as `pour-cost`
+    // above, and its delivery half is the per-stop drive-time arithmetic the
+    // route members of this section already share. Listed here by exact
+    // prefix rather than left in the catch-all, which is where every entry
+    // above it started.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold)/.test(
         slug,
       ),
   },

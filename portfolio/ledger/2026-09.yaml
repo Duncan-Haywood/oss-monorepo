@@ -21821,3 +21821,76 @@ entries:
         this session, run 34423728610) read down, so PR checks are read as
         starvation rather than signal per CLAUDE.md.
     mrr_end: 0
+  - venture: wash-and-fold-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/wash-and-fold-price-calculator`,
+        a free browser calculator that turns a laundromat's or laundry
+        pickup-and-delivery operator's own labour minutes, wash and dry
+        cycle costs, supplies, delivery stops and overhead share into a cost
+        per pound, a break-even price per pound, the price that hits a
+        target margin, and the margin at what they charge today. Two things
+        a flat "$1.75 a pound" hides are the substance of it: machine cost
+        is stepwise (a 22 lb order on 20 lb washers runs two washers, and
+        the second costs a full cycle whether it is full or a tenth full),
+        and much of the cost is per *order* rather than per pound (intake,
+        tagging, a pickup and a delivery), so the tool costs the smallest
+        order the operator accepts separately and flags a minimum charge
+        that does not cover it.
+      - >-
+        Why this niche: a service the portfolio does not otherwise touch.
+        The nearest existing ventures cost a technician's stop list
+        (`pool-route-pricing`, `dog-walking-route-pricing`,
+        `medical-courier-route-margin`) or a cleaning contract by area and
+        frequency (`janitorial-bid-calculator`); none costs a per-unit-weight
+        processed good. `duplicate_check.py` on two phrasings scored nothing
+        at or above 0.21 against any venture, pipeline candidate,
+        screened-out row, or ai-first-markets idea. Named channel:
+        r/laundromat, the Coin Laundry Association community and the
+        laundromat-owner Facebook groups carry recurring "what should I
+        charge per pound for WDF" and "is delivery worth it" threads, and
+        the search phrases ("wash and fold price per pound", "how much
+        should I charge for wash and fold") are the evergreen version of
+        that question. Gates recorded in `VENTURE.yaml` and
+        `venture-scores.yaml` (composite 5.833, floor 1 `ai_leverage`):
+        the tool states no tariff, no wage rule and no benchmark price, and
+        both page and README say the output is a cost floor rather than a
+        recommended price.
+      - >-
+        Shipped with an inbound sibling link from its first commit rather
+        than as a 4th orphan against a budget already at its 3/3 ceiling:
+        `dog-walking-route-pricing`'s footer now names it (the same per-stop
+        drive-time arithmetic, priced by the pound instead of by the visit)
+        and its own footer names that tool back, with a `page.test.mjs`
+        assertion on the href in both ventures. `siblings.mjs --check`
+        reports 3 of 226 orphans, unchanged and in budget, so
+        `siblings-budget.json` needed no raise. Also filed the slug into
+        `build.mjs`'s `services` category rather than leaving it in the
+        catch-all, whose bound exists to ask exactly that question.
+      - >-
+        Registration completed in the same commit, per the checklist several
+        earlier venture PRs missed: CI workflow
+        (`.github/workflows/wash-and-fold-price-calculator-ci.yml`),
+        `venture-scores.yaml` row, `platform/ci/publish-surface.yaml` via
+        `publish_surface.py --write`, `platform/pages/launched.json` via
+        `launched.mjs --write`, the front-door regen, and the five
+        hand-typed mirrored-tool counts (225 -> 226) in
+        `gitops/tests/test_manifests.py`, `infra/OWNER_CHECKLIST.md` (three
+        sentences), `gitops/prod/usage/aggregate.py` and
+        `gitops/prod/front-door/default.conf` (twice), plus
+        `gitops/ci/sync_readme_counts.py` for the new workflow's runs-on
+        line.
+      - >-
+        Verification (Actions starved, so run here per CLAUDE.md): `node
+        --test ventures/wash-and-fold-price-calculator` 38/38; `node --test
+        ventures/dog-walking-route-pricing` 56/56; `node
+        platform/pages/clauses.mjs wash-and-fold-price-calculator` clean;
+        `node platform/marketing/regen.mjs` (2 generators, surface current)
+        and `front-door-tools.mjs --headroom` (82.1%, ~49 tools left);
+        `siblings.mjs --check` 3/226 in budget; `score_ventures.py --check`
+        235/235 consistent; `router/validate.py` 234 files valid;
+        `usage/validate_usage.py` and `checklist_coverage.py` clean;
+        `pytest gitops/tests` 506 passed / 25 skipped.
+    mrr_end: 0
