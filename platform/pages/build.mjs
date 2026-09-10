@@ -454,8 +454,20 @@ const CATEGORY_RULES = [
     // route members of this section already share. Listed here by exact
     // prefix rather than left in the catch-all, which is where every entry
     // above it started.
+    //
+    // `apparel-decoration-price-calculator` joined 2026-09-10 for the same
+    // reason as `wash-and-fold` directly above: a small shop turning its own
+    // labour, machine and material costs into a number it quotes a customer.
+    // It is not a trade bid (nothing is priced by area or by site visit) and
+    // not a marketplace fee tool. The one section that could also have
+    // claimed it is `solo-earner`, which holds `3d-print-price-calculator` —
+    // the tool this one is cross-linked to and the closest thing to it by
+    // shape. That section groups on the *earner*, a person monetising their
+    // own output, and a four-person shop quoting a corporate order is not
+    // that; the axis here is a business pricing work for a customer, which is
+    // what this is.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration)/.test(
         slug,
       ),
   },

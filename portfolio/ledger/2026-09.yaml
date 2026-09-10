@@ -22069,3 +22069,106 @@ entries:
         restricted network -- reported as unrun rather than a silent skip;
         none of those suites cover the files this change touches.
     mrr_end: 0
+  - venture: apparel-decoration-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture:
+        `ventures/apparel-decoration-price-calculator`, a free browser
+        calculator that turns a custom apparel shop's own screen,
+        digitising, press, stitch, blank and spoilage costs into a cost per
+        piece, a break-even price, the margin at what they quoted, and a
+        quantity-break table costing the same job at 12, 24, 48, 72, 144 and
+        288 pieces. Three methods share one cost model: screen printing (one
+        screen per colour **per placement**), embroidery (stitch cycle
+        divided by machine heads, plus hooping that is divided by nothing,
+        plus one-off digitising), and DTF (film and ink by printed area,
+        no per-job setup beyond art time).
+      - >-
+        The substance is that decoration setup is per *job* and flat across
+        quantity, which is why a short run priced off a long run's list
+        loses money invisibly. On the shipped example -- 24 pieces, three
+        colours at each of two placements -- setup is $4.99 a shirt; the
+        identical job at 288 carries $0.42. That is the whole quantity-break
+        curve, and it is the table the tool exists to produce. Second,
+        quieter loss modelled: blanks are bought in whole pieces and the
+        spoilage allowance is bought with them, so a 0% allowance is
+        reported rather than silently accepted.
+      - >-
+        Why this niche: nothing in the portfolio touches decorated apparel.
+        `duplicate_check.py` on two phrasings scored nothing at or above
+        0.16 against any venture, pipeline candidate, screened-out row, or
+        ai-first-markets idea, and a grep for
+        embroider/screen-print/apparel/garment/shirt/dtf across the same
+        sources returned nothing. The nearest tool by *shape* is
+        `3d-print-price-calculator` (a custom-fabricated item costed as
+        machine time plus material plus a failure allowance) -- close enough
+        that the two are cross-linked in both directions, and different
+        enough that it has no per-job setup term at all. Named channel:
+        r/screenprinting and r/embroidery run "am I charging enough for a
+        24-piece 3-colour job?" weekly, and the search phrases ("screen
+        printing pricing calculator", "embroidery pricing per 1000
+        stitches") are the evergreen version of the same question.
+      - >-
+        Shipped registered and linked in the same commit rather than left to
+        close later: the orphan budget was at its 3/3 ceiling, so
+        `3d-print-price-calculator`'s footer names this tool and this tool's
+        footer names it back, with a `page.test.mjs` assertion on the href
+        in both ventures -- `siblings.mjs --check` still reads 3 orphans and
+        `siblings-budget.json` needed no raise. Also in the same commit: the
+        CI workflow, the `venture-scores.yaml` row (composite 6.0, floor 1
+        `ai_leverage`), `publish-surface.yaml`, `launched.json` (so it
+        enters `/feed.xml`), the `build.mjs` `services` category with the
+        reason it is not filed under `solo-earner` beside
+        `3d-print-price-calculator`, the front-door mirror regen, the four
+        hand-typed mirrored-tool counts (-> 228) plus the `total` constant
+        inside `test_manifests.py` itself, and the `runs-on` count via
+        `gitops/ci/sync_readme_counts.py`.
+      - >-
+        Two real defects were caught by the repo's own guards and fixed
+        before shipping, both worth recording because neither is visible in
+        a passing test run. `check_step_grid` rejected `min="1" step="5"` on
+        the press-throughput input: the accepted values would have been 1,
+        6, 11, ... so the page's own shipped default of 90 was not a value
+        the browser would accept. Same shape on stitches-per-minute with
+        `min="1" step="50"` against a default of 750. Both floors are now
+        multiples of their step. `faq-visible` rejected `<code>` tags inside
+        an FAQ answer, because the tag-stripping the check does inserts
+        spaces and the JSON-LD text then no longer appears verbatim in the
+        visible copy -- the tags stay in the footer, where the privacy check
+        wants them, and the FAQ copy is plain.
+      - >-
+        Verified locally (Actions starved -- `ci_starvation.py` on job
+        102743200828 read `runner_id: 0`, 3s, no steps, so PR checks are
+        read as starvation per CLAUDE.md): `node --test` 52/52 in this
+        venture and 14/14 in `3d-print-price-calculator`;
+        `platform/marketing`+`platform/pages` 1196/1196;
+        `platform/proposal` 101/101; `platform/privacy`+`platform/webcheck`
+        71/71 with 0 skipped (clone unshallowed, so both history-pinned
+        `page-integrity` tests actually ran); `pytest gitops/tests` 506
+        passed / 25 skipped; `pytest portfolio/{ledger,scoring,router,usage,
+        pipeline} infra/tests` 431 passed; all `platform/ci` unittest
+        modules OK plus `agent_review/test_review` 21/21;
+        `build.mjs` + `check.mjs` 228 products, 889 pages, no dead links;
+        `browser_checks.py --only apparel-decoration-price-calculator
+        --checks contrast,sideways,presets` all pass (no WCAG A/AA
+        violations across the page's 28 number inputs, no sideways scroll at
+        360px); `checklist_coverage.py`, `clauses.mjs`,
+        `check_money_sign.py`, `check_no_payment_code.py`,
+        `score_ventures.py --check` (237), `router/validate.py` (236),
+        `usage/validate_usage.py`, `validate_doc_consistency.py`,
+        `validate_candidates.py`, `siblings.mjs --check` (3 orphans, in
+        budget), `front-door-tools.mjs --headroom` (82.7%, ~47 tools left)
+        all clean.
+      - >-
+        Session context, for the next run: the open-PR queue was empty by
+        the time this work started. #4398 and #4399 were both open at
+        session start and both were verified here against the full local
+        checklist; concurrent sessions merged them (04:26Z and 04:27Z) while
+        that verification was still running, so this run merged neither and
+        the three-PR floor was met by an empty queue rather than by merges.
+        `main` was confirmed green independently with
+        `run_workflow_locally.py --tree` (exit 0) at `bb1b7bfc`, and the
+        `gh-pages` snapshot read `current` via `pages_state.py`.
+    mrr_end: 0
