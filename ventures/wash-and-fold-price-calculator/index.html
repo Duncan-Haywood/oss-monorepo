@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wash and Fold Price Per Pound Calculator — Cost, Break-Even &amp; Margin</title>
+  <meta name="description" content="Free wash and fold pricing calculator for laundromats and laundry pickup-and-delivery routes: work out your real cost per pound from labour minutes, wash and dry cycles, supplies, delivery stops and overhead, then see the break-even price per pound and the margin at what you charge today. Runs entirely in your browser.">
+  <meta property="og:title" content="Wash and Fold Price Per Pound Calculator — cost, break-even &amp; margin">
+  <meta property="og:description" content="What does a pound of wash-dry-fold actually cost you? Labour, machine cycles, supplies, delivery stops and overhead into a break-even price per pound. Free, no sign-up, entirely client-side.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wash and Fold Price Per Pound Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates the cost of processing one wash-dry-fold order from labour minutes, wash and dry cycles, supplies, pickup-and-delivery stops and an allocated overhead share, then reports cost per pound, the break-even price per pound, margin at the operator's current price, and the volume needed for a monthly profit goal. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge per pound for wash and fold?","acceptedAnswer":{"@type":"Answer","text":"There is no single right number, because the cost side varies more than the price side: a shop paying $0.09 a gallon for water with 40 lb washers has a different floor than one paying $0.02 with 20 lb machines. Work out your own cost per pound first — labour minutes, wash and dry cycles, supplies, any delivery stops, and a share of overhead — then set the price above it by the margin you need. This calculator does that arithmetic on your own numbers; what your market will bear is a separate question it cannot answer."}},{"@type":"Question","name":"Why does a small wash and fold order lose money at the same price per pound?","acceptedAnswer":{"@type":"Answer","text":"Because a lot of the cost is per order rather than per pound. Intake, tagging, staging, bagging and checkout take the same minutes on a 10 lb order as on a 30 lb one, a pickup and a delivery are two stops either way, and a half-full washer costs a full cycle. Spread over ten pounds instead of thirty, those fixed costs are three times as heavy per pound — which is what a minimum charge exists to cover."}},{"@type":"Question","name":"What should the wash cost per load include?","acceptedAnswer":{"@type":"Answer","text":"Everything one cycle consumes: water at your metered rate, sewer if it is billed on water volume, the gas or electricity to heat that water, the electricity the machine draws, and a wear-and-replacement allowance for the machine itself. Read the rates off your own utility bills and your machine's rated water consumption per cycle rather than a published average, because tariffs and machine efficiency differ enormously between towns and between machines."}},{"@type":"Question","name":"Should pickup and delivery be priced into the per-pound rate or charged separately?","acceptedAnswer":{"@type":"Answer","text":"Either works, and the calculator shows why the choice matters: delivery cost is per stop, so it falls per pound as orders get bigger. Folding it into the per-pound rate means large orders subsidise small ones; charging a delivery fee or setting a route minimum puts the cost where it is incurred. Enter your stops per order, drive minutes and vehicle cost per mile to see how big the effect is at your average order weight."}},{"@type":"Question","name":"Does anything I type here get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in this browser, and nothing you enter is sent anywhere — there are no accounts, no cookies, and no analytics vendor. If you use the save button, your numbers are written to this browser's own local storage on this device only, and the forget button deletes them. Anonymous feature counts (estimate, example_loaded, inputs_saved) are stored the same local way and can be switched off."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1040px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    fieldset { border: 1px solid #d6e0e6; border-radius: 10px; margin: 0 0 16px; padding: 8px 14px 16px; }
+    legend { font-size: .82rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #1f4a5d; padding: 0 6px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: .9rem; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6b7c88; border-radius: 7px; font: 15px system-ui, sans-serif; color: #1b1f2a; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 16px; }
+    .hint { font-weight: 400; color: #4c5a68; font-size: .82rem; display: block; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f4a5d; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; font-size: .95rem; }
+    button.secondary { background: #e4edf1; color: #1a3b4a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e3e9ef; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #40505e; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .headline { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 6px; }
+    .headline div { background: #f2f7f9; border: 1px solid #d6e0e6; border-radius: 10px; padding: 12px 14px; }
+    .headline .big { font-size: 1.6rem; font-weight: 800; color: #14532d; display: block; margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .headline .big.loss { color: #8a2c0c; }
+    .headline .cap { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #40505e; }
+    .finding { border-bottom: 1px solid #e3e9ef; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fbe3dc; color: #8a2c0c; }
+    .pill.medium { background: #fbeecd; color: #6b4e08; }
+    .pill.low { background: #e6e8ef; color: #3a4552; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .error { color: #8a2c0c; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+    footer a, main a, section a { color: #1a4f7a; }
+    @media (max-width: 560px) { body { padding: 20px 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WASH-DRY-FOLD PRICING · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a pound of wash and fold actually cost you?</h1>
+    <p>A pricing calculator for laundromats and laundry pickup-and-delivery
+    operators. Put in the labour minutes, the wash and dry cycle costs, the
+    supplies, the delivery stops and a share of overhead, and get the cost of
+    processing one order, the break-even price per pound, and the margin at
+    what you charge today. The competitor's sign down the road is not a costing
+    model; this is.</p>
+    <p class="note">Everything runs in this browser. Your wages, utility rates
+    and volumes are never uploaded — see the privacy note in the footer.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>Your numbers</h2>
+    <form id="wdf-form">
+      <fieldset>
+        <legend>The order you are pricing</legend>
+        <div class="grid">
+          <div>
+            <label for="pricePerPound">Your price per pound ($)<span class="hint">What you charge today</span></label>
+            <input type="number" id="pricePerPound" min="0" step="0.01" value="1.75">
+          </div>
+          <div>
+            <label for="avgOrderPounds">Average order weight (lb)</label>
+            <input type="number" id="avgOrderPounds" min="0" step="0.5" value="22">
+          </div>
+          <div>
+            <label for="minimumCharge">Minimum charge per order ($)</label>
+            <input type="number" id="minimumCharge" min="0" step="0.01" value="20">
+          </div>
+          <div>
+            <label for="minimumOrderPounds">Smallest order you accept (lb)</label>
+            <input type="number" id="minimumOrderPounds" min="0" step="0.5" value="10">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Labour</legend>
+        <div class="grid">
+          <div>
+            <label for="laborMinutesPerPound">Handling minutes per pound<span class="hint">Sort, load, unload, fold, bag</span></label>
+            <input type="number" id="laborMinutesPerPound" min="0" step="0.05" value="0.9">
+          </div>
+          <div>
+            <label for="fixedMinutesPerOrder">Fixed minutes per order<span class="hint">Intake, tagging, staging, checkout</span></label>
+            <input type="number" id="fixedMinutesPerOrder" min="0" step="0.5" value="9">
+          </div>
+          <div>
+            <label for="wagePerHour">Wage per hour ($)</label>
+            <input type="number" id="wagePerHour" min="0" step="0.25" value="16">
+          </div>
+          <div>
+            <label for="payrollLoadPct">Payroll load (%)<span class="hint">Employer taxes, comp, benefits</span></label>
+            <input type="number" id="payrollLoadPct" min="0" step="1" value="18">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Machines and supplies</legend>
+        <div class="grid">
+          <div>
+            <label for="poundsPerWasherLoad">Washer capacity (lb)</label>
+            <input type="number" id="poundsPerWasherLoad" min="1" step="1" value="20">
+          </div>
+          <div>
+            <label for="washCostPerLoad">Cost per wash cycle ($)<span class="hint">Water, sewer, heat, power, wear</span></label>
+            <input type="number" id="washCostPerLoad" min="0" step="0.01" value="1.35">
+          </div>
+          <div>
+            <label for="poundsPerDryerLoad">Dryer capacity (lb)</label>
+            <input type="number" id="poundsPerDryerLoad" min="1" step="1" value="30">
+          </div>
+          <div>
+            <label for="dryCostPerLoad">Cost per dry cycle ($)<span class="hint">Gas or electric, plus wear</span></label>
+            <input type="number" id="dryCostPerLoad" min="0" step="0.01" value="1.1">
+          </div>
+          <div>
+            <label for="suppliesCostPerPound">Supplies per pound ($)<span class="hint">Detergent, softener, bags, tags</span></label>
+            <input type="number" id="suppliesCostPerPound" min="0" step="0.01" value="0.06">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Pickup and delivery (leave stops at 0 for counter service)</legend>
+        <div class="grid">
+          <div>
+            <label for="deliveryStopsPerOrder">Stops per order<span class="hint">A pickup and a drop-off is 2</span></label>
+            <input type="number" id="deliveryStopsPerOrder" min="0" step="1" value="2">
+          </div>
+          <div>
+            <label for="driveMinutesPerStop">Drive and door minutes per stop</label>
+            <input type="number" id="driveMinutesPerStop" min="0" step="0.5" value="7">
+          </div>
+          <div>
+            <label for="milesPerStop">Miles per stop</label>
+            <input type="number" id="milesPerStop" min="0" step="0.5" value="4">
+          </div>
+          <div>
+            <label for="vehicleCostPerMile">Vehicle cost per mile ($)<span class="hint">Fuel, maintenance, insurance</span></label>
+            <input type="number" id="vehicleCostPerMile" min="0" step="0.01" value="0.55">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Overhead and goal</legend>
+        <div class="grid">
+          <div>
+            <label for="monthlyOverhead">Monthly overhead for this service ($)<span class="hint">Rent share, insurance, base utilities, software</span></label>
+            <input type="number" id="monthlyOverhead" min="0" step="10" value="2400">
+          </div>
+          <div>
+            <label for="monthlyPounds">Pounds processed per month</label>
+            <input type="number" id="monthlyPounds" min="0" step="50" value="6000">
+          </div>
+          <div>
+            <label for="targetMarginPct">Target margin (%)</label>
+            <input type="number" id="targetMarginPct" min="0" max="95" step="1" value="35">
+          </div>
+          <div>
+            <label for="monthlyProfitGoal">Monthly profit goal ($)</label>
+            <input type="number" id="monthlyProfitGoal" min="0" step="100" value="3000">
+          </div>
+        </div>
+      </fieldset>
+    </form>
+    <p>
+      <button type="button" id="calculate">Calculate cost per pound</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="save">Save my numbers on this device</button>
+      <button type="button" class="secondary" id="forget">Forget my numbers</button>
+    </p>
+    <p class="note" id="status">Fill in what you know and press Calculate. The
+    figures shown are a delivery-route example, not a benchmark — replace them
+    with your own.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>What one order costs</h2>
+    <div class="headline">
+      <div><span class="cap">Cost per pound</span><span class="big" id="cost-per-pound">—</span></div>
+      <div><span class="cap">Break-even price per pound</span><span class="big" id="break-even">—</span></div>
+      <div><span class="cap">Margin at your price</span><span class="big" id="margin">—</span></div>
+    </div>
+    <p class="note" id="order-summary"></p>
+    <table>
+      <caption class="note" style="text-align:left;padding:6px 0">Where the cost of a typical order goes</caption>
+      <thead><tr><th scope="col">Cost component</th><th scope="col" class="num">Per order</th><th scope="col" class="num">Per pound</th><th scope="col" class="num">Share</th></tr></thead>
+      <tbody id="cost-body"></tbody>
+    </table>
+    <p class="note" id="goal-line"></p>
+    <h3>What to look at</h3>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This is arithmetic on numbers you supply: it totals what one order costs
+    you and compares that to what one order earns. It does not know your water,
+    sewer, gas or electricity tariff, your local wage rules, your machines'
+    actual consumption, or what customers in your town will pay — every one of
+    those is an input you read off your own bills, payroll and equipment
+    specifications. Treat the output as the cost floor underneath your own
+    pricing decision, not a recommended price.</p>
+    <p>Running a route of recurring residential stops is the half of this that
+    is not laundry at all. If you also price visit-based work by drive time and
+    minutes on site, the <a href="../dog-walking-route-pricing/">dog walking and
+    pet sitting rate calculator</a> does the same per-stop arithmetic for a
+    route of recurring client visits, and rolls a client list up against a
+    monthly income goal.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge per pound for wash and fold?</h3>
+    <p>There is no single right number, because the cost side varies more than the price side: a shop paying $0.09 a gallon for water with 40 lb washers has a different floor than one paying $0.02 with 20 lb machines. Work out your own cost per pound first — labour minutes, wash and dry cycles, supplies, any delivery stops, and a share of overhead — then set the price above it by the margin you need. This calculator does that arithmetic on your own numbers; what your market will bear is a separate question it cannot answer.</p>
+    <h3>Why does a small wash and fold order lose money at the same price per pound?</h3>
+    <p>Because a lot of the cost is per order rather than per pound. Intake, tagging, staging, bagging and checkout take the same minutes on a 10 lb order as on a 30 lb one, a pickup and a delivery are two stops either way, and a half-full washer costs a full cycle. Spread over ten pounds instead of thirty, those fixed costs are three times as heavy per pound — which is what a minimum charge exists to cover.</p>
+    <h3>What should the wash cost per load include?</h3>
+    <p>Everything one cycle consumes: water at your metered rate, sewer if it is billed on water volume, the gas or electricity to heat that water, the electricity the machine draws, and a wear-and-replacement allowance for the machine itself. Read the rates off your own utility bills and your machine's rated water consumption per cycle rather than a published average, because tariffs and machine efficiency differ enormously between towns and between machines.</p>
+    <h3>Should pickup and delivery be priced into the per-pound rate or charged separately?</h3>
+    <p>Either works, and the calculator shows why the choice matters: delivery cost is per stop, so it falls per pound as orders get bigger. Folding it into the per-pound rate means large orders subsidise small ones; charging a delivery fee or setting a route minimum puts the cost where it is incurred. Enter your stops per order, drive minutes and vehicle cost per mile to see how big the effect is at your average order weight.</p>
+    <h3>Does anything I type here get uploaded?</h3>
+    <p>No. Every calculation runs in this browser, and nothing you enter is sent anywhere — there are no accounts, no cookies, and no analytics vendor. If you use the save button, your numbers are written to this browser's own local storage on this device only, and the forget button deletes them. Anonymous feature counts (estimate, example_loaded, inputs_saved) are stored the same local way and can be switched off.</p>
+  </section>
+  </main>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>This calculator produces arithmetic observations from numbers you supply. It does not determine what your service is worth in your market, does not read your utility bills, and does not assess whether any wage, employment, or environmental rule applies to your operation.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your rates and volumes are never uploaded; there are no accounts, cookies, or analytics vendors. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget my numbers</em> deletes them. Anonymous feature events (<code>estimate</code>, <code>example_loaded</code>, <code>inputs_saved</code>) are counted in local storage too and never transmitted. Do Not Track and Global Privacy Control turn counting off automatically.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button> <span id="optout-status" class="note"></span></p>
+    <p>Also running a route of recurring residential stops? The <a href="../dog-walking-route-pricing/">dog walking and pet sitting rate calculator</a> prices a visit from on-site time, drive time and mileage, and checks a client list against a monthly income goal.</p>
+    <p>Free and open source. If this helped you price the next pound, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeWashAndFold } from "./calculator.mjs";
+    import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const DRAFT_KEY = "wash-and-fold-inputs";
+    const $ = (sel) => document.querySelector(sel);
+    const FIELDS = [
+      "pricePerPound", "avgOrderPounds", "minimumCharge", "minimumOrderPounds",
+      "laborMinutesPerPound", "fixedMinutesPerOrder", "wagePerHour", "payrollLoadPct",
+      "poundsPerWasherLoad", "washCostPerLoad", "poundsPerDryerLoad", "dryCostPerLoad",
+      "suppliesCostPerPound", "deliveryStopsPerOrder", "driveMinutesPerStop", "milesPerStop",
+      "vehicleCostPerMile", "monthlyOverhead", "monthlyPounds", "targetMarginPct",
+      "monthlyProfitGoal",
+    ];
+    const EXAMPLE = {
+      pricePerPound: 1.75, avgOrderPounds: 22, minimumCharge: 20, minimumOrderPounds: 10,
+      laborMinutesPerPound: 0.9, fixedMinutesPerOrder: 9, wagePerHour: 16, payrollLoadPct: 18,
+      poundsPerWasherLoad: 20, washCostPerLoad: 1.35, poundsPerDryerLoad: 30, dryCostPerLoad: 1.1,
+      suppliesCostPerPound: 0.06, deliveryStopsPerOrder: 2, driveMinutesPerStop: 7, milesPerStop: 4,
+      vehicleCostPerMile: 0.55, monthlyOverhead: 2400, monthlyPounds: 6000, targetMarginPct: 35,
+      monthlyProfitGoal: 3000,
+    };
+
+    // Sign outside the symbol ("-$9.24", never "$-9.24"), and never on a
+    // value that rounds away to zero at the requested precision.
+    const money = (n, places = 2) => {
+      const value = Number(n) || 0;
+      const text = `$${Math.abs(value).toFixed(places)}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+
+    function readInputs() {
+      return Object.fromEntries(FIELDS.map((id) => [id, Number($(`#${id}`).value)]));
+    }
+
+    function writeInputs(values) {
+      for (const id of FIELDS) {
+        if (values[id] !== undefined && values[id] !== null) $(`#${id}`).value = values[id];
+      }
+    }
+
+    function render(result, input) {
+      const lossy = result.profitPerOrder < 0;
+      $("#cost-per-pound").textContent = money(result.costPerPound, 3);
+      $("#break-even").textContent = money(result.breakEvenPricePerPound, 3);
+      const marginEl = $("#margin");
+      marginEl.textContent = `${result.marginPct}%`;
+      marginEl.classList.toggle("loss", lossy);
+
+      const revenue = result.revenuePerOrder;
+      $("#order-summary").textContent =
+        `A ${input.avgOrderPounds} lb order runs ${result.order.washLoads} wash ` +
+        `and ${result.order.dryLoads} dry cycle(s), costs ${money(result.order.total)} to process, ` +
+        `and brings in ${money(revenue)}` +
+        `${result.minimumApplied ? " (your minimum charge, not the weighed price)" : ""} — ` +
+        `${lossy ? "a loss of " : "a profit of "}${money(Math.abs(result.profitPerOrder))} per order.`;
+
+      const rows = [
+        ["Labour", result.order.labor, result.perPound.labor],
+        ["Machine cycles", result.order.machine, result.perPound.machine],
+        ["Supplies", result.order.supplies, result.perPound.supplies],
+        ["Pickup and delivery", result.order.delivery, result.perPound.delivery],
+        ["Overhead share", result.order.overhead, result.perPound.overhead],
+      ];
+      const total = result.order.total || 1;
+      $("#cost-body").innerHTML = rows
+        .map(
+          ([label, perOrder, perPound]) =>
+            `<tr><td>${label}</td><td class="num">${money(perOrder)}</td>` +
+            `<td class="num">${money(perPound, 3)}</td>` +
+            `<td class="num">${Math.round((perOrder / total) * 100)}%</td></tr>`,
+        )
+        .join("") +
+        `<tr><td><strong>Total</strong></td><td class="num"><strong>${money(result.order.total)}</strong></td>` +
+        `<td class="num"><strong>${money(result.costPerPound, 3)}</strong></td><td class="num">100%</td></tr>`;
+
+      const goalParts = [];
+      if (result.targetPricePerPound !== null) {
+        goalParts.push(
+          `${money(result.targetPricePerPound, 3)} a pound would hit your ${input.targetMarginPct}% margin target.`,
+        );
+      }
+      if (result.monthlyProfitAtVolume !== null) {
+        goalParts.push(
+          `At ${input.monthlyPounds} lb a month, these numbers leave ${money(result.monthlyProfitAtVolume)} of profit.`,
+        );
+      }
+      if (result.poundsForGoal !== null) {
+        goalParts.push(
+          `A ${money(input.monthlyProfitGoal)} monthly profit needs ${result.poundsForGoal} lb — about ${result.ordersForGoal} orders of this size.`,
+        );
+      }
+      $("#goal-line").textContent = goalParts.join(" ");
+
+      $("#findings").innerHTML = result.findings
+        .map(
+          (f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`,
+        )
+        .join("");
+
+      $("#report").hidden = false;
+    }
+
+    function run(event = "estimate") {
+      const input = readInputs();
+      if (!(input.avgOrderPounds > 0)) {
+        $("#status").innerHTML =
+          `<span class="error">Enter an average order weight above 0 pounds — every per-pound figure divides by it.</span>`;
+        $("#report").hidden = true;
+        return;
+      }
+      $("#status").textContent = "";
+      render(computeWashAndFold(input), input);
+      recordUsage(event);
+      $("#report").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", () => run("estimate"));
+
+    $("#load-example").addEventListener("click", () => {
+      writeInputs(EXAMPLE);
+      run("example_loaded");
+      $("#status").textContent =
+        "Worked example: a 22 lb delivery order at $1.75 a pound, two stops, 20 lb washers.";
+    });
+
+    $("#save").addEventListener("click", () => {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(readInputs()));
+        $("#status").textContent =
+          "Saved to this browser on this device. Nothing was uploaded.";
+        recordUsage("inputs_saved");
+      } catch {
+        $("#status").textContent =
+          "This browser refused to save (private mode or blocked storage) — your numbers are still on screen.";
+      }
+    });
+
+    $("#forget").addEventListener("click", () => {
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* storage is optional */
+      }
+      $("#status").textContent = "Saved numbers deleted from this browser.";
+    });
+
+    $("#optout").addEventListener("click", () => {
+      setUsageOptOut(true);
+      $("#optout").disabled = true;
+      $("#optout").textContent = "Usage counting is off";
+      $("#optout-status").textContent = "Local counts deleted. Nothing had left this device anyway.";
+    });
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+      if (saved && typeof saved === "object") {
+        writeInputs(saved);
+        $("#status").textContent = "Loaded the numbers you saved in this browser.";
+      }
+    } catch {
+      /* storage is optional */
+    }
+
+    if (usageOptedOut()) {
+      $("#optout").disabled = true;
+      $("#optout").textContent = "Usage counting is off";
+    }
+  </script>
+</body>
+</html>

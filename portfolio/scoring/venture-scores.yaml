@@ -8656,3 +8656,130 @@ ventures:
       Makes no network call of any kind, uploads nothing, and both
       pages' footers and FAQs state plainly that it is not a review
       determination.
+
+  - slug: cors-misconfig-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a response header
+      reflects a crafted Origin value sent moments earlier is decided by
+      exact string comparison against the request that produced it -- a
+      factual, deterministic comparison, not a model judgment, and it
+      never claims a security assessment or penetration test.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser report-viewer, not
+      a 236th <trade>-bid-calculator. duplicate_check.py scored the
+      closest existing venture (actions-injection-check, a different
+      vulnerability class in GitHub Actions workflow YAML rather than
+      HTTP response headers) at 0.31 against the final description, well
+      under the 0.45 flag bar; no existing venture sends live network
+      probes with crafted Origin headers or reads CORS response headers.
+      Autonomous ops 10 / gross margin 10: the CLI's requests run from
+      the user's own machine against a URL they choose, and the browser
+      page only renders a report already produced, so serving one more
+      user costs a static file and needs no human review of any output.
+      Distribution 7: any web API developer or security researcher is a
+      plausible searcher, a broader audience than the platform-specific
+      review-rejection niches (Chrome Web Store, wordpress.org) already
+      in this portfolio; specific, recurring search phrases ("cors
+      misconfiguration checker", "reflected origin cors vulnerability",
+      "test for null origin cors"), plus r/netsec, r/websecurity, the
+      bug-bounty community (HackerOne/Bugcrowd forums and Discords), and
+      Hacker News as named, active forums where this exact class of
+      problem is discussed. The open-source Corsy scanner is evidence of
+      real demand, not evidence the niche is unserved.
+      Time to revenue 6, defensibility 3: donations-only; a transparent
+      probe-and-classify tool is easy to reimplement and Corsy already
+      exists, so defensibility rests only on a lower-friction, zero-
+      install report-viewing path plus this portfolio's disclaimer/usage
+      conventions, not on any moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only ordinary, unauthenticated GET requests
+      from the user's own machine to a URL the user chooses -- never
+      this portfolio's infrastructure touching a third party, never
+      bypassing authentication or reading protected data, no different
+      in kind from curl with a custom header. Every page and the README
+      carry an explicit "only test systems you own or are authorised to
+      test" caution, the same posture as any request-based security tool
+      (nmap, testssl.sh, Corsy itself). A probe that fails at the
+      network level is reported as incomplete rather than silently
+      skipped or guessed at, and a finding is only ever raised from a
+      header this tool actually observed. Both pages' footers and FAQs
+      state plainly that a clean report is evidence from five specific
+      requests, not a full security assessment or a determination that
+      the target is secure.
+
+  - slug: wash-and-fold-price-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over rates the operator reads off their own
+      utility bills, payroll and machine specifications. There is no
+      inference step: the output is a sum, a division, and a ceiling
+      function for whole machine cycles.
+    basis: >-
+      Graduated 2026-09-10 as a free cost-per-pound and break-even
+      calculator for wash-dry-fold: labour minutes, wash and dry cycles
+      (costed stepwise, because a partly full machine costs a full cycle),
+      supplies, pickup-and-delivery stops and an allocated overhead share,
+      against the operator's current price per pound and minimum charge.
+      A niche the portfolio does not otherwise serve — the nearest existing
+      ventures cost a technician's stop list (pool-route-pricing,
+      dog-walking-route-pricing) or a cleaning contract by area
+      (janitorial-bid-calculator); neither costs a per-unit-weight processed
+      good. `duplicate_check.py` scored nothing at or above 0.21 on two
+      phrasings against any existing venture, pipeline candidate,
+      screened-out row, or ai-first-markets idea.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: the arithmetic is
+      commodity and any operator could build it in a spreadsheet. What is
+      not commodity is that nobody has — the laundry POS and route vendors
+      (Cents, CleanCloud, Curbside Laundries) take price per pound as an
+      input and sell a subscription around it.
+      Distribution 6: r/laundromat, the Coin Laundry Association's
+      community and the laundromat-owner Facebook groups carry recurring
+      "what should I charge per pound for WDF" and "is delivery worth it"
+      threads, and the search phrases ("wash and fold price per pound",
+      "how much should I charge for wash and fold") are the evergreen
+      version of the same question, asked at the predictable moment an
+      operator adds WDF or a delivery route.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool multiplies and adds numbers the operator supplies and
+      reports a cost floor — it states no tariff, no wage rule, no
+      benchmark price and no market rate, and both the page and the README
+      say the output is a cost floor rather than a recommended price.
+      Being wrong costs the operator a figure to check against their own
+      P&L, not a filing, a licence, or a third party's money. Ethically:
+      deterministic arithmetic, no dark patterns, nothing collected,
+      nothing inferred about any third party, and the party it helps is
+      the small operator competing with chains that already have a costing
+      model.

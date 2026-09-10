@@ -76,6 +76,8 @@
   will actually ship (as opposed to what's on disk), pair it with
   <code>npm pack --dry-run</code>'s file list pasted into the browser tool.</p>
 
+  <p>Already run <a href="./vs-publint.html">publint</a> as part of your publish checks? See <a href="./vs-publint.html">how this tool and publint compare</a> — different scope, and this one needs nothing installed or published.</p>
+
   <h2>Common questions</h2>
   <h3>Isn't this what "files" and .npmignore are for?</h3>
   <p>Those control which files get INTO the tarball. This tool checks a separate question: whether the paths named in "exports" match files that actually exist at all, in the location you're checking (your working tree, or a listing you took from the tarball itself). A file can be correctly included by "files" and still be at the wrong path relative to what "exports" claims — that mismatch is what this catches.</p>

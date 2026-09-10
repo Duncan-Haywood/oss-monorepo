@@ -1224,3 +1224,27 @@ candidates:
     mitigation: Keep the readme/header field lists and the escaping/nonce function lists deterministic and conservative -- a field or function this tool has no mapping for is named as "not checked" or reported plainly as missing rather than guessed at; never claim a wordpress.org Plugin Review determination; measure real user reports before adding any AI-assisted feature.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+
+  - slug: cors-misconfig-check
+    name: CORS misconfiguration checker
+    doc: candidates/cors-misconfig-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-10
+    initiated_path: ventures/cors-misconfig-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.5
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the probe set and classification deterministic and conservative -- a probe that fails at the network level is reported as incomplete rather than silently skipped or guessed at, and a finding is only ever raised from a header this tool actually observed; never claim a full security assessment or penetration test; measure real user reports before expanding the probe set into authenticated or stateful requests, which would raise both the liability and the implementation surface.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

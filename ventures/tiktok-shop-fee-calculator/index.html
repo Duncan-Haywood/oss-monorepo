@@ -312,6 +312,7 @@
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your prices, costs, or creator rates.</p>
     <p>Comparing TikTok Shop to other marketplaces on the same item? The <a href="../marketplace-fee-compare/">marketplace fee comparison</a> ranks TikTok Shop against eBay, Etsy, Amazon, Walmart and your own store side by side from one set of inputs, then points here for the parts a headline referral rate cannot carry.</p>
     <p>Selling the same SKU on Walmart Marketplace too? The <a href="../walmart-marketplace-calculator/">Walmart marketplace calculator</a> compares WFS against seller-fulfilled shipping, returns, and Buy Box match economics for the same item.</p>
+    <p>Want returns, shelf time, and price-to-match-the-leader in the same ranking? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks TikTok Shop against eBay, Etsy, Amazon, Reverb and your own store side by side, plus what each is worth per day of wait and per month of shelf time — it opens with this order's item price, shipping and cost already filled in and TikTok Shop switched on, no retyping.</p>
     <p>Free and open source. If it saves you from a losing SKU, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
   </footer>
 
@@ -329,6 +330,7 @@
       priceForTargetMargin,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { whereToSellUrl } from "./to-where-to-sell.mjs";
 
     const money = (value) => {
       if (value === null || value === undefined) return "n/a";
@@ -435,6 +437,7 @@
       el("targetMarginPrice").textContent = targetPrice === null ? "n/a" : money(targetPrice);
       el("maxBuy").textContent = money(buy);
       el("monthlyProfit").textContent = money(result.monthlyProfit);
+      el("whereToSellLink").href = whereToSellUrl(input);
 
       el("affiliateCompare").innerHTML = `
         <tr>
@@ -539,6 +542,12 @@
       } catch {
         el("copyStatus").textContent = "Copy was blocked. Select the page URL manually.";
       }
+    });
+
+    el("whereToSellLink").addEventListener("click", () => {
+      // Records only that the handoff happened, never the order — this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      count("handoff_where_to_sell");
     });
 
     restoreScenario();

@@ -643,6 +643,12 @@
     <loc>https://marisstella.dev/tools/contractor-bid-readiness/vs-jobtread.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/cors-misconfig-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cors-misconfig-check/reflected-origin-cors-vulnerability.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/countertop-bid-calculator/</loc>
   </url>
   <url>
@@ -1696,6 +1702,9 @@
     <loc>https://marisstella.dev/tools/package-exports-drift-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/package-exports-drift-check/vs-publint.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/package-exports-drift-check/why-package-json-exports-fields-drift-from-what-you-actually-publish.html</loc>
   </url>
   <url>
@@ -2540,6 +2549,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/walmart-marketplace-calculator/wfs-vs-seller-fulfilled.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/wash-and-fold-price-calculator/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/water-heater-bid-calculator/</loc>

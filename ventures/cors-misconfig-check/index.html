@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CORS Misconfiguration Checker — Reflected Origin, Null Origin, Unanchored Allow-Lists</title>
+<meta name="description" content="Free tool: run a CLI that sends real requests with crafted Origin headers to your API, then paste the JSON here for a plain-English report on reflected-origin, null-origin, and unanchored allow-list CORS misconfigurations. Nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/cors-misconfig-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="CORS Misconfiguration Checker">
+<meta property="og:description" content="Paste the JSON from the CLI probe and get a plain-English report on reflected-origin, null-origin, and unanchored allow-list CORS misconfigurations. Free, local, no upload.">
+<meta property="og:url" content="https://example.invalid/cors-misconfig-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CORS Misconfiguration Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (report viewer runs in a web browser); a Node.js CLI performs the actual probing",
+  "description": "Sends real GET requests with crafted Origin headers to a target URL and classifies the responses into named CORS misconfiguration patterns: reflected arbitrary origin, accepted null origin, and unanchored prefix/suffix origin allow-list matching, plus wildcard-with-credentials and missing Vary: Origin notices.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Sends 5 real HTTP requests with distinct Origin headers to one target URL you choose",
+    "Flags an Access-Control-Allow-Origin that reflects an origin with no relationship to the target",
+    "Flags Origin: null being accepted, exploitable via a sandboxed iframe with no domain of the attacker's own",
+    "Flags unanchored startsWith/endsWith-style origin allow-list checks using classic bypass domains",
+    "Flags Access-Control-Allow-Origin: * combined with Access-Control-Allow-Credentials: true",
+    "Flags a dynamic-origin response missing Vary: Origin (a shared-cache risk)",
+    "CLI makes the actual requests; the browser page only renders a report you paste in -- nothing uploaded"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a CORS misconfiguration and why does it matter?",
+      "acceptedAnswer": { "@type": "Answer", "text": "CORS (Cross-Origin Resource Sharing) is a browser mechanism that lets a server explicitly allow another website to read its responses. A misconfigured server can end up trusting any origin at all, the literal origin \"null\", or an attacker-registrable domain that happens to satisfy a sloppy string check -- any of which lets an attacker's website read data (sometimes including a logged-in visitor's authenticated data) it should never see." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this need a CLI instead of just checking a URL I type into the page?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Origin is a forbidden request header under the Fetch spec, so a browser tab is never allowed to set it to anything other than the page's own real origin -- that restriction is part of what CORS protects. Only a non-browser HTTP client, like the CLI here (or curl), can send the crafted Origin headers this check depends on. Run the CLI, then paste its JSON output here for a rendered report." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to run this against a URL?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It sends six ordinary, unauthenticated GET requests -- nothing here bypasses authentication, reads protected data, or does anything a browser wouldn't also do by visiting the URL with different Origin headers. Only point it at a system you own or are authorised to test, the same rule that applies to any request tool aimed at someone else's server." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean the API has no CORS issues?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks four specific, well-documented misconfiguration patterns using six requests -- it is not a full security assessment, does not test authenticated endpoints with real credentials, and cannot see a bypass this tool's four attack probes don't happen to trigger. Treat a clean report as evidence about these specific patterns, not a determination that the API is secure." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does one of the six requests send my own origin?",
+      "acceptedAnswer": { "@type": "Answer", "text": "That request is not an attack and echoing it back is never reported as a finding -- allowing your own origin is the correct answer. It is there for the Vary: Origin notice, which is about the caching layer in front of the API rather than the allow-list behind it. On a server whose allow-list works, all four attack origins are correctly rejected, so nothing else in the run would ever show that the response still changes with the request. The sixth request does, and the request that sends no Origin header at all is what tells a dynamic header from a static one: a value that is identical whether or not you send an Origin is the same response for everybody and owes no Vary." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 0.6rem; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>CORS Misconfiguration Checker</h1>
+<p>
+  Sends six real HTTP GET requests to an API URL you choose, each with a different
+  <code>Origin</code> header, then classifies the responses into four well-documented CORS
+  misconfiguration patterns: reflecting an <strong>unrelated origin</strong>, accepting
+  <strong>Origin: null</strong>, and two <strong>unanchored allow-list</strong> bypass shapes
+  (<code>startsWith</code>/<code>endsWith</code>-style string checks with no domain boundary),
+  plus notices for a wildcard-with-credentials combination and a missing
+  <code>Vary: Origin</code> header. Only point it at a system you own or are authorised to test.
+</p>
+
+<div class="card">
+  <h2>1. Run the CLI against your API</h2>
+  <p>Node.js, no dependencies to install:</p>
+  <pre class="cmd"><code>node check.mjs https://api.example.com/some/endpoint --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/cors-misconfig-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a>
+    — plain Node, nothing to install. It only ever talks to the URL you pass; nothing goes
+    through this site.
+  </p>
+</div>
+
+<div class="card">
+  <h2>2. Paste the JSON output here</h2>
+  <textarea id="payload" spellcheck="false" placeholder='{"target": "https://api.example.com/...", "probes": [{"label": "baseline", "requestOrigin": null, "ok": true, "status": 200, "headers": {...}}, ...]}'></textarea>
+  <p>
+    <button type="button" class="primary" id="check">Check</button>
+    <button type="button" id="load-example">Load worked example (vulnerable)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Paste the JSON from step 1 and click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <h3>Raw probe responses</h3>
+  <table id="probe-table"><thead><tr><th>Probe</th><th>Origin sent</th><th>Status</th><th>Access-Control-Allow-Origin</th><th>Access-Control-Allow-Credentials</th></tr></thead><tbody></tbody></table>
+</section>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>What is a CORS misconfiguration and why does it matter?</h3>
+  <p>CORS (Cross-Origin Resource Sharing) is a browser mechanism that lets a server explicitly allow another website to read its responses. A misconfigured server can end up trusting any origin at all, the literal origin "null", or an attacker-registrable domain that happens to satisfy a sloppy string check -- any of which lets an attacker's website read data (sometimes including a logged-in visitor's authenticated data) it should never see.</p>
+  <h3>Why does this need a CLI instead of just checking a URL I type into the page?</h3>
+  <p><code>Origin</code> is a forbidden request header under the Fetch spec, so a browser tab is never allowed to set it to anything other than the page's own real origin -- that restriction is part of what CORS protects. Only a non-browser HTTP client, like the CLI here (or curl), can send the crafted Origin headers this check depends on. Run the CLI, then paste its JSON output here for a rendered report.</p>
+  <h3>Is it safe to run this against a URL?</h3>
+  <p>It sends six ordinary, unauthenticated GET requests -- nothing here bypasses authentication, reads protected data, or does anything a browser wouldn't also do by visiting the URL with different Origin headers. Only point it at a system you own or are authorised to test, the same rule that applies to any request tool aimed at someone else's server.</p>
+  <h3>Does a clean report mean the API has no CORS issues?</h3>
+  <p>No. This checks four specific, well-documented misconfiguration patterns using six requests -- it is not a full security assessment, does not test authenticated endpoints with real credentials, and cannot see a bypass this tool's four attack probes don't happen to trigger. Treat a clean report as evidence about these specific patterns, not a determination that the API is secure.</p>
+  <h3>Why does one of the six requests send my own origin?</h3>
+  <p>That request is not an attack and echoing it back is never reported as a finding -- allowing your own origin is the correct answer. It is there for the Vary: Origin notice, which is about the caching layer in front of the API rather than the allow-list behind it. On a server whose allow-list works, all four attack origins are correctly rejected, so nothing else in the run would ever show that the response still changes with the request. The sixth request does, and the request that sends no Origin header at all is what tells a dynamic header from a static one: a value that is identical whether or not you send an Origin is the same response for everybody and owes no Vary.</p>
+  <p>More background: <a href="reflected-origin-cors-vulnerability.html">what a reflected-origin CORS misconfiguration actually lets an attacker do</a>.</p>
+</section>
+
+<script type="module">
+  import { buildReport } from './analyze.mjs';
+  import { recordUsage } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    payload: $('#payload'), status: $('#status'), reportCard: $('#report-card'),
+    verdict: $('#verdict'), findings: $('#findings'), probeTable: $('#probe-table tbody'),
+  };
+
+  const EXAMPLE = {
+    target: 'https://api.example.com/v1/account',
+    probes: [
+      { label: 'baseline', requestOrigin: null, ok: true, status: 200,
+        headers: { 'access-control-allow-origin': null, 'access-control-allow-credentials': null, vary: null } },
+      { label: 'reflect', requestOrigin: 'https://cors-probe-a1b2c3d4e5f6.invalid', ok: true, status: 200,
+        headers: { 'access-control-allow-origin': 'https://cors-probe-a1b2c3d4e5f6.invalid', 'access-control-allow-credentials': 'true', vary: null } },
+      { label: 'null-origin', requestOrigin: 'null', ok: true, status: 200,
+        headers: { 'access-control-allow-origin': null, 'access-control-allow-credentials': null, vary: null } },
+      { label: 'prefix-match', requestOrigin: 'https://api.example.com.attacker-controlled.invalid', ok: true, status: 200,
+        headers: { 'access-control-allow-origin': null, 'access-control-allow-credentials': null, vary: null } },
+      { label: 'suffix-match', requestOrigin: 'https://evil-api.example.com', ok: true, status: 200,
+        headers: { 'access-control-allow-origin': null, 'access-control-allow-credentials': null, vary: null } },
+      { label: 'same-origin', requestOrigin: 'https://api.example.com', ok: true, status: 200,
+        headers: { 'access-control-allow-origin': 'https://api.example.com', 'access-control-allow-credentials': null, vary: null } },
+    ],
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.incomplete) {
+      els.verdict.textContent = `${report.failedProbes.length} probe(s) did not complete -- re-run and try again.`;
+    } else if (report.dangerCount > 0) {
+      els.verdict.textContent = `${report.dangerCount} danger-level finding(s), ${report.noticeCount} notice(s).`;
+    } else if (report.noticeCount > 0) {
+      els.verdict.textContent = `No danger-level findings. ${report.noticeCount} notice(s) worth a look.`;
+    } else {
+      els.verdict.textContent = 'None of the four dangerous CORS patterns this tool checks for were found.';
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No findings to show.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">${escapeHtml(f.evidenceHeader)}</p>
+        </div>`).join('');
+
+    els.probeTable.innerHTML = report.probes.map((p) => `
+      <tr>
+        <td>${escapeHtml(p.label)}</td>
+        <td>${escapeHtml(p.requestOrigin ?? '(none)')}</td>
+        <td>${p.ok ? escapeHtml(String(p.status)) : `<span class="error">failed: ${escapeHtml(p.error)}</span>`}</td>
+        <td>${escapeHtml(p.headers?.['access-control-allow-origin'] ?? '(not set)')}</td>
+        <td>${escapeHtml(p.headers?.['access-control-allow-credentials'] ?? '(not set)')}</td>
+      </tr>`).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function runCheck(payload, event) {
+    let report;
+    try {
+      if (!payload || typeof payload !== 'object' || !Array.isArray(payload.probes)) {
+        throw new Error('Expected an object with a "probes" array -- the exact shape "node check.mjs <url> --json" prints.');
+      }
+      report = buildReport(payload.target ?? '(unknown target)', payload.probes);
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+      els.reportCard.hidden = true;
+      return;
+    }
+    render(report);
+    els.status.textContent = '';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+  }
+
+  $('#check').addEventListener('click', () => {
+    const text = els.payload.value.trim();
+    if (!text) {
+      els.status.innerHTML = '<span class="error">Paste the JSON from step 1 first.</span>';
+      return;
+    }
+    let payload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node check.mjs &lt;url&gt; --json".</span>';
+      return;
+    }
+    runCheck(payload, 'check_run');
+  });
+
+  $('#load-example').addEventListener('click', () => {
+    els.payload.value = JSON.stringify(EXAMPLE, null, 2);
+    runCheck(EXAMPLE, 'example_loaded');
+    els.status.textContent = 'Worked example: a server that reflects any origin (with credentials allowed) and accepts Origin: null.';
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.payload.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Paste the JSON from step 1 and click Check.';
+  });
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks four specific, well-documented
+  CORS misconfiguration patterns from six requests. It is not a full security assessment, does
+  not send real credentials or test authenticated behaviour, and cannot see a pattern its probes
+  don't happen to trigger. A clean report describes what these six requests found, not a
+  guarantee the target has no CORS issues.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to test any system you
+  point the CLI at. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI's requests go straight from your
+  machine to the URL you name -- never through this site. The page you're reading now only
+  parses JSON you paste into it locally; nothing is uploaded. The only thing stored is an
+  anonymous local count of which features were used and the day -- no target URLs, no response
+  headers, no account, no tracking cookies, no analytics vendor. Turn it off with the checkbox
+  above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass on your CI: <a href="../actions-injection-check/">GitHub Actions injection checker</a>
+  and <a href="../pinned-actions-check/">pinned actions checker</a> cover a different class of
+  supply-chain and injection risk in the same "read what's actually there, name the exact
+  evidence" shape as this tool.</p>
+</footer>
+</body>
+</html>
