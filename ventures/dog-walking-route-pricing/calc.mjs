@@ -34,6 +34,13 @@ export const DEFAULTS = {
   monthlyOverhead: 45,
   expectedVisitsPerMonth: 60,
   targetMarginPct: 15,
+  // Not read by calculate() itself -- these two feed computeRouteRevenue()
+  // and incomeGap() below. They live here anyway because DEFAULTS is also
+  // the one source share.mjs and index.html derive their persisted/shareable
+  // field list from, and these are ordinary numeric assumptions (not the
+  // per-client rows), so a shared or restored link should carry them too.
+  weeksPerMonth: 4.33,
+  targetMonthlyIncome: 2000,
 };
 
 function number(value, label, { min = 0 } = {}) {
