@@ -175,6 +175,17 @@ resolve_cname() {
 #
 # `INDEXNOW=0` skips it, for a publish you deliberately do not want announced
 # (a rollback, or a snapshot you are about to replace).
+#
+# INTEGRATION NOTE (2026-09-10). #4378 landed the same core idea from another
+# session while this was in review, inline at the call site. Its version is the
+# base here rather than a thing to work around: `--ref "$BRANCH"` is its
+# improvement over what this had (a non-default `BRANCH` would otherwise have
+# been announced from the wrong ref), and its wording is what
+# `gitops/tests/test_publish_branch.py` pins, so the strings below match it
+# exactly. What this adds on top is the part that version could not express --
+# telling "this host cannot reach IndexNow" apart from "IndexNow refused what
+# we sent", which needs the distinct exit code added to `indexnow.mjs` in the
+# same change -- plus an opt-out and a guard for a host with no node.
 announce_to_indexnow() {
   if [ "${INDEXNOW:-1}" = '0' ]; then
     say "IndexNow: skipped (INDEXNOW=0)"
@@ -182,31 +193,33 @@ announce_to_indexnow() {
   fi
   if ! command -v node >/dev/null 2>&1; then
     say "IndexNow: skipped -- no node on PATH. Announce with:"
-    say "    node platform/marketing/indexnow.mjs --submit"
+    say "    node platform/marketing/indexnow.mjs --submit --ref $BRANCH"
     return 0
   fi
 
   echo
-  echo "Announcing the published snapshot to IndexNow..."
+  echo "Notifying IndexNow..."
   local status=0
-  node "$repo_root/platform/marketing/indexnow.mjs" --submit || status=$?
+  node "$repo_root/platform/marketing/indexnow.mjs" --submit --ref "$BRANCH" || status=$?
 
   case "$status" in
     0)
-      say "IndexNow: submitted"
+      say "IndexNow notified"
       ;;
-    # `EXIT_NO_EGRESS` in indexnow.mjs. The request never left this machine,
-    # so nothing was submitted and nothing was broken -- name the next step
-    # rather than dressing an environment limit up as a failure.
+    # `EXIT_NO_EGRESS` in indexnow.mjs. The request never left this machine, so
+    # nothing was submitted and nothing was broken. Worth its own branch rather
+    # than folding into the generic failure below: it is the *expected* outcome
+    # from an agent sandbox, and a reader who cannot tell it from a rejected
+    # payload will either chase a defect that is not there or learn to ignore
+    # the line entirely.
     3)
-      say "IndexNow: not announced -- this host has no egress to api.indexnow.org."
-      say "    The site IS live; only the notification did not go out. Re-run"
-      say "    'node platform/marketing/indexnow.mjs --submit' from a host with"
-      say "    egress (an Actions runner, or the Hetzner box under host mode)."
+      say "IndexNow submission did not go through -- not fatal, the site is already published."
+      say "    This host has no egress to api.indexnow.org, so the request never left it."
+      say "    Re-run 'node platform/marketing/indexnow.mjs --submit --ref $BRANCH' from a"
+      say "    host with real egress (an Actions runner, or the Hetzner box under host mode)."
       ;;
     *)
-      say "IndexNow: submission failed (exit $status) -- see the output above."
-      say "    The site IS live; only the notification did not go out."
+      say "IndexNow submission did not go through -- not fatal, the site is already published. Re-run 'node platform/marketing/indexnow.mjs --submit --ref $BRANCH' from a host with real egress to retry."
       ;;
   esac
   return 0

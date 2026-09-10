@@ -728,6 +728,11 @@ class AnnouncingThePublishedSnapshot(unittest.TestCase):
                 "set -euo pipefail\n"
                 'say() { printf "%s\\n" "$*"; }\n'
                 f'repo_root="{tmp_path}"\n'
+                # The two globals the real script sets before this point.
+                # `BRANCH` in particular is load-bearing: the announcement
+                # passes `--ref "$BRANCH"`, so a non-default serving branch is
+                # announced from its own ref rather than from `gh-pages`.
+                'BRANCH="${BRANCH:-gh-pages}"\n'
                 f"{self._function_body()}\n"
                 # `|| echo` rather than a bare call: under `set -e` a non-zero
                 # return would end the harness, and "did it return 0?" is
@@ -786,21 +791,37 @@ class AnnouncingThePublishedSnapshot(unittest.TestCase):
         combined = result.stdout + result.stderr
         self.assertIn("no egress", combined)
         self.assertIn(
-            "The site IS live",
+            "the site is already published",
             combined,
             "a reader must not mistake a missed notification for a failed deploy",
         )
+
+    def test_a_no_egress_result_is_distinguishable_from_a_real_rejection(self) -> None:
+        """The two failures must not read alike.
+
+        `gitops/tests/test_publish_branch.py` pins the shared "did not go
+        through -- not fatal" wording, and both branches carry it. What must
+        differ is *why*: exit 3 means the request never left the machine (the
+        expected outcome from an agent sandbox), and any other exit means
+        IndexNow saw the request and refused it -- a real defect in the payload
+        or the published key file. Reporting them identically is what teaches a
+        reader to ignore the line.
+        """
+        no_egress = self._run_function(node_exit=3).stdout
+        rejected = self._run_function(node_exit=1).stdout
+        self.assertIn("no egress", no_egress)
+        self.assertNotIn("no egress", rejected)
 
     def test_any_other_failure_is_reported_and_still_does_not_fail(self) -> None:
         result = self._run_function(node_exit=1)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertNotIn("RETURNED_NONZERO", result.stdout)
-        self.assertIn("submission failed", result.stdout + result.stderr)
+        self.assertIn("did not go through", result.stdout + result.stderr)
 
     def test_a_successful_submission_says_so(self) -> None:
         result = self._run_function(node_exit=0)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("IndexNow: submitted", result.stdout)
+        self.assertIn("IndexNow notified", result.stdout)
 
     def test_it_can_be_switched_off_without_editing_the_script(self) -> None:
         """INDEXNOW=0, for a rollback you deliberately do not announce."""
