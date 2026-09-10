@@ -3,46 +3,6 @@
     {
       "checks": [
         "contrast",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "13935ac499a2831ee05be0f501a6e2644520ef3a",
-      "measured": "2026-09-10",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "kdp-royalty-calculator",
-        "locksmith-bid-calculator",
-        "poshmark-fee-calculator",
-        "pour-cost-calculator"
-      ],
-      "surface": {
-        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
-        "platform/pages": "fbfae22c0b73631ee8bfb3dedf1a1804b903780e",
-        "ventures": "2dcd31cf08ec4ee155fbd227085af36c95c38740"
-      }
-    },
-    {
-      "checks": [
-        "highlight",
-        "journey"
-      ],
-      "commit": "13935ac499a2831ee05be0f501a6e2644520ef3a",
-      "measured": "2026-09-10",
-      "pages": 890,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
-        "platform/pages": "fbfae22c0b73631ee8bfb3dedf1a1804b903780e",
-        "ventures": "2dcd31cf08ec4ee155fbd227085af36c95c38740"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
         "highlight",
         "journey",
         "presets",
@@ -392,6 +352,41 @@
         "platform/marketing": "40c8e66eca01f2d545ca23f25cf1bddbbb2a74bc",
         "platform/pages": "21aad94d3f28b93850d327196ffa405ad79cdaf4",
         "ventures": "2abbad9dac45ec530e7e047bc312b924443f0614"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "74d6dfd650e76e1ec2b659ce2b73adafaa707a86",
+      "measured": "2026-09-10",
+      "pages": 946,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "40c8e66eca01f2d545ca23f25cf1bddbbb2a74bc",
+        "platform/pages": "21aad94d3f28b93850d327196ffa405ad79cdaf4",
+        "ventures": "e8075b3c5189783f3f82f2e03ab55f9bead452fa"
+      }
+    },
+    {
+      "checks": [
+        "journey"
+      ],
+      "commit": "74d6dfd650e76e1ec2b659ce2b73adafaa707a86",
+      "measured": "2026-09-10",
+      "pages": 946,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "40c8e66eca01f2d545ca23f25cf1bddbbb2a74bc",
+        "platform/pages": "21aad94d3f28b93850d327196ffa405ad79cdaf4",
+        "ventures": "e8075b3c5189783f3f82f2e03ab55f9bead452fa"
       }
     }
   ]
