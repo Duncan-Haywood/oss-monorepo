@@ -51,6 +51,10 @@ case "$1" in
     echo '<!doctype html><title>tool</title>' > "$out/tools/example/index.html"
     ;;
   check.mjs) echo "stub: looks publishable" ;;
+  */indexnow.mjs)
+    echo "stub: indexnow $*"
+    exit "${STUB_INDEXNOW_EXIT:-0}"
+    ;;
   *) echo "stub: unexpected $1" >&2; exit 1 ;;
 esac
 """
@@ -284,3 +288,55 @@ def test_refuses_a_cname_that_is_not_a_bare_hostname(sandbox: Path):
         result = run(sandbox, PAGES_CNAME=bad, expect=1)
         assert "custom domain" in result.stderr, bad
         assert _git(sandbox, "branch", "--list", "gh-pages") == "", bad
+
+
+# --- Notifying IndexNow on an actual publish --------------------------------
+#
+# `.github/workflows/publish-pages-branch.yml` already does this after its own
+# push, but only when a runner picks the workflow up -- and this script is the
+# route sessions use precisely when runners are starved, which has been the
+# only kind of publish landing for days at a time. These pin that the step
+# only fires on a real push (never on a staged-but-unpushed build) and that a
+# failed or unreachable submission never turns a successful publish into a
+# script failure -- the site is already live once the force-push above
+# returns.
+
+
+@pytest.fixture
+def sandbox_with_remote(sandbox: Path, tmp_path: Path) -> Path:
+    """The `sandbox` fixture plus a real `origin` a PUSH=1 run can reach.
+
+    `publish-branch.sh` fetches `origin/main` before pushing, to refuse
+    publishing a commit that is not reachable from it -- so `PUSH=1` needs a
+    remote that actually has `main`, not just an `origin` name.
+    """
+    bare = tmp_path / "origin.git"
+    subprocess.run(["git", "init", "-q", "--bare", str(bare)], check=True)
+    _git(sandbox, "remote", "add", "origin", str(bare))
+    _git(sandbox, "push", "-q", "origin", "HEAD:main")
+    return sandbox
+
+
+def test_a_staged_but_unpushed_build_never_touches_indexnow(sandbox: Path):
+    result = run(sandbox)
+    assert "indexnow" not in (result.stdout + result.stderr).lower()
+
+
+def test_a_real_push_notifies_indexnow(sandbox_with_remote: Path):
+    result = run(sandbox_with_remote, PUSH="1")
+    assert "Notifying IndexNow" in result.stdout
+    assert "IndexNow notified" in result.stdout
+    # The branch just written, not a stale checkout -- `--ref gh-pages` reads
+    # back what this same run committed and pushed.
+    assert "--ref gh-pages" in result.stdout
+
+
+def test_a_failed_indexnow_submission_does_not_fail_the_publish(sandbox_with_remote: Path):
+    # The push already succeeded by the time this step runs; a network hiccup
+    # notifying search engines must not read as "the publish failed" -- that
+    # would send a session chasing a site that is, in fact, already live.
+    result = run(sandbox_with_remote, PUSH="1", STUB_INDEXNOW_EXIT="1")
+    assert result.returncode == 0
+    assert "did not go through -- not fatal" in result.stdout
+    # And the push itself is still reported as having happened.
+    assert "pushed" in result.stdout
