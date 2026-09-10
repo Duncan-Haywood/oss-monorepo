@@ -116,3 +116,24 @@ test('an invalid input hides stale results instead of leaving them next to a sil
 test('the result panel is announced to screen readers when it updates', () => {
   assert.match(page('index.html'), /id="result"[^>]*aria-live="polite"/);
 });
+
+// This venture's `recordUsage` is `(event, optedOut, storage)`. Most siblings
+// spell it `(storage, optedOut, event)`, and a call written in the sibling
+// order type-checks nowhere and fails silently everywhere: `event` becomes the
+// Storage object, so the tally key is `[object Storage]:<date>`, and `storage`
+// becomes the event string, so `storage.getItem` throws into the catch that
+// usage.mjs keeps precisely so a calculator survives a storage failure. The
+// button works, the number is never counted, and nothing anywhere goes red.
+// That shipped once here, on the "Copy shareable link" handler.
+test('every recordUsage call passes the event name first, as this venture spells it', () => {
+  const script = page('index.html').match(/<script type="module">([\s\S]*)<\/script>/)[1];
+  const calls = [...script.matchAll(/recordUsage\(([^,)]+)/g)].map((m) => m[1].trim());
+  assert.ok(calls.length >= 2, `expected the calculate and share calls, found ${calls.length}`);
+  for (const first of calls) {
+    assert.match(
+      first,
+      /^'[a-z_]+'$/,
+      `recordUsage's first argument must be the event name, got \`${first}\` — see usage.mjs`,
+    );
+  }
+});
