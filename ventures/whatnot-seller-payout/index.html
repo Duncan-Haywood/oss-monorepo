@@ -218,6 +218,7 @@
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Hammers, costs, and leftovers are never uploaded and never appear in a usage count — those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor. Your category preset, rates, and lot are saved on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere.</p>
     <p>Free and open source. If it changes how you price a show, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
     <p>Comparing fixed-fee retail marketplace fees on one item rather than a livestream lot? The <a href="../marketplace-fee-compare/">marketplace fee compare</a> ranks eBay, Etsy, Amazon, Walmart, TikTok Shop, and an own Shopify store from one set of inputs — Whatnot stays out of that ranking because auction commission and checkout processing are a different question.</p>
+    <p>Comparing this lot against eBay, Etsy, Amazon or your own store instead? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> models Whatnot the same way this page does — commission on the hammer, processing on the full checkout total — and ranks it against those channels side by side, plus what each is worth per day of wait and per month of shelf time. It opens with this lot's price, shipping and cost already filled in and Whatnot switched on, no retyping.</p>
     <p>Pricing a nightly stay instead of a livestream lot? The <a href="../str-host-payout-calculator/">STR host payout calculator</a> puts one stay through Airbnb's host-only fee, Vrbo, and a direct booking &mdash; nothing uploaded.</p>
   </footer>
 
@@ -225,6 +226,7 @@
     import { calculateSale, applyCategoryPreset, compareFreeShipping, INPUT_IDS, CATEGORY_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
+    import { whereToSellUrl } from './to-where-to-sell.mjs';
 
     const el = id => document.getElementById(id);
     const safe = fn => { try { return fn(); } catch { return undefined; } };
@@ -321,6 +323,7 @@
         li.textContent = text;
         return li;
       }));
+      el('whereToSellLink').href = whereToSellUrl(readInput());
     }
 
     function hideShipCompare() {
@@ -366,6 +369,12 @@
       event.preventDefault();
       recomputeAndRender();
       if (current) count('sale_calculated');
+    });
+
+    el('whereToSellLink').addEventListener('click', () => {
+      // Records only that the handoff happened, never the lot — this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      count('handoff_where_to_sell');
     });
 
     el('compareShipping').addEventListener('click', () => {

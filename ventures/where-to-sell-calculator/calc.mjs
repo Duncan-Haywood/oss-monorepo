@@ -174,6 +174,70 @@ export const CHANNEL_PRESETS = [
     listingRenewalDays: 0,
   },
   {
+    id: "tiktok",
+    label: "TikTok Shop",
+    note: "Off by default because it only applies to sellers running TikTok Shop. Referral fee applies to the order total (matching `ventures/tiktok-shop-fee-calculator`'s U.S. standard rate as of September 2026), and processing is already bundled into it, which is why the separate processor rate is 0 here — the same shape as eBay. Creator affiliate commission and facilitation fees are not modelled on this page; the dedicated calculator is where that decision gets made. Sell-through and days to sell are illustrative starting points, not a claim about TikTok Shop velocity.",
+    // Matches ventures/tiktok-shop-fee-calculator's own `FEE_SCHEDULE_PRESETS.us_standard`
+    // (6% referral, processing bundled in, as of September 2026). Two tools in
+    // one portfolio printing different fee assumptions for the same channel is
+    // a credibility problem, so `channel-parity.test.mjs` asserts these stay
+    // equal by importing that calculator's own presets rather than restating
+    // them.
+    commissionRate: 6,
+    paymentRate: 0,
+    paymentFixed: 0,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions. Live and short-video commerce skews
+    // toward impulse buys, so this starts a little above eBay's.
+    returnRate: 12,
+    returnShippingCost: 6,
+    resellableRate: 85,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: a live show or a viral video can
+    // sell an item in days, far faster than a static listing, and there is no
+    // renewal cycle to charge while it waits.
+    sellThroughPct: 55,
+    daysToSell: 10,
+    listingRenewalDays: 0,
+    // Off until the seller says they sell there: enabled by default it would
+    // add a channel most sellers cannot list on to every comparison, and a
+    // channel that does not apply is noise in a ranking, not information.
+    enabled: false,
+  },
+  {
+    id: "whatnot",
+    label: "Whatnot (live auction)",
+    note: "Off by default because it only applies to sellers running live shows. Commission is on the hammer price only, not shipping (matching `ventures/whatnot-seller-payout`'s standard, uncapped category as of September 2026); processing is billed separately on the full checkout total, the same split as Reverb. The $1,500 commission cap on some categories (TCG, coins, pallets) is not modelled on this page — the dedicated calculator is where that decision gets made. Sell-through and days to sell are illustrative starting points, not a claim about Whatnot velocity.",
+    // Matches ventures/whatnot-seller-payout's own `CATEGORY_PRESETS.standard`
+    // commission rate and `DEFAULT_PAYMENT_RATE` / `DEFAULT_PAYMENT_FIXED`, as
+    // of September 2026. `channel-parity.test.mjs` imports those constants
+    // directly rather than restating them, for the same reason as the Reverb
+    // and TikTok Shop rows above.
+    commissionRate: 8,
+    commissionBase: "item",
+    paymentRate: 2.9,
+    paymentFixed: 0.3,
+    perListingFee: 0,
+    monthlyFee: 0,
+    adRate: 0,
+    // Illustrative return assumptions. A live auction is watched in real time
+    // and often shipped fast, so this starts a little below eBay's.
+    returnRate: 5,
+    returnShippingCost: 6,
+    resellableRate: 90,
+    feeRefundRate: 100,
+    // Illustrative shelf-time assumptions: a lot sells (or does not) inside
+    // one show, not over weeks, and there is no renewal cycle to charge.
+    sellThroughPct: 45,
+    daysToSell: 3,
+    listingRenewalDays: 0,
+    // Off until the seller says they run live shows there: enabled by default
+    // it would add a channel most sellers cannot list on to every comparison.
+    enabled: false,
+  },
+  {
     id: "other",
     label: "Other channel",
     note: "Blank and switched off by default. Turn it on and enter the rates of any channel not listed — Mercari, Poshmark, Depop, a craft fair, a wholesale account.",
