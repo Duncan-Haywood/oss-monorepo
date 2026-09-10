@@ -49,12 +49,17 @@
     {
       "@type": "Question",
       "name": "Is it safe to run this against a URL?",
-      "acceptedAnswer": { "@type": "Answer", "text": "It sends five ordinary, unauthenticated GET requests -- nothing here bypasses authentication, reads protected data, or does anything a browser wouldn't also do by visiting the URL with different Origin headers. Only point it at a system you own or are authorised to test, the same rule that applies to any request tool aimed at someone else's server." }
+      "acceptedAnswer": { "@type": "Answer", "text": "It sends six ordinary, unauthenticated GET requests -- nothing here bypasses authentication, reads protected data, or does anything a browser wouldn't also do by visiting the URL with different Origin headers. Only point it at a system you own or are authorised to test, the same rule that applies to any request tool aimed at someone else's server." }
     },
     {
       "@type": "Question",
       "name": "Does a clean report mean the API has no CORS issues?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks four specific, well-documented misconfiguration patterns using five requests -- it is not a full security assessment, does not test authenticated endpoints with real credentials, and cannot see a bypass this tool's four probes don't happen to trigger. Treat a clean report as evidence about these specific patterns, not a determination that the API is secure." }
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks four specific, well-documented misconfiguration patterns using six requests -- it is not a full security assessment, does not test authenticated endpoints with real credentials, and cannot see a bypass this tool's four attack probes don't happen to trigger. Treat a clean report as evidence about these specific patterns, not a determination that the API is secure." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does one of the six requests send my own origin?",
+      "acceptedAnswer": { "@type": "Answer", "text": "That request is not an attack and echoing it back is never reported as a finding -- allowing your own origin is the correct answer. It is there for the Vary: Origin notice, which is about the caching layer in front of the API rather than the allow-list behind it. On a server whose allow-list works, all four attack origins are correctly rejected, so nothing else in the run would ever show that the response still changes with the request. The sixth request does, and the request that sends no Origin header at all is what tells a dynamic header from a static one: a value that is identical whether or not you send an Origin is the same response for everybody and owes no Vary." }
     }
   ]
 }
@@ -88,7 +93,7 @@
 <body>
 <h1>CORS Misconfiguration Checker</h1>
 <p>
-  Sends five real HTTP GET requests to an API URL you choose, each with a different
+  Sends six real HTTP GET requests to an API URL you choose, each with a different
   <code>Origin</code> header, then classifies the responses into four well-documented CORS
   misconfiguration patterns: reflecting an <strong>unrelated origin</strong>, accepting
   <strong>Origin: null</strong>, and two <strong>unanchored allow-list</strong> bypass shapes
@@ -134,9 +139,11 @@
   <h3>Why does this need a CLI instead of just checking a URL I type into the page?</h3>
   <p><code>Origin</code> is a forbidden request header under the Fetch spec, so a browser tab is never allowed to set it to anything other than the page's own real origin -- that restriction is part of what CORS protects. Only a non-browser HTTP client, like the CLI here (or curl), can send the crafted Origin headers this check depends on. Run the CLI, then paste its JSON output here for a rendered report.</p>
   <h3>Is it safe to run this against a URL?</h3>
-  <p>It sends five ordinary, unauthenticated GET requests -- nothing here bypasses authentication, reads protected data, or does anything a browser wouldn't also do by visiting the URL with different Origin headers. Only point it at a system you own or are authorised to test, the same rule that applies to any request tool aimed at someone else's server.</p>
+  <p>It sends six ordinary, unauthenticated GET requests -- nothing here bypasses authentication, reads protected data, or does anything a browser wouldn't also do by visiting the URL with different Origin headers. Only point it at a system you own or are authorised to test, the same rule that applies to any request tool aimed at someone else's server.</p>
   <h3>Does a clean report mean the API has no CORS issues?</h3>
-  <p>No. This checks four specific, well-documented misconfiguration patterns using five requests -- it is not a full security assessment, does not test authenticated endpoints with real credentials, and cannot see a bypass this tool's four probes don't happen to trigger. Treat a clean report as evidence about these specific patterns, not a determination that the API is secure.</p>
+  <p>No. This checks four specific, well-documented misconfiguration patterns using six requests -- it is not a full security assessment, does not test authenticated endpoints with real credentials, and cannot see a bypass this tool's four attack probes don't happen to trigger. Treat a clean report as evidence about these specific patterns, not a determination that the API is secure.</p>
+  <h3>Why does one of the six requests send my own origin?</h3>
+  <p>That request is not an attack and echoing it back is never reported as a finding -- allowing your own origin is the correct answer. It is there for the Vary: Origin notice, which is about the caching layer in front of the API rather than the allow-list behind it. On a server whose allow-list works, all four attack origins are correctly rejected, so nothing else in the run would ever show that the response still changes with the request. The sixth request does, and the request that sends no Origin header at all is what tells a dynamic header from a static one: a value that is identical whether or not you send an Origin is the same response for everybody and owes no Vary.</p>
   <p>More background: <a href="reflected-origin-cors-vulnerability.html">what a reflected-origin CORS misconfiguration actually lets an attacker do</a>.</p>
 </section>
 
@@ -163,6 +170,8 @@
         headers: { 'access-control-allow-origin': null, 'access-control-allow-credentials': null, vary: null } },
       { label: 'suffix-match', requestOrigin: 'https://evil-api.example.com', ok: true, status: 200,
         headers: { 'access-control-allow-origin': null, 'access-control-allow-credentials': null, vary: null } },
+      { label: 'same-origin', requestOrigin: 'https://api.example.com', ok: true, status: 200,
+        headers: { 'access-control-allow-origin': 'https://api.example.com', 'access-control-allow-credentials': null, vary: null } },
     ],
   };
 
@@ -253,9 +262,9 @@
 <footer>
   <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
   <p><strong>Evidence, not a determination.</strong> This checks four specific, well-documented
-  CORS misconfiguration patterns from five requests. It is not a full security assessment, does
+  CORS misconfiguration patterns from six requests. It is not a full security assessment, does
   not send real credentials or test authenticated behaviour, and cannot see a pattern its probes
-  don't happen to trigger. A clean report describes what these five requests found, not a
+  don't happen to trigger. A clean report describes what these six requests found, not a
   guarantee the target has no CORS issues.</p>
   <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
   kind, express or implied. It is not security advice, and it does not replace a qualified

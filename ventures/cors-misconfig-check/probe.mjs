@@ -1,4 +1,4 @@
-// Sends the real HTTP requests this check depends on: five GET requests to
+// Sends the real HTTP requests this check depends on: six GET requests to
 // one target URL, each with a different (or absent) Origin request header,
 // reading back only the three CORS response headers that matter. Node's
 // built-in http/https clients are used deliberately, not fetch(): fetch()
@@ -84,10 +84,16 @@ export function sendProbe(targetUrl, originHeader, { timeoutMs = DEFAULT_TIMEOUT
 }
 
 /**
- * The five (label, Origin header) pairs this check always sends, derived
+ * The six (label, Origin header) pairs this check always sends, derived
  * from the target so the prefix/suffix probes are meaningful for that exact
  * host. `randomOrigin` is injectable so tests get a fixed value instead of
  * a fresh random one every run.
+ *
+ * `same-origin` is the odd one out: it sends the target's own origin, which
+ * is not an attack and is never a finding by itself. It is what lets the
+ * Vary: Origin check in analyze.mjs see a server whose allow-list works --
+ * without it that check could only fire on a server already flagged for
+ * trusting arbitrary origins.
  */
 export function buildProbeSet(targetUrl, { randomOrigin } = {}) {
   const parsed = new URL(targetUrl);
@@ -101,6 +107,7 @@ export function buildProbeSet(targetUrl, { randomOrigin } = {}) {
     { label: 'null-origin', requestOrigin: 'null' },
     { label: 'prefix-match', requestOrigin: `${targetOrigin}.attacker-controlled.invalid` },
     { label: 'suffix-match', requestOrigin: `https://evil-${hostname}` },
+    { label: 'same-origin', requestOrigin: targetOrigin },
   ];
 }
 

@@ -23,10 +23,12 @@ function withServer(handler, fn) {
   });
 }
 
-test('buildProbeSet derives five probes with the expected labels and origins', () => {
+test('buildProbeSet derives six probes with the expected labels and origins', () => {
   const set = buildProbeSet('https://api.example.com/v1/thing', { randomOrigin: 'https://cors-probe-fixed.invalid' });
-  assert.equal(set.length, 5);
-  assert.deepEqual(set.map((p) => p.label), ['baseline', 'reflect', 'null-origin', 'prefix-match', 'suffix-match']);
+  assert.equal(set.length, 6);
+  assert.deepEqual(set.map((p) => p.label), [
+    'baseline', 'reflect', 'null-origin', 'prefix-match', 'suffix-match', 'same-origin',
+  ]);
 
   const byLabel = Object.fromEntries(set.map((p) => [p.label, p.requestOrigin]));
   assert.equal(byLabel.baseline, null);
@@ -34,6 +36,7 @@ test('buildProbeSet derives five probes with the expected labels and origins', (
   assert.equal(byLabel['null-origin'], 'null');
   assert.equal(byLabel['prefix-match'], 'https://api.example.com.attacker-controlled.invalid');
   assert.equal(byLabel['suffix-match'], 'https://evil-api.example.com');
+  assert.equal(byLabel['same-origin'], 'https://api.example.com');
 });
 
 test('prefix-match origin genuinely starts with the target origin (the bypass this probe tests)', () => {
@@ -126,7 +129,7 @@ test('sendProbe rejects an unsupported scheme instead of attempting the request'
   assert.match(result.error, /unsupported scheme/);
 });
 
-test('runProbes sends all five probes and labels each result', async () => {
+test('runProbes sends all six probes and labels each result', async () => {
   await withServer(
     (req, res) => {
       res.writeHead(200, { 'access-control-allow-origin': req.headers.origin === 'null' ? 'null' : '' });
@@ -134,10 +137,10 @@ test('runProbes sends all five probes and labels each result', async () => {
     },
     async (base) => {
       const results = await runProbes(base);
-      assert.equal(results.length, 5);
+      assert.equal(results.length, 6);
       assert.deepEqual(
         results.map((r) => r.label).sort(),
-        ['baseline', 'null-origin', 'prefix-match', 'reflect', 'suffix-match'],
+        ['baseline', 'null-origin', 'prefix-match', 'reflect', 'same-origin', 'suffix-match'],
       );
       for (const r of results) assert.equal(r.ok, true);
     },
