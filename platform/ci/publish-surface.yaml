@@ -533,6 +533,9 @@ workflows:
 - workflow: npm-reachability-triage-ci.yml
   classification: none
   publishes: []
+- workflow: oidc-trust-policy-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: opencode-high-throughput.yml
   classification: none
   publishes: []

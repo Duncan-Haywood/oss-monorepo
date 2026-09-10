@@ -1,0 +1,74 @@
+name: oidc-trust-policy-check
+description: >-
+  A free browser tool (+ a zero-dependency CLI) for platform and DevOps
+  engineers: reads an AWS IAM role trust policy that federates GitHub Actions
+  over OIDC and classifies its `sub` and `aud` conditions into named
+  misconfiguration patterns -- no `sub` condition at all (assumable by any
+  repository on GitHub), a wildcard reaching past one owner/repo pair,
+  `repo:owner/name:*` (which admits the `pull_request` context and therefore
+  a fork's pull request), an explicit `pull_request` context, a negated
+  operator that excludes instead of pinning, a missing or wildcarded `aud`,
+  and a literal `*` under `StringEquals` that makes the role unassumable
+  rather than open. Applies IAM's actual operator semantics (`*` is a
+  wildcard under StringLike and a literal under StringEquals) and IAM's
+  any-value-matches rule for multi-value conditions, rather than a naive
+  grep for an asterisk. Runs entirely in the browser -- a trust policy names
+  a real AWS account, so nothing is uploaded -- and the CLI makes no network
+  request and needs no AWS credentials.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A platform or DevOps engineer wiring GitHub Actions into AWS with OIDC
+      will search the exact terminology ("GitHub Actions OIDC trust policy
+      sub wildcard", "repo:org/repo:* pull_request fork", "StringLike vs
+      StringEquals sub claim") and find this tool, since the existing free
+      material on this is prose blog posts and AWS documentation rather than
+      something that reads their own policy and names the finding.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Keyless OIDC federation is now the recommended way to connect GitHub
+      Actions to AWS -- it is what AWS's own documentation and GitHub's own
+      documentation both steer users to, replacing long-lived access keys in
+      repository secrets -- so the population writing these trust policies is
+      large, growing, and largely doing it once per role without a specialist
+      reviewing the result.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A team that gets a finding will wire the CLI into their own CI as a
+      regression gate on the policy document they keep in Terraform or
+      CloudFormation, producing return usage without any action from this
+      portfolio -- the CLI needs no credentials and no network, which is what
+      makes that cheap enough to actually do.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - AWS or GitHub changes the OIDC subject-claim format or IAM's condition
+    semantics such that the classification rules here stop being correct and
+    cannot be updated to match.
+  - A materially better free tool covering the same operator-semantics and
+    multi-value-breadth rules with the same zero-install, zero-credential bar
+    becomes the obvious default.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/oidc-trust-policy-check/
+  analytics: null
