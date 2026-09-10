@@ -60,3 +60,24 @@ test('index links one hop to the music-lesson-break-even sibling', async () => {
     'index must link ../music-lesson-break-even/ so crawlers reach the music lesson pricing calculator in one hop',
   );
 });
+
+test('page wires a shareable link that wins over the saved local draft', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  for (const id of ['copyLink', 'linkStatus']) assert.match(page, new RegExp(`id="${id}"`));
+  assert.match(page, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  const scriptMatch = page.match(/<script type="module">([\s\S]*)<\/script>/);
+  assert.ok(scriptMatch, 'app script not found');
+  const body = scriptMatch[1];
+  const savedIndex = body.indexOf("localStorage.getItem(storageKey)");
+  const linkIndex = body.indexOf('decodeInputs(location.hash');
+  assert.ok(savedIndex !== -1 && linkIndex !== -1 && savedIndex < linkIndex,
+    'the shared-link restore must run after the saved-draft restore so a link wins');
+  assert.match(body, /document\.querySelector\('#copyLink'\)\.addEventListener\('click'/);
+  assert.match(body, /encodeInputs\(values\(\)\)/);
+  assert.match(body, /navigator\.clipboard\.writeText/);
+});
+
+test('the FAQ answer about uploads names the shareable link honestly', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /Copy shareable link button puts the same numbers in the page's URL fragment/);
+});

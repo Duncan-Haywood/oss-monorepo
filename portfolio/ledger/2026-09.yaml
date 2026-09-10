@@ -22009,3 +22009,63 @@ entries:
         --no-save playwright@1.56.0 axe-core` away, and the last first-time
         run of it found 48 critical axe violations across three live products.
     mrr_end: 0
+  - venture: childcare-tuition-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Zero open PRs existed at session start
+        (sampled 19 of the 177 branches unmerged into `main` with
+        `supersede_check.py` after `git fetch --unshallow` -- every one was
+        either SUPERSEDED via the identical-merge proof or a stale draft
+        `main` has since overtaken on every unmatched line, matching the
+        2026-09-05 full-sweep finding of "nothing repairable remained"), so
+        the session moved to product work per CLAUDE.md's "if none exist,
+        start new work" rule.
+      - >-
+        Added the save-and-share pattern already shipped on sibling
+        calculators (most recently `whatnot-seller-payout`/#4389,
+        `dog-walking-route-pricing`/#4395) to
+        `childcare-tuition-calculator`, the last calculator-shaped venture
+        missing it (found via `comm` against every `ventures/*/share.mjs`,
+        filtered to the `-calculator`/`-quote`/`-pricing` shape). This
+        venture already saved its 11-field local draft to `localStorage` and
+        had no way to hand a classroom's numbers to a co-director or another
+        device without retyping them -- `share.mjs` (+ 6 new
+        `share.test.mjs` round-trip cases, `FIELD_IDS` asserted equal to
+        `calc.mjs`'s own `INPUT_FIELDS` so a future arithmetic field is
+        shareable without restating anything) now encodes the classroom into
+        a URL fragment. Wired a "Copy shareable link" button; a link wins
+        over the saved draft on load, matching the established precedent.
+        Updated the privacy paragraph and the "is my data uploaded" FAQ
+        answer (both the visible copy and its FAQPage JSON-LD, kept
+        byte-identical per `platform/pages/faq-visible.test.mjs`'s substring
+        check) to name the new button honestly. Added 3 new `page.test.mjs`
+        assertions pinning the link-wins-over-draft ordering and the FAQ
+        wording.
+      - >-
+        Also found, while investigating this session's explicit ask to
+        prioritize Hetzner deployment and CI/CD: every route to
+        `marisstella.dev`/the k3s cluster (including the already-built
+        systemd-timer Codex host mode in `gitops/agents/host/`, gated
+        `"enabled": false`) remains blocked on the single owner action
+        `hetzner-ssh-key-is-a-public-key` (Ask #1, unchanged since
+        2026-09-04) -- no code work closes it. GitHub Pages, the working
+        deploy route, read `current` at session start (built from
+        `eb1a1897`) but had gone `stale` by the time this entry was written
+        (`main` advanced to `e7ac56f6` from concurrent sessions);
+        refreshed via `publish-branch.sh` in the same session, recorded
+        separately below once confirmed current.
+      - >-
+        Verified: `node --test` in `childcare-tuition-calculator` 31/31 (up
+        from 25); `platform/marketing`+`platform/pages` 1196/1196 (re-run
+        clean after `regen.mjs`, which rewrote this venture's mirror shard);
+        all 21 `platform/ci`+`agent_review` unittest modules OK;
+        `checklist_coverage.py` clean. `ci_starvation.py` (run 34423728610,
+        re-confirmed this session) read down, so PR checks are read as
+        starvation rather than signal per CLAUDE.md. `pytest`-based suites
+        (`gitops/tests`, `portfolio/ledger` etc.) could not run this
+        session -- `pip install pytest` timed out against this sandbox's
+        restricted network -- reported as unrun rather than a silent skip;
+        none of those suites cover the files this change touches.
+    mrr_end: 0
