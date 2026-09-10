@@ -23260,3 +23260,74 @@ entries:
         portfolio/usage portfolio/pipeline infra/tests -q 435 passed;
         node platform/pages/launched.mjs --write (231 tools, 1 added).
     mrr_end: 0
+  - venture: email-auth-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed the catalogue's last guide-page gap.
+        `node platform/pages/guide-coverage.mjs` reported 230 of 231
+        published surfaces carrying a secondary page; the one without was
+        email-auth-check, which had graduated hours earlier in #4466. A
+        secondary page is the venture's organic-search surface -- the
+        query a reader types before they know a checker exists -- and on
+        this origin that matters more than usual: the site is served from
+        a project-Pages subpath, so the robots.txt a crawler reads belongs
+        to the owner's separate user-level site and the Sitemap: line is
+        never seen (pages_state.py's `indexing` row). Coverage is now
+        231 of 231.
+      - >-
+        The page answers the SPF PermError / "too many DNS lookups"
+        question, chosen because it is the tool's own flagship
+        differentiator: analyze.mjs walks include:/redirect= recursively
+        and reports the chain total, which is precisely what a checker
+        counting only the top-level record gets wrong. Content is pinned
+        to RFC 7208 §4.6.4 (which terms spend from the budget, and that
+        the 10 are beyond the initial TXT fetch) and §5.5 (ptr SHOULD NOT
+        be published). It states the flattening tradeoff rather than
+        recommending it unqualified -- flattening freezes the provider's
+        IP list and converts a visible PermError into a silent failure
+        later -- and recommends a dedicated sending subdomain instead,
+        since each subdomain carries its own 10-lookup budget.
+      - >-
+        Eight assertions added to ventures/email-auth-check/page.test.mjs
+        pin the parts that make the page useful rather than merely
+        present: the inbound link from the tool, the canonical URL, the
+        FAQPage/visible-heading agreement Google's structured-data policy
+        requires, both §5b clauses, the RFC citation, and the flattening
+        caveat. guide-coverage.mjs only asks whether a secondary page
+        exists, so without these the page could rot into a stub and stay
+        counted as coverage.
+      - >-
+        One fleet-wide guard went red and was fixed forward rather than
+        worked around: platform/pages/entities.test.mjs failed on `&sect;`
+        as a named entity absent from the shared NAMED_ENTITIES table.
+        That table is what faq-visible.test.mjs decodes through, so an
+        undefined entity would have reported visible copy as missing --
+        the exact failure mode its own comments record against
+        rc-time-calculator. Added `sect: '§'`; 1382 platform assertions
+        became 1383, 0 failed.
+      - >-
+        Also recorded a full browser-check reading, which nothing in the
+        tree had carried since the builder last changed:
+        platform/ci/browser_state.py reported all 7 checks STALE, and
+        `browser_checks.py --record` now pins contrast, highlight,
+        journey, presets, roundtrip, sideways and sweep as passing over
+        the whole catalogue -- 238/238 tools answered with no errors,
+        0 WCAG A/AA violations, 903/903 sitemap URLs resolving, no
+        off-origin request. The new guide page was separately checked
+        (contrast + sideways, both ok at 360px).
+      - >-
+        Verified locally (Actions runners starved -- all 17 checks on the
+        PR merged this session came back runner_id: 0, confirmed with
+        ci_starvation.py --run 34481895445): node --test
+        ventures/email-auth-check/*.test.mjs 98/98; node --test across
+        platform/{marketing,pages,proposal,privacy,webcheck} 1383 passed,
+        0 failed, 0 skipped (clone unshallowed so both history-pinned
+        webcheck tests really ran); guide-coverage.mjs 231/231;
+        clauses.mjs email-auth-check clean; faq-visible + siblings 18/18;
+        build.mjs + check.mjs 231 products, 906 pages, no dead links;
+        regen.mjs run and the front-door mirror committed; python3 -m
+        pytest gitops/tests -q 532 passed/25 skipped; all eight
+        validators clean; checklist_coverage.py clean.
+    mrr_end: 0
