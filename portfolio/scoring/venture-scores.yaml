@@ -9596,7 +9596,6 @@ ventures:
       that a clean report is evidence from one or two specific fetches
       against a specific set of named patterns, not a full SEO audit or a
       determination that the page has no other SEO issues.
-
   - slug: social-preview-check
     scores:
       ai_leverage: 1
@@ -9666,3 +9665,77 @@ ventures:
       portfolio's claim. An unrecognised image format or a truncated
       byte read is reported as "not decoded"/"dimensions undetermined",
       never guessed at.
+  - slug: cookie-security-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a SameSite=None cookie is
+      missing Secure, or a __Host-/__Secure- prefixed cookie violates the
+      attribute rules those prefixes require, is decided by parsing the
+      Set-Cookie header's own grammar against the documented browser
+      rejection rules -- a factual, deterministic comparison, not a model
+      judgment, and it never claims a security assessment or penetration
+      test.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser report-viewer in the
+      same shape as security-headers-check, cors-misconfig-check, and
+      sri-check, not a 248th <trade>-bid-calculator. duplicate_check.py
+      scored the closest existing venture (security-headers-check, a
+      different response-header evidence class -- CSP/frame-protection
+      rather than Set-Cookie attributes) at 0.42 against the final
+      description, under the 0.45 flag bar; security-headers-check's own
+      README explicitly lists cookie flags as out of scope, which is what
+      made this a named gap rather than a guessed one. Autonomous ops 10 /
+      gross margin 10: the CLI's request runs from the user's own machine
+      against a URL they choose, and the browser page only renders a report
+      already produced, so serving one more user costs a static file and
+      needs no human review of any output.
+      Distribution 7: any web developer or security researcher is a
+      plausible searcher, the same breadth as the sibling header-evidence
+      tools; specific, recurring search phrases ("SameSite=None without
+      Secure", "__Host- cookie prefix rejected", "__Secure- cookie not
+      set"), plus r/netsec, r/websecurity, the bug-bounty community
+      (HackerOne/Bugcrowd forums and Discords), and Hacker News as named,
+      active forums where cookie-attribute misconfiguration is a standing,
+      frequently-tested topic (PortSwigger Web Security Academy treats
+      SameSite bypass as a standalone module). General cookie scanners
+      exist as part of broader security-header tools, which is evidence of
+      real demand rather than an unserved niche, but none found in this
+      portfolio's research packages the SameSite=None/Secure rejection rule
+      and the __Host-/__Secure- prefix contract specifically, or documents
+      the Set-Cookie comma-splitting trap other response headers don't have.
+      Time to revenue 6, defensibility 3: donations-only; a transparent
+      probe-and-classify tool over one header name is easy to reimplement
+      and general scanners already exist, so defensibility rests only on
+      getting the two browser-rejection rules right, the correct Set-Cookie
+      parsing (never comma-joined and re-split), a lower-friction
+      zero-install report-viewing path, and this portfolio's
+      disclaimer/usage conventions, not on any moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only one ordinary, unauthenticated GET request
+      from the user's own machine to a URL the user chooses -- never this
+      portfolio's infrastructure touching a third party, no different in
+      kind from curl. Every page and the README carry an explicit "only
+      test systems you own or are authorised to test" caution, the same
+      posture as any request-based security tool. A probe that fails at the
+      network level is reported as incomplete rather than silently skipped
+      or guessed at, and a finding is only ever raised from a Set-Cookie
+      header this tool actually observed, applying the documented SameSite
+      and cookie-prefix specification rules rather than an invented
+      heuristic. The page's footer and FAQ state plainly that a clean
+      report is evidence from one specific request against a specific set
+      of named patterns, not a full security assessment or a determination
+      that the target's cookies are secure.

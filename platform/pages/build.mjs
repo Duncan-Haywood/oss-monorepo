@@ -843,11 +843,59 @@ const CATEGORY_RULES = [
     // the page claims", one about JSON-LD text, the other about which URL
     // is canonical) and `security-headers-check` (a third response-evidence
     // class) as Related. Listed by exact slug rather than a new prefix, the
+    //
+    // `cookie-security-check` joined 2026-09-10, the same day. Same shape
+    // again -- a zero-dependency CLI plus a matching browser report-viewer,
+    // run by a developer against their own site's response headers -- just
+    // for Set-Cookie attributes (SameSite=None without Secure, a broken
+    // __Host-/__Secure- prefix) instead of CSP/frame-ancestors, a reflected
+    // CORS Origin, or a cross-origin tag's integrity hash. It shares
+    // `security-headers-check`'s "browser half only renders a pasted
+    // report" shape for the same underlying reason, and that venture's own
+    // README names cookie flags as the gap this one fills. It cross-links
+    // `security-headers-check` and `cors-misconfig-check` as Related (same
+    // "real request, name the exact response-header evidence" question, a
+    // fourth header risk class), and `security-headers-check` now links
+    // back the same way. Listed by exact slug rather than a new prefix, the
     // same way its neighbors above are: one tool does not earn a whole
     // family pattern, and landing it here rather than the catch-all is also
-    // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on
+    // it.
+    //
+    // `oidc-trust-policy-check` joined 2026-09-10, the same day. Same shape
+    // once more, and it is the first here to read the *cloud* side of a
+    // GitHub Actions trust boundary rather than the repository side:
+    // `actions-permissions-check` and `actions-self-hosted-exposure-check`
+    // scan the workflow file, and this reads the AWS IAM trust policy those
+    // workflows authenticate against. It cross-links both of them as
+    // Related for exactly that reason -- same boundary, opposite ends of
+    // the handshake. Unlike its neighbors it needs no CLI-then-paste round
+    // trip, because its input is a document the user already has rather
+    // than something that must be fetched over the network; the CLI exists
+    // for CI rather than to work around a browser restriction. Listed by
+    // exact slug rather than a new prefix, the same way its neighbors
+    // above are.
+    //
+    // `canonical-tag-check` joined 2026-09-10, the same day. Same shape
+    // again -- a zero-dependency CLI plus a matching browser report-viewer,
+    // run by a developer or SEO practitioner against a URL they choose --
+    // just for a page's own `<link rel=canonical>` tag(s) and (when there
+    // is exactly one) the page that tag points at, rather than a live
+    // network probe of response headers or a static source/manifest/feed
+    // artifact. It shares `cors-misconfig-check` and
+    // `security-headers-check`'s "browser half only renders a pasted
+    // report" shape, for the same underlying reason: reading another
+    // origin's response body from inside a page is CORS-gated. It
+    // cross-links `structured-data-drift-check` (both ask "does what
+    // search engines actually read still match what the page claims", one
+    // about JSON-LD text, the other about which URL is canonical) and
+    // `security-headers-check` (a fourth response-evidence class) as
+    // Related. Listed by exact slug rather than a new prefix, the same way
+    // its neighbors above are: one tool does not earn a whole family
+    // pattern, and landing it here rather than the catch-all is also what
+    // keeps that catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|social-preview-check|oidc-trust-policy-check|canonical-tag-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|social-preview-check|oidc-trust-policy-check|canonical-tag-check|cookie-security-check)/.test(
         slug,
       ),
   },
