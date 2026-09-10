@@ -25179,3 +25179,47 @@ entries:
         clone was unshallowed; run_workflow_locally --for-changes reports
         page-integrity-ci 2/2 run steps passed.
     mrr_end: 0
+  - venture: wildlife-exclusion-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a vs-pestpac.html competitor comparison page and test suite,
+        following the established pattern used by ~180 sibling ventures
+        (e.g. ventures/pest-control-bid-calculator/vs-pestpac.html, the
+        closest same-industry precedent). PestPac (WorkWave) was chosen over
+        a generic "vs-jobber" clone because pest/wildlife control operators
+        specifically recognize it, verified via WebSearch rather than
+        invented -- gutter-guard-bid-calculator's vs-jobber.html already
+        documents why unverifiable competitor facts (pricing, feature lists)
+        are never stated on these pages.
+      - >-
+        This was found as the highest-value available work after a full scan
+        of the PR/branch backlog turned up nothing repairable: 0 open PRs,
+        190 branches with commits not on main, and every branch above two
+        commits with real content (marketing/vs-rover-dog-walking-route-pricing,
+        marketing/locksmith-vs-jobber, marketing/locksmith-bid-calculator-vs-jobber,
+        marketing/custom-farm-rate-vs-survey, childcare-vs-procare,
+        atm-route-margin, atm-route-margin-guide-page,
+        food-truck-event-margin-calculator-share-link) was already fully
+        superseded by main -- verified by diffing each against origin/main
+        rather than assuming from branch names.
+      - >-
+        Caught a real defect before it shipped: platform/marketing/regen.mjs
+        wrote gitops/prod/front-door/vs__pestpac.html.gz but
+        front-door.test.mjs failed with "gitops/prod/kustomization.yaml must
+        mount vs__pestpac.html.gz; add it or the page is dark" -- exactly the
+        class of silent-404 defect CLAUDE.md's CI-starvation section already
+        records costing live product twice. Fixed by adding the mount line;
+        re-ran green (1219/1219).
+      - >-
+        Verified: ventures/wildlife-exclusion-bid-calculator test suite
+        113/113; platform/pages build.mjs + check.mjs clean (244 tools, 945
+        pages, no dead links); platform/pages/clauses.mjs passes (trademark
+        disclaimer present); platform/marketing/*.test.mjs +
+        platform/pages/*.test.mjs 1219/1219 after the kustomization fix;
+        gitops/tests 533 passed / 25 skipped (unchanged baseline). CI itself
+        classified as starved (github-actions-runners down per
+        portfolio/ledger/infra_state.yaml, re-measured 2026-09-10) so merged
+        on this local verification per CLAUDE.md's standing rule.
+    mrr_end: 0
