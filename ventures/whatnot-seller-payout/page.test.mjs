@@ -238,3 +238,15 @@ function nearMoney(html, value, printed = Number(value.toFixed(2))) {
   const pretty = printed.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   assert.match(html, new RegExp(`\\$${pretty.replace(/,/g, ',')}`));
 }
+
+// Both price one transaction through platform-specific fees to find the true
+// seller payout -- a livestream lot and a nightly stay. Without a crawlable
+// link here, a crawler entering on this page never reaches the STR host
+// payout calculator in one hop.
+test('index links one hop to the str-host-payout-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/str-host-payout-calculator\/"/,
+    'index must link ../str-host-payout-calculator/ so crawlers reach the STR host payout calculator in one hop',
+  );
+});

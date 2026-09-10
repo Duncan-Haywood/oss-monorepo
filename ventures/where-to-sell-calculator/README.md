@@ -176,10 +176,18 @@ accept inputs from a link gets a "keep going with this item" link, built from
 what is on screen. Today that is eBay, Etsy, Amazon, Reverb and an own store
 (Shopify); a channel gains one the day its calculator learns to read a link.
 
-The handoff now runs both ways for Reverb: `../reverb-fee-calculator/`
-carries its own item back into this page with Reverb already switched on
-(`to-where-to-sell.mjs` there), so a seller who lands on the Reverb
-calculator first is not stuck retyping to compare channels either.
+**The handoff now runs both ways for every channel that has one.** Each of
+`../ebay-fee-calculator/`, `../etsy-profit-calculator/`,
+`../amazon-fba-calculator/`, `../reverb-fee-calculator/` and
+`../shopify-fee-calculator/` carries its own item back into this page with
+that channel already switched on (each ships its own `to-where-to-sell.mjs`,
+mirroring this page's `handoff.mjs` in reverse). Reverb was first; eBay, Etsy,
+Amazon and Shopify followed the same day. This is the direct test of this
+venture's first untested hypothesis — until now a seller who searched their
+way to a single-channel calculator first (which, for the highest-traffic
+channels, is the more likely entry point) had no way into this comparison
+without retyping, so the "deeper scenarios never get opened" failure the
+hypothesis names could happen from either direction and only one was fixed.
 
 Two details that are not obvious:
 
@@ -301,7 +309,8 @@ device.
 The optional usage counter records only an event name (`comparison_calculated`,
 `channel_rates_edited`, `channel_toggled`, `subscription_toggled`,
 `channel_volume_edited`, `returns_compared`, `shelf_time_compared`,
-`share_link_copied`, `comparison_csv_downloaded`, `handoff_ebay`, `handoff_etsy`) and the
+`share_link_copied`, `comparison_csv_downloaded`, `handoff_ebay`, `handoff_etsy`,
+`handoff_amazon`, `handoff_reverb`, `handoff_own-store`) and the
 current day, in the visitor's own `localStorage`. It never records inputs, it
 never leaves the device, it is off for anyone sending Do Not Track or Global
 Privacy Control, and the footer checkbox turns it off and discards what was
