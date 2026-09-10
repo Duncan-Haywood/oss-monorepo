@@ -24433,3 +24433,41 @@ entries:
         check clean; platform/proposal and platform/privacy +
         platform/webcheck suites green (pre-existing, unaffected).
     mrr_end: 0
+  - venture: pwa-installability-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed a real, unshipped discoverability gap on an already-live
+        venture rather than rebuilding router/allocate.py's top-ranked
+        cross-tool handoff (already shipped fleet-wide: all ten
+        marketplace-fee calculators carry to-where-to-sell.mjs or
+        handoff.mjs, confirmed by reading each directory, not trusting
+        VENTURE.yaml's untested status). Checked several other in-repo
+        hypotheses first (freight-accessorial-auditor's CSV import,
+        appointment-deposit-calculator's deposit-vs-no-show-fee page,
+        menu-engineering-calculator's weighted-margin bar,
+        invoice-payment-terms-calculator's AP-run modelling) and found
+        each already built -- only pwa-installability-check,
+        ios-privacy-manifest-check and sri-check had zero vs-<competitor>
+        comparison pages despite index.html's own FAQ already discussing
+        the natural competitor (Lighthouse) at length.
+      - >-
+        Shipped vs-lighthouse.html: a static PRODUCT_PLAYBOOK 5f-compliant
+        comparison page naming what Lighthouse's installable-manifest
+        audit covers versus this checker's zero-dependency, no-Chrome
+        CLI, with the not-affiliated-with-Google trademark disclaimer, a
+        decision table, and a 4-question FAQPage schema matched to visible
+        headings. Linked from index.html's footer, added to sitemap.xml,
+        and README's "what this is, and isn't" section now points to it.
+      - >-
+        Verified locally (Actions runners still starved per
+        infra_state.yaml). node --test ventures/pwa-installability-check
+        69/69 (up from 60, the 9 new assertions in
+        vs-lighthouse.test.mjs); node platform/pages/clauses.mjs
+        pwa-installability-check clean; node platform/marketing/regen.mjs
+        ran clean with an 11-file diff (the new page plus its mirror
+        shard, catalog.json, sitemap.xml, llms.txt and compare.html);
+        node --test across platform/marketing + platform/pages 1218/1218,
+        no regression; checklist_coverage.py clean.
+    mrr_end: 0
