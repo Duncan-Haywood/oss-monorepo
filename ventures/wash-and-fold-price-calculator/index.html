@@ -265,7 +265,7 @@
   <script type="module">
     import { computeWashAndFold, INPUT_FIELDS } from "./calculator.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
-    import { encodeInputs, decodeInputs } from "./share.mjs";
+    import { encodeInputs, decodeInputs, formValues } from "./share.mjs";
 
     const DRAFT_KEY = "wash-and-fold-inputs";
     const $ = (sel) => document.querySelector(sel);
@@ -415,8 +415,9 @@
     });
 
     // A shared link wins over a saved local draft so the recipient always
-    // sees the sender's numbers; whatever the link omits still falls back
-    // to the draft, then to the form's own shipped defaults.
+    // sees the sender's numbers -- which means it replaces the form outright
+    // rather than layering over the draft underneath. See `formValues` in
+    // share.mjs for what layering cost.
     try {
       const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
       if (saved && typeof saved === "object") {
@@ -429,7 +430,7 @@
 
     const fromLink = decodeInputs(location.hash || location.search);
     if (Object.keys(fromLink).length) {
-      writeInputs(fromLink);
+      writeInputs(formValues(fromLink));
       $("#link-status").textContent = "Opened a shared scenario. Review the numbers before you rely on them.";
     }
 

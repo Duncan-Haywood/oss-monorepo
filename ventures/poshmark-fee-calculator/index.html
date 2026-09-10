@@ -212,7 +212,7 @@
   <script type="module">
     import { calculateSale, compareOffer, INPUT_IDS, OFFER_INPUT_IDS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    import { FIELD_IDS, encodeInputs, decodeInputs } from './share.mjs';
+    import { FIELD_IDS, encodeInputs, decodeInputs, formValues } from './share.mjs';
 
     const DRAFT_KEY = 'poshmark-fee-calculator-draft';
     const el = id => document.getElementById(id);
@@ -378,8 +378,8 @@
 
     // A saved draft or a shared link takes priority over the shipped worked
     // example, and a link wins over a saved draft: whatever the link omits
-    // still falls back to the draft, then to the form's own shipped
-    // defaults.
+    // replaces the form outright rather than layering over the draft
+    // underneath -- see `formValues` in share.mjs for why.
     let restored = false;
     try {
       const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
@@ -391,7 +391,7 @@
 
     const fromLink = decodeInputs(location.hash || location.search);
     if (Object.keys(fromLink).length > 0) {
-      writeAllInputs(fromLink);
+      writeAllInputs(formValues(fromLink));
       restored = true;
       el('saveStatus').textContent = 'Opened a shared sale. Review the numbers before you use them.';
     }
