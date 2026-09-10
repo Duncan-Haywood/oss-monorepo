@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 242,
-  "collection_total": 242,
+  "served_here": 243,
+  "collection_total": 243,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -26,7 +26,7 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 125
+      "tool_count": 126
     },
     {
       "id": "ci",
@@ -1989,6 +1989,14 @@
       "category": "Trade & contractor bids",
       "description": "Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.",
       "pages": 3
+    },
+    {
+      "slug": "wildlife-exclusion-bid-calculator",
+      "name": "Wildlife Exclusion Bid Calculator",
+      "url": "https://marisstella.dev/tools/wildlife-exclusion-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a bat, raccoon, squirrel or bird exclusion job from the visits it really takes — daily trap checks, the height the seal is at, attic decontamination, and a reserve against the warranty you sold — instead of the flat removal fee your customer is shopping. Free, private, nothing leaves your browser.",
+      "pages": 2
     },
     {
       "slug": "window-cleaning-bid-calculator",

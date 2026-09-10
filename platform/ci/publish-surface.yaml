@@ -911,6 +911,9 @@ workflows:
 - workflow: which-job-first-ci.yml
   classification: none
   publishes: []
+- workflow: wildlife-exclusion-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: window-cleaning-bid-calculator-ci.yml
   classification: none
   publishes: []

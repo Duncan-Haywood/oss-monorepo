@@ -5137,3 +5137,29 @@ products:
           points to noindex page"). Counts are local, opt-in, off by
           default, and honor DNT/GPC, so zero is the expected reading for
           a tool nobody has visited or switched the counter on for yet.
+  - slug: wildlife-exclusion-bid-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-10
+        signals:
+          live_url_visitors: null
+          bid_calculated: 0
+          flat_fee_compared: 0
+          proposed_price_compared: 0
+          proposal_printed: 0
+          company_forgotten: 0
+        note: >-
+          Baseline at publication. The ratio worth watching is
+          `proposal_printed` against `bid_calculated`. This venture's
+          claim is not that operators want another number -- it is that
+          the number only helps if it survives being shown to a homeowner
+          holding a $395 removal ad, which is what the printed proposal
+          is for. A high `bid_calculated` with a flat `proposal_printed`
+          would say the arithmetic is the product and the document is
+          not wanted, and the visit-count framing this tool is built on
+          would be worth re-examining. `flat_fee_compared` is the second
+          signal: it is the only one that says an operator actually typed
+          the competing fee in, which is the moment the tool's argument
+          either lands or does not. Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for
+          a tool nobody has visited or switched the counter on for yet.

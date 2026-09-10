@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 242 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 243 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 242 of them — and
+Every tool in the collection is listed below — all 243 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -146,6 +146,7 @@ page that hosts it.
 - [Well Pump Bid Calculator — Depth, Pitless, and Tank](https://marisstella.dev/tools/well-pump-bid-calculator/): Price a well-pump replacement from extra drop-pipe footage past the included run, seized versus free pitless, stuck-pump pull, extra well cable, a new pressure tank, and a constant-pressure drive — not a published $1,495 pump special. See the walk-away number before you match a cheaper quote.
 - [Wheelchair Ramp Bid Calculator — ADA Slope, Landings, Rails](https://marisstella.dev/tools/wheelchair-ramp-bid-calculator/): Price a residential ADA-slope wheelchair ramp from the rise, the landings a lineal-foot special cannot see, both-side handrails, surface, demo, and permit — plus walk-away price and proposed-price margin check.
 - [Which Job First? Free Pairwise Job Priority Ranker for Contractors](https://marisstella.dev/tools/which-job-first/): Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.
+- [Wildlife Exclusion Bid Calculator](https://marisstella.dev/tools/wildlife-exclusion-bid-calculator/): Price a bat, raccoon, squirrel or bird exclusion job from the visits it really takes — daily trap checks, the height the seal is at, attic decontamination, and a reserve against the warranty you sold — instead of the flat removal fee your customer is shopping. Free, private, nothing leaves your browser.
 - [Window Cleaning Bid Calculator — Price Per Visit](https://marisstella.dev/tools/window-cleaning-bid-calculator/): Price a window cleaning job from panes, minutes per pane, stories, and travel time — then see the per-visit price, price per pane, effective hourly rate, and the walk-away number.
 - [Window Replacement Bid Calculator — Price the Opening](https://marisstella.dev/tools/window-replacement-bid-calculator/): Price a window replacement job from United Inches, story, and tear-out — not a flat price per window. See walk-away price, average per opening, and the margin a $550-a-window special actually leaves.
 

@@ -1499,7 +1499,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 242 since 2026-09-10, when `social-preview-check` also graduated the
     # same day — same shape again: a new venture with a static `index.html`
     # from its first commit, entering the mirror and the total together.
-    total = 242  # `infra/OWNER_CHECKLIST.md`'s own "N of the 242 tools" wording.
+    # 243 since 2026-09-10, when `wildlife-exclusion-bid-calculator` also
+    # graduated the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    total = 243  # `infra/OWNER_CHECKLIST.md`'s own "N of the 243 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

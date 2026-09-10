@@ -93,3 +93,17 @@ test('the service rows ride in the bid link, not just the cost fields', () => {
 test('links to the janitorial bid calculator', () => {
   assert.match(page, /href="\.\.\/janitorial-bid-calculator\/"/, 'the sibling-tool link is missing');
 });
+
+// Closest sibling in the other direction: the same operator gets the call, but
+// a raccoon in an attic is a one-off project with a warranty on it, not a route
+// stop. Pricing it here undercharges badly, so the link is a correction as much
+// as a cross-sell -- and without an explicit one-hop, a crawler on this page may
+// never reach that tool at all.
+test('index links one hop to the wildlife-exclusion-bid-calculator sibling', () => {
+  assert.match(
+    page,
+    /href="\.\.\/wildlife-exclusion-bid-calculator\/"/,
+    'index must link ../wildlife-exclusion-bid-calculator/ so crawlers reach the exclusion calculator in one hop',
+  );
+  assert.match(page, /wildlife exclusion bid calculator/i);
+});

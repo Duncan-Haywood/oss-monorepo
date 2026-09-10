@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 242 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 243 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -159,6 +159,15 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free wash and fold pricing calculator for laundromats and laundry pickup-and-delivery routes: work out your real cost per pound from labour minutes, wash and dry cycles, supplies, delivery stops and overhead, then see the break-even price per pound and the margin at what you charge today. Runs entirely in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Wildlife Exclusion Bid Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wildlife-exclusion-bid-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/wildlife-exclusion-bid-calculator</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Price a bat, raccoon, squirrel or bird exclusion job from the visits it really takes — daily trap checks, the height the seal is at, attic decontamination, and a reserve against the warranty you sold — instead of the flat removal fee your customer is shopping. Free, private, nothing leaves your browser.</summary>
   </entry>
   <entry>
     <title>GitHub Actions Artifact Poisoning Check — workflow_run Download &amp; Execute</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.</summary>
-  </entry>
-  <entry>
-    <title>Dependency Confusion Check — pip --extra-index-url &amp; Unscoped npm Names</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dependency-confusion-check/"/>
-    <id>tag:marisstella.dev,2026:tool/dependency-confusion-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.</summary>
   </entry>
 </feed>
