@@ -94,7 +94,7 @@ one worth putting there is the **age identity**, because it turns the committed
 
 ## What the store holds
 
-Six credentials, and the reason each is here rather than in Actions is that
+Seven credentials, and the reason each is here rather than in Actions is that
 something *off* a runner needs it. The authoritative list is
 [`infra/secrets/registry.tsv`](secrets/registry.tsv) — this table is prose for
 it, and a test asserts they name the same set.
