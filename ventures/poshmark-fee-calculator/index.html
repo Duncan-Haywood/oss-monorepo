@@ -207,12 +207,14 @@
     <p>Not affiliated with, endorsed by, or sponsored by Poshmark. Poshmark is a trademark of its owner, named here only to describe the published fee schedule this tool computes against. Poshmark changed this schedule once already, briefly, in October 2024, then reverted it — see <a href="./vs-poshmarks-how-it-works-page.html">this calculator vs. Poshmark's own How It Works page</a> if you are unsure which structure currently applies.</p>
     <p>Free and open source. If it changes how you price a closet, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
     <p>Selling the same item across more than one channel? The <a href="../marketplace-fee-compare/">marketplace fee compare</a> ranks eBay, Etsy, Amazon, Walmart, TikTok Shop, and an own Shopify store from one set of inputs — Poshmark's flat/percent cliff is different enough from those referral-rate marketplaces that it stays a separate calculator here.</p>
+    <p>Want Poshmark ranked against those channels on this exact item? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> prices Poshmark the way this page does — the flat $2.95 under $15, 20% at $15 or more, on the item price only — and puts it beside eBay, Etsy, Amazon and a direct sale, with what each is worth per day of wait and per month of shelf time. It opens with this item's price and cost already filled in and Poshmark switched on, no retyping.</p>
   </footer>
 
   <script type="module">
     import { calculateSale, compareOffer, INPUT_IDS, OFFER_INPUT_IDS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { FIELD_IDS, encodeInputs, decodeInputs, formValues } from './share.mjs';
+    import { whereToSellUrl } from './to-where-to-sell.mjs';
 
     const DRAFT_KEY = 'poshmark-fee-calculator-draft';
     const el = id => document.getElementById(id);
@@ -289,6 +291,9 @@
         li.textContent = text;
         return li;
       }));
+      // Rebuilt on every render so the handoff link always carries what is on
+      // screen rather than whatever was there when the page loaded.
+      el('whereToSellLink').href = whereToSellUrl(readInput());
     }
 
     el('saleForm').addEventListener('submit', event => {
@@ -324,6 +329,12 @@
       if (!result.ok) return;
       render(result);
       el('exampleNote').hidden = true;
+    });
+
+    el('whereToSellLink').addEventListener('click', () => {
+      // Records only that the handoff happened, never the item -- this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      count('handoff_where_to_sell');
     });
 
     el('compareOfferBtn').addEventListener('click', () => {

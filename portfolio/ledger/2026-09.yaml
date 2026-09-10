@@ -22447,6 +22447,122 @@ entries:
         no conflicts in the two files this PR actually changes
         (`build.mjs`, `build.test.mjs`).
     mrr_end: 0
+  - venture: where-to-sell-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Connected Poshmark, the last seller channel in the portfolio with a
+        dedicated calculator and no route into either comparison hub. It was
+        absent from `where-to-sell-calculator`'s ranking and from
+        `marketplace-fee-compare`, which documents on-page *why* it leaves
+        Poshmark out: the fee is "a flat $2.95 under $15.00 and 20% at $15.00
+        or more, a cliff rather than a percentage", so ranking it as a single
+        rate "would misstate the low end of a closet's inventory". That
+        reasoning is correct for a headline-rate tool and does not transfer to
+        a per-item one -- at a specific price the cliff is exactly computable
+        -- which is what made this shippable rather than a second exclusion.
+      - >-
+        The engine had no way to express a fee that is not a rate, so
+        `calculateChannel` gained a two-field cliff (`commissionThreshold`,
+        `commissionFlatBelow`) and all four of its price solvers
+        (`breakEvenPrice`, `expectedBreakEvenPrice`, `priceForProfit`,
+        `priceForExpectedProfit`) now solve on each side and return the answer
+        that lands in its own price range. Below the cliff the percentage
+        leaves the coefficients entirely and the flat fee joins the fixed
+        cash, which is why it cannot be folded into an average rate. A channel
+        that declares neither field takes exactly the arithmetic it took
+        before -- 165/165 pre-existing tests passed unchanged after the
+        refactor, before any Poshmark row existed.
+      - >-
+        The sharp case, and the reason for branch selection rather than one
+        division: a target profit of $12.04 is reachable at $14.99 on the flat
+        tier, $12.06 only at $15.075 on the percentage tier. A solver that
+        ignored the cliff would answer one of those with a price on the wrong
+        side, and the seller would list at it and net less than the page
+        promised. Verified against `poshmark-fee-calculator`'s own
+        `priceForTargetPayout` at both, and at seven other targets.
+      - >-
+        User-facing result: a closet reseller comparing a $10 top now sees
+        Poshmark's effective 29.5% beside eBay's 13.25% -- often the worst
+        rate in the comparison, in exactly the price band a clear-out lives
+        in -- and both handoffs carry the item so neither page costs a
+        retype. Forward (`handoff.mjs`) and reverse
+        (`poshmark-fee-calculator/to-where-to-sell.mjs`) with
+        `handoff_poshmark` / `handoff_where_to_sell` usage events, the
+        existing disclaimers untouched, off by default like Reverb and Whatnot
+        since it only applies to apparel.
+      - >-
+        Closed a pre-existing gap in the same file rather than only adding to
+        it: `channel-parity.test.mjs` guards against two tools quoting one
+        marketplace differently, and covered only Reverb, TikTok Shop and
+        Whatnot -- the three channels added after it existed. eBay, Etsy,
+        Amazon and Shopify predate it, carry the busiest handoffs between
+        them, and were asserted against nothing. All four now import the
+        dedicated calculator's own constants, and a new test fails naming any
+        channel that gains a handoff without a parity assertion, so the file
+        cannot go stale the same way twice. This is the `platform/proposal/`
+        shape CLAUDE.md records: a guard that covers only the newest cases.
+      - >-
+        Verified locally; runners are starved (`infra_state.yaml`
+        `github-actions-runners: down`, re-read this session). `main` itself
+        checked green first with `run_workflow_locally.py --tree` (9/9
+        workflows; `portfolio-pages.yml/deploy` selected and not run).
+        `--for-changes` after the change: 13/15 passed, with 9 jobs not run
+        for want of a credential or a runner (`agent-cross-review` x4,
+        `hetzner-gitops-ci` x3, `portfolio-pages/deploy`,
+        `publish-pages-branch/publish`). `node --test` 247/247 across the two
+        ventures (165 -> 177 in where-to-sell, 70 in poshmark), 354/354
+        including `marketplace-fee-compare`, 1202/1202 across
+        `platform/marketing` + `platform/pages` after `regen.mjs`, 180/180
+        across `platform/proposal` + `privacy` + `webcheck` (0 skipped -- the
+        clone was unshallowed, so both history-pinned tests really ran),
+        525 passed / 25 skipped in `gitops/tests`, 435 passed in the
+        `portfolio/*` + `infra/tests` sweep, all 22 `platform/ci` unittest
+        modules OK, `agent_review` 21/21, `checklist_coverage.py` clean,
+        `check_shared_link_clears.py` clean.
+      - >-
+        Independent numeric check beyond the test suite: swept 36
+        price/cost combinations through both calculators and confirmed
+        commission and profit agree at every one, including $1 (where
+        Poshmark caps the flat fee at the sale price, which the engine now
+        mirrors), $14.74, $14.75, $14.99, $15.00 and $15.01. The only
+        divergence anywhere is float representation -- the two tools reach
+        the percentage tier as `p * 20 / 100` and `p * (20 / 100)`, which
+        differ in the last bit of a double at some prices and never in the
+        cent either page displays. Asserted to a billionth rather than
+        exactly, and the test says why.
+    mrr_end: 0
+  - venture: carpet-install-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the venture's first decision-support worked-example page,
+        should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html,
+        closing the gap noted against sibling ventures (egress-window-bid-calculator,
+        invoice-payment-terms-calculator) that each carry one but this one had
+        none. Picked the furniture-move extra because calc.mjs prices it as a
+        flat 1.6 crew-hour task independent of floor size, so it produces a
+        clean, size-independent worked number ($113.62 at default rates) across
+        all three built-in job presets rather than one tied to a single job.
+      - >-
+        Verified locally: node --test ventures/carpet-install-bid-calculator/*.test.mjs
+        133/133 pass (new should-i-*.test.mjs recomputes every dollar figure
+        quoted in the article from calc.mjs directly, so the article cannot
+        drift from the calculator's own arithmetic); node platform/pages/clauses.mjs
+        carpet-install-bid-calculator clean; checklist_coverage.py clean; regen.mjs
+        run and gitops/prod/front-door mirror + sitemap committed; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs 1202/1202;
+        python3 -m pytest gitops/tests -q 525 passed/25 skipped; all 22
+        platform/ci unittest modules pass; agent_review test_review 21/21;
+        portfolio/ledger+scoring+router+usage+pipeline+infra/tests 435
+        passed/8 subtests; run_workflow_locally.py --for-changes read (one
+        pages.yml FAIL traced to the tool's own inability to evaluate a
+        `${{ }}` expression, confirmed spurious by running
+        platform/ci/build_pages_site.py + check_pages_links.py directly:
+        861 pages built, every local reference resolves).
+    mrr_end: 0
   - venture: craft-fair-booth-calculator
     agent_spend_usd: null
     human_hours: 0

@@ -178,6 +178,30 @@ export const HANDOFFS = [
     },
     combine: { otherCost: ['otherCost', 'packagingCost'] },
   },
+  {
+    channel: 'poshmark',
+    slug: 'poshmark-fee-calculator',
+    label: 'Poshmark fee calculator',
+    // What it adds: the two-tier schedule's effective rate on this exact
+    // price, how much the flat $2.95 costs against what 20% would have
+    // charged, the break-even price, and the offer-negotiation arithmetic —
+    // whether accepting an offer that drops the price under $15 costs more
+    // than the discount itself.
+    //
+    // Neither shipping field is mapped, and that is deliberate rather than an
+    // omission: the buyer buys a prepaid label from Poshmark at checkout, so
+    // it is neither seller revenue nor a seller cost, and the dedicated
+    // calculator has no input for it at all. Mapping it anywhere would put
+    // postage inside a payout that never sees it. This page's own Poshmark
+    // preset starts both at zero for the same reason, so a comparison built
+    // here has nothing to lose on the trip.
+    fields: {
+      price: 'salePrice',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    combine: { otherCost: ['otherCost', 'packagingCost'] },
+  },
 ];
 
 const bySlugSafe = (value) => /^[a-z0-9-]+$/.test(value);
