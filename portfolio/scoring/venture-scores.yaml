@@ -9878,3 +9878,76 @@ ventures:
       decontamination and the return trips a flat removal fee omits -- which
       is the direction that leaves the animal and the homeowner better off
       rather than worse.
+  - slug: cache-control-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether Vary is exactly "*", or a
+      Cache-Control: public response also carries a Set-Cookie header, is
+      decided by parsing the header grammar against RFC 9111's own defined
+      cache-freshness and cache-storability rules -- a factual, deterministic
+      comparison, not a model judgment, and it never claims a full caching or
+      performance audit.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser report-viewer in the
+      same shape as security-headers-check, cors-misconfig-check, and
+      cookie-security-check, not a 250th <trade>-bid-calculator.
+      duplicate_check.py scored the closest existing venture
+      (cookie-security-check, a different response-header evidence class --
+      Set-Cookie attributes rather than caching directives) at 0.27 against
+      the final description, well under the 0.45 flag bar; nothing in
+      screened-out.md or the existing venture set reads Cache-Control, Vary,
+      Expires, ETag, or Accept-Ranges. Autonomous ops 10 / gross margin 10:
+      the CLI's request runs from the user's own machine against a URL they
+      choose, and the browser page only renders a report already produced,
+      so serving one more user costs a static file and needs no human review
+      of any output.
+      Distribution 7: any web developer, platform engineer, or performance
+      engineer is a plausible searcher -- the same breadth as the sibling
+      header-evidence tools -- with specific, recurring search phrases
+      ("vary star uncacheable", "cache-control public set-cookie",
+      "cloudflare not caching my page", "weak etag range request"), plus
+      r/webdev, r/devops, r/sysadmin, and Stack Overflow's http-caching and
+      cdn tags as named, active forums where these exact patterns are
+      recurring, unanswered-until-debugged questions. General "check my
+      headers" tools exist, which is evidence of real demand rather than an
+      unserved niche, but none found in this portfolio's research packages
+      the Vary: * "never cacheable" contract and the public+Set-Cookie
+      shared-cache leak specifically, or gets the strong-vs-weak ETag range-
+      request distinction right.
+      Time to revenue 6, defensibility 3: donations-only; a transparent
+      probe-and-classify tool over a handful of header names is easy to
+      reimplement and general scanners already exist, so defensibility rests
+      only on getting the RFC 9111/9110 details right (Vary: *'s scope,
+      which of Cache-Control/Expires actually wins, which validator strength
+      range requests require), a lower-friction zero-install report-viewing
+      path, and this portfolio's disclaimer/usage conventions, not on any
+      moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only one ordinary, unauthenticated GET request
+      from the user's own machine to a URL the user chooses -- never this
+      portfolio's infrastructure touching a third party, no different in
+      kind from curl. Every page and the README carry an explicit "only
+      test systems you own or are authorised to test" caution, the same
+      posture as any request-based security or performance tool. A probe
+      that fails at the network level is reported as incomplete rather than
+      silently skipped or guessed at, and a finding is only ever raised
+      from a header this tool actually observed, applying documented RFC
+      9111/9110 rules rather than an invented heuristic. The page's footer
+      and FAQ state plainly that a clean report is evidence from one
+      specific request against a specific set of named patterns, not a
+      full caching or performance audit, or a determination that the
+      target's caching strategy is optimal.

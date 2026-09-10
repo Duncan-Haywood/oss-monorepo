@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cache-Control Checker — Vary: *, public + Set-Cookie, weak ETags</title>
+<meta name="description" content="Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor's cookie to another), and lower-severity caching directive conflicts. Nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/cache-control-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Cache-Control Checker">
+<meta property="og:description" content="Paste the JSON from the CLI probe and get a plain-English report on Vary: *, Cache-Control: public + Set-Cookie, and other real HTTP-caching misconfiguration patterns. Free, local, no upload.">
+<meta property="og:url" content="https://example.invalid/cache-control-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Cache-Control Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (report viewer runs in a web browser); a Node.js CLI performs the actual probing",
+  "description": "Sends a real GET request to a target URL and classifies the response's caching headers into named misconfiguration patterns: Vary: * (uncacheable by any compliant cache, ever), Cache-Control: public alongside a Set-Cookie header (a shared cache may serve one visitor's cookie to another), no-store combined with a now-meaningless max-age, Expires overridden by Cache-Control's max-age, an already-stale Expires, a weak ETag on a range-request-capable response, and a static-asset response with no caching headers at all.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Sends 1 real HTTP request to a target URL you choose",
+    "Flags Vary: *, which RFC 9111 defines as never cacheable by any compliant cache",
+    "Flags Cache-Control: public alongside a Set-Cookie header, a shared-cache cookie-leak pattern",
+    "Flags no-store combined with a now-meaningless max-age directive",
+    "Flags Expires silently overridden by Cache-Control's max-age",
+    "Flags an Expires value at or before the response's own Date header",
+    "Flags a weak ETag on a response that advertises byte-range support",
+    "Flags a static-asset-shaped path with no Cache-Control or Expires at all",
+    "CLI makes the actual request; the browser page only renders a report you paste in -- nothing uploaded"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does Vary: * make a response uncacheable forever?",
+      "acceptedAnswer": { "@type": "Answer", "text": "RFC 9111 defines Vary: * as meaning this response varies on something a cache cannot inspect, so no cache -- browser or CDN -- may ever reuse a stored copy of it, for any later request, no matter how similar. It overrides Cache-Control and Expires entirely: they say a response is cacheable, Vary: * says it can never actually be served from that cache. It usually appears by accident, copied from a template or added defensively, rather than as a deliberate choice." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is Cache-Control: public with a Set-Cookie header dangerous?",
+      "acceptedAnswer": { "@type": "Answer", "text": "public tells every shared cache between the server and the visitor -- a CDN edge, a corporate proxy -- that it may store this exact response and serve it to a different visitor. If the response also sets a cookie meant for the one visitor who received it (a session token, a CSRF token, a personalised value), a shared cache that is not specifically configured to strip Set-Cookie on write can hand visitor A's cookie to visitor B on the next request for that URL. This is a real, repeatedly-reported class of CDN misconfiguration, not a hypothetical." }
+    },
+    {
+      "@type": "Question",
+      "name": "If Cache-Control and Expires disagree, which one wins?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Cache-Control's max-age wins in any HTTP/1.1-or-later-compliant cache; Expires is kept only for the rare cache that predates HTTP/1.1. So if the two headers disagree -- a common drift when one is set by application code and the other by a proxy or CDN default -- only a legacy cache will ever notice, and even then it honours the older, usually-wrong value. Worth syncing the two or dropping Expires entirely rather than leaving them to drift apart." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why flag a weak ETag on a response that supports byte-range requests?",
+      "acceptedAnswer": { "@type": "Answer", "text": "RFC 9110 requires a strong validator to satisfy a conditional Range request -- a weak ETag (the W/ prefix) cannot be used to confirm a resource hasn't changed since an earlier partial fetch. A client resuming a download, or a media player seeking within a video or audio file, relies on exactly that guarantee. A weak ETag on such a response means range requests either fall back to fetching the whole file again or risk serving inconsistent bytes across a resumed transfer." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean the site's caching is fully correct?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks a specific, well-documented set of caching-header patterns from one response -- it is not a full caching or performance audit, does not crawl other pages on the site, and cannot see a misconfiguration this tool's checks don't happen to cover (response security headers like CSP are out of scope here -- see security-headers-check for those). Treat a clean report as evidence about these specific patterns, not a determination that the site's caching strategy is optimal." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 0.6rem; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; overflow-wrap: anywhere; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>Cache-Control Checker</h1>
+<p>
+  Sends one real HTTP GET request to a URL you choose and classifies the response's caching
+  headers into well-documented misconfiguration patterns: <strong>Vary: *</strong> (uncacheable
+  by any compliant cache, ever), <strong>Cache-Control: public alongside a Set-Cookie header</strong>
+  (a shared cache can leak one visitor's cookie to another), plus notices for contradictory or
+  silently-ignored directive combinations and a static asset with no caching headers at all.
+  Only point it at a system you own or are authorised to test.
+</p>
+
+<div class="card">
+  <h2>1. Run the CLI against your site</h2>
+  <p>Node.js, no dependencies to install:</p>
+  <pre class="cmd"><code>node check.mjs https://example.com --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/cache-control-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a>
+    — plain Node, nothing to install. It only ever talks to the URL you pass; nothing goes
+    through this site.
+  </p>
+</div>
+
+<div class="card">
+  <h2>2. Paste the JSON output here</h2>
+  <textarea id="payload" spellcheck="false" placeholder='{"target": "https://example.com/", "probe": {"ok": true, "status": 200, "protocol": "https:", "path": "/", "headers": {"cache-control": "public, max-age=60"}, "setCookie": []}}'></textarea>
+  <p>
+    <button type="button" class="primary" id="check">Check</button>
+    <button type="button" id="load-example">Load worked example (misconfigured)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Paste the JSON from step 1 and click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <h3>Raw caching headers</h3>
+  <table id="header-table"><tbody></tbody></table>
+</section>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Why does Vary: * make a response uncacheable forever?</h3>
+  <p>RFC 9111 defines Vary: * as meaning this response varies on something a cache cannot inspect, so no cache -- browser or CDN -- may ever reuse a stored copy of it, for any later request, no matter how similar. It overrides Cache-Control and Expires entirely: they say a response is cacheable, Vary: * says it can never actually be served from that cache. It usually appears by accident, copied from a template or added defensively, rather than as a deliberate choice.</p>
+  <h3>Why is Cache-Control: public with a Set-Cookie header dangerous?</h3>
+  <p>public tells every shared cache between the server and the visitor -- a CDN edge, a corporate proxy -- that it may store this exact response and serve it to a different visitor. If the response also sets a cookie meant for the one visitor who received it (a session token, a CSRF token, a personalised value), a shared cache that is not specifically configured to strip Set-Cookie on write can hand visitor A's cookie to visitor B on the next request for that URL. This is a real, repeatedly-reported class of CDN misconfiguration, not a hypothetical.</p>
+  <h3>If Cache-Control and Expires disagree, which one wins?</h3>
+  <p>Cache-Control's max-age wins in any HTTP/1.1-or-later-compliant cache; Expires is kept only for the rare cache that predates HTTP/1.1. So if the two headers disagree -- a common drift when one is set by application code and the other by a proxy or CDN default -- only a legacy cache will ever notice, and even then it honours the older, usually-wrong value. Worth syncing the two or dropping Expires entirely rather than leaving them to drift apart.</p>
+  <h3>Why flag a weak ETag on a response that supports byte-range requests?</h3>
+  <p>RFC 9110 requires a strong validator to satisfy a conditional Range request -- a weak ETag (the W/ prefix) cannot be used to confirm a resource hasn't changed since an earlier partial fetch. A client resuming a download, or a media player seeking within a video or audio file, relies on exactly that guarantee. A weak ETag on such a response means range requests either fall back to fetching the whole file again or risk serving inconsistent bytes across a resumed transfer.</p>
+  <h3>Does a clean report mean the site's caching is fully correct?</h3>
+  <p>No. This checks a specific, well-documented set of caching-header patterns from one response -- it is not a full caching or performance audit, does not crawl other pages on the site, and cannot see a misconfiguration this tool's checks don't happen to cover (response security headers like CSP are out of scope here -- see <a href="../security-headers-check/">security-headers-check</a> for those). Treat a clean report as evidence about these specific patterns, not a determination that the site's caching strategy is optimal.</p>
+</section>
+
+<script type="module">
+  import { buildReport } from './analyze.mjs';
+  import { recordUsage } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    payload: $('#payload'), status: $('#status'), reportCard: $('#report-card'),
+    verdict: $('#verdict'), findings: $('#findings'), headerTable: $('#header-table tbody'),
+  };
+
+  const EXAMPLE = {
+    target: 'https://app.example.com/dashboard',
+    probe: {
+      ok: true, status: 200, protocol: 'https:', path: '/dashboard',
+      headers: { 'cache-control': 'public, max-age=300', vary: '*' },
+      setCookie: ['session=abc123def456; Path=/'],
+    },
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.incomplete) {
+      els.verdict.textContent = `The probe did not complete: ${report.probe.error} -- re-run and try again.`;
+    } else if (report.dangerCount > 0) {
+      els.verdict.textContent = `${report.dangerCount} danger-level finding(s), ${report.noticeCount} notice(s).`;
+    } else if (report.noticeCount > 0) {
+      els.verdict.textContent = `No danger-level findings. ${report.noticeCount} notice(s) worth a look.`;
+    } else {
+      els.verdict.textContent = 'None of the patterns this tool checks for were found.';
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No findings to show.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">${escapeHtml(f.evidenceHeader)}</p>
+        </div>`).join('');
+
+    const headers = report.probe.headers ?? {};
+    const rows = Object.entries(headers).filter(([, v]) => v !== null);
+    els.headerTable.innerHTML = rows.length === 0
+      ? '<tr><td>(no caching headers on this response)</td></tr>'
+      : rows.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(value)}</td></tr>`).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function runCheck(payload, event) {
+    let report;
+    try {
+      if (!payload || typeof payload !== 'object' || !payload.probe || typeof payload.probe !== 'object') {
+        throw new Error('Expected an object with a "probe" object -- the exact shape "node check.mjs <url> --json" prints.');
+      }
+      report = buildReport(payload.target ?? '(unknown target)', payload.probe);
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+      els.reportCard.hidden = true;
+      return;
+    }
+    render(report);
+    els.status.textContent = '';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+  }
+
+  $('#check').addEventListener('click', () => {
+    const text = els.payload.value.trim();
+    if (!text) {
+      els.status.innerHTML = '<span class="error">Paste the JSON from step 1 first.</span>';
+      return;
+    }
+    let payload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node check.mjs &lt;url&gt; --json".</span>';
+      return;
+    }
+    runCheck(payload, 'check_run');
+  });
+
+  $('#load-example').addEventListener('click', () => {
+    els.payload.value = JSON.stringify(EXAMPLE, null, 2);
+    runCheck(EXAMPLE, 'example_loaded');
+    els.status.textContent = 'Worked example: Vary: * and Cache-Control: public alongside a Set-Cookie header.';
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.payload.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Paste the JSON from step 1 and click Check.';
+  });
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific, well-documented set of
+  caching-header patterns from one response. It is not a full caching or performance audit, does not
+  crawl other pages on the site, and cannot see a pattern it doesn't check for. A clean report
+  describes what this one request found, not a guarantee the site's caching strategy is optimal.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not performance or security advice, and it does not replace a
+  qualified review. <strong>You are responsible for reviewing and verifying its output before
+  relying on it</strong>, and for having authorisation to test any system you point the CLI at.
+  To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI's request goes straight from your
+  machine to the URL you name -- never through this site. The page you're reading now only
+  parses JSON you paste into it locally; nothing is uploaded. The only thing stored is an
+  anonymous local count of which features were used and the day -- no target URLs, no header
+  values, no account, no tracking cookies, no analytics vendor. Turn it off with the
+  checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass on your site: <a href="../security-headers-check/">Security Headers
+  checker</a> covers Content-Security-Policy and clickjacking headers, and
+  <a href="../cookie-security-check/">Cookie Security checker</a> covers Set-Cookie attribute
+  patterns -- different response-header evidence classes than the caching headers this tool checks.</p>
+</footer>
+</body>
+</html>

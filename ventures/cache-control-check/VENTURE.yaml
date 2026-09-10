@@ -1,0 +1,72 @@
+name: cache-control-check
+description: >-
+  A free CLI (+ a browser report viewer) for web developers and performance
+  engineers: sends one real HTTP GET request to a URL and classifies the
+  response's caching headers into named misconfiguration patterns -- a
+  Vary: * response (which RFC 9111 defines as never cacheable by any
+  compliant cache, browser or CDN, ever), a Cache-Control: public response
+  that also sets a cookie (a shared cache that is not specifically
+  configured to strip Set-Cookie can serve one visitor's cookie to the
+  next), plus lower-severity notices for a now-meaningless max-age
+  alongside no-store, Expires silently overridden by Cache-Control's
+  max-age, an Expires value already at or before the response's own Date,
+  a weak ETag on a response that advertises byte-range support, and a
+  static-asset-shaped path with no caching headers at all.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer debugging "why isn't my CDN caching this" or "why is my
+      resumed download corrupt" will search the exact terminology ("Vary
+      star uncacheable", "Cache-Control public Set-Cookie", "weak etag
+      range request") and find this tool, since no existing free tool
+      packages these RFC-backed caching facts behind one command with a
+      plain-English report naming the exact header that proves each
+      finding.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      No sibling venture in this portfolio reads HTTP caching headers --
+      security-headers-check covers CSP/frame-ancestors, cookie-security-check
+      covers Set-Cookie attributes, cors-misconfig-check covers a reflected
+      Origin -- so this fills a genuinely distinct response-evidence gap
+      rather than duplicating existing coverage.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or platform team that gets a clean report will wire the
+      CLI into their own CI as a regression gate against a staging
+      environment, producing return usage without any action from this
+      portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - >-
+    No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - >-
+    A materially better free tool covering the same "Vary: star" and
+    "Cache-Control: public plus Set-Cookie" patterns with the same
+    zero-install bar becomes the obvious default, such that this tool's
+    differentiation (one command, plain-English report, shared
+    classification core tested independently of the network layer) no
+    longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cache-control-check/
+  analytics: null
