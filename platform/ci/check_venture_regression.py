@@ -128,6 +128,55 @@ def _ref_exists(ref: str) -> bool:
     )
 
 
+def _ancestry(head: str, base: str) -> str:
+    """Is `head` strictly behind `base`? -> "behind" | "diverged" | "unknown".
+
+    This is the one case where every "removal" this checker finds is an
+    artifact rather than a finding: if the base contains your head's whole
+    history plus more, a venture the base gained after your checkout is simply
+    absent from your tree, and reads here as a disappearance.
+
+    "unknown" is not a rounding of "diverged", and the difference is the whole
+    reason this returns three values instead of a bool. A **shallow** clone --
+    which is what a web session gets, and therefore the ordinary environment
+    for `run_workflow_locally.py --tree` -- has grafted commits with no
+    recorded parents, so `--is-ancestor` cannot prove ancestry and exits
+    nonzero for "no" and "cannot tell" alike. A bool would collapse those,
+    and this guard would then be correct and permanently inert in the one
+    environment it was written for: the "a guard nobody runs is worth less
+    than no guard" defect CLAUDE.md records five times over.
+    """
+    try:
+        head_sha = _git("rev-parse", f"{head}^{{commit}}").strip()
+        base_sha = _git("rev-parse", f"{base}^{{commit}}").strip()
+    except Unrun:
+        return "unknown"
+    if head_sha == base_sha:
+        return "diverged"  # identical: nothing to explain away
+    # `--is-ancestor` answers with its exit status, so it cannot go through
+    # `_git`, which treats a nonzero status as a failure to run at all.
+    if (
+        subprocess.run(
+            ("git", "merge-base", "--is-ancestor", head_sha, base_sha),
+            cwd=REPO_ROOT,
+            capture_output=True,
+        ).returncode
+        == 0
+    ):
+        return "behind"
+    # Nonzero means either a genuine divergence or an unanswerable question.
+    # A missing merge base in a shallow clone is the latter.
+    merge_base = subprocess.run(
+        ("git", "merge-base", head_sha, base_sha),
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if merge_base.returncode != 0 or not merge_base.stdout.strip():
+        return "unknown"
+    return "diverged"
+
+
 def ventures_at_ref(ref: str) -> dict[str, str]:
     """Map slug -> VENTURE.yaml blob hash, as of `ref`."""
     out = _git("ls-tree", "-r", ref, "--", f"{VENTURES_DIR}/")
@@ -240,7 +289,13 @@ def find_regressions(base: str, head: str | None, allowed: set[str]) -> tuple[li
     return regressions, renames
 
 
-def report(regressions: list[dict], renames: list[dict], base: str, head: str | None) -> None:
+def report(
+    regressions: list[dict],
+    renames: list[dict],
+    base: str,
+    head: str | None,
+    ancestry: str = "diverged",
+) -> None:
     where = "the working tree" if head is None else head
     print(f"Venture regression check -- {where} against {base}\n")
 
@@ -259,6 +314,19 @@ def report(regressions: list[dict], renames: list[dict], base: str, head: str | 
         print(f"    {item['slug']}")
         for lost in item["lost"]:
             print(f"      - loses {lost}")
+    if ancestry == "unknown":
+        print(
+            "\n  CANNOT TELL WHETHER YOUR TREE IS SIMPLY BEHIND THE BASE.\n"
+            "  This clone is shallow (or the two share no recorded history), so\n"
+            "  `git merge-base --is-ancestor` cannot answer it. If your checkout\n"
+            "  predates the base -- the ordinary case when `main` moves during a\n"
+            f"  ~20-minute `--tree` sweep -- then the {plural} above never\n"
+            "  disappeared: the base gained it after you checked out.\n"
+            "  Settle it with:\n"
+            "      git fetch --unshallow && git fetch origin main\n"
+            "  then re-run. Until then this stays exit 1 rather than passing,\n"
+            "  because an unproven removal is not a proven safe one."
+        )
     print(
         "\n  A venture in the base is a product a stranger can open today. If this\n"
         "  removal is not deliberate, your tree is older than its parent commit:\n"
@@ -301,6 +369,19 @@ def main(argv: list[str] | None = None) -> int:
         if args.head is not None and not _ref_exists(args.head):
             raise Unrun(f"head ref {args.head!r} does not exist here.")
         regressions, renames = find_regressions(args.base, args.head, set(args.allow))
+        ancestry = _ancestry(args.head or "HEAD", args.base) if regressions else "diverged"
+        if ancestry == "behind":
+            raise Unrun(
+                f"every removal below is an artifact: {args.head or 'HEAD'} is an\n"
+                f"ancestor of {args.base}, so your checkout is strictly BEHIND the\n"
+                "base rather than removing anything from it. A venture the base\n"
+                "gained after you checked out reads here as one you deleted.\n"
+                "\n"
+                "  would have reported: "
+                + ", ".join(item["slug"] for item in regressions)
+                + "\n\n"
+                "Re-run after:  git fetch origin main && git merge origin/main"
+            )
     except Unrun as exc:
         print(f"UNRUN: {exc}", file=sys.stderr)
         print(
@@ -309,7 +390,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return EXIT_UNRUN
 
-    report(regressions, renames, args.base, args.head)
+    report(regressions, renames, args.base, args.head, ancestry=ancestry)
     return EXIT_REGRESSION if regressions else EXIT_OK
 
 
