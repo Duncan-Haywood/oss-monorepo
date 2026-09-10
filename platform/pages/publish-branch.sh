@@ -384,6 +384,25 @@ if [ "${PUSH:-}" = '1' ]; then
   # backwards case ruled out just above.
   git -C "$repo_root" push --force origin "refs/heads/$BRANCH:refs/heads/$BRANCH"
   say "pushed"
+
+  # `.github/workflows/publish-pages-branch.yml` notifies IndexNow after its
+  # own push, but only when a runner picks up that workflow -- and this
+  # script is the route sessions use precisely when runners are starved (see
+  # the file header). Skipping this step there was not a deliberate
+  # narrowing: it just meant every manual publish, which has been the only
+  # kind landing for days, told nobody the catalogue had new pages. Best
+  # effort and never fatal -- the site is already live once the push above
+  # succeeds, and this session's own sandbox cannot reach api.indexnow.org at
+  # all (the agent egress proxy blocks it, same limit CLAUDE.md records for
+  # github.io), so a failure here is expected from here and not a sign the
+  # publish itself went wrong.
+  echo
+  echo "Notifying IndexNow..."
+  if node "$here/../marketing/indexnow.mjs" --submit --ref "$BRANCH"; then
+    say "IndexNow notified"
+  else
+    say "IndexNow submission did not go through -- not fatal, the site is already published. Re-run 'node platform/marketing/indexnow.mjs --submit --ref $BRANCH' from a host with real egress to retry."
+  fi
 else
   echo
   say "not pushed (set PUSH=1 to push)"
