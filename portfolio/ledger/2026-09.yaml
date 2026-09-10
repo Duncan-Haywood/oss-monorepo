@@ -23077,3 +23077,186 @@ entries:
         answers `403 host_not_allowed`, so it is a reading of the proxy and
         not of the host. Recorded because the false positive is convincing.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed the last three crawlable orphans, taking
+        `platform/pages/siblings-budget.json` from 3 to 0 across 230 tools.
+        This matters more on this origin than the number suggests: the
+        catalogue is served from a project-Pages *subpath*, so the
+        `robots.txt` a crawler actually reads belongs to the owner's separate
+        user-level site and the `Sitemap:` line has never been seen. Sitemap
+        enumeration is therefore unavailable, and a page reachable only from
+        the sitemap is today reachable from nothing. An orphan is not a
+        cosmetic gap here — it is a page with no crawl path at all.
+      - >-
+        The three had been recorded twice in the budget file as unpairable.
+        They were unpairable only against *each other* — the standing method
+        was to look for a second orphan to pair with, and all three partners
+        found here (freelance-retainer-calculator, str-host-payout-calculator,
+        3d-print-price-calculator) were never orphans themselves. That is the
+        same blind spot the childcare/music-lesson entry names and does not
+        fully fix, now stated plainly in the budget file's `why`.
+      - >-
+        The pairings, and why each is honest rather than manufactured to move
+        the number: security-deposit-return-calculator / str-host-payout —
+        one property owner's two letting models, and the deposit venture's
+        own README already named the STR host calculator as its closest
+        neighbour, so the pairing was written down in the tree before anyone
+        looked for it. ats-resume-checker / freelance-retainer — both answer
+        "how do I get paid" for one person working for themselves, both filed
+        under `solo-earner`. ai-engineering-academy / 3d-print-price — one
+        maker, the printed enclosure and the circuit inside it; the academy's
+        published surface is six electronics calculators.
+      - >-
+        A defect the work turned up in itself: the academy's entry is
+        ENTRY_OVERRIDES-mapped to `tools/`, so it publishes at
+        `/tools/ai-engineering-academy/` and a sibling href is `../<slug>/`,
+        not `../../<slug>/`. The first draft used two levels and would have
+        shipped a dead link that only a browser check would catch, and only
+        if it happened to crawl that page. `hub-page.test.mjs` now pins the
+        depth as well as the link.
+      - >-
+        Budget lowered to 0 rather than to 3-minus-three, so the next tool
+        shipping without an inbound sibling link turns a run red on the day
+        it lands instead of joining a worklist. Raising it again for a
+        genuinely new vertical with no honest partner is still allowed and
+        still belongs in a PR body with a reason; fabricating a pairing to
+        hold the number at 0 is not.
+      - >-
+        Verified locally (Actions intermittently starved): `siblings.mjs
+        --check` 0 of 230 within a budget of 0; `siblings.test.mjs` 14/14;
+        `platform/marketing` + `platform/pages` + `platform/proposal` +
+        `platform/privacy` + `platform/webcheck` 1382/1382, 0 skipped (clone
+        unshallowed, so both history-pinned webcheck tests really ran); the
+        five touched ventures' suites 160/160; the academy's 230/230;
+        `regen.mjs` clean; `checklist_coverage.py` clean. `ats-resume-checker`
+        and the academy hub had no page-level test at all and gained one.
+    mrr_end: 0
+  - venture: email-auth-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture directly from the pipeline (no
+        portfolio/pipeline/candidates/ write-up, matching how
+        cors-misconfig-check and ai-crawler-access-check shipped): a free,
+        zero-dependency SPF/DKIM/DMARC/BIMI checker for small business
+        owners, freelance devs, and email marketers who run their own
+        outbound mail. duplicate_check.py scored the closest matches
+        (ai-crawler-access-check, dns-configuration-evidence) at 0.11
+        against the final description, well under the 0.45 flag bar.
+      - >-
+        SPF is walked recursively through every include:/redirect=
+        mechanism, summing the total against RFC 7208's 10-DNS-lookup
+        budget across the whole chain rather than just the top-level
+        record -- the single most common real-world SPF bug (stacking one
+        include: per marketing tool until the total quietly crosses 10) is
+        invisible to a checker that only reads the root record. Also flags
+        +all, multiple SPF records, and malformed syntax; checks DKIM at
+        nine common selectors (google, selector1, selector2, k1, s1, s2,
+        default, dkim, mail) and flags a revoked (empty p=) key; reads
+        DMARC policy/pct/rua/ruf/adkim/aspf and flags p=none as the most
+        common configured-but-spoofable gap; checks whether BIMI is
+        actually honored by DMARC enforcement. Every finding names the
+        exact record or tag read (evidence-first, never a bare pass/fail
+        score), per the disclaimer/positioning §5b requires.
+      - >-
+        Structure matches cors-misconfig-check/ai-crawler-access-check
+        closely: analyze.mjs is a pure, network-free classification module
+        (tested with fixture DNS responses, including a multi-level
+        recursive SPF chain summing to 11 lookups across three levels and
+        a diamond-dependency case proving two different includes of the
+        same target domain both still count, per RFC 7208); lookup.mjs is
+        the only file that makes a network call, using Node's built-in
+        fetch (zero npm dependencies) against Cloudflare's public
+        DNS-over-HTTPS JSON API, identically importable from cli.mjs and
+        from index.html's `<script type=module>` -- the visitor's own
+        browser or the CLI user's own machine talks directly to
+        Cloudflare, no server of ours involved at all. Shipped LICENSE,
+        README (value-test sentence, §5b/§5c disclaimers, usage section),
+        usage.mjs (localStorage, DNT/GPC-honoring, off-switchable),
+        robots.txt/sitemap.xml, SoftwareApplication + FAQPage JSON-LD with
+        matching visible headings, and the GitHub Sponsors link. No
+        vs-<competitor>.html page (optional per the brief, skipped to
+        avoid the §5f nominative-fair-use liability surface for no
+        required benefit).
+      - >-
+        The CLI was run for real, not just unit-tested in isolation, with
+        two caveats worth recording plainly. First: the sandbox's egress
+        proxy returns a policy 403 (`gateway answered 403 to CONNECT`,
+        confirmed via /__agentproxy/status's recentRelayFailures) for
+        cloudflare-dns.com, so no live public DNS query was reachable from
+        this session -- the same documented sandbox limit CLAUDE.md
+        already records for the portfolio's public surface generally.
+        Second, and this is the real substitute: a local HTTP server was
+        stood up answering Cloudflare's exact DoH JSON response shape for
+        two fixture domains, and cli.mjs's real `run()` was driven against
+        it through lookup.mjs's actual fetch/JSON/AbortController/
+        recursive-BFS code paths (not a mocked classification function) --
+        a genuine network round trip end to end. `realgood.example`
+        (recursive SPF include chain, valid DKIM, DMARC p=reject pct=100)
+        produced exit code 0 with 4 informational findings and no danger
+        findings; `nodmarc.example` (SPF ~all, DKIM present, DMARC
+        genuinely absent/NXDOMAIN) produced exit code 1 with the
+        `dmarc-missing` danger finding and correct evidence text. This is
+        the closest available proof the wiring works correctly in an
+        environment that cannot reach the public internet.
+      - >-
+        Shipping this surfaced and fixed four pre-existing, unrelated
+        drift defects the checklist commands actually caught rather than
+        missed: (1) dns-configuration-evidence was the honest sibling
+        pairing for this venture and adding the reciprocal link brought
+        the sibling-orphan count from 4 back under the committed budget of
+        3 (siblings.test.mjs); (2) the mirrored-tool-count sentences typed
+        out in infra/OWNER_CHECKLIST.md (three places),
+        gitops/prod/usage/aggregate.py, and gitops/prod/front-door/
+        default.conf (two places) all needed 230 -> 231
+        (test_manifests.py, exactly the drift CLAUDE.md already documents
+        for this exact four-file set); (3) gitops/ci/README.md's
+        "N of M runs-on lines across P workflows" sentence needed
+        resyncing after this venture's own -ci.yml workflow landed, fixed
+        with the repo's own `gitops/ci/sync_readme_counts.py` rather than
+        hand-edited; (4) the fleet's "more" catch-all category
+        (build.mjs/build.test.mjs) would have grown past its budget of 5
+        with this venture unclassified, so it was added by exact slug to
+        the existing zero-dependency-CLI-plus-browser-checker category
+        rule (`cors-misconfig-check`/`ai-crawler-access-check`'s family)
+        rather than left to inflate the catch-all. None of the four were
+        introduced by this change; all four are the specific "a number
+        that is only ever typed, never recomputed" failure mode this
+        repo's own tests exist to catch, and all four are now fixed
+        forward in this same PR rather than left for the next session to
+        discover as a mystery red check.
+      - >-
+        A real, product-level defect was also found and fixed before
+        shipping: `platform/ci/browser_checks.py --only email-auth-check`
+        (sideways, at 360px) failed on a long unbroken `<code>` string
+        (`<selector>._domainkey.yourdomain.com`) forcing horizontal
+        overflow/zoom-out on a narrow viewport. Fixed with
+        `overflow-wrap: anywhere` on `code`, matching the precedent
+        `platform/pages/reflow.mjs` documents for vendor-change-watch;
+        re-verified clean afterward (sideways/presets/roundtrip/contrast/
+        sweep/journey all ok, highlight skipped since this venture makes
+        no highlight promise, 0 WCAG A/AA violations, 903/903 sitemap URLs
+        resolve).
+      - >-
+        Verified locally (Actions runners starved per infra_state.yaml):
+        node --test ventures/email-auth-check/*.test.mjs 90/90; node
+        platform/pages/clauses.mjs email-auth-check clean; python3
+        portfolio/router/validate.py clean (239 ventures); python3
+        portfolio/scoring/score_ventures.py --check clean (240 scored);
+        python3 portfolio/usage/validate_usage.py clean; python3
+        platform/ci/check_no_payment_code.py clean; python3
+        platform/ci/checklist_coverage.py clean; regen.mjs run and the
+        gitops/prod/front-door mirror + sitemap + kustomization committed;
+        node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+        1202/1202; python3 -m pytest gitops/tests -q 525 passed/25
+        skipped; (cd platform/ci && all 15 test_*.py modules) all OK; (cd
+        platform/ci/agent_review && test_review) 21/21 OK; python3 -m
+        pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q 435 passed;
+        node platform/pages/launched.mjs --write (231 tools, 1 added).
+    mrr_end: 0
