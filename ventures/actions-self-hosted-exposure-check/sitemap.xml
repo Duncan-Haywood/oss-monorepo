@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
   <url><loc>./self-hosted-runners-in-public-repositories.html</loc></url>
+  <url><loc>./vs-stepsecurity.html</loc></url>
 </urlset>
