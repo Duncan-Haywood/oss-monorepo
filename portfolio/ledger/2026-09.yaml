@@ -23819,6 +23819,112 @@ entries:
         --tree sweep of a clean checkout of main was green across all 9
         verification-only workflows before any change was made.
     mrr_end: 0
+  - venture: crown-molding-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR-queue drain first, per the standing brief: at session start there
+        was one open PR (#4478, staffing-markup-calculator). Reviewed it,
+        merged origin/main into its branch (binary conflicts confined to the
+        generated gitops/prod/front-door(-tools)/*.gz mirror and a ledger
+        splice), re-ran regen.mjs and the full verification suite -- a
+        concurrent session pushed an equivalent resolution and merged first,
+        so the PR landed as #4478 without this session's own merge click. A
+        second PR (#4480, actions-cache-poisoning-check vs-zizmor) opened
+        immediately after; repeated the same review-and-merge-conflict-repair
+        cycle, and again a concurrent session merged first (#4480). With the
+        queue at zero afterward and no third PR appearing, the three-PR quota
+        was met by full review-and-repair of both PRs that existed, not by
+        this session's own merge action -- recorded rather than silently
+        counted, since the mandate's own text distinguishes the two.
+      - >-
+        Sampled 13 of 186 branches with commits unreachable from main
+        (`git branch -r --no-merged origin/main`) for the branch-to-PR
+        presumption: atm-route-margin(-guide-page), childcare-vs-procare,
+        agent/deploy-cicd-ledger-2868, ci/hetzner-ssh-key-diagnostic,
+        agent/marketing-distribution-gutter-guard-vs-jobnimbus,
+        agent/owner-operator-cpm-vs-dat-rateview2,
+        access/close-orphan-notary-translator,
+        claude/codex-governor-ask-and-queue-drain-report,
+        claude/fix-main-count-and-score, claude/fix-roundtrip-copy-link.
+        Every one checked was either already superseded on main under
+        different commits (owner-operator-cpm-calculator's vs-dat-rateview.html
+        already ships; claude/fix-main-count-and-score's ios-privacy-manifest-check
+        fix is a STALE-DRAFT-shaped regression against main's current, more
+        complete page) or too far behind main's growth to cheaply rebase
+        (ci/hetzner-ssh-key-diagnostic diverged before hundreds of later
+        workflow files). None resurrected; exhaustively auditing the
+        remaining ~173 was judged disproportionate to the likely yield given
+        this pattern held 10/10 times.
+      - >-
+        Deployment: `pages_state.py --require-current` reported the gh-pages
+        snapshot stale (built from a commit two merges behind main).
+        Published with `platform/pages/publish-branch.sh`; re-ran
+        `pages_state.py` and confirmed `current`. This is the one deployment
+        route this session can actually execute -- confirmed structurally
+        via `agent-session-egress` in infra_state.yaml that a web session has
+        no SSH binary and the egress proxy blocks all non-GitHub hosts, so
+        Hetzner is unreachable from here in either direction.
+      - >-
+        The user's ask to prioritise Hetzner deployment and stand up a Codex
+        CLI dev-capacity worker on the Hetzner VM is already built, tested,
+        and queued: `codex-host-mode` in infra_state.yaml (verdict up,
+        measured 2026-09-05) is a systemd-timer scheduler
+        (`gitops/agents/host/`) plus a laptop-driven installer
+        (`bootstrap/scripts/setup-codex-host-from-laptop.sh`) that spends the
+        owner's ChatGPT plan quota rather than metered Actions minutes.
+        `python3 -m pytest gitops/tests/test_host_governor.py
+        gitops/tests/test_install_codex_host.py` -- 45/45, re-verified this
+        session. It is decision-queue item #1
+        (hetzner-ssh-key-is-a-public-key, PR #3184): the stored HETZNERSSHKEY
+        is a public key, so nothing in this repository -- no session, no
+        workflow -- can SSH to either box to install it. Did not duplicate
+        the ask; it is already the top-ranked, most-detailed row in the
+        queue with a rehearsable dry run.
+      - >-
+        Product work: crown-molding-bid-calculator was router/allocate.py's
+        #6-ranked dispatchable venture (merit 6.83) with the thinnest asset
+        set (3 html pages: index, one guide, one vs-page) among the top
+        ~30 candidates -- every other top candidate already had a vs-*
+        comparison page, so that specific pattern is now saturated fleet-wide.
+        Shipped should-i-charge-8-a-foot-for-crown-molding.html, a decision
+        page testing the venture's own top hypothesis (the generic "$8 a foot
+        installed" special cannot see grade/profile/ceiling/height) using
+        calc.mjs's own JOB_PRESETS rather than hand-typed numbers. Finding:
+        under the calculator's own default crew rates, $8/ft does not cover
+        the walk-away price on any of its four preset jobs, and the same 80
+        linear feet swung from a $542.95 shortfall (paint-grade simple cove,
+        flat room) to a $7,070.87 shortfall (stain-grade built-up, cathedral
+        foyer, LED cove) -- thirteen times worse on identical footage.
+      - >-
+        One real defect caught before merge, the same shape CLAUDE.md already
+        records for two other PRs this week: platform/pages/faq-visible.mjs
+        flagged the JSON-LD FAQ answers using a double hyphen where the
+        visible on-page copy used an em dash; corrected the JSON-LD to match,
+        verified with node --test platform/pages/faq-visible.test.mjs (4/4).
+      - >-
+        Verified locally (Actions runners starved this session per
+        ci_starvation.py against run 34501946825: runner_id 0, 3s, no
+        steps -- confirmed not a regression). node --test
+        ventures/crown-molding-bid-calculator/*.test.mjs 132/132; node
+        platform/pages/clauses.mjs crown-molding-bid-calculator clean (4
+        pages); node platform/pages/siblings.mjs 0 orphans/234; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs 1206/1206;
+        node --test platform/proposal/*.test.mjs 101/101; node --test
+        platform/privacy/*.test.mjs platform/webcheck/*.test.mjs 79/79;
+        python3 -m pytest gitops/tests -q 532 passed/25 skipped; all 22
+        platform/ci test_*.py modules OK; agent_review/test_review 21/21;
+        python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q 435 passed;
+        validate_workflows.py clean (289 files); score_ventures.py --check
+        clean (243 scored); validate_usage.py clean (203 products);
+        checklist_coverage.py clean; check_venture_regression.py clean;
+        check_pages_links.py against a full build.mjs output, 919 pages, every
+        link resolves; run_workflow_locally.py --tree, 9/9 verification-only
+        workflows green on a clean checkout of main before this change;
+        regen.mjs run and the front-door mirror committed.
+    mrr_end: 0
   - venture: self-storage-rate-increase-calculator
     agent_spend_usd: null
     human_hours: 0
