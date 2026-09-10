@@ -1340,7 +1340,7 @@
       "url": "https://marisstella.dev/tools/npm-lifecycle-script-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "package-exports-drift-check",

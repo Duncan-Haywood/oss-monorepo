@@ -88,6 +88,9 @@
     <loc>https://marisstella.dev/compare/servicetitan/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/compare/socket/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/compare/workiz/</loc>
   </url>
   <url>
@@ -1667,6 +1670,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/npm-lifecycle-script-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/npm-lifecycle-script-check/vs-socket.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/npm-lifecycle-script-check/why-npm-audit-does-not-catch-a-malicious-install-script.html</loc>
