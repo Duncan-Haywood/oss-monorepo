@@ -694,6 +694,12 @@
     <loc>https://marisstella.dev/tools/contractor-bid-readiness/vs-jobtread.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/cookie-security-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cookie-security-check/samesite-none-cookie-rejected.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/cors-misconfig-check/</loc>
   </url>
   <url>

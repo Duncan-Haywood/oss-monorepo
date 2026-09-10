@@ -36,14 +36,14 @@
 #   portfolio-front-tools-0: 136 files, 556388 bytes
 #   portfolio-front-tools-1: 110 files, 555642 bytes
 #   portfolio-front-tools-2: 149 files, 548230 bytes
-#   portfolio-front-tools-3: 144 files, 554949 bytes
+#   portfolio-front-tools-3: 144 files, 554958 bytes
 #   portfolio-front-tools-4: 121 files, 553062 bytes
-#   portfolio-front-tools-5: 127 files, 556090 bytes
-#   portfolio-front-tools-6: 137 files, 551396 bytes
+#   portfolio-front-tools-5: 128 files, 555588 bytes
+#   portfolio-front-tools-6: 137 files, 551401 bytes
 #   portfolio-front-tools-7: 113 files, 556631 bytes
-#   portfolio-front-tools-8: 115 files, 556248 bytes
-#   portfolio-front-tools-9: 123 files, 554731 bytes
-#   portfolio-front-tools-10: 116 files, 554880 bytes
+#   portfolio-front-tools-8: 115 files, 556245 bytes
+#   portfolio-front-tools-9: 123 files, 554637 bytes
+#   portfolio-front-tools-10: 116 files, 554971 bytes
 #   portfolio-front-tools-11: 109 files, 555914 bytes
 #   portfolio-front-tools-12: 82 files, 392089 bytes
 #   portfolio-front-tools-13: 56 files, 274095 bytes
@@ -770,6 +770,12 @@ configMapGenerator:
       - consent-change-record__usage.mjs.gz=consent-change-record__usage.mjs.gz
       - consent-change-record__vs-cookiebot.html.gz=consent-change-record__vs-cookiebot.html.gz
       - consent-change-record__what-did-my-cookie-banner-actually-change.html.gz=consent-change-record__what-did-my-cookie-banner-actually-change.html.gz
+      - cookie-security-check__analyze.mjs.gz=cookie-security-check__analyze.mjs.gz
+      - cookie-security-check__check.mjs.gz=cookie-security-check__check.mjs.gz
+      - cookie-security-check__index.html.gz=cookie-security-check__index.html.gz
+      - cookie-security-check__probe.mjs.gz=cookie-security-check__probe.mjs.gz
+      - cookie-security-check__samesite-none-cookie-rejected.html.gz=cookie-security-check__samesite-none-cookie-rejected.html.gz
+      - cookie-security-check__usage.mjs.gz=cookie-security-check__usage.mjs.gz
       - cors-misconfig-check__analyze.mjs.gz=cors-misconfig-check__analyze.mjs.gz
       - cors-misconfig-check__check.mjs.gz=cors-misconfig-check__check.mjs.gz
       - cors-misconfig-check__index.html.gz=cors-misconfig-check__index.html.gz
@@ -852,11 +858,6 @@ configMapGenerator:
       - dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz=dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz
       - dns-configuration-evidence__index.html.gz=dns-configuration-evidence__index.html.gz
       - dns-configuration-evidence__vs-whatsmydns.html.gz=dns-configuration-evidence__vs-whatsmydns.html.gz
-      - docker-base-image-pin-check__classify.mjs.gz=docker-base-image-pin-check__classify.mjs.gz
-      - docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz=docker-base-image-pin-check__how-to-pin-a-docker-base-image-to-a-digest.html.gz
-      - docker-base-image-pin-check__index.html.gz=docker-base-image-pin-check__index.html.gz
-      - docker-base-image-pin-check__usage.mjs.gz=docker-base-image-pin-check__usage.mjs.gz
-      - docker-base-image-pin-check__vs-hadolint.html.gz=docker-base-image-pin-check__vs-hadolint.html.gz
       - dog-walking-route-pricing__calc.mjs.gz=dog-walking-route-pricing__calc.mjs.gz
       - dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz=dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz
       - dog-walking-route-pricing__index.html.gz=dog-walking-route-pricing__index.html.gz
