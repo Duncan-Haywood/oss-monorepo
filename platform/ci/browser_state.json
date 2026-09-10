@@ -342,6 +342,80 @@
         "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
         "ventures": "9d25c9108836abae01933da4129c866beda78fb9"
       }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "e7ac56f6d5dd7e156a314d2945ddfac7451040fe",
+      "measured": "2026-09-10",
+      "pages": 887,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
+        "ventures": "6aacf3226bb540cea459fa45188370ccf58a109a"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
+      "measured": "2026-09-10",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "childcare-tuition-calculator",
+        "dog-walking-route-pricing",
+        "package-exports-drift-check"
+      ],
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
+        "ventures": "49f69ac3bebf27f030d84206ef0d3c1596214ba6"
+      }
+    },
+    {
+      "checks": [
+        "journey"
+      ],
+      "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
+      "measured": "2026-09-10",
+      "pages": 888,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
+        "ventures": "49f69ac3bebf27f030d84206ef0d3c1596214ba6"
+      }
+    },
+    {
+      "checks": [
+        "highlight"
+      ],
+      "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
+      "measured": "2026-09-10",
+      "pages": 888,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
+        "ventures": "49f69ac3bebf27f030d84206ef0d3c1596214ba6"
+      }
     }
   ]
 }
