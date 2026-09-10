@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 231,
-  "collection_total": 231,
+  "served_here": 232,
+  "collection_total": 232,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 23
+      "tool_count": 24
     },
     {
       "id": "evidence",
@@ -1701,6 +1701,14 @@
       "category": "Trade & contractor bids",
       "description": "Price residential spray foam from the board feet an attic-square-foot special cannot see, the rim, the cell, and the ignition coating — plus walk-away price and proposed-price margin check.",
       "pages": 3
+    },
+    {
+      "slug": "sri-check",
+      "name": "Subresource Integrity (SRI) Checker & Hash Generator",
+      "url": "https://marisstella.dev/tools/sri-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: generate a sha384 integrity= hash for any script or stylesheet, or run a CLI that checks a page's cross-origin tags for a missing integrity attribute, a missing crossorigin attribute, or a hash that no longer matches what the CDN serves. Nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "stair-lift-bid-calculator",
