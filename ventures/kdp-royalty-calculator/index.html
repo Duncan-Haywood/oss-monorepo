@@ -286,7 +286,12 @@
       } catch {
         $('linkStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
       }
-      recordUsage(localStorage, $('usageOptOut').checked, 'link_copied');
+      // This venture's recordUsage takes (event, optedOut) — most siblings
+      // take (storage, optedOut, event), and the sibling order was what this
+      // call originally used. It threw on `'link_copied'.getItem`, which
+      // usage.mjs swallows by design, so the copy button recorded nothing at
+      // all while looking like it worked.
+      recordUsage('link_copied', $('usageOptOut').checked);
     });
 
     // A shared link replaces every field, including the ones it did not
