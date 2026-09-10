@@ -23510,3 +23510,77 @@ entries:
         possible from this sandbox (egress proxy denies non-allowlisted
         hosts).
     mrr_end: 0
+  - venture: basement-finishing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a decision page testing the venture's top untested
+        hypothesis (portfolio/router/allocate.py #3, merit 6.83): that a
+        remodeler shopped on a published "$30 a square foot finished
+        basement" flyer cannot see that an 800 SF rec-room job is a
+        different job from a 1,000 SF legal-living suite.
+        should-i-charge-30-a-square-foot-to-finish-a-basement.html uses
+        calc.mjs's own arithmetic, at the tool's default crew rates, to
+        show the flat rate covers the cheap rec-room job (+$3,399.93
+        headroom) but loses $25,866.45 on a typical 900 SF framed job and
+        $55,334.53 on the 1,000 SF legal-living suite the flyer is
+        usually invoked against -- a 25% bigger job needing a 314%
+        bigger check to actually cover it, because the gap is
+        scope-driven (bath, egress, HVAC, permit) rather than
+        size-driven.
+      - >-
+        Cross-linked from index.html and the existing
+        how-much-to-charge-to-finish-a-basement.html walkthrough, listed
+        in the venture's sitemap.xml, carries FAQPage JSON-LD and the
+        standard no-warranty clause. A new test file
+        (should-i-charge-30-a-square-foot-to-finish-a-basement.test.mjs,
+        8 assertions) pins the page's dollar figures to calc.mjs's live
+        output via JOB_PRESETS rather than hand-typing them, so a future
+        change to the shell/bath/extra kits that shifts the walk-away
+        price cannot leave the page quietly wrong.
+      - >-
+        One real defect caught and fixed before merge:
+        platform/pages/faq-visible.test.mjs flagged the JSON-LD FAQ
+        answer using a double-hyphen where the visible on-page copy used
+        an em dash; edited the JSON-LD to match. Ran
+        platform/marketing/regen.mjs (twice -- once before the fix, once
+        after) and committed the front-door mirror it rewrote both
+        times.
+      - >-
+        Branch was pushed mid-session by the coordinating agent to
+        satisfy a stop-hook; on resuming, origin/main had moved 50
+        commits (new ventures including pwa-installability-check), which
+        surfaced as 3 binary merge conflicts confined entirely to
+        generated gitops/prod/front-door-tools/*.gz mirror files --
+        resolved by merging origin/main, then re-running regen.mjs from
+        source rather than hand-picking a side. Also surfaced a
+        pre-existing, fleet-wide condition unrelated to this change: the
+        front-door mirror is at ~85.2% of its 8 MiB ceiling (0 bytes
+        recoverable duplicates), tripping
+        front-door-tools.test.mjs's 85% warn-ratio assertion. Confirmed
+        via a throwaway worktree that this already fails identically on
+        origin/main HEAD (85.1%) before this branch's one small page is
+        added -- a portfolio-wide mirror-capacity question, not something
+        in scope to fix in this PR.
+      - >-
+        Verified locally (Actions runners confirmed starved 2026-09-10,
+        portfolio/ledger/infra_state.yaml): node --test on the venture's
+        own suite, 135/135; node --test across platform/marketing +
+        platform/pages, 1205/1206 (the one failure is the pre-existing
+        mirror-capacity warning above, confirmed present on main before
+        this change); checklist_coverage.py clean; clauses.mjs clean (4
+        pages carry required clauses); python3 -m pytest gitops/tests -q,
+        532 passed/25 skipped; node platform/pages/build.mjs +
+        check_pages_links.py, 913 pages, every link resolves;
+        run_workflow_locally.py --for-changes swept 12/15 selected
+        workflows clean (3 held back on purpose: agent-cross-review and
+        hetzner-gitops-ci need secrets this session should not read,
+        portfolio-pages/publish-pages-branch grant write) -- the only
+        other reported failure, a link-check step in pages.yml, is a
+        known tool limitation (its prerequisite "Build the site" step
+        contains a templated ${{ }} expression the local runner cannot
+        evaluate, so the link check runs against a nonexistent _site
+        dir), independently disproven by the direct build.mjs +
+        check_pages_links.py run above.
+    mrr_end: 0
