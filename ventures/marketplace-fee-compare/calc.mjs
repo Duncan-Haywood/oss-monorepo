@@ -151,7 +151,7 @@ export const CHANNELS = [
 export const CHANNEL_IDS = Object.freeze(CHANNELS.map((channel) => channel.id));
 
 /**
- * Faire and Whatnot are deliberately not in the comparison above.
+ * Faire, Whatnot, and Reverb are deliberately not in the comparison above.
  *
  * Faire is wholesale: the buyer is a shop buying at roughly half retail, on a
  * commission and payout-timing structure that has no per-retail-order
@@ -164,6 +164,15 @@ export const CHANNEL_IDS = Object.freeze(CHANNELS.map((channel) => channel.id));
  * tax), with published category caps a flat retail referral rate cannot
  * express. Ranking it beside six fixed-fee retail channels would produce a
  * number that looks comparable and is not.
+ *
+ * Reverb is different from the other two: its fee shape (a marketplace
+ * percentage plus payment processing) is genuinely comparable to eBay's or
+ * Etsy's. It is excluded anyway because it is category-restricted rather than
+ * general retail — it only accepts musical instruments and gear, where the six
+ * channels above sell almost anything. A general "which marketplace" table
+ * that seats a single-category channel beside six general ones would read as a
+ * recommendation to list *any* item there, which is not true for the vast
+ * majority of what this page's other sellers carry.
  *
  * Each gets a pointer instead of a row.
  */
@@ -181,6 +190,13 @@ export const EXCLUDED_CHANNELS = [
     deepToolLabel: "Whatnot seller payout calculator",
     why:
       "Whatnot is a livestream auction, not a fixed-fee retail listing: commission is on the hammer and processing is on the checkout total (item plus buyer-paid shipping and tax), with category caps that do not map to one referral percentage. Comparing it here would be an unfair number rather than a useful one.",
+  },
+  {
+    label: "Reverb (musical instruments & gear)",
+    deepTool: "reverb-fee-calculator",
+    deepToolLabel: "Reverb fee calculator",
+    why:
+      "Reverb only accepts musical instruments and gear, where the six channels above sell almost anything — so seating it in a general-purpose ranking would read as a recommendation to list any item there, which is true for none of the other rows' inventory. Its fee shape (marketplace percentage plus payment processing) is genuinely close to eBay's, which the deep tool compares directly on the same guitar or pedal.",
   },
 ];
 
