@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ALL_INPUT_IDS } from './calc.mjs';
-import { encodeInputs, decodeInputs } from './share.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
 
 const SAMPLE = {
   primaryBottleCost: 24, primaryBottleSizeOz: 33.8, primaryOzUsed: 1.5,
@@ -51,4 +51,34 @@ test('a non-string source decodes to nothing rather than throwing', () => {
   assert.deepEqual(decodeInputs(null), {});
   assert.deepEqual(decodeInputs(undefined), {});
   assert.deepEqual(decodeInputs(42), {});
+});
+
+test('formValues covers every field the form owns, not just the ones a link carried', () => {
+  const values = formValues({ primaryBottleCost: 24 });
+  assert.deepEqual(Object.keys(values).sort(), [...ALL_INPUT_IDS].sort());
+});
+
+test('formValues clears an optional slot a link did not carry, rather than leaving it unwritten', () => {
+  // The exact defect this module exists to prevent: a spirit-only pour's
+  // link omits the six modifier/mixer fields, and applying only what is
+  // present would leave the page's own shipped defaults in those boxes --
+  // a spirit-only highball would read as a three-ingredient cocktail.
+  const { modifierBottleCost, modifierBottleSizeOz, modifierOzUsed, ...withoutModifier } = SAMPLE;
+  const encoded = encodeInputs(withoutModifier);
+  const decoded = decodeInputs(encoded);
+  const values = formValues(decoded);
+  assert.equal(values.modifierBottleCost, '');
+  assert.equal(values.modifierBottleSizeOz, '');
+  assert.equal(values.modifierOzUsed, '');
+  assert.equal(values.primaryBottleCost, String(SAMPLE.primaryBottleCost));
+});
+
+test('formValues on an empty decode clears the whole form', () => {
+  const values = formValues({});
+  for (const id of ALL_INPUT_IDS) assert.equal(values[id], '');
+});
+
+test('formValues on a missing argument clears the whole form rather than throwing', () => {
+  const values = formValues();
+  for (const id of ALL_INPUT_IDS) assert.equal(values[id], '');
 });

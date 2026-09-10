@@ -217,7 +217,7 @@
   <script type="module">
     import { calculatePourCost, ALL_INPUT_IDS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { encodeInputs, decodeInputs, formValues } from './share.mjs';
 
     const DRAFT_KEY = 'pour-cost-calculator-draft';
     const el = id => document.getElementById(id);
@@ -371,9 +371,16 @@
       }
     } catch { /* storage is optional */ }
 
+    // Every field the form owns is written from a shared link, via
+    // `formValues` -- not just the ones the link carried. Modifier and mixer
+    // are optional slots, so a spirit-only pour encodes with those six
+    // fields absent; writing only what is present would leave this page's
+    // own shipped defaults sitting in them, and the recipient would price a
+    // three-ingredient cocktail believing they were looking at the sender's
+    // highball. See share.mjs for the full reasoning.
     const fromLink = decodeInputs(location.hash || location.search);
     if (Object.keys(fromLink).length > 0) {
-      writeInput(fromLink);
+      writeInput(formValues(fromLink));
       restored = true;
       el('saveStatus').textContent = 'Opened a shared recipe. Review the numbers before you use it.';
     }
