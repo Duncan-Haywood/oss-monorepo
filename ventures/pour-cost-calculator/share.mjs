@@ -42,3 +42,22 @@ export function decodeInputs(source) {
   }
   return result;
 }
+
+/**
+ * A decoded link, expanded to every field the form owns.
+ *
+ * Modifier and mixer are optional slots: blank across all three of a slot's
+ * fields means "this recipe does not use it", so a spirit-only pour encodes
+ * with those six fields simply absent from the link. Writing `decodeInputs`'s
+ * result straight onto the form would then leave whatever was already
+ * sitting in those inputs -- the page's own shipped defaults on a first
+ * visit -- and the recipient would price a three-ingredient cocktail
+ * believing they were looking at the sender's highball, with nothing on
+ * screen saying the drink was not the sender's. `formValues` is the
+ * supported way to apply a decoded link: every field the form owns gets
+ * written, so a field the link did not carry is cleared to blank rather than
+ * left showing someone else's numbers.
+ */
+export function formValues(decoded) {
+  return Object.fromEntries(ALL_INPUT_IDS.map(id => [id, decoded?.[id] !== undefined ? String(decoded[id]) : '']));
+}

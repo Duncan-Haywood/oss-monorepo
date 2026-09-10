@@ -98,7 +98,7 @@ test('page wires save, forget, and a shareable link that wins over the saved dra
   for (const id of ['save', 'forget', 'copyLink', 'saveStatus']) {
     assert.ok(ids.has(id), `missing #${id}`);
   }
-  assert.match(script, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  assert.match(script, /import \{ encodeInputs, decodeInputs, formValues \} from '\.\/share\.mjs'/);
 
   const draftIndex = script.indexOf("localStorage.getItem(DRAFT_KEY)");
   const linkIndex = script.indexOf('decodeInputs(location.hash');
@@ -109,6 +109,21 @@ test('page wires save, forget, and a shareable link that wins over the saved dra
   assert.match(script, /el\('copyLink'\)\.addEventListener\('click'/);
   assert.match(script, /count\('link_copied'\)/);
   assert.match(script, /count\('recipe_saved'\)/);
+});
+
+test('a shared link is applied through formValues, so an absent optional slot is cleared rather than left at the page default', () => {
+  // A spirit-only recipe's link omits the six modifier/mixer fields. Writing
+  // `fromLink` straight onto the form (rather than through `formValues`,
+  // which fills every field the form owns) would leave those two slots at
+  // this page's own shipped defaults, and the recipient would price a
+  // three-ingredient cocktail believing they were looking at the sender's
+  // spirit-only pour.
+  assert.match(script, /writeInput\(formValues\(fromLink\)\)/);
+  assert.doesNotMatch(
+    script,
+    /writeInput\(fromLink\)/,
+    'the link must be applied through formValues, not written directly',
+  );
 });
 
 test('a restored draft or link opens on real figures, not the example note', () => {
