@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 230 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 231 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 230 of them — and
+Every tool in the collection is listed below — all 231 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -170,6 +170,7 @@ page that hosts it.
 - [npm Lifecycle Script Check — Did a Dependency Just Start Running Code at Install Time?](https://marisstella.dev/tools/npm-lifecycle-script-check/): Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.
 - [package.json Exports Drift Check — Does "exports" Point at Files That Exist?](https://marisstella.dev/tools/package-exports-drift-check/): Paste your package.json and a listing of the files you actually publish and see every literal target in the "exports" map that points at a file that doesn't exist -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module right after npm install. Free, runs entirely in your browser, nothing is uploaded.
 - [Pinned Actions Check — Are Your GitHub Actions Pinned to a Commit SHA?](https://marisstella.dev/tools/pinned-actions-check/): Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.
+- [Subresource Integrity (SRI) Checker & Hash Generator](https://marisstella.dev/tools/sri-check/): Free tool: generate a sha384 integrity= hash for any script or stylesheet, or run a CLI that checks a page's cross-origin tags for a missing integrity attribute, a missing crossorigin attribute, or a hash that no longer matches what the CDN serves. Nothing uploaded.
 - [Structured Data Drift Check — Does Your JSON-LD Match the Page?](https://marisstella.dev/tools/structured-data-drift-check/): Paste a page's HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page's own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.
 - [VS Code Extension Drift Check — Did an Extension You Trust Just Change What It Does?](https://marisstella.dev/tools/vscode-extension-drift-check/): Paste a snapshot of your installed VS Code, Cursor, Windsurf, or VSCodium extensions and see exactly which ones changed their activation surface -- a new startup trigger, a new extension dependency, or a changed entry point -- since your last check. A CLI-only command also checks whether an extension still resolves on the VS Code Marketplace. Free, runs entirely in your browser, nothing is uploaded.
 - [WordPress Plugin Review Checker — Stable Tag, Escaping & Nonce Issues](https://marisstella.dev/tools/wordpress-plugin-review-check/): Free, browser-local checker for WordPress plugin developers: catches a readme.txt Stable tag that doesn't match your plugin's Version header, missing required readme/header fields, unescaped $_GET/$_POST output, and $_POST handling with no nonce check -- before wordpress.org Plugin Review does. Nothing is uploaded.

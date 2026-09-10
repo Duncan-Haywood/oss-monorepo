@@ -1,0 +1,71 @@
+name: sri-check
+description: >-
+  A free browser tool that generates a sha256/sha384/sha512 Subresource
+  Integrity (SRI) hash from pasted script/stylesheet content, plus a
+  zero-dependency CLI that fetches a page and every cross-origin
+  <script>/<link rel=stylesheet> tag it loads, flagging a missing integrity
+  attribute, an integrity attribute with no crossorigin attribute (which most
+  browsers silently fail to enforce), and a declared hash that no longer
+  matches what the CDN currently serves. The browser renders a report from
+  the CLI's JSON because reading another site's HTML from browser JS is
+  itself CORS-restricted; the hash generator has no such limit since it only
+  hashes content pasted in.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer who has heard of Subresource Integrity but has never set it
+      up (or inherited a page that references a third-party CDN with no
+      integrity attribute at all) will search "sri hash generator",
+      "subresource integrity checker", or "integrity attribute crossorigin"
+      and find this tool, since it is the only free tool this portfolio has
+      found that pairs the hash generator with a checker that re-verifies the
+      hash against what the CDN serves right now rather than only validating
+      the attribute's syntax.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      OWASP's own cheat sheets and MDN both document SRI and the
+      integrity+crossorigin pairing as commonly gotten wrong -- real,
+      recurring confusion (the crossorigin requirement is easy to miss
+      because a tag with only integrity still loads, just unprotected, so
+      nothing about it looks broken) rather than a hypothetical problem. The
+      niche this tool serves is under-served by a zero-install, both
+      generator-and-checker tool with this portfolio's disclaimer/usage
+      conventions -- most free SRI tools online are hash-generator-only and
+      do not check a live page for the crossorigin gap or hash drift.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A maintainer who gets a clean report will wire the CLI into their own
+      site's CI as a regression gate against CDN-hash drift, producing return
+      usage without any action from this portfolio -- the same pattern this
+      portfolio has already observed work for cors-misconfig-check's staging
+      gate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - A materially better free tool covering the same generator-plus-drift-check
+    shape with the same zero-install bar becomes the obvious default, such
+    that this tool's differentiation no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sri-check/
+  analytics: null
