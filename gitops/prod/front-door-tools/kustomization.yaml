@@ -34,18 +34,18 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 136 files, 556243 bytes
-#   portfolio-front-tools-1: 110 files, 555156 bytes
+#   portfolio-front-tools-1: 110 files, 555665 bytes
 #   portfolio-front-tools-2: 149 files, 548219 bytes
 #   portfolio-front-tools-3: 144 files, 546844 bytes
-#   portfolio-front-tools-4: 124 files, 556973 bytes
-#   portfolio-front-tools-5: 127 files, 554397 bytes
-#   portfolio-front-tools-6: 128 files, 543484 bytes
+#   portfolio-front-tools-4: 123 files, 556662 bytes
+#   portfolio-front-tools-5: 127 files, 556237 bytes
+#   portfolio-front-tools-6: 132 files, 555815 bytes
 #   portfolio-front-tools-7: 109 files, 555969 bytes
 #   portfolio-front-tools-8: 119 files, 555010 bytes
 #   portfolio-front-tools-9: 126 files, 545916 bytes
 #   portfolio-front-tools-10: 101 files, 556947 bytes
-#   portfolio-front-tools-11: 113 files, 555560 bytes
-#   portfolio-front-tools-12: 77 files, 375105 bytes
+#   portfolio-front-tools-11: 113 files, 555922 bytes
+#   portfolio-front-tools-12: 77 files, 375765 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -728,6 +728,7 @@ configMapGenerator:
       - chrome-extension-permission-check__purple-potassium-unused-permissions.html.gz=chrome-extension-permission-check__purple-potassium-unused-permissions.html.gz
       - chrome-extension-permission-check__scan.mjs.gz=chrome-extension-permission-check__scan.mjs.gz
       - chrome-extension-permission-check__usage.mjs.gz=chrome-extension-permission-check__usage.mjs.gz
+      - chrome-extension-permission-check__vs-crxcavator.html.gz=chrome-extension-permission-check__vs-crxcavator.html.gz
       - concrete-lifting-bid-calculator__calc.mjs.gz=concrete-lifting-bid-calculator__calc.mjs.gz
       - concrete-lifting-bid-calculator__how-much-to-charge-for-concrete-lifting.html.gz=concrete-lifting-bid-calculator__how-much-to-charge-for-concrete-lifting.html.gz
       - concrete-lifting-bid-calculator__index.html.gz=concrete-lifting-bid-calculator__index.html.gz
@@ -749,13 +750,14 @@ configMapGenerator:
       - cors-misconfig-check__index.html.gz=cors-misconfig-check__index.html.gz
       - cors-misconfig-check__probe.mjs.gz=cors-misconfig-check__probe.mjs.gz
       - cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz=cors-misconfig-check__reflected-origin-cors-vulnerability.html.gz
-      - cors-misconfig-check__usage.mjs.gz=cors-misconfig-check__usage.mjs.gz
-      - countertop-bid-calculator__calc.mjs.gz=countertop-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cors-misconfig-check__usage.mjs.gz=cors-misconfig-check__usage.mjs.gz
+      - cors-misconfig-check__vs-burp-suite.html.gz=cors-misconfig-check__vs-burp-suite.html.gz
+      - countertop-bid-calculator__calc.mjs.gz=countertop-bid-calculator__calc.mjs.gz
       - countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz=countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz
       - countertop-bid-calculator__index.html.gz=countertop-bid-calculator__index.html.gz
       - countertop-bid-calculator__share.mjs.gz=countertop-bid-calculator__share.mjs.gz
@@ -880,14 +882,14 @@ configMapGenerator:
       - einvoice-preflight__cii.mjs.gz=einvoice-preflight__cii.mjs.gz
       - einvoice-preflight__document.mjs.gz=einvoice-preflight__document.mjs.gz
       - einvoice-preflight__endpoint.mjs.gz=einvoice-preflight__endpoint.mjs.gz
-      - einvoice-preflight__facturx.mjs.gz=einvoice-preflight__facturx.mjs.gz
-      - einvoice-preflight__how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html.gz=einvoice-preflight__how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html.gz
-      - einvoice-preflight__iban.mjs.gz=einvoice-preflight__iban.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - einvoice-preflight__facturx.mjs.gz=einvoice-preflight__facturx.mjs.gz
+      - einvoice-preflight__how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html.gz=einvoice-preflight__how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html.gz
+      - einvoice-preflight__iban.mjs.gz=einvoice-preflight__iban.mjs.gz
       - einvoice-preflight__index.html.gz=einvoice-preflight__index.html.gz
       - einvoice-preflight__means.mjs.gz=einvoice-preflight__means.mjs.gz
       - einvoice-preflight__period.mjs.gz=einvoice-preflight__period.mjs.gz
@@ -917,6 +919,7 @@ configMapGenerator:
       - env-example-drift-check__engine.mjs.gz=env-example-drift-check__engine.mjs.gz
       - env-example-drift-check__index.html.gz=env-example-drift-check__index.html.gz
       - env-example-drift-check__usage.mjs.gz=env-example-drift-check__usage.mjs.gz
+      - env-example-drift-check__vs-dotenv-linter.html.gz=env-example-drift-check__vs-dotenv-linter.html.gz
       - env-example-drift-check__why-env-example-files-drift-from-the-code-that-reads-them.html.gz=env-example-drift-check__why-env-example-files-drift-from-the-code-that-reads-them.html.gz
       - epoxy-garage-floor-bid-calculator__calc.mjs.gz=epoxy-garage-floor-bid-calculator__calc.mjs.gz
       - epoxy-garage-floor-bid-calculator__how-much-to-charge-for-an-epoxy-garage-floor.html.gz=epoxy-garage-floor-bid-calculator__how-much-to-charge-for-an-epoxy-garage-floor.html.gz

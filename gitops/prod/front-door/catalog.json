@@ -748,7 +748,7 @@
       "url": "https://marisstella.dev/tools/chrome-extension-permission-check/",
       "category": "CI checks & developer gates",
       "description": "Free, browser-local checker: scans your extension's JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json's declared permissions, so an unused or missing permission doesn't cost you a Chrome Web Store rejection ('Purple Potassium'). Nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "concrete-lifting-bid-calculator",
@@ -772,7 +772,7 @@
       "url": "https://marisstella.dev/tools/cors-misconfig-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: run a CLI that sends real requests with crafted Origin headers to your API, then paste the JSON here for a plain-English report on reflected-origin, null-origin, and unanchored allow-list CORS misconfigurations. Nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "countertop-bid-calculator",
@@ -964,7 +964,7 @@
       "url": "https://marisstella.dev/tools/env-example-drift-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "epoxy-garage-floor-bid-calculator",

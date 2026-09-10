@@ -645,6 +645,42 @@ def _grants_write(node) -> bool:
     return any(value == "write" for value in perms.values())
 
 
+# A secret is read through an Actions *expression*, so that is what this
+# looks for -- not the loose text `secrets.`, which is also how a filename
+# reads.
+#
+# The `${{ }}` wrapper is matched separately from the reference inside it
+# rather than in one pattern, because the two can be far apart
+# (`${{ inputs.x && secrets.Y || '' }}`) and a single adjacency-based regex
+# would miss that. `secrets[...]` index syntax has no readable name, so it
+# holds the job unconditionally: failing closed is the only safe direction
+# for a screen that decides what may execute locally.
+EXPRESSION_BLOCK = re.compile(r"\$\{\{(.*?)\}\}", re.S)
+SECRET_REFERENCE = re.compile(
+    r"\bsecrets\s*(?:\.\s*([A-Za-z_][A-Za-z0-9_-]*)|\[)")
+
+
+def _iter_strings(node):
+    """Every string scalar in a parsed workflow fragment, keys included.
+
+    Deliberately walks the structure instead of re-serialising it.
+    `yaml.safe_dump` line-wraps long scalars -- a shellcheck invocation
+    spanning 24 paths comes back full of `\\` continuations and escaped
+    newlines -- so a `${{ ... secrets.X ... }}` in a long command can be
+    split across two dumped lines. A screen that decides what is safe to run
+    must not be able to miss a secret because the dumper chose a line break.
+    """
+    if isinstance(node, dict):
+        for key, value in node.items():
+            yield from _iter_strings(key)
+            yield from _iter_strings(value)
+    elif isinstance(node, (list, tuple)):
+        for value in node:
+            yield from _iter_strings(value)
+    elif isinstance(node, str):
+        yield node
+
+
 def _mentions_secret(node) -> bool:
     """Whether this node reads a secret this tool has no honest stand-in for.
 
@@ -655,13 +691,48 @@ def _mentions_secret(node) -> bool:
     `_grants_write` on the declared `permissions` block. A job that reads it
     under `contents: read` can do nothing this tool should hold back.
 
-    Every other `secrets.X` still holds the job. The substitution above knows
-    one literal name; a job reading any other secret would run here against a
-    credential this tool cannot supply, and guessing is worse than not running.
+    Every other `secrets.X` still holds the job: a job reading one would run
+    here against a credential this tool cannot supply, and guessing is worse
+    than not running.
+
+    **This used to ask whether the literal text `secrets.` appeared anywhere
+    in the job, and a filename is text.** Measured 2026-09-10 across all 283
+    workflows, exactly one job was held on that reading and nothing else:
+    `hetzner-gitops-ci.yml`'s `scripts`, which declares no `permissions`
+    beyond the workflow's `contents: read`, reads no secret at all, and does
+    one thing -- `shellcheck` over the 24 shell scripts that install and run
+    every runner-free route this repository has. It was classified "reads a
+    secret" because two of the paths it lints are `bootstrap/scripts/
+    load-secrets.sh` and `bootstrap/scripts/seal-owner-secrets.sh`, and
+    `load-secrets.sh` contains the substring `secrets.`.
+
+    The cost was not theoretical and is not on the sweep. `--for-changes` is
+    the documented pre-merge check and `hetzner-gitops-ci.yml`'s `paths:`
+    filter selects it on any `bootstrap/**` or `gitops/**` diff -- so every
+    session that edited a deploy script got a report with the shell-bug gate
+    silently held back. #4435 (2026-09-10) is the record of it: it changed
+    `bootstrap/restore-cluster.sh`, reported `--for-changes 13/15`, and its
+    author separately ran "shellcheck-py 0.11.0.1 clean on restore-cluster.sh
+    (reproducing the starved scripts job by hand)". Improvising a guard the
+    tool held back is exactly what this module's docstring says it exists to
+    stop -- and `test_shellcheck_coverage.py` records `enable-codex-governor.sh`
+    shipping with two real SC2015 findings the one time that job did not run.
+
+    The fix narrows the screen and cannot widen it: a filename is not an
+    expression, and every genuine `${{ secrets.X }}` still holds its job.
     """
-    dumped = yaml.safe_dump(node, default_flow_style=False)
-    dumped = re.sub(r"\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}", "", dumped)
-    return "secrets." in dumped
+    if isinstance(node, dict) and "secrets" in node:
+        # A reusable-workflow call passes credentials through a `secrets:`
+        # key (`secrets: inherit`, or an explicit mapping) with no `${{ }}`
+        # anywhere. Nothing here uses one today; holding on the key keeps
+        # that from becoming a hole the day something does.
+        return True
+    for text in _iter_strings(node):
+        for block in EXPRESSION_BLOCK.findall(text):
+            for name in SECRET_REFERENCE.findall(block):
+                if name != "GITHUB_TOKEN":
+                    return True
+    return False
 
 
 def read_only_jobs(workflow: dict) -> tuple[set, list[tuple[str, str]]]:

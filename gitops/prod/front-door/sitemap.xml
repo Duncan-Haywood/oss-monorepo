@@ -562,6 +562,9 @@
     <loc>https://marisstella.dev/tools/chrome-extension-permission-check/purple-potassium-unused-permissions.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/chrome-extension-permission-check/vs-crxcavator.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/cleaning-dilution-calculator/</loc>
   </url>
   <url>
@@ -653,6 +656,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/cors-misconfig-check/reflected-origin-cors-vulnerability.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cors-misconfig-check/vs-burp-suite.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/countertop-bid-calculator/</loc>
@@ -953,6 +959,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/env-example-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/env-example-drift-check/vs-dotenv-linter.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/env-example-drift-check/why-env-example-files-drift-from-the-code-that-reads-them.html</loc>

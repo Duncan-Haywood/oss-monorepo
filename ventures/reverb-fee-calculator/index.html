@@ -298,7 +298,7 @@
   <script type="module">
     import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, counterOfferMessage, compareWaitForBetterOffer, waitForBetterOfferNote, compareShippingPaths, compareSafeShipping, compareConsignment, consignmentNote, compareBump, compareReturnResolution, returnResolutionNote } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { encodeInputs, decodeInputs, formValues } from './share.mjs';
     import { whereToSellUrl } from './to-where-to-sell.mjs';
 
     const field = id => document.getElementById(id);
@@ -496,9 +496,14 @@
       recordUsage(undefined, field('usageOptOut').checked, 'handoff_where_to_sell');
     });
 
+    // A shared link wins over a local draft so the recipient always sees the
+    // sender's numbers. `formValues` -- not a plain object spread -- is what
+    // makes that true: it writes every field, so one the link omitted is
+    // cleared rather than left showing the recipient's own saved draft.
     const fromLink = decodeInputs(location.hash || location.search);
     const saved = safe(() => JSON.parse(localStorage.getItem(INPUTS_KEY) || '{}')) || {};
-    apply({ ...REVERB_DEFAULTS, ...saved, ...fromLink });
+    const hasLink = Object.keys(fromLink).length > 0;
+    apply(hasLink ? formValues(fromLink) : { ...REVERB_DEFAULTS, ...saved });
     field('usageOptOut').checked = safe(() => localStorage.getItem('reverb-fee-usage-opt-out') === '1') || false;
     for (const id of INPUT_FIELDS) field(id).addEventListener('input', paint);
     paint();
