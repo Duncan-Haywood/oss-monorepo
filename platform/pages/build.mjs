@@ -553,9 +553,19 @@ const CATEGORY_RULES = [
     // and past the bound `build.test.mjs` puts on it (`the catch-all holds
     // only what no section claims`), because the venture's own graduation
     // commit added no category rule for it.
+    // `self-storage-rate-increase-calculator` joined 2026-09-10 and is filed
+    // here on its first commit rather than after a spell in the catch-all --
+    // which is what `build.test.mjs`'s catch-all bound is for. It is this
+    // section's own blurb almost word for word ("the break-even behind a price
+    // change"): an existing-customer rate increase priced against the
+    // move-outs it causes, which is the same decision `subscription-price`
+    // directly above runs for recurring software revenue, and the two
+    // cross-link each other. Not `trades` (nothing is bid), not `services`
+    // (the number is not quoted to a customer deciding whether to accept a
+    // job), and not `marketplace` (no platform takes a cut).
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator)/.test(slug),
   },
   {
     id: 'ci',
