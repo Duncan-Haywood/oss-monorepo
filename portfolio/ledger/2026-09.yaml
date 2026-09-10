@@ -22836,3 +22836,50 @@ entries:
         types into changed. `run_workflow_locally.py --tree` run against
         this branch; see the PR body for its result.
     mrr_end: 0
+  - venture: apparel-decoration-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second decision-support worked-example page,
+        should-i-charge-extra-for-a-second-print-location.html, following the
+        should-i-* pattern already used by carpet-install-bid-calculator,
+        egress-window-bid-calculator and invoice-payment-terms-calculator.
+        Chosen because this venture's own calculator.mjs docstring names the
+        exact defect the page explains: a second print/embroidery placement
+        is not "one more design" on the same setup, it is its own full set of
+        screens, and the engine already prices that correctly (screenCount =
+        colorsPerLocation * locations) but nothing on the site explained the
+        consequence in dollars.
+      - >-
+        Every figure in the article is recomputed in its test file directly
+        from computeDecorationJob rather than hand-typed: on the venture's own
+        documented 24-piece worked example (3-color design, $18/screen, $20
+        wage), a front-only job needs 3 screens ($65.80 setup) and a
+        front+back job needs 6 ($119.80). Keeping the same $14/piece price
+        across both drops profit from $102.81 to $38.20 (a $64.61 giveaway)
+        and margin from 30.6% to 11.4%, well under a 40% target.
+      - >-
+        Second, non-obvious point pinned by its own test: the added cost per
+        piece shrinks with volume ($2.69 at 24 pieces down to $0.63 at 288,
+        since the extra screens are a one-off spread over more pieces) but the
+        added cost for the whole job grows ($64.61 to $181.36), since the
+        extra ink and press-pass time is a true per-piece cost that never
+        shrinks. The test asserts the direction of both trends across four
+        quantities, not just the individual numbers, so a change to the cost
+        model that breaks this shape fails loudly.
+      - >-
+        Verified locally (Actions runners starved per infra_state.yaml,
+        re-confirmed this session on PR #4446/#4447's checks via
+        ci_starvation.py, all runner_id 0): node --test
+        ventures/apparel-decoration-price-calculator/*.test.mjs 63/63 (new
+        file adds 5 tests: structural, disclaimer, the 24-piece worked
+        example, the four-quantity shape assertion, sitemap listing);
+        node platform/pages/clauses.mjs apparel-decoration-price-calculator
+        clean; checklist_coverage.py clean; regen.mjs run and
+        gitops/prod/front-door mirror + sitemap committed; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs 1202/1202;
+        python3 -m pytest gitops/tests -q 525 passed/25 skipped;
+        score_ventures.py --check, usage/validate_usage.py, router/validate.py
+        all clean.
+    mrr_end: 0
