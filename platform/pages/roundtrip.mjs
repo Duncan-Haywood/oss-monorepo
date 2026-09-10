@@ -126,10 +126,18 @@ const only = onlySlugs();
 // waiting to trip over the next one by hand: its own click handler writes
 // `scenarioLink()` -- a real URL-encoded link -- to the clipboard, and this
 // file had never once round-tripped it.
+//
+// `copy-link` was the same gap again, found 2026-09-10 recording a fleet-wide
+// sweep after `wash-and-fold-price-calculator` shipped a share button under
+// that id: a `grep -rl 'id="copy-link"' ventures/` for it turned up two more
+// pages that had been skipping silently since before this list existed --
+// `ai-engineering-academy/tools/rc-filter-calculator` and `sponsor-ready`,
+// both with a real link-copying handler wired to the same id. Three pages,
+// one missing selector, all invisible to this check the same way.
 const COPY_CONTROLS = ['button#copyShare', 'button#copyLink', 'button#shareLink',
   'button#share', 'button#pf-link-copy', 'button#share-link',
   'button#copy-share-link', 'button#shareResult', 'button#copy-share',
-  'button#copyShareLink', 'button#copyScenario'];
+  'button#copyShareLink', 'button#copyScenario', 'button#copy-link'];
 
 // Fields no link should carry, and no comparison should demand.
 //
