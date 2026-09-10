@@ -317,6 +317,17 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_pages_state
 
+      # And the tool that says which guards did not run at all. Same reason a
+      # third time: a session reads `533 passed, 25 skipped` and calls the
+      # tree green, so the thing that distinguishes a skip from a pass must
+      # not be the thing that is broken. Its own refusals are the behaviour
+      # under test -- an unrecognised skip reason must never be filed as
+      # "does not apply here", and a suite that could not run at all must
+      # never exit 0 under `--require-runnable`.
+      - name: Guard-state reader unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_guard_state
+
       # `test_publish_pages_branch.py` pins the invariants of
       # `publish-pages-branch.yml` itself -- the workflow that keeps the
       # `gh-pages` branch snapshot from silently lagging `main` (see that
