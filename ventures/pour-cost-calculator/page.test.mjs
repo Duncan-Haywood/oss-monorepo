@@ -185,3 +185,21 @@ test('index links one hop to the menu-engineering-calculator sibling', () => {
   );
   assert.match(markup, /menu engineering calculator/i);
 });
+
+test('an edit updates the figure on screen rather than leaving the last one standing', () => {
+  // Found by `platform/pages/roundtrip.mjs` the morning the share link
+  // shipped: all fifteen fields survived the link and only the headline
+  // differed, 15.4% on the sender's screen against 14.6% on the
+  // recipient's. The link was right; the screen was stale, because the page
+  // recomputed on submit alone. Without a link that is a small staleness.
+  // With one it is two people reading different numbers, neither able to
+  // tell.
+  const listener = /addEventListener\('input', \(\) => \{[\s\S]*?\n    \}\);/.exec(script);
+  assert.ok(listener, 'expected an input listener on the form');
+  assert.match(listener[0], /calculatePourCost\(readInput\(\)\)/);
+  assert.match(listener[0], /render\(result\)/);
+  // Errors stay with submit: complaining midway through a typed bottle cost
+  // is noise, and an input that does not yet compute must not blank a
+  // figure that is already up.
+  assert.doesNotMatch(listener[0], /showProblems/);
+});

@@ -321,9 +321,30 @@
       if (result.overPourOzPerDrink > 0) count('overpour_checked');
     });
 
+    // Keep the figure on screen matching the form.
+    //
+    // This used to leave the last result standing after an edit, so a bar
+    // manager who changed the pour size read the *previous* recipe's
+    // percentage. On its own that is a small staleness. Once the page has a
+    // share link it is two people reading different numbers: the link
+    // carries the edited form, the sender's screen still shows the old
+    // figure, and the recipient opens a pour cost the sender never saw.
+    // `platform/pages/roundtrip.mjs` caught exactly that -- all fifteen
+    // fields survived the link and only the headline differed, 15.4%
+    // against 14.6%.
+    //
+    // Errors stay with the submit handler: complaining midway through a
+    // typed bottle cost is noise, so an input that does not yet compute
+    // leaves the last good figure up until the visitor asks for it.
     el('pourForm').addEventListener('input', () => {
-      if (!current) return;
-      current = null;
+      const result = calculatePourCost(readInput());
+      if (!result.ok) {
+        current = null;
+        return;
+      }
+      render(result);
+      showingExample = false;
+      el('exampleNote').hidden = true;
     });
 
     el('save').addEventListener('click', () => {
