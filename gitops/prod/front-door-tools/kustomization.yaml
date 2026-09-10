@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 126 files, 551055 bytes
 #   portfolio-front-tools-7: 109 files, 547844 bytes
 #   portfolio-front-tools-8: 118 files, 543565 bytes
-#   portfolio-front-tools-9: 121 files, 546103 bytes
+#   portfolio-front-tools-9: 122 files, 548073 bytes
 #   portfolio-front-tools-10: 101 files, 556212 bytes
 #   portfolio-front-tools-11: 113 files, 556401 bytes
 #   portfolio-front-tools-12: 64 files, 307430 bytes
@@ -1310,6 +1310,7 @@ configMapGenerator:
       - poshmark-fee-calculator__how-much-does-poshmark-take.html.gz=poshmark-fee-calculator__how-much-does-poshmark-take.html.gz
       - poshmark-fee-calculator__index.html.gz=poshmark-fee-calculator__index.html.gz
       - poshmark-fee-calculator__is-a-lower-offer-worth-it-on-poshmark.html.gz=poshmark-fee-calculator__is-a-lower-offer-worth-it-on-poshmark.html.gz
+      - poshmark-fee-calculator__share.mjs.gz=poshmark-fee-calculator__share.mjs.gz
       - poshmark-fee-calculator__usage.mjs.gz=poshmark-fee-calculator__usage.mjs.gz
       - poshmark-fee-calculator__vs-poshmarks-how-it-works-page.html.gz=poshmark-fee-calculator__vs-poshmarks-how-it-works-page.html.gz
       - pour-cost-calculator__calc.mjs.gz=pour-cost-calculator__calc.mjs.gz
