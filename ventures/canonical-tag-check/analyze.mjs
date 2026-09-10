@@ -141,7 +141,7 @@ export function buildReport(target, page, canonicalTarget = null) {
             'to use an absolute URL: a relative one leaves the protocol and host to be inferred, and ' +
             'can resolve differently than intended if the page is ever served from a different path ' +
             'or mirrored elsewhere.',
-          evidence: `<link rel="canonical" href="${href}">`,
+          evidence: `canonical tag href attribute: ${href}`,
         });
       }
 
