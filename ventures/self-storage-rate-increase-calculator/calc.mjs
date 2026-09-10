@@ -47,6 +47,7 @@ export const ALL_INPUT_IDS = [
   'baselineMoveOutPercent',
   'inducedMoveOutPercent',
   'vacantDays',
+  'reletSharePercent',
   'turnoverCost',
   'concessionMonths',
   'horizonMonths',
@@ -61,6 +62,12 @@ const FIELDS = {
   baselineMoveOutPercent: { label: 'Move-outs without the increase', min: 0, max: 100 },
   inducedMoveOutPercent: { label: 'Extra move-outs the increase causes', min: 0, max: 100 },
   vacantDays: { label: 'Days empty before it re-rents', min: 0, max: 365 },
+  // `defaultsTo` rather than required: this input was added after the tool
+  // shipped, and a saved link or an embedding page from before it existed
+  // must keep pricing rather than turning into a validation error. 100 is
+  // the assumption every figure was computed under until now, so an absent
+  // value reproduces the old answer exactly.
+  reletSharePercent: { label: 'Share of vacated units that re-rent', min: 0, max: 100, defaultsTo: 100 },
   turnoverCost: { label: 'Turnover cost', min: 0, max: 5000 },
   concessionMonths: { label: 'Move-in concession', min: 0, max: 12 },
   horizonMonths: { label: 'Judge it over', min: 1, max: 60 },
@@ -93,15 +100,34 @@ function readNumber(raw, field, errors) {
  * departure produces the lowest break-even move-out rate rather than the
  * flattering one.
  */
-export function reletValue({ streetRate, ancillaryPerMonth, vacantDays, concessionMonths, turnoverCost, horizonMonths }) {
+export function reletValue({
+  streetRate,
+  ancillaryPerMonth,
+  vacantDays,
+  concessionMonths,
+  turnoverCost,
+  horizonMonths,
+  reletShare = 1,
+}) {
   const vacantMonths = Math.min(vacantDays / DAYS_PER_MONTH, horizonMonths);
   const occupiedMonths = horizonMonths - vacantMonths;
   const concession = streetRate * Math.min(concessionMonths, occupiedMonths);
+  // The rent and the concession only happen on a unit that actually re-lets;
+  // the turnover cost is spent on every vacated unit whether it re-lets or
+  // not, because you still clean it out, re-lock it and list it. Splitting
+  // them is the whole point of the share: a soft market does not make turns
+  // cheaper, it makes them stop paying for themselves.
+  const earned = (streetRate + ancillaryPerMonth) * occupiedMonths - concession;
   return {
     vacantMonths,
     occupiedMonths,
     concession,
-    value: (streetRate + ancillaryPerMonth) * occupiedMonths - concession - turnoverCost,
+    reletShare,
+    // What the vacated unit would earn if it certainly re-let. Kept so the
+    // itemised cost can show the never-re-lets risk as its own line rather
+    // than folding it invisibly into the other four.
+    earnedIfRelet: earned,
+    value: reletShare * earned - turnoverCost,
   };
 }
 
@@ -123,6 +149,7 @@ export function moveOutCost({
   concessionMonths,
   turnoverCost,
   horizonMonths,
+  reletShare = 1,
 }) {
   const relet = reletValue({
     streetRate,
@@ -131,6 +158,7 @@ export function moveOutCost({
     concessionMonths,
     turnoverCost,
     horizonMonths,
+    reletShare,
   });
   const items = [
     {
@@ -144,6 +172,15 @@ export function moveOutCost({
       key: 'rateGap',
       label: 'Re-rent at street rate instead of their rent',
       amount: (newRent - streetRate) * horizonMonths,
+    },
+    // A fifth term rather than an adjustment to the four above, so each of
+    // those keeps meaning exactly what its label says and this one is
+    // visible on its own. It is zero at a 100% re-let share, which is the
+    // assumption the other four were written under.
+    {
+      key: 'neverRelet',
+      label: 'Vacated units that never re-rent inside the horizon',
+      amount: (1 - relet.reletShare) * relet.earnedIfRelet,
     },
   ];
   const total = items.reduce((sum, item) => sum + item.amount, 0);
@@ -188,7 +225,13 @@ export function calculateIncrease(raw = {}) {
   const errors = [];
   const value = {};
   for (const field of ALL_INPUT_IDS) {
-    value[field] = readNumber(raw[field], field, errors);
+    const supplied = raw[field];
+    const spec = FIELDS[field];
+    if (spec.defaultsTo !== undefined && (supplied === undefined || supplied === null || supplied === '')) {
+      value[field] = spec.defaultsTo;
+      continue;
+    }
+    value[field] = readNumber(supplied, field, errors);
   }
   if (errors.length === 0 && value.baselineMoveOutPercent + value.inducedMoveOutPercent > 100) {
     errors.push({
@@ -213,6 +256,7 @@ export function calculateIncrease(raw = {}) {
     concessionMonths: value.concessionMonths,
     turnoverCost: value.turnoverCost,
     horizonMonths,
+    reletShare: value.reletSharePercent / 100,
   };
   const cost = moveOutCost({ newRent, ...shared });
   const relet = cost.relet;
@@ -338,6 +382,15 @@ export function calculateIncrease(raw = {}) {
       `A ${value.concessionMonths}-month move-in concession costs $${relet.concession.toFixed(0)} on every unit ` +
         'that turns over. It is the part of a move-out most operators leave out, because it is charged to ' +
         'marketing rather than to the tenant who left.',
+    );
+  }
+  if (value.reletSharePercent < 100) {
+    const neverRelet = cost.items.find((item) => item.key === 'neverRelet');
+    notes.push(
+      `You have said ${100 - value.reletSharePercent}% of vacated units do not re-rent inside the horizon. That ` +
+        `adds $${(neverRelet ? neverRelet.amount : 0).toFixed(0)} to every move-out and is the single input a ` +
+        'soft market moves most — the other four costs are the same whether demand is there or not. If you are ' +
+        'unsure of it, run this at 100% and again at your worst month and see whether the decision changes.',
     );
   }
 
