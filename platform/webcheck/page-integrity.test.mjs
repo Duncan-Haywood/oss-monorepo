@@ -117,6 +117,39 @@ test('all three lookup spellings are checked', () => {
   }
 });
 
+// The raw-text balance check counts over parsed markup rather than the raw
+// file, and these three pin why. The first is the false positive that actually
+// reached `main` on 2026-09-10: `social-preview-check/index.html` labels a row
+// of its own report table with the literal string `'<title>'`, escaped through
+// `escapeHtml` before it is ever rendered, and the sweep called that page one
+// that "would not render correctly in a browser". The other two are the reason
+// the check cannot simply be deleted instead.
+test('a tag name quoted inside an inline script is not counted as markup', () => {
+  const findings = checkPageIntegrity(
+    page({ script: "const label = '<title>'; document.title = label.length ? 'x' : 'y';" }),
+  );
+  assert.deepEqual(findings, [], 'a browser never tokenizes a tag inside a script body');
+});
+
+test('a surplus open raw-text tag in real markup is still reported', () => {
+  // Two opens, one close, and the parse still completes -- so `unclosed` does
+  // not fire and this loop is the only thing standing between it and a page
+  // that swallows its own tail.
+  const findings = checkPageIntegrity(page({ body: '<textarea id="a"></textarea><textarea id="b">' }));
+  assert.ok(
+    findings.some((f) => /<textarea> is opened 2x but closed 1x/.test(f) || /never closed/.test(f)),
+    `expected an imbalance or swallow finding, got: ${JSON.stringify(findings)}`,
+  );
+});
+
+test('a stray closing raw-text tag in real markup is still reported', () => {
+  const findings = checkPageIntegrity(page({ body: '</textarea>' }));
+  assert.ok(
+    findings.some((f) => /<textarea> is opened 0x but closed 1x/.test(f)),
+    `expected a stray-close finding, got: ${JSON.stringify(findings)}`,
+  );
+});
+
 test('an unresolved merge conflict marker is reported', () => {
   const findings = checkPageIntegrity(page({ body: '<<<<<<< HEAD\n<p>a</p>\n>>>>>>> main' }));
   assert.equal(findings.length, 2, 'both markers are reported');

@@ -25138,3 +25138,44 @@ entries:
         (ci_starvation.py on the latest push run: runner_id 0, no steps) --
         verified entirely locally per CLAUDE.md's starvation protocol.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        run_workflow_locally.py --tree on a clean checkout of main found it
+        red on page-integrity / "Sweep every product page": 1 of 919 pages
+        reported as one that "would not render correctly in a browser". That
+        is the fourth time --tree has caught a red main that CI could not,
+        and it landed with #4502 about an hour earlier -- runners are starved,
+        so no check ran on it.
+      - >-
+        The page was fine; the checker was wrong. page-integrity.mjs counted
+        raw-text tag balance over the raw file rather than over the markup
+        parsePage produces, so the literal string '<title>' in
+        social-preview-check/index.html -- a label for a row of the tool's own
+        report table, escaped through escapeHtml before it is ever rendered --
+        was counted as an opened tag. A browser never tokenizes a tag inside a
+        script body, so the page renders correctly.
+      - >-
+        Fixed by counting over `markup` instead of `html`. parsePage keeps
+        every raw-text element's open AND closing tags and drops only the
+        body, so that is exactly the set a browser parses: a genuine imbalance
+        is still counted, a quoted tag name is not. Detection is provably
+        unchanged -- the unclosed case returns earlier and more precisely via
+        `unclosed`, and two new tests pin the two cases that reach this loop
+        (surplus open, stray close) alongside the false positive itself.
+      - >-
+        Worth fixing in the checker rather than editing the page: this sweep's
+        value is that it has no skip list, and a checker that cries wolf on
+        correct markup teaches the next session to skim past the one page that
+        is genuinely broken. Same reasoning as #4500's self-inflicted
+        dead-link false positives.
+      - >-
+        Verified: check_pages.mjs 919 pages all sound (was 918 + 1 FAIL);
+        page-integrity suite 30 pass (was 27, all three new ones green);
+        proposal + privacy + webcheck 183 pass / 0 skip -- including the two
+        history-pinned blob tests, which run rather than skip because the
+        clone was unshallowed; run_workflow_locally --for-changes reports
+        page-integrity-ci 2/2 run steps passed.
+    mrr_end: 0
