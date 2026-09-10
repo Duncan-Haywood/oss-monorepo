@@ -42,8 +42,8 @@
 #   portfolio-front-tools-6: 132 files, 554963 bytes
 #   portfolio-front-tools-7: 114 files, 554001 bytes
 #   portfolio-front-tools-8: 116 files, 553181 bytes
-#   portfolio-front-tools-9: 126 files, 556265 bytes
-#   portfolio-front-tools-10: 107 files, 550368 bytes
+#   portfolio-front-tools-9: 125 files, 555685 bytes
+#   portfolio-front-tools-10: 109 files, 555104 bytes
 #   portfolio-front-tools-11: 114 files, 556633 bytes
 #   portfolio-front-tools-12: 68 files, 330307 bytes
 #   portfolio-front-tools-13: 56 files, 274207 bytes
@@ -1385,16 +1385,17 @@ configMapGenerator:
       - pwa-installability-check__index.html.gz=pwa-installability-check__index.html.gz
       - pwa-installability-check__probe.mjs.gz=pwa-installability-check__probe.mjs.gz
       - pwa-installability-check__usage.mjs.gz=pwa-installability-check__usage.mjs.gz
+      - pwa-installability-check__vs-lighthouse.html.gz=pwa-installability-check__vs-lighthouse.html.gz
       - quote-margin-check__calc.mjs.gz=quote-margin-check__calc.mjs.gz
       - quote-margin-check__draft.mjs.gz=quote-margin-check__draft.mjs.gz
       - quote-margin-check__drafts.mjs.gz=quote-margin-check__drafts.mjs.gz
-      - quote-margin-check__effective-hourly-rate.html.gz=quote-margin-check__effective-hourly-rate.html.gz
-      - quote-margin-check__export.mjs.gz=quote-margin-check__export.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - quote-margin-check__effective-hourly-rate.html.gz=quote-margin-check__effective-hourly-rate.html.gz
+      - quote-margin-check__export.mjs.gz=quote-margin-check__export.mjs.gz
       - quote-margin-check__format.mjs.gz=quote-margin-check__format.mjs.gz
       - quote-margin-check__history.mjs.gz=quote-margin-check__history.mjs.gz
       - quote-margin-check__if-costs-go-up-is-this-quote-still-alive.html.gz=quote-margin-check__if-costs-go-up-is-this-quote-still-alive.html.gz
