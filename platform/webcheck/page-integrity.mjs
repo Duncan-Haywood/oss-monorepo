@@ -276,9 +276,29 @@ export function checkPageIntegrity(html, options = {}) {
     return findings;
   }
 
+  // Counted over `markup`, not the raw `html`, for the same reason `markup`
+  // exists at all: a browser never tokenizes a tag that is sitting inside a
+  // raw-text body, so neither may this. `parsePage` keeps every raw-text
+  // element's *open and closing tags* and drops only its body, which is
+  // exactly the set a browser would parse -- so a genuine imbalance is still
+  // counted while a `'<title>'` string literal inside an inline script is not.
+  //
+  // Reading the raw file here was a false positive that reached `main`
+  // (2026-09-10): `social-preview-check/index.html` labels a row of its own
+  // report table with the literal `'<title>'`, correctly escaped through
+  // `escapeHtml` before it is ever rendered, and this loop reported the page
+  // as one that "would not render correctly in a browser". It renders fine.
+  // That is the costly kind of wrong for a sweep whose whole value is that it
+  // has no skip list: a checker that cries wolf on correct markup teaches the
+  // next session to skim past the one page that is genuinely broken.
+  //
+  // Detection is unchanged. A raw-text element that is opened and never closed
+  // is caught earlier and more precisely by `unclosed` above, which returns
+  // before this loop; what remains for this loop is the surplus-open and
+  // stray-close cases, and both survive into `markup` intact.
   for (const tag of RAW_TEXT_ELEMENTS) {
-    const opened = (html.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
-    const closed = (html.match(new RegExp(`</${tag}\\s*>`, 'gi')) || []).length;
+    const opened = (markup.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
+    const closed = (markup.match(new RegExp(`</${tag}\\s*>`, 'gi')) || []).length;
     if (opened !== closed) findings.push(`<${tag}> is opened ${opened}x but closed ${closed}x`);
   }
 
