@@ -804,6 +804,17 @@ const CATEGORY_RULES = [
     // and landing it here rather than the catch-all is also what keeps that
     // catch-all inside the bound `build.test.mjs` puts on it.
     //
+    // `social-preview-check` joined 2026-09-10, and landing it here (rather
+    // than the catch-all, which the guard below caps) is the same call as
+    // its siblings above: a zero-dependency CLI + browser report-viewer that
+    // sends real requests and classifies a fixed, named set of patterns --
+    // here Open Graph/Twitter Card tags and an image file's own byte header,
+    // rather than a response header or a manifest field. It is not filed
+    // under `solo-earner` the way `affiliate-disclosure-checker` is: that
+    // tool protects one creator's own account-earned income specifically,
+    // while this one checks how a link renders for any web developer or
+    // marketer, which is the `ci` family's audience.
+    //
     // `cookie-security-check` joined 2026-09-10, the same day. Same shape
     // again -- a zero-dependency CLI plus a matching browser report-viewer,
     // run by a developer against their own site's response headers -- just
@@ -855,7 +866,7 @@ const CATEGORY_RULES = [
     // pattern, and landing it here rather than the catch-all is also what
     // keeps that catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check)/.test(
         slug,
       ),
   },
