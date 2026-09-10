@@ -572,7 +572,7 @@
       "url": "https://marisstella.dev/tools/affiliate-disclosure-checker/",
       "category": "Creator & solo earner income",
       "description": "Paste a blog post's HTML and see every affiliate link it recognises (Amazon Associates tag= links, amzn.to, rel=sponsored, ShareASale/CJ/Impact/Skimlinks/AWIN tracking links) and whether a disclosure appears before the first one — plus whether an Amazon link carries Amazon's own required exact statement. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "ai-crawler-access-check",
