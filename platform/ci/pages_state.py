@@ -138,6 +138,8 @@ import json
 import os
 import re
 import sys
+import textwrap
+import urllib.parse
 
 import yaml
 
@@ -755,6 +757,73 @@ def source_note(repo, base_url, source="unknown", source_reason=""):
     )
 
 
+def indexing_verdict(base_url):
+    """Can a crawler discover this site's sitemap on its own?
+
+    `robots.txt` is fetched **per origin, at the origin root** -- that is the
+    protocol, not a GitHub detail. A project Pages site is served from a
+    subpath, so the `robots.txt` this repository publishes lands at
+
+        https://<owner>.github.io/<repo>/robots.txt
+
+    and the file a crawler actually reads is
+
+        https://<owner>.github.io/robots.txt
+
+    which belongs to the owner's *user* Pages site and is nothing to do with
+    this repository. So the `Sitemap:` directive `build.mjs` writes -- the one
+    line that tells a crawler all 881 published pages exist -- is in a file no
+    crawler fetches, and sitemap auto-discovery does not happen at all.
+
+    This is not a defect in anything the repository builds. `renderRobots` is
+    correct, `check.mjs` is right to require the file, and a custom domain
+    would put it at a root where it works. It is a property of *where the site
+    is currently served*, which is exactly the class of thing that goes stale
+    in prose and had gone unrecorded anywhere: nothing in this tree said the
+    published `robots.txt` is never read.
+
+    It matters more here than it would almost anywhere else. Nothing links to
+    this catalogue from outside, so link-following gives a crawler very little
+    to go on, and the sitemap is the whole discovery story for a portfolio
+    whose `portfolio/usage/usage.yaml` records zero observed users across 203
+    products. `portfolio/router/allocate.py` opens every venture's top task
+    with "test the untested hypothesis", and every one of those needs traffic.
+
+    Two things fix it and both are the owner's, which is why this reports
+    rather than acts: submitting `sitemap.xml` in Google Search Console (and
+    Bing Webmaster Tools), or configuring a custom domain, after which the
+    site is at an origin root and its own `robots.txt` governs.
+
+    Crawling itself is *not* blocked by this. A missing `robots.txt` at the
+    origin root reads as "allow all", so pages reached by a link are still
+    fetched. What is lost is the enumeration.
+    """
+    if not base_url:
+        return "unknown", (
+            "no base URL could be read from build.mjs, so where robots.txt "
+            "lands is unknown -- never assume it is at an origin root"
+        )
+    parsed = urllib.parse.urlsplit(base_url)
+    if parsed.path in ("", "/"):
+        return "root", (
+            f"the site is at an origin root ({base_url}), so the robots.txt it "
+            "publishes is the one crawlers fetch and its `Sitemap:` line is "
+            "discoverable"
+        )
+    root = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
+    return "subpath-robots", (
+        f"the site is served from a subpath ({base_url}), so the robots.txt it "
+        f"publishes at {base_url}robots.txt is NOT the file crawlers read -- "
+        f"that is {root}, which belongs to the owner's user Pages site. The "
+        "`Sitemap:` line is therefore never seen and sitemap auto-discovery "
+        "does not happen. Crawling is still allowed; only enumeration is lost. "
+        "Owner fix, either one: submit sitemap.xml in Google Search Console "
+        "and Bing Webmaster Tools, or configure a custom domain for this "
+        "repository, after which publish-branch.sh carries the CNAME forward "
+        "and the site is at an origin root where its own robots.txt governs"
+    )
+
+
 def collect(api):
     repo = read_repo(api)
     publish = read_publish_branch(api)
@@ -778,7 +847,10 @@ def collect(api):
     source, source_reason = verdict_source(repo, publish, read_workflow_paths(api))
     deployment = read_pages_deployment(api)
     deployed, deployed_reason = verdict_deployment(deployment, publish)
+    indexing, indexing_reason = indexing_verdict(base_url)
     return {
+        "indexing": indexing,
+        "indexing_reason": indexing_reason,
         "source": source,
         "source_reason": source_reason,
         "deployed": deployed,
@@ -817,6 +889,15 @@ def render(state):
         "",
         f"  {PUBLISH_BRANCH} snapshot  {state['snapshot']}",
         f"                    {state['snapshot_reason']}",
+        "",
+        f"  indexing          {state['indexing']}",
+    ]
+    # Wrapped, unlike the rows above: this reason is a paragraph because it has
+    # to name the file that is read instead, and an unwrapped line would run
+    # off a terminal and be skipped by the reader it exists for.
+    lines += [
+        f"                    {line}"
+        for line in textwrap.wrap(state["indexing_reason"], width=76)
     ]
     lines += ["", "  next"]
     lines += [f"    {line}" for line in state["source_note"].split("\n")]

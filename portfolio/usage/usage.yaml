@@ -4842,3 +4842,68 @@ products:
           off by default, and honor DNT/GPC, so zero is the expected
           reading for a tool nobody has visited or switched the counter on
           for yet.
+  - slug: package-exports-drift-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-09
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/package-exports-drift-check/`) from its first commit.
+          First-visitor channel is Node/TypeScript library maintainers
+          searching ERR_PACKAGE_PATH_NOT_EXPORTED / "exports field not
+          found" / "Cannot find module" after a broken publish, plus
+          r/node and r/typescript. Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for
+          a tool nobody has visited or switched the counter on for yet.
+  - slug: chrome-extension-permission-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-09
+        signals:
+          live_url_visitors: null
+          scan_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/chrome-extension-permission-check/`) from its first
+          commit: cross-checks manifest.json permissions against detected
+          chrome.* API usage in both directions, plus broad
+          host_permissions patterns. First-visitor channel is developers
+          hitting a Chrome Web Store "unused permission" / "Purple
+          Potassium" rejection and searching that exact terminology, plus
+          r/chrome_extensions and r/webdev. Counts are local, opt-in, off
+          by default, and honor DNT/GPC, so zero is the expected reading
+          for a tool nobody has visited or switched the counter on for
+          yet.
+  - slug: wordpress-plugin-review-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-09
+        signals:
+          live_url_visitors: null
+          scan_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/wordpress-plugin-review-check/`) from its first
+          commit: cross-checks a readme.txt Stable tag against the
+          plugin header's Version, required readme/header fields,
+          unescaped superglobal output, and $_POST handling with no
+          nonce check. First-visitor channel is WordPress plugin
+          developers hitting a Stable tag mismatch review note or
+          searching "readme.txt stable tag mismatch" / "wordpress
+          plugin nonce verification missing", plus r/WordPress,
+          r/ProWordPress, and the wordpress.org support forums. Counts
+          are local, opt-in, off by default, and honor DNT/GPC, so zero
+          is the expected reading for a tool nobody has visited or
+          switched the counter on for yet.

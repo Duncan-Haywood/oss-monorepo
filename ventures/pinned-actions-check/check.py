@@ -5,6 +5,7 @@ pinned commit SHA.
     python3 check.py                       # scan .github/workflows under .
     python3 check.py /path/to/repo         # scan a specific checkout
     python3 check.py --format json         # machine-readable
+    python3 check.py --format sarif        # SARIF 2.1.0, for github/codeql-action/upload-sarif
     python3 check.py --fail-on-risk        # exit 2 if any mutable finding exists
 
 ## The risk this catches
@@ -198,6 +199,83 @@ def has_unresolved_risk(findings):
     return any(f["classification"] in RISK_CLASSIFICATIONS for f in findings)
 
 
+_SARIF_RULE_ID = "mutable-action-ref"
+
+
+def _sarif_artifact_uri(path, root):
+    # Code Scanning resolves a result's URI against the repository root, so
+    # a leading "./" (from scanning the current directory, the default) or
+    # an absolute path (from `check.py /path/to/repo`) both need trimming to
+    # the path relative to what was scanned -- an absolute or dot-relative
+    # URI is otherwise silently dropped by the upload rather than shown.
+    root_path = str(Path(root).resolve())
+    try:
+        text = str(Path(path).resolve().relative_to(root_path))
+    except ValueError:
+        text = str(path)
+    if text.startswith("./"):
+        text = text[2:]
+    return text
+
+
+def render_sarif(findings, root):
+    results = []
+    for f in findings:
+        if f["classification"] != MUTABLE:
+            continue  # a pinned/local/docker reference is not a finding to report
+        ref_display = f["ref"] if f["ref"] is not None else "(no ref given — resolves to the default branch)"
+        message = f"{f['action']}@{ref_display} is not pinned to a commit SHA."
+        if f.get("remediation"):
+            message += f" Run `{f['remediation']}` to look up the commit it currently resolves to."
+        results.append(
+            {
+                "ruleId": _SARIF_RULE_ID,
+                "level": "warning",
+                "message": {"text": message},
+                "locations": [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": _sarif_artifact_uri(f["file"], root)},
+                            "region": {"startLine": f["line"]},
+                        }
+                    }
+                ],
+            }
+        )
+    sarif = {
+        "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "pinned-actions-check",
+                        "informationUri": "https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/",
+                        "rules": [
+                            {
+                                "id": _SARIF_RULE_ID,
+                                "name": "MutableActionRef",
+                                "shortDescription": {"text": "Third-party action not pinned to a commit SHA"},
+                                "fullDescription": {
+                                    "text": (
+                                        "A uses: reference to a third-party action is a mutable tag or "
+                                        "branch rather than a full 40-character commit SHA, so its owner "
+                                        "(or an attacker who compromises their account) can repoint it at "
+                                        "different code at any time."
+                                    )
+                                },
+                                "helpUri": "https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/how-to-pin-a-github-action-to-a-commit-sha.html",
+                            }
+                        ],
+                    }
+                },
+                "results": results,
+            }
+        ],
+    }
+    return json.dumps(sarif, indent=2)
+
+
 def render_text(findings, root):
     if not findings:
         files = discover_workflow_files(root)
@@ -238,7 +316,7 @@ def main(argv=None):
         "path", nargs="?", default=".", help="directory to scan (default: current directory)"
     )
     parser.add_argument(
-        "--format", choices=("text", "json"), default="text", help="output format"
+        "--format", choices=("text", "json", "sarif"), default="text", help="output format"
     )
     parser.add_argument(
         "--fail-on-risk",
@@ -251,6 +329,8 @@ def main(argv=None):
 
     if args.format == "json":
         print(json.dumps(findings, indent=2))
+    elif args.format == "sarif":
+        print(render_sarif(findings, args.path))
     else:
         print(render_text(findings, args.path))
 

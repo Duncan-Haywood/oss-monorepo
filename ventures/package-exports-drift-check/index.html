@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>package.json Exports Drift Check — Does "exports" Point at Files That Exist?</title>
+  <meta name="description" content="Paste your package.json and a listing of the files you actually publish and see every literal target in the &quot;exports&quot; map that points at a file that doesn't exist -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module right after npm install. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Does your package.json &quot;exports&quot; map point at files that actually exist?">
+  <meta property="og:description" content="Paste your package.json and a file listing and get a deterministic list of every exports target that doesn't exist on disk -- the bug that only shows up after a stranger runs npm install. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"package.json Exports Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Flattens a package.json \"exports\" map (subpaths, nested conditions, fallback arrays) and checks that every literal file target actually exists, naming every target that points at a file that is missing -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module errors right after a stranger's npm install. Runs entirely in the browser or as a zero-dependency Node CLI usable as a pre-publish CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a bad exports target only show up after publish?","acceptedAnswer":{"@type":"Answer","text":"On the maintainer's own machine the build has usually already run, so the file the exports map names is sitting right there and everything works. The gap is between what's on disk right now and what actually ends up in the published tarball — a rename during a refactor, a build script that changed its output directory, or an npm publish run before the build step finished, and the first person to find out is a stranger running npm install, not the maintainer."}},{"@type":"Question","name":"What is ERR_PACKAGE_PATH_NOT_EXPORTED?","acceptedAnswer":{"@type":"Answer","text":"Node's own error when code tries to import a subpath that either isn't listed in the package's exports map at all, or is listed but the file it points to isn't there. It replaced Node's older, more forgiving file resolution, so a package.json that shipped exports without checking every target actually exists is exactly the failure mode this tool looks for."}},{"@type":"Question","name":"Is this a bundler or a publish tool?","acceptedAnswer":{"@type":"Answer","text":"No. It never runs your package, never resolves an import graph, and never reads a file's contents — it only checks whether each literal path the exports map names exists. Wildcard subpaths (\"./features/*\") and bare-specifier re-exports of another package are listed as not checked, not as passing or failing."}},{"@type":"Question","name":"Is my package.json uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the text you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; overflow-wrap: anywhere; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; overflow-wrap: anywhere; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; overflow-wrap: anywhere; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.missing { background: #fde8e8; color: #7f1d1d; }
+    .pill.skipped { background: #e3e9ef; color: #334155; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PACKAGE.JSON EXPORTS DRIFT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Does your package.json "exports" map point at files that actually exist?</h1>
+    <p>Paste your <code>package.json</code> and a listing of the files you actually publish (<code>npm pack --dry-run</code>, <code>git ls-files</code>, or a plain <code>find . -type f</code>) and see every literal target in the <code>exports</code> map — across every subpath, every condition (<code>import</code>/<code>require</code>/<code>types</code>/...), every fallback array — that doesn't exist. That's the difference between a package that works on the maintainer's own machine and one that throws <code>ERR_PACKAGE_PATH_NOT_EXPORTED</code> or <code>Cannot find module</code> the moment a stranger runs <code>npm install</code>.</p>
+    <p class="note">Nothing is uploaded. Both text boxes are parsed in this browser and never leave your device. This checks existence, not behaviour: it never runs your code, resolves an import graph, or reads a file's contents.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your files</h2>
+    <div class="grid">
+      <div>
+        <label for="pkg-input">package.json</label>
+        <textarea id="pkg-input" spellcheck="false" placeholder='{&#10;  "name": "my-lib",&#10;  "exports": {&#10;    ".": { "import": "./esm/index.js", "require": "./cjs/index.js" },&#10;    "./feature": "./cjs/feature.js"&#10;  }&#10;}'></textarea>
+      </div>
+      <div>
+        <label for="files-input">Files you actually publish (one per line — paste <code>npm pack --dry-run</code>'s "Tarball Contents", <code>git ls-files</code>, or a file listing)</label>
+        <textarea id="files-input" spellcheck="false" placeholder="package.json&#10;README.md&#10;esm/index.js&#10;cjs/index.js"></textarea>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with drift)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What's missing</h2>
+    <p id="summary"></p>
+    <table id="results-table" hidden>
+      <thead><tr><th>Subpath</th><th>Condition</th><th>Target</th><th>Status</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a pre-publish CI gate?</h2>
+    <p>Same logic, zero dependencies, one file — reads only local files, no network call:</p>
+    <pre class="cmd">node cli.mjs check                          # ./package.json
+node cli.mjs check path/to/package.json
+node cli.mjs check --json                    # machine-readable</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. Run it <strong>after your build step and before <code>npm publish</code></strong> — it checks what's on disk right now, so running it before the build has produced anything will read every export as missing. Exits 1 if any literal export target is missing, so it works as the last gate before a publish that would have broken.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked, and what's deliberately skipped</h2>
+    <table>
+      <thead><tr><th>Shape</th><th>Handling</th></tr></thead>
+      <tbody>
+        <tr><td>A literal path (<code>"./dist/index.js"</code>), at any subpath, any nesting of conditions, any position in a fallback array</td><td>Checked — reported <span class="pill missing">missing</span> if it doesn't exist</td></tr>
+        <tr><td>A wildcard target (<code>"./features/*"</code>)</td><td><span class="pill skipped">skipped</span> — resolving one needs matching real files against a pattern, out of scope for v0</td></tr>
+        <tr><td>A bare specifier (<code>"other-package/subpath"</code>)</td><td><span class="pill skipped">skipped</span> — re-exports another package, nothing on disk to check</td></tr>
+        <tr><td><code>null</code> (explicitly blocked subpath)</td><td>Not a file target, ignored entirely — this is intentional, correct package.json</td></tr>
+      </tbody>
+    </table>
+    <p class="note">More: <a href="why-package-json-exports-fields-drift-from-what-you-actually-publish.html">why exports maps drift from what actually publishes, and how to wire this into CI</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does a bad exports target only show up after publish?</h3>
+    <p>On the maintainer's own machine the build has usually already run, so the file the exports map names is sitting right there and everything works. The gap is between what's on disk right now and what actually ends up in the published tarball — a rename during a refactor, a build script that changed its output directory, or an <code>npm publish</code> run before the build step finished, and the first person to find out is a stranger running <code>npm install</code>, not the maintainer.</p>
+    <h3>What is <code>ERR_PACKAGE_PATH_NOT_EXPORTED</code>?</h3>
+    <p>Node's own error when code tries to import a subpath that either isn't listed in the package's exports map at all, or is listed but the file it points to isn't there. It replaced Node's older, more forgiving file resolution, so a package.json that shipped exports without checking every target actually exists is exactly the failure mode this tool looks for.</p>
+    <h3>Is this a bundler or a publish tool?</h3>
+    <p>No. It never runs your package, never resolves an import graph, and never reads a file's contents — it only checks whether each literal path the exports map names exists. Wildcard subpaths (<code>"./features/*"</code>) and bare-specifier re-exports of another package are listed as not checked, not as passing or failing.</p>
+    <h3>Is my package.json uploaded anywhere?</h3>
+    <p>No. The browser page parses the text you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace a qualified professional or actually running <code>npm publish --dry-run</code> and testing the tarball yourself. It reports whether a literal path named in "exports" exists on disk against the file list you provided — nothing more, and it is not a guarantee that your package will install or import cleanly. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass on the same repo: <a href="../env-example-drift-check/">.env.example Drift Check</a> and <a href="../structured-data-drift-check/">Structured Data Drift Check</a> ask the same "does the doc still match the code" question about a different pair of files, with the same deterministic, no-upload shape.</p>
+    <p class="support">Free and open source. If this saved you a broken publish, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parsePackageJson, extractExportEntries, classifyExportEntries, normalizePath, parseFileList, diffExports, summarize } from "./engine.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      pkgInput: $("#pkg-input"), filesInput: $("#files-input"), status: $("#status"),
+      reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function renderReport() {
+      const pkgText = els.pkgInput.value;
+      const filesText = els.filesInput.value;
+      if (!pkgText.trim() || !filesText.trim()) {
+        els.status.innerHTML = `<span class="error">Paste both your package.json and a file listing first (or load the worked example).</span>`;
+        return;
+      }
+
+      let pkg;
+      try {
+        pkg = parsePackageJson(pkgText);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">package.json: ${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      els.status.textContent = "";
+
+      const entries = extractExportEntries(pkg.exports);
+      const { literal, wildcard, external } = classifyExportEntries(entries);
+      const fileSet = parseFileList(filesText);
+      const report = diffExports({ literal, fileExists: (t) => fileSet.has(normalizePath(t)) });
+      const { status, text } = summarize(report, { wildcardCount: wildcard.length, externalCount: external.length });
+      els.summary.innerHTML = status === "ok"
+        ? `<span class="ok">${escapeHtml(text)}</span>`
+        : `<span class="changed">${escapeHtml(text)}</span>`;
+
+      const rows = [
+        ...report.missing.map((e) => ({ ...e, kind: "missing" })),
+        ...wildcard.map((e) => ({ ...e, kind: "skipped (wildcard)" })),
+        ...external.map((e) => ({ ...e, kind: "skipped (external)" })),
+      ];
+      els.table.hidden = rows.length === 0;
+      els.rows.innerHTML = rows.map((r) => `<tr>
+        <td><code>${escapeHtml(r.subpath)}</code></td>
+        <td>${escapeHtml(r.condition || "—")}</td>
+        <td><code>${escapeHtml(r.target)}</code></td>
+        <td><span class="pill ${r.kind.startsWith("missing") ? "missing" : "skipped"}">${escapeHtml(r.kind)}</span></td>
+      </tr>`).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    const EXAMPLE_PKG = JSON.stringify({
+      name: "example-lib",
+      version: "1.2.0",
+      exports: {
+        ".": { import: "./esm/index.js", require: "./cjs/index.js", types: "./types/index.d.ts" },
+        "./feature": "./cjs/feature.js",
+      },
+    }, null, 2);
+    const EXAMPLE_FILES = `package.json
+README.md
+esm/index.js
+cjs/index.js
+types/index.d.ts`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.pkgInput.value = EXAMPLE_PKG;
+      els.filesInput.value = EXAMPLE_FILES;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.pkgInput.value = "";
+      els.filesInput.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

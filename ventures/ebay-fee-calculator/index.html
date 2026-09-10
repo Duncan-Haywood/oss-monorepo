@@ -822,7 +822,7 @@
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice. Verify every output and fee against your eBay account and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Comparing eBay to other channels on the same item? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks eBay against Etsy, Amazon, Reverb and your own store side by side, and can hand these numbers into this page.</p>
+    <p>Comparing eBay to other channels on the same item? The <a id="whereToSellLink" href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks eBay against Etsy, Amazon, Reverb and your own store side by side — it opens with this batch's price, shipping and cost already filled in and eBay switched on, no retyping. It can also hand numbers the other way, into this page.</p>
     <p>Want a headline-fee triage across marketplaces first? The <a href="../marketplace-fee-compare/">marketplace fee comparison</a> ranks eBay against Etsy, Amazon, Walmart, TikTok Shop and your own store from one set of inputs, then points here for the parts a headline rate cannot carry.</p>
     <p class="support">Free and open source. If it saves you time, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -831,6 +831,7 @@
     import { recordUsage } from './usage.mjs';
     import { repricingCsv } from './csv.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
+    import { whereToSellUrl } from './to-where-to-sell.mjs';
     const money = (value) => {
       const format = (value) => `$${value.toFixed(2)}`;
       const text = format(Math.abs(value));
@@ -1383,6 +1384,7 @@
         renderInternational(input);
         renderPackageProtection(input);
         renderEbayLabels(input);
+        document.getElementById('whereToSellLink').href = whereToSellUrl(input);
         const profitEl = document.getElementById('profit');
         profitEl.textContent = money(result.profit);
         profitEl.className = `hero-number ${result.profit < 0 ? 'negative' : 'positive'}`;
@@ -1582,6 +1584,11 @@
     document.getElementById('share').addEventListener('click', shareLink);
     document.getElementById('download').addEventListener('click', downloadScenarios);
     document.getElementById('reset').addEventListener('click', resetInputs);
+    document.getElementById('whereToSellLink').addEventListener('click', () => {
+      // Records only that the handoff happened, never the item — this is the
+      // one signal that will say whether the reverse handoff is worth keeping.
+      recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'handoff_where_to_sell');
+    });
     restoreInputs();
     update();
   </script>

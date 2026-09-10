@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 216,
-  "collection_total": 216,
+  "served_here": 225,
+  "collection_total": 225,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -35,6 +35,12 @@
       "tool_count": 20
     },
     {
+      "id": "ci",
+      "name": "CI checks & developer gates",
+      "url": "https://marisstella.dev/c/ci/",
+      "tool_count": 20
+    },
+    {
       "id": "marketplace",
       "name": "Marketplace seller tools",
       "url": "https://marisstella.dev/c/marketplace/",
@@ -53,12 +59,6 @@
       "tool_count": 13
     },
     {
-      "id": "ci",
-      "name": "CI checks & developer gates",
-      "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 13
-    },
-    {
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
       "url": "https://marisstella.dev/c/logistics/",
@@ -68,13 +68,13 @@
       "id": "solo-earner",
       "name": "Creator & solo earner income",
       "url": "https://marisstella.dev/c/solo-earner/",
-      "tool_count": 5
+      "tool_count": 6
     },
     {
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 4
+      "tool_count": 5
     }
   ],
   "tools": [
@@ -508,7 +508,15 @@
       "url": "https://marisstella.dev/tools/3d-print-price-calculator/",
       "category": "Creator & solo earner income",
       "description": "Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you're charging.",
-      "pages": 1
+      "pages": 2
+    },
+    {
+      "slug": "actions-artifact-poisoning-check",
+      "name": "GitHub Actions Artifact Poisoning Check — workflow_run Download & Execute",
+      "url": "https://marisstella.dev/tools/actions-artifact-poisoning-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name: pin. Free, runs in your browser, nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "actions-cache-poisoning-check",
@@ -524,7 +532,7 @@
       "url": "https://marisstella.dev/tools/actions-injection-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run 'pwn request' checkouts and shell script-injection from untrusted ${{ github.event }} expressions. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "actions-permissions-check",
@@ -532,7 +540,7 @@
       "url": "https://marisstella.dev/tools/actions-permissions-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "actions-runner-starvation-check",
@@ -556,6 +564,14 @@
       "url": "https://marisstella.dev/tools/ada-title-ii-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.",
+      "pages": 3
+    },
+    {
+      "slug": "affiliate-disclosure-checker",
+      "name": "Affiliate Disclosure Checker — Is Your Amazon/FTC Disclosure Missing or Too Late?",
+      "url": "https://marisstella.dev/tools/affiliate-disclosure-checker/",
+      "category": "Creator & solo earner income",
+      "description": "Paste a blog post's HTML and see every affiliate link it recognises (Amazon Associates tag= links, amzn.to, rel=sponsored, ShareASale/CJ/Impact/Skimlinks/AWIN tracking links) and whether a disclosure appears before the first one — plus whether an Amazon link carries Amazon's own required exact statement. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 2
     },
     {
@@ -700,7 +716,7 @@
       "url": "https://marisstella.dev/tools/certified-payroll-calculator/",
       "category": "Back-office money & contracts",
       "description": "Free calculator for Davis-Bacon / prevailing-wage certified payroll: checks whether a worker's cash wages plus fringe meet the wage determination, and computes overtime correctly when part of the fringe is paid in cash instead of a bona fide plan.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "childcare-tuition-calculator",
@@ -717,6 +733,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a chimney sweep from flue type, stories, roof access, and creosote — not a flat house rate. See labor hours, walk-away price, and the margin a neighborhood special actually leaves.",
       "pages": 3
+    },
+    {
+      "slug": "chrome-extension-permission-check",
+      "name": "Chrome Extension Permission Checker — Unused & Missing Permissions",
+      "url": "https://marisstella.dev/tools/chrome-extension-permission-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free, browser-local checker: scans your extension's JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json's declared permissions, so an unused or missing permission doesn't cost you a Chrome Web Store rejection ('Purple Potassium'). Nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "concrete-lifting-bid-calculator",
@@ -820,7 +844,7 @@
       "url": "https://marisstella.dev/tools/dependency-confusion-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "dns-configuration-evidence",
@@ -876,7 +900,7 @@
       "url": "https://marisstella.dev/tools/duplicate-payment-audit/",
       "category": "Back-office money & contracts",
       "description": "Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.",
-      "pages": 1
+      "pages": 3
     },
     {
       "slug": "egress-window-bid-calculator",
@@ -909,6 +933,14 @@
       "category": "Trade & contractor bids",
       "description": "Price an entry-door replacement from sidelights, transom, out-of-square openings, jamb rot, brickmold, storm door, and paint — not a published $1,200-installed steel special. See the walk-away number before you match a cheaper quote.",
       "pages": 3
+    },
+    {
+      "slug": "env-example-drift-check",
+      "name": ".env.example Drift Check — Does Your Example File Match the Code?",
+      "url": "https://marisstella.dev/tools/env-example-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "epoxy-garage-floor-bid-calculator",
@@ -996,7 +1028,7 @@
       "url": "https://marisstella.dev/tools/food-truck-event-margin-calculator/",
       "category": "More free tools",
       "description": "Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you're already considering against the breakeven.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "foundation-repair-bid-calculator",
@@ -1044,7 +1076,7 @@
       "url": "https://marisstella.dev/tools/gig-driver-net-pay-calculator/",
       "category": "Creator & solo earner income",
       "description": "Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session's gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "gravel-driveway-bid-calculator",
@@ -1143,6 +1175,14 @@
       "pages": 5
     },
     {
+      "slug": "ios-privacy-manifest-check",
+      "name": "iOS Privacy Manifest Checker — Required Reason API vs PrivacyInfo.xcprivacy",
+      "url": "https://marisstella.dev/tools/ios-privacy-manifest-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free, browser-local checker: scans your Swift/Objective-C source for Apple's Required Reason API usage and compares it against your PrivacyInfo.xcprivacy manifest, so a missing declaration doesn't cost you an App Store rejection (ITMS-91061 / ITMS-91055). Nothing is uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "irrigation-install-bid-calculator",
       "name": "Irrigation Install Bid Calculator — Zones and Backflow",
       "url": "https://marisstella.dev/tools/irrigation-install-bid-calculator/",
@@ -1204,7 +1244,7 @@
       "url": "https://marisstella.dev/tools/license-drift-check/",
       "category": "CI checks & developer gates",
       "description": "Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "locksmith-bid-calculator",
@@ -1283,8 +1323,8 @@
       "name": "Newsletter Sponsorship Rate Calculator — Free, No Sign-Up",
       "url": "https://marisstella.dev/tools/newsletter-sponsorship-rate-calculator/",
       "category": "Creator & solo earner income",
-      "description": "Free newsletter sponsorship rate calculator. Enter your list size, open rate, and niche to get a price range for a dedicated send, primary placement, secondary placement, and classified ad — based on commonly cited newsletter-ad-market CPM benchmarks. No sign-up, nothing uploaded.",
-      "pages": 2
+      "description": "Free newsletter sponsorship rate calculator. Enter your subscriber count, open rate, and niche to get a price range for a dedicated send, primary placement, secondary placement, and classified ad — based on commonly cited newsletter-ad-market CPM benchmarks. No sign-up, nothing uploaded.",
+      "pages": 3
     },
     {
       "slug": "no-show-fee-calculator",
@@ -1300,6 +1340,14 @@
       "url": "https://marisstella.dev/tools/npm-lifecycle-script-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "package-exports-drift-check",
+      "name": "package.json Exports Drift Check — Does \"exports\" Point at Files That Exist?",
+      "url": "https://marisstella.dev/tools/package-exports-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your package.json and a listing of the files you actually publish and see every literal target in the \"exports\" map that points at a file that doesn't exist -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module right after npm install. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 2
     },
     {
@@ -1372,7 +1420,7 @@
       "url": "https://marisstella.dev/tools/pinned-actions-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "plantation-shutter-bid-calculator",
@@ -1493,6 +1541,14 @@
       "category": "Trade & contractor bids",
       "description": "Price an IP security camera install from the drops, the cable, and the labour — and check the three things a camera bid gets wrong: days of recording the drives actually hold, PoE load against the switch budget, and runs past the 328 ft Ethernet limit.",
       "pages": 4
+    },
+    {
+      "slug": "security-deposit-return-calculator",
+      "name": "Security Deposit Refund & Prorated Rent Calculator — Free, No Sign-Up",
+      "url": "https://marisstella.dev/tools/security-deposit-return-calculator/",
+      "category": "More free tools",
+      "description": "Free security deposit refund calculator: itemize deductions against a tenant's deposit and see the refund or balance due. Plus a prorated rent calculator for a partial first or last month. Entirely client-side, nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "septic-pumping-bid-calculator",
@@ -1620,6 +1676,14 @@
       "url": "https://marisstella.dev/tools/standby-generator-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential standby generator install from the nameplate feeder, transfer switch, pad, gas or propane line, and setback — plus walk-away price, dollars per kW, and how many times a typical 22 kW natural-gas hang this house really is.",
+      "pages": 3
+    },
+    {
+      "slug": "structured-data-drift-check",
+      "name": "Structured Data Drift Check — Does Your JSON-LD Match the Page?",
+      "url": "https://marisstella.dev/tools/structured-data-drift-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste a page's HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page's own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 3
     },
     {
@@ -1764,7 +1828,7 @@
       "url": "https://marisstella.dev/tools/whatnot-seller-payout/",
       "category": "Marketplace seller tools",
       "description": "Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "wheelchair-ramp-bid-calculator",
@@ -1804,6 +1868,14 @@
       "url": "https://marisstella.dev/tools/window-replacement-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a window replacement job from United Inches, story, and tear-out — not a flat price per window. See walk-away price, average per opening, and the margin a $550-a-window special actually leaves.",
+      "pages": 3
+    },
+    {
+      "slug": "wordpress-plugin-review-check",
+      "name": "WordPress Plugin Review Checker — Stable Tag, Escaping & Nonce Issues",
+      "url": "https://marisstella.dev/tools/wordpress-plugin-review-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free, browser-local checker for WordPress plugin developers: catches a readme.txt Stable tag that doesn't match your plugin's Version header, missing required readme/header fields, unescaped $_GET/$_POST output, and $_POST handling with no nonce check -- before wordpress.org Plugin Review does. Nothing is uploaded.",
       "pages": 3
     }
   ]

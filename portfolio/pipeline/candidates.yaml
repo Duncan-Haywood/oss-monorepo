@@ -1155,3 +1155,72 @@ candidates:
     mitigation: Keep the matching deterministic and explainable per row; measure repeat use and false-positive reports before adding any integration, direct QuickBooks/Xero connector, or AI-assisted feature.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: affiliate-disclosure-checker
+    name: Affiliate disclosure checker
+    doc: candidates/affiliate-disclosure-checker.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-09
+    initiated_path: ventures/affiliate-disclosure-checker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the check deterministic pattern-matching only, on text the visitor supplies; never claim an FTC or Amazon compliance determination; measure real user reports before adding any AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: chrome-extension-permission-check
+    name: Chrome extension permission checker
+    doc: candidates/chrome-extension-permission-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-09
+    initiated_path: ventures/chrome-extension-permission-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the permission-to-API map deterministic and conservative -- an unmapped permission is named as "not checked", never guessed at or wrongly flagged; never claim a Chrome Web Store review determination; measure real user reports before adding any AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: wordpress-plugin-review-check
+    name: WordPress plugin review checker
+    doc: candidates/wordpress-plugin-review-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-09
+    initiated_path: ventures/wordpress-plugin-review-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the readme/header field lists and the escaping/nonce function lists deterministic and conservative -- a field or function this tool has no mapping for is named as "not checked" or reported plainly as missing rather than guessed at; never claim a wordpress.org Plugin Review determination; measure real user reports before adding any AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pinned Actions Check vs. OpenSSF Scorecard</title>
+  <meta name="description" content="OpenSSF Scorecard scores 18 dimensions of a repository's supply-chain security, including a Pinned-Dependencies check, using GitHub's API and a token. This free browser tool answers only the pinning question, for one workflow you paste, with no token, no install, and no network call.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-openssf-scorecard.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Pinned Actions Check vs. OpenSSF Scorecard">
+  <meta property="og:description" content="Scorecard scores 18 supply-chain dimensions from a GitHub token and API access. This page runs one of those checks -- pinning -- free, in your browser, on pasted YAML, with no token and no install.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/pinned-actions-check/vs-openssf-scorecard.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or OpenSSF Scorecard?","acceptedAnswer":{"@type":"Answer","text":"They are different shapes of tool for an overlapping question. Scorecard is a broader, ongoing measurement: it runs 18 named checks against a repository -- Branch-Protection, Code-Review, Dangerous-Workflow, Token-Permissions, Vulnerabilities, Pinned-Dependencies, and more -- each scored 0 to 10, using the GitHub API and a token, usually wired into CI or read from Scorecard's own public dataset of already-scanned open-source repositories. This tool answers only the one question in its name: are the third-party actions in the workflow YAML you paste pinned to a commit SHA. You paste the file, it runs in your browser, and it needs no token, no install, and no repository access, because it never talks to GitHub at all. If you want an ongoing score across 18 dimensions of a public repository's supply-chain posture, Scorecard is the right tool. If you want a fast, private, no-setup answer to one specific question about one workflow file -- including a private repository's, since nothing here is fetched or uploaded -- this is the narrower tool for that."}},{"@type":"Question","name":"Does Scorecard's Pinned-Dependencies check do the same thing as this tool?","acceptedAnswer":{"@type":"Answer","text":"Not exactly. Scorecard's own documentation describes Pinned-Dependencies as scoring how much of a project's build and release pipeline is pinned to an immutable reference, and by its own account that check looks across multiple ecosystems -- GitHub Actions, Dockerfile base images, and downloaded-script installs among them -- and returns one 0-to-10 score for the repository as a whole, not a line-by-line list. This tool checks exactly one of those surfaces, GitHub Actions uses: lines, and instead of a score it lists every unpinned reference individually with the file, line, and the exact git ls-remote command to look up the commit SHA yourself. Running both is not redundant: Scorecard's score can move for reasons that have nothing to do with your workflow files, and this tool's line-level list does not tell you how your repository compares to any baseline."}},{"@type":"Question","name":"Why would I need a token-free, no-install checker if Scorecard already exists?","acceptedAnswer":{"@type":"Answer","text":"Three reasons this tool exists alongside it. First, Scorecard's CLI needs a GitHub token to avoid API rate limits in practice, and its GitHub Action needs to run inside your CI with repository access -- this tool needs neither, so it works on a workflow file from a private repository, a fork you have not pushed anywhere, or a repo you do not administer, with nothing leaving your browser. Second, Scorecard is a Go binary (or a container image) you install and configure; this tool is a page you open. Third, when the answer you actually want is \"which lines, and what do I run to fix them,\" a 0-to-10 score is a worse fit than a list of file:line findings with a copy-pasteable remediation command, which is the only thing this tool produces."}},{"@type":"Question","name":"Is this page affiliated with OpenSSF or the Scorecard project?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by the Open Source Security Foundation or the Scorecard project. Scorecard is an open-source project of the OpenSSF, named here only to describe what this checker is and is not, using facts drawn from Scorecard's own public documentation and source repository at github.com/ossf/scorecard."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 880px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 26px 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.58; }
+    .eyebrow, .note, footer { font-size: .86rem; color: #55606f; }
+    .lede { font-size: 1.05rem; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 20px 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; min-width: 480px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+    .cta { display: inline-block; margin: 6px 0 0; background: #17604a; color: #fff; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    footer a, main a { color: #17604a; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow"><a href="./">&larr; Pinned Actions Check</a></p>
+    <h1>Pinned Actions Check vs. OpenSSF Scorecard</h1>
+    <p class="lede">Different shapes of tool for an overlapping question. Scorecard scores 18 dimensions of a
+      repository's supply-chain security -- pinning is one of them -- using the GitHub API and a token,
+      usually wired into CI. This page runs only the pinning question, on one workflow file you paste, free, with
+      no token, no install, and no network call of its own.</p>
+
+    <section class="card">
+      <h2>What each tool is for</h2>
+      <p>
+        <strong>OpenSSF Scorecard</strong> is an open-source project (<code>github.com/ossf/scorecard</code>) that
+        runs 18 named checks against a repository -- among them Branch-Protection, Code-Review,
+        Dangerous-Workflow, Token-Permissions, Vulnerabilities, and Pinned-Dependencies -- and scores each
+        0 to 10. Its Pinned-Dependencies check, by Scorecard's own documentation, looks at whether a project's
+        build and release pipeline is pinned to immutable references across several ecosystems (GitHub Actions,
+        Dockerfile base images, and downloaded-script installs among them), and returns one aggregate score
+        rather than a line-by-line list. Running it needs a GitHub token to avoid API rate limits, and it is
+        typically run through the <code>ossf/scorecard-action</code> in CI or read from Scorecard's own public
+        dataset of already-scanned open-source repositories.
+      </p>
+      <p>
+        <strong>This checker</strong> does one narrower thing: you paste the YAML of a GitHub Actions workflow
+        file, and it lists every third-party <code>uses:</code> line that is not pinned to a full 40-character
+        commit SHA -- file, line, the mutable reference it found, and the exact <code>git ls-remote</code>
+        command to look up the SHA yourself. It runs entirely in your browser, needs no GitHub token and no
+        install, and makes no network call of its own, so it works the same on a private repository's workflow,
+        an unpushed fork, or a file from a repo you do not administer.
+      </p>
+      <div class="table-wrap">
+      <table>
+        <caption class="note">Where to answer each question.</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>How does my whole repository score across 18 supply-chain dimensions, tracked over time?</td><td>OpenSSF Scorecard -- that is its entire job, and this tool does not attempt it.</td></tr>
+          <tr><td>Which exact lines in one workflow file are an unpinned third-party action, and what do I run to fix each one?</td><td>This checker -- a file:line list with a copy-pasteable remediation command, not a score.</td></tr>
+          <tr><td>I need this to work on a private repository's workflow, or a file I have not pushed anywhere.</td><td>This checker -- no token, no repository access, nothing leaves your browser. Scorecard's public dataset and default setup target public repositories.</td></tr>
+          <tr><td>I want pinning checked across Dockerfiles and package-manager installs too, not just GitHub Actions.</td><td>OpenSSF Scorecard's Pinned-Dependencies check covers more ecosystems than this tool does; this tool is GitHub Actions <code>uses:</code> lines only.</td></tr>
+          <tr><td>I want this wired into CI to block a merge automatically.</td><td>Either: Scorecard's own GitHub Action, or this tool's <code>check.py --fail-on-risk</code> for the pinning question specifically.</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">The two are complementary, not competing: a repository can run Scorecard for the ongoing 18-dimension score and still reach for this tool the moment the question is "which line, right now, and what do I paste to fix it" on a file that is not yet in a public, tokened CI run.</p>
+      <p><a class="cta" href="./">Run the free pinned-actions check</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Common questions</h2>
+      <h3>Should I use this checker or OpenSSF Scorecard?</h3>
+      <p>They are different shapes of tool for an overlapping question. Scorecard is a broader, ongoing measurement: it runs 18 named checks against a repository -- Branch-Protection, Code-Review, Dangerous-Workflow, Token-Permissions, Vulnerabilities, Pinned-Dependencies, and more -- each scored 0 to 10, using the GitHub API and a token, usually wired into CI or read from Scorecard's own public dataset of already-scanned open-source repositories. This tool answers only the one question in its name: are the third-party actions in the workflow YAML you paste pinned to a commit SHA. You paste the file, it runs in your browser, and it needs no token, no install, and no repository access, because it never talks to GitHub at all. If you want an ongoing score across 18 dimensions of a public repository's supply-chain posture, Scorecard is the right tool. If you want a fast, private, no-setup answer to one specific question about one workflow file -- including a private repository's, since nothing here is fetched or uploaded -- this is the narrower tool for that.</p>
+      <h3>Does Scorecard's Pinned-Dependencies check do the same thing as this tool?</h3>
+      <p>Not exactly. Scorecard's own documentation describes Pinned-Dependencies as scoring how much of a project's build and release pipeline is pinned to an immutable reference, and by its own account that check looks across multiple ecosystems -- GitHub Actions, Dockerfile base images, and downloaded-script installs among them -- and returns one 0-to-10 score for the repository as a whole, not a line-by-line list. This tool checks exactly one of those surfaces, GitHub Actions <code>uses:</code> lines, and instead of a score it lists every unpinned reference individually with the file, line, and the exact <code>git ls-remote</code> command to look up the commit SHA yourself. Running both is not redundant: Scorecard's score can move for reasons that have nothing to do with your workflow files, and this tool's line-level list does not tell you how your repository compares to any baseline.</p>
+      <h3>Why would I need a token-free, no-install checker if Scorecard already exists?</h3>
+      <p>Three reasons this tool exists alongside it. First, Scorecard's CLI needs a GitHub token to avoid API rate limits in practice, and its GitHub Action needs to run inside your CI with repository access -- this tool needs neither, so it works on a workflow file from a private repository, a fork you have not pushed anywhere, or a repo you do not administer, with nothing leaving your browser. Second, Scorecard is a Go binary (or a container image) you install and configure; this tool is a page you open. Third, when the answer you actually want is "which lines, and what do I run to fix them," a 0-to-10 score is a worse fit than a list of file:line findings with a copy-pasteable remediation command, which is the only thing this tool produces.</p>
+      <h3>Is this page affiliated with OpenSSF or the Scorecard project?</h3>
+      <p>No. This site is not affiliated with, endorsed by, or sponsored by the Open Source Security Foundation or the Scorecard project. Scorecard is an open-source project of the OpenSSF, named here only to describe what this checker is and is not, using facts drawn from Scorecard's own public documentation and source repository at github.com/ossf/scorecard.</p>
+    </section>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a compliance attestation, or a guarantee that your CI is safe from supply-chain attacks, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including confirming any commit SHA yourself before pinning to it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+      <p>Everything runs in your browser. The YAML you paste is never uploaded, and this page makes no live comparison against Scorecard -- it is a static page describing category facts sourced from Scorecard's own public documentation, not a live scan of any repository. We count only anonymous local feature events, never people or workflow content, with an opt-out on the checker page. Do Not Track and Global Privacy Control are honoured.</p>
+      <p>Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+    </footer>
+  </main>
+</body></html>

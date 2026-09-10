@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Affiliate Disclosure Checker — Is Your Amazon/FTC Disclosure Missing or Too Late?</title>
+  <meta name="description" content="Paste a blog post's HTML and see every affiliate link it recognises (Amazon Associates tag= links, amzn.to, rel=sponsored, ShareASale/CJ/Impact/Skimlinks/AWIN tracking links) and whether a disclosure appears before the first one — plus whether an Amazon link carries Amazon's own required exact statement. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Is your affiliate disclosure missing, or just too late?">
+  <meta property="og:description" content="Paste your post's HTML and get a deterministic list of every affiliate link it recognises and whether a disclosure phrase appears before the first one — plus a separate check for Amazon's own required exact wording. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Affiliate Disclosure Checker","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Scans a blog post or page's HTML for recognised affiliate-link signals (Amazon Associates tag= links, amzn.to, rel=sponsored, and known affiliate-network tracking domains) and reports whether a disclosure phrase appears before the first one in reading order, plus whether any Amazon link carries Amazon's own required exact disclosure statement. Runs entirely in the browser or as a zero-dependency Node CLI usable as a pre-publish gate. Not legal advice and not a compliance determination."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does this matter for Amazon Associates specifically?","acceptedAnswer":{"@type":"Answer","text":"Amazon's Associates Program Operating Agreement requires every page carrying an Associates link to state, in substance, \"As an Amazon Associate I earn from qualifying purchases.\" Amazon has terminated associate accounts for missing this, which removes the account's entire earning history, not just future commissions — so a missing disclosure is a real, checkable income risk, not a hypothetical one."}},{"@type":"Question","name":"Is a generic \"affiliate links\" disclosure enough for an Amazon link?","acceptedAnswer":{"@type":"Answer","text":"Not for Amazon specifically. The FTC's Endorsement Guides ask for a clear and conspicuous disclosure in general, which a generic phrase like \"this post contains affiliate links\" can satisfy — but Amazon's own operating agreement additionally requires its specific exact statement, so this tool checks the two separately and flags an Amazon link that has some disclosure but not Amazon's own required wording."}},{"@type":"Question","name":"Does this tell me whether I am FTC or Amazon compliant?","acceptedAnswer":{"@type":"Answer","text":"No. It reports which affiliate-link signals and which disclosure phrases it found, and their order on the page — facts about the text, not a legal or contractual determination. Read the FTC's Endorsement Guides and Amazon's own Associates Program Operating Agreement, and consult a professional if you need a determination you can rely on."}},{"@type":"Question","name":"Is my content uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the HTML you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #4a1f5c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a1f5c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #4a1f5c10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4a1f5c; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #ece3f0; color: #4a1f5c; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.fail { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fef3c7; color: #78350f; }
+    .pill.ok { background: #dcfce7; color: #14532d; }
+    .pill.info { background: #e3e9ef; color: #17324a; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok-text { color: #14532d; font-weight: 600; }
+    .fail-text { color: #7f1d1d; font-weight: 700; }
+    .warn-text { color: #78350f; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AFFILIATE DISCLOSURE CHECKER · RUNS IN YOUR BROWSER</p>
+    <h1>Is your affiliate disclosure missing, or just too late?</h1>
+    <p>Paste a blog post or page's HTML and see every affiliate link it recognises — an <a href="https://affiliate-program.amazon.com/help/operating/agreement" rel="noopener">Amazon Associates</a> <code>tag=</code> link, an <code>amzn.to</code> short link, <code>rel="sponsored"</code>, or a known network's tracking link (ShareASale, CJ, Impact, Skimlinks, AWIN, and similar) — and whether a disclosure phrase appears <strong>before</strong> the first one, the way the <a href="https://www.ftc.gov/business-guidance/resources/disclosures-101-social-media-influencers" rel="noopener">FTC's Endorsement Guides</a> call for. Separately, it checks whether any Amazon link carries Amazon's own required exact statement — a generic "affiliate links" note is not enough for Amazon specifically, and Amazon has terminated associate accounts over exactly this gap.</p>
+    <p class="note">Nothing is uploaded. The text box is parsed in this browser and never leaves your device. This is a fact-check, not a compliance determination: it names what it found, not whether you are safe from the FTC or from Amazon.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your page's HTML</h2>
+    <label for="html-input">Full page HTML (view source, or export from your CMS)</label>
+    <textarea id="html-input" spellcheck="false" placeholder="&lt;p&gt;I love this gadget.&lt;/p&gt;&#10;&lt;a href=&quot;https://www.amazon.com/dp/B000XYZ?tag=yourid-20&quot;&gt;Buy it here&lt;/a&gt;"></textarea>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (disclosure missing)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What was found</h2>
+    <p id="summary"></p>
+    <p id="amazon-note"></p>
+    <table id="links-table" hidden>
+      <thead><tr><th>Affiliate link found</th><th>Why it's flagged</th></tr></thead>
+      <tbody id="links-rows"></tbody>
+    </table>
+    <table id="disclosures-table" hidden>
+      <thead><tr><th>Disclosure phrase found</th><th>Kind</th></tr></thead>
+      <tbody id="disclosures-rows"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a pre-publish gate?</h2>
+    <p>Same logic, zero dependencies, one file — and it can walk a whole built site (e.g. a static blog's output directory) in one pass:</p>
+    <pre class="cmd">node cli.mjs check post.html                     # one file, human-readable
+node cli.mjs check dist --json                      # a whole build output dir, machine-readable
+node cli.mjs check dist --strict                    # also fail on a missing Amazon-required phrase</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only the local files/directories you name: no network call, ever. Exits 1 if any file is missing a disclosure, or discloses only after the first affiliate link.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked</h2>
+    <table>
+      <thead><tr><th>Signal</th><th>What it means</th></tr></thead>
+      <tbody>
+        <tr><td>Amazon Associates <code>tag=</code> link, or <code>amzn.to</code></td><td>Amazon's own tracking parameter / link shortener</td></tr>
+        <tr><td><code>rel="sponsored"</code></td><td>Google's own recommended annotation for a paid or affiliate link, any network</td></tr>
+        <tr><td>Known affiliate-network tracking domain</td><td>ShareASale, CJ/Commission Junction, Rakuten/LinkSynergy, Impact, Skimlinks, VigLink, rewardStyle/LTK, AWIN, AvantLink, and similar</td></tr>
+        <tr><td>Generic tracking parameter</td><td><code>irclickid=</code>, <code>affiliate_id=</code>, <code>aff_id=</code></td></tr>
+      </tbody>
+    </table>
+    <p class="note">Matched against visible text and link markup only — <code>&lt;script&gt;</code>, <code>&lt;style&gt;</code>, and HTML comments are never scanned. It cannot see a link built dynamically by client-side JavaScript that never appears in the pasted markup, and it does not attempt to identify every affiliate network in existence — only the widely-used ones listed above.</p>
+    <p class="note">More: <a href="what-disclosure-does-amazon-associates-and-the-ftc-require.html">what disclosure Amazon Associates and the FTC actually require, and where to put it</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does this matter for Amazon Associates specifically?</h3>
+    <p>Amazon's Associates Program Operating Agreement requires every page carrying an Associates link to state, in substance, "As an Amazon Associate I earn from qualifying purchases." Amazon has terminated associate accounts for missing this, which removes the account's entire earning history, not just future commissions — so a missing disclosure is a real, checkable income risk, not a hypothetical one.</p>
+    <h3>Is a generic "affiliate links" disclosure enough for an Amazon link?</h3>
+    <p>Not for Amazon specifically. The FTC's Endorsement Guides ask for a clear and conspicuous disclosure in general, which a generic phrase like "this post contains affiliate links" can satisfy — but Amazon's own operating agreement additionally requires its specific exact statement, so this tool checks the two separately and flags an Amazon link that has some disclosure but not Amazon's own required wording.</p>
+    <h3>Does this tell me whether I am FTC or Amazon compliant?</h3>
+    <p>No. It reports which affiliate-link signals and which disclosure phrases it found, and their order on the page — facts about the text, not a legal or contractual determination. Read the FTC's Endorsement Guides and Amazon's own Associates Program Operating Agreement, and consult a professional if you need a determination you can rely on.</p>
+    <h3>Is my content uploaded anywhere?</h3>
+    <p>No. The browser page parses the HTML you paste entirely in your own browser and never sends it anywhere. The CLI reads only local files — no network call, ever.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal advice, and it does not replace a qualified professional. It is not a determination that you comply with the FTC's Endorsement Guides, Amazon's Associates Program Operating Agreement, or any other network's terms — it reports which known affiliate-link and disclosure-phrase patterns it recognises in the text you provide, nothing more. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any disclosure obligation it helps you check. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by Amazon, Amazon Associates, or any affiliate network named above. Each is a trademark of its respective owner, named here only to describe what this tool checks for.</p>
+    <p>Everything runs in your browser. The HTML you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  <p>Earning from an open-source project rather than affiliate links? <a href="../sponsor-ready/">Sponsor Ready</a> scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors, and names what to fix first.</p></footer>
+
+  <script type="module">
+    import { checkDisclosure, summarize } from "./engine.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      input: $("#html-input"), status: $("#status"),
+      reportCard: $("#report-card"), summary: $("#summary"), amazonNote: $("#amazon-note"),
+      linksTable: $("#links-table"), linksRows: $("#links-rows"),
+      disclosuresTable: $("#disclosures-table"), disclosuresRows: $("#disclosures-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function renderReport() {
+      const html = els.input.value;
+      if (!html.trim()) {
+        els.status.innerHTML = `<span class="error">Paste a page's HTML first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+
+      const report = checkDisclosure(html);
+      const { level, text } = summarize(report);
+      const cls = level === "fail" ? "fail-text" : level === "warn" ? "warn-text" : level === "ok" ? "ok-text" : "";
+      els.summary.innerHTML = `<span class="${cls}"><span class="pill ${level}">${escapeHtml(level)}</span> ${escapeHtml(text)}</span>`;
+
+      els.amazonNote.textContent = report.hasAmazonLink
+        ? (report.hasAmazonRequiredPhrase
+          ? "Amazon link(s) found, and Amazon's own required exact statement was found."
+          : "Amazon link(s) found, but Amazon's own required exact statement (\"As an Amazon Associate I earn from qualifying purchases\") was not.")
+        : "";
+
+      els.linksTable.hidden = report.affiliateLinks.length === 0;
+      els.linksRows.innerHTML = report.affiliateLinks.map((l) => `<tr>
+        <td><code>${escapeHtml(l.href)}</code></td>
+        <td>${escapeHtml(l.reason)}</td>
+      </tr>`).join("");
+
+      els.disclosuresTable.hidden = report.disclosures.length === 0;
+      els.disclosuresRows.innerHTML = report.disclosures.map((d) => `<tr>
+        <td>"${escapeHtml(d.phrase)}"</td>
+        <td>${escapeHtml(d.kind)}</td>
+      </tr>`).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    const EXAMPLE_HTML = `<h1>My Favorite Kitchen Gadget</h1>
+<p>I have used this for months and it is genuinely great for weeknight cooking.</p>
+<p>You can grab one here: <a href="https://www.amazon.com/dp/B000XYZ123?tag=myblogid-20">this gadget on Amazon</a>.</p>
+<p>Thanks for reading!</p>`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.input.value = EXAMPLE_HTML;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.input.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

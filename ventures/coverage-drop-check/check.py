@@ -328,9 +328,10 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     try:
-        with open(args.baseline, encoding="utf-8") as handle:
+        # Let the XML parser honor each report's encoding declaration/BOM.
+        with open(args.baseline, "rb") as handle:
             baseline_xml = handle.read()
-        with open(args.current, encoding="utf-8") as handle:
+        with open(args.current, "rb") as handle:
             current_xml = handle.read()
         result = compare_coverage(baseline_xml, current_xml, max_drop_pct=args.max_drop)
     except OSError as exc:

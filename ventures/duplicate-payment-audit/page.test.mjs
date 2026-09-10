@@ -38,3 +38,49 @@ test('index links one hop to the payment-reconciliation-workbench sibling', () =
     'index must link ../payment-reconciliation-workbench/ so crawlers reach the sibling AP tool in one hop',
   );
 });
+
+test('index links to the vs-prgx comparison page, and the page exists with the required disclosures', () => {
+  assert.match(html, /href="vs-prgx\.html"/);
+  const vsHtml = fs.readFileSync(new URL('./vs-prgx.html', import.meta.url), 'utf8');
+  assert.match(vsHtml, /PRGX/);
+  assert.match(vsHtml, /not affiliated with, endorsed by, or sponsored by PRGX/i);
+  assert.match(vsHtml, /No warranty/);
+  assert.match(vsHtml, /href="\.\/"/, 'vs-prgx.html must link back to the calculator');
+});
+
+test('vs-prgx.html is listed in the sitemap', () => {
+  const sitemap = fs.readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /vs-prgx\.html/);
+});
+
+// An upload-only tool shows a first-time visitor nothing at all until they
+// have already gone and exported their ledger, so the worked example is the
+// only path that demonstrates the product before it asks for data. These
+// assertions pin the fixture to the behaviour it is supposed to show: if a
+// future tuning of `detectDuplicates` stops flagging one of the four tiers,
+// the demo would quietly start under-selling the tool, and that is exactly
+// the failure a reader would never notice.
+test('the bundled worked example exercises every tier detectDuplicates can report', async () => {
+  const app = fs.readFileSync(new URL('./app.mjs', import.meta.url), 'utf8');
+  const match = app.match(/const EXAMPLE_CSV = `([\s\S]*?)`;/);
+  assert.ok(match, 'app.mjs must carry an inline EXAMPLE_CSV fixture');
+
+  const { readRecords, detectDuplicates } = await import('./detect.mjs');
+  const { records, hasInvoiceColumn } = readRecords(match[1]);
+  assert.ok(hasInvoiceColumn, 'the example must include an invoice column, or two of the three passes never run');
+
+  const flags = detectDuplicates(records, { dateWindowDays: 7 });
+  const tiers = new Set(flags.map(f => f.tier));
+  for (const tier of ['exact-duplicate', 'same-invoice-different-amount', 'near-duplicate-invoice', 'same-amount-near-date']) {
+    assert.ok(tiers.has(tier), `the worked example must produce a ${tier} finding`);
+  }
+  // Some rows must stay quiet too: a fixture where everything flags would
+  // misrepresent the tool as flagging indiscriminately.
+  const flaggedRows = new Set(flags.flatMap(f => [f.a.row, f.b.row]));
+  assert.ok(records.length > flaggedRows.size, 'the example must contain rows that correctly do not flag');
+});
+
+test('the worked example is reachable from a control on the page', () => {
+  assert.match(html, /id="loadExample"/);
+  assert.match(html, /Load a worked example/);
+});

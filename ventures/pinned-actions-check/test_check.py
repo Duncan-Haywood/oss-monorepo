@@ -333,6 +333,37 @@ class Main(unittest.TestCase):
             self.assertEqual(code, 0)
             self.assertIn("No .github/workflows", out)
 
+    def test_sarif_output_has_one_result_per_mutable_finding_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.make_repo(
+                tmp,
+                f"steps:\n  - uses: actions/checkout@v4\n  - uses: actions/setup-node@{SHA}\n",
+            )
+            code, out = self.run_main([tmp, "--format", "sarif"])
+            self.assertEqual(code, 0)
+            sarif = json.loads(out)
+            self.assertEqual(sarif["version"], "2.1.0")
+            run = sarif["runs"][0]
+            self.assertEqual([rule["id"] for rule in run["tool"]["driver"]["rules"]], [pac._SARIF_RULE_ID])
+            # The pinned actions/setup-node@<sha> reference is not a finding
+            # and must not appear as a SARIF result alongside the mutable one.
+            self.assertEqual(len(run["results"]), 1)
+            result = run["results"][0]
+            self.assertEqual(result["ruleId"], pac._SARIF_RULE_ID)
+            self.assertIn("actions/checkout@v4", result["message"]["text"])
+            uri = result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+            self.assertFalse(uri.startswith("/"), uri)
+            self.assertFalse(uri.startswith("./"), uri)
+            self.assertTrue(uri.startswith(".github/workflows/"), uri)
+
+    def test_sarif_output_with_no_findings_is_still_valid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.make_repo(tmp, f"steps:\n  - uses: actions/checkout@{SHA}\n")
+            code, out = self.run_main([tmp, "--format", "sarif"])
+            self.assertEqual(code, 0)
+            sarif = json.loads(out)
+            self.assertEqual(sarif["runs"][0]["results"], [])
+
     def test_default_path_is_current_directory(self):
         # Smoke check: invoking with no path argument does not raise.
         with tempfile.TemporaryDirectory() as tmp:

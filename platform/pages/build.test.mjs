@@ -22,6 +22,7 @@ import {
   buildSite,
   categoryFor,
   collectPageTitles,
+  copyTree,
   injectFavicon,
   discoverSurfaces,
   faqEntries,
@@ -37,6 +38,8 @@ import {
   renderFavicon,
   renderFaviconSvg,
   renderRobots,
+  INDEXNOW_KEY,
+  indexNowKeyFileName,
   renderSitemapIndex,
   renderVentureSitemap,
   searchTokens,
@@ -539,6 +542,15 @@ test('robots.txt points at a sitemap that reaches the hub and every venture', as
 
   const hubMap = await read('sitemap-hub.xml');
   assert.ok(hubMap.includes(`<loc>${BASE}</loc>`));
+});
+
+test('the IndexNow key is published at the site root, matching the constant', async () => {
+  const keyFile = await read(indexNowKeyFileName());
+  assert.equal(keyFile, INDEXNOW_KEY);
+  // The protocol reads this file's content as the key itself -- no trailing
+  // newline or surrounding whitespace, or a verifier comparing it byte-for-
+  // byte to the key in the submission request sees a mismatch.
+  assert.equal(keyFile.trim(), keyFile);
 });
 
 test('the index points at a sitemap for every published tool', async () => {
@@ -4964,4 +4976,45 @@ test('the privacy exception sentence names each tool as a distinct list item', (
   const prose = listProse(named);
   assert.equal(prose, 'DNS Change Evidence and Sponsor Ready');
   assert.ok(!prose.includes('—'), 'no tagline may survive into the exception list');
+});
+
+// A developer-tool cache must never reach the artifact, and the reason this is
+// pinned by *shape* rather than by name is that the name list already lost this
+// race twice. `EXCLUDED_DIRS` learned `__pycache__` and still did not know
+// `.ruff_cache`, which appears inside a venture the moment a session runs that
+// venture's Python suite — which CLAUDE.md's pre-merge checklist instructs.
+//
+// The consequence was measured on 2026-09-09, and it is a publish outage rather
+// than clutter: `publish-branch.sh` runs `check.mjs` fail-closed, and check.mjs
+// rejects `CACHEDIR.TAG` because nothing tells nginx how to type `.tag`. So
+// following the checklist and then publishing blocked the live catalogue's only
+// working deploy route. `.well-known` is the one dot-directory that must still
+// survive, so it is asserted here rather than left to be rediscovered.
+test('copyTree drops dot-directory tool caches but keeps .well-known', async () => {
+  const from = await fs.mkdtemp(path.join(os.tmpdir(), 'copytree-src-'));
+  const to = await fs.mkdtemp(path.join(os.tmpdir(), 'copytree-out-'));
+
+  await fs.writeFile(path.join(from, 'index.html'), '<!doctype html><p>tool</p>');
+  for (const dir of ['.ruff_cache', '.pytest_cache', '.mypy_cache', '__pycache__']) {
+    await fs.mkdir(path.join(from, dir), { recursive: true });
+    await fs.writeFile(path.join(from, dir, 'CACHEDIR.TAG'), 'Signature: 8a477f597d28d172');
+    await fs.writeFile(path.join(from, dir, 'leak.html'), '<!doctype html><p>cache</p>');
+  }
+  await fs.mkdir(path.join(from, '.well-known'), { recursive: true });
+  await fs.writeFile(path.join(from, '.well-known', 'security.txt'), 'Contact: mailto:x@y.z');
+
+  await copyTree(from, to, 'https://example.test/');
+  const landed = await fs.readdir(to);
+
+  assert.ok(landed.includes('index.html'), 'the page itself must still be published');
+  for (const dir of ['.ruff_cache', '.pytest_cache', '.mypy_cache', '__pycache__']) {
+    assert.ok(
+      !landed.includes(dir),
+      `${dir} reached the artifact; check.mjs is fail-closed on CACHEDIR.TAG, so this blocks publish-branch.sh`,
+    );
+  }
+  assert.ok(
+    landed.includes('.well-known'),
+    '.well-known is the one dot-directory a static site serves on purpose',
+  );
 });

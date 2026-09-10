@@ -102,6 +102,20 @@ export const REPO_ROOT = path.resolve(HERE, '..', '..');
 // project Pages site for this repository.
 export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
 
+// IndexNow (api.indexnow.org) proves ownership of a set of URLs with a key
+// file hosted at a location the submitter names in each request -- it does
+// not have to sit at the host root the way `robots.txt` does. That matters
+// here: the site is served from a project-Pages *subpath*
+// (`platform/ci/pages_state.py`'s "subpath-robots" finding), so a host-root
+// key file would be as undiscoverable as the sitemap line in `robots.txt`
+// already is. Naming the location explicitly in every submission
+// (`platform/marketing/indexnow.mjs`) sidesteps that rather than repeating
+// it. The value is not a secret -- it only proves this build controls the
+// URLs it submits -- so it is a plain committed constant, generated once
+// with `python3 -c "import secrets; print(secrets.token_hex(16))"`.
+export const INDEXNOW_KEY = '51c80c301d4b5583163e00e6c89b06cf';
+export const indexNowKeyFileName = () => `${INDEXNOW_KEY}.txt`;
+
 // The placeholder origin every venture's sitemap.xml and canonical tags were
 // written against, back when no real origin existed. Rewriting it is what
 // turns already-written SEO into SEO that points at a reachable page.
@@ -274,6 +288,30 @@ const EXCLUDED_FILES = new Set([
   'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
 ]);
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', '__pycache__']);
+// Every dot-directory is skipped unless it is named here, and the allowlist is
+// the whole reason this is a rule rather than four more entries in the set
+// above. That set is a list of names someone had already seen, and it has now
+// aged twice: it learned `__pycache__` after a Python venture shipped, and it
+// still did not know `.ruff_cache` or `.pytest_cache`, which land in a venture
+// directory the moment a session runs that venture's Python suite — which is
+// exactly what CLAUDE.md's own pre-merge checklist instructs.
+//
+// Measured 2026-09-09, and it is not cosmetic: `publish-branch.sh` runs
+// `check.mjs` against the dist and is fail-closed, and `check.mjs` rejects
+// `CACHEDIR.TAG` because nothing tells nginx how to type `.tag`. So running the
+// documented checklist and then publishing was enough to *block the publish of
+// the live catalogue* — during the starvation window in which that manual
+// publish is the only route to the live site. Two ventures were carrying the
+// cache in this session's tree, and two more carry `__pycache__` that only the
+// older entry above catches.
+//
+// A name list cannot win this race: the next tool ships its own cache and the
+// list learns about it from the outage. Skipping dot-directories by shape does
+// not go stale, and it costs nothing today — measured on a full build, not one
+// dot-directory reaches the artifact. `.well-known` is allowlisted because it
+// is the one dot-directory a static site has a real reason to serve (ACME
+// challenges, `security.txt`), so a future need for it is already answered.
+const PUBLISHABLE_DOT_DIRS = new Set(['.well-known']);
 // `foo.test.mjs` is the house convention, but it is a convention rather than a
 // rule, and two ventures did not follow it: `retainage-cashflow-calculator`
 // ships its suite as `test.mjs` and `freelance-retainer-calculator` as
@@ -490,7 +528,7 @@ const CATEGORY_RULES = [
     id: 'ci',
     title: 'CI checks & developer gates',
     accent: '#1a4560',
-    blurb: 'Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning; tell a starved runner from a real failure; catch a coverage drop, classify flaky tests, see which AI crawlers your robots.txt allows, or catch a dependency that just gained an install-time script — free, local, no account.',
+    blurb: 'Audit a GitHub Actions workflow for injection, over-broad permissions, unpinned actions and cache poisoning; tell a starved runner from a real failure; catch a coverage drop, classify flaky tests, see which AI crawlers your robots.txt allows, catch a dependency that just gained an install-time script or could be confused with an internal package, find a missing iOS privacy-manifest declaration before App Review does, or catch a page whose JSON-LD no longer matches its own visible text — free, local, no account.',
     // These four sat in the catch-all together: each is a browser-local (and
     // matching CLI) checker a maintainer runs against files or API JSON they
     // already have, not a trade bid, marketplace fee, or compliance evidence
@@ -539,8 +577,85 @@ const CATEGORY_RULES = [
     // since it graduated only because its slug starts a family the prefix list
     // did not name, which is the same accident this comment block records for
     // `license-drift-check` a day earlier.
+    //
+    // `ios-privacy-manifest-check` joined the same day. Same shape again --
+    // a browser-local checker plus a matching CLI, run by a developer against
+    // source and a manifest file they already have, reporting which
+    // declarations are missing or wrong -- just for an iOS app's
+    // PrivacyInfo.xcprivacy instead of an npm/Actions supply-chain artifact.
+    // It cross-links `dependency-confusion-check` as Related. Listed by exact
+    // slug rather than a new prefix, the same way `dependency-confusion-check`
+    // itself is: one tool does not earn a whole family pattern.
+    //
+    // `structured-data-drift-check` joined 2026-09-09. Same shape again -- a
+    // browser-local checker plus a matching CLI, run by a developer against
+    // an HTML page (and its own JSON-LD) they already have, reporting
+    // exactly where a FAQPage/HowTo/Product/etc. claim diverges from the
+    // page's own visible text -- just for structured-data drift instead of
+    // an npm/Actions/iOS supply-chain artifact. It cross-links
+    // `ai-crawler-access-check` as Related (same "can an AI system actually
+    // trust this page" question, different failure mode). Listed by exact
+    // slug rather than a new prefix, the same way `dependency-confusion-check`
+    // and `ios-privacy-manifest-check` are: one tool does not earn a whole
+    // family pattern, and landing it here rather than the catch-all is also
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    //
+    // `env-example-drift-check` joined 2026-09-09. Same shape again -- a
+    // browser-local checker plus a matching CLI, run by a developer against
+    // an `.env.example` file and their own source code, reporting exactly
+    // which environment variables the code reads that the example file is
+    // missing (or declares but no longer reads) -- just for a repo's config
+    // contract instead of an npm/Actions/iOS/structured-data artifact. It
+    // cross-links `structured-data-drift-check` as Related (same "does the
+    // doc still match the code" question, different pair). Listed by exact
+    // slug rather than a new prefix, the same way `structured-data-drift-check`
+    // is: one tool does not earn a whole family pattern.
+    //
+    // `package-exports-drift-check` joined 2026-09-09, the same day. Same
+    // shape again -- a browser-local checker plus a matching CLI, run by a
+    // maintainer against their own `package.json` and a file listing they
+    // already have, reporting exactly which literal target in the `exports`
+    // map points at a file that does not exist -- just for a package's
+    // publish contract instead of an env file, a workflow, an iOS manifest,
+    // or a page's own structured data. It cross-links both
+    // `env-example-drift-check` and `structured-data-drift-check` as
+    // Related (same "does the doc still match the code/build" question,
+    // different pair). Listed by exact slug rather than a new prefix, the
+    // same way its two siblings are: one tool does not earn a whole family
+    // pattern, and landing it here rather than the catch-all is also what
+    // keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    //
+    // `chrome-extension-permission-check` joined 2026-09-09. Same shape
+    // again -- a browser-local checker plus a matching CLI, run by a
+    // developer against their own source and a manifest file they already
+    // have, reporting which declarations are missing or unused in both
+    // directions -- just for a Chrome/Edge extension's manifest.json
+    // permissions instead of an npm/Actions/iOS/structured-data/env/package
+    // artifact. It cross-links `ios-privacy-manifest-check` as Related (same
+    // "cross-check a platform-review-gating manifest against real API usage"
+    // question, different platform). Listed by exact slug rather than a new
+    // prefix, the same way its neighbors above are: one tool does not earn a
+    // whole family pattern, and landing it here rather than the catch-all is
+    // also what keeps that catch-all inside the bound `build.test.mjs` puts
+    // on it.
+    //
+    // `wordpress-plugin-review-check` joined the same day. Same shape again
+    // -- a browser-local checker plus a matching CLI, run by a developer
+    // against their own PHP source and readme.txt they already have,
+    // cross-checking a review-gating field (readme.txt's Stable tag against
+    // the plugin header's Version) in both directions plus two more patterns
+    // (unescaped superglobal output, a $_POST handler with no nonce check) --
+    // just for a WordPress plugin's Plugin Directory submission instead of a
+    // Chrome/iOS/npm/Actions artifact. It cross-links both
+    // `chrome-extension-permission-check` and `ios-privacy-manifest-check` as
+    // Related (same "cross-check a platform-review-gating manifest/header
+    // against real source" question, a third platform). Listed by exact slug
+    // rather than a new prefix, the same way its neighbors above are: one
+    // tool does not earn a whole family pattern, and landing it here rather
+    // than the catch-all is also what keeps that catch-all inside the bound
+    // `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check)/.test(
         slug,
       ),
   },
@@ -578,9 +693,18 @@ const CATEGORY_RULES = [
     // *business* uses). An exact list cannot silently steal a slug from a
     // section above it, and the cost is that a sixth member needs one line
     // here -- which the catch-all bound will ask for anyway.
+    //
+    // `affiliate-disclosure-checker` joined 2026-09-09: a blogger or content
+    // creator checking their own published post for a missing or too-late
+    // affiliate disclosure, protecting the same kind of self-earned income
+    // `ats-resume-checker` protects (a job seeker's own resume) rather than
+    // pricing anything -- the axis this section groups on is the earner, not
+    // whether the tool is a calculator or a checker, and `ats-resume-checker`
+    // is already the precedent for a checker-shaped member here.
     test: (slug) =>
       [
         '3d-print-price-calculator',
+        'affiliate-disclosure-checker',
         'ats-resume-checker',
         'gig-driver-net-pay-calculator',
         'newsletter-sponsorship-rate-calculator',
@@ -2037,6 +2161,7 @@ export async function copyTree(from, to, baseUrl) {
 
     if (entry.isDirectory()) {
       if (EXCLUDED_DIRS.has(entry.name)) continue;
+      if (entry.name.startsWith('.') && !PUBLISHABLE_DOT_DIRS.has(entry.name)) continue;
       const nested = await copyTree(src, dest, baseUrl);
       // A directory that held only CLI source leaves an empty shell behind.
       if (nested.length === 0) await fs.rm(dest, { recursive: true, force: true });
@@ -6265,6 +6390,10 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, EMBED_HOST_FILE), renderEmbedHostModule());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
+  // The IndexNow key file. Content is the key itself, per the protocol; see
+  // `INDEXNOW_KEY` above for why this lives at the site root rather than the
+  // host root.
+  await fs.writeFile(path.join(outDir, indexNowKeyFileName()), INDEXNOW_KEY);
 
   // One landing page per category, under the reserved `c/` prefix. Written
   // before the sitemaps because `renderHubSitemap` has to list exactly the

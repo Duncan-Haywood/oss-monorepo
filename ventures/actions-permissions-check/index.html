@@ -101,7 +101,7 @@ python3 check.py --fail-on-risk   # exit 2 if any write-all or unspecified grant
     <p>No. This checks one specific, well-documented thing: whether a permissions block exists and is not <code>write-all</code>. It does not judge whether the scopes a workflow does declare are the minimum a job actually needs, and it makes no claim about your repository's overall security or compliance posture.</p>
     <h3>What should I put in a permissions: block?</h3>
     <p>GitHub's own guidance is to start from <code>contents: read</code> at the workflow level and add only the specific scope a job needs, such as <code>pull-requests: write</code> for a job that comments on PRs. This tool does not decide that for you — it only tells you where nothing has been decided yet.</p>
-    <p>More: <a href="how-to-set-least-privilege-permissions-for-github-actions.html">how to set least-privilege permissions for GitHub Actions</a>.</p>
+    <p>More: <a href="how-to-set-least-privilege-permissions-for-github-actions.html">how to set least-privilege permissions for GitHub Actions</a>. See also <a href="vs-openssf-scorecard.html">how this compares to OpenSSF Scorecard's Token-Permissions check</a>.</p>
   </section>
 
   <footer>

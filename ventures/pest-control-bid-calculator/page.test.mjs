@@ -89,3 +89,7 @@ test('the service rows ride in the bid link, not just the cost fields', () => {
     assert.match(page, new RegExp(`key:\\s*'${key}'`), `service row field '${key}' is missing from BID_SPEC`);
   }
 });
+
+test('links to the janitorial bid calculator', () => {
+  assert.match(page, /href="\.\.\/janitorial-bid-calculator\/"/, 'the sibling-tool link is missing');
+});

@@ -44,6 +44,9 @@ workflows:
 - workflow: a11y-theme-resolution-ci.yml
   classification: none
   publishes: []
+- workflow: actions-artifact-poisoning-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-cache-poisoning-check-ci.yml
   classification: none
   publishes: []
@@ -60,6 +63,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: ada-title-ii-evidence-ci.yml
+  classification: none
+  publishes: []
+- workflow: affiliate-disclosure-checker-ci.yml
   classification: none
   publishes: []
 - workflow: agent-cross-review.yml
@@ -173,6 +179,9 @@ workflows:
 - workflow: chimney-sweep-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: chrome-extension-permission-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: claude-routine-trigger.yml
   classification: none
   publishes: []
@@ -279,6 +288,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: entry-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: env-example-drift-check-ci.yml
   classification: none
   publishes: []
 - workflow: epoxy-garage-floor-bid-calculator-ci.yml
@@ -407,6 +419,9 @@ workflows:
 - workflow: invoice-payment-terms-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: ios-privacy-manifest-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: irrigation-install-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -507,6 +522,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: owner-operator-cpm-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: package-exports-drift-check-ci.yml
   classification: none
   publishes: []
 - workflow: page-integrity-ci.yml
@@ -674,6 +692,9 @@ workflows:
 - workflow: security-camera-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: security-deposit-return-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: seller-net-sheet-ci.yml
   classification: none
   publishes: []
@@ -738,6 +759,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: str-host-payout-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: structured-data-drift-check-ci.yml
   classification: none
   publishes: []
 - workflow: stucco-repair-bid-calculator-ci.yml
@@ -840,6 +864,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: window-replacement-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: wordpress-plugin-review-check-ci.yml
   classification: none
   publishes: []
 - workflow: world-clock-widget-ci.yml

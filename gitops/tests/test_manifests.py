@@ -1408,7 +1408,39 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 216 since 2026-09-08, when `newsletter-sponsorship-rate-calculator`
     # graduated — same shape again: a new venture with a static `index.html`
     # from its first commit, entering the mirror and the total together.
-    total = 216  # `infra/OWNER_CHECKLIST.md`'s own "N of the 216 tools" wording.
+    # 217 since 2026-09-08, when `ios-privacy-manifest-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 218 since 2026-09-08, when `security-deposit-return-calculator`
+    # graduated — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    # 219 since 2026-09-09, when `structured-data-drift-check` graduated —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 220 since 2026-09-09, when `actions-artifact-poisoning-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 221 since 2026-09-09, when `env-example-drift-check` graduated — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    # 222 since 2026-09-09, when `package-exports-drift-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 223 since 2026-09-09, when `affiliate-disclosure-checker` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 224 since 2026-09-09, when `chrome-extension-permission-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    # 225 since 2026-09-09, when `wordpress-plugin-review-check` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    total = 225  # `infra/OWNER_CHECKLIST.md`'s own "N of the 225 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

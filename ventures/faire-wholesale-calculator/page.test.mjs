@@ -250,3 +250,23 @@ test("index links to the related marketplace fee compare hub", () => {
     "index must link ../marketplace-fee-compare/ so crawlers can reach the retail fee ranking",
   );
 });
+
+test("index links to the Etsy profit calculator", () => {
+  assert.match(
+    brand,
+    /href="\.\.\/etsy-profit-calculator\/"/,
+    "index must link ../etsy-profit-calculator/ so a crawler reaches the retail-side calculator in one hop",
+  );
+});
+
+// Both put one order/ticket through several channels to find the true
+// take-home after fees -- a per-ticket delivery menu and a wholesale
+// invoice. Without this link a crawler entering on this hub never reaches
+// the delivery-app-margin-calculator in one hop.
+test("index links to the delivery-app-margin-calculator sibling", () => {
+  assert.match(
+    brand,
+    /href="\.\.\/delivery-app-margin-calculator\/"/,
+    "index must link ../delivery-app-margin-calculator/ so crawlers reach the delivery app margin calculator in one hop",
+  );
+});

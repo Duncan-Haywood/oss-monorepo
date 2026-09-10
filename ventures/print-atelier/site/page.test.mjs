@@ -116,3 +116,7 @@ test("the page is indexable and declares a canonical", () => {
   const description = html.match(/<meta name="description" content="([^"]+)"/);
   assert.ok(description && description[1].length >= 100, "a description long enough to be a useful snippet");
 });
+
+test("links to the MLS listing photo preflight checker", () => {
+  assert.match(html, /href="\.\.\/real-estate-agent-photo-app\/"/, "the sibling-tool link is missing");
+});

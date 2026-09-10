@@ -12,7 +12,7 @@
     "test": "tsx src/enhance.test.ts && tsx src/log-lead.test.ts && tsx src/microsite.test.ts && tsx src/delivery-message.test.ts && tsx src/referral-followup.test.ts && tsx src/booking-link.test.ts && tsx src/preflight.test.ts"
   },
   "dependencies": {
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@types/node": "^20",

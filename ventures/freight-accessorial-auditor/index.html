@@ -26,7 +26,7 @@
     .results{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .metric{border-top:4px solid var(--accent);padding:14px;background:#fff8f2;border-radius:8px}
     .metric strong{display:block;font-size:1.35rem;color:var(--ink)}
-    .flag{color:#9a3412;font-weight:600}.small{font-size:.85rem}
+    .flag{color:#9a3412;font-weight:600}.small{font-size:.85rem}button.linklike{background:none;border:0;color:#17211b;text-decoration:underline;padding:0;margin:0;font:inherit;font-weight:700;cursor:pointer}
     /* A quantity cell a per-unit rule is waiting on. Marked, not errored —
        nothing is wrong yet, the card just cannot finish without it. */
     input.wanted{border-color:var(--accent);background:#fff8f2}
@@ -70,6 +70,7 @@
     <div class="field">
       <label class="small" for="paste">…or paste rows here</label>
       <textarea id="paste" placeholder="Invoice Number,PRO Number,Charge Code,Charge Amount,Hours&#10;INV-4471,PRO-77120,LIFT,125.00,&#10;INV-4471,PRO-77120,DET,300.00,3"></textarea>
+      <p class="small">No invoice in front of you? <button type="button" id="loadExample" class="linklike">Load a worked example</button> — five accessorial lines carrying an overcharge, a duplicate, and a line that is billed correctly.</p>
     </div>
     <label class="toggle small"><input id="hasHeader" type="checkbox" checked> The first row is a header</label>
 
@@ -478,6 +479,28 @@ RESI, 45</textarea>
     reader.readAsText(file);
   });
   document.getElementById("paste").addEventListener("input", (event) => loadText(event.target.value));
+  // The file picker and the paste box both start empty, so the page opens
+  // showing a mapping UI and a rate card with nothing to apply them to. This
+  // fills the paste box with a small invoice and runs it through the identical
+  // loadText -> preview path, so what the visitor sees is the real importer
+  // reading real rows, not a screenshot. Five lines: one detention charge
+  // billed above the contracted rate, one liftgate billed correctly, one
+  // residential charge over expected, and a detention line that appears twice
+  // on the same PRO -- the duplicate the auditor exists to catch.
+  document.getElementById("loadExample").addEventListener("click", () => {
+    const example = [
+      "Invoice Number,PRO Number,Charge Code,Charge Amount,Expected Amount,Hours",
+      "INV-70412,PRO-88231,DET,325.00,195.00,5",
+      "INV-70412,PRO-88231,LIFT,95.00,95.00,",
+      "INV-70412,PRO-88407,RES,145.00,90.00,",
+      "INV-70413,PRO-88512,DET,325.00,325.00,5",
+      "INV-70413,PRO-88512,DET,325.00,325.00,5",
+    ].join("\n");
+    const paste = document.getElementById("paste");
+    paste.value = example;
+    document.getElementById("hasHeader").checked = true;
+    loadText(example);
+  });
   document.getElementById("hasHeader").addEventListener("change", () => {
     const pasted = document.getElementById("paste").value;
     if (pasted.trim()) loadText(pasted);
