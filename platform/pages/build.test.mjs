@@ -4653,6 +4653,42 @@ test('renderGuidesPage links every guide, disclaims, and counts itself honestly'
   assert.ok(html.includes('adds no'), 'the index must say it adds nothing of its own');
 });
 
+test('renderGuidesPage names an external-call exception by its prose name, not its raw tagline', () => {
+  // The same regression `toolProseName` exists to fix, on the sixth site that
+  // splices a title into running prose: this page spans the whole catalogue
+  // (see its own header comment), so its privacy claim carries the same
+  // "except on <tools>" exception list as the About page and llms.txt, and it
+  // is built from the same `externalCallExceptions` helper.
+  const item = (file, label) => ({ slug: 'dns-change-evidence', file, label, title: label, description: 'Short.' });
+  const groups = [
+    {
+      slug: 'dns-change-evidence',
+      title: 'DNS Change Evidence — prove what a DNS change actually did',
+      description: 'DNS.',
+      category: categoryFor('dns-change-evidence'),
+      items: [item('a.html', 'A question')],
+    },
+  ];
+  const surfaces = [
+    {
+      slug: 'dns-change-evidence',
+      title: 'DNS Change Evidence — prove what a DNS change actually did',
+      externalFetchHosts: ['dns.google'],
+    },
+  ];
+  const html = renderGuidesPage({ groups, surfaces, categoryGroups: [], baseUrl: 'https://example.test/' });
+  const [sentence] = html.match(/nothing you type is uploaded[^<]*/) ?? [];
+  assert.ok(sentence, 'the privacy sentence is missing entirely');
+  assert.ok(sentence.includes('except on DNS Change Evidence'), `the exception is not named: "${sentence}"`);
+  assert.ok(
+    !sentence.includes('prove what a DNS change actually did'),
+    `the raw tagline survived into the privacy sentence: "${sentence}"`,
+  );
+  // The tool's own heading is unaffected — full title there is correct, same
+  // as disclaimerHtml's <a> per toolProseName's own doc comment.
+  assert.ok(html.includes('<h3><a href="../dns-change-evidence/"'), 'the guide heading itself must keep the full title');
+});
+
 test('the guides index is in the hub sitemap and named in llms.txt', () => {
   // Both halves of "found at all": a page in no sitemap is built, deployed and
   // never crawled, and a surface missing from llms.txt is invisible to an
