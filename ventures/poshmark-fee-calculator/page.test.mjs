@@ -102,6 +102,27 @@ test('the page opens on the worked example rather than an em-dash', () => {
   assert.match(markup, /Worked example, not your listing yet/);
 });
 
+test('page wires save, forget, and a shareable link that wins over the saved draft', () => {
+  for (const id of ['save', 'forget', 'copyLink', 'saveStatus']) {
+    assert.ok(ids.has(id), `missing #${id}`);
+  }
+  assert.match(script, /import \{ FIELD_IDS, encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+
+  const draftIndex = script.indexOf("localStorage.getItem(DRAFT_KEY)");
+  const linkIndex = script.indexOf('decodeInputs(location.hash');
+  assert.ok(
+    draftIndex !== -1 && linkIndex !== -1 && draftIndex < linkIndex,
+    'the shared-link restore must run after the saved-draft restore so a link wins',
+  );
+  assert.match(script, /el\('copyLink'\)\.addEventListener\('click'/);
+  assert.match(script, /count\('link_copied'\)/);
+  assert.match(script, /count\('numbers_saved'\)/);
+});
+
+test('the FAQ answer about uploads names the save and share controls honestly', () => {
+  assert.match(markup, /Copy shareable link button puts the same numbers in the page.s URL fragment/);
+});
+
 test('opening the page counts nothing', () => {
   const initial = /\(\(\) => \{[\s\S]*?\}\)\(\);/.exec(script);
   assert.ok(initial, 'expected the load-time render to be a self-calling block');
