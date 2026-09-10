@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 147 files, 545198 bytes
 #   portfolio-front-tools-3: 145 files, 556589 bytes
 #   portfolio-front-tools-4: 122 files, 556745 bytes
-#   portfolio-front-tools-5: 129 files, 546500 bytes
+#   portfolio-front-tools-5: 130 files, 548635 bytes
 #   portfolio-front-tools-6: 125 files, 555202 bytes
 #   portfolio-front-tools-7: 109 files, 556082 bytes
 #   portfolio-front-tools-8: 121 files, 557038 bytes
@@ -813,6 +813,7 @@ configMapGenerator:
       - dog-walking-route-pricing__calc.mjs.gz=dog-walking-route-pricing__calc.mjs.gz
       - dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz=dog-walking-route-pricing__how-much-to-charge-for-a-dog-walk.html.gz
       - dog-walking-route-pricing__index.html.gz=dog-walking-route-pricing__index.html.gz
+      - dog-walking-route-pricing__share.mjs.gz=dog-walking-route-pricing__share.mjs.gz
       - dog-walking-route-pricing__usage.mjs.gz=dog-walking-route-pricing__usage.mjs.gz
       - dog-walking-route-pricing__vs-rover.html.gz=dog-walking-route-pricing__vs-rover.html.gz
       - dryer-vent-bid-calculator__calc.mjs.gz=dryer-vent-bid-calculator__calc.mjs.gz
