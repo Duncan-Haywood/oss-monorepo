@@ -132,6 +132,32 @@ and says so rather than half-installing.
 `SITE_TLS_EMAIL` is optional; without it the site is served over HTTP and you
 add the certificate afterwards with `--tls`.
 
+### From your laptop, standalone
+
+If you are not rebuilding the cluster — and serving this site needs no cluster
+at all — there is a one-command driver, the same shape as the Codex worker's
+and the runner's:
+
+```bash
+./bootstrap/scripts/setup-portfolio-site-from-laptop.sh              # full run
+./bootstrap/scripts/setup-portfolio-site-from-laptop.sh --check      # report only
+SITE_TLS_EMAIL=you@example.com \
+  ./bootstrap/scripts/setup-portfolio-site-from-laptop.sh --tls      # and a cert
+```
+
+It discovers the key that opens the box, checks where `marisstella.dev`
+actually resolves before it starts, copies the checkout, hands the PAT over on
+stdin, runs the installer, and then asks nginx for a status code rather than
+reporting success from a config it just wrote.
+
+It handles the two orderings the "By hand" section below describes, which is
+the whole reason it is not a copy of the other two drivers: the credential is
+written **before** the install, because the install is what clones; and `.git`
+is excluded from the rsync only when a token exists, because without one that
+`.git` is the only thing the fallback can clone from.
+`gitops/tests/test_setup_portfolio_site_from_laptop.py` pins both against a
+stubbed box.
+
 ### By hand
 
 Run it on the box, as root, from a checkout of this repository.

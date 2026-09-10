@@ -163,6 +163,15 @@ decisions:
     means: on a domain whose DNS already points here, this **is** the decision
     to publish under the portfolio's public name. That is the intent; there is
     deliberately no second gate after it.
+    **You do not have to rebuild the cluster to get that one.** Added
+    2026-09-10: `bootstrap/scripts/setup-portfolio-site-from-laptop.sh` runs
+    the site step on its own, from your machine, in one command — the same
+    shape as the Codex and runner drivers, which had one and this route did
+    not. It needs no k3s, no Argo and no runner, so it is not downstream of
+    the least-proven part of the restore above (the addressing steps). If the
+    only thing you want today is `marisstella.dev` answering, run that instead
+    and skip the rest; the full recovery stays the right call when you want
+    the dev capacity and CI back in the same pass.
     **The GitHub route, for when runners come back:** paste that same private
     key as the Actions secret `HETZNERSSHKEY` (the whole file, `-----BEGIN
     OPENSSH PRIVATE KEY-----` through `-----END …-----`) and the PAT as

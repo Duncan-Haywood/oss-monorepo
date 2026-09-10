@@ -220,7 +220,11 @@ export function offerThatMatchesEbayList(input) {
 export function counterOfferMessage(input) {
   const offerPrice = number(input.offerPrice, 'Offer price');
   const match = offerThatMatchesEbayList(input);
-  const money = (value) => `$${Number(value).toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${Number(value).toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   if (offerPrice >= match.offerPrice) {
     return `Thanks for the offer of ${money(offerPrice)} -- that already nets as much as selling this on eBay at my list price, so I'm glad to accept it.`;
   }
