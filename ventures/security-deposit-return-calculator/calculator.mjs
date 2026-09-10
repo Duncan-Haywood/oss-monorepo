@@ -111,3 +111,81 @@ export function computeDepositSettlement({ depositAmount, deductions }) {
 
   return { totalDeductions, refundDue, balanceOwed, lineItems, findings };
 }
+
+/**
+ * The disclaimer that travels with a copied statement.
+ *
+ * This is deliberately part of the text rather than page furniture. The
+ * statement's whole purpose is to leave the tool -- it gets pasted into an
+ * email to the other party to a lease, who never sees this page and so never
+ * sees the footer's "not legal advice" line. A settlement figure arriving in
+ * an inbox with no such line reads like a determination of what may be
+ * deducted, which is the one thing this calculator does not do. So the line
+ * goes in the artifact, not just beside the button that produces it.
+ */
+export const STATEMENT_DISCLAIMER =
+  "Arithmetic only: this statement totals the figures entered and is not a " +
+  "legal determination of what may be deducted. It does not apply any " +
+  "state's itemization deadline, deposit limit, interest rule, or the line " +
+  "between normal wear and tear and damage -- check the lease and local " +
+  "landlord-tenant law before relying on it.";
+
+function money(n) {
+  const format = (n) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+}
+
+/**
+ * Render a settlement as the plain-text itemized statement a landlord has to
+ * send and a tenant has to check.
+ *
+ * Computing the refund is only half the job either side actually has. The
+ * landlord's obligation at move-out is to produce an *itemized* statement --
+ * each charge named and priced, not a lump sum -- and before this the only
+ * way to get one out of the tool was to retype the table into an email. The
+ * tenant disputing a deduction has the mirror-image problem: showing their
+ * own arithmetic, line by line, so the disagreement is about one charge
+ * rather than about the total. One function serves both, because it is the
+ * same document read from either end.
+ *
+ * Plain text with no column alignment on purpose. The destination is an email
+ * body or a message box, which is proportional-width nearly everywhere, so
+ * space-padded columns that line up in this file arrive ragged. A leading
+ * "1." and an em dash survive that.
+ *
+ * @param {ReturnType<typeof computeDepositSettlement>} settlement
+ * @param {{depositAmount: number}} input
+ * @returns {string}
+ */
+export function formatItemizedStatement(settlement, { depositAmount } = {}) {
+  const deposit = Number.isFinite(depositAmount) && depositAmount > 0 ? round2(depositAmount) : 0;
+  const { lineItems = [], totalDeductions = 0, refundDue = 0, balanceOwed = 0 } = settlement ?? {};
+
+  const lines = ["SECURITY DEPOSIT - ITEMIZED STATEMENT", ""];
+  lines.push(`Security deposit held: ${money(deposit)}`, "");
+
+  if (lineItems.length === 0) {
+    lines.push("Itemized deductions: none.");
+  } else {
+    lines.push("Itemized deductions:");
+    lineItems.forEach((item, i) => {
+      // An unlabelled line is called out here rather than silently printed as
+      // blank: computeDepositSettlement already flags it on the page, and the
+      // statement is the last point at which it can be caught before it
+      // reaches the other party as an unexplained charge.
+      const description = item.description || "(description needed)";
+      lines.push(`  ${i + 1}. ${description} - ${money(item.amount)}`);
+    });
+  }
+
+  lines.push("", `Total deductions: ${money(totalDeductions)}`);
+  lines.push(
+    balanceOwed > 0
+      ? `Balance owed beyond the deposit: ${money(balanceOwed)}`
+      : `Refund due: ${money(refundDue)}`,
+  );
+  lines.push("", "--", STATEMENT_DISCLAIMER);
+
+  return lines.join("\n");
+}

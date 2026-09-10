@@ -71,6 +71,15 @@
     <summary type="text">Free tool: run a CLI that fetches your page, its Web App Manifest, and every icon it lists, then paste the JSON here for a plain-English report against Chrome&#39;s installability criteria -- the same checks Lighthouse&#39;s installable-manifest audit runs, no Chrome required. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Security Headers Checker — Clickjacking, CSP unsafe-inline, HSTS</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/security-headers-check/"/>
+    <id>tag:marisstella.dev,2026:tool/security-headers-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on missing clickjacking protection, X-Frame-Options: ALLOW-FROM being ignored by current browsers, a CSP that allows unsafe-inline or wildcard script sources, and missing HSTS. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Self-Storage Rate Increase Calculator</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/self-storage-rate-increase-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/self-storage-rate-increase-calculator</id>
