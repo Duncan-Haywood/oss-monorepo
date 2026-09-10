@@ -6,9 +6,10 @@ due, and calculate prorated rent for a partial first or last month. Entirely
 client-side; nothing is uploaded.
 
 After using this, you can now **turn a deposit amount and a list of
-deductions into a refund or balance figure, and a monthly rent into a
-prorated partial-month amount, in seconds** — arithmetic that otherwise means
-a spreadsheet or doing it by hand under a move-out deadline.
+deductions into a refund or balance figure, copy that out as the itemized
+statement you actually have to send, and turn a monthly rent into a prorated
+partial-month amount, in seconds** — arithmetic that otherwise means a
+spreadsheet or doing it by hand under a move-out deadline.
 
 ## Why this exists
 
@@ -44,6 +45,42 @@ dependencies:
   rules — not covered by this calculator — still need checking.
 - **`computeProratedRent`** — a daily rate (monthly rent ÷ days in the month)
   times the days actually occupied, capped at the days in the month entered.
+- **`formatItemizedStatement`** — renders a settlement as the plain-text
+  itemized statement the landlord has to send and the tenant has to check:
+  the deposit held, each deduction named and priced, the total, and the
+  refund or the balance owed.
+
+## Copy the itemized statement
+
+Computing the refund is only half the job either side has. A landlord's
+obligation at move-out is to produce an *itemized* statement — each charge
+named, not a lump sum — and a tenant disputing one charge needs to show
+their own arithmetic line by line so the disagreement stays about that
+charge rather than about the total. **Copy itemized statement**, next to the
+settlement table, puts exactly that on the clipboard as plain text to paste
+into an email or a message.
+
+Three deliberate choices:
+
+- **The disclaimer travels with the text.** The statement's whole purpose is
+  to leave the tool, and its reader never sees this page's footer. A
+  settlement figure landing in an inbox with no such line reads like a
+  determination of what may be deducted, which is the one thing this
+  calculator does not do — so the "arithmetic only" note is part of the
+  artifact, not page furniture beside the button.
+- **It is served from the last calculated settlement**, never recomputed
+  from the live inputs on click. Otherwise editing a deduction without
+  pressing Calculate would email a number the screen was not showing — the
+  same shape as the `share.mjs` allowlist drift `CLAUDE.md` records.
+- **A blocked clipboard is not a dead end.** `navigator.clipboard` is absent
+  over plain http and in some embedded webviews, so a failure reveals a
+  read-only textarea with the statement selected rather than leaving the
+  button inert.
+
+An unlabelled deduction prints as `(description needed)` rather than blank.
+The page already flags it, but the page is not what the other party reads,
+and a blank line item in a sent statement is an unexplained charge — the
+exact thing an itemized statement exists to prevent.
 
 Every output is the arithmetic behind your own itemization or dispute, **never
 a legal determination of what is deductible or a substitute for reviewing
@@ -64,7 +101,8 @@ changes what this tool does.
 
 Everything runs in your browser. The numbers you enter are **never
 uploaded** — there is no server component at all. Anonymous feature events
-(`deposit_calculated`, `proration_calculated`, `example_loaded`) are counted
+(`deposit_calculated`, `proration_calculated`, `statement_copied`,
+`example_loaded`) are counted
 in `localStorage` only, never transmitted. Do Not Track and Global Privacy
 Control are honoured, and a button on the page turns counting off entirely.
 

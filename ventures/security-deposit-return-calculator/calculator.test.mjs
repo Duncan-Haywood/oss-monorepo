@@ -1,7 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { computeProratedRent, computeDepositSettlement } from "./calculator.mjs";
+import {
+  computeProratedRent,
+  computeDepositSettlement,
+  formatItemizedStatement,
+  STATEMENT_DISCLAIMER,
+} from "./calculator.mjs";
+
+function statementFor(depositAmount, deductions) {
+  const settlement = computeDepositSettlement({ depositAmount, deductions });
+  return formatItemizedStatement(settlement, { depositAmount });
+}
 
 function findingIds(result) {
   return result.findings.map((f) => f.id);
@@ -125,4 +135,65 @@ test("deposit settlement: rounds to the cent rather than accumulating float drif
     ],
   });
   assert.equal(result.totalDeductions, 60.6);
+});
+
+// --- The itemized statement ------------------------------------------------
+//
+// The statement is the only output of this tool that leaves the browser and
+// is read by somebody who never saw the page, so these tests are about what
+// the other party to the lease receives, not about formatting taste.
+
+test("statement: names every deduction and its amount, numbered", () => {
+  const text = statementFor(1500, [
+    { description: "Carpet cleaning, living room", amount: 180 },
+    { description: "Replace broken mini blind", amount: 45 },
+  ]);
+  assert.match(text, /1\. Carpet cleaning, living room - \$180\.00/);
+  assert.match(text, /2\. Replace broken mini blind - \$45\.00/);
+});
+
+test("statement: totals and the refund agree with the settlement it was built from", () => {
+  const settlement = computeDepositSettlement({
+    depositAmount: 1500,
+    deductions: [{ description: "Carpet cleaning", amount: 180 }, { description: "Blind", amount: 45 }],
+  });
+  const text = formatItemizedStatement(settlement, { depositAmount: 1500 });
+  assert.match(text, /Security deposit held: \$1,500\.00/);
+  assert.match(text, /Total deductions: \$225\.00/);
+  assert.match(text, /Refund due: \$1,275\.00/);
+  assert.equal(settlement.refundDue, 1275);
+});
+
+test("statement: says balance owed rather than a refund when deductions exceed the deposit", () => {
+  const text = statementFor(500, [{ description: "Unpaid rent", amount: 900 }]);
+  assert.match(text, /Balance owed beyond the deposit: \$400\.00/);
+  assert.doesNotMatch(text, /Refund due:/);
+});
+
+test("statement: a full refund reads as a refund of the whole deposit, not an empty document", () => {
+  const text = statementFor(1200, []);
+  assert.match(text, /Itemized deductions: none\./);
+  assert.match(text, /Refund due: \$1,200\.00/);
+});
+
+// The page already flags an unlabelled deduction, but the page is not what
+// the other party reads. A blank line item in a sent statement is an
+// unexplained charge, which is the specific thing an itemized statement
+// exists to prevent -- so it must be visible in the artifact too.
+test("statement: an unlabelled deduction is called out rather than printed blank", () => {
+  const text = statementFor(1000, [{ description: "   ", amount: 75 }]);
+  assert.match(text, /1\. \(description needed\) - \$75\.00/);
+});
+
+test("statement: the arithmetic-only disclaimer travels with the copied text", () => {
+  const text = statementFor(1500, [{ description: "Cleaning", amount: 100 }]);
+  assert.ok(text.includes(STATEMENT_DISCLAIMER), "the disclaimer must be in the statement itself");
+  assert.match(text, /not a legal determination of what may be deducted/);
+  assert.match(text, /check the lease and local landlord-tenant law/);
+});
+
+test("statement: missing or malformed input does not throw", () => {
+  assert.doesNotThrow(() => formatItemizedStatement(undefined, undefined));
+  assert.doesNotThrow(() => formatItemizedStatement({}, { depositAmount: NaN }));
+  assert.match(formatItemizedStatement({}, {}), /Security deposit held: \$0\.00/);
 });
