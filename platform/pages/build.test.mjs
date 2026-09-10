@@ -3588,6 +3588,19 @@ test('a deep page loading the same script, with no button, does not', async () =
   assert.equal(await pageHasOwnShareControl(dir, html, new Map()), false);
 });
 
+test('the copy-link spelling counts the same way its four cousins do', async () => {
+  // wash-and-fold-price-calculator, sponsor-ready and
+  // ai-engineering-academy/tools/rc-filter-calculator all spell their button
+  // id `copy-link` rather than one of the four spellings this gate used to
+  // recognise -- found 2026-09-10 fixing the identical gap in roundtrip.mjs.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-share-'));
+  await fs.writeFile(path.join(dir, 'app.js'), "import { encodeShare } from './share.mjs';\n");
+  await fs.writeFile(path.join(dir, 'share.mjs'), 'export const x = 1;\n');
+  const html = '<button id="copy-link" type="button">Copy shareable link</button>'
+    + '<script type="module" src="app.js"></script>';
+  assert.equal(await pageHasOwnShareControl(dir, html, new Map()), true);
+});
+
 test('a button with no share module behind it does not count either', async () => {
   // mobile-detailing-bid-calculator had a `#copyLink` button and an inline
   // one-liner that serialized `readInput()` and dropped the proposal terms.
