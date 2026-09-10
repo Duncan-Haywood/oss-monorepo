@@ -16,17 +16,28 @@
 // it exists -- this portfolio has twice paid for a copied field list going
 // stale instead of being derived (see CLAUDE.md, "168 became 169").
 //
-// Every field here is a required number with no "leave it blank to skip
-// this ingredient" slot the way `pour-cost-calculator`'s modifier and mixer
-// are -- there is nothing optional to preserve. `formValues` still clears
-// any field a link does not carry, rather than leaving it unwritten: the
-// same link could be opened on a page mid-edit or holding a saved draft, and
-// leaving a stale value sitting in an unrelated field would silently mix
-// the sender's price with a stranger's electricity rate.
+// One field is not in DEFAULTS on purpose: `actualSellingPrice` is an
+// optional "check a price I'm already charging" input the form keeps in its
+// own slot rather than the required-fields loop, so it has no shipped
+// default to leave blank. It still has to travel with the rest of the
+// scenario, or a maker's real listed price silently vanishes the moment
+// they share or save it -- the exact defect the catalogue's roundtrip check
+// caught here. `OPTIONAL_FIELD_IDS` names it explicitly rather than folding
+// it into DEFAULTS, so the "no shipped default" property stays visible
+// instead of being inferred from an omission.
+//
+// `formValues` still clears any field a link does not carry, rather than
+// leaving it unwritten: the same link could be opened on a page mid-edit or
+// holding a saved draft, and leaving a stale value sitting in an unrelated
+// field would silently mix the sender's price with a stranger's electricity
+// rate.
 
 import { DEFAULTS } from './calc.mjs';
 
 export const FIELD_IDS = Object.keys(DEFAULTS);
+export const OPTIONAL_FIELD_IDS = ['actualSellingPrice'];
+
+const SHARED_FIELD_IDS = [...FIELD_IDS, ...OPTIONAL_FIELD_IDS];
 
 function usableNumber(value) {
   if (value === '' || value === null || value === undefined) return null;
@@ -37,7 +48,7 @@ function usableNumber(value) {
 
 export function encodeInputs(input) {
   const params = new URLSearchParams();
-  for (const id of FIELD_IDS) {
+  for (const id of SHARED_FIELD_IDS) {
     const value = usableNumber(input?.[id]);
     if (value !== null) params.set(id, String(value));
   }
@@ -47,7 +58,7 @@ export function encodeInputs(input) {
 export function decodeInputs(source) {
   const params = new URLSearchParams(String(source || '').replace(/^[?#]/, ''));
   const result = {};
-  for (const id of FIELD_IDS) {
+  for (const id of SHARED_FIELD_IDS) {
     if (!params.has(id)) continue;
     const value = usableNumber(params.get(id));
     if (value !== null) result[id] = value;
@@ -61,5 +72,5 @@ export function decodeInputs(source) {
  */
 export function formValues(decoded) {
   const source = decoded || {};
-  return Object.fromEntries(FIELD_IDS.map((id) => [id, id in source ? String(source[id]) : '']));
+  return Object.fromEntries(SHARED_FIELD_IDS.map((id) => [id, id in source ? String(source[id]) : '']));
 }

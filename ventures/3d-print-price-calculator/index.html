@@ -113,9 +113,7 @@ let actualCounted = false;
 function fieldInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
 
 function writeInputs(values) {
-  for (const id of FIELD_IDS) {
-    if (Object.prototype.hasOwnProperty.call(values, id)) el(id).value = values[id];
-  }
+  for (const id of Object.keys(values)) el(id).value = values[id];
 }
 
 function updatePrice(count = false) {
@@ -171,7 +169,7 @@ if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this b
 
 el('save').addEventListener('click', () => {
   try {
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(fieldInputs()));
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...fieldInputs(), actualSellingPrice: el('actualSellingPrice').value }));
     el('linkStatus').textContent = 'Saved to this browser on this device. Nothing was uploaded.';
     recordEvent('scenario_saved');
   } catch {
@@ -187,7 +185,7 @@ el('forget').addEventListener('click', () => {
 });
 
 el('copyLink').addEventListener('click', async () => {
-  const query = encodeInputs(fieldInputs());
+  const query = encodeInputs({ ...fieldInputs(), actualSellingPrice: el('actualSellingPrice').value });
   const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
   history.replaceState(null, '', url);
   try {
