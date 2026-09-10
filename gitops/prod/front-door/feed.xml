@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 233 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 234 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -69,6 +69,15 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: generate a sha384 integrity= hash for any script or stylesheet, or run a CLI that checks a page&#39;s cross-origin tags for a missing integrity attribute, a missing crossorigin attribute, or a hash that no longer matches what the CDN serves. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Staffing Markup Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/staffing-markup-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/staffing-markup-calculator</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Price a staffing placement properly: employer burden per hour, the real gross margin behind your markup, the break-even markup, and the markup a target margin needs. Free, private, nothing leaves your browser.</summary>
   </entry>
   <entry>
     <title>Wash and Fold Price Per Pound Calculator — Cost, Break-Even &amp; Margin</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your package-lock.json and see every package that runs a preinstall, install, postinstall, or prepare script at install time -- and, with an older lockfile, exactly which ones started doing that since your last check. npm audit does not flag this. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Pinned Actions Check — Are Your GitHub Actions Pinned to a Commit SHA?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pinned-actions-check/"/>
-    <id>tag:marisstella.dev,2026:tool/pinned-actions-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find every third-party action referenced by a mutable tag like @v4 instead of a pinned 40-character commit SHA. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

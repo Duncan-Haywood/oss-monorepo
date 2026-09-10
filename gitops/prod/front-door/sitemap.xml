@@ -94,6 +94,9 @@
     <loc>https://marisstella.dev/compare/workiz/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/compare/zizmor/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/3d-print-price-calculator/</loc>
   </url>
   <url>
@@ -145,10 +148,16 @@
     <loc>https://marisstella.dev/tools/actions-artifact-poisoning-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-artifact-poisoning-check/vs-zizmor.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-artifact-poisoning-check/what-is-github-actions-artifact-poisoning.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/actions-cache-poisoning-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-cache-poisoning-check/vs-zizmor.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/actions-cache-poisoning-check/what-is-github-actions-cache-poisoning.html</loc>
@@ -425,6 +434,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/basement-finishing-bid-calculator/how-much-to-charge-to-finish-a-basement.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/basement-finishing-bid-calculator/should-i-charge-30-a-square-foot-to-finish-a-basement.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/basement-finishing-bid-calculator/vs-buildxact.html</loc>
@@ -725,6 +737,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/crown-molding-bid-calculator/how-much-to-charge-to-install-crown-molding.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/crown-molding-bid-calculator/should-i-charge-8-a-foot-for-crown-molding.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/crown-molding-bid-calculator/vs-jobber.html</loc>
@@ -2327,6 +2342,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/sri-check/why-does-sri-need-the-crossorigin-attribute.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/staffing-markup-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/staffing-markup-calculator/markup-vs-margin.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/stair-lift-bid-calculator/</loc>

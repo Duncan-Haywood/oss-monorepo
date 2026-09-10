@@ -9177,3 +9177,66 @@ ventures:
       a guarantee every browser will prompt to install. No account, no
       upload, no data retained anywhere but an anonymous local event
       count.
+  - slug: staffing-markup-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. An agency owner is going to
+      quote a client from this number and defend it in a negotiation, so
+      every step has to be one they can re-derive on paper from their own
+      rate notice and policy declarations. Inference would make the
+      margin less checkable without making it more correct, and a model's
+      guess at a workers' comp class code would be worse than an input.
+    basis: >-
+      Screened 2026-09-10. `duplicate_check.py` scored the closest match
+      (`shop-rate-calculator`) at 0.17 against the final description,
+      well under the 0.45 flag bar, and the top ten were all under 0.20.
+      Read rather than trusted: `shop-rate-calculator` computes a trade
+      contractor's own crew rate from their payroll and overhead, for a
+      contractor bidding their own labor. This prices a third party's
+      labor billed to a client at a markup on the pay rate -- a different
+      buyer, a different quoting convention, and three mechanisms that
+      calculator has no reason to model (unemployment taxes charged
+      against a wage base rather than proportionally, workers'
+      compensation by class code with the overtime-premium exclusion, and
+      the cost of funding payroll across the client's payment terms).
+      Not in `screened-out.md`, which has no staffing or recruiting row.
+      Autonomous ops 10 / gross margin 10: a static page with no build
+      step, no dependencies and no network requests, so one more user
+      costs a static file and needs no human in any loop.
+      Distribution 7: a narrow, monied audience -- roughly 20,000 US
+      staffing firms, most of them small independents -- with specific,
+      recurring search phrases ("staffing markup calculator", "bill rate
+      calculator", "markup vs margin staffing", "what markup should I
+      charge staffing", "staffing gross margin calculator"), plus
+      r/recruiting, r/staffing and r/smallbusiness as named forums where
+      markup and burden are discussed constantly. Not higher because the
+      audience is far smaller than a marketplace-seller one.
+      Time to revenue 6, defensibility 4: donations-only, and the
+      arithmetic is public. Defensibility rests on the specificity --
+      capped FUTA/SUTA wage bases so a short assignment prices
+      differently, the comp premium exclusion, and a receivables carry
+      line that no generic markup calculator carries -- not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool performs arithmetic on figures the visitor types,
+      entirely in their own browser, and stores none of them. It makes no
+      determination about worker classification, co-employment, overtime
+      exemption, or which workers' compensation class code applies to a
+      job -- every rate and wage base is an input with an illustrative
+      default, and both published pages and the README say so in the
+      venture's own voice. Nothing is uploaded, no account exists, and
+      the only thing recorded anywhere is an anonymous local count of
+      which feature was used, which switches itself off for browsers
+      sending Do Not Track or Global Privacy Control.

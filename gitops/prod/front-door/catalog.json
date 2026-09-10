@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 233,
-  "collection_total": 233,
+  "served_here": 234,
+  "collection_total": 234,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -41,15 +41,15 @@
       "tool_count": 20
     },
     {
-      "id": "marketplace",
-      "name": "Marketplace seller tools",
-      "url": "https://marisstella.dev/c/marketplace/",
-      "tool_count": 15
-    },
-    {
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
+      "tool_count": 16
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace seller tools",
+      "url": "https://marisstella.dev/c/marketplace/",
       "tool_count": 15
     },
     {
@@ -516,7 +516,7 @@
       "url": "https://marisstella.dev/tools/actions-artifact-poisoning-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name: pin. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "actions-cache-poisoning-check",
@@ -524,7 +524,7 @@
       "url": "https://marisstella.dev/tools/actions-cache-poisoning-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find actions/cache steps reachable from pull_request_target/workflow_run, and restore-keys fallbacks that can adopt a poisoned prefix match. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "actions-injection-check",
@@ -668,7 +668,7 @@
       "url": "https://marisstella.dev/tools/basement-finishing-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a basement finish from finished square feet, rec-room versus framed-finish versus legal-living, drop ceiling versus drywall, carpet versus LVP, bath, egress, and extras — plus the walk-away price a $30 / SF special cannot see.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "basement-waterproofing-bid-calculator",
@@ -820,7 +820,7 @@
       "url": "https://marisstella.dev/tools/crown-molding-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential crown-molding install from linear feet, corners, paint-grade versus stain-grade, simple cove versus colonial versus built-up, ceiling and height, and extras — plus the walk-away price an $8/ft special cannot see.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "custom-farm-rate-calculator",
@@ -1716,6 +1716,14 @@
       "url": "https://marisstella.dev/tools/sri-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: generate a sha384 integrity= hash for any script or stylesheet, or run a CLI that checks a page's cross-origin tags for a missing integrity attribute, a missing crossorigin attribute, or a hash that no longer matches what the CDN serves. Nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "staffing-markup-calculator",
+      "name": "Staffing Markup Calculator",
+      "url": "https://marisstella.dev/tools/staffing-markup-calculator/",
+      "category": "Service business pricing & quotes",
+      "description": "Price a staffing placement properly: employer burden per hour, the real gross margin behind your markup, the break-even markup, and the markup a target margin needs. Free, private, nothing leaves your browser.",
       "pages": 2
     },
     {
