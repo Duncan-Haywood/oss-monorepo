@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Email Authentication Checker — Free SPF, DKIM, DMARC &amp; BIMI Checker</title>
+<meta name="description" content="Free SPF, DKIM, DMARC and BIMI checker: paste any domain and get a plain-English report on why your email might be going to spam, with the exact DNS record read and what it means. Nothing uploaded -- your browser queries public DNS directly.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/email-auth-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Email Authentication Checker (SPF, DKIM, DMARC, BIMI)">
+<meta property="og:description" content="Type a domain, get a plain-English report on its SPF, DKIM, DMARC and BIMI records -- why mail might be going to spam, and whether the domain can be spoofed. Free, no signup, nothing uploaded.">
+<meta property="og:url" content="https://example.invalid/email-auth-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Email Authentication Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser); a Node.js CLI is also available for the same checks",
+  "description": "Looks up a domain's SPF, DKIM, DMARC and BIMI DNS records over public DNS-over-HTTPS and reports what each says and why it matters -- too many SPF DNS-lookup mechanisms, a +all catch-all, missing or monitor-only DMARC, revoked DKIM keys, and whether DMARC enforcement is strong enough for BIMI to display.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Parses SPF and recursively follows every include:/redirect= mechanism, counting the RFC 7208 10-DNS-lookup budget across the whole chain",
+    "Flags +all (anyone can send as your domain), multiple SPF records, and malformed SPF syntax",
+    "Checks DKIM at nine common selector names and flags a revoked (empty p=) key",
+    "Reads DMARC policy (none/quarantine/reject), pct=, rua=/ruf= reporting addresses, and adkim=/aspf= alignment mode",
+    "Checks BIMI and whether DMARC enforcement is strong enough for Google/Yahoo to honor it",
+    "Runs entirely from your own browser or machine to Cloudflare's public DNS resolver -- nothing goes through this site"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why is my email going to spam?",
+      "acceptedAnswer": { "@type": "Answer", "text": "The most common technical causes are a missing or misconfigured SPF record, no DKIM signing, or a missing/monitor-only (p=none) DMARC record -- mailbox providers use all three as spam and spoofing signals. This tool reads exactly what your domain's DNS currently says for each one and names what to fix. It cannot see reputation, content, or sending-volume factors, which also affect spam placement." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does \"too many SPF DNS lookups\" mean, and why does it break everything?",
+      "acceptedAnswer": { "@type": "Answer", "text": "RFC 7208 caps SPF evaluation at 10 DNS lookups (each include:, a, mx, ptr, exists mechanism and each redirect= modifier counts, and include: chains recursively). Go over 10 and the result is a permanent error (PermError) -- meaning SPF fails for every message from your domain, for every receiver, whether or not the message is legitimate. This is usually caused by stacking one include: per marketing or support tool over time until the total quietly crosses 10." }
+    },
+    {
+      "@type": "Question",
+      "name": "What is DMARC p=none and why is it a problem?",
+      "acceptedAnswer": { "@type": "Answer", "text": "p=none means DMARC is in monitor-only mode: receivers are asked to take no action even on a message that fails alignment. It is the most common real-world gap, because a domain with SPF, DKIM, and DMARC all present looks fully configured while still being completely spoofable. p=none is a reasonable first step while you review the aggregate reports it generates; moving to p=quarantine or p=reject is what actually stops spoofed mail." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean my email is fully secure?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This reads SPF, DKIM, DMARC and BIMI DNS records and reports what they say -- it is evidence about your domain's mail-authentication configuration, not a determination that your email is secure or that mail will reach the inbox. Deliverability also depends on sender reputation, content, list hygiene, and each receiver's own policies, none of which live in DNS." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why check nine DKIM selector names instead of just looking up DKIM directly?",
+      "acceptedAnswer": { "@type": "Answer", "text": "DKIM keys are published at a selector-specific name (<selector>._domainkey.yourdomain.com), and the selector is chosen by whichever provider sends your mail -- there is no single fixed name to look up. This tool checks the selector names commonly used by Google Workspace, Microsoft 365, Mailchimp/Mandrill, SendGrid, and a few generic defaults (google, selector1, selector2, k1, s1, s2, default, dkim, mail). If none of those resolve, that is not proof DKIM is missing -- check a sent message's own DKIM-Signature header, or your provider's dashboard, for the exact selector it uses." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  code { overflow-wrap: anywhere; word-break: break-word; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  label.field { display: block; margin: 0.6rem 0; }
+  input[type="text"] { width: 100%; max-width: 420px; box-sizing: border-box; padding: 0.5rem 0.6rem; font: 15px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  button:disabled { opacity: 0.6; cursor: default; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding.info { border-left-color: #8888; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; opacity: 0.85; word-break: break-all; }
+  .badge { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; padding: 0.1rem 0.4rem; border-radius: 4px; opacity: 0.85; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>Email Authentication Checker</h1>
+<p>
+  Type a domain that sends its own email (transactional or marketing) and this looks up its
+  <strong>SPF</strong>, <strong>DKIM</strong>, <strong>DMARC</strong>, and <strong>BIMI</strong>
+  DNS records over public DNS-over-HTTPS and reports what each one says and why it matters --
+  too many SPF DNS-lookup mechanisms (the single most common real-world SPF bug), a
+  <code>+all</code> catch-all that authorizes anyone to send as your domain, a missing or
+  monitor-only DMARC policy that leaves you spoofable while looking configured, and revoked or
+  missing DKIM keys. Every finding names the exact record it read. <strong>This is evidence about
+  your DNS, not a verdict</strong> -- never "your domain is secure", always "here is what your
+  records say and what that means."
+</p>
+
+<div class="card">
+  <h2>Check a domain</h2>
+  <label class="field" for="domain">Domain (no <code>https://</code>, no path)</label>
+  <input type="text" id="domain" placeholder="example.com" autocomplete="off" spellcheck="false">
+  <p>
+    <button type="button" class="primary" id="check">Check</button>
+    <button type="button" id="load-example">Load worked example</button>
+  </p>
+  <p class="status-note" id="status">Runs directly from your browser to Cloudflare's public DNS resolver. Nothing is uploaded to this site.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report: <span id="report-domain"></span></h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <p class="status-note" id="scope-note"></p>
+</section>
+
+<div class="card">
+  <h2>Prefer the command line, or want to gate CI on it?</h2>
+  <p>The Node CLI runs the identical checks with no dependencies to install, and its exit code
+  (0 = no danger-severity finding and every lookup completed; 1 otherwise) is usable as a
+  regression gate for your own domain's mail configuration:</p>
+  <pre class="cmd"><code>node cli.mjs yourdomain.com
+node cli.mjs yourdomain.com --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/email-auth-check" rel="noopener">cli.mjs, lookup.mjs, and analyze.mjs from the repo</a>
+    -- plain Node, nothing to install. It queries the same public DNS resolver as this page,
+    straight from your own machine; nothing goes through this site either way.
+  </p>
+</div>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Why is my email going to spam?</h3>
+  <p>The most common technical causes are a missing or misconfigured SPF record, no DKIM signing, or a missing/monitor-only (<code>p=none</code>) DMARC record -- mailbox providers use all three as spam and spoofing signals. This tool reads exactly what your domain's DNS currently says for each one and names what to fix. It cannot see reputation, content, or sending-volume factors, which also affect spam placement.</p>
+  <h3>What does "too many SPF DNS lookups" mean, and why does it break everything?</h3>
+  <p>RFC 7208 caps SPF evaluation at 10 DNS lookups (each <code>include:</code>, <code>a</code>, <code>mx</code>, <code>ptr</code>, <code>exists</code> mechanism and each <code>redirect=</code> modifier counts, and <code>include:</code> chains recursively). Go over 10 and the result is a permanent error (PermError) -- meaning SPF fails for every message from your domain, for every receiver, whether or not the message is legitimate. This is usually caused by stacking one <code>include:</code> per marketing or support tool over time until the total quietly crosses 10.</p>
+  <h3>What is DMARC p=none and why is it a problem?</h3>
+  <p><code>p=none</code> means DMARC is in monitor-only mode: receivers are asked to take no action even on a message that fails alignment. It is the most common real-world gap, because a domain with SPF, DKIM, and DMARC all present looks fully configured while still being completely spoofable. <code>p=none</code> is a reasonable first step while you review the aggregate reports it generates; moving to <code>p=quarantine</code> or <code>p=reject</code> is what actually stops spoofed mail.</p>
+  <h3>Does a clean report mean my email is fully secure?</h3>
+  <p>No. This reads SPF, DKIM, DMARC and BIMI DNS records and reports what they say -- it is evidence about your domain's mail-authentication configuration, not a determination that your email is secure or that mail will reach the inbox. Deliverability also depends on sender reputation, content, list hygiene, and each receiver's own policies, none of which live in DNS.</p>
+  <h3>Why check nine DKIM selector names instead of just looking up DKIM directly?</h3>
+  <p>DKIM keys are published at a selector-specific name (<code>&lt;selector&gt;._domainkey.yourdomain.com</code>), and the selector is chosen by whichever provider sends your mail -- there is no single fixed name to look up. This tool checks the selector names commonly used by Google Workspace, Microsoft 365, Mailchimp/Mandrill, SendGrid, and a few generic defaults (<code>google</code>, <code>selector1</code>, <code>selector2</code>, <code>k1</code>, <code>s1</code>, <code>s2</code>, <code>default</code>, <code>dkim</code>, <code>mail</code>). If none of those resolve, that is not proof DKIM is missing -- check a sent message's own <code>DKIM-Signature</code> header, or your provider's dashboard, for the exact selector it uses.</p>
+</section>
+
+<script type="module">
+  import { runFullCheck } from './lookup.mjs';
+  import { recordUsage } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    domain: $('#domain'), status: $('#status'), check: $('#check'),
+    reportCard: $('#report-card'), reportDomain: $('#report-domain'),
+    verdict: $('#verdict'), findings: $('#findings'), scopeNote: $('#scope-note'),
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function render(report) {
+    els.reportDomain.textContent = report.domain;
+    els.verdict.className = `verdict ${report.dangerCount > 0 ? 'bad' : 'ok'}`;
+    if (report.incomplete) {
+      els.verdict.textContent = `${report.dangerCount} danger, ${report.noticeCount} notice -- one or more lookups did not complete. Re-run in a moment.`;
+    } else if (report.dangerCount > 0) {
+      els.verdict.textContent = `${report.dangerCount} danger-level finding(s), ${report.noticeCount} notice(s).`;
+    } else if (report.noticeCount > 0) {
+      els.verdict.textContent = `No danger-level findings. ${report.noticeCount} notice(s) worth a look.`;
+    } else {
+      els.verdict.textContent = 'No danger-level or notice-level findings.';
+    }
+
+    els.findings.innerHTML = report.findings.map((f) => `
+      <div class="finding ${f.severity}">
+        <h3>${escapeHtml(f.title)} <span class="badge">${escapeHtml(f.severity)}</span></h3>
+        <p>${escapeHtml(f.detail)}</p>
+        <p class="evidence">${escapeHtml(f.evidence)}</p>
+      </div>`).join('') || '<p>No findings to show.</p>';
+
+    els.scopeNote.textContent = report.scopeNote;
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function runCheck(domain, event) {
+    els.check.disabled = true;
+    els.status.textContent = `Looking up SPF, DKIM, DMARC and BIMI for ${domain}...`;
+    try {
+      const report = await runFullCheck(domain);
+      render(report);
+      els.status.textContent = '';
+      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+      els.reportCard.hidden = true;
+    } finally {
+      els.check.disabled = false;
+    }
+  }
+
+  $('#check').addEventListener('click', () => {
+    const domain = els.domain.value.trim().replace(/^https?:\/\//i, '').replace(/\/.*$/, '').toLowerCase();
+    if (!domain) {
+      els.status.innerHTML = '<span class="error">Type a domain first, e.g. example.com.</span>';
+      return;
+    }
+    runCheck(domain, 'check_run');
+  });
+
+  $('#domain').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#check').click(); });
+
+  $('#load-example').addEventListener('click', () => {
+    els.domain.value = 'github.com';
+    els.status.textContent = 'Worked example: a real domain with an active, enforced email-authentication setup.';
+    runCheck('github.com', 'example_loaded');
+  });
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This reads SPF, DKIM, DMARC, and BIMI DNS
+  records and reports what they say -- it is not email deliverability, security, or DNS
+  configuration advice, and it does not replace a qualified professional.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not email deliverability, security, or DNS configuration
+  advice, and it does not replace a qualified professional. <strong>You are responsible for
+  reviewing and verifying its output before relying on it</strong>, and for meeting any
+  obligation it helps you prepare for. To the maximum extent permitted by law, the authors
+  accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing is uploaded.</strong> This page queries Cloudflare's public DNS-over-HTTPS
+  resolver directly from your own browser -- never through this site, and no server of ours is
+  involved. The CLI does the same from your own machine. Nothing about the domain you check or
+  the DNS records read is sent anywhere by this tool. The only thing stored is an anonymous
+  local count of which features were used and the day -- no domains checked, no DNS records, no
+  account, no tracking cookies, no analytics vendor. Turn it off with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Checking your DNS for other reasons? See
+  <a href="../dns-configuration-evidence/">DNS Configuration Evidence</a>, and for a different
+  class of DNS-published trust signal, <a href="../ai-crawler-access-check/">AI Crawler Access
+  Checker</a> reads a domain's robots.txt/llms.txt instead of its mail-authentication records.</p>
+</footer>
+</body>
+</html>

@@ -16,3 +16,15 @@ test('index links one hop to the backup-verification-evidence sibling', () => {
   );
   assert.match(html, /backup verification evidence/i);
 });
+
+// Second sibling: both read a domain's own DNS records with nothing
+// uploaded, one diffing a named set of records over time, the other
+// checking one specific family (SPF/DKIM/DMARC/BIMI) at a point in time.
+test('index links one hop to the email-auth-check sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/email\-auth\-check\/"/,
+    'index must link ../email-auth-check/ so a crawler reaches that tool in one hop',
+  );
+  assert.match(html, /email authentication checker/i);
+});

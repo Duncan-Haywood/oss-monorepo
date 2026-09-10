@@ -8984,3 +8984,71 @@ ventures:
       patterns, and the tool gets strictly more useful to a seller as
       more of the spec's documented failure modes are added -- it does
       not get worse for anyone as it scales.
+
+  - slug: email-auth-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether SPF exceeds RFC 7208's
+      10-DNS-lookup budget, whether a DKIM key's p= tag is empty, and
+      whether DMARC's p=/pct= tags amount to real enforcement are all
+      decided by parsing a DNS TXT record against a published RFC
+      grammar -- a factual, deterministic comparison, not a model
+      judgment, and it never claims a determination that mail from the
+      domain is or is not secure.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser report tool, not
+      another <trade>-bid-calculator. duplicate_check.py scored the
+      closest matches (ai-crawler-access-check, a robots.txt/llms.txt
+      AI-crawler auditor -- different DNS surface and different question
+      entirely; dns-configuration-evidence, an unbuilt pipeline
+      candidate for customer-authorized before/after DNS-change-diff
+      monitoring with retained history -- different mechanism, this tool
+      is stateless and point-in-time with no authorization step) at 0.11
+      against the final description, well under the 0.45 flag bar.
+      Autonomous ops 10 / gross margin 10: both the CLI (the user's own
+      machine) and the browser page (the visitor's own browser) query
+      Cloudflare's public DNS-over-HTTPS resolver directly, so serving
+      one more user costs a static file and needs no human review of any
+      output. Distribution 7: any domain owner running their own
+      outbound mail is a plausible searcher -- small business owners,
+      freelance devs, and email marketers, a broader and more numerous
+      audience than a single platform's plugin-review or storefront-feed
+      niche -- with specific, recurring search phrases ("why is my email
+      going to spam", "spf dkim dmarc checker free", "spf too many
+      lookups", "dmarc checker"), plus r/emailmarketing, r/sysadmin, and
+      r/msp_business as named, active forums where this exact class of
+      problem is discussed. Existing free/paid SPF-DKIM-DMARC checkers
+      (MXToolbox, dmarcian, EasyDMARC) are evidence the niche is real and
+      searched, not evidence it is unserved by a zero-install,
+      evidence-first, CI-gateable tool.
+      Time to revenue 6, defensibility 3: donations-only; the underlying
+      RFCs are public and multiple free/paid checkers already exist, so
+      defensibility rests only on the zero-install, no-signup,
+      evidence-first (never a bare pass/fail score) framing and a
+      CI-gateable CLI, not on any moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: both the CLI and the browser page make only ordinary,
+      unauthenticated DNS TXT lookups against a domain's own public DNS
+      records -- the same records any `dig txt` command already reads --
+      straight from the user's own machine or browser to Cloudflare's
+      public resolver, never through this portfolio's infrastructure and
+      never touching a third party's private data. Every finding names
+      the exact record or tag read and what it means; the README, page
+      footer, and FAQ all state plainly that this is evidence about DNS
+      configuration, not a determination that email from the domain is
+      secure or will reach the inbox. No account, no upload, no data
+      retained anywhere but an anonymous local event count.
