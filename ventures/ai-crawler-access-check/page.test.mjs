@@ -16,8 +16,8 @@ test('docs page links back to the tool', async () => {
   assert.match(page, /href="\.\/"/);
 });
 
-test('both pages carry the no-warranty clause', async () => {
-  for (const file of ['index.html', 'how-to-block-or-allow-ai-crawlers.html']) {
+test('every page carries the no-warranty clause', async () => {
+  for (const file of ['index.html', 'how-to-block-or-allow-ai-crawlers.html', 'vs-known-agents.html']) {
     const page = await readFile(new URL(`./${file}`, import.meta.url), 'utf8');
     assert.match(page, /no warranty/i, `${file} is missing the no-warranty clause`);
   }

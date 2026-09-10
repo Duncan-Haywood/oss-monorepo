@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 136 files, 556243 bytes
 #   portfolio-front-tools-1: 110 files, 555665 bytes
 #   portfolio-front-tools-2: 149 files, 548219 bytes
-#   portfolio-front-tools-3: 145 files, 550948 bytes
+#   portfolio-front-tools-3: 146 files, 555295 bytes
 #   portfolio-front-tools-4: 122 files, 555616 bytes
 #   portfolio-front-tools-5: 126 files, 555711 bytes
 #   portfolio-front-tools-6: 133 files, 556775 bytes
@@ -576,6 +576,7 @@ configMapGenerator:
       - ai-crawler-access-check__how-to-block-or-allow-ai-crawlers.html.gz=ai-crawler-access-check__how-to-block-or-allow-ai-crawlers.html.gz
       - ai-crawler-access-check__index.html.gz=ai-crawler-access-check__index.html.gz
       - ai-crawler-access-check__usage.mjs.gz=ai-crawler-access-check__usage.mjs.gz
+      - ai-crawler-access-check__vs-known-agents.html.gz=ai-crawler-access-check__vs-known-agents.html.gz
       - ai-engineering-academy__555-timer-calculator__LICENSE.gz=ai-engineering-academy__555-timer-calculator__LICENSE.gz
       - ai-engineering-academy__555-timer-calculator__calc.mjs.gz=ai-engineering-academy__555-timer-calculator__calc.mjs.gz
       - ai-engineering-academy__555-timer-calculator__can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.gz=ai-engineering-academy__555-timer-calculator__can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.gz
