@@ -2,42 +2,6 @@
   "readings": [
     {
       "checks": [
-        "highlight"
-      ],
-      "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
-      "measured": "2026-09-10",
-      "pages": 888,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
-        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
-        "ventures": "49f69ac3bebf27f030d84206ef0d3c1596214ba6"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "de541bf9f2c813f1a8f0041c6e5a3f98032de97a",
-      "measured": "2026-09-10",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "wash-and-fold-price-calculator"
-      ],
-      "surface": {
-        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
-        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
-        "ventures": "a67924c06460a101357ebca50251ecdb1f6eb3a4"
-      }
-    },
-    {
-      "checks": [
         "journey"
       ],
       "commit": "de541bf9f2c813f1a8f0041c6e5a3f98032de97a",
@@ -407,6 +371,27 @@
         "platform/marketing": "40c8e66eca01f2d545ca23f25cf1bddbbb2a74bc",
         "platform/pages": "0e198edffcf090655e824f7eb33ef99860aa8df8",
         "ventures": "c25c47edd6e32a5052398f9485777f09cd2f01ad"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "bfde9bba83809a842b74bc21e37dfd2e464de610",
+      "measured": "2026-09-10",
+      "pages": 933,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "40c8e66eca01f2d545ca23f25cf1bddbbb2a74bc",
+        "platform/pages": "d3afa35b8531922c8f8dbdf9ba85d37e29640722",
+        "ventures": "5ad45cb46088ff6e84c4a16e805e07cc65ca31e8"
       }
     }
   ]
