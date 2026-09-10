@@ -804,6 +804,24 @@ const CATEGORY_RULES = [
     // and landing it here rather than the catch-all is also what keeps that
     // catch-all inside the bound `build.test.mjs` puts on it.
     //
+    // `cookie-security-check` joined 2026-09-10, the same day. Same shape
+    // again -- a zero-dependency CLI plus a matching browser report-viewer,
+    // run by a developer against their own site's response headers -- just
+    // for Set-Cookie attributes (SameSite=None without Secure, a broken
+    // __Host-/__Secure- prefix) instead of CSP/frame-ancestors, a reflected
+    // CORS Origin, or a cross-origin tag's integrity hash. It shares
+    // `security-headers-check`'s "browser half only renders a pasted
+    // report" shape for the same underlying reason, and that venture's own
+    // README names cookie flags as the gap this one fills. It cross-links
+    // `security-headers-check` and `cors-misconfig-check` as Related (same
+    // "real request, name the exact response-header evidence" question, a
+    // fourth header risk class), and `security-headers-check` now links
+    // back the same way. Listed by exact slug rather than a new prefix, the
+    // same way its neighbors above are: one tool does not earn a whole
+    // family pattern, and landing it here rather than the catch-all is also
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on
+    // it.
+    //
     // `social-preview-check` joined 2026-09-10, and landing it here (rather
     // than the catch-all, which the guard below caps) is the same call as
     // its siblings above: a zero-dependency CLI + browser report-viewer that
@@ -845,9 +863,10 @@ const CATEGORY_RULES = [
     // class) as Related. Listed by exact slug rather than a new prefix, the
     // same way its neighbors above are: one tool does not earn a whole
     // family pattern, and landing it here rather than the catch-all is also
-    // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on
+    // it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|social-preview-check|oidc-trust-policy-check|canonical-tag-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check)/.test(
         slug,
       ),
   },

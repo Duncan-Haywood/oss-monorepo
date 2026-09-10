@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 240 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 241 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical that 404s or is itself marked noindex. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Cookie Security Checker — SameSite=None, __Host-/__Secure- prefixes</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cookie-security-check/"/>
+    <id>tag:marisstella.dev,2026:tool/cookie-security-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on SameSite=None cookies missing Secure (which current browsers reject outright), broken __Host-/__Secure- prefix cookies, and missing Secure/HttpOnly/SameSite. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>CORS Misconfiguration Checker — Reflected Origin, Null Origin, Unanchored Allow-Lists</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.</summary>
-  </entry>
-  <entry>
-    <title>Flaky Test Finder — Which Tests Flipped Between CI Runs?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/flaky-test-finder/"/>
-    <id>tag:marisstella.dev,2026:tool/flaky-test-finder</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste two or more JUnit XML test reports and find out in one click which tests are flaky (pass one run, fail the next) versus genuinely broken versus stable. Free, runs entirely in your browser, works with pytest, Jest, Go, PHPUnit, RSpec, and Maven/Gradle Surefire — nothing is uploaded.</summary>
   </entry>
 </feed>

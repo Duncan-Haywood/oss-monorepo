@@ -218,6 +218,9 @@ workflows:
 - workflow: contractor-bid-readiness-ci.yml
   classification: none
   publishes: []
+- workflow: cookie-security-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: cors-misconfig-check-ci.yml
   classification: none
   publishes: []
