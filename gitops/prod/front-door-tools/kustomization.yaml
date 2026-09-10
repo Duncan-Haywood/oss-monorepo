@@ -41,11 +41,11 @@
 #   portfolio-front-tools-5: 129 files, 556681 bytes
 #   portfolio-front-tools-6: 126 files, 551055 bytes
 #   portfolio-front-tools-7: 109 files, 547844 bytes
-#   portfolio-front-tools-8: 119 files, 556786 bytes
-#   portfolio-front-tools-9: 125 files, 555634 bytes
-#   portfolio-front-tools-10: 100 files, 554824 bytes
-#   portfolio-front-tools-11: 113 files, 554980 bytes
-#   portfolio-front-tools-12: 59 files, 283001 bytes
+#   portfolio-front-tools-8: 118 files, 543565 bytes
+#   portfolio-front-tools-9: 121 files, 546103 bytes
+#   portfolio-front-tools-10: 101 files, 556212 bytes
+#   portfolio-front-tools-11: 113 files, 556401 bytes
+#   portfolio-front-tools-12: 64 files, 307430 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1156,6 +1156,7 @@ configMapGenerator:
       - locksmith-bid-calculator__calc.mjs.gz=locksmith-bid-calculator__calc.mjs.gz
       - locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz=locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz
       - locksmith-bid-calculator__index.html.gz=locksmith-bid-calculator__index.html.gz
+      - locksmith-bid-calculator__share.mjs.gz=locksmith-bid-calculator__share.mjs.gz
       - locksmith-bid-calculator__usage.mjs.gz=locksmith-bid-calculator__usage.mjs.gz
       - locksmith-bid-calculator__vs-housecall-pro.html.gz=locksmith-bid-calculator__vs-housecall-pro.html.gz
       - locksmith-bid-calculator__vs-jobber.html.gz=locksmith-bid-calculator__vs-jobber.html.gz
@@ -1254,13 +1255,13 @@ configMapGenerator:
       - payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz=payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz
       - pergola-bid-calculator__calc.mjs.gz=pergola-bid-calculator__calc.mjs.gz
       - pergola-bid-calculator__how-much-to-charge-to-build-a-pergola.html.gz=pergola-bid-calculator__how-much-to-charge-to-build-a-pergola.html.gz
-      - pergola-bid-calculator__index.html.gz=pergola-bid-calculator__index.html.gz
-      - pergola-bid-calculator__share.mjs.gz=pergola-bid-calculator__share.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pergola-bid-calculator__index.html.gz=pergola-bid-calculator__index.html.gz
+      - pergola-bid-calculator__share.mjs.gz=pergola-bid-calculator__share.mjs.gz
       - pergola-bid-calculator__usage.mjs.gz=pergola-bid-calculator__usage.mjs.gz
       - pergola-bid-calculator__vs-buildxact.html.gz=pergola-bid-calculator__vs-buildxact.html.gz
       - pest-control-bid-calculator__calc.mjs.gz=pest-control-bid-calculator__calc.mjs.gz
@@ -1380,17 +1381,17 @@ configMapGenerator:
       - screened-porch-bid-calculator__vs-buildxact.html.gz=screened-porch-bid-calculator__vs-buildxact.html.gz
       - security-camera-bid-calculator__calc.mjs.gz=security-camera-bid-calculator__calc.mjs.gz
       - security-camera-bid-calculator__how-much-to-charge.html.gz=security-camera-bid-calculator__how-much-to-charge.html.gz
+  - name: portfolio-front-tools-10
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - security-camera-bid-calculator__index.html.gz=security-camera-bid-calculator__index.html.gz
       - security-camera-bid-calculator__share.mjs.gz=security-camera-bid-calculator__share.mjs.gz
       - security-camera-bid-calculator__usage.mjs.gz=security-camera-bid-calculator__usage.mjs.gz
       - security-camera-bid-calculator__vs-d-tools.html.gz=security-camera-bid-calculator__vs-d-tools.html.gz
       - security-camera-bid-calculator__vs-housecall-pro.html.gz=security-camera-bid-calculator__vs-housecall-pro.html.gz
       - security-deposit-return-calculator__calculator.mjs.gz=security-deposit-return-calculator__calculator.mjs.gz
-  - name: portfolio-front-tools-10
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - security-deposit-return-calculator__index.html.gz=security-deposit-return-calculator__index.html.gz
       - security-deposit-return-calculator__usage.mjs.gz=security-deposit-return-calculator__usage.mjs.gz
       - security-deposit-return-calculator__vs-turbotenant.html.gz=security-deposit-return-calculator__vs-turbotenant.html.gz
@@ -1486,16 +1487,16 @@ configMapGenerator:
       - solar-pv-bid-calculator__usage.mjs.gz=solar-pv-bid-calculator__usage.mjs.gz
       - solar-pv-bid-calculator__vs-aurora-solar.html.gz=solar-pv-bid-calculator__vs-aurora-solar.html.gz
       - spray-foam-bid-calculator__calc.mjs.gz=spray-foam-bid-calculator__calc.mjs.gz
-      - spray-foam-bid-calculator__how-much-to-charge-for-spray-foam-insulation.html.gz=spray-foam-bid-calculator__how-much-to-charge-for-spray-foam-insulation.html.gz
-      - spray-foam-bid-calculator__index.html.gz=spray-foam-bid-calculator__index.html.gz
-      - spray-foam-bid-calculator__share.mjs.gz=spray-foam-bid-calculator__share.mjs.gz
-      - spray-foam-bid-calculator__usage.mjs.gz=spray-foam-bid-calculator__usage.mjs.gz
-      - spray-foam-bid-calculator__vs-jobber.html.gz=spray-foam-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - spray-foam-bid-calculator__how-much-to-charge-for-spray-foam-insulation.html.gz=spray-foam-bid-calculator__how-much-to-charge-for-spray-foam-insulation.html.gz
+      - spray-foam-bid-calculator__index.html.gz=spray-foam-bid-calculator__index.html.gz
+      - spray-foam-bid-calculator__share.mjs.gz=spray-foam-bid-calculator__share.mjs.gz
+      - spray-foam-bid-calculator__usage.mjs.gz=spray-foam-bid-calculator__usage.mjs.gz
+      - spray-foam-bid-calculator__vs-jobber.html.gz=spray-foam-bid-calculator__vs-jobber.html.gz
       - stair-lift-bid-calculator__calc.mjs.gz=stair-lift-bid-calculator__calc.mjs.gz
       - stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz=stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz
       - stair-lift-bid-calculator__index.html.gz=stair-lift-bid-calculator__index.html.gz
@@ -1604,16 +1605,16 @@ configMapGenerator:
       - wash-and-fold-price-calculator__share.mjs.gz=wash-and-fold-price-calculator__share.mjs.gz
       - wash-and-fold-price-calculator__usage.mjs.gz=wash-and-fold-price-calculator__usage.mjs.gz
       - wash-and-fold-price-calculator__vs-cents.html.gz=wash-and-fold-price-calculator__vs-cents.html.gz
-      - water-heater-bid-calculator__calc.mjs.gz=water-heater-bid-calculator__calc.mjs.gz
-      - water-heater-bid-calculator__how-much-to-charge.html.gz=water-heater-bid-calculator__how-much-to-charge.html.gz
-      - water-heater-bid-calculator__index.html.gz=water-heater-bid-calculator__index.html.gz
-      - water-heater-bid-calculator__share.mjs.gz=water-heater-bid-calculator__share.mjs.gz
-      - water-heater-bid-calculator__usage.mjs.gz=water-heater-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - water-heater-bid-calculator__calc.mjs.gz=water-heater-bid-calculator__calc.mjs.gz
+      - water-heater-bid-calculator__how-much-to-charge.html.gz=water-heater-bid-calculator__how-much-to-charge.html.gz
+      - water-heater-bid-calculator__index.html.gz=water-heater-bid-calculator__index.html.gz
+      - water-heater-bid-calculator__share.mjs.gz=water-heater-bid-calculator__share.mjs.gz
+      - water-heater-bid-calculator__usage.mjs.gz=water-heater-bid-calculator__usage.mjs.gz
       - water-heater-bid-calculator__vs-servicetitan.html.gz=water-heater-bid-calculator__vs-servicetitan.html.gz
       - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
       - water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz=water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz
