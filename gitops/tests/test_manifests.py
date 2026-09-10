@@ -1464,7 +1464,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 232 since 2026-09-10, when `email-auth-check` also graduated the same
     # day — same shape again: a new venture with a static `index.html` from
     # its first commit, entering the mirror and the total together.
-    total = 232  # `infra/OWNER_CHECKLIST.md`'s own "N of the 232 tools" wording.
+    # 233 since 2026-09-10, when `pwa-installability-check` also graduated
+    # the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the
+    # total together.
+    total = 233  # `infra/OWNER_CHECKLIST.md`'s own "N of the 233 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
