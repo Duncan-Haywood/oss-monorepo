@@ -24362,3 +24362,78 @@ entries:
         checklist_coverage.py clean (platform/pages was already a named
         directory, so the new suite needs no CLAUDE.md line).
     mrr_end: 0
+  - venture: cookie-security-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a free zero-dependency CLI plus a matching
+        browser report-viewer that sends one real HTTP GET request to a URL
+        and classifies the response's Set-Cookie headers. Same archetype as
+        security-headers-check, cors-misconfig-check, and sri-check, and a
+        named gap rather than a guessed one -- security-headers-check's own
+        README explicitly lists cookie flags as out of scope.
+      - >-
+        Two "danger"-severity findings, reserved for facts about what the
+        browser does rather than a judgment call: SameSite=None set without
+        Secure, which Chrome/Firefox/Safari reject outright (the cookie is
+        never stored, not merely weakened); and a __Host-/__Secure- prefixed
+        cookie that violates the attribute rules those prefixes require
+        (also a silent browser rejection). Three lower-severity notices --
+        missing Secure, missing HttpOnly, missing SameSite -- for patterns
+        that are real but context-dependent rather than unconditional.
+      - >-
+        Reads Set-Cookie from Node's http/https client as the already-split
+        array it provides, rather than joining repeated headers into one
+        string and re-splitting on commas the way this venture's own probe.mjs
+        does for every other header name -- a naive port of that pattern
+        would silently corrupt any cookie carrying an Expires date, since
+        "Expires=Wed, 21 Oct 2026 07:28:00 GMT" contains a comma of its own.
+        Pinned by a probe.test.mjs case with an Expires attribute against a
+        real local HTTP server.
+      - >-
+        duplicate_check.py scored the closest existing venture
+        (security-headers-check) at 0.42 against the final description,
+        under the 0.45 flag bar. Added the venture-scores.yaml row (both
+        liability/ethics gates pass) and a reciprocal sibling link from
+        security-headers-check's footer, which also closed a crawlable-orphan
+        finding from siblings.test.mjs.
+      - >-
+        Fixed forward two portfolio-wide traps this graduation surfaced
+        rather than working around them: the FAQPage JSON-LD text must be
+        byte-identical (modulo punctuation) to the visible page prose
+        (faq-visible.test.mjs), and build.mjs's front-door catch-all
+        category has a hard cap of 5 tools before a new one graduates
+        (build.test.mjs) -- added the exact-slug match to the existing
+        security-checker category instead of letting the catch-all overflow.
+        Also bumped the "237 tools" mirrored-count wording in the four
+        places CLAUDE.md names (infra/OWNER_CHECKLIST.md twice,
+        gitops/prod/usage/aggregate.py, gitops/prod/front-door/default.conf)
+        to 238, added .github/workflows/cookie-security-check-ci.yml and its
+        publish-surface.yaml row (both required by platform/ci's own
+        unittest suite), and ran platform/marketing/regen.mjs.
+      - >-
+        Verified locally (Actions runners starved per infra_state.yaml, not
+        re-dispatched to reconfirm a window still open as of today).
+        node --test for the venture: 53/53. node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs: 1218/1218 (0
+        regressions after fixing the FAQ-visibility, orphan, and catch-all
+        findings). platform/pages build.mjs + check.mjs against a full build:
+        238 products, 930 pages, no dead links. python3 -m pytest gitops/tests:
+        533 passed, 25 skipped (was 1 failure on the stale mirrored-count
+        assertion before the four-file fix). All 15 platform/ci unittest
+        modules: clean (was 2 failures -- missing per-venture CI workflow and
+        missing publish-surface.yaml row -- both fixed). platform/ci/agent_review
+        test_review: 21/21. checklist_coverage.py, guide-coverage.mjs
+        (238/238), clauses.mjs (238 surfaces), score_ventures.py --check (247
+        scores), router/validate.py, front-door-tools.mjs --headroom,
+        validate_doc_consistency.py, validate_candidates.py,
+        score_sensitivity.py, validate_probe_index.py, validate_usage.py:
+        all clean. Manually ran check.mjs against a local HTTP server serving
+        a deliberately vulnerable and a deliberately correct cookie and
+        confirmed the CLI's exit code and report matched.
+      - >-
+        Deployment: published the gh-pages branch snapshot after this merge
+        per platform/pages/publish-branch.sh so the live GitHub Pages catalogue
+        carries the new tool rather than lagging main.
+    mrr_end: 0
