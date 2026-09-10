@@ -524,7 +524,7 @@
       "url": "https://marisstella.dev/tools/actions-cache-poisoning-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find actions/cache steps reachable from pull_request_target/workflow_run, and restore-keys fallbacks that can adopt a poisoned prefix match. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "actions-injection-check",

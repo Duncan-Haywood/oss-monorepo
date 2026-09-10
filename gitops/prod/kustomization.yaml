@@ -236,6 +236,7 @@ configMapGenerator:
       - vs__accessibe.html.gz=front-door/vs__accessibe.html.gz
       - vs__openssf-scorecard.html.gz=front-door/vs__openssf-scorecard.html.gz
       - vs__socket.html.gz=front-door/vs__socket.html.gz
+      - vs__zizmor.html.gz=front-door/vs__zizmor.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

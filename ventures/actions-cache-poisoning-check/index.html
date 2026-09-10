@@ -100,7 +100,7 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p>No. This checks two specific, well-documented patterns in a single workflow file at a time. It is not a security audit and makes no claim about your repository's overall security. It does not catch the <code>cache:</code> input on <code>actions/setup-node</code>, <code>actions/setup-python</code>, <code>actions/setup-java</code>, or <code>actions/setup-go</code>, and it does not correlate a cache write in one workflow file with a restore in another.</p>
     <h3>Why is unscoped <code>restore-keys</code> flagged regardless of trigger type?</h3>
     <p>The risk lives on the restoring side, not the triggering side: a <code>restore-keys</code> fallback is exactly as adoptable on a <code>push</code>-to-<code>main</code> workflow as anywhere else, if anything in the repository — including an unrelated, unprivileged job — can write a cache entry under the same key prefix.</p>
-    <p>More: <a href="what-is-github-actions-cache-poisoning.html">what is GitHub Actions cache poisoning?</a></p>
+    <p>More: <a href="what-is-github-actions-cache-poisoning.html">what is GitHub Actions cache poisoning?</a> &middot; <a href="vs-zizmor.html">how this differs from zizmor's cache-poisoning audit</a></p>
   </section>
 
   <footer>
