@@ -175,6 +175,34 @@ class SuiteListTest(unittest.TestCase):
                 self.assertTrue(missing, f"{needle} names nothing missing")
                 self.assertTrue(command, f"{needle} names no fix")
 
+    def test_every_apt_fix_refreshes_the_index_first(self):
+        """An `apt-get install` without `apt-get update` 404s in a web session.
+
+        Measured 2026-09-10: the image's package index is pinned to versions the
+        mirror has already superseded, so a bare install asks for a `.deb` that
+        is gone (`nginx-light_1.24.0-2ubuntu7.6_all.deb  404  Not Found`) and
+        exits non-zero. A session that ran the printed command exactly still had
+        the skip, and the honest next step from there is to call the tree green
+        with those guards unrun -- which is what `--require-runnable` exists to
+        stop. So the fix line has to be one that actually works: this pins the
+        `update &&` half, because the half that is missing is invisible in a
+        diff and only shows up on a machine whose index happens to be stale.
+        """
+        for needle, (_missing, command) in guard_state.FIXABLE.items():
+            if "apt-get install" not in command:
+                continue
+            with self.subTest(needle=needle):
+                self.assertIn(
+                    "apt-get update",
+                    command,
+                    f"{needle}: an apt fix must refresh the index first or it 404s on a stale one",
+                )
+                self.assertLess(
+                    command.index("apt-get update"),
+                    command.index("apt-get install"),
+                    f"{needle}: the refresh has to come before the install",
+                )
+
 
 if __name__ == "__main__":
     unittest.main()

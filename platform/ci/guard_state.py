@@ -113,22 +113,37 @@ SUITES = (
 # these keyed on the *reason text* rather than on a binary name: the reason is
 # what a session actually sees, and several guards skip for a missing tool
 # without ever naming it in a `which()` call this tool could read.
+#
+# Every apt line is `apt-get update && apt-get install`, and the first half is
+# not decoration. Measured 2026-09-10 in a web session: the bare `apt-get
+# install` these lines used to print failed with
+#
+#   Failed to fetch .../nginx-light_1.24.0-2ubuntu7.6_all.deb  404  Not Found
+#
+# because the image ships a package index pinned to versions the mirror has
+# already superseded (7.6 -> 7.17), and apt asks for the version it was told
+# about rather than the one that exists. With `apt-get update` first, the same
+# install succeeds and all 24 assertions run. So a session that did exactly what
+# this tool told it to still could not clear a FIXABLE skip, and the next honest
+# move from there is to report the tree green with 24 guards unrun -- which is
+# the precise failure `--require-runnable` exists to prevent. A fix line that
+# does not work is worse than no fix line: it spends the session's trust too.
 FIXABLE = {
     "nginx is not installed": (
         "nginx",
-        "apt-get install -y --no-install-recommends nginx-light",
+        "apt-get update && apt-get install -y --no-install-recommends nginx-light",
     ),
     "nginx mime.types": (
         "nginx",
-        "apt-get install -y --no-install-recommends nginx-light",
+        "apt-get update && apt-get install -y --no-install-recommends nginx-light",
     ),
     "built without": (
         "an nginx with gzip_static/gunzip",
-        "apt-get install -y --no-install-recommends nginx-light",
+        "apt-get update && apt-get install -y --no-install-recommends nginx-light",
     ),
     "ssh-keygen unavailable": (
         "ssh-keygen",
-        "apt-get install -y --no-install-recommends openssh-client",
+        "apt-get update && apt-get install -y --no-install-recommends openssh-client",
     ),
     "no module named pytest": (
         "pytest",

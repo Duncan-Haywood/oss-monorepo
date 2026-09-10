@@ -152,9 +152,29 @@ invisible since it was written (added 2026-09-10).** That parenthesis warns
 about the run that fails loudly. The run that *succeeds* needs two more lines:
 
 ```
-apt-get install -y --no-install-recommends nginx-light openssh-client
+apt-get update && apt-get install -y --no-install-recommends nginx-light openssh-client
 python3 platform/ci/guard_state.py --require-runnable   # what still is not running
 ```
+
+**`apt-get update &&` is load-bearing, and this line was missing it for a day
+(measured 2026-09-10).** Without it, in a web session, that install does not
+merely warn — it fails outright:
+
+```
+Failed to fetch .../nginx-light_1.24.0-2ubuntu7.6_all.deb  404  Not Found
+```
+
+The image ships a package index pinned to versions the mirror has already
+superseded (`7.6` → `7.17`), so apt requests a `.deb` that no longer exists.
+With `apt-get update` first the same install succeeds and all 24 assertions
+run. The failure matters more than its size: a session that followed this
+block exactly still could not clear a skip `guard_state.py` had just labelled
+**FIXABLE**, and the honest next move from there is to report the tree green
+with 24 guards unrun — the precise outcome `--require-runnable` was added to
+prevent. This is the same defect the rest of this section keeps recording, one
+layer further in: not a missing guard, and not even a missing install line, but
+an install line that does not work. A fix instruction that fails costs more
+than none, because it also spends the reader's trust in the next one.
 
 Measured that day on a clean checkout of `main`, with pytest already
 installed, the `gitops/tests` line read `533 passed, 25 skipped` — which is
