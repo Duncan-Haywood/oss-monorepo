@@ -50,3 +50,13 @@ export function decodeInputs(source) {
   }
   return result;
 }
+
+// The supported way to apply a decoded link: every field the form owns gets
+// written, so a field the sender left blank is cleared rather than left
+// showing whatever the *recipient's own saved draft* put there. Applying a
+// decoded link with a plain object spread (`{ ...saved, ...fromLink }`) looks
+// like the link wins and is not -- a key fromLink omits still falls through
+// to saved's value for that key. See platform/ci/check_shared_link_clears.py.
+export function formValues(decoded) {
+  return Object.fromEntries(FIELD_IDS.map(id => [id, decoded?.[id] !== undefined ? String(decoded[id]) : '']));
+}

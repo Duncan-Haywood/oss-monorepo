@@ -101,7 +101,7 @@
 <script type="module">
 import { calculate, computeRouteProfit, incomeGap, DEFAULTS } from './calc.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
-import { encodeInputs, decodeInputs } from './share.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
 const el = id => document.getElementById(id);
 const safe = fn => { try { return fn(); } catch { return undefined; } };
 const money = (n) => {
@@ -212,14 +212,17 @@ el('reset').addEventListener('click', () => {
 });
 
 // A shared link wins over a local draft so the recipient always sees the
-// sender's numbers; the page's own defaults fill any field the link omitted.
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every visit field, so one the link omitted is
+// cleared rather than left showing the recipient's own saved draft.
 (() => {
-  const fromLink = decodeInputs(location.hash || location.search);
   const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
-  const restored = { ...saved, ...fromLink };
-  if (Object.keys(restored).length) {
-    applyVisitInputs(restored);
-    el('draftStatus').textContent = Object.keys(fromLink).length
+  if (Object.keys(saved).length) applyVisitInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applyVisitInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
       ? 'Opened a shared visit. Review the numbers before you use it.'
       : 'Restored your last visit from this browser. Your location list below is never saved.';
   }
