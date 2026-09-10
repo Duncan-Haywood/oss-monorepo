@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 228,
-  "collection_total": 228,
+  "served_here": 229,
+  "collection_total": 229,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -59,15 +59,15 @@
       "tool_count": 15
     },
     {
-      "id": "logistics",
-      "name": "Logistics, freight & cloud cost",
-      "url": "https://marisstella.dev/c/logistics/",
-      "tool_count": 6
-    },
-    {
       "id": "solo-earner",
       "name": "Creator & solo earner income",
       "url": "https://marisstella.dev/c/solo-earner/",
+      "tool_count": 7
+    },
+    {
+      "id": "logistics",
+      "name": "Logistics, freight & cloud cost",
+      "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 6
     },
     {
@@ -796,6 +796,14 @@
       "url": "https://marisstella.dev/tools/cra-evidence-desk/",
       "category": "Compliance checks & evidence records",
       "description": "Free Cyber Resilience Act evidence tool: match your CycloneDX or SPDX SBOM against an OSV advisory export, see exactly which components are named, and download a dated record and an Article 14 review draft. Runs entirely in your browser — your SBOM is never uploaded.",
+      "pages": 3
+    },
+    {
+      "slug": "craft-fair-booth-calculator",
+      "name": "Craft Fair Booth Calculator — Is This Market Worth Taking?",
+      "url": "https://marisstella.dev/tools/craft-fair-booth-calculator/",
+      "category": "Creator & solo earner income",
+      "description": "Free calculator for makers: find what one craft fair, farmers market, or art festival booth has to sell to break even after booth fee, jury fee, mileage, materials, and card fees — plus your real hourly rate for the weekend and the most a booth could cost and still be worth it. Unsold stock is treated as inventory, not a loss.",
       "pages": 3
     },
     {

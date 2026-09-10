@@ -22447,3 +22447,105 @@ entries:
         no conflicts in the two files this PR actually changes
         (`build.mjs`, `build.test.mjs`).
     mrr_end: 0
+  - venture: craft-fair-booth-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a new venture: a free, browser-local go/no-go
+        calculator for makers deciding whether one craft fair, farmers
+        market, art festival, or holiday market booth is worth taking. It
+        reports the sales the day has to make to break even (in dollars, in
+        orders, and as a share of the stock being brought), the same figure
+        with the maker's own hours paid, what the day actually leaves at the
+        sales they expect, the effective hourly rate across every committed
+        hour, and -- the number an open application actually turns on -- the
+        highest booth fee that still clears their target rate.
+      - >-
+        The modelling decision that makes it different from the portfolio's
+        existing event tools, and the reason it is worth building rather
+        than being a variant of `food-truck-event-margin-calculator`:
+        **unsold stock is inventory, not a cost of the event.** A caterer
+        who over-preps throws food away; a maker who brings 60 candles and
+        sells 22 drives home with 38 candles. So the cost of goods that
+        belongs in one event's break-even is the cost of what *sold*, which
+        is why materials are taken as a percentage of retail rather than as
+        a lump. The stock figure is used for exactly one thing -- expressing
+        the break-even as a sell-through percentage, and flagging the case
+        where it exceeds 100% and a sellout still cannot cover the booth.
+        Pinned by a test asserting that changing how much stock is loaded
+        into the van does not move the break-even.
+      - >-
+        Second modelling point, invisible in every processor's headline
+        rate: the card fixed fee is per *transaction*, so it only becomes a
+        rate once divided by average order value. Ten cents on a $6 sticker
+        sale is 1.7% of it and on an $80 print 0.1%, so two tables with
+        identical "2.6% + 10c" keep materially different shares of each
+        dollar. Also pinned by a test.
+      - >-
+        Chosen after confirming the open-PR queue was empty (0 open PRs at
+        `e1d9348a`, so the three-PR merge floor had nothing to act on) and
+        that no existing venture covered this: the portfolio's event tools
+        are food-service (`food-truck-event-margin-calculator`) or service
+        quoting (`photo-booth-event-quote`, `portable-restroom-event-quote`),
+        none of which model a product-mix seller whose unsold stock carries
+        forward. Not in `screened-out.md`. It composes with three ventures
+        already on `main` for the same person -- `3d-print-price-calculator`,
+        `etsy-profit-calculator`, `where-to-sell-calculator` -- rather than
+        standing alone.
+      - >-
+        Also measured, and recorded because it closes a hypothesis rather
+        than opening one: the mandate names "a page reachable only from the
+        sitemap is reachable from nothing" as the leading explanation for
+        zero recorded visitors, given the subpath-robots finding. A BFS over
+        the built site following only `<a href>` from `index.html` reaches
+        **890 of 892 pages**; the two it does not are `404.html` and
+        `offline.html`, both deliberately unlinked. So internal-link
+        enumeration is *not* the gap -- discoverability here remains blocked
+        on the queued owner action (`pages-custom-domain`), and a session
+        looking for link-graph work will not find any.
+      - >-
+        Full slice: 20 validated inputs, a shareable link carrying all of
+        them in the URL fragment (all-fields-replaced on open, so a
+        recipient never sees their own leftover values mixed into the
+        sender's event), browser-local usage counting with a visible
+        opt-out and DNT/GPC honoured, the §5b no-warranty clause on all
+        three pages, a GitHub Sponsors link, a worked-method guide page, and
+        a `vs-craftybase.html` comparison carrying the nominative-fair-use
+        trademark disclaimer and framed as a different job rather than a
+        fault.
+      - >-
+        Portfolio wiring done in the same commit rather than left to trip a
+        later session: `venture-scores.yaml` row (composite 6.333),
+        `launched.json` date, `regen.mjs` mirror, the mirrored-tool count in
+        all four places `test_manifests.py` pins (228 -> 229), a
+        per-venture CI workflow, its `publish-surface.yaml` row, and
+        `build.mjs`'s `solo-earner` category -- taken rather than raising
+        `build.test.mjs`'s catch-all bound, which is what that guard exists
+        to ask for. Closed the crawlable-orphan pair it opened by adding a
+        reciprocal link and a test in `3d-print-price-calculator`, so
+        `siblings-budget.json` stayed at 3 rather than being raised.
+      - >-
+        Two real defects caught by the repo's own guards and fixed before
+        push: `min="0.01" step="1"` on the average-order-value input, which
+        would have made every whole-dollar entry fail browser step
+        validation (`check_step_grid`), and the missing per-venture
+        workflow that would have left all five test files running only on a
+        contributor's machine (`validate_workflows.py` invariant 7).
+      - >-
+        Verified: 76/76 the venture's own tests; 1202/1202 `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`; 180 across
+        `platform/proposal`/`privacy`/`webcheck`; 525 `gitops/tests`; 435
+        `portfolio/*` + `infra/tests`; all 22 `platform/ci` unittest modules
+        plus `agent_review`; `checklist_coverage.py` clean;
+        `score_ventures.py --check` and `publish_surface.py --check` clean.
+        `run_workflow_locally.py --tree` passes 8/9 with the only failure
+        `pages-freshness` (the gh-pages snapshot lags a merge that has not
+        happened yet -- refreshed after merge, not before). Browser checks
+        run against the real Chromium at `/opt/pw-browsers` with
+        `playwright@1.56.0 axe-core`: `--only craft-fair-booth-calculator`
+        passes sideways, presets, roundtrip, contrast (axe), sweep and
+        journey; `highlight` reports exit 2 "nothing to verify" because this
+        venture prints no highlight promise, which that check documents as
+        allowed rather than as a failure.
+    mrr_end: 0
