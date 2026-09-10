@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 225,
-  "collection_total": 225,
+  "served_here": 226,
+  "collection_total": 226,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -29,15 +29,15 @@
       "tool_count": 125
     },
     {
-      "id": "evidence",
-      "name": "Compliance checks & evidence records",
-      "url": "https://marisstella.dev/c/evidence/",
-      "tool_count": 20
-    },
-    {
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
+      "tool_count": 21
+    },
+    {
+      "id": "evidence",
+      "name": "Compliance checks & evidence records",
+      "url": "https://marisstella.dev/c/evidence/",
       "tool_count": 20
     },
     {
@@ -757,6 +757,14 @@
       "category": "Compliance checks & evidence records",
       "description": "Compare before-and-after consent browser traces and create a local request and storage change record.",
       "pages": 4
+    },
+    {
+      "slug": "cors-misconfig-check",
+      "name": "CORS Misconfiguration Checker — Reflected Origin, Null Origin, Unanchored Allow-Lists",
+      "url": "https://marisstella.dev/tools/cors-misconfig-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: run a CLI that sends real requests with crafted Origin headers to your API, then paste the JSON here for a plain-English report on reflected-origin, null-origin, and unanchored allow-list CORS misconfigurations. Nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "countertop-bid-calculator",
