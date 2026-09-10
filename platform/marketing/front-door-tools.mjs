@@ -337,8 +337,47 @@ export const SHARD_BYTE_CEILING = 544 * 1024;
  * third of it, so the cost of the seal *not* landing this month is much lower
  * than it was — which is an argument for keeping the seal queued, not for
  * dropping it.
+ *
+ * **Raised from 8 MiB to 12 MiB on 2026-09-10, and this is the case for it
+ * being growth rather than the waste the warn ratio's comment forbids paying
+ * for.** The 85% warning fired that day at 7,146,771 stored bytes across 233
+ * tools — `main` had reached 84.9% on its own and one more venture crossed it.
+ * Every recovery mechanism the tree has is already spent, measured rather than
+ * assumed:
+ *
+ * - `dedupeMirror` is running and has recovered 1,467,937 bytes by aliasing
+ *   438 duplicate names onto stored copies. `--headroom` and
+ *   `front-door-tools.test.mjs` both report **0 recoverable duplicate bytes
+ *   remaining**, so there is no second pass of the 2026-09-03 remedy to make.
+ * - `GZIP_LEVEL` is already 9.
+ * - `*.test.mjs` is already excluded from the mirror; the 7.1 MB is page and
+ *   module source that the mirrored pages actually reference.
+ *
+ * So the bytes are real, and the question is only whether the two costs above
+ * can carry them. Both can, with room to spare:
+ *
+ * - **Pod memory.** 12 MiB of tmpfs against the `resources.limits.memory` of
+ *   192Mi this ceiling already bought is 6.25%, against 4.2% before. nginx's
+ *   own footprint remains an order of magnitude larger than the change. The
+ *   limit is deliberately *not* raised alongside this one, unlike the
+ *   64Mi → 192Mi move above: there is nothing to buy.
+ * - **The repository.** 12 MiB against a ~71 MB `.git` — the same order of
+ *   magnitude the 8 MiB decision accepted.
+ *
+ * What this buys is ~160 tools of runway rather than ~40. At the rate the
+ * fleet has been shipping (five to eight ventures a day through early
+ * September) 40 tools is about a week, which is not enough room for the
+ * remedy the warn ratio is designed to prompt — and crossing the ceiling
+ * throws inside `buildMirror`, stopping *every* venture PR from validating,
+ * not just the one that crossed it.
+ *
+ * The trade the paragraph above warns about has not moved: this is still a
+ * stopgap for the unsealed `portfolio-site-repo`, 12 MiB is still nowhere
+ * near the point where the stopgap costs more than the seal would, and the
+ * seal stays queued. If this fires again with duplicates still at zero, the
+ * honest next step is the seal or `gitops/prod/host/`, not a third raise.
  */
-export const MIRROR_BYTE_CEILING = 8 * 1024 * 1024;
+export const MIRROR_BYTE_CEILING = 12 * 1024 * 1024;
 
 /**
  * The share of `MIRROR_BYTE_CEILING` above which the mirror is reported as

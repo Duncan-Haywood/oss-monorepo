@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Staffing Markup Calculator | What a 45% Markup Actually Earns</title>
+  <meta name="description" content="Price a staffing placement properly: employer burden per hour, the real gross margin behind your markup, the break-even markup, and the markup a target margin needs. Free, private, nothing leaves your browser.">
+  <meta property="og:title" content="Staffing Markup Calculator">
+  <meta property="og:description" content="A 45% markup is not a 45% margin, and on a heavy comp code it may not be a profit. Enter the pay rate, your SUTA and comp rate, and your payment terms, and see what the placement really earns.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Staffing Markup Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Employer burden per hour itemised by FICA, FUTA, SUTA, workers' compensation, PTO accrual, benefits, onboarding and admin; capped unemployment taxes charged against the wage base so a short assignment shows its true per-hour cost; loaded cost per hour; bill rate from a markup on the pay rate; real gross margin and gross profit per hour beside the margin the markup implies; break-even markup; the markup a target gross margin requires; overtime priced at separate pay and bill multipliers with the workers' comp premium exclusion; cost of funding payroll across the client's payment terms; bad-debt reserve; and a markup ladder pricing the discount a client is asking for"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a 45% markup a 45% gross margin?","acceptedAnswer":{"@type":"Answer","text":"No, and the gap is larger than the usual correction. Converting markup to margin the textbook way gives 45/145 = 31%, and that conversion is only right when the number you marked up is the whole cost. In staffing you mark up the pay rate, and every dollar of FICA, unemployment tax, workers’ compensation, PTO and benefits sits outside it. On the worked example — $22 an hour, a 3% SUTA on a $12,000 base, a $6.20 per $100 comp code, collected on net-45 — a 45% markup returns a 15.8% gross margin, not 31%. Hitting 20% would take a 52.6% markup."}},{"@type":"Question","name":"Why is a short assignment more expensive per hour?","acceptedAnswer":{"@type":"Answer","text":"Because FUTA and SUTA are charged on a wage base, not on every dollar. FUTA applies to the first $7,000 a worker earns in the year and your state’s unemployment tax to the first (commonly) $7,000 to $60,000. A worker who bills 420 hours pays almost the entire annual charge inside those 420 hours; the same worker on a 2,000-hour assignment spreads it over five times as many. This calculator charges the capped amount rather than a flat percentage, so the effect appears on its own and a 12-week placement prices differently from a year-long one without you doing anything."}},{"@type":"Question","name":"What is the break-even markup?","acceptedAnswer":{"@type":"Answer","text":"The markup at which the placement finishes exactly level: burden covered, payroll funded, bad debt reserved, and nothing left. On the worked example it is 21.9%. It is worth knowing because it is the floor a negotiation can reach and not the number to quote — the distance between it and your markup is the entire profit on the placement, which is why shaving five points off a quote is a large fraction of the margin rather than a small fraction of the price."}},{"@type":"Question","name":"Why does it charge me for the client’s payment terms?","acceptedAnswer":{"@type":"Answer","text":"Because you pay the worker weekly and the client pays you on net-30, net-45 or later. That money is out the door in the meantime, whether it is financed, factored, or simply your own cash not doing something else. The calculator applies your cost of capital to the loaded cost — the money actually spent, not the invoice — across the days you wait. On the worked example, net-45 at 12% costs $202 of a $2,626 profit. It is the line most markup quotes leave out entirely, and it is the one that turns a thin placement into a losing one."}},{"@type":"Question","name":"How should I bill overtime?","acceptedAnswer":{"@type":"Answer","text":"You pay overtime at 1.5 times the pay rate, so a bill rate that does not also rise by 1.5 earns less margin on every overtime hour and can earn none. Set the two multipliers separately here and see it. One nuance the calculator handles: most states rate workers’ compensation on straight-time-equivalent payroll, so the half-time premium on an overtime hour is excluded from the comp payroll. Leave that box ticked unless your state does not allow the exclusion — it is a real saving on an assignment running heavy overtime, and over-reserving for it prices you out of work you could win."}},{"@type":"Question","name":"Where do I find my SUTA rate and workers’ comp rate?","acceptedAnswer":{"@type":"Answer","text":"Your SUTA rate and wage base are on the annual rate notice your state unemployment agency sends you; the rate is experience-rated, so it is yours and not a national figure. Your workers’ compensation rate is on your policy declarations, quoted per $100 of payroll and set by the class code the work falls under — which is why a clerical placement and a light-industrial placement in the same office are different businesses. The defaults here are illustrative starting points, not advice about which class code applies to a job."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and the page makes no network requests — it runs entirely in your browser. Your pay rates, markups, comp rate and the margins it works out are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control."}},{"@type":"Question","name":"Is this legal, tax, or insurance advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type. It makes no determination about worker classification, which workers’ compensation class code applies, co-employment, overtime exemption, or your obligations under any state or federal law, and the rates and wage bases it starts with are illustrative and change every year. Check every figure against your own rate notices, policy declarations and payroll records, and against a qualified professional, before you quote a client from it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #edeff5; }
+    body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 780px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.3rem); line-height: .99; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #33427a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .74fr); gap: 18px; align-items: start; }
+    section { background: #f9fafc; border: 1px solid #ccd3e1; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4b566a; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    label.check { display: flex; gap: 8px; align-items: flex-start; font-weight: 400; font-size: .85rem; grid-column: 1 / -1; }
+    label.check input { width: auto; margin-top: 2px; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a6b1c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #9b2c1f; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a6b1c6; background: #eef1f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e1e7f3; }
+    .primary { background: #33427a; border-color: #33427a; color: #f4f6fb; }
+    .primary:hover { background: #29356444; background: #293564; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+    .result { position: sticky; top: 15px; background: #171f37; color: #eef1f8; border-color: #171f37; }
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .belief { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .belief h3 { margin: 0 0 8px; font-size: .95rem; }
+    .belief p { font-size: .85rem; margin: 0; }
+    .belief .gap { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .84rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd2c8; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    .ladder-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 7px 9px; border-bottom: 1px solid #d3dae6; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; color: #4b566a; }
+    tr.entered td { background: #e6ebf7; font-weight: 700; }
+    tr.loss td { color: #8a2617; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4b566a; }
+    footer a { color: #33427a; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .seo-link a { color: #33427a; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT STAFFING AGENCIES AND RECRUITERS</p>
+    <h1>A 45% markup is not a 45% margin. It is not a 31% one either.</h1>
+    <p>You mark up the pay rate, so the markup has to carry the whole employer burden before a cent of it is profit &mdash; FICA, federal and state unemployment, the comp code the work falls under, PTO, benefits, screening, and the six weeks you fund payroll before the client pays. Put a real placement in below and see the bill rate, the burden an hour, the margin the markup actually earns, and the markup your target margin needs.</p>
+    <p class="seo-link"><a href="./markup-vs-margin.html">Markup vs. margin in staffing &mdash; why the usual conversion is wrong here</a></p>
+  </header>
+
+  <main class="layout">
+    <form id="placementForm">
+      <section>
+        <h2>The placement</h2>
+        <p class="hint">The pay rate and the markup you would quote. Everything below prices this one assignment.</p>
+        <div class="fields">
+          <label>Pay rate ($/h) <input id="payRate" type="number" min="0.01" step="0.01" value="22"></label>
+          <label>Markup on pay rate (%) <input id="markupPercent" type="number" min="0" max="500" step="0.5" value="45"></label>
+          <label>Straight-time hours a week <input id="hoursPerWeek" type="number" min="0" max="168" step="0.5" value="40"></label>
+          <label>Overtime hours a week <input id="otHoursPerWeek" type="number" min="0" max="168" step="0.5" value="0"></label>
+          <!-- step="any": min="0.1" is not on a 0.5 grid, so a stepped input
+               would reject every whole number a recruiter actually types. -->
+          <label>Weeks on assignment <input id="weeksOnAssignment" type="number" min="0.1" max="260" step="any" value="13"></label>
+          <label>Target gross margin (%) <input id="targetMarginPercent" type="number" min="0" max="95" step="0.5" value="20"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Employer burden</h2>
+        <p class="hint">These are your own figures. SUTA comes off your state rate notice, the comp rate off your policy declarations for the class code this job falls under. The defaults are a plausible light-industrial placement, not a recommendation.</p>
+        <div class="fields">
+          <label>FICA (%) <input id="ficaPercent" type="number" min="0" max="30" step="0.01" value="7.65"></label>
+          <label>Workers&rsquo; comp ($ per $100 payroll) <input id="workersCompRate" type="number" min="0" max="100" step="0.01" value="6.20"></label>
+          <label>SUTA rate (%) <input id="sutaPercent" type="number" min="0" max="30" step="0.01" value="3"></label>
+          <label>SUTA wage base ($) <input id="sutaWageBase" type="number" min="0" step="100" value="12000"></label>
+          <label>FUTA rate (%) <input id="futaPercent" type="number" min="0" max="20" step="0.01" value="0.6"></label>
+          <label>FUTA wage base ($) <input id="futaWageBase" type="number" min="0" step="100" value="7000"></label>
+          <label>PTO and holiday accrual (%) <input id="ptoPercent" type="number" min="0" max="50" step="0.1" value="0"></label>
+          <label>Health and other benefits ($/h) <input id="benefitsPerHour" type="number" min="0" step="0.05" value="0"></label>
+          <label>Onboarding and screening ($, once) <input id="onboardingCost" type="number" min="0" step="1" value="85"></label>
+          <label>Payroll, ATS and admin ($/h) <input id="otherPerHour" type="number" min="0" step="0.01" value="0.35"></label>
+          <label class="check"><input id="compExcludesOtPremium" type="checkbox" checked> My state lets me exclude the overtime <em>premium</em> from workers&rsquo; comp payroll (most do)</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Getting paid</h2>
+        <p class="hint">You fund payroll weekly and collect later. This is what that gap costs, and what you hold back for invoices that never land.</p>
+        <div class="fields">
+          <label>Days to get paid <input id="daysToGetPaid" type="number" min="0" max="365" step="1" value="45"></label>
+          <label>Cost of capital (% a year) <input id="costOfCapitalPercent" type="number" min="0" max="100" step="0.1" value="12"></label>
+          <label>Bad debt and unbilled (% of billings) <input id="badDebtPercent" type="number" min="0" max="50" step="0.1" value="0.5"></label>
+          <label>Overtime pay multiplier <input id="otPayMultiplier" type="number" min="1" max="3" step="0.05" value="1.5"></label>
+          <label>Overtime bill multiplier <input id="otBillMultiplier" type="number" min="1" max="3" step="0.05" value="1.5"></label>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary">Price this placement</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>What the same placement earns at other markups</h2>
+        <p class="hint">The row in bold is what you entered. This is the table to have open when a client asks for five points off.</p>
+        <div class="ladder-wrap">
+          <table id="ladder">
+            <thead>
+              <tr><th scope="col">Markup</th><th scope="col">Bill rate</th><th scope="col">Gross margin</th><th scope="col">Gross profit</th></tr>
+            </thead>
+            <tbody id="ladderBody"></tbody>
+          </table>
+        </div>
+        <p class="hint" id="ladderEmpty" hidden>Fix the errors above and the table will fill in.</p>
+      </section>
+    </form>
+
+    <section class="result" id="result" aria-live="polite">
+      <p class="hero-label">Gross margin on this placement</p>
+      <p class="hero-number" id="heroNumber">&mdash;</p>
+      <p class="empty" id="emptyState">Press &ldquo;Price this placement&rdquo; to see what it earns.</p>
+      <div id="resultBody" hidden>
+        <div class="belief">
+          <h3>What the markup implies, and what it earns</h3>
+          <p class="gap" id="beliefGap">&mdash;</p>
+          <p id="beliefText"></p>
+        </div>
+        <dl>
+          <dt class="group">The rates</dt>
+          <dt>Bill rate</dt><dd id="outBillRate">&mdash;</dd>
+          <dt>Loaded cost an hour</dt><dd id="outLoadedCost">&mdash;</dd>
+          <dt>Employer burden an hour</dt><dd id="outBurdenPerHour">&mdash;</dd>
+          <dt>Burden as a share of wages</dt><dd id="outBurdenPercent">&mdash;</dd>
+          <dt>Gross profit an hour</dt><dd id="outProfitPerHour">&mdash;</dd>
+
+          <dt class="group">The markup you need</dt>
+          <dt>Break-even markup</dt><dd id="outBreakEven">&mdash;</dd>
+          <dt id="outTargetLabel">Markup for your target margin</dt><dd id="outTarget">&mdash;</dd>
+
+          <dt class="group">The whole assignment</dt>
+          <dt>Billable hours</dt><dd id="outHours">&mdash;</dd>
+          <dt>Wages paid</dt><dd id="outWages">&mdash;</dd>
+          <dt>Employer burden</dt><dd id="outBurdenTotal">&mdash;</dd>
+          <dt>Cost of funding payroll</dt><dd id="outCarry">&mdash;</dd>
+          <dt>Bad-debt reserve</dt><dd id="outBadDebt">&mdash;</dd>
+          <dt>Billed to the client</dt><dd id="outRevenue">&mdash;</dd>
+          <dt>Gross profit</dt><dd id="outProfit">&mdash;</dd>
+
+          <dt class="group">Where the burden goes</dt>
+        </dl>
+        <dl id="burdenList"></dl>
+        <ul class="note-list" id="notes"></ul>
+      </div>
+      <ul class="errors" id="errors"></ul>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>Is a 45% markup a 45% gross margin?</h3>
+    <p>No, and the gap is larger than the usual correction. Converting markup to margin the textbook way gives 45/145 = 31%, and that conversion is only right when the number you marked up is the whole cost. In staffing you mark up the pay rate, and every dollar of FICA, unemployment tax, workers&rsquo; compensation, PTO and benefits sits outside it. On the worked example — $22 an hour, a 3% SUTA on a $12,000 base, a $6.20 per $100 comp code, collected on net-45 — a 45% markup returns a 15.8% gross margin, not 31%. Hitting 20% would take a 52.6% markup.</p>
+
+    <h3>Why is a short assignment more expensive per hour?</h3>
+    <p>Because FUTA and SUTA are charged on a wage base, not on every dollar. FUTA applies to the first $7,000 a worker earns in the year and your state&rsquo;s unemployment tax to the first (commonly) $7,000 to $60,000. A worker who bills 420 hours pays almost the entire annual charge inside those 420 hours; the same worker on a 2,000-hour assignment spreads it over five times as many. This calculator charges the capped amount rather than a flat percentage, so the effect appears on its own and a 12-week placement prices differently from a year-long one without you doing anything.</p>
+
+    <h3>What is the break-even markup?</h3>
+    <p>The markup at which the placement finishes exactly level: burden covered, payroll funded, bad debt reserved, and nothing left. On the worked example it is 21.9%. It is worth knowing because it is the floor a negotiation can reach and not the number to quote — the distance between it and your markup is the entire profit on the placement, which is why shaving five points off a quote is a large fraction of the margin rather than a small fraction of the price.</p>
+
+    <h3>Why does it charge me for the client&rsquo;s payment terms?</h3>
+    <p>Because you pay the worker weekly and the client pays you on net-30, net-45 or later. That money is out the door in the meantime, whether it is financed, factored, or simply your own cash not doing something else. The calculator applies your cost of capital to the loaded cost — the money actually spent, not the invoice — across the days you wait. On the worked example, net-45 at 12% costs $202 of a $2,626 profit. It is the line most markup quotes leave out entirely, and it is the one that turns a thin placement into a losing one.</p>
+
+    <h3>How should I bill overtime?</h3>
+    <p>You pay overtime at 1.5 times the pay rate, so a bill rate that does not also rise by 1.5 earns less margin on every overtime hour and can earn none. Set the two multipliers separately here and see it. One nuance the calculator handles: most states rate workers&rsquo; compensation on straight-time-equivalent payroll, so the half-time premium on an overtime hour is excluded from the comp payroll. Leave that box ticked unless your state does not allow the exclusion — it is a real saving on an assignment running heavy overtime, and over-reserving for it prices you out of work you could win.</p>
+
+    <h3>Where do I find my SUTA rate and workers&rsquo; comp rate?</h3>
+    <p>Your SUTA rate and wage base are on the annual rate notice your state unemployment agency sends you; the rate is experience-rated, so it is yours and not a national figure. Your workers&rsquo; compensation rate is on your policy declarations, quoted per $100 of payroll and set by the class code the work falls under — which is why a clerical placement and a light-industrial placement in the same office are different businesses. The defaults here are illustrative starting points, not advice about which class code applies to a job.</p>
+
+    <h3>Is any of this uploaded?</h3>
+    <p>No. There is no account and the page makes no network requests — it runs entirely in your browser. Your pay rates, markups, comp rate and the margins it works out are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control.</p>
+
+    <h3>Is this legal, tax, or insurance advice?</h3>
+    <p>No. It is arithmetic on the figures you type. It makes no determination about worker classification, which workers&rsquo; compensation class code applies, co-employment, overtime exemption, or your obligations under any state or federal law, and the rates and wage bases it starts with are illustrative and change every year. Check every figure against your own rate notices, policy declarations and payroll records, and against a qualified professional, before you quote a client from it.</p>
+
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, or employment advice, and it does not tell you what to charge, which workers&rsquo; compensation class code applies to a job, whether anyone is an employee or a contractor, or what any state or federal law requires of you. It is arithmetic on the numbers you type, and the rates and wage bases it starts with are illustrative and change every year. Verify every figure against your own state rate notice, policy declarations, and payroll records, and against a qualified professional, before quoting a client from it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your pay rates, markups, comp rate and the margins worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control.</p>
+    <p>Working out what an hour costs your own shop rather than a placement&rsquo;s? The <a href="../shop-rate-calculator/">shop rate calculator</a> does the same job for trade crews, and the <a href="../certified-payroll-calculator/">certified payroll calculator</a> covers prevailing-wage fringe. Paying yourself instead of a worker? Try the <a href="../freelance-retainer-calculator/">freelance retainer calculator</a>.</p>
+    <p class="support">Free and open source. If it changes what you quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculatePlacement, markupToMargin, ALL_INPUT_IDS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const el = (id) => document.getElementById(id);
+    const money = (value) => {
+      const text = `$${Math.round(Math.abs(value)).toLocaleString('en-US')}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const money2 = (value) => {
+      const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const pct = (value) => `${value.toFixed(1)}%`;
+
+    const optedOut = () => el('usageOptOut').checked;
+    const count = (event) => recordUsage(localStorage, optedOut(), event);
+
+    function readInput() {
+      const raw = { compExcludesOtPremium: el('compExcludesOtPremium').checked };
+      for (const id of ALL_INPUT_IDS) raw[id] = el(id).value;
+      return raw;
+    }
+
+    function clearInvalid() {
+      for (const id of ALL_INPUT_IDS) el(id).removeAttribute('aria-invalid');
+    }
+
+    function renderErrors(errors) {
+      clearInvalid();
+      el('resultBody').hidden = true;
+      el('emptyState').hidden = false;
+      el('emptyState').textContent = 'Some figures need fixing before this can be priced.';
+      el('heroNumber').textContent = '—';
+      el('heroNumber').classList.remove('negative');
+      el('errors').innerHTML = '';
+      el('ladderBody').innerHTML = '';
+      el('ladderEmpty').hidden = false;
+      for (const error of errors) {
+        const field = el(error.field);
+        if (field) field.setAttribute('aria-invalid', 'true');
+        const li = document.createElement('li');
+        li.textContent = error.message;
+        el('errors').append(li);
+      }
+      const first = errors.length > 0 ? el(errors[0].field) : null;
+      if (first) first.focus();
+    }
+
+    function render(result) {
+      clearInvalid();
+      el('errors').innerHTML = '';
+      el('emptyState').hidden = true;
+      el('resultBody').hidden = false;
+      el('ladderEmpty').hidden = true;
+
+      el('heroNumber').textContent = pct(result.grossMarginPercent);
+      el('heroNumber').classList.toggle('negative', result.grossProfit < 0);
+
+      const entered = Number.parseFloat(el('markupPercent').value);
+      const implied = markupToMargin(entered);
+      el('beliefGap').textContent = `${pct(implied)} believed → ${pct(result.grossMarginPercent)} earned`;
+      el('beliefText').textContent =
+        `A ${pct(entered)} markup converts to ${pct(implied)} the way the trade quotes it, because that ` +
+        `conversion treats the pay rate as the whole cost. It is not: employer burden adds ` +
+        `${money2(result.burdenPerHour)} an hour on top of it. The difference between those two numbers is ` +
+        `${money(Math.abs((implied - result.grossMarginPercent) / 100 * result.revenue))} on this assignment alone.`;
+
+      el('outBillRate').textContent = `${money2(result.billRate)}/h`;
+      el('outLoadedCost').textContent = `${money2(result.loadedCostPerHour)}/h`;
+      el('outBurdenPerHour').textContent = `${money2(result.burdenPerHour)}/h`;
+      el('outBurdenPercent').textContent = pct(result.burdenPercentOfWages);
+      el('outProfitPerHour').textContent = `${money2(result.grossProfitPerHour)}/h`;
+
+      el('outBreakEven').textContent =
+        result.breakEvenMarkupPercent === null ? 'no markup reaches it' : pct(result.breakEvenMarkupPercent);
+      el('outTargetLabel').textContent = `Markup for a ${pct(result.targetMarginPercent)} margin`;
+      el('outTarget').textContent =
+        result.targetMarkupPercent === null
+          ? 'unreachable on these terms'
+          : pct(result.targetMarkupPercent);
+
+      el('outHours').textContent = result.hours.totalHours.toLocaleString('en-US');
+      el('outWages').textContent = money(result.wages.totalWages);
+      el('outBurdenTotal').textContent = money(result.burden.total);
+      el('outCarry').textContent = money(result.carryCost);
+      el('outBadDebt').textContent = money(result.badDebt);
+      el('outRevenue').textContent = money(result.revenue);
+      el('outProfit').textContent = money(result.grossProfit);
+
+      const burdenList = el('burdenList');
+      burdenList.innerHTML = '';
+      for (const item of result.burden.items) {
+        if (item.amount === 0) continue;
+        const dt = document.createElement('dt');
+        dt.textContent = item.label;
+        const dd = document.createElement('dd');
+        dd.textContent = money(item.amount);
+        burdenList.append(dt, dd);
+      }
+
+      const notes = el('notes');
+      notes.innerHTML = '';
+      for (const note of result.notes) {
+        const li = document.createElement('li');
+        li.textContent = note;
+        notes.append(li);
+      }
+
+      const body = el('ladderBody');
+      body.innerHTML = '';
+      for (const rung of result.ladder) {
+        const tr = document.createElement('tr');
+        if (rung.isEntered) tr.className = 'entered';
+        if (rung.grossProfit < 0) tr.classList.add('loss');
+        for (const text of [
+          pct(rung.markupPercent),
+          `${money2(rung.billRate)}/h`,
+          pct(rung.grossMarginPercent),
+          money(rung.grossProfit),
+        ]) {
+          const td = document.createElement('td');
+          td.textContent = text;
+          tr.append(td);
+        }
+        body.append(tr);
+      }
+    }
+
+    el('placementForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const result = calculatePlacement(readInput());
+      if (!result.ok) {
+        renderErrors(result.errors);
+        return;
+      }
+      render(result);
+      count('placement_priced');
+    });
+
+    // Open on the worked example rather than on an em-dash. The eighteen
+    // defaults above *are* an example placement, and the page's whole claim —
+    // that 45% earns 15.8% and not the 31% the trade quotes — is invisible
+    // until something is on screen. No `placement_priced` count is recorded
+    // here: a page load is not a pricing, and that event is the denominator of
+    // this venture's own usage question.
+    (() => {
+      const example = calculatePlacement(readInput());
+      if (example.ok) render(example);
+    })();
+  </script>
+</body>
+</html>
