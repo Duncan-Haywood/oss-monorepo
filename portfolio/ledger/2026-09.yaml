@@ -23260,6 +23260,77 @@ entries:
         portfolio/usage portfolio/pipeline infra/tests -q 435 passed;
         node platform/pages/launched.mjs --write (231 tools, 1 added).
     mrr_end: 0
+  - venture: email-auth-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed the catalogue's last guide-page gap.
+        `node platform/pages/guide-coverage.mjs` reported 230 of 231
+        published surfaces carrying a secondary page; the one without was
+        email-auth-check, which had graduated hours earlier in #4466. A
+        secondary page is the venture's organic-search surface -- the
+        query a reader types before they know a checker exists -- and on
+        this origin that matters more than usual: the site is served from
+        a project-Pages subpath, so the robots.txt a crawler reads belongs
+        to the owner's separate user-level site and the Sitemap: line is
+        never seen (pages_state.py's `indexing` row). Coverage is now
+        231 of 231.
+      - >-
+        The page answers the SPF PermError / "too many DNS lookups"
+        question, chosen because it is the tool's own flagship
+        differentiator: analyze.mjs walks include:/redirect= recursively
+        and reports the chain total, which is precisely what a checker
+        counting only the top-level record gets wrong. Content is pinned
+        to RFC 7208 §4.6.4 (which terms spend from the budget, and that
+        the 10 are beyond the initial TXT fetch) and §5.5 (ptr SHOULD NOT
+        be published). It states the flattening tradeoff rather than
+        recommending it unqualified -- flattening freezes the provider's
+        IP list and converts a visible PermError into a silent failure
+        later -- and recommends a dedicated sending subdomain instead,
+        since each subdomain carries its own 10-lookup budget.
+      - >-
+        Eight assertions added to ventures/email-auth-check/page.test.mjs
+        pin the parts that make the page useful rather than merely
+        present: the inbound link from the tool, the canonical URL, the
+        FAQPage/visible-heading agreement Google's structured-data policy
+        requires, both §5b clauses, the RFC citation, and the flattening
+        caveat. guide-coverage.mjs only asks whether a secondary page
+        exists, so without these the page could rot into a stub and stay
+        counted as coverage.
+      - >-
+        One fleet-wide guard went red and was fixed forward rather than
+        worked around: platform/pages/entities.test.mjs failed on `&sect;`
+        as a named entity absent from the shared NAMED_ENTITIES table.
+        That table is what faq-visible.test.mjs decodes through, so an
+        undefined entity would have reported visible copy as missing --
+        the exact failure mode its own comments record against
+        rc-time-calculator. Added `sect: '§'`; 1382 platform assertions
+        became 1383, 0 failed.
+      - >-
+        Also recorded a full browser-check reading, which nothing in the
+        tree had carried since the builder last changed:
+        platform/ci/browser_state.py reported all 7 checks STALE, and
+        `browser_checks.py --record` now pins contrast, highlight,
+        journey, presets, roundtrip, sideways and sweep as passing over
+        the whole catalogue -- 238/238 tools answered with no errors,
+        0 WCAG A/AA violations, 903/903 sitemap URLs resolving, no
+        off-origin request. The new guide page was separately checked
+        (contrast + sideways, both ok at 360px).
+      - >-
+        Verified locally (Actions runners starved -- all 17 checks on the
+        PR merged this session came back runner_id: 0, confirmed with
+        ci_starvation.py --run 34481895445): node --test
+        ventures/email-auth-check/*.test.mjs 98/98; node --test across
+        platform/{marketing,pages,proposal,privacy,webcheck} 1383 passed,
+        0 failed, 0 skipped (clone unshallowed so both history-pinned
+        webcheck tests really ran); guide-coverage.mjs 231/231;
+        clauses.mjs email-auth-check clean; faq-visible + siblings 18/18;
+        build.mjs + check.mjs 231 products, 906 pages, no dead links;
+        regen.mjs run and the front-door mirror committed; python3 -m
+        pytest gitops/tests -q 532 passed/25 skipped; all eight
+        validators clean; checklist_coverage.py clean.
+    mrr_end: 0
   - venture: staffing-markup-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -23313,11 +23384,11 @@ entries:
         main, all of them the "a number that is only ever typed, never
         recomputed" failure this repo's own tests exist to catch:
         gitops/ci/README.md's runs-on sentence (via
-        gitops/ci/sync_readme_counts.py, 324->325 of 327 across 287
+        gitops/ci/sync_readme_counts.py, ->326 of 328 across 288
         workflows), the mirrored-tool count in infra/OWNER_CHECKLIST.md
         (three places), gitops/prod/usage/aggregate.py and
         gitops/prod/front-door/default.conf (two places), and
-        gitops/tests/test_manifests.py's own `total` constant (231->232).
+        gitops/tests/test_manifests.py's own `total` constant (232->233, after merging main's own sri-check bump).
         platform/ci/publish-surface.yaml gained the new workflow row
         (classification none, publishes nothing).
       - >-
@@ -23335,8 +23406,45 @@ entries:
         regression test asserting the href. Enumeration is unavailable on
         the current project-Pages origin -- the robots.txt a crawler reads
         belongs to the owner's user-level site -- so a page nothing links
-        to is reachable from nothing. Zero orphans across 232 tools after
+        to is reachable from nothing. Zero orphans across 233 tools after
         the change.
+      - >-
+        The apex tool mirror crossed its 85% capacity warning during this
+        change, and the remedy was due rather than deferrable.
+        `front-door-tools.mjs --headroom` read 7,146,771 of 8,388,608 stored
+        bytes (85.2%) across 233 tools; measured on a clean checkout,
+        `main` was already at 84.9% on its own and this venture crossed it.
+        Crossing the ceiling itself throws inside `buildMirror`, which
+        `portfolio-validate` runs on every PR touching a venture page — so
+        it stops the whole catalogue validating, not just the tool that
+        crossed it, and 40 tools of runway is about a week at the rate the
+        fleet has been shipping.
+      - >-
+        Every byte-recovery mechanism the tree has is spent, measured
+        rather than assumed: `dedupeMirror` is running and has already
+        recovered 1,467,937 bytes by aliasing 438 duplicate names, with
+        `--headroom` and the test both reporting 0 recoverable duplicate
+        bytes left; `GZIP_LEVEL` is already 9; `*.test.mjs` is already
+        excluded. So `MIRROR_BYTE_CEILING` went 8 MiB -> 12 MiB, which is
+        the "genuine growth rather than waste" case its own comment leaves
+        open and not the waste-dodging raise it forbids. Both costs the
+        constant names carry it: 12 MiB of tmpfs against the pod's existing
+        192Mi memory limit is 6.25% (so unlike the 8 MiB raise, the limit is
+        deliberately NOT raised alongside — there is nothing to buy), and
+        12 MiB against a ~71 MB `.git` is the order of magnitude the 8 MiB
+        decision already accepted. Runway is now ~177 tools at 56.8%. The
+        seal (`portfolio-site-repo`) stays queued and stays the right
+        answer; the comment now says that a third raise, if this fires
+        again with duplicates still at zero, is not it.
+      - >-
+        One unit test moved with the constant and is worth naming because
+        it was not a real regression: `mirrorHeadroom warns below the
+        ceiling, not at it` builds its probe with
+        `Math.round(CEILING * RATIO)`, which at 8 MiB rounded up onto the
+        `>=` bound and at 12 MiB rounds down to 0.8499999. It now uses
+        `Math.ceil`, which is what "at the ratio" means for a `>=` bound and
+        is independent of the ceiling's value. The guard itself is
+        unchanged and `MIRROR_HEADROOM_WARN_RATIO` is still 0.85.
       - >-
         Verified locally (Actions runners starved per infra_state.yaml,
         re-read this session: still down). node --test
@@ -23353,11 +23461,11 @@ entries:
         platform/ci/agent_review && test_review) OK; python3 -m pytest
         portfolio/ledger portfolio/scoring portfolio/router
         portfolio/usage portfolio/pipeline infra/tests -q 435 passed;
-        python3 platform/ci/validate_workflows.py clean (287 files);
-        python3 portfolio/scoring/score_ventures.py --check clean (241
+        python3 platform/ci/validate_workflows.py clean (288 files);
+        python3 portfolio/scoring/score_ventures.py --check clean (242
         scored); python3 portfolio/usage/validate_usage.py clean (202
         products); python3 platform/ci/checklist_coverage.py clean; node
-        platform/pages/launched.mjs --write (232 tools, 1 added);
+        platform/pages/launched.mjs --write (233 tools, 1 added);
         regen.mjs run and the front-door mirror committed; and
         run_workflow_locally.py --tree across all 9 verification-only
         workflows.

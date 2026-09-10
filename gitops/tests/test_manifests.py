@@ -1458,14 +1458,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 230 since 2026-09-10, when `merchant-feed-check` also graduated the
     # same day — same shape again: a new venture with a static `index.html`
     # from its first commit, entering the mirror and the total together.
-    # 231 since 2026-09-10, when `email-auth-check` also graduated the same
+    # 231 since 2026-09-10, when `sri-check` also graduated the same day —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    # 232 since 2026-09-10, when `email-auth-check` also graduated the same
     # day — same shape again: a new venture with a static `index.html` from
     # its first commit, entering the mirror and the total together.
-    # 232 since 2026-09-10, when `staffing-markup-calculator` also graduated
+    # 233 since 2026-09-10, when `staffing-markup-calculator` also graduated
     # the same day — same shape again: a new venture with a static
     # `index.html` from its first commit, entering the mirror and the total
     # together.
-    total = 232  # `infra/OWNER_CHECKLIST.md`'s own "N of the 232 tools" wording.
+    total = 233  # `infra/OWNER_CHECKLIST.md`'s own "N of the 233 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

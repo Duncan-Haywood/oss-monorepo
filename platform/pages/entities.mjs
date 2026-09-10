@@ -42,6 +42,7 @@ export const NAMED_ENTITIES = Object.freeze({
   hellip: '…',
   middot: '·',
   bull: '•',
+  sect: '§',
 
   times: '×',
   divide: '÷',

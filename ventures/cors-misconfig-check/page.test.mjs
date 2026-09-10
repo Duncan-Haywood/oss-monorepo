@@ -92,6 +92,10 @@ test('index links to at least one sibling security-checker venture', () => {
   assert.match(html, /href="\.\.\/(actions-injection-check|pinned-actions-check)\/"/);
 });
 
+test('index links back to sri-check, which links here', () => {
+  assert.match(html, /href="\.\.\/sri-check\/"/);
+});
+
 test('a worked-example button exists as an alternative to running the CLI first', () => {
   assert.match(html, /id="load-example"/);
 });

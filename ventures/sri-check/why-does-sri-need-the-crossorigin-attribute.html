@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why an integrity attribute needs a crossorigin attribute too</title>
+<meta name="description" content="An integrity= hash on a cross-origin script or stylesheet does nothing in most browsers unless the tag also carries a crossorigin attribute -- why that is, how to tell, and how to check a page for the gap with a free tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/sri-check/why-does-sri-need-the-crossorigin-attribute.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to check whether an integrity attribute is actually being enforced",
+  "step": [
+    { "@type": "HowToStep", "name": "Find every cross-origin script/link tag on the page", "text": "Look for script tags with a src attribute, and link tags with rel=\"stylesheet\" plus an href attribute, whose URL points at a different origin than the page itself -- a CDN, a font host, a third-party widget." },
+    { "@type": "HowToStep", "name": "Check for both integrity and crossorigin together", "text": "An integrity attribute needs a crossorigin attribute (crossorigin=\"anonymous\" is the common choice) on the same tag. Per the Fetch spec, a cross-origin request has to opt into CORS mode before the browser is allowed to read enough about the response to check a hash against it." },
+    { "@type": "HowToStep", "name": "Understand what happens with one but not the other", "text": "integrity with no crossorigin: most browsers silently skip the check rather than enforcing it -- the tag looks protected in the page source and is not. crossorigin with no integrity: the request opts into CORS but nothing is verified -- there is simply no protection configured." },
+    { "@type": "HowToStep", "name": "Check a whole page automatically", "text": "A free CLI + browser tool that fetches a page, finds every cross-origin script/stylesheet tag, and reports which ones are missing integrity, missing crossorigin, or declare a hash that no longer matches what the CDN serves is at ../sri-check/." }
+  ]
+}
+</script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+</style>
+</head>
+<body>
+<h1>Why an integrity attribute needs a crossorigin attribute too</h1>
+
+<p>
+  Subresource Integrity lets a page declare the exact hash a cross-origin script or stylesheet
+  must have before a browser will run or apply it. It is easy to add the <code>integrity</code>
+  attribute and stop there, assuming the tag is now protected. In most browsers, it isn't -- not
+  without a second attribute most guides mention only in passing.
+</p>
+
+<h2>Why the browser needs permission to check at all</h2>
+<p>
+  Reading enough about a cross-origin response to verify a hash against it is itself a CORS-gated
+  operation, under the same Fetch spec that governs <code>Access-Control-Allow-Origin</code>.
+  A plain <code>&lt;script src="https://cdn.example.com/lib.js"&gt;</code> tag does not opt into
+  CORS mode by default -- it is what the spec calls a "no-cors" request. Adding
+  <code>crossorigin="anonymous"</code> (or <code>"use-credentials"</code>, for the rare case that
+  needs cookies sent) is what opts the request into CORS mode, which is the mode integrity
+  checking requires.
+</p>
+
+<h2>The two ways to get this half right and still be unprotected</h2>
+<table>
+<thead><tr><th>Tag has</th><th>What actually happens</th></tr></thead>
+<tbody>
+<tr><td><code>integrity</code>, no <code>crossorigin</code></td><td>Most browsers silently skip the integrity check rather than enforcing it. The page source looks protected; a visitor's browser is not checking anything.</td></tr>
+<tr><td><code>crossorigin</code>, no <code>integrity</code></td><td>The request opts into CORS mode, but there is no hash to check it against -- no protection is configured at all, just a slightly different network request.</td></tr>
+<tr><td>Both, correctly</td><td>The browser fetches the resource in CORS mode, hashes what it receives, and refuses to run or apply it if the hash does not match one of the declared values.</td></tr>
+</tbody>
+</table>
+
+<h2>Check a whole page automatically</h2>
+<p>
+  <a href="index.html">The checker on this site</a> fetches a page you name and every
+  cross-origin script/stylesheet tag it loads, and reports exactly which tags are missing
+  <code>integrity</code>, missing <code>crossorigin</code>, or declare a hash that no longer
+  matches what the CDN currently serves -- plus a standalone hash generator for fixing what it
+  finds. The page-fetching half runs as a Node CLI, since reading another site's full HTML from
+  browser JavaScript is itself restricted by CORS; the hash generator has no such limit, because
+  it only hashes content you paste in.
+</p>
+<p>
+  This is evidence about one specific protection, not a full security assessment -- see
+  <a href="index.html">the checker</a> and its disclaimer for what it does and doesn't cover.
+</p>
+
+<p><a href="index.html">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind,
+  express or implied. It is not security advice, and it does not replace a qualified security review.
+  To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p>Free and open source. <a href="LICENSE" rel="noopener">MIT licence</a> --
+  <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>
