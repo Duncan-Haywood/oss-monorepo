@@ -152,6 +152,9 @@ workflows:
 - workflow: cam-reconciliation-check-ci.yml
   classification: none
   publishes: []
+- workflow: canonical-tag-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: card-processing-fee-audit-ci.yml
   classification: none
   publishes: []
