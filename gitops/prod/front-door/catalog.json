@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 233,
-  "collection_total": 233,
+  "served_here": 234,
+  "collection_total": 234,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -41,6 +41,12 @@
       "tool_count": 20
     },
     {
+      "id": "backoffice",
+      "name": "Back-office money & contracts",
+      "url": "https://marisstella.dev/c/backoffice/",
+      "tool_count": 16
+    },
+    {
       "id": "marketplace",
       "name": "Marketplace seller tools",
       "url": "https://marisstella.dev/c/marketplace/",
@@ -50,12 +56,6 @@
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
-      "tool_count": 15
-    },
-    {
-      "id": "backoffice",
-      "name": "Back-office money & contracts",
-      "url": "https://marisstella.dev/c/backoffice/",
       "tool_count": 15
     },
     {
@@ -1596,6 +1596,14 @@
       "url": "https://marisstella.dev/tools/security-deposit-return-calculator/",
       "category": "More free tools",
       "description": "Free security deposit refund calculator: itemize deductions against a tenant's deposit and see the refund or balance due. Plus a prorated rent calculator for a partial first or last month. Entirely client-side, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "self-storage-rate-increase-calculator",
+      "name": "Self-Storage Rate Increase Calculator",
+      "url": "https://marisstella.dev/tools/self-storage-rate-increase-calculator/",
+      "category": "Back-office money & contracts",
+      "description": "Price an existing-customer rate increase (ECRI) at your storage facility: what one induced move-out really costs once the unit re-rents at street rate, and the move-out rate at which the increase stops paying. Free, private, nothing leaves your browser.",
       "pages": 2
     },
     {

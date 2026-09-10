@@ -9177,3 +9177,74 @@ ventures:
       a guarantee every browser will prompt to install. No account, no
       upload, no data retained anywhere but an anonymous local event
       count.
+
+  - slug: self-storage-rate-increase-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. An operator is going to send a
+      rate-increase letter off the back of this number and live with the
+      move-outs, so every step has to be one they can re-derive on paper
+      from their own management-software exports. Inference would make the
+      break-even less checkable without making it more correct, and a
+      model's guess at how many tenants leave over $17.70 a month would be
+      exactly the false precision the tool is built to refuse.
+    basis: >-
+      Screened 2026-09-10. `duplicate_check.py` scored the closest match
+      (`subscription-price-impact`) at 0.13 against the final description,
+      well under the 0.45 flag bar, and the top ten were all under 0.15.
+      Read rather than trusted: `subscription-price-impact` compares
+      recurring revenue at fixed churn scenarios for a SaaS operator. This
+      prices a self-storage existing-customer rate increase, where a lost
+      customer is not lost revenue at all -- the unit re-lets at the
+      street rate, usually above what the leaver was paying -- so the
+      arithmetic that matters is the cost of a turnover (lease-up
+      downtime, move-in concession, turn cost, less the re-rent uplift)
+      and the induced move-out rate that cost can absorb. Neither the
+      re-rent term nor the break-even move-out rate exists in the
+      subscription tool, and no self-storage row exists anywhere in
+      `ventures/` or in `screened-out.md`.
+      Autonomous ops 10 / gross margin 10: a static page with no build
+      step, no dependencies and no network requests, so one more user
+      costs a static file and needs no human in any loop.
+      Distribution 6: a narrow, monied audience -- roughly 50,000 US
+      self-storage facilities, the majority still single-facility
+      independents rather than REIT-managed -- with specific search
+      phrases ("self storage rate increase", "ECRI self storage", "how
+      much can I raise storage rent", "self storage rate increase
+      calculator"), plus r/selfstorage and the operator forums where ECRI
+      timing and size are a standing argument. Not higher because the
+      audience is smaller than a marketplace-seller or trade-contractor
+      one and the decision recurs quarterly rather than per job.
+      Time to revenue 6, defensibility 4: donations-only, and the
+      arithmetic is public. Defensibility rests on the framing -- pricing
+      a move-out at the gap rather than the rent, and reporting a
+      threshold rather than a forecast -- not on any moat. The paid
+      revenue-management vendors in this niche sell to facilities large
+      enough to buy software, which is the half of the market this does
+      not serve.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: everything runs in the visitor's browser on figures they type,
+      nothing is uploaded, and no third party's data is touched. The one
+      real exposure in this niche is legal rather than financial -- what
+      notice a lease and a state self-storage act require before an
+      increase takes effect -- and the tool makes no determination about
+      it: the page, the guide, the README and the FAQ each say plainly
+      that the lease and the state statute govern, and that this prices an
+      increase the operator has already confirmed they may make. Output is
+      phrased as an observation to act on (the move-out rate this would
+      have to survive), never as a decision made on the operator's behalf.
+      No account, no upload, no data retained anywhere but an anonymous
+      local event count.

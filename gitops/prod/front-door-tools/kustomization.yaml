@@ -33,19 +33,19 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556334 bytes
+#   portfolio-front-tools-0: 136 files, 556432 bytes
 #   portfolio-front-tools-1: 110 files, 555655 bytes
-#   portfolio-front-tools-2: 149 files, 548229 bytes
-#   portfolio-front-tools-3: 146 files, 556940 bytes
-#   portfolio-front-tools-4: 122 files, 555566 bytes
-#   portfolio-front-tools-5: 122 files, 556068 bytes
-#   portfolio-front-tools-6: 138 files, 552198 bytes
-#   portfolio-front-tools-7: 113 files, 557006 bytes
-#   portfolio-front-tools-8: 116 files, 553127 bytes
-#   portfolio-front-tools-9: 128 files, 553779 bytes
-#   portfolio-front-tools-10: 102 files, 542773 bytes
-#   portfolio-front-tools-11: 109 files, 548742 bytes
-#   portfolio-front-tools-12: 107 files, 514684 bytes
+#   portfolio-front-tools-2: 149 files, 548271 bytes
+#   portfolio-front-tools-3: 146 files, 556914 bytes
+#   portfolio-front-tools-4: 122 files, 555503 bytes
+#   portfolio-front-tools-5: 122 files, 556029 bytes
+#   portfolio-front-tools-6: 138 files, 552289 bytes
+#   portfolio-front-tools-7: 113 files, 557011 bytes
+#   portfolio-front-tools-8: 116 files, 553128 bytes
+#   portfolio-front-tools-9: 128 files, 553793 bytes
+#   portfolio-front-tools-10: 103 files, 553829 bytes
+#   portfolio-front-tools-11: 111 files, 553691 bytes
+#   portfolio-front-tools-12: 108 files, 520102 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1440,6 +1440,10 @@ configMapGenerator:
       - security-deposit-return-calculator__index.html.gz=security-deposit-return-calculator__index.html.gz
       - security-deposit-return-calculator__usage.mjs.gz=security-deposit-return-calculator__usage.mjs.gz
       - security-deposit-return-calculator__vs-turbotenant.html.gz=security-deposit-return-calculator__vs-turbotenant.html.gz
+      - self-storage-rate-increase-calculator__calc.mjs.gz=self-storage-rate-increase-calculator__calc.mjs.gz
+      - self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz=self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz
+      - self-storage-rate-increase-calculator__index.html.gz=self-storage-rate-increase-calculator__index.html.gz
+      - self-storage-rate-increase-calculator__usage.mjs.gz=self-storage-rate-increase-calculator__usage.mjs.gz
       - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
       - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
       - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
@@ -1497,14 +1501,14 @@ configMapGenerator:
       - shopify-permission-drift__compare.mjs.gz=shopify-permission-drift__compare.mjs.gz
       - shopify-permission-drift__index.html.gz=shopify-permission-drift__index.html.gz
       - shopify-permission-drift__usage.mjs.gz=shopify-permission-drift__usage.mjs.gz
-      - shopify-permission-drift__vs-miniorange.html.gz=shopify-permission-drift__vs-miniorange.html.gz
-      - siding-bid-calculator__calc.mjs.gz=siding-bid-calculator__calc.mjs.gz
-      - siding-bid-calculator__how-much-to-charge.html.gz=siding-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-permission-drift__vs-miniorange.html.gz=shopify-permission-drift__vs-miniorange.html.gz
+      - siding-bid-calculator__calc.mjs.gz=siding-bid-calculator__calc.mjs.gz
+      - siding-bid-calculator__how-much-to-charge.html.gz=siding-bid-calculator__how-much-to-charge.html.gz
       - siding-bid-calculator__index.html.gz=siding-bid-calculator__index.html.gz
       - siding-bid-calculator__share.mjs.gz=siding-bid-calculator__share.mjs.gz
       - siding-bid-calculator__usage.mjs.gz=siding-bid-calculator__usage.mjs.gz
@@ -1613,12 +1617,12 @@ configMapGenerator:
       - vehicle-wrap-bid-calculator__usage.mjs.gz=vehicle-wrap-bid-calculator__usage.mjs.gz
       - vehicle-wrap-bid-calculator__vs-shopvox.html.gz=vehicle-wrap-bid-calculator__vs-shopvox.html.gz
       - vending-machine-route-margin__calc.mjs.gz=vending-machine-route-margin__calc.mjs.gz
-      - vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz=vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz=vending-machine-route-margin__how-much-does-a-vending-machine-actually-make.html.gz
       - vending-machine-route-margin__index.html.gz=vending-machine-route-margin__index.html.gz
       - vending-machine-route-margin__share.mjs.gz=vending-machine-route-margin__share.mjs.gz
       - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz

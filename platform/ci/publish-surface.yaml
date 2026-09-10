@@ -713,6 +713,9 @@ workflows:
 - workflow: security-deposit-return-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: self-storage-rate-increase-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: seller-net-sheet-ci.yml
   classification: none
   publishes: []
