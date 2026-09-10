@@ -10,70 +10,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "f8dc132c3167081371d2039a899b7eb642b8e1fe",
-      "measured": "2026-09-09",
-      "pages": 866,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "39d8d0a5790389da6562e9cb6a6f3f330a30d197",
-      "measured": "2026-09-09",
-      "pages": 866,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "de542be65cb6ee4d6daa14acd2e2cfdc7d638ada",
-      "measured": "2026-09-09",
-      "pages": 868,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "eae120009e356e8f282f3cda41813eb3fafa68d4",
-      "measured": "2026-09-09",
-      "pages": 870,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "1b0dfe046ffc938e3d83c097d5f384add6332f77",
       "measured": "2026-09-09",
       "pages": 872,
@@ -336,6 +272,80 @@
         "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
         "platform/pages": "71d43faa241dd0d636ba0b661fe5b00156089bbf",
         "ventures": "6f375dfd4b7205c7a86952b5a0f02ed5e11b997f"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "e7ac56f6d5dd7e156a314d2945ddfac7451040fe",
+      "measured": "2026-09-10",
+      "pages": 887,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
+        "ventures": "6aacf3226bb540cea459fa45188370ccf58a109a"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
+      "measured": "2026-09-10",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "childcare-tuition-calculator",
+        "dog-walking-route-pricing",
+        "package-exports-drift-check"
+      ],
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
+        "ventures": "49f69ac3bebf27f030d84206ef0d3c1596214ba6"
+      }
+    },
+    {
+      "checks": [
+        "journey"
+      ],
+      "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
+      "measured": "2026-09-10",
+      "pages": 888,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
+        "ventures": "49f69ac3bebf27f030d84206ef0d3c1596214ba6"
+      }
+    },
+    {
+      "checks": [
+        "highlight"
+      ],
+      "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
+      "measured": "2026-09-10",
+      "pages": 888,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
+        "ventures": "49f69ac3bebf27f030d84206ef0d3c1596214ba6"
       }
     }
   ]
