@@ -39,8 +39,8 @@
 #   portfolio-front-tools-3: 146 files, 556541 bytes
 #   portfolio-front-tools-4: 122 files, 551610 bytes
 #   portfolio-front-tools-5: 123 files, 555955 bytes
-#   portfolio-front-tools-6: 135 files, 554594 bytes
-#   portfolio-front-tools-7: 111 files, 546698 bytes
+#   portfolio-front-tools-6: 135 files, 554917 bytes
+#   portfolio-front-tools-7: 112 files, 550756 bytes
 #   portfolio-front-tools-8: 119 files, 554857 bytes
 #   portfolio-front-tools-9: 125 files, 554621 bytes
 #   portfolio-front-tools-10: 102 files, 543788 bytes
@@ -918,6 +918,7 @@ configMapGenerator:
       - email-auth-check__index.html.gz=email-auth-check__index.html.gz
       - email-auth-check__lookup.mjs.gz=email-auth-check__lookup.mjs.gz
       - email-auth-check__usage.mjs.gz=email-auth-check__usage.mjs.gz
+      - email-auth-check__vs-mxtoolbox.html.gz=email-auth-check__vs-mxtoolbox.html.gz
       - entry-door-bid-calculator__calc.mjs.gz=entry-door-bid-calculator__calc.mjs.gz
       - entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz=entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz
       - entry-door-bid-calculator__index.html.gz=entry-door-bid-calculator__index.html.gz
@@ -1018,12 +1019,12 @@ configMapGenerator:
       - french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz=french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz
       - french-drain-bid-calculator__index.html.gz=french-drain-bid-calculator__index.html.gz
       - french-drain-bid-calculator__usage.mjs.gz=french-drain-bid-calculator__usage.mjs.gz
-      - french-drain-bid-calculator__vs-jobber.html.gz=french-drain-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - french-drain-bid-calculator__vs-jobber.html.gz=french-drain-bid-calculator__vs-jobber.html.gz
       - furnace-bid-calculator__calc.mjs.gz=furnace-bid-calculator__calc.mjs.gz
       - furnace-bid-calculator__how-much-to-charge-to-replace-a-furnace.html.gz=furnace-bid-calculator__how-much-to-charge-to-replace-a-furnace.html.gz
       - furnace-bid-calculator__index.html.gz=furnace-bid-calculator__index.html.gz
