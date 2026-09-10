@@ -842,6 +842,9 @@ workflows:
 - workflow: walmart-marketplace-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: wash-and-fold-price-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: water-heater-bid-calculator-ci.yml
   classification: none
   publishes: []

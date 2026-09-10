@@ -33,19 +33,19 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556176 bytes
-#   portfolio-front-tools-1: 112 files, 556445 bytes
-#   portfolio-front-tools-2: 147 files, 545205 bytes
-#   portfolio-front-tools-3: 145 files, 556868 bytes
-#   portfolio-front-tools-4: 124 files, 553816 bytes
-#   portfolio-front-tools-5: 129 files, 556479 bytes
-#   portfolio-front-tools-6: 126 files, 551056 bytes
-#   portfolio-front-tools-7: 109 files, 547837 bytes
-#   portfolio-front-tools-8: 120 files, 556809 bytes
-#   portfolio-front-tools-9: 124 files, 556589 bytes
-#   portfolio-front-tools-10: 99 files, 555979 bytes
-#   portfolio-front-tools-11: 109 files, 533410 bytes
-#   portfolio-front-tools-12: 56 files, 270876 bytes
+#   portfolio-front-tools-0: 136 files, 556210 bytes
+#   portfolio-front-tools-1: 112 files, 556453 bytes
+#   portfolio-front-tools-2: 147 files, 545245 bytes
+#   portfolio-front-tools-3: 145 files, 556918 bytes
+#   portfolio-front-tools-4: 124 files, 553838 bytes
+#   portfolio-front-tools-5: 129 files, 556608 bytes
+#   portfolio-front-tools-6: 126 files, 551055 bytes
+#   portfolio-front-tools-7: 109 files, 547844 bytes
+#   portfolio-front-tools-8: 120 files, 556813 bytes
+#   portfolio-front-tools-9: 124 files, 556615 bytes
+#   portfolio-front-tools-10: 99 files, 555980 bytes
+#   portfolio-front-tools-11: 112 files, 547966 bytes
+#   portfolio-front-tools-12: 56 files, 270802 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1595,6 +1595,9 @@ configMapGenerator:
       - walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz=walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz
       - walk-in-tub-bid-calculator__usage.mjs.gz=walk-in-tub-bid-calculator__usage.mjs.gz
       - walk-in-tub-bid-calculator__vs-housecall-pro.html.gz=walk-in-tub-bid-calculator__vs-housecall-pro.html.gz
+      - wash-and-fold-price-calculator__calculator.mjs.gz=wash-and-fold-price-calculator__calculator.mjs.gz
+      - wash-and-fold-price-calculator__index.html.gz=wash-and-fold-price-calculator__index.html.gz
+      - wash-and-fold-price-calculator__usage.mjs.gz=wash-and-fold-price-calculator__usage.mjs.gz
       - water-heater-bid-calculator__calc.mjs.gz=water-heater-bid-calculator__calc.mjs.gz
       - water-heater-bid-calculator__how-much-to-charge.html.gz=water-heater-bid-calculator__how-much-to-charge.html.gz
       - water-heater-bid-calculator__index.html.gz=water-heater-bid-calculator__index.html.gz

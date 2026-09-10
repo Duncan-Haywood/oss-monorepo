@@ -8721,3 +8721,65 @@ ventures:
       state plainly that a clean report is evidence from five specific
       requests, not a full security assessment or a determination that
       the target is secure.
+
+  - slug: wash-and-fold-price-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over rates the operator reads off their own
+      utility bills, payroll and machine specifications. There is no
+      inference step: the output is a sum, a division, and a ceiling
+      function for whole machine cycles.
+    basis: >-
+      Graduated 2026-09-10 as a free cost-per-pound and break-even
+      calculator for wash-dry-fold: labour minutes, wash and dry cycles
+      (costed stepwise, because a partly full machine costs a full cycle),
+      supplies, pickup-and-delivery stops and an allocated overhead share,
+      against the operator's current price per pound and minimum charge.
+      A niche the portfolio does not otherwise serve — the nearest existing
+      ventures cost a technician's stop list (pool-route-pricing,
+      dog-walking-route-pricing) or a cleaning contract by area
+      (janitorial-bid-calculator); neither costs a per-unit-weight processed
+      good. `duplicate_check.py` scored nothing at or above 0.21 on two
+      phrasings against any existing venture, pipeline candidate,
+      screened-out row, or ai-first-markets idea.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: the arithmetic is
+      commodity and any operator could build it in a spreadsheet. What is
+      not commodity is that nobody has — the laundry POS and route vendors
+      (Cents, CleanCloud, Curbside Laundries) take price per pound as an
+      input and sell a subscription around it.
+      Distribution 6: r/laundromat, the Coin Laundry Association's
+      community and the laundromat-owner Facebook groups carry recurring
+      "what should I charge per pound for WDF" and "is delivery worth it"
+      threads, and the search phrases ("wash and fold price per pound",
+      "how much should I charge for wash and fold") are the evergreen
+      version of the same question, asked at the predictable moment an
+      operator adds WDF or a delivery route.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool multiplies and adds numbers the operator supplies and
+      reports a cost floor — it states no tariff, no wage rule, no
+      benchmark price and no market rate, and both the page and the README
+      say the output is a cost floor rather than a recommended price.
+      Being wrong costs the operator a figure to check against their own
+      P&L, not a filing, a licence, or a third party's money. Ethically:
+      deterministic arithmetic, no dark patterns, nothing collected,
+      nothing inferred about any third party, and the party it helps is
+      the small operator competing with chains that already have a costing
+      model.
