@@ -1,0 +1,72 @@
+name: email-auth-check
+description: >-
+  A free zero-dependency CLI (+ a browser page) for small business owners,
+  freelance devs, and email marketers who run their own outbound mail: looks
+  up a domain's SPF, DKIM, DMARC, and BIMI DNS records over public
+  DNS-over-HTTPS and reports what each says and why it matters -- SPF's
+  RFC 7208 10-DNS-lookup limit (walked recursively through every include:/
+  redirect=, the single most common real-world SPF bug), a +all catch-all
+  that authorizes anyone to send as the domain, DKIM keys at nine common
+  selectors (and a revoked empty p= key), DMARC policy/pct/reporting/
+  alignment (p=none monitor-only being the most common gap that leaves a
+  domain spoofable while looking configured), and whether BIMI is honored by
+  DMARC enforcement. Evidence-first: every finding names the exact record or
+  tag read, never a bare pass/fail score.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A small business owner or freelance dev whose transactional/marketing
+      email is landing in spam will search plain-language phrases ("why is
+      my email going to spam", "spf dkim dmarc checker free", "spf too many
+      lookups", "dmarc checker") and land on this tool because it names the
+      exact DNS record and value behind each finding rather than a bare
+      pass/fail badge.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      r/emailmarketing, r/sysadmin, and r/msp_business carry real, recurring
+      questions about SPF/DKIM/DMARC misconfiguration (the >10-DNS-lookup
+      SPF permerror in particular is a well-known, frequently-asked-about
+      trap for anyone stacking marketing-tool includes), and a free,
+      zero-install, evidence-first checker that also ships a CI-gateable CLI
+      is under-served next to paid/gated SaaS checkers in that space.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      An MSP or freelance dev who gets a clean report for a client's domain
+      will wire the CLI into that client's own CI or a recurring cron job as
+      a regression gate, producing return usage without any action from this
+      portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: both the CLI (the user's own machine) and the
+  # browser page (the visitor's own browser) query Cloudflare's public DNS
+  # resolver directly. No server of ours is involved, so serving one more
+  # user costs a static file and nothing else.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - A materially better free, zero-install tool covering the same four
+    records with the same evidence-first (not bare pass/fail) framing and a
+    CI-gateable CLI becomes the obvious default, such that this tool's
+    differentiation no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/email-auth-check/
+  analytics: null

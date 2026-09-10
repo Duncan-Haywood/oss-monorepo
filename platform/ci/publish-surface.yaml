@@ -296,6 +296,9 @@ workflows:
 - workflow: electrical-panel-upgrade-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: email-auth-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: entry-door-bid-calculator-ci.yml
   classification: none
   publishes: []

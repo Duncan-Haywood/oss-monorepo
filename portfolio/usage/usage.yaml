@@ -4927,3 +4927,26 @@ products:
           are local, opt-in, off by default, and honor DNT/GPC, so zero
           is the expected reading for a tool nobody has visited or
           switched the counter on for yet.
+  - slug: email-auth-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-10
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route in the front-door mirror
+          (`/tools/email-auth-check/`) from its first commit: an SPF
+          (recursive RFC 7208 10-lookup budget), DKIM (nine common
+          selectors), DMARC, and BIMI checker for small business owners,
+          freelance devs, and email marketers running their own outbound
+          mail. First-visitor channel is r/emailmarketing, r/sysadmin,
+          and r/msp_business, plus the search phrases "why is my email
+          going to spam", "spf too many lookups", "dmarc checker", and
+          "spf dkim dmarc checker free". Counts are local, opt-in, off
+          by default, and honor DNT/GPC, so zero is the expected reading
+          for a tool nobody has visited or switched the counter on for
+          yet.

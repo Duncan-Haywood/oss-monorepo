@@ -22,7 +22,7 @@
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "featureList": [
     "Generates a sha256/sha384/sha512 integrity= value from pasted script or stylesheet content, entirely in your browser",
-    "CLI fetches a page and finds every <script src> / <link rel=stylesheet href> tag loaded from a different origin",
+    "CLI fetches a page and finds every script tag with a src attribute and stylesheet link tag loaded from a different origin",
     "Flags a cross-origin tag with no integrity attribute at all",
     "Flags an integrity attribute with no crossorigin attribute, which most browsers silently fail to enforce",
     "Re-fetches each asset that declares a hash and flags one that no longer matches what the CDN serves right now",
@@ -193,7 +193,7 @@
       const value = integrityValue(algo, hash);
       els.hashOutput.hidden = false;
       els.hashOutput.textContent = `integrity="${value}" crossorigin="anonymous"`;
-      els.hashStatus.textContent = 'Paste that whole attribute pair onto your <script> or <link> tag.';
+      els.hashStatus.textContent = 'Paste that whole attribute pair onto your script or link tag.';
       recordUsage(localStorage, optedOut(), 'hash_generated');
     } catch (err) {
       els.hashStatus.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;

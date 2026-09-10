@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 231,
-  "collection_total": 231,
+  "served_here": 232,
+  "collection_total": 232,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 23
+      "tool_count": 24
     },
     {
       "id": "evidence",
@@ -949,6 +949,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a 100A to 200A electrical panel or service upgrade from feeder feet, circuit landing, AFCI/GFCI, underground vs overhead, grounding, meter socket, and temporary power — not a published price per amp. See the walk-away number before you match a cheaper panel-swap quote.",
       "pages": 3
+    },
+    {
+      "slug": "email-auth-check",
+      "name": "Email Authentication Checker — Free SPF, DKIM, DMARC & BIMI Checker",
+      "url": "https://marisstella.dev/tools/email-auth-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free SPF, DKIM, DMARC and BIMI checker: paste any domain and get a plain-English report on why your email might be going to spam, with the exact DNS record read and what it means. Nothing uploaded -- your browser queries public DNS directly.",
+      "pages": 1
     },
     {
       "slug": "entry-door-bid-calculator",
