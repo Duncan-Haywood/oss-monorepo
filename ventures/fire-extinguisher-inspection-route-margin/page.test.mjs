@@ -19,7 +19,18 @@ test('the page imports calculate, computeRouteProfit, and incomeGap from calc.mj
 test('the page wires usage counting for both the site and route calculators', () => {
   assert.match(html, /recordEvent\('site-priced'\)/);
   assert.match(html, /recordEvent\('route-check'\)/);
-  assert.match(html, /<code>site-priced<\/code>, <code>route-check<\/code>/);
+  assert.match(html, /<code>site-priced<\/code>, <code>route-check<\/code>, <code>link-copied<\/code>, <code>reset<\/code>/);
+});
+
+test('the page wires save-and-share for the visit inputs, matching sibling route calculators', () => {
+  assert.match(html, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  assert.match(html, /id="copyLink"/);
+  assert.match(html, /id="reset"/);
+  assert.match(html, /id="linkStatus"/);
+  assert.match(html, /id="draftStatus"/);
+  assert.match(html, /recordEvent\('link-copied'\)/);
+  assert.match(html, /recordEvent\('reset'\)/);
+  assert.match(html, /DRAFT_KEY = 'fire-extinguisher-inspection-route-margin-visit-draft'/);
 });
 
 test('the default site inputs match calc.mjs DEFAULTS and produce a positive profit', () => {
@@ -56,9 +67,10 @@ test('the page carries the standard sponsor link and a LICENSE link, and counts 
   assert.match(html, /recordEvent\('sponsor_link_clicked'\)/);
 });
 
-test('the privacy line names both stored event types and says nothing is uploaded or saved', () => {
-  assert.match(html, /never uploaded/);
-  assert.match(html, /nothing is saved when you close the tab/);
+test('the privacy line names all four stored event types, and distinguishes saved/shareable visit inputs from never-saved site rows', () => {
+  assert.match(html, /nothing is ever uploaded/);
+  assert.match(html, /are saved locally on this device/);
+  assert.match(html, /Your site rows are a different promise: they are never saved anywhere/);
 });
 
 test('the site result panel announces recalculation to screen readers', () => {
