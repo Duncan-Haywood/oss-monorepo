@@ -152,6 +152,9 @@ workflows:
 - workflow: cabinet-refinishing-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cache-control-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: cam-reconciliation-check-ci.yml
   classification: none
   publishes: []
