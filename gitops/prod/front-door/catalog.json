@@ -956,7 +956,7 @@
       "url": "https://marisstella.dev/tools/email-auth-check/",
       "category": "CI checks & developer gates",
       "description": "Free SPF, DKIM, DMARC and BIMI checker: paste any domain and get a plain-English report on why your email might be going to spam, with the exact DNS record read and what it means. Nothing uploaded -- your browser queries public DNS directly.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "entry-door-bid-calculator",

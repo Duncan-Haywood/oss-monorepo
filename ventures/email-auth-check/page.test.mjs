@@ -96,3 +96,57 @@ test('DMARC p=none is explained as the common spoofable-but-configured-looking g
   assert.match(html, /p=none/);
   assert.match(html, /monitor-only/);
 });
+
+// --- the SPF PermError guide page -------------------------------------------
+//
+// The guide is this venture's organic-search surface: the query a reader types
+// ("spf too many dns lookups", "spf permerror") before they know a checker
+// exists. `guide-coverage.mjs` only asks whether a secondary page is present,
+// so these assertions pin the parts that make it useful rather than merely
+// present -- the inbound link, the FAQ/JSON-LD agreement Google's policy
+// requires, and the clauses every published page here carries.
+
+const guideUrl = new URL('./how-to-fix-spf-too-many-dns-lookups.html', import.meta.url);
+const guide = readFileSync(fileURLToPath(guideUrl), 'utf8');
+
+test('the tool page links to the SPF lookup-limit guide', () => {
+  assert.match(html, /href="how-to-fix-spf-too-many-dns-lookups\.html"/);
+});
+
+test('the guide links back to the tool it belongs to', () => {
+  assert.match(guide, /href="\.\/"/);
+});
+
+test('the guide declares a canonical URL matching its own filename', () => {
+  assert.match(guide, /<link rel="canonical" href="\.\/how-to-fix-spf-too-many-dns-lookups\.html">/);
+});
+
+test('every guide FAQPage question is also a visible heading on the guide', () => {
+  const faq = jsonLdBlocks(guide).map((b) => JSON.parse(b)).find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'guide is missing FAQPage JSON-LD');
+  assert.ok(faq.mainEntity.length >= 4);
+  for (const q of faq.mainEntity) {
+    assert.ok(guide.includes(q.name), `guide FAQ question not visible on page: "${q.name}"`);
+  }
+});
+
+test('the guide carries the no-warranty and not-affiliated clauses', () => {
+  assert.match(guide, /No warranty/);
+  assert.match(guide, /provided free and as-is, without warranty/);
+  assert.match(guide, /not email deliverability, security, or DNS configuration/);
+  assert.match(guide, /Not affiliated with, endorsed by, or sponsored by/);
+});
+
+test('the guide names the limit and its RFC section rather than asserting it bare', () => {
+  assert.match(guide, /10 DNS lookups/);
+  assert.match(guide, /RFC 7208/);
+  assert.match(guide, /4\.6\.4/);
+});
+
+test('the guide states the flattening tradeoff rather than recommending it unqualified', () => {
+  assert.match(guide, /freezes your (?:sending )?provider/i);
+});
+
+test('the guide keeps the sponsor link optional and correctly targeted', () => {
+  assert.match(guide, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
+});
