@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GitHub Actions OIDC Trust Policy Checker — AWS sub/aud conditions</title>
+<meta name="description" content="Free tool: paste an AWS IAM role trust policy and see whether its GitHub Actions OIDC conditions actually restrict which repository, branch or environment can assume the role. Catches a missing sub condition, a wildcard that spans repositories, repo:org/name:* (which includes pull requests from forks), and a literal * under StringEquals. Nothing is uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/oidc-trust-policy-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="GitHub Actions OIDC Trust Policy Checker">
+<meta property="og:description" content="Paste an AWS IAM trust policy and get a plain-English report on whether its sub and aud conditions really pin the role to your repository. Free, local, no upload.">
+<meta property="og:url" content="https://example.invalid/oidc-trust-policy-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "GitHub Actions OIDC Trust Policy Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser); a Node.js CLI runs the same checks in CI",
+  "description": "Reads an AWS IAM role trust policy that federates GitHub Actions over OIDC and classifies its sub and aud conditions into named misconfiguration patterns: no sub condition at all, a wildcard spanning repositories, repo:owner/name:* (which admits the pull_request context and therefore forks), an explicit pull_request context, a negated operator that excludes instead of pinning, a missing or wildcarded aud, and a literal asterisk under StringEquals that makes the role unassumable.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Runs entirely in your browser -- the policy, and the AWS account id in it, are never uploaded",
+    "Flags a trust policy that pins aud but leaves sub unconstrained, which any repository on GitHub can assume",
+    "Distinguishes StringLike (where * is a wildcard) from StringEquals (where * is a literal and the role fails closed)",
+    "Reports the widest value in a multi-value sub condition, because IAM grants when any one of them matches",
+    "Explains that repo:owner/name:* admits the pull_request context, so a fork's pull request can assume the role",
+    "Flags a negated operator on sub, which excludes the listed values and permits everything else",
+    "Zero-dependency Node.js CLI for the same checks as a CI gate, with no AWS credentials required"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "My trust policy pins the aud claim to sts.amazonaws.com. Isn't that enough?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No, and this is the most expensive misreading of this policy shape. Every AWS and GitHub Actions OIDC integration in the world uses the audience sts.amazonaws.com — it identifies which service the token is for, not which repository issued it. A policy that pins aud and leaves sub unconstrained is assumable by a GitHub Actions workflow in any repository on GitHub. Pinning aud is necessary and it is not isolation; the sub claim is the only condition that says which repository." }
+    },
+    {
+      "@type": "Question",
+      "name": "What is wrong with sub set to repo:my-org/my-repo:*?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It pins the repository but not the context, and GitHub's sub claim carries the context in that final segment. So the pattern matches every branch, every tag, every environment — and repo:my-org/my-repo:pull_request, which GitHub issues to workflows triggered by a pull request. On a public repository, or any repository that accepts forks, that means someone with no write access can open a pull request and have its workflow assume your role. Pin a ref (repo:owner/name:ref:refs/heads/main) or an environment instead." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does a wildcard under StringEquals show up as a notice rather than a danger?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because IAM only treats * and ? as wildcards under the StringLike family of operators. Under StringEquals they are ordinary characters, so a condition of StringEquals sub = repo:org/name:* is asking for a sub claim whose last character is literally an asterisk. No GitHub token ever carries that, so the condition never matches and the role cannot be assumed at all. That fails closed: it is a broken deployment, not an exposure, and a checker that reported it as an open wildcard would send you to fix the opposite of the real problem." }
+    },
+    {
+      "@type": "Question",
+      "name": "I listed four pinned branches in my sub condition. Why is it still flagged?",
+      "acceptedAnswer": { "@type": "Answer", "text": "IAM grants access when any one value in the list matches, so a multi-value sub condition is exactly as permissive as its widest entry. Four tightly pinned branches plus one repo:org/name:* is as open as the wildcard alone, and reading the list from the top finds the four good rows first. This tool reports which entry actually governs rather than the first one it sees." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this send my trust policy anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The page parses and classifies the policy in your own browser using JavaScript loaded from this site, and makes no network request with the content. That matters here more than usual: a trust policy contains your AWS account id, your role name, and the names of your repositories. The Node.js CLI is the same code and also makes no network request of any kind — it reads a file and exits, so it needs no AWS credentials and works offline." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean my OIDC setup is secure?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This reads the trust policy only — the door, not the room behind it. It cannot see what permissions the role grants once assumed, who can push to the branch you pinned, whether a protected environment actually has reviewers configured, or whether your organisation has customised the OIDC subject claim. A role correctly pinned to a branch that any contributor can push to is still reachable by any contributor. Treat a clean report as evidence about these specific conditions, not a determination that the setup is secure." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 0.6rem; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; overflow-wrap: anywhere; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  td code, p code { overflow-wrap: anywhere; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>GitHub Actions OIDC Trust Policy Checker</h1>
+<p>
+  Paste an AWS IAM role trust policy and find out whether its conditions actually restrict
+  <strong>which repository, branch or environment</strong> can assume the role. The common failures are
+  quiet ones: a policy that pins <code>aud</code> and leaves <code>sub</code> unconstrained is assumable by
+  <strong>any repository on GitHub</strong>; <code>repo:my-org/my-repo:*</code> admits the
+  <code>pull_request</code> context and therefore <strong>a fork's pull request</strong>; and a
+  <code>*</code> under <code>StringEquals</code> is a literal character, so the role
+  <strong>cannot be assumed at all</strong>. Each of those looks approximately correct in a policy review.
+</p>
+<p class="status-note">
+  <strong>Nothing is uploaded.</strong> Your policy is parsed here, in your browser. That matters more than
+  usual for this input: a trust policy carries your AWS account id, your role name and your repository names.
+</p>
+
+<div class="card">
+  <h2>Paste your trust policy</h2>
+  <p class="status-note">
+    In the console: IAM → Roles → your role → <em>Trust relationships</em>. Or on the command line —
+    this is the whole document, and the command needs only read access:
+  </p>
+  <pre class="cmd"><code>aws iam get-role --role-name my-deploy-role --query Role.AssumeRolePolicyDocument</code></pre>
+  <textarea id="policy" spellcheck="false" aria-label="AWS IAM trust policy JSON" placeholder='{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Principal": {"Federated": "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"}, "Action": "sts:AssumeRoleWithWebIdentity", "Condition": {...}}]}'></textarea>
+  <p>
+    <button type="button" class="primary" id="check">Check this policy</button>
+    <button type="button" id="load-example">Load worked example (over-permissive)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Paste the trust policy above and click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <p class="status-note" id="scope-note"></p>
+</section>
+
+<div class="card">
+  <h2>Run it in CI instead</h2>
+  <p>
+    The same classifier ships as a zero-dependency Node.js CLI, so a pull request that widens a trust
+    policy can fail a check rather than being noticed later. It makes <strong>no network request</strong> and
+    needs <strong>no AWS credentials</strong> — it reads a file and exits, so it runs offline:
+  </p>
+  <pre class="cmd"><code>node check.mjs trust-policy.json
+# or straight from the AWS CLI:
+aws iam get-role --role-name my-deploy-role \
+  --query Role.AssumeRolePolicyDocument | node check.mjs -</code></pre>
+  <p class="status-note">
+    Exit code 0 when no danger-level finding is present, 1 when there is one — so it works as a gate as it
+    stands. Get
+    <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/oidc-trust-policy-check" rel="noopener">check.mjs and analyze.mjs from the repo</a>.
+  </p>
+</div>
+
+<section class="card">
+  <h2>What the sub claim looks like</h2>
+  <p>
+    Every pattern this tool reasons about comes from the shape of GitHub's <code>sub</code> claim. In its
+    default form it is <code>repo:&lt;owner&gt;/&lt;repo&gt;:&lt;context&gt;</code>, and the context is the part
+    that decides whether a stranger's pull request is included:
+  </p>
+  <table>
+    <tbody>
+      <tr><th><code>ref:refs/heads/main</code></th><td>a push or workflow run on that branch</td></tr>
+      <tr><th><code>ref:refs/tags/v1.2.3</code></th><td>a workflow run for that tag</td></tr>
+      <tr><th><code>environment:production</code></th><td>a job targeting that environment — the one context that can carry required reviewers</td></tr>
+      <tr><th><code>pull_request</code></th><td>a workflow triggered by a pull request, <strong>including one opened from a fork</strong></td></tr>
+    </tbody>
+  </table>
+  <p class="status-note">
+    An organisation can customise which claims the issuer includes, in which case a policy written against it
+    will legitimately not match this shape — the report says so rather than guessing.
+    <a href="sub-claim-and-wildcard-traps.html">The longer walkthrough of these traps</a> works through each one
+    with the policy that produces it.
+  </p>
+</section>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>My trust policy pins the aud claim to sts.amazonaws.com. Isn't that enough?</h3>
+  <p>No, and this is the most expensive misreading of this policy shape. Every AWS and GitHub Actions OIDC integration in the world uses the audience <code>sts.amazonaws.com</code> — it identifies which service the token is for, not which repository issued it. A policy that pins <code>aud</code> and leaves <code>sub</code> unconstrained is assumable by a GitHub Actions workflow in any repository on GitHub. Pinning <code>aud</code> is necessary and it is not isolation; the <code>sub</code> claim is the only condition that says which repository.</p>
+  <h3>What is wrong with sub set to <code>repo:my-org/my-repo:*</code>?</h3>
+  <p>It pins the repository but not the context, and GitHub's <code>sub</code> claim carries the context in that final segment. So the pattern matches every branch, every tag, every environment — and <code>repo:my-org/my-repo:pull_request</code>, which GitHub issues to workflows triggered by a pull request. On a public repository, or any repository that accepts forks, that means someone with no write access can open a pull request and have its workflow assume your role. Pin a ref (<code>repo:owner/name:ref:refs/heads/main</code>) or an environment instead.</p>
+  <h3>Why does a wildcard under StringEquals show up as a notice rather than a danger?</h3>
+  <p>Because IAM only treats <code>*</code> and <code>?</code> as wildcards under the <code>StringLike</code> family of operators. Under <code>StringEquals</code> they are ordinary characters, so a condition of <code>StringEquals sub = repo:org/name:*</code> is asking for a <code>sub</code> claim whose last character is literally an asterisk. No GitHub token ever carries that, so the condition never matches and the role cannot be assumed at all. That fails closed: it is a broken deployment, not an exposure, and a checker that reported it as an open wildcard would send you to fix the opposite of the real problem.</p>
+  <h3>I listed four pinned branches in my sub condition. Why is it still flagged?</h3>
+  <p>IAM grants access when any one value in the list matches, so a multi-value <code>sub</code> condition is exactly as permissive as its widest entry. Four tightly pinned branches plus one <code>repo:org/name:*</code> is as open as the wildcard alone, and reading the list from the top finds the four good rows first. This tool reports which entry actually governs rather than the first one it sees.</p>
+  <h3>Does this send my trust policy anywhere?</h3>
+  <p>No. The page parses and classifies the policy in your own browser using JavaScript loaded from this site, and makes no network request with the content. That matters here more than usual: a trust policy contains your AWS account id, your role name, and the names of your repositories. The Node.js CLI is the same code and also makes no network request of any kind — it reads a file and exits, so it needs no AWS credentials and works offline.</p>
+  <h3>Does a clean report mean my OIDC setup is secure?</h3>
+  <p>No. This reads the trust policy only — the door, not the room behind it. It cannot see what permissions the role grants once assumed, who can push to the branch you pinned, whether a protected environment actually has reviewers configured, or whether your organisation has customised the OIDC subject claim. A role correctly pinned to a branch that any contributor can push to is still reachable by any contributor. Treat a clean report as evidence about these specific conditions, not a determination that the setup is secure.</p>
+</section>
+
+<script type="module">
+  import { analyzeTrustPolicyText } from './analyze.mjs';
+  import { recordUsage } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    policy: $('#policy'), status: $('#status'), reportCard: $('#report-card'),
+    verdict: $('#verdict'), findings: $('#findings'), scopeNote: $('#scope-note'),
+  };
+
+  // Deliberately over-permissive, and deliberately plausible: it pins `aud`,
+  // it names a real-looking repository, and it reads as "locked down" at a
+  // glance. Both of its danger findings are the ones this tool exists for.
+  const EXAMPLE = {
+    Version: '2012-10-17',
+    Statement: [
+      {
+        Sid: 'GitHubActionsDeploy',
+        Effect: 'Allow',
+        Principal: {
+          Federated: 'arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com',
+        },
+        Action: 'sts:AssumeRoleWithWebIdentity',
+        Condition: {
+          StringEquals: {
+            'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
+          },
+          StringLike: {
+            'token.actions.githubusercontent.com:sub': [
+              'repo:my-org/deploy-service:ref:refs/heads/main',
+              'repo:my-org/deploy-service:*',
+            ],
+          },
+        },
+      },
+    ],
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  /** The finding details quote policy fragments in backticks so one string
+   *  serves both the terminal and this page; render those as <code>. */
+  function withCode(text) {
+    return escapeHtml(text).replace(/`([^`]+)`/g, (_, inner) => `<code>${inner}</code>`);
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.dangerCount > 0 ? 'bad' : 'ok'}`;
+
+    if (report.dangerCount > 0) {
+      els.verdict.textContent = `${report.dangerCount} danger-level finding(s), ${report.noticeCount} notice(s).`;
+    } else if (report.noticeCount > 0) {
+      els.verdict.textContent = `No danger-level findings. ${report.noticeCount} notice(s) worth a look.`;
+    } else {
+      els.verdict.textContent = 'None of the patterns this tool checks for were found.';
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No findings to show.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+          <p>${withCode(f.detail)}</p>
+          <p class="evidence">${escapeHtml(f.evidence)}</p>
+        </div>`).join('');
+
+    const skipped = report.statementsSkipped
+      ? ` ${report.statementsSkipped} statement(s) were skipped as unrelated to GitHub OIDC.`
+      : '';
+    els.scopeNote.textContent =
+      `Analysed ${report.statementsAnalysed} GitHub OIDC statement(s).${skipped}` +
+      ' This reads the trust policy only — not the permissions the role grants, and not who can push to the ref you pinned.';
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function runCheck(text, event) {
+    const report = analyzeTrustPolicyText(text);
+
+    // A parse failure with no findings is a dead end rather than a report:
+    // say what is wrong in the status line and leave the last good report
+    // hidden, so a stale verdict cannot be read as this policy's.
+    if (report.parseError && report.findings.length === 0) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(report.parseError)}</span>`;
+      els.reportCard.hidden = true;
+      return;
+    }
+
+    render(report);
+    els.status.textContent = '';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+  }
+
+  $('#check').addEventListener('click', () => {
+    const text = els.policy.value.trim();
+    if (!text) {
+      els.status.innerHTML = '<span class="error">Paste your trust policy JSON first.</span>';
+      els.reportCard.hidden = true;
+      return;
+    }
+    runCheck(text, 'check_run');
+  });
+
+  $('#load-example').addEventListener('click', () => {
+    const text = JSON.stringify(EXAMPLE, null, 2);
+    els.policy.value = text;
+    runCheck(text, 'example_loaded');
+    els.status.textContent =
+      'Worked example: the second sub value widens the first one back out to any ref, including pull_request.';
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.policy.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Paste the trust policy above and click Check.';
+  });
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific set of documented
+  conditions on one trust policy. It is not a full security assessment, cannot see the permissions
+  the role grants once assumed, cannot see who is able to push to a branch you have pinned, and
+  cannot see a pattern it does not check for. A clean report describes what these conditions say,
+  not a guarantee that the setup is secure.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to review any policy you
+  paste into it. To the maximum extent permitted by law, the authors accept no liability for any
+  loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The policy you paste is parsed and classified on
+  this page by JavaScript served from this site; it is never uploaded, and no request carries it
+  anywhere. That is deliberate — a trust policy names your AWS account, your role and your
+  repositories. The only thing stored is an anonymous local count of which features were used and
+  the day: no policies, no account ids, no repository names, no account, no tracking cookies, no
+  analytics vendor. Turn it off with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>The other half of this is the workflow file:
+  <a href="../actions-permissions-check/">Actions permissions checker</a> finds jobs running with the
+  ambient <code>GITHUB_TOKEN</code> permissions, and
+  <a href="../actions-self-hosted-exposure-check/">self-hosted runner exposure checker</a> finds
+  self-hosted jobs on fork-triggered events — the same trust boundary this page reads from the
+  cloud side.</p>
+</footer>
+</body>
+</html>
