@@ -24288,3 +24288,104 @@ entries:
         (#4480, #4481, #4482 the crown-molding duplicate, #4483, #4485); each
         was merged in and re-verified rather than raced against.
     mrr_end: 0
+  - venture: social-preview-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "direction setting" brief; DIRECTION.md's own north star
+        and "Before rewriting this brief again" section were both current
+        (last substantive rewrite same day, commit 2737beca8), so per that
+        section's own instruction this session built instead of restating
+        it. session_gate.py said PROCEED, the build-now pipeline
+        (candidates.yaml) was empty of unbuilt items, pages_state.py showed
+        the published snapshot current, and there were zero open PRs -- so
+        per DIRECTION.md's fast-scan priority order, screening and
+        graduating a fresh niche was the correct next action.
+      - >-
+        Graduated a new venture: a free CLI (+ browser report-viewer, plus a
+        standalone in-browser image-dimension tool) that fetches a page's
+        Open Graph/Twitter Card meta tags and enough of its
+        og:image/twitter:image to read the real pixel dimensions out of the
+        image file's own byte header (PNG/JPEG baseline+progressive/GIF/WebP
+        VP8+VP8L+VP8X, all decoded from scratch, zero dependency), then
+        classifies missing tags, a relative og:image URL (Open Graph
+        requires it be absolute), an image below Facebook's/Twitter's
+        documented minimum size, a duplicated og:*/twitter:* tag, and an
+        og:url mismatch -- applying the twitter:image/title/description ->
+        og:* fallback chain platforms document rather than flagging a
+        missing twitter:image as an error on its own. Picked the
+        CLI/checker archetype per pipeline/README.md's "archetype itself"
+        section over a 239th <trade>-bid-calculator, and a niche distinct
+        from the fleet's existing developer-checker family (reads a
+        different metadata surface than cors-misconfig-check/
+        security-headers-check/sri-check/structured-data-drift-check: none
+        of them reads og:*/twitter:* tags or decodes an image file's byte
+        header). Named channel: r/webdev, r/SEO, r/marketing,
+        r/DigitalMarketing, and Stack Overflow, where "og:image not
+        showing", "twitter card validator not working", "linkedin post
+        inspector alternative" and "slack link preview broken" are real,
+        recurring search phrases and threads.
+      - >-
+        Screened with duplicate_check.py before any code was written:
+        top match was pwa-installability-check at 0.11 (security-headers-
+        check also 0.11), well under the 0.45 flag bar -- nothing in
+        screened-out.md or the existing venture set reads Open Graph or
+        Twitter Card tags. Scored per pipeline/README.md's 8-dimension
+        rubric: composite 6.875, floor 1 on ai_leverage (no AI in the
+        product, deliberately -- deterministic tag parsing and byte-level
+        image decoding), both gates (liability_containment 8,
+        ethical_robustness 9) pass with room. Full write-up in
+        portfolio/pipeline/candidates/social-preview-check.md; candidates.yaml
+        entry and README.md table row (#24) added in the same commit.
+      - >-
+        Verified before pushing: check_no_payment_code.py, router/validate.py
+        clean. `node --test` in the venture (87 assertions across
+        metatags/imagesize/analyze/probe/check/usage/page) all pass, covering
+        every finding's true-positive and true-negative case plus the
+        fallback-chain edge cases. `node --test` across platform/marketing,
+        platform/pages, platform/proposal, platform/privacy, platform/webcheck:
+        1206 + 101 + 79 all pass (two rounds -- the first caught the venture
+        landing in the "catch-all" category past its 5-tool bound, its FAQ
+        JSON-LD not matching its own visible text verbatim, no launch date,
+        and 1 sibling-link orphan; all four fixed forward in the same commit:
+        filed under the `ci` category alongside its closest developer-checker
+        siblings, made the visible FAQ prose byte-identical to the JSON-LD
+        answers, ran `launched.mjs --write`, and added a reciprocal link from
+        structured-data-drift-check). `python3 -m pytest gitops/tests`
+        initially failed the mirrored-tool count (237 -> 238) -- fixed
+        forward across the four places CLAUDE.md names (OWNER_CHECKLIST.md,
+        aggregate.py, default.conf x2, and test_manifests.py's own pinned
+        constant), then reran clean (532 passed/25 skipped). The full
+        `platform/ci` unittest sweep (37 modules via `python3 -m unittest`)
+        initially failed two of the same shape -- `test_validate_workflows.py`
+        (no per-venture CI workflow yet; added `social-preview-check-ci.yml`,
+        copied from `security-headers-check-ci.yml`) and `test_publish_surface.py`
+        (new workflow not yet classified; added a `classification: none` row
+        to publish-surface.yaml) -- both fixed forward, then reran clean.
+        `score_ventures.py --check` and its own unit tests, and
+        `test_allocate.py`'s merit-coverage test, likewise failed until the
+        `venture-scores.yaml` row was added, then passed.
+        `pytest portfolio/pipeline portfolio/scoring portfolio/router
+        portfolio/usage`: 155 passed. `run_workflow_locally.py --for-changes`:
+        13/16 selected workflows fully green; the 3 not run are external/
+        deploy jobs this runner correctly skips (agent-cross-review.yml's
+        three reviewer jobs, hetzner-gitops-ci.yml, portfolio-pages.yml's
+        deploy job, publish-pages-branch.yml) -- the sole apparent failure,
+        pages.yml, is the same pre-diagnosed non-defect the
+        security-headers-check and carpet-install-bid-calculator entries
+        above already recorded: its "Build the site" step contains a
+        `${{ }}` expression this local runner cannot evaluate, so the
+        downstream link-check step correctly reports no `_site` directory.
+        Browser checks (`browser_checks.py --only social-preview-check`,
+        after `npm install --no-save playwright@1.56.0 axe-core`): first run
+        found a real WCAG 1.4.10 reflow defect (`sideways`, +28px at 360px --
+        a long unbroken URL in FAQ prose with no break opportunity, not the
+        `pre.cmd` install-command block reflow.mjs already handles); fixed
+        with `overflow-wrap: anywhere` on both pages, reran clean: 6 of 7
+        checks passed (sideways, presets, roundtrip, contrast, sweep,
+        journey), `highlight` skipped (this tool makes no highlight
+        promise). Not run: the whole-catalogue `--record` sweep, which
+        `browser_state.py` already reported stale for reasons predating this
+        branch.
+    mrr_end: 0

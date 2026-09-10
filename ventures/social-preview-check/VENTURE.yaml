@@ -1,0 +1,73 @@
+name: social-preview-check
+description: >-
+  A free CLI (+ a browser report viewer, and a standalone in-browser image-
+  dimension checker) for web developers, marketers and content creators:
+  fetches a page's Open Graph and Twitter Card meta tags, fetches enough of
+  its og:image/twitter:image to read the real pixel dimensions out of the
+  image file's own header, and classifies the result into named social-
+  link-preview problems -- missing og:title/og:description/image, a
+  relative og:image URL (the Open Graph protocol requires it be absolute),
+  an image below Facebook's or Twitter's documented minimum size, a missing
+  twitter:card, a duplicated og:*/twitter:* tag from a CMS plugin colliding
+  with a hand-written one, and an og:url that doesn't match the page
+  checked. Applies the twitter:image/title/description -> og:* fallback
+  chain platforms document, rather than flagging a missing twitter:image as
+  a problem on its own.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      A developer or marketer whose shared link shows a blank or wrong
+      preview will search the exact symptom ("og:image not showing",
+      "linkedin post inspector alternative", "twitter card validator not
+      working", "slack link preview broken") and find this tool, since no
+      existing free checker fetches the actual image bytes to read real
+      pixel dimensions (rather than trusting a possibly-stale
+      og:image:width tag) or applies the twitter:* fallback chain instead
+      of flagging a missing twitter:image as an error on its own.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      r/webdev, r/SEO, r/marketing, r/DigitalMarketing, and Stack Overflow
+      carry real, recurring "why doesn't my og:image show up" and "twitter
+      card validator" threads -- X's own official card-preview tooling has
+      been unreliable/inconsistently available for years, and Facebook's
+      Sharing Debugger and LinkedIn's Post Inspector each check only their
+      own platform's cache, not the underlying tags or image file itself,
+      leaving no free single tool that checks the tags and the real image
+      bytes across platforms before a link is ever shared.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer or marketing team that gets a clean report will wire the
+      CLI into their own pre-publish CI as a regression gate against a new
+      blog post or product page, producing return usage without any action
+      from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - A materially better free tool covering the same fallback-chain
+    classification and real-byte image-size checking with the same
+    zero-install bar becomes the obvious default, such that this tool's
+    differentiation no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/social-preview-check/
+  analytics: null

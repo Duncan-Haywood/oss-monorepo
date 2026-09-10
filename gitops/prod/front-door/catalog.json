@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 237,
-  "collection_total": 237,
+  "served_here": 238,
+  "collection_total": 238,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 26
+      "tool_count": 27
     },
     {
       "id": "evidence",
@@ -1701,6 +1701,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a snow-removal winter from route minutes, truck cost, salt, and expected storms. Compare per-push vs seasonal, see the ice-event drain, and the storm count where a cheap seasonal goes underwater.",
       "pages": 3
+    },
+    {
+      "slug": "social-preview-check",
+      "name": "Social Preview Checker — Open Graph, Twitter Card, LinkedIn link previews",
+      "url": "https://marisstella.dev/tools/social-preview-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter's large-image card, and the twitter:image -> og:image fallback chain. Also check any image URL's real pixel dimensions right in this page. Nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "sod-install-bid-calculator",
