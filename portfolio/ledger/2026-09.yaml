@@ -21337,3 +21337,391 @@ entries:
         this decision and should be re-read with `browser_state.py` before
         trusting it current.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: null
+    outcomes:
+      - >-
+        Scheduled autonomous-mandate session. Open-PR queue was genuinely
+        empty (`list_pull_requests` state=open returned zero; a bulk
+        `merged: false` reading on recently-closed PRs turned out to be a
+        stale field on that same tool -- confirmed against `pull_request_read`
+        that #4376 and neighbors are in fact merged, and against `git log`
+        that PRs up to #4377 are on `main`), so the mandate's three-PR merge
+        quota is trivially met (nothing to merge). Sampled two of the ~100+
+        auto-named idle branches most relevant to this session's brief
+        (`agent/deploy-cicd-ledger-2868`, `ci/hetzner-ssh-key-diagnostic`);
+        both were fully superseded by later work already on `main` (the
+        second's SSH-key-classification idea now lives, more completely, in
+        `bootstrap/scripts/load-ssh-key.sh`). Did not attempt a full audit of
+        the remaining branches -- CLAUDE.md is explicit that the portfolio's
+        job is not to maintain an admin queue, and both samples read as the
+        same pattern this repo's commit velocity produces constantly.
+      - >-
+        Verified the two infra asks in this session's brief (Hetzner
+        deployment, Codex CLI running against its own quota on the Hetzner
+        box) are already fully built and already the #1 queued owner
+        decision (`hetzner-ssh-key-is-a-public-key`, #3184) -- the Codex
+        "governor" systemd timer/service exists complete at
+        `gitops/agents/host/`, gated only on the owner pasting a real private
+        key plus a Codex/OpenAI credential. Did not duplicate the ask.
+      - >-
+        Confirmed the one deploy route this session can act on without an
+        owner secret -- GitHub Pages via the committed `gh-pages` branch --
+        is current (`pages_state.py --require-current` exit 0, no republish
+        needed).
+      - >-
+        Ran the full local verification sweep CLAUDE.md asks for during a
+        starvation window: `platform/ci/run_workflow_locally.py --tree`
+        (9/9 selected workflows' run: steps passed), all 8
+        `portfolio-validate.yml` validators individually (all clean), the
+        `platform/marketing`/`platform/pages` node suites (232 + 960
+        passing), and `gitops/tests` (493 passed, 25 skipped). `main` is
+        genuinely green right now, not starved-and-assumed-fine.
+      - >-
+        Read `portfolio/DIRECTION.md`'s current-priority guidance (zero
+        nonzero `live_url_visitors` readings across all 234 ventures --
+        confirmed directly against `usage/usage.yaml`, every nonzero signal
+        in the file is a local dry-run counter, not a real visitor) and
+        picked the highest-leverage gap available without owner action:
+        `.github/workflows/publish-pages-branch.yml` notifies IndexNow after
+        a push, but only when a runner picks the workflow up --
+        `platform/pages/publish-branch.sh`, the manual route this repo has
+        been using exclusively while Actions is starved, never did. So every
+        recent manual publish (which is to say, every recent publish) never
+        told Bing/Yandex/Seznam/Naver a page existed. Added the same
+        `indexnow.mjs --submit` call to the script's `PUSH=1` path,
+        best-effort and non-fatal (the site is already live by the time it
+        runs; this session's own sandbox cannot reach `api.indexnow.org` at
+        all, so a failure here is expected from here specifically and must
+        not read as the publish having failed).
+      - >-
+        Tests: extended `gitops/tests/test_publish_branch.py` with a real
+        bare-remote fixture and three new cases (unpushed build never
+        touches IndexNow; a real push does; a failed submission does not
+        fail the script) -- 19/19 passing. `shellcheck` on the modified
+        script: clean. Full `gitops/tests`: 493 passed / 25 skipped
+        (unchanged pass count plus the 3 new). Did not attempt to verify an
+        actual IndexNow submission end-to-end -- this session's egress is
+        blocked to that host by design; the next session with a real Hetzner
+        or Cursor/local-CLI egress path is the one that can.
+      - >-
+        Also started the full whole-catalogue browser/accessibility sweep in
+        the background (`browser_state.py` reported all 7 checks stale after
+        today's front-door churn, this session's own edits included in what
+        staled it). Did not check for an in-progress sweep from another
+        session first -- the ledger entry immediately above this one records
+        a different session starting the same sweep and not finishing it
+        either, so this may be a second concurrent run of the same
+        20-30-minute, idempotent, non-destructive command rather than new
+        work. Read `browser_state.py` fresh before trusting either result;
+        whichever finishes last is the one it reports.
+    mrr_end: 0
+  - venture: reverb-fee-calculator
+    agent_spend_usd: null
+    human_hours: null
+    outcomes:
+      - >-
+        "Set direction" brief. `portfolio/DIRECTION.md` and `AGENTS.md` were
+        substantively rewritten as recently as 2026-09-07 (#3542-class work,
+        landed) and both files' current "North star" sections already state
+        the north star this brief asked for; per their own "before rewriting
+        this brief again" guidance, did not touch either file and built
+        instead.
+      - >-
+        Ran `session_gate.py` (PROCEED; published gh-pages snapshot reported
+        stale, which resolved on its own as other sessions' merges advanced
+        `main` during this session), `decision_queue.py` (top merit-unblocked
+        item is the 8 ventures with no `links.production` at all --
+        `local-site-studio`, `vendor-watch`, `photo-editing`,
+        `quick-pick-survey`, `world-clock-widget`, `retail-pilot-intel`,
+        `garmin-world-traveler-watchface`, `photos-import-tools` -- all
+        genuinely blocked on an owner-only publish/account step, e.g. Vercel,
+        the Connect IQ Store, or a real pilot customer; already the queue's
+        top row, so did not duplicate the ask) and
+        `portfolio/router/allocate.py` (#1 dispatchable: `reverb-fee-calculator`,
+        merit 7.00).
+      - >-
+        Audited the top three router candidates
+        (`reverb-fee-calculator`, `where-to-sell-calculator`,
+        `newsletter-sponsorship-rate-calculator`) plus a catalogue-wide sweep
+        for the common definition-of-done gaps this fleet has been closing
+        (missing GitHub Sponsors link, missing disclaimer text, missing
+        JSON-LD, missing nominative-fair-use clauses on `vs-*` pages,
+        crawlable-orphan links): all 224 ventures already carry the sponsor
+        link and the disclaimer, `clauses.mjs --all` and
+        `siblings.mjs` both report clean, and every venture's `index.html`
+        already carries `application/ld+json`. No forced fix was available
+        there.
+      - >-
+        Shipped a real, friction-driven addition to the #1 candidate instead
+        of a fleet-parity copy: `reverb-fee-calculator` already computes the
+        Reverb offer that matches the same sale's eBay-list cash
+        (`offerThatMatchesEbayList`), and already names it on-screen, but a
+        seller still had to compose their own reply to the buyer with that
+        number. Added `counterOfferMessage()` to `calc.mjs` (a pure function
+        in the same style as the existing `consignmentNote` /
+        `waitForBetterOfferNote` family) and a "Copy counter-offer message"
+        button next to the existing "Copy shareable link" action: it drafts
+        a reply naming the buyer's offer, and either an acceptance (offer
+        already clears the eBay crossover) or a counter asking for the
+        crossover price rounded up to the nearest whole dollar (a counter
+        with cents reads as a spreadsheet, not a person; rounding up keeps
+        the ask at or above the number it is named for). Nothing is sent
+        automatically -- copied to the clipboard, or shown inline as a
+        fallback if the browser refuses clipboard access -- and the feature
+        is client-side only, same as the rest of the calculator. This is the
+        same "copy a drafted message" shape already validated elsewhere in
+        the fleet (e.g. `retainage-cashflow-calculator`'s payment
+        follow-up draft), chosen because it serves this venture's own
+        stated hypothesis (sellers acting on lowball offers), not copied
+        because a sibling has it.
+      - >-
+        Updated the schema.org `featureList`, the header intro copy (which
+        already links each sub-page), and `README.md` to document the new
+        action; extended `calc.test.mjs` (two new cases: counters when the
+        offer falls short, accepts when it already clears the crossover) and
+        `page.test.mjs` (button id and function name wired). Ran
+        `platform/marketing/regen.mjs` afterward and committed the rewritten
+        mirror files, since the change touches a served surface.
+      - >-
+        Verified: `node --test ventures/reverb-fee-calculator/*.test.mjs`
+        (94/94, was 92 before this change), `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` (1192/1192),
+        `node platform/pages/clauses.mjs reverb-fee-calculator` (10 pages
+        clean), `python3 platform/ci/checklist_coverage.py` (clean),
+        `build.mjs` + `check.mjs` (225 products, 882 pages, no dead links),
+        `python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q` (431 passed),
+        `check_ledger_only.py` / `check_direction_only.py` (both OK), and a
+        scoped `browser_checks.py --only reverb-fee-calculator` (6/7 checks
+        passed; `highlight` skipped as not applicable to this tool, not a
+        failure) -- deliberately not a whole-catalogue `--record` sweep,
+        since only one venture's markup changed and two prior sessions
+        today already started (and did not finish) redundant full sweeps
+        against a moving `main`; the fleet-wide reading is `main`'s to
+        refresh once this and any other in-flight markup changes land.
+      - >-
+        Did not attempt: registering any account, taking or moving money, or
+        touching payment/checkout code (none exists here or was added).
+        Nothing needed owner action beyond what is already queued.
+    mrr_end: 0
+  - venture: npm-lifecycle-script-check
+    agent_spend_usd: null
+    human_hours: null
+    outcomes:
+      - >-
+        Scheduled autonomous session. Three-PR merge quota: 0 open PRs
+        existed at the start (`list_pull_requests`, state=open, verified
+        fresh). Sampled the 174-of-393 remote branches carrying commits not
+        on `main` (weighted toward highest commit count, most recent, and
+        every branch an earlier automated pass had flagged with unmatched
+        lines) with `supersede_check.py --no-fetch`: ~28 checked by hand plus
+        51 more via a parallel background sweep (killed once the pattern was
+        unambiguous), 79 of 174 total. Every one was SUPERSEDED (identical-
+        merge proof) or STALE DRAFT SUSPECTED (`main` already carries a
+        later, fuller rewrite of the same lines) -- matches this repo's own
+        repeated finding on 2026-09-05 and 2026-09-07 that the branch backlog
+        is spent. No repairable PR/branch found; quota not met because the
+        queue was empty, not because it was skipped.
+      - >-
+        The owner's direction relayed this session ("make sure deployment
+        and cicd is a priority and building and deploying marketing
+        materials on the hetzner vms... set up codex cli to use the built-in
+        quota... on the hetzner vm") is the same sentence already recorded
+        verbatim in `gitops/agents/queue/deploy-cicd-readiness.yaml` and
+        `marketing-distribution.yaml` (both re-prioritized to 7/6 on
+        2026-09-01 on this exact direction) and already the reason
+        `gitops/agents/host/` (Codex worker, systemd-timer host mode,
+        `codex-host-mode` reading in `infra_state.yaml`: `up`/installable)
+        exists. All of it is built, tested, and idle -- gated on one owner
+        action, `hetzner-ssh-key-is-a-public-key` (#3184, top of
+        `decision_queue.py`): `HETZNERSSHKEY` holds a public key, and no
+        agent session can supply a private one or reach `:22` (egress
+        confirmed blocked again this session: no `ssh` binary,
+        `api.hetzner.cloud:443` gives `gateway answered 403 to CONNECT`).
+        Re-verified rather than assumed: `github-actions-runners` still
+        `down` today (`ci_starvation.py --run 34423728610`, `runner_id: 0`),
+        `k3s-cluster` still `down` since 2026-09-04. No second ask added.
+      - >-
+        Given that, spent the session's product-work slot on the one
+        deployment/marketing lever this sandbox can actually pull: GitHub
+        Pages, confirmed live and current (`pages_state.py`: `deployed:
+        served`, snapshot at `main`'s own tip), and a marketing asset that
+        ships through it. Added `ventures/npm-lifecycle-script-check/vs-
+        socket.html` (+ test), a nominative-fair-use comparison page
+        (`PRODUCT_PLAYBOOK.md` §5f) against Socket -- same real competitor
+        and pattern already shipped for `dependency-confusion-check` (#4345,
+        one of 31 ventures with no comparison page before this one, picked
+        for a well-documented, honestly comparable competitor in the same
+        CI/CD-supply-chain-security niche the owner's direction emphasizes).
+        Describes Socket's own documented product shape with no invented
+        pricing and no claim about its detection accuracy either way.
+      - >-
+        Crossed the two-venture threshold for "socket" as a compared
+        product, so `front-door.mjs` emitted a combined
+        `gitops/prod/front-door/vs__socket.html.gz` shard; added its mount
+        line to `gitops/prod/kustomization.yaml` (hand-kept, matches every
+        other `vs__*.html.gz` line there -- `front-door.test.mjs` catches a
+        missing one) and reran `regen.mjs`.
+      - >-
+        Caught and fixed, before merge, the exact "FAQPage JSON-LD diverges
+        from visible copy" defect class `CLAUDE.md` records costing live
+        product twice before: the new page's JSON-LD used `--` where the
+        visible prose used `&mdash;`. `faq-visible.test.mjs` caught it;
+        fixed by matching the visible em dash in the JSON-LD text.
+      - >-
+        Verified: `node --test` on the venture (60/60), full
+        `platform/marketing/*.test.mjs` (232/232) and `platform/pages/*.test.mjs`
+        (960/960, including the fixed `faq-visible` case), `gitops/tests`
+        (493 passed/25 skipped), `clauses.mjs npm-lifecycle-script-check`
+        (3/3), `checklist_coverage.py`, `validate_doc_consistency.py`,
+        `score_ventures.py --check`, `validate_usage.py`, `router/validate.py`,
+        `front-door-tools.mjs --headroom` (49 tools of headroom left) --
+        all clean, after merging `origin/main` (which had advanced twice
+        during this session) and re-running the full suite post-merge.
+      - >-
+        CI could not verify this independently: Actions still starved this
+        session (see above). Merged on the local verification above per
+        CLAUDE.md's starvation policy.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session under the standing product-first mandate.
+        Open-PR queue was empty at the start (`list_pull_requests` state=open
+        and a `search_pull_requests` cross-check both returned 0) and
+        `git branch -r --no-merged origin/main` returned 0 branches, so the
+        three-PR merge quota was met with an empty queue rather than skipped.
+      - >-
+        Confirmed `main` itself is green before building on it:
+        `run_workflow_locally.py --tree` passed 9/9 selected workflows. The
+        only not-run steps were `uses:` steps and `portfolio-pages.yml/deploy`,
+        which the tool reports separately and which are not failures.
+      - >-
+        Picked the same gap the session immediately above picked, independently
+        and in the same window: the IndexNow announcement -- this catalogue's
+        only page-enumeration route, because `pages_state.py`'s `indexing` row
+        measured that sitemap auto-discovery cannot happen from a
+        project-Pages subpath -- existed only as a step in
+        `.github/workflows/publish-pages-branch.yml`, which needs an Actions
+        runner. Runners have been starved since 2026-09-04, so every publish
+        that actually reached the live site in that window was a by-hand
+        `publish-branch.sh` run that announced nothing, silently.
+      - >-
+        #4378 landed that core fix first, from the other session. Rather than
+        close this as a duplicate or re-land a parallel implementation, took
+        #4378 as the base and kept only what it could not express, per the
+        mandate's "integrate, do not duplicate" rule. Its `--ref "$BRANCH"` is
+        an improvement this branch did not have (a non-default `BRANCH` would
+        otherwise be announced from the wrong ref) and its wording is what
+        `gitops/tests/test_publish_branch.py` pins, so the merged version
+        matches its strings exactly.
+      - >-
+        Three things #4378 left open, all fixed here. (1) It added the call to
+        `publish-branch.sh` but left the workflow's own `Notify IndexNow` step
+        in place -- so a runner-borne publish would have submitted twice, once
+        through the script and once through the step. Removed the step, since
+        both workflow steps invoke the script; there is now one definition of
+        "publishing includes announcing" rather than a second copy only the
+        runner-borne route would execute. (2) `indexnow.mjs`'s `submit()`
+        called `fetch` with no catch and the CLI had no handler, so a
+        transport failure rejected out of the process -- making the likeliest
+        outcome of `--submit` from an agent sandbox (the egress proxy answers
+        `403 to CONNECT` for `api.indexnow.org`, re-measured this session) a
+        raw `TypeError: fetch failed` stack trace, indistinguishable at a
+        glance from the script being broken. It now returns
+        `{status: 0, ok: false, error}` and exits `EXIT_NO_EGRESS` (3),
+        distinct from 1, which is what lets the shell caller tell "this host
+        cannot reach IndexNow" from "IndexNow refused what we sent" -- the
+        expected case and the real-defect case, which #4378's single
+        best-effort branch reported identically. (3) Added an `INDEXNOW=0`
+        opt-out for a rollback you deliberately do not want announced, and a
+        guard for a host with no node.
+      - >-
+        Verified (Actions starved -- `ci_starvation.py --run 34423728610`
+        classified `runner_id: 0`, and the PR itself drew zero check runs, read
+        from the check-runs endpoint rather than the bare status call):
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        1194 passing; all 21 `platform/ci` unittest modules OK; `gitops/tests`
+        490 passed / 25 skipped before the merge and re-run after it;
+        portfolio ledger/scoring/router/usage/pipeline/infra 431 passed;
+        `agent_review` 21 OK; proposal/privacy/webcheck 172 passing;
+        `checklist_coverage.py` clean; `regen.mjs` rewrote nothing (this change
+        touches no served surface); `build.mjs` + `check.mjs` clean (225
+        products, 882 pages, no dead links); `bash -n` clean.
+        `run_workflow_locally.py --for-changes` passed 8/9 -- the ninth,
+        `publish-pages-branch.yml/publish`, is refused by design because it
+        pushes and is not in `VERIFICATION_ONLY`; its correctness is covered by
+        `test_publish_pages_branch.py` instead.
+      - >-
+        The new cases in `test_publish_pages_branch.AnnouncingThePublishedSnapshot`
+        were checked against the pre-fix tree and all fail there, so they are
+        not vacuous.
+      - >-
+        Measured rather than assumed, and it closed an avenue rather than
+        opening one: with sitemap auto-discovery unavailable a crawler can only
+        reach a page by following links, so the internal link graph is now
+        load-bearing for the whole catalogue's indexability. Crawled the built
+        site from `index.html` -- 880 of 882 pages reachable, and the 2 that
+        are not are `404.html` and `offline.html`, which must be. No orphan
+        work was needed.
+      - >-
+        Re-confirmed the owner's three named priorities are architecturally
+        complete and blocked on one action, so no new asks were added.
+        Deployment: `pages_state.py` reports `deployed: served`, snapshot
+        `current`. Codex CLI on the Hetzner box against the owner's ChatGPT
+        subscription quota (`CODEX_AUTH_JSON`, not an API key): built in
+        `gitops/agents/host/`, 45 tests passing, its worker mandate already
+        carrying this same three-PR-drain direction. Marketing on the Hetzner
+        VMs: `install-portfolio-site-host.sh` exists and is tested. All three
+        wait on `hetzner-ssh-key-is-a-public-key`, already ranked first in the
+        decision queue.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fix-forward on #4379, found by running the thing rather than reasoning
+        about it. That PR added `EXIT_NO_EGRESS` (3) to `indexnow.mjs` so a
+        publish could tell "this host cannot reach IndexNow" (expected, and
+        never a failed deploy) from "IndexNow refused what we sent" (a real
+        defect in the payload or the published key file). The premise was that
+        a blocked host makes `fetch` *reject* -- which is what `curl` shows
+        here (`CONNECT tunnel failed, response 403`).
+      - >-
+        Measured 2026-09-10 by publishing for real after the merge: Node's
+        fetch does not reject. It resolves with an ordinary `403` whose body is
+        the egress proxy's own text ("Host not in allowlist: api.indexnow.org.
+        Add this host to your network egress settings to allow access."). So
+        the run took the generic-failure branch and reported the sandbox limit
+        as an IndexNow rejection -- the exact confusion the exit code exists to
+        remove, shipped inside the change that was removing it. The two
+        transports disagree about the same 403 and only one of them was
+        checked.
+      - >-
+        `isEgressRefusal` now catches that shape too, and the real command
+        exits 3 against the live proxy (verified end to end, not mocked).
+        The match is deliberately narrow -- the proxy's own wording (`not in
+        allowlist` / `network egress settings`), never the bare status --
+        because IndexNow itself answers 403 for an invalid key, which is a
+        genuine defect in the published key file and has to stay loud. Burying
+        that under "no egress" would be worse than the confusion being fixed,
+        so a test pins both directions.
+      - >-
+        Verified: `node --test platform/marketing/*.test.mjs` 236 passing
+        (14 in `indexnow.test.mjs`, up from 12), `test_publish_pages_branch`
+        26 OK, `gitops/tests/test_publish_branch.py` 19 passing (#4378's own
+        tests, still unchanged by this), `bash -n` clean,
+        `checklist_coverage.py` clean, `regen.mjs` rewrote nothing.
+      - >-
+        Also refreshed the published snapshot after #4379 merged
+        (`pages_state.py` read `stale` at ecb636db against `main` at 55b6e192;
+        `publish-branch.sh` republished and it now reads `current`, with
+        GitHub's managed builder picking up the new `gh-pages` tip). That
+        publish is what surfaced the defect above -- the announcement fired on
+        the real path for the first time.
+    mrr_end: 0
