@@ -1,0 +1,110 @@
+name: apparel-decoration-price-calculator
+description: Free browser calculator that turns a custom apparel shop's own screen, digitising, press, stitch, blank and spoilage costs into a cost per piece, a break-even price, the margin at what they quoted, and the same job costed at every standard quantity tier — for screen printing, embroidery or DTF, entirely client-side.
+stage: prototype
+
+owner: duncan
+
+# Screened this session, not written up in portfolio/pipeline/candidates.yaml.
+# The niche is the custom-decorated-garment shop -- screen printers,
+# embroiderers and DTF printers quoting a job -- which the portfolio does not
+# otherwise touch. The closest existing venture by *shape* is
+# 3d-print-price-calculator (a custom-fabricated physical item whose cost is
+# machine time plus material plus a failure allowance), and that similarity is
+# real enough that the two are cross-linked; but it prices a print from
+# filament and printer wear, and has no concept of a per-job setup that is
+# flat across quantity, which is the substance here. The trade bid calculators
+# (window-cleaning, gutter-guard, pressure-washing and the rest) price a
+# service visit by area and frequency, not a batch of manufactured units.
+#
+# python3 portfolio/pipeline/duplicate_check.py against two phrasings
+# ("screen printing and embroidery job pricing calculator for custom apparel
+# decorators: per-screen setup, stitch count, blank garment cost, break-even
+# price per shirt" and "custom apparel decorator job costing: screen setup per
+# colour per placement, embroidery stitch time and digitising, DTF film area,
+# blanks and spoilage, quantity break price tiers") scored nothing at or above
+# 0.16 against any existing venture, pipeline candidate, screened-out row, or
+# ai-first-markets idea -- and the top matches on both runs
+# (wash-and-fold-price-calculator, medical-courier-route-margin, a handful of
+# "-bid-calculator" slugs) are word overlap on "calculator" and "cost", not the
+# same product. grep for embroider/screen.print/apparel/garment/shirt/dtf
+# across ventures/, screened-out.md and ai-first-markets returned nothing.
+#
+# The four questions in PRODUCT_PLAYBOOK.md section 1:
+#   Who exactly? Independent custom apparel decorators -- screen print shops,
+#     embroiderers, and the fast-growing set of DTF printers -- quoting a job
+#     for a team, a club, a small business or an event. Several tens of
+#     thousands of such shops in the US alone, most of them one to five people,
+#     plus a long tail of Etsy and side-business decorators pricing their first
+#     bulk order.
+#   What do they type into a search box? "screen printing pricing calculator",
+#     "how much to charge for screen printing", "embroidery pricing per 1000
+#     stitches", "how to price DTF transfers", "screen print price per shirt
+#     24 pieces".
+#   What does the problem cost them? Quoting a short run off a long run's
+#     price list. Setup is per job and flat: on the worked example a 24-piece
+#     3-colour front and back job carries $4.99 a shirt of setup, and the
+#     identical job at 288 carries $0.42. A shop that prices both at the same
+#     per-piece number is either losing money on every small order or is
+#     uncompetitive on every large one, and cannot tell which. The second,
+#     quieter loss is a zero spoilage allowance: one misprint on a 24-piece
+#     run means re-ordering a single blank and setting up again, which costs
+#     many times the garment.
+#   Why hasn't a big vendor solved it? The shop-management vendors (Printavo,
+#     InkSoft, Shop Works, YoPrint) sell a subscription whose quoting module
+#     takes the shop's price matrix as an *input* -- they store the number, they
+#     do not derive it. Deriving it is a one-off question a shop asks when it
+#     sets or resets its matrix, which is a bad fit for a subscription and a
+#     good fit for a free static page.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates, both
+# need >= 5):
+#   liability_containment: 9 -- the tool multiplies and adds numbers the shop
+#     reads off its own supplier invoices, payroll and equipment. It states no
+#     market price, no benchmark, no wage rule, and no supplier's rate; it does
+#     not tell anyone what to charge, and the page and README both say the
+#     output is a cost floor rather than a recommended price. The one exposure
+#     specific to this trade -- printing artwork the customer had no right to
+#     supply -- is disclaimed explicitly on the page and is asserted nowhere by
+#     the tool, which never sees the artwork. Being wrong costs the shop an
+#     arithmetic figure to double-check against its own P&L.
+#   ethical_robustness: 9 -- deterministic arithmetic, no server, no dark
+#     patterns, nothing collected, nothing about any third party. It gets no
+#     worse for anyone as it scales, and the party it helps is the small shop
+#     competing against both online giants with a real costing model and other
+#     small shops guessing.
+#
+# Distribution: r/screenprinting and r/embroidery are large, active
+# owner-operator subreddits where "am I charging enough for a 24-piece
+# 3-colour job?" is a weekly thread; the DTF and garment-decorating Facebook
+# groups run the same question continuously, and the trade's own forums
+# (T-Shirt Forums) have decade-old threads on setup amortisation still being
+# replied to. The search phrases above are the evergreen version of the same
+# question -- a shop setting or resetting its price matrix asks it once, at a
+# predictable moment, and wants a number rather than a subscription.
+hypotheses:
+  - claim: A shop setting or resetting its price matrix will use the quantity-break table to produce a per-tier price it did not have, in less time than building a spreadsheet for it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A decorator quoting a short run will use the setup-per-piece figure to decide between raising the small-run price, setting a minimum order quantity, and billing setup as a separate line.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/apparel-decoration-price-calculator/
+  analytics: null

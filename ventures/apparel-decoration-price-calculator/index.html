@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Screen Printing &amp; Embroidery Price Calculator — Cost Per Shirt, Setup &amp; Margin</title>
+  <meta name="description" content="Free screen printing, embroidery and DTF pricing calculator for custom apparel shops: work out your real cost per shirt from screens or digitising, press or stitch time, blanks and spoilage, then see the break-even price, the margin at what you quoted, and what the same job costs at 12, 24, 48, 72, 144 and 288 pieces. Runs entirely in your browser.">
+  <meta property="og:title" content="Screen Printing &amp; Embroidery Price Calculator — cost per shirt, setup &amp; margin">
+  <meta property="og:description" content="What does a decorated shirt actually cost you? Screens, digitising, press and stitch time, blanks and spoilage into a break-even price per piece — and the quantity-break curve that shows why 12 is not 144. Free, no sign-up, entirely client-side.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Screen Printing and Embroidery Price Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Costs one custom apparel decoration job — screen print, embroidery or DTF — from its one-off setup (screens per colour per placement, digitising, or art time), the per-piece run cost (press throughput, stitch time divided by machine heads, or heat-press seconds), blanks with a spoilage allowance, and an allocated overhead share. Reports cost per piece, break-even price, margin at the quoted price, and the same job costed at every standard quantity tier. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for screen printing?","acceptedAnswer":{"@type":"Answer","text":"There is no single right number, because the cost side moves far more than the price side: the same design is a different job at 12 pieces than at 288, and a shop paying $3.10 for a blank has a different floor than one paying $6.40. Work out your own cost per piece first — screens, art, press time, ink, blanks with a spoilage allowance, and a share of overhead — then set the price above it by the margin you need. This calculator does that arithmetic on your own numbers; what your market will bear is a separate question it cannot answer."}},{"@type":"Question","name":"Why does a 12-shirt order cost so much more per shirt than a 144-shirt order?","acceptedAnswer":{"@type":"Answer","text":"Because setup is per job, not per shirt. Burning, registering and reclaiming a screen costs the same whether you print a dozen or a gross, and a three-colour front plus a one-colour back is four screens either way. Spread over 12 pieces that setup can be several dollars a shirt; over 144 it rounds to cents. Quoting both off the same price list is the most common way a small run loses money, which is why the break table on this page costs the same job at every standard quantity tier."}},{"@type":"Question","name":"Should I charge screen setup and digitising as a separate line?","acceptedAnswer":{"@type":"Answer","text":"Either works, and the calculator shows the consequence of each. Billing setup separately keeps the per-piece price honest and comparable, and it matters most on repeats: a second run of the same design owes no new digitising and no new art, so a shop that buried those in the per-piece price has to explain why the repeat is cheaper. Absorbing setup instead is fine as long as you know it is in there — enter what you actually bill as a setup fee and the break-even figure adjusts to only the setup the per-piece price still has to carry."}},{"@type":"Question","name":"How do I price embroidery — per 1,000 stitches or per piece?","acceptedAnswer":{"@type":"Answer","text":"Per 1,000 stitches is the industry's shorthand for the machine time, and it is a reasonable proxy because run time really is proportional to stitch count. It hides two things this calculator makes visible. A multi-head machine sews several pieces in one cycle, so the machine minutes per piece are the cycle divided by the number of heads — while hooping is per piece per placement and is not divided by anything, which is usually what actually caps a shop's daily output. And digitising is a one-off for the design rather than a per-piece cost, so on a short run it is a far bigger share of the job than a stitch-count rate suggests."}},{"@type":"Question","name":"Does anything I type here get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in this browser, and nothing you enter is sent anywhere — there are no accounts, no cookies, and no analytics vendor. If you use the save button, your numbers are written to this browser's own local storage on this device only, and the forget button deletes them. Anonymous feature counts (estimate, example_loaded, inputs_saved) are stored the same local way and can be switched off."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c1b23; background: #f5f3f0; }
+    body { max-width: 1040px; margin: auto; padding: 28px 18px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #5a2438; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #5a2438; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55505c; }
+    .card { background: #fff; border: 1px solid #e0d6d9; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #5a243810; margin: 18px 0; }
+    fieldset { border: 1px solid #e0d6d9; border-radius: 10px; margin: 0 0 16px; padding: 8px 14px 16px; }
+    legend { font-size: .82rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #5a2438; padding: 0 6px; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; font-size: .9rem; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #74697040; border-color: #6f6570; border-radius: 7px; font: 15px system-ui, sans-serif; color: #1c1b23; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 16px; }
+    .hint { font-weight: 400; color: #55505c; font-size: .82rem; display: block; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5a2438; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; font-size: .95rem; }
+    button.secondary { background: #f0e6e9; color: #4a1e2f; }
+    .scroller { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #ece5e7; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4d4652; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.quoted td { background: #fdf3e6; font-weight: 700; }
+    .headline { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 6px; }
+    .headline div { background: #faf5f6; border: 1px solid #e0d6d9; border-radius: 10px; padding: 12px 14px; }
+    .headline .big { font-size: 1.6rem; font-weight: 800; color: #14532d; display: block; margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .headline .big.loss { color: #8a2c0c; }
+    .headline .cap { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4d4652; }
+    .finding { border-bottom: 1px solid #ece5e7; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fbe3dc; color: #8a2c0c; }
+    .pill.medium { background: #fbeecd; color: #6b4e08; }
+    .pill.low { background: #e8e5ee; color: #3a3547; }
+    .pill.info { background: #ece5e7; color: #5a2438; }
+    .error { color: #8a2c0c; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #e0d6d9; padding-top: 16px; }
+    footer a, main a, section a { color: #1a4f7a; }
+    @media (max-width: 560px) { body { padding: 20px 16px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">APPAREL DECORATION PRICING · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What does a decorated shirt actually cost you?</h1>
+    <p>A job-costing calculator for custom apparel shops — screen printing,
+    embroidery, or DTF. Put in your screens or digitising, your press or stitch
+    time, your blank cost and your spoilage allowance, and get the real cost per
+    piece, the break-even price, the margin at what you quoted, and the same job
+    costed at every quantity tier from a dozen to two gross. The quantity break
+    is the whole point: a dozen is not a gross with a smaller number on it.</p>
+    <p class="note">Everything runs in this browser. Your blank costs, wages and
+    press speeds are never uploaded — see the privacy note in the footer.</p>
+  </header>
+
+  <main>
+  <section class="card">
+    <h2>Your numbers</h2>
+    <form id="job-form">
+      <fieldset>
+        <legend>The job you are quoting</legend>
+        <div class="grid">
+          <div>
+            <label for="method">Decoration method</label>
+            <select id="method">
+              <option value="screen-print" selected>Screen printing</option>
+              <option value="embroidery">Embroidery</option>
+              <option value="dtf">DTF / heat transfer</option>
+            </select>
+          </div>
+          <div>
+            <label for="quantity">Quantity (good pieces)</label>
+            <input type="number" id="quantity" min="0" step="1" value="24">
+          </div>
+          <div>
+            <label for="pricePerPiece">Your price per piece ($)<span class="hint">What you quoted, decoration and garment</span></label>
+            <input type="number" id="pricePerPiece" min="0" step="0.25" value="14">
+          </div>
+          <div>
+            <label for="setupFeeCharged">Setup fee you bill ($)<span class="hint">Screens or digitising, as a separate line</span></label>
+            <input type="number" id="setupFeeCharged" min="0" step="5" value="0">
+          </div>
+          <div>
+            <label for="locations">Placements per piece<span class="hint">Front and back is 2</span></label>
+            <input type="number" id="locations" min="1" step="1" value="2">
+          </div>
+          <div>
+            <label for="targetMarginPct">Target margin (%)</label>
+            <input type="number" id="targetMarginPct" min="0" max="95" step="1" value="40">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset id="fs-screen-print">
+        <legend>Screen printing</legend>
+        <div class="grid">
+          <div>
+            <label for="colorsPerLocation">Colours per placement<span class="hint">One screen each, at every placement</span></label>
+            <input type="number" id="colorsPerLocation" min="1" step="1" value="3">
+          </div>
+          <div>
+            <label for="screenSetupCost">Cost per screen ($)<span class="hint">Emulsion, burn, register, reclaim, labour</span></label>
+            <input type="number" id="screenSetupCost" min="0" step="0.5" value="18">
+          </div>
+          <div>
+            <label for="pressPiecesPerHour">Press pieces per hour<span class="hint">Throughput for one placement, all its colours</span></label>
+            <input type="number" id="pressPiecesPerHour" min="5" step="5" value="90">
+          </div>
+          <div>
+            <label for="inkCostPerPiecePerColor">Ink per piece per colour ($)</label>
+            <input type="number" id="inkCostPerPiecePerColor" min="0" step="0.01" value="0.06">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset id="fs-embroidery" hidden>
+        <legend>Embroidery</legend>
+        <div class="grid">
+          <div>
+            <label for="stitchCount">Stitch count per placement</label>
+            <input type="number" id="stitchCount" min="0" step="100" value="9000">
+          </div>
+          <div>
+            <label for="digitizingCostPerLocation">Digitising per placement ($)<span class="hint">One-off for the design, not per piece</span></label>
+            <input type="number" id="digitizingCostPerLocation" min="0" step="5" value="45">
+          </div>
+          <div>
+            <label for="stitchesPerMinute">Stitches per minute</label>
+            <input type="number" id="stitchesPerMinute" min="50" step="50" value="750">
+          </div>
+          <div>
+            <label for="heads">Machine heads<span class="hint">Pieces sewn in one cycle</span></label>
+            <input type="number" id="heads" min="1" step="1" value="6">
+          </div>
+          <div>
+            <label for="hoopMinutesPerPiece">Hooping minutes per placement<span class="hint">Per piece — heads do not divide this</span></label>
+            <input type="number" id="hoopMinutesPerPiece" min="0" step="0.05" value="0.75">
+          </div>
+          <div>
+            <label for="threadCostPer1000Stitches">Thread per 1,000 stitches ($)</label>
+            <input type="number" id="threadCostPer1000Stitches" min="0" step="0.01" value="0.04">
+          </div>
+          <div>
+            <label for="backingCostPerPlacement">Backing per placement ($)</label>
+            <input type="number" id="backingCostPerPlacement" min="0" step="0.01" value="0.11">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset id="fs-dtf" hidden>
+        <legend>DTF / heat transfer</legend>
+        <div class="grid">
+          <div>
+            <label for="artWidthIn">Transfer width (in)</label>
+            <input type="number" id="artWidthIn" min="0" step="0.5" value="11">
+          </div>
+          <div>
+            <label for="artHeightIn">Transfer height (in)</label>
+            <input type="number" id="artHeightIn" min="0" step="0.5" value="14">
+          </div>
+          <div>
+            <label for="filmCostPerSquareInch">Film and ink per square inch ($)</label>
+            <input type="number" id="filmCostPerSquareInch" min="0" step="0.001" value="0.012">
+          </div>
+          <div>
+            <label for="pressSecondsPerLocation">Heat-press seconds per placement</label>
+            <input type="number" id="pressSecondsPerLocation" min="0" step="1" value="20">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Blanks and labour</legend>
+        <div class="grid">
+          <div>
+            <label for="blankCostPerPiece">Blank cost per piece ($)<span class="hint">Landed, after your supplier discount</span></label>
+            <input type="number" id="blankCostPerPiece" min="0" step="0.05" value="4.2">
+          </div>
+          <div>
+            <label for="spoilagePct">Spoilage allowance (%)<span class="hint">Extra blanks bought against misprints</span></label>
+            <input type="number" id="spoilagePct" min="0" step="0.5" value="4">
+          </div>
+          <div>
+            <label for="wagePerHour">Wage per hour ($)</label>
+            <input type="number" id="wagePerHour" min="0" step="0.25" value="20">
+          </div>
+          <div>
+            <label for="payrollLoadPct">Payroll load (%)<span class="hint">Employer taxes, comp, benefits</span></label>
+            <input type="number" id="payrollLoadPct" min="0" step="1" value="18">
+          </div>
+          <div>
+            <label for="artMinutes">Art and proof minutes<span class="hint">Once per job, whatever the quantity</span></label>
+            <input type="number" id="artMinutes" min="0" step="5" value="30">
+          </div>
+          <div>
+            <label for="finishMinutesPerPiece">Finishing minutes per piece<span class="hint">Fold, tag, bag, box</span></label>
+            <input type="number" id="finishMinutesPerPiece" min="0" step="0.05" value="0.4">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Overhead</legend>
+        <div class="grid">
+          <div>
+            <label for="monthlyOverhead">Monthly shop overhead ($)<span class="hint">Rent, insurance, equipment payment, software</span></label>
+            <input type="number" id="monthlyOverhead" min="0" step="50" value="5200">
+          </div>
+          <div>
+            <label for="monthlyPieces">Pieces decorated per month</label>
+            <input type="number" id="monthlyPieces" min="0" step="50" value="2600">
+          </div>
+        </div>
+      </fieldset>
+    </form>
+    <p>
+      <button type="button" id="calculate">Calculate cost per piece</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="save">Save my numbers on this device</button>
+      <button type="button" class="secondary" id="forget">Forget my numbers</button>
+    </p>
+    <p class="note" id="status">Fill in what you know and press Calculate. The
+    figures shown are a worked example, not a benchmark — replace them with your
+    own.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>What this job costs</h2>
+    <div class="headline">
+      <div><span class="cap">Cost per piece</span><span class="big" id="cost-per-piece">—</span></div>
+      <div><span class="cap">Break-even price per piece</span><span class="big" id="break-even">—</span></div>
+      <div><span class="cap">Margin at your price</span><span class="big" id="margin">—</span></div>
+    </div>
+    <p class="note" id="job-summary"></p>
+    <div class="scroller">
+      <table>
+        <caption class="note" style="text-align:left;padding:6px 0">Where the cost of this job goes</caption>
+        <thead><tr><th scope="col">Cost component</th><th scope="col" class="num">Whole job</th><th scope="col" class="num">Per piece</th><th scope="col" class="num">Share</th></tr></thead>
+        <tbody id="cost-body"></tbody>
+      </table>
+    </div>
+    <h3>The same job at every quantity tier</h3>
+    <p class="note">Setup does not change with quantity, so the whole curve below
+    is the setup being spread thinner. This is the table to look at before
+    quoting a short run off a long run's price.</p>
+    <div class="scroller">
+      <table>
+        <thead><tr><th scope="col" class="num">Quantity</th><th scope="col" class="num">Setup per piece</th><th scope="col" class="num">Cost per piece</th><th scope="col" class="num">Break-even</th><th scope="col" class="num">At target margin</th></tr></thead>
+        <tbody id="break-body"></tbody>
+      </table>
+    </div>
+    <h3>What to look at</h3>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This is arithmetic on numbers you supply: it totals what one job costs you
+    and compares that to what the job earns. It does not know your blank
+    supplier's price, your press's real throughput, your local wage rules, or
+    what a customer in your town will pay — every one of those is an input you
+    read off your own invoices, payroll and equipment. Treat the output as the
+    cost floor underneath your own pricing decision, not a recommended price,
+    and not a market rate.</p>
+    <p>Pricing a custom-made physical object where a one-off setup and machine
+    time dominate a short run is not only an apparel problem. If you also quote
+    printed parts, the <a href="../3d-print-price-calculator/">3D print price
+    calculator</a> does the same job for print time, filament or resin, failure
+    rate and post-processing. Already running your shop through Printavo or a
+    similar platform? See <a href="vs-printavo.html">how this calculator
+    differs</a> — it costs a job before that number ever reaches a quoting
+    system.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge for screen printing?</h3>
+    <p>There is no single right number, because the cost side moves far more than the price side: the same design is a different job at 12 pieces than at 288, and a shop paying $3.10 for a blank has a different floor than one paying $6.40. Work out your own cost per piece first — screens, art, press time, ink, blanks with a spoilage allowance, and a share of overhead — then set the price above it by the margin you need. This calculator does that arithmetic on your own numbers; what your market will bear is a separate question it cannot answer.</p>
+    <h3>Why does a 12-shirt order cost so much more per shirt than a 144-shirt order?</h3>
+    <p>Because setup is per job, not per shirt. Burning, registering and reclaiming a screen costs the same whether you print a dozen or a gross, and a three-colour front plus a one-colour back is four screens either way. Spread over 12 pieces that setup can be several dollars a shirt; over 144 it rounds to cents. Quoting both off the same price list is the most common way a small run loses money, which is why the break table on this page costs the same job at every standard quantity tier.</p>
+    <h3>Should I charge screen setup and digitising as a separate line?</h3>
+    <p>Either works, and the calculator shows the consequence of each. Billing setup separately keeps the per-piece price honest and comparable, and it matters most on repeats: a second run of the same design owes no new digitising and no new art, so a shop that buried those in the per-piece price has to explain why the repeat is cheaper. Absorbing setup instead is fine as long as you know it is in there — enter what you actually bill as a setup fee and the break-even figure adjusts to only the setup the per-piece price still has to carry.</p>
+    <h3>How do I price embroidery — per 1,000 stitches or per piece?</h3>
+    <p>Per 1,000 stitches is the industry's shorthand for the machine time, and it is a reasonable proxy because run time really is proportional to stitch count. It hides two things this calculator makes visible. A multi-head machine sews several pieces in one cycle, so the machine minutes per piece are the cycle divided by the number of heads — while hooping is per piece per placement and is not divided by anything, which is usually what actually caps a shop's daily output. And digitising is a one-off for the design rather than a per-piece cost, so on a short run it is a far bigger share of the job than a stitch-count rate suggests.</p>
+    <h3>Does anything I type here get uploaded?</h3>
+    <p>No. Every calculation runs in this browser, and nothing you enter is sent anywhere — there are no accounts, no cookies, and no analytics vendor. If you use the save button, your numbers are written to this browser's own local storage on this device only, and the forget button deletes them. Anonymous feature counts (estimate, example_loaded, inputs_saved) are stored the same local way and can be switched off.</p>
+  </section>
+  </main>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>This calculator produces arithmetic observations from numbers you supply. It does not determine what your work is worth in your market, does not read your supplier invoices, and does not assess whether any wage, employment, or licensing rule applies to your shop. It says nothing about whether you hold the rights to reproduce any artwork you are asked to print.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your rates and volumes are never uploaded; there are no accounts, cookies, or analytics vendors. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget my numbers</em> deletes them. Anonymous feature events (<code>estimate</code>, <code>example_loaded</code>, <code>inputs_saved</code>) are counted in local storage too and never transmitted. Do Not Track and Global Privacy Control turn counting off automatically.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button> <span id="optout-status" class="note"></span></p>
+    <p>Also quoting printed parts? The <a href="../3d-print-price-calculator/">3D print price calculator</a> prices a print from machine time, material, failure rate and post-processing — the same setup-plus-machine-time shape as a decoration job.</p>
+    <p>Free and open source. If this helped you price the next job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeDecorationJob } from "./calculator.mjs";
+    import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const DRAFT_KEY = "apparel-decoration-inputs";
+    const $ = (sel) => document.querySelector(sel);
+    const FIELDS = [
+      "quantity", "pricePerPiece", "setupFeeCharged", "locations", "targetMarginPct",
+      "colorsPerLocation", "screenSetupCost", "pressPiecesPerHour", "inkCostPerPiecePerColor",
+      "stitchCount", "digitizingCostPerLocation", "stitchesPerMinute", "heads",
+      "hoopMinutesPerPiece", "threadCostPer1000Stitches", "backingCostPerPlacement",
+      "artWidthIn", "artHeightIn", "filmCostPerSquareInch", "pressSecondsPerLocation",
+      "blankCostPerPiece", "spoilagePct", "wagePerHour", "payrollLoadPct", "artMinutes",
+      "finishMinutesPerPiece", "monthlyOverhead", "monthlyPieces",
+    ];
+    const EXAMPLE = {
+      quantity: 24, pricePerPiece: 14, setupFeeCharged: 0, locations: 2, targetMarginPct: 40,
+      colorsPerLocation: 3, screenSetupCost: 18, pressPiecesPerHour: 90, inkCostPerPiecePerColor: 0.06,
+      stitchCount: 9000, digitizingCostPerLocation: 45, stitchesPerMinute: 750, heads: 6,
+      hoopMinutesPerPiece: 0.75, threadCostPer1000Stitches: 0.04, backingCostPerPlacement: 0.11,
+      artWidthIn: 11, artHeightIn: 14, filmCostPerSquareInch: 0.012, pressSecondsPerLocation: 20,
+      blankCostPerPiece: 4.2, spoilagePct: 4, wagePerHour: 20, payrollLoadPct: 18, artMinutes: 30,
+      finishMinutesPerPiece: 0.4, monthlyOverhead: 5200, monthlyPieces: 2600,
+    };
+    const METHOD_LABEL = {
+      "screen-print": "Screen printing",
+      embroidery: "Embroidery",
+      dtf: "DTF / heat transfer",
+    };
+
+    // Sign outside the symbol ("-$9.24", never "$-9.24"), and never on a
+    // value that rounds away to zero at the requested precision.
+    const money = (n, places = 2) => {
+      const value = Number(n) || 0;
+      const text = `$${Math.abs(value).toFixed(places)}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+
+    function readInputs() {
+      const values = Object.fromEntries(FIELDS.map((id) => [id, Number($(`#${id}`).value)]));
+      values.method = $("#method").value;
+      return values;
+    }
+
+    function writeInputs(values) {
+      for (const id of FIELDS) {
+        if (values[id] !== undefined && values[id] !== null) $(`#${id}`).value = values[id];
+      }
+      if (values.method) $("#method").value = values.method;
+      showMethodFields();
+    }
+
+    // Only the selected method's inputs are on screen. They stay in the DOM
+    // rather than being removed, so a saved draft round-trips every method's
+    // numbers and switching back does not silently reset them.
+    function showMethodFields() {
+      const method = $("#method").value;
+      for (const name of ["screen-print", "embroidery", "dtf"]) {
+        $(`#fs-${name}`).hidden = name !== method;
+      }
+    }
+
+    function render(result, input) {
+      const lossy = result.profit < 0;
+      $("#cost-per-piece").textContent = money(result.costPerPiece);
+      $("#break-even").textContent = money(result.breakEvenPricePerPiece);
+      const marginEl = $("#margin");
+      marginEl.textContent = `${result.marginPct}%`;
+      marginEl.classList.toggle("loss", lossy);
+
+      const job = result.job;
+      $("#job-summary").textContent =
+        `${METHOD_LABEL[result.method]}, ${input.quantity} piece(s) across ` +
+        `${input.locations} placement(s). You buy ${job.blanksPurchased} blank(s) to ship ` +
+        `${job.quantity}, the job costs ${money(job.total)} and brings in ${money(result.revenue)} — ` +
+        `${lossy ? "a loss of " : "a profit of "}${money(Math.abs(result.profit))}.`;
+
+      const rows = [
+        ["Setup (one-off for this job)", job.setup.total],
+        ["Blanks (including spoilage)", job.blanks],
+        ["Run labour and consumables", job.runTotal],
+        ["Overhead share", job.overhead],
+      ];
+      const total = job.total || 1;
+      $("#cost-body").innerHTML = rows
+        .map(
+          ([label, whole]) =>
+            `<tr><td>${label}</td><td class="num">${money(whole)}</td>` +
+            `<td class="num">${money(job.quantity > 0 ? whole / job.quantity : 0)}</td>` +
+            `<td class="num">${Math.round((whole / total) * 100)}%</td></tr>`,
+        )
+        .join("") +
+        `<tr><td><strong>Total</strong></td><td class="num"><strong>${money(job.total)}</strong></td>` +
+        `<td class="num"><strong>${money(result.costPerPiece)}</strong></td><td class="num">100%</td></tr>`;
+
+      $("#break-body").innerHTML = result.quantityBreaks
+        .map(
+          (b) =>
+            `<tr${b.isQuoted ? ' class="quoted"' : ""}>` +
+            `<td class="num">${b.quantity}${b.isQuoted ? " (quoted)" : ""}</td>` +
+            `<td class="num">${money(b.setupPerPiece)}</td>` +
+            `<td class="num">${money(b.costPerPiece)}</td>` +
+            `<td class="num">${money(b.breakEvenPricePerPiece)}</td>` +
+            `<td class="num">${b.targetPricePerPiece === null ? "—" : money(b.targetPricePerPiece)}</td>` +
+            `</tr>`,
+        )
+        .join("");
+
+      $("#findings").innerHTML = result.findings
+        .map(
+          (f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`,
+        )
+        .join("");
+
+      $("#report").hidden = false;
+    }
+
+    function run(event = "estimate") {
+      const input = readInputs();
+      if (!(input.quantity > 0)) {
+        $("#status").innerHTML =
+          `<span class="error">Enter a quantity above 0 pieces — every per-piece figure divides by it.</span>`;
+        $("#report").hidden = true;
+        return;
+      }
+      $("#status").textContent = "";
+      render(computeDecorationJob(input), input);
+      recordUsage(event);
+      $("#report").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#method").addEventListener("change", () => {
+      showMethodFields();
+      if (!$("#report").hidden) run("estimate");
+    });
+
+    $("#calculate").addEventListener("click", () => run("estimate"));
+
+    $("#load-example").addEventListener("click", () => {
+      writeInputs({ ...EXAMPLE, method: "screen-print" });
+      run("example_loaded");
+      $("#status").textContent =
+        "Worked example: 24 shirts, a 3-colour front and a 3-colour back, $4.20 blanks, 4% spoilage.";
+    });
+
+    $("#save").addEventListener("click", () => {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(readInputs()));
+        $("#status").textContent =
+          "Saved to this browser on this device. Nothing was uploaded.";
+        recordUsage("inputs_saved");
+      } catch {
+        $("#status").textContent =
+          "This browser refused to save (private mode or blocked storage) — your numbers are still on screen.";
+      }
+    });
+
+    $("#forget").addEventListener("click", () => {
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* storage is optional */
+      }
+      $("#status").textContent = "Saved numbers deleted from this browser.";
+    });
+
+    $("#optout").addEventListener("click", () => {
+      setUsageOptOut(true);
+      $("#optout").disabled = true;
+      $("#optout").textContent = "Usage counting is off";
+      $("#optout-status").textContent = "Local counts deleted. Nothing had left this device anyway.";
+    });
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+      if (saved && typeof saved === "object") {
+        writeInputs(saved);
+        $("#status").textContent = "Loaded the numbers you saved in this browser.";
+      }
+    } catch {
+      /* storage is optional */
+    }
+
+    showMethodFields();
+
+    if (usageOptedOut()) {
+      $("#optout").disabled = true;
+      $("#optout").textContent = "Usage counting is off";
+    }
+  </script>
+</body>
+</html>

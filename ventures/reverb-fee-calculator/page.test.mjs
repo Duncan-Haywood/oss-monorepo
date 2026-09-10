@@ -14,6 +14,7 @@ import {
   compareBump,
   compareReturnResolution,
 } from './calc.mjs';
+import { whereToSellUrl } from './to-where-to-sell.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./should-i-take-this-reverb-offer.html', import.meta.url), 'utf8');
@@ -260,4 +261,32 @@ test('every worked-example sub-page carries a robots meta and a matching canonic
 // path to the multi-channel ranking that owns the handoff.
 test('index links to the where-to-sell calculator', () => {
   assert.match(html, /href="\.\.\/where-to-sell-calculator\/"/);
+});
+
+// index.html carries a live, prefilled link into where-to-sell-calculator
+// (built by to-where-to-sell.mjs from whatever the visitor typed) but the
+// eight "should-i-..." worked-example pages are the actual search-landing
+// pages for this venture's untested hypotheses, and none of them offered a
+// way into the cross-channel comparison at all -- a seller who searched
+// "should I take this Reverb offer" and landed there first had no path to
+// the ranking against eBay, Etsy, Amazon, or their own store, only a path
+// back to this same tool's own index. These pages are static, so the link
+// carries the worked example's own numbers (REVERB_DEFAULTS) rather than a
+// live value -- computed here from the same function index.html uses, so a
+// change to the payload shape or the worked example fails this test instead
+// of quietly landing eight dead or stale links.
+test('every worked-example page hands its numbers to the where-to-sell calculator', () => {
+  const dir = new URL('./', import.meta.url);
+  const expectedHref = whereToSellUrl(REVERB_DEFAULTS);
+  const pages = readdirSync(dir).filter(
+    (name) => name.startsWith('should-i-') && name.endsWith('.html'),
+  );
+  assert.ok(pages.length >= 8, 'expected at least the 8 known worked-example pages');
+  for (const page of pages) {
+    const source = readFileSync(new URL(page, dir), 'utf8');
+    assert.ok(
+      source.includes(`href="${expectedHref}"`),
+      `${page} is missing (or has a stale) link into the where-to-sell calculator`,
+    );
+  }
 });

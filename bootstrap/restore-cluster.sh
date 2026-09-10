@@ -53,11 +53,40 @@
 #                              Opt-in, runs last, cannot fail the restore, and
 #                              enables nothing -- it holds until credentials
 #                              and the policy switch arrive.
+#   CODEX_AUTH_JSON=<json>     the whole ~/.codex/auth.json from `codex login`,
+#                              handed to the worker installed above in the same
+#                              run. This is the "built-in quota" shape: the
+#                              worker draws on the ChatGPT plan's included
+#                              usage, so a tick costs nothing extra. Reaches
+#                              the box over stdin, never argv. Without it the
+#                              worker is installed and uncredentialed, and you
+#                              need the SSH key a second time to finish.
+#   OPENAI_API_KEY=<key>       the metered fallback for the same worker, billed
+#                              per token. Written alongside CODEX_AUTH_JSON
+#                              when both are held -- worker.sh prefers the
+#                              plan's quota and withholds this one -- but on
+#                              its own it means every tick is a charge, and the
+#                              run says so loudly.
+#   CODEX_GH_TOKEN=<pat>       the worker's own GitHub credential, for pushing
+#                              branches and opening PRs. Named apart from
+#                              GH_TOKEN on purpose: this script often runs in
+#                              an Actions job where GH_TOKEN is already set to
+#                              something else, and inheriting that silently
+#                              would ship the wrong credential to the box. Off
+#                              a runner there is no such collision, so it falls
+#                              back to GH_TOKEN -- which is what
+#                              `load-secrets.sh --exec` exports.
 #   WITH_GITHUB_RUNNER_HOST=1  also install a self-hosted GitHub Actions
 #                              runner as a systemd service on the agent box
 #                              (gitops/ci/host/), independent of k3s and Argo.
 #                              Opt-in, runs last, cannot fail the restore, and
 #                              registers with GitHub only once credentialed.
+#   RUNNER_TOKEN=<pat>         fine-grained PAT, Administration: Read and write
+#                              on this repository, handed to the runner
+#                              installed above in the same run. Reaches the box
+#                              over stdin, never argv. Without it the runner is
+#                              installed and holds, and you need the SSH key a
+#                              second time to register it.
 #   WITH_PORTFOLIO_SITE_HOST=1 also serve the portfolio site from the control
 #                              plane box's own nginx (gitops/prod/host/),
 #                              independent of k3s, Argo and Pages. Opt-in, runs
@@ -198,9 +227,21 @@ if [[ "$DRY_RUN" == "1" ]]; then
   echo "server already present: ${SERVER_PRESENT}"
   if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
     echo "  codex   ${AG}  would install the Codex host governor (holds until enabled)"
+    if [[ -n "${CODEX_AUTH_JSON:-}" ]]; then
+      echo "                 + would write its credentials (built-in ChatGPT quota)"
+    elif [[ -n "${OPENAI_API_KEY:-}" ]]; then
+      echo "                 + would write its credentials (METERED OPENAI_API_KEY -- bills per tick)"
+    else
+      echo "                 (NO CODEX_AUTH_JSON -- would install uncredentialed)"
+    fi
   fi
   if [[ "${WITH_GITHUB_RUNNER_HOST:-0}" == "1" ]]; then
     echo "  runner  ${AG}  would install the GitHub Actions runner, host mode (holds until credentialed)"
+    if [[ -n "${RUNNER_TOKEN:-}" ]]; then
+      echo "                 + would write its registration token"
+    else
+      echo "                 (NO RUNNER_TOKEN -- would install unregistered)"
+    fi
   fi
   if [[ "${WITH_PORTFOLIO_SITE_HOST:-0}" == "1" ]]; then
     echo -n "  site    ${CP}  would serve the portfolio site from this box's nginx"
@@ -409,10 +450,93 @@ if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
     if tar -C "${HERE}/.." -cz gitops/agents bootstrap/scripts/install-codex-host.sh \
          | ssh_ag "tar -xz -C '${codex_dir}'" \
        && ssh_ag "CONFIRM=install-codex-host bash '${codex_dir}/bootstrap/scripts/install-codex-host.sh'"; then
-      echo
-      echo "  Installed and holding. It spends no quota until you:"
-      echo "    1. ./bootstrap/scripts/install-codex-host.sh --credentials < codex.env"
-      echo "    2. enable the policy (./bootstrap/scripts/enable-codex-governor.sh), then re-run the installer"
+      # Credentials *after* the install, not before it as step 11 does. The
+      # site's token is needed up front because the install itself clones with
+      # it; this one is not needed until a tick runs, and the installer creates
+      # the service account that /etc/codex-agents/credentials.env is owned
+      # against. Writing first would leave the file correct by luck rather than
+      # by ordering.
+      #
+      # Why this is here at all: without it the owner finishes a successful
+      # restore holding the SSH key, and still has to come back with the key a
+      # second time to hand the worker its credential -- for the one step in
+      # this script whose entire point is dev capacity that survives the next
+      # outage. Step 11 already passes its secret inline; this is the same
+      # idiom, over stdin so the value never lands in the box's own `ps`.
+      #
+      # `CODEX_GH_TOKEN` rather than plain `GH_TOKEN` because this script also
+      # runs as an Actions job, where GH_TOKEN is already set to the workflow's
+      # own token -- inheriting that would ship the wrong credential to the box
+      # without anyone typing it. Off a runner there is no such collision, and
+      # `load-secrets.sh` exports GH_TOKEN as the agents identity, which is
+      # exactly what the worker wants, so the laptop route falls back to it.
+      codex_gh="${CODEX_GH_TOKEN:-}"
+      if [[ -z "$codex_gh" && -z "${GITHUB_ACTIONS:-}" ]]; then
+        codex_gh="${GH_TOKEN:-}"
+      fi
+      if [[ -n "${CODEX_AUTH_JSON:-}" || -n "${OPENAI_API_KEY:-}" ]]; then
+        # An `if` rather than `[[ ... ]] && mask ...`: under `set -e` a bare
+        # AND-list whose test fails is itself a failed statement, so the empty
+        # case would abort the run instead of skipping the mask.
+        if [[ -n "${CODEX_AUTH_JSON:-}" ]]; then mask "${CODEX_AUTH_JSON}"; fi
+        if [[ -n "${OPENAI_API_KEY:-}" ]]; then mask "${OPENAI_API_KEY}"; fi
+        if [[ -n "$codex_gh" ]]; then mask "$codex_gh"; fi
+        # `codex login` may leave auth.json pretty-printed, and systemd reads
+        # credentials.env one KEY=value per line -- a multi-line value would
+        # silently truncate at the first newline. Folding it is safe because
+        # JSON ignores whitespace between tokens and auth.json holds no
+        # newline inside any string.
+        #
+        # Both names are written when both are held. That is not redundancy:
+        # worker.sh resolves auth.json first and `unset`s OPENAI_API_KEY before
+        # invoking codex, so shipping both means the plan's included quota is
+        # used and the API key is the fallback it is -- while shipping only the
+        # API key means every tick is a charge.
+        # Built by appending whole lines, each with its own trailing newline.
+        # `codex_env+="$(printf ...)"` looks equivalent and is not: command
+        # substitution strips trailing newlines, so the second assignment ran
+        # straight on from the first and produced `GH_TOKEN=...OPENAI_API_KEY=`
+        # on one line -- a credentials file systemd would read as one variable
+        # with a nonsense value. Caught by the test below, not by review.
+        codex_env="CODEX_AUTH_JSON=$(printf '%s' "${CODEX_AUTH_JSON:-}" | tr -d '\n\r')"$'\n'
+        codex_env+="GH_TOKEN=${codex_gh}"$'\n'
+        if [[ -n "${OPENAI_API_KEY:-}" ]]; then
+          codex_env+="OPENAI_API_KEY=${OPENAI_API_KEY}"$'\n'
+        fi
+        if printf '%s' "$codex_env" \
+           | ssh_ag "bash '${codex_dir}/bootstrap/scripts/install-codex-host.sh' --credentials"; then
+          echo
+          if [[ -n "${CODEX_AUTH_JSON:-}" ]]; then
+            echo "  Installed and credentialed against the ChatGPT plan's included"
+            echo "  quota, so a tick costs nothing extra."
+          else
+            echo "  ! Installed and credentialed with the METERED OPENAI_API_KEY" >&2
+            echo "    only -- every tick bills per token. Set CODEX_AUTH_JSON" >&2
+            echo "    (from \`codex login\`) and re-run to draw on a ChatGPT" >&2
+            echo "    plan's included usage instead; worker.sh prefers it and" >&2
+            echo "    withholds the API key when both are present." >&2
+          fi
+          if [[ -z "$codex_gh" ]]; then
+            echo "  ! No CODEX_GH_TOKEN was given, so the worker can run but cannot" >&2
+            echo "    push a branch or open a PR. Re-run with it to finish." >&2
+          fi
+          echo "  One step remains, and it is deliberately yours: enable the policy"
+          echo "  (./bootstrap/scripts/enable-codex-governor.sh --host-only), commit,"
+          echo "  and re-run the installer. Installing is not authorising spend."
+        else
+          echo "  ! the worker is installed but its credentials did not land." >&2
+          echo "    The cluster restore above is unaffected, and nothing is" >&2
+          echo "    spending anything. Retry just this part with:" >&2
+          echo "      ./bootstrap/scripts/install-codex-host.sh --credentials < codex.env" >&2
+        fi
+      else
+        echo
+        echo "  Installed and holding. It spends no quota until you:"
+        echo "    1. ./bootstrap/scripts/install-codex-host.sh --credentials < codex.env"
+        echo "    2. enable the policy (./bootstrap/scripts/enable-codex-governor.sh), then re-run the installer"
+        echo "  Step 1 is avoidable: re-run this script with CODEX_AUTH_JSON set"
+        echo "  (and CODEX_GH_TOKEN) and it lands in the same run as the install."
+      fi
     else
       echo "  ! the Codex host install did not complete." >&2
       echo "    The cluster restore above is unaffected." >&2
@@ -454,10 +578,33 @@ if [[ "${WITH_GITHUB_RUNNER_HOST:-0}" == "1" ]]; then
     if tar -C "${HERE}/.." -cz gitops/ci/host bootstrap/scripts/install-github-runner-host.sh \
          | ssh_ag "tar -xz -C '${runner_dir}'" \
        && ssh_ag "CONFIRM=install-github-runner-host bash '${runner_dir}/bootstrap/scripts/install-github-runner-host.sh'"; then
-      echo
-      echo "  Installed and holding. It registers with GitHub only once you:"
-      echo "    ./bootstrap/scripts/install-github-runner-host.sh --credentials <<< 'RUNNER_TOKEN=<PAT>'"
-      echo "  (a fine-grained PAT, Administration: Read and write -- gitops/ci/README.md)"
+      # After the install for the same reason as step 9, and one more that is
+      # specific to this installer: its `write_credentials` chowns the file to
+      # the runner's service account, which the install is what creates. Write
+      # it first and that chown is a silent no-op, leaving a root-owned file
+      # the service cannot read -- a failure that looks exactly like a bad PAT.
+      if [[ -n "${RUNNER_TOKEN:-}" ]]; then
+        mask "${RUNNER_TOKEN}"
+        if printf 'RUNNER_TOKEN=%s\n' "${RUNNER_TOKEN}" \
+           | ssh_ag "bash '${runner_dir}/bootstrap/scripts/install-github-runner-host.sh' --credentials"; then
+          echo
+          echo "  Installed and credentialed. Flip CI onto it by setting the"
+          echo "  repository variable CI_RUNNER=self-hosted -- all 218 workflows"
+          echo "  already read it, and a self-hosted runner is not metered."
+        else
+          echo "  ! the runner is installed but its token did not land." >&2
+          echo "    The cluster restore above is unaffected, and it registers" >&2
+          echo "    with nothing until it has one. Retry just this part with:" >&2
+          echo "      ./bootstrap/scripts/install-github-runner-host.sh --credentials <<< 'RUNNER_TOKEN=<PAT>'" >&2
+        fi
+      else
+        echo
+        echo "  Installed and holding. It registers with GitHub only once you:"
+        echo "    ./bootstrap/scripts/install-github-runner-host.sh --credentials <<< 'RUNNER_TOKEN=<PAT>'"
+        echo "  (a fine-grained PAT, Administration: Read and write -- gitops/ci/README.md)"
+        echo "  That second trip is avoidable: re-run this script with RUNNER_TOKEN"
+        echo "  set and it lands in the same run as the install."
+      fi
     else
       echo "  ! the GitHub runner host install did not complete." >&2
       echo "    The cluster restore above is unaffected." >&2

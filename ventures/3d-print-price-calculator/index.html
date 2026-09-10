@@ -9,7 +9,7 @@
 <meta property="og:description" content="A print priced at '3x the filament cost' skips electricity, printer wear, failed attempts, and the marketplace fee taken out of the price you charge. Find the real number before you list it.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"3D Print Price Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a 3D-printed part from filament cost, electricity, printer depreciation, failed-print rate, and post-processing labor, solves for a marketplace-fee-and-margin-clearing selling price, and checks a real listed price against the break-even."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the calculator inflate cost for a failure rate instead of just adding a flat buffer?","acceptedAnswer":{"@type":"Answer","text":"Because a failed print still burns filament, electricity, and printer hours before it gets scrapped, and the eventual successful print has to earn that back. On average, 1/(1 − failure rate) attempts are needed to land one sellable part, so material, electricity, and machine wear are multiplied by that factor rather than by a flat percentage guess."}},{"@type":"Question","name":"Why is the marketplace fee subtracted from the price instead of added to the cost?","acceptedAnswer":{"@type":"Answer","text":"Because the fee is a percentage of whatever you charge, not a fixed dollar amount, so it cannot be added as a cost line the way filament or electricity can. The calculator solves price×(1 − fee%) − cost = price×(margin%) for price directly, so the number you see already clears the fee at your target margin."}},{"@type":"Question","name":"Does post-processing labor or packaging get inflated by the failure rate too?","acceptedAnswer":{"@type":"Answer","text":"No. Post-processing time and packaging only ever happen once, on the part that actually sells — a failed print never reaches sanding or a shipping box. Only filament, electricity, and printer depreciation are multiplied, since those are what a failed attempt actually spends."}},{"@type":"Question","name":"Does anything I type get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the calculator inflate cost for a failure rate instead of just adding a flat buffer?","acceptedAnswer":{"@type":"Answer","text":"Because a failed print still burns filament, electricity, and printer hours before it gets scrapped, and the eventual successful print has to earn that back. On average, 1/(1 − failure rate) attempts are needed to land one sellable part, so material, electricity, and machine wear are multiplied by that factor rather than by a flat percentage guess."}},{"@type":"Question","name":"Why is the marketplace fee subtracted from the price instead of added to the cost?","acceptedAnswer":{"@type":"Answer","text":"Because the fee is a percentage of whatever you charge, not a fixed dollar amount, so it cannot be added as a cost line the way filament or electricity can. The calculator solves price×(1 − fee%) − cost = price×(margin%) for price directly, so the number you see already clears the fee at your target margin."}},{"@type":"Question","name":"Does post-processing labor or packaging get inflated by the failure rate too?","acceptedAnswer":{"@type":"Answer","text":"No. Post-processing time and packaging only ever happen once, on the part that actually sells — a failed print never reaches sanding or a shipping box. Only filament, electricity, and printer depreciation are multiplied, since those are what a failed attempt actually spends."}},{"@type":"Question","name":"Does anything I type get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere unless you choose to save it. Usage counting only tallies anonymous feature events, and you can turn it off with the button above. The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it."}}]}</script>
 <style>
 :root{font:16px/1.5 system-ui,sans-serif;color:#151a24;background:#eef1f6}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #cfd9e8;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a1a3a08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #dbe4f0;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1f5ab8;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #b7c7e0;border-radius:8px;font:inherit;background:#fbfdff}.result{background:#0e2a5c;color:#fff;border-color:#0e2a5c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4a5468}.result .note{color:#c9d7ee}.err{color:#ffd0a6;font-weight:700}.warn{background:#fff0e0;border:1px solid #f0b987;color:#7a3f06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#3a1f08;border-color:#c9843b;color:#ffdcb0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #b7c7e0;background:#fff;cursor:pointer;color:#151a24}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
 </style></head>
@@ -40,6 +40,12 @@
 <label>Marketplace + payment fee (%)<input id="marketplaceFeePercent" type="number" min="0" max="99" step="0.1" value="8.5"></label>
 <label>Target margin (%)<input id="targetMarginPercent" type="number" min="0" max="99" step="1" value="35"></label>
 </div></fieldset>
+<p class="note">
+<button type="button" id="save">Save this scenario on this device</button>
+<button type="button" id="forget">Forget my saved scenario</button>
+<button type="button" id="copyLink">Copy shareable link</button>
+</p>
+<span id="linkStatus" class="note" role="status" aria-live="polite"></span>
 </section>
 
 <section class="result" aria-live="polite"><h2>Price to charge</h2><p id="errors" class="err" role="alert" hidden></p>
@@ -74,33 +80,44 @@
 </dl>
 </section>
 
-<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your costs and prices are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>price-calculated</code>, <code>price-checked</code>) so we can tell whether the calculator gets used — no costs or prices are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your costs and prices are never uploaded, there is no account, and nothing is saved when you close the tab unless you choose to save it. We count only anonymous local feature events (<code>price-calculated</code>, <code>price-checked</code>) so we can tell whether the calculator gets used — no costs or prices are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p><p class="privacy">The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it.</p></section>
 
 <section><h2>Common questions</h2>
 <h3>Why does the calculator inflate cost for a failure rate instead of just adding a flat buffer?</h3><p>Because a failed print still burns filament, electricity, and printer hours before it gets scrapped, and the eventual successful print has to earn that back. On average, 1/(1 − failure rate) attempts are needed to land one sellable part, so material, electricity, and machine wear are multiplied by that factor rather than by a flat percentage guess.</p>
 <h3>Why is the marketplace fee subtracted from the price instead of added to the cost?</h3><p>Because the fee is a percentage of whatever you charge, not a fixed dollar amount, so it cannot be added as a cost line the way filament or electricity can. The calculator solves price×(1 − fee%) − cost = price×(margin%) for price directly, so the number you see already clears the fee at your target margin.</p>
 <h3>Does post-processing labor or packaging get inflated by the failure rate too?</h3><p>No. Post-processing time and packaging only ever happen once, on the part that actually sells — a failed print never reaches sanding or a shipping box. Only filament, electricity, and printer depreciation are multiplied, since those are what a failed attempt actually spends.</p>
-<h3>Does anything I type get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+<h3>Does anything I type get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere unless you choose to save it. Usage counting only tallies anonymous feature events, and you can turn it off with the button above. The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it.</p>
 </section>
 
 <p>Cutting sheet goods or boards instead of printing? See the <a href="../cut-list-optimizer/">Cut List Optimizer</a>, which prices a cutting plan from sheet and board cost the same way this tool prices a print from filament, electricity, and printer wear.</p>
 
+<p>Taking your prints to a craft fair or maker market? The <a href="../craft-fair-booth-calculator/">craft fair booth calculator</a> works out what one booth has to sell to cover its fee, mileage, and your own hours — it takes the materials percentage this tool derives and turns it into a go/no-go on the show.</p>
+<p>Decorating garments rather than printing parts? The <a href="../apparel-decoration-price-calculator/">screen printing and embroidery price calculator</a> costs a job the same way — a one-off setup spread over the run, plus machine time and material per piece — for screens, stitches, or DTF transfers.</p>
+
 <footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, measure your printer's actual power draw, predict actual failure rates, or replace your own pricing judgment, accountant, or marketplace's fee schedule.</p><p>MIT licensed. If it helped you price a print, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
 
 <script type="module">
-import { calculatePrice, DEFAULTS } from './calc.mjs';
+import { calculatePrice } from './calc.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues, REQUIRED_FIELD_IDS } from './share.mjs';
+const DRAFT_KEY = '3d-print-price-calculator-draft';
 const el = id => document.getElementById(id);
 const money = (n) => {
   const format = (n) => `$${n.toFixed(2)}`;
   const text = format(Math.abs(n));
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
-const FIELD_IDS = Object.keys(DEFAULTS);
+const FIELD_IDS = REQUIRED_FIELD_IDS;
 let counted = false;
 let actualCounted = false;
 
 function fieldInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+function writeInputs(values) {
+  for (const id of FIELD_IDS) {
+    if (Object.prototype.hasOwnProperty.call(values, id)) el(id).value = values[id];
+  }
+}
 
 function updatePrice(count = false) {
   try {
@@ -152,6 +169,57 @@ el('actualSellingPrice').addEventListener('input', () => updateActual(true));
 el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
 el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
 if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('save').addEventListener('click', () => {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(fieldInputs()));
+    el('linkStatus').textContent = 'Saved to this browser on this device. Nothing was uploaded.';
+    recordEvent('scenario_saved');
+  } catch {
+    el('linkStatus').textContent = 'This browser refused to save (private mode or blocked storage) — your numbers are still on screen.';
+  }
+});
+
+el('forget').addEventListener('click', () => {
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+  } catch { /* storage is optional */ }
+  el('linkStatus').textContent = 'Saved scenario deleted from this browser.';
+});
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs({ ...fieldInputs(), actualSellingPrice: el('actualSellingPrice').value });
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = 'Link copied. Nothing was uploaded to make it.';
+  } catch {
+    el('linkStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link_copied');
+});
+
+// A shared link wins over a saved draft, which wins over the form's own
+// shipped defaults -- and `formValues` writes every field the form owns
+// rather than only the ones present, so a link opened over a saved draft
+// (or mid-edit values) cannot leave a stranger's number sitting in a field
+// the link did not carry. See share.mjs for the full reasoning.
+try {
+  const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+  if (saved && typeof saved === 'object') writeInputs(saved);
+} catch { /* storage is optional */ }
+
+const fromLink = decodeInputs(location.hash || location.search);
+if (Object.keys(fromLink).length > 0) {
+  const shared = formValues(fromLink);
+  writeInputs(shared);
+  // formValues clears actualSellingPrice too when the link didn't carry one,
+  // the same reasoning as writeInputs above -- see share.mjs.
+  el('actualSellingPrice').value = shared.actualSellingPrice;
+  el('linkStatus').textContent = 'Opened a shared scenario. Review the numbers before you use them.';
+}
+
 updatePrice(false);
 updateActual(false);
 </script>

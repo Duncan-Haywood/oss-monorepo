@@ -53,9 +53,41 @@ from pathlib import Path
 import yaml
 
 REPO = Path(__file__).resolve().parents[2]
-LEDGER = REPO / "portfolio" / "ledger" / "2026-08.yaml"
+LEDGER_DIR = REPO / "portfolio" / "ledger"
 SNAPSHOT = REPO / "portfolio" / "ledger" / "results-break-even-2026-08-20.json"
 CANDIDATES = REPO / "portfolio" / "pipeline" / "candidates.yaml"
+
+_MONTH_LEDGER_RE = re.compile(r"^\d{4}-\d{2}\.yaml$")
+
+
+def latest_ledger_path(directory: Path = LEDGER_DIR) -> Path:
+    """The current month's ledger file — whichever `YYYY-MM.yaml` sorts last.
+
+    `README.md` in this directory: "One file per month: `YYYY-MM.yaml`." This
+    module's own docstring promises to be the live gate — "Unlike
+    `break_even.py`, this reads live and is checked against no snapshot" —
+    which `break_even.py` earns by pinning a *dated* snapshot on purpose
+    (`results-break-even-2026-08-20.json`, refreshed only deliberately). This
+    module instead hardcoded the ledger filename itself: `LEDGER =
+    REPO / "portfolio" / "ledger" / "2026-08.yaml"`. That was the live file in
+    August. Measured on 2026-09-10, over a week into the next month: it still
+    was, frozen at 756 entries from before `2026-09.yaml` was ever created, so
+    every `meta_share`/`reverification_share`/`revenue_recorded` reading this
+    gate produced for the first ten days of September was computed against
+    August's tail — never against the thousands of entries actually landing
+    that month — with no error, and no way for a session reading `PROCEED` or
+    `BUILD` to know the number behind it was over a week stale. Sorting the
+    filenames instead of naming one fixes this rollover and the next one on
+    2026-10-01 the same way, rather than needing a session to remember to bump
+    a constant on the first of every month.
+    """
+    candidates = sorted(p for p in directory.glob("*.yaml") if _MONTH_LEDGER_RE.match(p.name))
+    if not candidates:
+        raise FileNotFoundError(f"no YYYY-MM.yaml ledger file found in {directory}")
+    return candidates[-1]
+
+
+LEDGER = latest_ledger_path()
 
 # Entries land several times an hour, so a whole-month share is dominated by
 # history and answers "what has the fleet been", not "what is it doing now".

@@ -44,6 +44,50 @@ export const DEFAULTS = Object.freeze({
   colorPerPage: 0.07,
 });
 
+/**
+ * Every id the form owns, in the order the page presents them.
+ *
+ * This is a strict subset of `DEFAULTS`: the five print-schedule constants
+ * (`paperbackRoyaltyRate`, `bwFixed`, `bwPerPage`, `colorFixed`,
+ * `colorPerPage`) are inputs to the arithmetic but not controls on the page,
+ * so `Object.keys(DEFAULTS)` is not the list a form-reading caller wants.
+ *
+ * It lives here rather than in `index.html`, where it used to be restated
+ * inline, because two callers now need the same list and a copied rule is
+ * how this repository has twice shipped live defects — see CLAUDE.md, "168
+ * became 169". `share.test.mjs` asserts the page imports it instead of
+ * declaring its own.
+ */
+export const FORM_FIELD_IDS = Object.freeze([
+  'ebookList', 'ebookPlan', 'fileSizeMb', 'deliveryPerMb', 'ebookPaidSales',
+  'kenpReads', 'kenpRate', 'paperbackList', 'paperbackPages', 'paperbackColor',
+  'paperbackPrintOverride', 'paperbackSales', 'otherStoreSales', 'otherStoreNet',
+  'ingramSales', 'ingramWholesale', 'ingramPrintCost',
+]);
+
+/**
+ * The two controls that are a choice rather than a number, with the exact
+ * option values their `<select>` offers.
+ *
+ * A shared link must not be able to put a value in one of these that the
+ * form cannot represent: assigning an unknown value to a `<select>` leaves
+ * the previous selection standing, silently, so the recipient would compute
+ * a 70%-plan royalty from a link that said 35%.
+ */
+export const SELECT_OPTIONS = Object.freeze({
+  ebookPlan: Object.freeze(['70', '35']),
+  paperbackColor: Object.freeze(['false', 'true']),
+});
+
+/** Form fields that carry a number. Everything that is not a `<select>`. */
+export const NUMERIC_FIELD_IDS = Object.freeze(
+  FORM_FIELD_IDS.filter((id) => !(id in SELECT_OPTIONS)),
+);
+
+/** The one numeric field the form lets an author leave blank: blank means
+ * "derive the print cost from the page count" rather than "costs nothing". */
+export const OPTIONAL_FIELD_IDS = Object.freeze(['paperbackPrintOverride']);
+
 export function printCost({ pages, color, override, bwFixed, bwPerPage, colorFixed, colorPerPage }) {
   if (override !== '' && override !== undefined && override !== null) {
     return finite(override, 'Paperback print cost');

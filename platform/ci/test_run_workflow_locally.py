@@ -797,6 +797,77 @@ class ReadOnlyJobs(unittest.TestCase):
         self.assertTrue(any("--test" in s.run for s in steps),
                         "the build job must still carry the test step")
 
+    def test_a_filename_that_contains_secrets_does_not_hold_a_job(self):
+        """The regression this narrowing fixes, reduced to its essentials.
+
+        The screen used to ask whether the literal text `secrets.` appeared
+        anywhere in the job. `load-secrets.sh` contains it, so a job that
+        merely *names* the file was classified as reading a credential.
+        """
+        allowed, held = runner.read_only_jobs(workflow("""
+            permissions:
+              contents: read
+            jobs:
+              lint:
+                steps:
+                  - run: shellcheck bootstrap/scripts/load-secrets.sh
+        """))
+        self.assertEqual(allowed, {"lint"}, f"held: {held}")
+
+    def test_the_gitops_shellcheck_job_runs_while_its_ssh_jobs_stay_held(self):
+        """Both halves on the real file, because both halves matter.
+
+        `hetzner-gitops-ci.yml` is the only workflow here that both validates
+        the whole delivery path and can log into the two live boxes. The
+        `scripts` job is pure `shellcheck` over the 24 scripts that install
+        every runner-free route; `preflight` and `restore` SSH to production
+        and `restore` reinstalls k3s on it. A screen that cannot tell those
+        apart is either useless or dangerous, so this pins which is which.
+        """
+        parsed = runner.load_workflow(
+            os.path.join(runner.WORKFLOWS, "hetzner-gitops-ci.yml"))
+        allowed, held = runner.read_only_jobs(parsed)
+        held_ids = [job for job, _ in held]
+
+        self.assertIn("scripts", allowed, f"held: {held}")
+        steps, _ = runner.collect(parsed, only={"scripts"})
+        self.assertTrue(any("shellcheck" in s.run for s in steps),
+                        "the scripts job must still carry the shellcheck step")
+
+        for job_id in ("preflight", "restore", "hcloud-scope"):
+            self.assertIn(job_id, held_ids,
+                          f"{job_id} reads a secret and must never auto-run")
+
+    def test_a_secret_reference_holds_the_job_however_long_the_command(self):
+        """Why the screen walks scalars instead of re-serialising them.
+
+        `yaml.safe_dump` line-wraps long strings, and this repository has a
+        `run:` step 24 paths long. A screen that reads the dump can have a
+        `${{ secrets.X }}` split across two lines by the dumper -- a false
+        *negative* on the safety-critical side, which is the one direction
+        this must never fail in.
+        """
+        long_command = "\n".join(
+            f"shellcheck bootstrap/scripts/some-rather-long-name-{i}.sh"
+            for i in range(40))
+        job = {"steps": [{
+            "run": long_command,
+            "env": {"KEY": "${{ secrets.HETZNERSSHKEY }}"},
+        }]}
+        self.assertTrue(runner._mentions_secret(job))
+
+    def test_the_screen_fails_closed_on_forms_it_cannot_read_a_name_from(self):
+        # `secrets[...]` yields no readable name, and a reusable-workflow
+        # `secrets:` key passes credentials with no `${{ }}` anywhere. Both
+        # must hold the job rather than be waved through.
+        self.assertTrue(runner._mentions_secret(
+            {"steps": [{"run": "x", "env": {"K": "${{ secrets['NAME'] }}"}}]}))
+        self.assertTrue(runner._mentions_secret({"secrets": "inherit"}))
+        # And a secret reached through a longer expression is still a secret.
+        self.assertTrue(runner._mentions_secret(
+            {"steps": [{"run": "x",
+                        "env": {"K": "${{ inputs.on && secrets.TOKEN || '' }}"}}]}))
+
     def test_no_auto_run_job_in_the_repo_can_write_or_read_a_secret(self):
         """Whole-repository sweep: the gate must hold across all 218 files.
 

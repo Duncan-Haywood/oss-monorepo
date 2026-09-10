@@ -9,9 +9,9 @@
 <meta property="og:description" content="Stop judging a location by gross sales alone. Find real profit after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vending Machine Route Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds true profit for one vending-machine location after location commission, card processing fees, shrink/spoilage, drive time, mileage, restock labor, and amortized machine cost, and rolls a list of locations up into monthly route profit."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does shrink (theft or spoilage) add extra cost instead of just lowering my sales count?","acceptedAnswer":{"@type":"Answer","text":"Because you already paid for those units when you loaded the machine — they were product cost, not lost revenue. Treating shrink as a hit to sales undercounts how much theft or spoiled stock is actually costing you; this calculator adds it on top of the cost of the units you did sell, so the real product cost shows up."}},{"@type":"Question","name":"Why does commission come out of gross sales rather than my profit?","acceptedAnswer":{"@type":"Answer","text":"Because that is how nearly every vending placement agreement is written — the location owner is paid a percentage of what the machine takes in, not a share of what is left after your costs. Commission is one of the first numbers charged to a visit here, before card fees, mileage, or your own labor."}},{"@type":"Question","name":"Why allocate the machine's monthly cost across each visit instead of tracking it separately?","acceptedAnswer":{"@type":"Answer","text":"A machine you are still paying off or leasing costs money whether or not a location sells well. Spreading that fixed cost across the visits you actually make each month is what turns \"this location has $73 in sales\" into \"this location is worth keeping,\" the number that actually decides whether to renegotiate commission or pull the machine."}},{"@type":"Question","name":"Does anything about my locations or sales get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does shrink (theft or spoilage) add extra cost instead of just lowering my sales count?","acceptedAnswer":{"@type":"Answer","text":"Because you already paid for those units when you loaded the machine — they were product cost, not lost revenue. Treating shrink as a hit to sales undercounts how much theft or spoiled stock is actually costing you; this calculator adds it on top of the cost of the units you did sell, so the real product cost shows up."}},{"@type":"Question","name":"Why does commission come out of gross sales rather than my profit?","acceptedAnswer":{"@type":"Answer","text":"Because that is how nearly every vending placement agreement is written — the location owner is paid a percentage of what the machine takes in, not a share of what is left after your costs. Commission is one of the first numbers charged to a visit here, before card fees, mileage, or your own labor."}},{"@type":"Question","name":"Why allocate the machine's monthly cost across each visit instead of tracking it separately?","acceptedAnswer":{"@type":"Answer","text":"A machine you are still paying off or leasing costs money whether or not a location sells well. Spreading that fixed cost across the visits you actually make each month is what turns \"this location has $73 in sales\" into \"this location is worth keeping,\" the number that actually decides whether to renegotiate commission or pull the machine."}},{"@type":"Question","name":"Does anything about my locations or sales get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere — it exists only in the page while it is open. The visit inputs above and the target monthly income setting are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
 <style>
-:root{font:16px/1.5 system-ui,sans-serif;color:#2b1d12;background:#fdf3e7}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e7c9a3;border-radius:16px;padding:20px;box-shadow:0 8px 24px #5a381208;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #edd9bb;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a5a20;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9b98c;border-radius:8px;font:inherit;background:#fffdfa}.result{background:#8a3d1f;color:#fff;border-color:#8a3d1f;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6b563f}.result .note{color:#f6dcc9}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#8a5a20}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #d9b98c;background:#fff;cursor:pointer;color:#2b1d12}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+:root{font:16px/1.5 system-ui,sans-serif;color:#2b1d12;background:#fdf3e7}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e7c9a3;border-radius:16px;padding:20px;box-shadow:0 8px 24px #5a381208;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #edd9bb;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a5a20;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #d9b98c;border-radius:8px;font:inherit;background:#fffdfa}.result{background:#8a3d1f;color:#fff;border-color:#8a3d1f;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6b563f}.result .note{color:#f6dcc9}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#8a5a20}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #d9b98c;background:#fff;cursor:pointer;color:#2b1d12}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
 </style></head>
 <body>
 <header><p>FOR INDEPENDENT VENDING MACHINE ROUTE OPERATORS</p><h1>Gross sales lie. Profit per stop doesn't.</h1><p class="lede">A location that "did $73 in sales" can still be losing you money once commission, card fees, shrink, drive time, and the machine's own cost come out. This free calculator finds real profit for one location, then rolls your whole route up into a monthly number you can check against your income goal.</p></header>
@@ -37,6 +37,12 @@
 <label>Machine monthly cost (lease/amortized)<input id="machineMonthlyCost" type="number" min="0" step="1" value="15"></label>
 <label>Restock visits per month<input id="visitsPerMonth" type="number" min="1" step="1" value="4"></label>
 </div></fieldset>
+<p id="draftStatus" class="note" role="status">Your visit inputs above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded. Your location list below is never saved.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
 </section>
 
 <section id="price" class="result" aria-live="polite"><h2>Profit for this visit</h2><p id="errors" class="err" role="alert" hidden></p>
@@ -68,6 +74,7 @@
 <div class="fields" style="margin-top:14px">
 <label>Target monthly income<input id="targetMonthlyIncome" type="number" min="0" step="10" value="800"></label>
 </div>
+<p class="note">Target monthly income is saved on this device and carried in your shareable link, the same as the visit inputs above — only the location rows are never saved.</p>
 <p id="routeErrors" class="err" role="alert" hidden></p>
 <dl>
 <dt>Locations counted</dt><dd id="routeLocations"></dd>
@@ -78,13 +85,13 @@
 </dl>
 </section>
 
-<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your sales figures and location list are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>visit-priced</code>, <code>route-check</code>) so we can tell whether the calculator gets used — no locations, prices, or sales figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your visit inputs (sales, commission, card fee, shrink, drive time, machine cost) and your target monthly income are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. Your location rows are a different promise: they are never saved anywhere, and closing or refreshing the tab clears them. There is no account. We count only anonymous local feature events (<code>visit-priced</code>, <code>route-check</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no locations, prices, or sales figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
 
 <section><h2>Common questions</h2>
 <h3>Why does shrink (theft or spoilage) add extra cost instead of just lowering my sales count?</h3><p>Because you already paid for those units when you loaded the machine &mdash; they were product cost, not lost revenue. Treating shrink as a hit to sales undercounts how much theft or spoiled stock is actually costing you; this calculator adds it on top of the cost of the units you did sell, so the real product cost shows up.</p>
 <h3>Why does commission come out of gross sales rather than my profit?</h3><p>Because that is how nearly every vending placement agreement is written &mdash; the location owner is paid a percentage of what the machine takes in, not a share of what is left after your costs. Commission is one of the first numbers charged to a visit here, before card fees, mileage, or your own labor.</p>
 <h3>Why allocate the machine's monthly cost across each visit instead of tracking it separately?</h3><p>A machine you are still paying off or leasing costs money whether or not a location sells well. Spreading that fixed cost across the visits you actually make each month is what turns "this location has $73 in sales" into "this location is worth keeping," the number that actually decides whether to renegotiate commission or pull the machine.</p>
-<h3>Does anything about my locations or sales get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere &mdash; it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+<h3>Does anything about my locations or sales get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the location list you type into the route section is never saved anywhere &mdash; it exists only in the page while it is open. The visit inputs above and the target monthly income setting are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
 </section>
 
 <p class="note">Sizing up the business? Read the guide: <a href="./how-much-does-a-vending-machine-actually-make.html">how much does a vending machine actually make?</a></p>
@@ -94,17 +101,36 @@
 <script type="module">
 import { calculate, computeRouteProfit, incomeGap, DEFAULTS } from './calc.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
 const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
 const money = (n) => {
   const format = (n) => `$${n.toFixed(2)}`;
   const text = format(Math.abs(n));
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
 const VISIT_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'vending-machine-route-margin-visit-draft';
 let counted = false;
 let routeCounted = false;
 
 function visitInputs() { return Object.fromEntries(VISIT_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_VISIT_INPUTS = visitInputs();
+
+function applyVisitInputs(values) {
+  for (const id of VISIT_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persistVisit() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(visitInputs())));
+}
 
 function updateVisit(count = false) {
   try {
@@ -155,12 +181,53 @@ function updateRoute(count = false) {
   }
 }
 
-VISIT_IDS.forEach(id => el(id).addEventListener('input', () => updateVisit(true)));
+VISIT_IDS.forEach(id => el(id).addEventListener('input', () => { updateVisit(true); persistVisit(); }));
 document.querySelectorAll('.locationProfit').forEach(input => input.addEventListener('input', () => updateRoute(true)));
 el('targetMonthlyIncome').addEventListener('input', () => updateRoute(true));
 el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
 el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
 if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(visitInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyVisitInputs(DEFAULT_VISIT_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  updateVisit(false);
+  updateRoute(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every visit field, so one the link omitted is
+// cleared rather than left showing the recipient's own saved draft.
+(() => {
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  if (Object.keys(saved).length) applyVisitInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applyVisitInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
+      ? 'Opened a shared visit. Review the numbers before you use it.'
+      : 'Restored your last visit from this browser. Your location list below is never saved.';
+  }
+})();
+
 updateVisit(false);
 updateRoute(false);
 </script>

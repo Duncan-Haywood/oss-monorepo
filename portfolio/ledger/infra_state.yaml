@@ -390,47 +390,34 @@ readings:
       in Settings → Billing is what turns this into a real verdict.
 
   github-pages-branch-route:
-    # A third Pages question, distinct from both rows around it.
-    #   `github-pages-plan`   — could this account serve a private repo's site?
-    #   `github-pages-branch-route` — is the runner-free `gh-pages` branch
-    #                                 source the one the site is pointed at?
-    #   `github-pages-origin` — does the URL actually return a page?
-    # Until 2026-09-05 the middle one was believed unreadable from a session,
-    # so it was folded into the third and both stayed `unknown`.
-    # CHANGED 2026-09-06: down -> up. The owner flipped the dropdown, or it
-    # was already flipped; either way the route this row tracks is live and
-    # the 2026-09-05 reading below is superseded rather than deleted, because
-    # the way it was wrong is the reusable part.
     verdict: up
-    measured: "2026-09-06"
-    run: 34055759342
+    measured: "2026-09-10"
+    run: 34452482066
     how: >-
-      RE-MEASURED 2026-09-06T19:42Z, run 34055759342, after publishing a
-      merge that touched `ventures/**`: the managed builder ran on `gh-pages`
-      and concluded `success` again, so the route is not a one-off reading.
-      Keeping this row fresh is now load-bearing rather than tidy.
-      `decision_queue.py`'s `PUBLIC_ORIGINS` consults it through `reading()`,
-      so once it ages past `STALE_AFTER_DAYS` the owner's banner reverts to
-      announcing that the catalogue is dark -- which is what it wrongly said
-      all day on 2026-09-06 until this row was wired into it. Re-measure it
-      on any session that publishes.
-      `python3 platform/ci/pages_state.py` and read the **`deployed`** row
-      (added 2026-09-06). It lists runs of GitHub's managed builder filtered
-      to `gh-pages` and looks for a completed one. A managed Pages build is
-      triggered only by a push to the *configured source*, so a successful run
-      on `gh-pages` names the branch and shows a real deployment -- which the
-      `source` row below cannot do: that one reads whether the builder is
-      *listed*, which establishes that some branch source exists but names no
-      branch and proves no build ever ran.
-      Superseded reading, kept for the shape of the error:
-      `python3 platform/ci/pages_state.py` and read the `source` row (added
-      2026-09-05). It lists every workflow GitHub reports for this repository
-      and looks for the synthetic `dynamic/pages/` path. GitHub creates that
-      managed builder if and only if Pages serves from a *branch*; when the
-      source is "GitHub Actions" no such workflow exists. The call is
-      `GET /repos/{owner}/{repo}/actions/workflows` — the same endpoint
-      `ci_starvation.py` already uses, so it needs no new scope, no runner and
-      no owner. Re-measure by re-running the tool.
+      RE-MEASURED 2026-09-10T07:56Z, run 34452482066. GitHub's managed builder
+      `dynamic/pages/pages-build-deployment` ran on `gh-pages` at `644bcd2e`
+      and concluded `success`. A managed Pages build is triggered only by a
+      push to the configured source, so `gh-pages` IS that source and the
+      snapshot deployed. Verified against the run object itself
+      (`head_branch: gh-pages`, `path: dynamic/pages/...`, `conclusion:
+      success`) rather than from a summary that restates it.
+
+      Why this needed retaking rather than a code change, which is the
+      reusable part. `STALE_AFTER_DAYS` is 3 and this row was last measured
+      2026-09-06, so on 2026-09-10 it aged out to `unknown` -- and
+      `serving_origins()` correctly dropped it, which flipped
+      `decision_queue.py`'s header from "PARTIAL OUTAGE ... the rows below are
+      NOT all waiting on this" back to "OUTAGE: the public surface is down.
+      ... every other row here is downstream of a host answering at all".
+      Both sentences cannot be true, and the second is the one #3199 was
+      written to stop printing: the catalogue is served by GitHub Pages and
+      `pages-custom-domain` (added the same day, exposure `none`) is
+      downstream of no host at all. The ageing is deliberate and right --
+      `serving_origins()`'s own docstring says an un-re-measured origin must
+      fall back rather than keep suppressing the banner on a reading nobody
+      retook. So the defect was a stale measurement, not the rule that ages
+      it, and the fix is this reading. If the banner regresses again, retake
+      it; do not widen the window to silence it.
     note: >-
       Measured 2026-09-05 across all 232 workflows in this repository. The
       three `dynamic/` entries are

@@ -410,7 +410,17 @@ def read_pages_deployment(api, branch=PUBLISH_BRANCH):
         # answer: nothing has deployed yet.
         return None
     latest["in_flight"] = in_flight
-    latest["last_success"] = last_success
+    # A *copy*, because when the newest completed build is itself the
+    # successful one, `last_success` and `latest` are the same object -- and
+    # `latest["last_success"] = last_success` then makes the dict reference
+    # itself. Nothing that reads a field off it notices (`verdict_deployment`
+    # only ever reads the summary keys), which is why this survived: the one
+    # caller that walks the whole structure is `--json`, and it died with
+    # `ValueError: Circular reference detected` on every healthy repository.
+    # Broken precisely when the site is fine, working only when the newest
+    # build had failed -- the inversion is why it read as "nobody uses
+    # --json" rather than as a bug.
+    latest["last_success"] = dict(last_success) if last_success is not None else None
     return latest
 
 

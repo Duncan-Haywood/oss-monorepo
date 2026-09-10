@@ -22151,6 +22151,74 @@ entries:
         fast-forwarded to `bb1b7bfc`) for the requesting session to review
         and commit. Only file touched: `platform/ci/browser_state.json`.
     mrr_end: 0
+  - venture: locksmith-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added save-and-share to `locksmith-bid-calculator`, matching the
+        pattern this session found several other concurrent sessions shipping
+        the same day (`dog-walking-route-pricing`, `childcare-tuition-
+        calculator`, `wash-and-fold-price-calculator`, `pour-cost-
+        calculator`): every editable number and checkbox on the page is now
+        saved locally between visits and carried in a "Copy shareable link",
+        using the portfolio's shared bid-spec module
+        (`encodeBid`/`decodeBid`/`saveBid`/`restoreBid`/`withProposalTerms`,
+        the same shape as `tuckpointing-bid-calculator`), so the deposit and
+        terms this venture's already-adopted proposal panel collects also
+        ride in the link and the local draft rather than silently resetting
+        to this venture's defaults on the recipient's screen.
+      - >-
+        `platform/pages/roundtrip.mjs` caught two real gaps before this
+        shipped, not after. First pass: the "Today's income check" section
+        (profit per call, calls scheduled today, target daily income) did not
+        round-trip at all -- these three fields were never part of any saved
+        or shared state, so the page's own documented promise ("Nothing here
+        is saved") was accurate but meant a colleague opening a shared call
+        saw the sender's price next to different, stale income-goal numbers.
+        Folded them into the same shared spec as the call details, following
+        the precedent this session watched land the same day on
+        `dog-walking-route-pricing` for its own route-level planning fields.
+        Second pass, after wiring the spec: still failed, because `copyLink`
+        and the local-draft writer were built from `readInput()`, which only
+        maps `calc.mjs`'s `DEFAULTS` keys (the single-visit fields) and
+        therefore never included the three daily-income fields even though
+        `BID_SPEC.numbers` now named them. Added a `persistedInputs()` reader
+        that unions both sets and pointed both call sites at it; the browser
+        check passed clean on the next run (29 fields, 0 dropped).
+      - >-
+        Updated the visible privacy copy, its FAQPage JSON-LD twin, and
+        README.md to state plainly what changed -- the page no longer claims
+        "nothing you type is saved anywhere" or that the income check "is
+        never saved", both of which the new feature made false. Ran
+        `platform/proposal/term-ids.test.mjs` and found the first draft used
+        a hand-wrapped `storage()` accessor instead of the literal
+        `localStorage` the shared test expects at the `saveBid(localStorage,
+        withProposalTerms(BID_SPEC)` call site; switched to the bare global,
+        matching every other venture on this same shared spec, and the
+        suite went from 100/101 to 101/101.
+      - >-
+        Verified: `node --test` in the venture, 123/123 (includes a new
+        `share.test.mjs` covering the bid spec, the proposal-terms fold-in,
+        and storage edge cases). `platform/ci/browser_checks.py --checks
+        roundtrip,sideways,presets,contrast,sweep --only
+        locksmith-bid-calculator` against a real Chromium build: all pass, 0
+        WCAG A/AA violations, 29/29 fields round-trip. `node
+        platform/marketing/regen.mjs` (mirror + kustomization refreshed,
+        committed). `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs`: 1196/1196. `platform/proposal/*.test.mjs`:
+        101/101. `pytest gitops/tests`: 506 passed / 25 skipped. `pytest
+        portfolio/ledger portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests`: 431 passed / 8 subtests. All 20
+        `platform/ci` unittest modules + `agent_review/test_review`: OK.
+        `router/validate.py`, `score_ventures.py --check`,
+        `usage/validate_usage.py`, `pipeline/validate_doc_consistency.py`,
+        `validate_candidates.py`, `checklist_coverage.py`,
+        `front-door-tools.mjs --headroom`: all clean. Actions runners were
+        starved this session (`ci_starvation.py` confirmed `runner_id: 0` on
+        the fleet's other concurrent PRs), so every check above was run
+        locally rather than trusted from a red or absent GitHub check.
+    mrr_end: 0
   - venture: wash-and-fold-price-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -22203,4 +22271,568 @@ entries:
         PRs existed at session start (0), so the mandate's 3-PR merge quota
         applies vacuously this session; product work proceeded per "if none
         exist, start new work after the overlap check."
+    mrr_end: 0
+  - venture: apparel-decoration-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture:
+        `ventures/apparel-decoration-price-calculator`, a free browser
+        calculator that turns a custom apparel shop's own screen,
+        digitising, press, stitch, blank and spoilage costs into a cost per
+        piece, a break-even price, the margin at what they quoted, and a
+        quantity-break table costing the same job at 12, 24, 48, 72, 144 and
+        288 pieces. Three methods share one cost model: screen printing (one
+        screen per colour **per placement**), embroidery (stitch cycle
+        divided by machine heads, plus hooping that is divided by nothing,
+        plus one-off digitising), and DTF (film and ink by printed area,
+        no per-job setup beyond art time).
+      - >-
+        The substance is that decoration setup is per *job* and flat across
+        quantity, which is why a short run priced off a long run's list
+        loses money invisibly. On the shipped example -- 24 pieces, three
+        colours at each of two placements -- setup is $4.99 a shirt; the
+        identical job at 288 carries $0.42. That is the whole quantity-break
+        curve, and it is the table the tool exists to produce. Second,
+        quieter loss modelled: blanks are bought in whole pieces and the
+        spoilage allowance is bought with them, so a 0% allowance is
+        reported rather than silently accepted.
+      - >-
+        Why this niche: nothing in the portfolio touches decorated apparel.
+        `duplicate_check.py` on two phrasings scored nothing at or above
+        0.16 against any venture, pipeline candidate, screened-out row, or
+        ai-first-markets idea, and a grep for
+        embroider/screen-print/apparel/garment/shirt/dtf across the same
+        sources returned nothing. The nearest tool by *shape* is
+        `3d-print-price-calculator` (a custom-fabricated item costed as
+        machine time plus material plus a failure allowance) -- close enough
+        that the two are cross-linked in both directions, and different
+        enough that it has no per-job setup term at all. Named channel:
+        r/screenprinting and r/embroidery run "am I charging enough for a
+        24-piece 3-colour job?" weekly, and the search phrases ("screen
+        printing pricing calculator", "embroidery pricing per 1000
+        stitches") are the evergreen version of the same question.
+      - >-
+        Shipped registered and linked in the same commit rather than left to
+        close later: the orphan budget was at its 3/3 ceiling, so
+        `3d-print-price-calculator`'s footer names this tool and this tool's
+        footer names it back, with a `page.test.mjs` assertion on the href
+        in both ventures -- `siblings.mjs --check` still reads 3 orphans and
+        `siblings-budget.json` needed no raise. Also in the same commit: the
+        CI workflow, the `venture-scores.yaml` row (composite 6.0, floor 1
+        `ai_leverage`), `publish-surface.yaml`, `launched.json` (so it
+        enters `/feed.xml`), the `build.mjs` `services` category with the
+        reason it is not filed under `solo-earner` beside
+        `3d-print-price-calculator`, the front-door mirror regen, the four
+        hand-typed mirrored-tool counts (-> 228) plus the `total` constant
+        inside `test_manifests.py` itself, and the `runs-on` count via
+        `gitops/ci/sync_readme_counts.py`.
+      - >-
+        Two real defects were caught by the repo's own guards and fixed
+        before shipping, both worth recording because neither is visible in
+        a passing test run. `check_step_grid` rejected `min="1" step="5"` on
+        the press-throughput input: the accepted values would have been 1,
+        6, 11, ... so the page's own shipped default of 90 was not a value
+        the browser would accept. Same shape on stitches-per-minute with
+        `min="1" step="50"` against a default of 750. Both floors are now
+        multiples of their step. `faq-visible` rejected `<code>` tags inside
+        an FAQ answer, because the tag-stripping the check does inserts
+        spaces and the JSON-LD text then no longer appears verbatim in the
+        visible copy -- the tags stay in the footer, where the privacy check
+        wants them, and the FAQ copy is plain.
+      - >-
+        Verified locally (Actions starved -- `ci_starvation.py` on job
+        102743200828 read `runner_id: 0`, 3s, no steps, so PR checks are
+        read as starvation per CLAUDE.md): `node --test` 52/52 in this
+        venture and 14/14 in `3d-print-price-calculator`;
+        `platform/marketing`+`platform/pages` 1196/1196;
+        `platform/proposal` 101/101; `platform/privacy`+`platform/webcheck`
+        71/71 with 0 skipped (clone unshallowed, so both history-pinned
+        `page-integrity` tests actually ran); `pytest gitops/tests` 506
+        passed / 25 skipped; `pytest portfolio/{ledger,scoring,router,usage,
+        pipeline} infra/tests` 431 passed; all `platform/ci` unittest
+        modules OK plus `agent_review/test_review` 21/21;
+        `build.mjs` + `check.mjs` 228 products, 889 pages, no dead links;
+        `browser_checks.py --only apparel-decoration-price-calculator
+        --checks contrast,sideways,presets` all pass (no WCAG A/AA
+        violations across the page's 28 number inputs, no sideways scroll at
+        360px); `checklist_coverage.py`, `clauses.mjs`,
+        `check_money_sign.py`, `check_no_payment_code.py`,
+        `score_ventures.py --check` (237), `router/validate.py` (236),
+        `usage/validate_usage.py`, `validate_doc_consistency.py`,
+        `validate_candidates.py`, `siblings.mjs --check` (3 orphans, in
+        budget), `front-door-tools.mjs --headroom` (82.7%, ~47 tools left)
+        all clean.
+      - >-
+        Session context, for the next run: the open-PR queue was empty by
+        the time this work started. #4398 and #4399 were both open at
+        session start and both were verified here against the full local
+        checklist; concurrent sessions merged them (04:26Z and 04:27Z) while
+        that verification was still running, so this run merged neither and
+        the three-PR floor was met by an empty queue rather than by merges.
+        `main` was confirmed green independently with
+        `run_workflow_locally.py --tree` (exit 0) at `bb1b7bfc`, and the
+        `gh-pages` snapshot read `current` via `pages_state.py`.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Background task: run the full catalogue-wide `browser_checks.py`
+        sweep (sideways, presets, roundtrip, highlight, contrast, sweep,
+        journey) that CLAUDE.md records as stale, fix any real defects found,
+        and record a fresh reading. `ci_starvation.py` confirmed runners are
+        starved right now (`runner_id: 0`, 2s, no steps on a same-day
+        `agent-permission-harness` run), so all verification here is local.
+      - >-
+        Installed `playwright@1.56.0` + `axe-core` in one `npm install
+        --no-save` command per CLAUDE.md's pinned-version warning, then ran
+        the full 7-check sweep at `bb1b7bfc` (887-890 pages across three
+        re-runs as the tree moved): 0 WCAG A/AA violations across 885+ pages
+        x 2 viewports, 234 tools computing with no errors, 174+/174+ share
+        links round-tripping, all sitemap URLs resolving, full backup/restore
+        and save/share journeys passing end to end. The 48 critical axe
+        `label` violations CLAUDE.md documents from 2026-09-06 are already
+        fixed on `main` -- contrast is clean.
+      - >-
+        This is an extremely active repo (dozens of merges landed during this
+        session alone); a concurrent session independently ran the identical
+        sweep and merged its own clean recording (#4406) partway through this
+        one, and another (#4410) found and fixed the exact same real defect
+        this session found by hand: `roundtrip.mjs`'s `COPY_CONTROLS` selector
+        list was missing `button#copy-link`, so it silently reported `skip
+        ... no copy-link control` instead of verifying the share link on
+        `wash-and-fold-price-calculator` (and, per both sessions'
+        independent `grep`, `sponsor-ready` and
+        `ai-engineering-academy/tools/rc-filter-calculator`) rather than
+        actually testing it -- the exact "probe blind to a new button
+        spelling" shape the file's own history already documents five times
+        over. Verified that PR was open on `main` first
+        (`git fetch && git log`), confirmed the fix was line-for-line the one
+        this session had independently written, discarded the duplicate
+        rather than re-submitting it, and kept only the genuinely novel half
+        of the finding.
+      - >-
+        The novel half: `build.mjs`'s sibling `OWN_COPY_BUTTON` regex (a
+        different gate, guarding against the build injecting a *second*,
+        generic share button on a page that already has its own) recognised
+        only four of the now-five spellings and was not touched by #4410.
+        Confirmed by direct build (`node build.mjs --out=...`) that this is
+        inert today -- none of the three `copy-link` pages sit in the
+        bid-calculator family the injection path covers -- but is the same
+        latent gap the file's own docstring already names as a live defect
+        risk (`freelance-retainer-calculator`'s two-buttons-two-hash-formats
+        bug) for the next venture that reuses the id. Added `copy-link` to
+        the regex and a unit test (`build.test.mjs`, mirroring its four
+        sibling tests); 280/280 pass.
+      - >-
+        Recorded three fresh readings as the tree moved under this session
+        (5558f971 890 pages full 7-check; a 4-venture scoped top-up over
+        `kdp-royalty-calculator`/`locksmith-bid-calculator`/
+        `poshmark-fee-calculator`/`pour-cost-calculator`; then whole-catalogue
+        `highlight`+`journey` at `13935ac4`, since both ignore `--only`) --
+        `browser_state.py` read "every check has a reading that still covers
+        the current tree" immediately after each, though the churn rate here
+        means it will read stale again within minutes of this PR merging;
+        that is this repo's normal state right now, not a defect in the
+        recording.
+      - >-
+        Verified: `node --test platform/pages/build.test.mjs` 280/280 (run
+        three times across the rebase); `node --test platform/marketing/
+        *.test.mjs platform/pages/*.test.mjs` 1197/1197;
+        `checklist_coverage.py` clean. `git fetch origin main` before every
+        push; rebased through six separate waves of concurrent merges with
+        no conflicts in the two files this PR actually changes
+        (`build.mjs`, `build.test.mjs`).
+    mrr_end: 0
+  - venture: craft-fair-booth-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a new venture: a free, browser-local go/no-go
+        calculator for makers deciding whether one craft fair, farmers
+        market, art festival, or holiday market booth is worth taking. It
+        reports the sales the day has to make to break even (in dollars, in
+        orders, and as a share of the stock being brought), the same figure
+        with the maker's own hours paid, what the day actually leaves at the
+        sales they expect, the effective hourly rate across every committed
+        hour, and -- the number an open application actually turns on -- the
+        highest booth fee that still clears their target rate.
+      - >-
+        The modelling decision that makes it different from the portfolio's
+        existing event tools, and the reason it is worth building rather
+        than being a variant of `food-truck-event-margin-calculator`:
+        **unsold stock is inventory, not a cost of the event.** A caterer
+        who over-preps throws food away; a maker who brings 60 candles and
+        sells 22 drives home with 38 candles. So the cost of goods that
+        belongs in one event's break-even is the cost of what *sold*, which
+        is why materials are taken as a percentage of retail rather than as
+        a lump. The stock figure is used for exactly one thing -- expressing
+        the break-even as a sell-through percentage, and flagging the case
+        where it exceeds 100% and a sellout still cannot cover the booth.
+        Pinned by a test asserting that changing how much stock is loaded
+        into the van does not move the break-even.
+      - >-
+        Second modelling point, invisible in every processor's headline
+        rate: the card fixed fee is per *transaction*, so it only becomes a
+        rate once divided by average order value. Ten cents on a $6 sticker
+        sale is 1.7% of it and on an $80 print 0.1%, so two tables with
+        identical "2.6% + 10c" keep materially different shares of each
+        dollar. Also pinned by a test.
+      - >-
+        Chosen after confirming the open-PR queue was empty (0 open PRs at
+        `e1d9348a`, so the three-PR merge floor had nothing to act on) and
+        that no existing venture covered this: the portfolio's event tools
+        are food-service (`food-truck-event-margin-calculator`) or service
+        quoting (`photo-booth-event-quote`, `portable-restroom-event-quote`),
+        none of which model a product-mix seller whose unsold stock carries
+        forward. Not in `screened-out.md`. It composes with three ventures
+        already on `main` for the same person -- `3d-print-price-calculator`,
+        `etsy-profit-calculator`, `where-to-sell-calculator` -- rather than
+        standing alone.
+      - >-
+        Also measured, and recorded because it closes a hypothesis rather
+        than opening one: the mandate names "a page reachable only from the
+        sitemap is reachable from nothing" as the leading explanation for
+        zero recorded visitors, given the subpath-robots finding. A BFS over
+        the built site following only `<a href>` from `index.html` reaches
+        **890 of 892 pages**; the two it does not are `404.html` and
+        `offline.html`, both deliberately unlinked. So internal-link
+        enumeration is *not* the gap -- discoverability here remains blocked
+        on the queued owner action (`pages-custom-domain`), and a session
+        looking for link-graph work will not find any.
+      - >-
+        Full slice: 20 validated inputs, a shareable link carrying all of
+        them in the URL fragment (all-fields-replaced on open, so a
+        recipient never sees their own leftover values mixed into the
+        sender's event), browser-local usage counting with a visible
+        opt-out and DNT/GPC honoured, the §5b no-warranty clause on all
+        three pages, a GitHub Sponsors link, a worked-method guide page, and
+        a `vs-craftybase.html` comparison carrying the nominative-fair-use
+        trademark disclaimer and framed as a different job rather than a
+        fault.
+      - >-
+        Portfolio wiring done in the same commit rather than left to trip a
+        later session: `venture-scores.yaml` row (composite 6.333),
+        `launched.json` date, `regen.mjs` mirror, the mirrored-tool count in
+        all four places `test_manifests.py` pins (228 -> 229), a
+        per-venture CI workflow, its `publish-surface.yaml` row, and
+        `build.mjs`'s `solo-earner` category -- taken rather than raising
+        `build.test.mjs`'s catch-all bound, which is what that guard exists
+        to ask for. Closed the crawlable-orphan pair it opened by adding a
+        reciprocal link and a test in `3d-print-price-calculator`, so
+        `siblings-budget.json` stayed at 3 rather than being raised.
+      - >-
+        Two real defects caught by the repo's own guards and fixed before
+        push: `min="0.01" step="1"` on the average-order-value input, which
+        would have made every whole-dollar entry fail browser step
+        validation (`check_step_grid`), and the missing per-venture
+        workflow that would have left all five test files running only on a
+        contributor's machine (`validate_workflows.py` invariant 7).
+      - >-
+        Verified: 76/76 the venture's own tests; 1202/1202 `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`; 180 across
+        `platform/proposal`/`privacy`/`webcheck`; 525 `gitops/tests`; 435
+        `portfolio/*` + `infra/tests`; all 22 `platform/ci` unittest modules
+        plus `agent_review`; `checklist_coverage.py` clean;
+        `score_ventures.py --check` and `publish_surface.py --check` clean.
+        `run_workflow_locally.py --tree` passes 8/9 with the only failure
+        `pages-freshness` (the gh-pages snapshot lags a merge that has not
+        happened yet -- refreshed after merge, not before). Browser checks
+        run against the real Chromium at `/opt/pw-browsers` with
+        `playwright@1.56.0 axe-core`: `--only craft-fair-booth-calculator`
+        passes sideways, presets, roundtrip, contrast (axe), sweep and
+        journey; `highlight` reports exit 2 "nothing to verify" because this
+        venture prints no highlight promise, which that check documents as
+        allowed rather than as a failure.
+    mrr_end: 0
+  - venture: where-to-sell-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Connected Poshmark, the last seller channel in the portfolio with a
+        dedicated calculator and no route into either comparison hub. It was
+        absent from `where-to-sell-calculator`'s ranking and from
+        `marketplace-fee-compare`, which documents on-page *why* it leaves
+        Poshmark out: the fee is "a flat $2.95 under $15.00 and 20% at $15.00
+        or more, a cliff rather than a percentage", so ranking it as a single
+        rate "would misstate the low end of a closet's inventory". That
+        reasoning is correct for a headline-rate tool and does not transfer to
+        a per-item one -- at a specific price the cliff is exactly computable
+        -- which is what made this shippable rather than a second exclusion.
+      - >-
+        The engine had no way to express a fee that is not a rate, so
+        `calculateChannel` gained a two-field cliff (`commissionThreshold`,
+        `commissionFlatBelow`) and all four of its price solvers
+        (`breakEvenPrice`, `expectedBreakEvenPrice`, `priceForProfit`,
+        `priceForExpectedProfit`) now solve on each side and return the answer
+        that lands in its own price range. Below the cliff the percentage
+        leaves the coefficients entirely and the flat fee joins the fixed
+        cash, which is why it cannot be folded into an average rate. A channel
+        that declares neither field takes exactly the arithmetic it took
+        before -- 165/165 pre-existing tests passed unchanged after the
+        refactor, before any Poshmark row existed.
+      - >-
+        The sharp case, and the reason for branch selection rather than one
+        division: a target profit of $12.04 is reachable at $14.99 on the flat
+        tier, $12.06 only at $15.075 on the percentage tier. A solver that
+        ignored the cliff would answer one of those with a price on the wrong
+        side, and the seller would list at it and net less than the page
+        promised. Verified against `poshmark-fee-calculator`'s own
+        `priceForTargetPayout` at both, and at seven other targets.
+      - >-
+        User-facing result: a closet reseller comparing a $10 top now sees
+        Poshmark's effective 29.5% beside eBay's 13.25% -- often the worst
+        rate in the comparison, in exactly the price band a clear-out lives
+        in -- and both handoffs carry the item so neither page costs a
+        retype. Forward (`handoff.mjs`) and reverse
+        (`poshmark-fee-calculator/to-where-to-sell.mjs`) with
+        `handoff_poshmark` / `handoff_where_to_sell` usage events, the
+        existing disclaimers untouched, off by default like Reverb and Whatnot
+        since it only applies to apparel.
+      - >-
+        Closed a pre-existing gap in the same file rather than only adding to
+        it: `channel-parity.test.mjs` guards against two tools quoting one
+        marketplace differently, and covered only Reverb, TikTok Shop and
+        Whatnot -- the three channels added after it existed. eBay, Etsy,
+        Amazon and Shopify predate it, carry the busiest handoffs between
+        them, and were asserted against nothing. All four now import the
+        dedicated calculator's own constants, and a new test fails naming any
+        channel that gains a handoff without a parity assertion, so the file
+        cannot go stale the same way twice. This is the `platform/proposal/`
+        shape CLAUDE.md records: a guard that covers only the newest cases.
+      - >-
+        Verified locally; runners are starved (`infra_state.yaml`
+        `github-actions-runners: down`, re-read this session). `main` itself
+        checked green first with `run_workflow_locally.py --tree` (9/9
+        workflows; `portfolio-pages.yml/deploy` selected and not run).
+        `--for-changes` after the change: 13/15 passed, with 9 jobs not run
+        for want of a credential or a runner (`agent-cross-review` x4,
+        `hetzner-gitops-ci` x3, `portfolio-pages/deploy`,
+        `publish-pages-branch/publish`). `node --test` 247/247 across the two
+        ventures (165 -> 177 in where-to-sell, 70 in poshmark), 354/354
+        including `marketplace-fee-compare`, 1202/1202 across
+        `platform/marketing` + `platform/pages` after `regen.mjs`, 180/180
+        across `platform/proposal` + `privacy` + `webcheck` (0 skipped -- the
+        clone was unshallowed, so both history-pinned tests really ran),
+        525 passed / 25 skipped in `gitops/tests`, 435 passed in the
+        `portfolio/*` + `infra/tests` sweep, all 22 `platform/ci` unittest
+        modules OK, `agent_review` 21/21, `checklist_coverage.py` clean,
+        `check_shared_link_clears.py` clean.
+      - >-
+        Independent numeric check beyond the test suite: swept 36
+        price/cost combinations through both calculators and confirmed
+        commission and profit agree at every one, including $1 (where
+        Poshmark caps the flat fee at the sale price, which the engine now
+        mirrors), $14.74, $14.75, $14.99, $15.00 and $15.01. The only
+        divergence anywhere is float representation -- the two tools reach
+        the percentage tier as `p * 20 / 100` and `p * (20 / 100)`, which
+        differ in the last bit of a double at some prices and never in the
+        cent either page displays. Asserted to a billionth rather than
+        exactly, and the test says why.
+    mrr_end: 0
+  - venture: carpet-install-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the venture's first decision-support worked-example page,
+        should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html,
+        closing the gap noted against sibling ventures (egress-window-bid-calculator,
+        invoice-payment-terms-calculator) that each carry one but this one had
+        none. Picked the furniture-move extra because calc.mjs prices it as a
+        flat 1.6 crew-hour task independent of floor size, so it produces a
+        clean, size-independent worked number ($113.62 at default rates) across
+        all three built-in job presets rather than one tied to a single job.
+      - >-
+        Verified locally: node --test ventures/carpet-install-bid-calculator/*.test.mjs
+        133/133 pass (new should-i-*.test.mjs recomputes every dollar figure
+        quoted in the article from calc.mjs directly, so the article cannot
+        drift from the calculator's own arithmetic); node platform/pages/clauses.mjs
+        carpet-install-bid-calculator clean; checklist_coverage.py clean; regen.mjs
+        run and gitops/prod/front-door mirror + sitemap committed; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs 1202/1202;
+        python3 -m pytest gitops/tests -q 525 passed/25 skipped; all 22
+        platform/ci unittest modules pass; agent_review test_review 21/21;
+        portfolio/ledger+scoring+router+usage+pipeline+infra/tests 435
+        passed/8 subtests; run_workflow_locally.py --for-changes read (one
+        pages.yml FAIL traced to the tool's own inability to evaluate a
+        `${{ }}` expression, confirmed spurious by running
+        platform/ci/build_pages_site.py + check_pages_links.py directly:
+        861 pages built, every local reference resolves).
+    mrr_end: 0
+  - venture: merchant-feed-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/merchant-feed-check`, a free
+        zero-dependency CLI + browser checker that validates a Google
+        Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON)
+        against the published product-data specification: required fields
+        present, price/availability format, GTIN/MPN identifier rules (with
+        the real GS1 check-digit algorithm, verified against the canonical
+        EAN-13 worked example), promotional-text disapproval triggers, and
+        duplicate item IDs. Explicitly scoped to data-specification
+        conformance, not Shopping/Catalog policy compliance -- it states
+        plainly, in the README, the page footer, and its own FAQ, that it
+        cannot see account trust signals, prohibited-product policy, or a
+        landing-page price/availability match, and never claims an approval
+        determination.
+      - >-
+        Picked over another `<trade>-bid-calculator` per
+        `portfolio/pipeline/README.md`'s "archetype itself" section (CLI/
+        checker over the saturated browser-calculator shape).
+        `duplicate_check.py` scored every existing venture, screened-out.md
+        row, ai-first-markets idea, and pipeline candidate below 0.10
+        against the final description. Two candidate niches were screened
+        and rejected before this one: an SPF/DKIM/DMARC DNS-record checker
+        (real, current demand -- Google/Yahoo's 2024 bulk-sender rules --
+        but confirmed by web search to already have several free
+        open-source CLI checkers covering the exact same space, e.g.
+        fdzdev/DMARC-SPF-Checker and GlobalCyberAlliance/
+        DomainSecurityScanner, with no clear differentiation left for a
+        237th venture).
+      - >-
+        Named channel, verified by web search rather than assumed: Shopify's
+        own community forum carries recurring, actively-answered threads on
+        exactly this problem ("Why is Google Merchant Center disapproving
+        all my products?", disapprovals "Due To Violation Of Shopping Ads
+        Policies"), and at least six unrelated businesses (Adsmurai,
+        Kontrolit, FeedRevision, ProductPrime, ecomseo,
+        mysitemapgenerator) each built a free web-form feed validator
+        landing page -- evidence of real, sustained search demand. None of
+        those, or the open-source DNS checkers above, is a scriptable,
+        zero-account CLI a merchant can wire into their own CI/deploy
+        pipeline the way a linter runs before a merge; that gap is this
+        tool's differentiated wedge, reflected in `venture-scores.yaml`
+        holding `distribution` at 6 (below the 7 given to
+        wordpress-plugin-review-check/cors-misconfig-check) precisely
+        because that CI-gate conversion is untested.
+      - >-
+        Liability/ethics gates scored honestly, not fudged: both `pass` in
+        `venture-scores.yaml`. Liability: the tool checks feed data against
+        a published public specification and states, in three places, the
+        two categories of disapproval it cannot see and never claims to
+        determine. No scraped or third-party personal data -- the feed a
+        user loads is their own product catalog, processed entirely on
+        their own device (browser) or machine (CLI), never transmitted. No
+        payment code (`check_no_payment_code.py` clean). Ethics: gets
+        strictly more useful to a seller as more of the spec's documented
+        failure modes are covered; no dark pattern, nothing collected.
+      - >-
+        Shipped registered and linked in the same commit rather than left
+        to close later: the orphan budget was at its 3/3 ceiling, so
+        `structured-data-drift-check`'s footer names this tool (the other
+        representation of a product Google's Shopping features read -- a
+        page's own JSON-LD vs. the separate Merchant Center feed) and this
+        tool's footer names it back, with a `page.test.mjs` assertion on
+        the href in both ventures -- `siblings.mjs --check` still reads 3
+        orphans and `siblings-budget.json` needed no raise. Also in the
+        same commit: the CI workflow
+        (`.github/workflows/merchant-feed-check-ci.yml`), the
+        `venture-scores.yaml` row (composite 6.0, floor 1 `ai_leverage`),
+        `publish-surface.yaml` (`--write`, classifying the new workflow),
+        `launched.json` (so it enters `/feed.xml`), the `build.mjs` `ci`
+        category (CI checks & developer gates) with the reason for joining
+        that family rather than a new one, the front-door mirror regen,
+        the six hand-typed mirrored-tool counts (228 -> 229, across
+        `infra/OWNER_CHECKLIST.md` and `gitops/prod/{usage/aggregate.py,
+        front-door/default.conf}`) plus the `total` constant inside
+        `test_manifests.py` itself, and the `runs-on` count via
+        `gitops/ci/sync_readme_counts.py`.
+      - >-
+        One real defect caught by the repo's own guards and fixed before
+        shipping: `sideways.mjs` found a 6px phone-width (360px) overflow
+        on the tool's own page, traced (by bisecting sections, then
+        binary-searching the offending markup) to an unbroken
+        slash-joined phrase, "Shopify/WooCommerce/BigCommerce", with no
+        break opportunity at that width -- rewritten as
+        "Shopify, WooCommerce, or BigCommerce" in both the visible FAQ
+        text and its FAQPage JSON-LD (kept character-for-character
+        identical per `faq-visible.test.mjs`). Also fixed two rounds of
+        JSON-LD/visible-text em-dash punctuation drift (`--` in the
+        authored JSON-LD vs. `—` in the visible copy) on both the tool
+        page and its docs page, and added a visible Q&A section to the
+        docs page to match FAQPage JSON-LD that had no rendered
+        counterpart at all -- all three caught by
+        `platform/pages/faq-visible.test.mjs`, none visible in a `node
+        --test` run of the venture's own suite alone.
+      - >-
+        Verified locally (Actions starved -- see the starvation check
+        below): `node --test` 50/50 in this venture, 99/99 combined with
+        `structured-data-drift-check` (the sibling this PR also edits);
+        `platform/marketing`+`platform/pages` 1202/1202 (run twice, before
+        and after the sideways-scroll fix and its `regen.mjs` re-run);
+        `platform/proposal` 101/101; `platform/privacy`+`platform/webcheck`
+        79/79; `pytest gitops/tests` 525 passed / 25 skipped (0 skipped
+        from a shallow clone -- `git fetch --unshallow` run first); `pytest
+        portfolio/{scoring,router}` 88/88, `portfolio/{ledger,usage,
+        pipeline} infra/tests` 347 passed / 8 subtests; all 15 `platform/ci`
+        unittest modules OK plus `agent_review/test_review` 21/21;
+        `browser_checks.py --only merchant-feed-check --checks
+        contrast,sideways,presets,roundtrip` all pass (0 WCAG A/AA
+        violations across 2 pages x 2 viewports, no sideways scroll at
+        360px after the fix); `checklist_coverage.py`, `clauses.mjs`,
+        `check_no_payment_code.py`, `score_ventures.py --check` (238),
+        `router/validate.py` (237), `usage/validate_usage.py`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `siblings.mjs --check` (3 orphans, in budget),
+        `publish_surface.py --check` all clean.
+        `run_workflow_locally.py --for-changes`: 17/19 selected workflows
+        passed; the one failure (`pages.yml`'s "Check every hub link
+        resolves") is the tool's own documented limitation -- its "Build
+        the site" step contains a `${{ }}` expression the local runner
+        cannot evaluate and is skipped, so the downstream step that reads
+        `_site` fails on a directory that step never created, unrelated to
+        this change. The sibling `portfolio-pages.yml`, which runs its
+        build step with real values rather than skipping it, built and
+        checked the artifact clean (3/3).
+    mrr_end: 0
+  - venture: affiliate-disclosure-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Completeness gap, found by enumerating rather than recalling: of 238
+        ventures, affiliate-disclosure-checker (graduated PR #4333/#4451
+        mirror regen) was the only one with no `README.md` -- the file
+        `PRODUCT_PLAYBOOK.md`'s definition of done requires to carry the
+        LICENSE, disclaimer, and privacy line. The venture's `index.html`
+        and `LICENSE` already carried all three; only the repo-facing
+        landing doc was missing. `README.md` is deliberately excluded from
+        the published-site build (`build.mjs` `EXCLUDED_FILES`), so this
+        was invisible to every browser/mirror check and to a stranger
+        opening the deployed tool -- only visible to someone reading the
+        venture directory itself.
+      - >-
+        Added `ventures/affiliate-disclosure-checker/README.md`, modelled on
+        sibling checkers' (`env-example-drift-check`) README shape: problem
+        statement in the user's words, why it exists, try-without-installing
+        and CLI quickstart, the signals table, disclaimers (no-warranty,
+        not-affiliated/trademark), privacy-conscious usage tracking, dev/test
+        command, and status. No code, build, mirror, or gitops surface
+        changed.
+      - >-
+        Verified locally (Actions starved -- `ci_starvation.py --run
+        34472132801`: `runner_id: 0`, 3s, no steps): venture's own `node
+        --test engine.test.mjs cli.test.mjs page.test.mjs` 38/38;
+        `platform/marketing`+`platform/pages` 1202/1202; `platform/proposal`
+        101/101; `platform/privacy`+`platform/webcheck` 79/79; `pytest
+        portfolio/{ledger,scoring,router,usage,pipeline} infra/tests` 435
+        passed/8 subtests; all 21 `platform/ci` unittest modules
+        (`test_*.py`) plus `agent_review/test_review` 21/21;
+        `checklist_coverage.py`, `clauses.mjs affiliate-disclosure-checker`,
+        `check_no_payment_code.py`, `validate_doc_consistency.py`,
+        `validate_candidates.py`, `probes/validate_probe_index.py`,
+        `score_sensitivity.py`, `score_ventures.py --check` (239),
+        `router/validate.py` (238), `usage/validate_usage.py` (200
+        products), `front-door-tools.mjs --headroom`, `publish_surface.py
+        --check` all clean. No browser-checks run needed: no markup a user
+        types into changed. `run_workflow_locally.py --tree` run against
+        this branch; see the PR body for its result.
     mrr_end: 0

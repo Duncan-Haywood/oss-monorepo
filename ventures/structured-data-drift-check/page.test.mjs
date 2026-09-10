@@ -67,6 +67,15 @@ test("index links one hop to the env-example-drift-check sibling", async () => {
   );
 });
 
+test("index links one hop to the merchant-feed-check sibling", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    /href="\.\.\/merchant-feed-check\/"/,
+    'index must link ../merchant-feed-check/ so crawlers reach a related tool in one hop',
+  );
+});
+
 test("docs page's own FAQPage JSON-LD matches its own visible text (dogfooding)", async () => {
   const page = await readFile(new URL(`./${DOCS_PAGE}`, import.meta.url), "utf8");
   const report = checkPage(page);

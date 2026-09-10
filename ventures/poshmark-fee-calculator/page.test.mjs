@@ -102,6 +102,27 @@ test('the page opens on the worked example rather than an em-dash', () => {
   assert.match(markup, /Worked example, not your listing yet/);
 });
 
+test('page wires save, forget, and a shareable link that wins over the saved draft', () => {
+  for (const id of ['save', 'forget', 'copyLink', 'saveStatus']) {
+    assert.ok(ids.has(id), `missing #${id}`);
+  }
+  assert.match(script, /import \{ FIELD_IDS, encodeInputs, decodeInputs, formValues \} from '\.\/share\.mjs'/);
+
+  const draftIndex = script.indexOf("localStorage.getItem(DRAFT_KEY)");
+  const linkIndex = script.indexOf('decodeInputs(location.hash');
+  assert.ok(
+    draftIndex !== -1 && linkIndex !== -1 && draftIndex < linkIndex,
+    'the shared-link restore must run after the saved-draft restore so a link wins',
+  );
+  assert.match(script, /el\('copyLink'\)\.addEventListener\('click'/);
+  assert.match(script, /count\('link_copied'\)/);
+  assert.match(script, /count\('numbers_saved'\)/);
+});
+
+test('the FAQ answer about uploads names the save and share controls honestly', () => {
+  assert.match(markup, /Copy shareable link button puts the same numbers in the page.s URL fragment/);
+});
+
 test('opening the page counts nothing', () => {
   const initial = /\(\(\) => \{[\s\S]*?\}\)\(\);/.exec(script);
   assert.ok(initial, 'expected the load-time render to be a self-calling block');
@@ -214,4 +235,21 @@ test('the incumbent-comparison page links back, names Poshmark\'s own resource h
     assert.match(vsSeo, new RegExp(`#${anchor}"`), `vs-page should link to #${anchor}`);
     assert.match(markup, new RegExp(`id="${anchor}"`), `index.html should have id="${anchor}"`);
   }
+});
+
+test('an edit updates the payout on screen rather than leaving the last one standing', () => {
+  // Found by `platform/pages/roundtrip.mjs` the morning the share link
+  // shipped: every field survived the link and only the headline differed,
+  // $40.00 on the seller's screen against $39.94 on the recipient's. The
+  // link was right; the screen was stale, because the page rendered on
+  // submit alone.
+  const listener = /el\('saleForm'\)\.addEventListener\('input', \(\) => \{[\s\S]*?\n    \}\);/.exec(script);
+  assert.ok(listener, 'expected an input listener on the sale form');
+  assert.match(listener[0], /calculateSale\(readInput\(\)\)/);
+  assert.match(listener[0], /render\(result\)/);
+  // Errors stay with submit, and a keystroke is not a calculation the seller
+  // asked for -- counting it would inflate `sale_calculated` past what
+  // portfolio/usage/ says that reading means.
+  assert.doesNotMatch(listener[0], /showProblems/);
+  assert.doesNotMatch(listener[0], /count\(/);
 });

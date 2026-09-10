@@ -95,6 +95,9 @@ workflows:
 - workflow: amazon-fba-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: apparel-decoration-price-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: appliance-repair-quote-calculator-ci.yml
   classification: none
   publishes: []
@@ -216,6 +219,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: countertop-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: craft-fair-booth-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: coverage-drop-check-ci.yml
@@ -480,6 +486,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: menu-engineering-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: merchant-feed-check-ci.yml
   classification: none
   publishes: []
 - workflow: metal-roof-bid-calculator-ci.yml

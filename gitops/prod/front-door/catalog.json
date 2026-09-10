@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 227,
-  "collection_total": 227,
+  "served_here": 230,
+  "collection_total": 230,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 21
+      "tool_count": 22
     },
     {
       "id": "evidence",
@@ -47,27 +47,27 @@
       "tool_count": 15
     },
     {
+      "id": "services",
+      "name": "Service business pricing & quotes",
+      "url": "https://marisstella.dev/c/services/",
+      "tool_count": 15
+    },
+    {
       "id": "backoffice",
       "name": "Back-office money & contracts",
       "url": "https://marisstella.dev/c/backoffice/",
       "tool_count": 15
     },
     {
-      "id": "services",
-      "name": "Service business pricing & quotes",
-      "url": "https://marisstella.dev/c/services/",
-      "tool_count": 14
+      "id": "solo-earner",
+      "name": "Creator & solo earner income",
+      "url": "https://marisstella.dev/c/solo-earner/",
+      "tool_count": 7
     },
     {
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
       "url": "https://marisstella.dev/c/logistics/",
-      "tool_count": 6
-    },
-    {
-      "id": "solo-earner",
-      "name": "Creator & solo earner income",
-      "url": "https://marisstella.dev/c/solo-earner/",
       "tool_count": 6
     },
     {
@@ -556,7 +556,7 @@
       "url": "https://marisstella.dev/tools/actions-self-hosted-exposure-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub's own docs warn against on public repos. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "ada-title-ii-evidence",
@@ -589,6 +589,14 @@
       "category": "More free tools",
       "description": "A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.",
       "pages": 12
+    },
+    {
+      "slug": "apparel-decoration-price-calculator",
+      "name": "Screen Printing & Embroidery Price Calculator — Cost Per Shirt, Setup & Margin",
+      "url": "https://marisstella.dev/tools/apparel-decoration-price-calculator/",
+      "category": "Service business pricing & quotes",
+      "description": "Free screen printing, embroidery and DTF pricing calculator for custom apparel shops: work out your real cost per shirt from screens or digitising, press or stitch time, blanks and spoilage, then see the break-even price, the margin at what you quoted, and what the same job costs at 12, 24, 48, 72, 144 and 288 pieces. Runs entirely in your browser.",
+      "pages": 2
     },
     {
       "slug": "appointment-deposit-calculator",
@@ -708,7 +716,7 @@
       "url": "https://marisstella.dev/tools/carpet-install-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a carpet install from floor yards, stairs, stretch-in versus glue-down versus carpet tile, patterned waste, and extras — plus the walk-away price a $2-a-yard special cannot see.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "certified-payroll-calculator",
@@ -740,7 +748,7 @@
       "url": "https://marisstella.dev/tools/chrome-extension-permission-check/",
       "category": "CI checks & developer gates",
       "description": "Free, browser-local checker: scans your extension's JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json's declared permissions, so an unused or missing permission doesn't cost you a Chrome Web Store rejection ('Purple Potassium'). Nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "concrete-lifting-bid-calculator",
@@ -764,7 +772,7 @@
       "url": "https://marisstella.dev/tools/cors-misconfig-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: run a CLI that sends real requests with crafted Origin headers to your API, then paste the JSON here for a plain-English report on reflected-origin, null-origin, and unanchored allow-list CORS misconfigurations. Nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "countertop-bid-calculator",
@@ -788,6 +796,14 @@
       "url": "https://marisstella.dev/tools/cra-evidence-desk/",
       "category": "Compliance checks & evidence records",
       "description": "Free Cyber Resilience Act evidence tool: match your CycloneDX or SPDX SBOM against an OSV advisory export, see exactly which components are named, and download a dated record and an Article 14 review draft. Runs entirely in your browser — your SBOM is never uploaded.",
+      "pages": 3
+    },
+    {
+      "slug": "craft-fair-booth-calculator",
+      "name": "Craft Fair Booth Calculator — Is This Market Worth Taking?",
+      "url": "https://marisstella.dev/tools/craft-fair-booth-calculator/",
+      "category": "Creator & solo earner income",
+      "description": "Free calculator for makers: find what one craft fair, farmers market, or art festival booth has to sell to break even after booth fee, jury fee, mileage, materials, and card fees — plus your real hourly rate for the weekend and the most a booth could cost and still be worth it. Unsold stock is treated as inventory, not a loss.",
       "pages": 3
     },
     {
@@ -948,7 +964,7 @@
       "url": "https://marisstella.dev/tools/env-example-drift-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "epoxy-garage-floor-bid-calculator",
@@ -1285,6 +1301,14 @@
       "category": "More free tools",
       "description": "Free menu engineering calculator for independent restaurants: enter each dish's plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.",
       "pages": 3
+    },
+    {
+      "slug": "merchant-feed-check",
+      "name": "Merchant Feed Check — Catch Google/Meta Shopping Feed Errors Before They Disapprove Products",
+      "url": "https://marisstella.dev/tools/merchant-feed-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste or load a Google Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON) and get a deterministic, item-by-item report of missing required fields, invalid GTIN checksums, malformed prices, and the documented disapproval triggers -- before the crawler finds them. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "metal-roof-bid-calculator",
