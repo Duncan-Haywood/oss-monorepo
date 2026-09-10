@@ -115,6 +115,47 @@ test('every page in the venture is reachable from the sitemap', () => {
   }
 });
 
+test('the page ships save, forget, and copy-link controls, matching sibling calculators', () => {
+  assert.match(html, /id="save">Save this scenario on this device/);
+  assert.match(html, /id="forget">Forget my saved scenario/);
+  assert.match(html, /id="copyLink">Copy shareable link/);
+  assert.match(html, /id="linkStatus" class="note" role="status" aria-live="polite"/);
+});
+
+test('the page imports share.mjs rather than restating its own encode/decode logic', () => {
+  assert.match(html, /import \{ encodeInputs, decodeInputs, formValues \} from '\.\/share\.mjs'/);
+});
+
+// The exact silent-divergence defect this portfolio has shipped before: a
+// shared link applied with only the fields it carried leaves the rest of the
+// form holding whatever a saved draft or mid-edit session already put there,
+// so the recipient's price silently mixes the sender's numbers with a
+// stranger's. `formValues` is the guard, and this pins that the page uses it
+// rather than writing a decoded link straight onto the form.
+test('a shared link is applied through formValues, never written to the form directly', () => {
+  assert.doesNotMatch(html, /writeInputs\(fromLink\)/);
+  assert.match(html, /writeInputs\(formValues\(fromLink\)\)/);
+});
+
+test('a shared link takes priority over a saved draft on load', () => {
+  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
+  assert.ok(scriptMatch, 'app script not found');
+  const body = scriptMatch[1];
+  const draftIdx = body.indexOf('localStorage.getItem(DRAFT_KEY)');
+  const linkIdx = body.indexOf('decodeInputs(location.hash');
+  assert.ok(draftIdx >= 0 && linkIdx >= 0, 'draft restore or link restore code is missing');
+  assert.ok(draftIdx < linkIdx, 'the link restore must run after (and so override) the draft restore');
+});
+
+test('the privacy copy explains save, forget, and the shareable link consistently in both places', () => {
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage"[\s\S]*?)<\/script>/)[1]);
+  const answer = ld.mainEntity.find((q) => q.name === 'Does anything I type get uploaded?').acceptedAnswer.text;
+  assert.match(answer, /Save button writes your scenario to this browser's own local storage/);
+  assert.match(answer, /Copy shareable link puts the same numbers in the page's URL fragment/);
+  const visible = html.match(/<h3>Does anything I type get uploaded\?<\/h3><p>([^<]+)<\/p>/)[1];
+  assert.equal(visible, answer, 'visible FAQ answer must match its JSON-LD twin exactly');
+});
+
 test("index links one hop to the apparel-decoration-price-calculator sibling", () => {
   assert.ok(
     html.includes('href="../apparel-decoration-price-calculator/"'),
