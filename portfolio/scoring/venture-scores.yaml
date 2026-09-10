@@ -9453,6 +9453,67 @@ ventures:
       of named patterns, not a full security assessment or a determination
       that the target is secure.
 
+  - slug: docker-base-image-pin-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic regex classification of a `FROM` line already present in
+      the Dockerfile on disk. There is nothing to infer: a base image
+      reference either carries a content digest or it does not.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as pinned-actions-check, not a 248th <trade>-bid-calculator.
+      duplicate_check.py scored the closest existing venture
+      (pinned-actions-check, the same "mutable tag vs. immutable pinned
+      reference" question applied to a GitHub Actions `uses:` line rather
+      than a container base image) at 0.38 against the final description,
+      under the 0.45 flag bar; no existing venture reads a Dockerfile.
+      Autonomous ops 10 / gross margin 10: nothing to host -- the browser
+      page classifies pasted text client-side and the CLI runs on the
+      user's own machine against files already on disk, so serving one more
+      user costs a static file and needs no human review of any output.
+      Distribution 5: any developer maintaining a Dockerfile is a plausible
+      searcher, and the specific-tag trap this tool names (`node:18` reads
+      as pinned and is not) is the same "obvious in hindsight, unnamed in
+      practice" gap `pinned-actions-check` found for GitHub Actions --
+      Hadolint's own DL3006/DL3007 rules stop at "has an explicit,
+      non-latest tag" and do not require a digest (see the venture's
+      `vs-hadolint.html`), which is the concrete, sourced wedge the
+      comparison page argues rather than an assumed one. Docker's own
+      "Pin base image versions" guidance and the SLSA build-provenance
+      requirements both name this exact practice, which is evidence of a
+      real, recurring question rather than an invented one, but no forum
+      volume specific to this portfolio has been measured yet -- set level
+      with `pinned-actions-check` rather than above it for that reason.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      line-classifier over one well-known reference grammar is easy to
+      reimplement, so defensibility rests on the specific-tag-is-not-pinned
+      framing and this portfolio's disclaimer/usage conventions, not on any
+      moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only static-text scanner over Dockerfile content the user
+      already has on disk or pastes in -- no network call of its own, no
+      registry credential, no data leaving the browser or the user's own
+      machine. Every mutable finding prints a `docker buildx imagetools
+      inspect` command for the user to run themselves rather than resolving
+      or pinning anything on the tool's behalf. Both pages' footers and FAQs
+      state plainly that a clean scan is evidence about one narrow question
+      -- digest pinning -- not a security audit, a compliance attestation,
+      or a claim that the build is safe from supply-chain attacks.
+
   - slug: oidc-trust-policy-check
     scores:
       ai_leverage: 1

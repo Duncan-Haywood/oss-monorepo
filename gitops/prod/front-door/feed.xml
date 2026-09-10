@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 241 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 242 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -60,6 +60,15 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free calculator for makers: find what one craft fair, farmers market, or art festival booth has to sell to break even after booth fee, jury fee, mileage, materials, and card fees — plus your real hourly rate for the weekend and the most a booth could cost and still be worth it. Unsold stock is treated as inventory, not a loss.</summary>
+  </entry>
+  <entry>
+    <title>Docker Base Image Pin Check — Are Your FROM Lines Pinned to a Digest?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/docker-base-image-pin-check/"/>
+    <id>tag:marisstella.dev,2026:tool/docker-base-image-pin-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your Dockerfile and find every FROM line referencing a base image by a mutable tag like node:18 instead of a pinned content digest (@sha256:...). Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Email Authentication Checker — Free SPF, DKIM, DMARC &amp; BIMI Checker</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your requirements.txt, pip.conf, package.json, and .npmrc and find the two configuration shapes behind every 2021 dependency-confusion incident: pip --extra-index-url, and an unscoped npm dependency name behind a private registry. Free, runs in your browser, nothing uploaded, no network calls.</summary>
-  </entry>
-  <entry>
-    <title>Duplicate Payment Audit — Find Double Vendor Payments in Your AP Ledger</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/duplicate-payment-audit/"/>
-    <id>tag:marisstella.dev,2026:tool/duplicate-payment-audit</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.</summary>
   </entry>
 </feed>

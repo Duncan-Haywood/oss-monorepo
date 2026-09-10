@@ -804,6 +804,18 @@ const CATEGORY_RULES = [
     // and landing it here rather than the catch-all is also what keeps that
     // catch-all inside the bound `build.test.mjs` puts on it.
     //
+    // `docker-base-image-pin-check` joined 2026-09-10. Same shape again -- a
+    // zero-dependency CLI plus a matching browser page, run against a
+    // Dockerfile the developer already has -- just for a container base
+    // image's `FROM` reference instead of a GitHub Actions `uses:` line. It
+    // shares `pinned-actions-check`'s exact "mutable tag vs. immutable
+    // pinned reference" question, applied to a different supply-chain
+    // surface, and cross-links it as Related for that reason. Listed by
+    // exact slug rather than a new prefix, the same way its neighbors above
+    // are: one tool does not earn a whole family pattern, and landing it
+    // here rather than the catch-all is also what keeps that catch-all
+    // inside the bound `build.test.mjs` puts on it.
+    //
     // `social-preview-check` joined 2026-09-10, and landing it here (rather
     // than the catch-all, which the guard below caps) is the same call as
     // its siblings above: a zero-dependency CLI + browser report-viewer that
@@ -866,7 +878,7 @@ const CATEGORY_RULES = [
     // pattern, and landing it here rather than the catch-all is also what
     // keeps that catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check)/.test(
         slug,
       ),
   },

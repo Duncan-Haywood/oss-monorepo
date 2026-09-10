@@ -832,6 +832,15 @@
     <loc>https://marisstella.dev/tools/dns-configuration-evidence/vs-whatsmydns.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/docker-base-image-pin-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/docker-base-image-pin-check/how-to-pin-a-docker-base-image-to-a-digest.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/docker-base-image-pin-check/vs-hadolint.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/dog-walking-route-pricing/</loc>
   </url>
   <url>

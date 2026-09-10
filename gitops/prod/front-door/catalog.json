@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 241,
-  "collection_total": 241,
+  "served_here": 242,
+  "collection_total": 242,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 30
+      "tool_count": 31
     },
     {
       "id": "evidence",
@@ -900,6 +900,14 @@
       "url": "https://marisstella.dev/tools/dns-configuration-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.",
+      "pages": 3
+    },
+    {
+      "slug": "docker-base-image-pin-check",
+      "name": "Docker Base Image Pin Check — Are Your FROM Lines Pinned to a Digest?",
+      "url": "https://marisstella.dev/tools/docker-base-image-pin-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your Dockerfile and find every FROM line referencing a base image by a mutable tag like node:18 instead of a pinned content digest (@sha256:...). Free, runs in your browser, nothing uploaded.",
       "pages": 3
     },
     {

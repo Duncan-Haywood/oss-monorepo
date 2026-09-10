@@ -1483,9 +1483,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # graduated the same day — same shape again: a new venture with a static
     # `index.html` from its first commit, entering the mirror and the total
     # together.
-    # 238 since 2026-09-10, when `social-preview-check` also graduated the
-    # same day — same shape again: a new venture with a static `index.html`
-    # from its first commit, entering the mirror and the total together.
+    # 238 since 2026-09-10, when `docker-base-image-pin-check` also graduated
+    # the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
     # 239 since 2026-09-10, when `oidc-trust-policy-check` also graduated the
     # same day — same shape again: a new venture with a static `index.html`
     # from its first commit, entering the mirror and the total together.
@@ -1495,7 +1496,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 241 since 2026-09-10, when `cookie-security-check` also graduated the
     # same day — same shape again: a new venture with a static `index.html`
     # from its first commit, entering the mirror and the total together.
-    total = 241  # `infra/OWNER_CHECKLIST.md`'s own "N of the 241 tools" wording.
+    # 242 since 2026-09-10, when `social-preview-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    total = 242  # `infra/OWNER_CHECKLIST.md`'s own "N of the 242 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

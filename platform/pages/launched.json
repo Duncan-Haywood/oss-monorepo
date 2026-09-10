@@ -65,6 +65,7 @@
     "delivery-app-margin-calculator": "2026-08-26",
     "dependency-confusion-check": "2026-09-07",
     "dns-configuration-evidence": "2026-08-24",
+    "docker-base-image-pin-check": "2026-09-10",
     "dog-walking-route-pricing": "2026-09-06",
     "dryer-vent-bid-calculator": "2026-08-26",
     "drywall-bid-calculator": "2026-08-26",
