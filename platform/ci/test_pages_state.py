@@ -530,6 +530,25 @@ class DeploymentVote(unittest.TestCase):
         self.assertIn("gh-pages", why)
         self.assertIn("already granted", why)
 
+    def test_the_reading_is_json_serialisable_on_a_healthy_repository(self):
+        """`--json` died with `Circular reference detected` on every good repo.
+
+        When the newest *completed* build is itself the successful one,
+        `latest` and `last_success` are the same summary object, so attaching
+        one to the other made the dict reference itself. Nothing that reads a
+        field off it noticed -- `verdict_deployment` only ever reads summary
+        keys -- so the only caller that walks the whole structure was the one
+        that broke, and it broke exactly when the site was fine. A repo whose
+        newest build had *failed* serialised correctly, which is the inversion
+        that let it read as "nobody uses --json".
+        """
+        deployment = ps.read_pages_deployment(fake_api(runs=[pages_run()]))
+        self.assertIsNot(deployment["last_success"], deployment)
+        json.dumps(deployment)  # would raise ValueError before the fix
+        # The copy still carries the fields `verdict_deployment` reads.
+        self.assertEqual(deployment["last_success"]["run_id"], deployment["run_id"])
+        self.assertEqual(deployment["last_success"]["conclusion"], "success")
+
     def test_a_failed_build_is_not_served_but_still_names_the_source(self):
         """A failed deploy still proves the branch is the source.
 
