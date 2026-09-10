@@ -41,7 +41,7 @@
 #   portfolio-front-tools-5: 123 files, 555955 bytes
 #   portfolio-front-tools-6: 135 files, 554594 bytes
 #   portfolio-front-tools-7: 111 files, 546698 bytes
-#   portfolio-front-tools-8: 118 files, 550615 bytes
+#   portfolio-front-tools-8: 119 files, 554857 bytes
 #   portfolio-front-tools-9: 125 files, 554621 bytes
 #   portfolio-front-tools-10: 102 files, 543788 bytes
 #   portfolio-front-tools-11: 110 files, 547217 bytes
@@ -1209,6 +1209,7 @@ configMapGenerator:
       - merchant-feed-check__engine.mjs.gz=merchant-feed-check__engine.mjs.gz
       - merchant-feed-check__index.html.gz=merchant-feed-check__index.html.gz
       - merchant-feed-check__usage.mjs.gz=merchant-feed-check__usage.mjs.gz
+      - merchant-feed-check__vs-datafeedwatch.html.gz=merchant-feed-check__vs-datafeedwatch.html.gz
       - merchant-feed-check__why-products-get-disapproved-in-google-merchant-center.html.gz=merchant-feed-check__why-products-get-disapproved-in-google-merchant-center.html.gz
       - metal-roof-bid-calculator__calc.mjs.gz=metal-roof-bid-calculator__calc.mjs.gz
       - metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz=metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz
