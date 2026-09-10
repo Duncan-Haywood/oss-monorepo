@@ -35,12 +35,22 @@
 //                   naive `origin.endsWith(allowedHost)` or
 //                   `origin.includes(allowedHost)` check with no dot-boundary
 //                   anchor.
+//   same-origin    Origin = the target's own origin. This one is not an
+//                   attack, and a server echoing it back is never a finding
+//                   on its own -- that is the correct, healthy answer. It
+//                   exists so the Vary: Origin check below can fire on a
+//                   server whose allow-list *works*, which is the only
+//                   population that check was ever about. See the note on
+//                   `missing-vary-origin`.
 //
 // A server correctly validating against an explicit allow-list should never
-// reflect any of these back -- rejecting them is the expected, healthy
-// result and is why a clean report says so rather than just staying silent.
+// reflect any of the four attack origins back -- rejecting them is the
+// expected, healthy result and is why a clean report says so rather than
+// just staying silent.
 
-export const PROBE_LABELS = ['baseline', 'reflect', 'null-origin', 'prefix-match', 'suffix-match'];
+export const PROBE_LABELS = [
+  'baseline', 'reflect', 'null-origin', 'prefix-match', 'suffix-match', 'same-origin',
+];
 
 function norm(value) {
   return typeof value === 'string' ? value.trim() : null;
@@ -168,12 +178,33 @@ export function buildReport(target, probes) {
     });
   }
 
-  if (
-    reflect &&
-    reflect.ok !== false &&
-    reflectsRequestOrigin(reflect) &&
-    !(vary(reflect) || '').toLowerCase().includes('origin')
-  ) {
+  // Vary: Origin. This used to look only at the `reflect` probe, which meant
+  // it could only ever fire on a server that had *already* been flagged as
+  // trusting arbitrary origins -- so for the population it actually matters
+  // for (a working allow-list that echoes each permitted origin back and
+  // forgets to say the response varies by it, the ordinary shape behind CORS
+  // cache poisoning) the check was dead. The `same-origin` probe exists to
+  // give it a case it can see.
+  //
+  // The discrimination that keeps this from crying wolf is `baseline`: a
+  // server that sends the same Access-Control-Allow-Origin with no Origin
+  // header at all is answering statically, and a cache cannot confuse a
+  // response that is identical for everybody. Only a header that changes
+  // with the request needs Vary.
+  const baseline = map.get('baseline');
+  const staticAcao =
+    baseline && baseline.ok !== false ? acao(baseline) : null;
+  const varyCandidate = ['reflect', 'same-origin', 'null-origin', 'prefix-match', 'suffix-match']
+    .map((label) => map.get(label))
+    .find(
+      (probe) =>
+        probe &&
+        probe.ok !== false &&
+        reflectsRequestOrigin(probe) &&
+        acao(probe) !== staticAcao &&
+        !(vary(probe) || '').toLowerCase().includes('origin'),
+    );
+  if (varyCandidate) {
     findings.push({
       id: 'missing-vary-origin',
       severity: 'notice',
@@ -181,10 +212,15 @@ export function buildReport(target, probes) {
       detail:
         'The response reflects the request Origin back but does not send Vary: Origin. A shared ' +
         'or intermediary cache that does not know the response varies by Origin can serve one ' +
-        "visitor's CORS-permissive response to a different origin's request.",
-      probeLabel: 'reflect',
-      requestOrigin: reflect.requestOrigin,
-      evidenceHeader: `vary: ${vary(reflect) ?? '(not set)'}`,
+        "visitor's CORS-permissive response to a different origin's request." +
+        (varyCandidate.label === 'same-origin'
+          ? ' This one is worth reading carefully: the allow-list itself is behaving correctly ' +
+            'here -- it echoed back an origin it should echo back. The risk is the caching layer ' +
+            'in front of it, not the check behind it.'
+          : ''),
+      probeLabel: varyCandidate.label,
+      requestOrigin: varyCandidate.requestOrigin,
+      evidenceHeader: `vary: ${vary(varyCandidate) ?? '(not set)'}`,
     });
   }
 

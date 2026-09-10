@@ -1,6 +1,6 @@
 name: cors-misconfig-check
 description: >-
-  A free CLI (+ a browser report viewer) for API developers: sends five real
+  A free CLI (+ a browser report viewer) for API developers: sends six real
   HTTP GET requests to a URL with different Origin headers and classifies the
   responses into named CORS misconfiguration patterns -- reflecting an
   unrelated origin, accepting Origin: null, and two unanchored

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// CLI: sends five real GET requests to a URL you name, each with a
+// CLI: sends six real GET requests to a URL you name, each with a
 // different Origin header, and reports which CORS misconfiguration
 // patterns the response headers show. Your machine, your network -- no
 // request goes through this portfolio or anywhere but the URL you pass.
