@@ -611,3 +611,147 @@ def test_check_never_installs_anything(box, tmp_path):
     assert "missing: npm" in result.stdout + result.stderr
     assert not log.exists()
     assert not Path(box["CODEX_HOST_PREFIX"]).exists()
+
+
+# ------------------------------------------------------------- policy switch
+#
+# The switch decides whether the box spends the owner's ChatGPT quota, and
+# every route to this box runs through `HETZNERSSHKEY` -- the one owner action
+# the whole repository is blocked on. So the property under test is not only
+# "the flag works" but "the flag works *in the same SSH session as the
+# install*", because the alternative it replaced (edit policy.json, commit,
+# re-run the installer) spent that key twice.
+
+
+def _policy(box):
+    """The policy the timer actually reads: the copy on the box."""
+    return json.loads(
+        (Path(box["CODEX_HOST_PREFIX"]) / "governor" / "policy.json").read_text()
+    )
+
+
+def _credential(box):
+    etc = Path(box["CODEX_HOST_ETC"])
+    etc.mkdir(parents=True, exist_ok=True)
+    creds = etc / "credentials.env"
+    creds.write_text('CODEX_AUTH_JSON={"token":"x"}\n')
+    creds.chmod(0o600)
+    return creds
+
+
+def test_install_ships_disabled_by_default(box):
+    """Installing is not authorising spend: the flag is the authorisation."""
+    run(box)
+    assert _policy(box)["enabled"] is False
+
+
+def test_codex_enabled_turns_it_on_in_the_same_run(box):
+    """The whole point: no second SSH trip for the flip."""
+    _credential(box)
+    run(box)
+    assert _policy(box)["enabled"] is False, "an install with no flag must not spend"
+
+    result = run(dict(box, CODEX_ENABLED="1"))
+    assert _policy(box)["enabled"] is True
+    assert "CODEX_ENABLED=1" in result.stdout
+
+
+def test_enable_flag_is_refused_without_a_credential(box):
+    """An enabled governor with no credential loops into a 6h auth cooldown.
+
+    That failure is recorded against the queue item's damped score, so the
+    visible symptom is "that item keeps failing" rather than "this box was
+    never credentialed" -- which is why this refuses rather than warning once
+    and proceeding.
+    """
+    result = run(dict(box, CODEX_ENABLED="1"))
+    assert _policy(box)["enabled"] is False
+    assert "no credentials" in (result.stdout + result.stderr)
+
+
+def test_enable_subcommand_flips_the_installed_policy(box):
+    run(box)
+    _credential(box)
+    run(box, "--enable", confirm=False)
+    assert _policy(box)["enabled"] is True
+
+
+def test_enable_subcommand_refuses_without_a_credential(box):
+    run(box)
+    result = run(box, "--enable", confirm=False, expect=1)
+    assert _policy(box)["enabled"] is False
+    assert "refusing to enable" in result.stderr
+
+
+def test_disable_stops_it_without_uninstalling_anything(box):
+    run(box)
+    _credential(box)
+    run(box, "--enable", confirm=False)
+    run(box, "--disable", confirm=False)
+    assert _policy(box)["enabled"] is False
+    # The install, the credential and the budget ledger all survive: turning it
+    # off must not cost the ledger, or a re-enable would spend a fresh window.
+    assert (Path(box["CODEX_HOST_PREFIX"]) / "governor" / "governor.py").exists()
+    assert (Path(box["CODEX_HOST_ETC"]) / "credentials.env").exists()
+    assert Path(box["CODEX_HOST_STATEDIR"]).exists()
+
+
+def test_reinstall_does_not_silently_switch_a_running_governor_off(box):
+    """`README` says to re-run this installer to roll out a new queue.
+
+    The payload step overwrites the installed policy with the repository's
+    (disabled) copy every time, so without carrying the switch over, shipping a
+    queue item would turn off dev capacity and the only symptom would be a
+    worker that stopped doing anything.
+    """
+    _credential(box)
+    run(dict(box, CODEX_ENABLED="1"))
+    assert _policy(box)["enabled"] is True
+
+    result = run(box)  # a plain re-run, no flag
+    assert _policy(box)["enabled"] is True
+    assert "still enabled" in result.stdout
+
+
+def test_codex_enabled_zero_turns_it_off(box):
+    _credential(box)
+    run(dict(box, CODEX_ENABLED="1"))
+    run(dict(box, CODEX_ENABLED="0"))
+    assert _policy(box)["enabled"] is False
+
+
+def test_reinstall_leaves_it_off_when_the_credential_is_gone(box):
+    """Carrying the switch over must not restore a governor that can only fail."""
+    creds = _credential(box)
+    run(dict(box, CODEX_ENABLED="1"))
+    creds.unlink()
+    result = run(box)
+    assert _policy(box)["enabled"] is False
+    assert "no credentials" in (result.stdout + result.stderr)
+
+
+def test_the_repository_policy_is_never_edited(box):
+    """The committed default stays false: a merge must not switch anyone on."""
+    source = REPO / "gitops" / "agents" / "governor" / "policy.json"
+    before = source.read_text()
+    _credential(box)
+    run(dict(box, CODEX_ENABLED="1"))
+    run(box, "--enable", confirm=False)
+    run(box, "--disable", confirm=False)
+    assert source.read_text() == before
+    assert json.loads(before)["enabled"] is False
+
+
+def test_check_reports_the_box_not_the_checkout(box):
+    """`--check` answers "will the next tick start a worker?" about *this box*.
+
+    It used to read the checkout's policy, so an operator who had enabled it in
+    git and committed -- but never re-run the installer -- was told "policy
+    enabled, the timer will start workers" by a box whose installed copy still
+    said false. That is the one direction of error that matters here.
+    """
+    run(box)
+    _credential(box)
+    assert "disabled" in run(box, "--check", confirm=False).stdout
+    run(box, "--enable", confirm=False)
+    assert "policy enabled" in run(box, "--check", confirm=False).stdout

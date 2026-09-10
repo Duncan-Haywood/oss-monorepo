@@ -61,6 +61,14 @@
 #                              the box over stdin, never argv. Without it the
 #                              worker is installed and uncredentialed, and you
 #                              need the SSH key a second time to finish.
+#   CODEX_ENABLED=1            turn the worker on at the end of this same run,
+#                              instead of leaving the switch behind a second
+#                              SSH trip. Absent by default: installing is not
+#                              authorising spend, and this variable is the
+#                              authorisation. Ignored, with a warning, when no
+#                              credential was supplied -- an enabled governor
+#                              with nothing to authenticate with just loops
+#                              into a six-hour auth cooldown.
 #   OPENAI_API_KEY=<key>       the metered fallback for the same worker, billed
 #                              per token. Written alongside CODEX_AUTH_JSON
 #                              when both are held -- worker.sh prefers the
@@ -155,13 +163,30 @@ fi
 # no key is the half worth having before the key arrives.
 plan_extras() {
   if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
-    echo "  codex   ${AG}  would install the Codex host governor (holds until enabled)"
+    if [[ "${CODEX_ENABLED:-0}" == "1" ]]; then
+      echo "  codex   ${AG}  would install the Codex host governor"
+    else
+      echo "  codex   ${AG}  would install the Codex host governor (holds until enabled)"
+    fi
     if [[ -n "${CODEX_AUTH_JSON:-}" ]]; then
       echo "                 + would write its credentials (built-in ChatGPT quota)"
     elif [[ -n "${OPENAI_API_KEY:-}" ]]; then
       echo "                 + would write its credentials (METERED OPENAI_API_KEY -- bills per tick)"
     else
       echo "                 (NO CODEX_AUTH_JSON -- would install uncredentialed)"
+    fi
+    # The switch, reported in the same block as the credential it depends on:
+    # enabling without one is the mistake this rehearsal is for, and it is
+    # silent at the far end (a five-minute loop into a six-hour cooldown that
+    # reads as "the queue item keeps failing").
+    if [[ "${CODEX_ENABLED:-0}" == "1" ]]; then
+      if [[ -n "${CODEX_AUTH_JSON:-}" || -n "${OPENAI_API_KEY:-}" ]]; then
+        echo "                 + would ENABLE it — it starts spending on the next tick"
+      else
+        echo "                 ! CODEX_ENABLED=1 but no credential -- would stay disabled"
+      fi
+    else
+      echo "                 (CODEX_ENABLED unset -- would install and hold, spending nothing)"
     fi
   fi
   if [[ "${WITH_GITHUB_RUNNER_HOST:-0}" == "1" ]]; then
@@ -571,9 +596,30 @@ if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
             echo "  ! No CODEX_GH_TOKEN was given, so the worker can run but cannot" >&2
             echo "    push a branch or open a PR. Re-run with it to finish." >&2
           fi
-          echo "  One step remains, and it is deliberately yours: enable the policy"
-          echo "  (./bootstrap/scripts/enable-codex-governor.sh --host-only), commit,"
-          echo "  and re-run the installer. Installing is not authorising spend."
+          # The flip, in this same session. Installing is still not authorising
+          # spend -- CODEX_ENABLED=1 is the authorisation, and it is absent by
+          # default. What changed is only where the owner has to be standing to
+          # give it: this used to require editing policy.json, committing, and
+          # re-running the installer over a *second* SSH session, and SSH to
+          # this box needs HETZNERSSHKEY, the one owner action every route in
+          # this repository is blocked on. Same reasoning as the credential
+          # step above, one step further down the sequence.
+          if [[ "${CODEX_ENABLED:-0}" == "1" ]]; then
+            if ssh_ag "bash '${codex_dir}/bootstrap/scripts/install-codex-host.sh' --enable"; then
+              echo "  CODEX_ENABLED=1 — the governor is on. It will start a worker"
+              echo "  on its next five-minute tick and draw on the plan's quota"
+              echo "  up to the policy's budget fraction."
+            else
+              echo "  ! the worker is installed and credentialed, but enabling it" >&2
+              echo "    failed. Nothing is spending anything. Retry with:" >&2
+              echo "      ./bootstrap/scripts/install-codex-host.sh --enable" >&2
+            fi
+          else
+            echo "  One step remains, and it is deliberately yours: turning it on."
+            echo "  Installing is not authorising spend. When you want the quota"
+            echo "  spent, either re-run this script with CODEX_ENABLED=1, or on"
+            echo "  the box run: ./bootstrap/scripts/install-codex-host.sh --enable"
+          fi
         else
           echo "  ! the worker is installed but its credentials did not land." >&2
           echo "    The cluster restore above is unaffected, and nothing is" >&2
@@ -584,9 +630,11 @@ if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
         echo
         echo "  Installed and holding. It spends no quota until you:"
         echo "    1. ./bootstrap/scripts/install-codex-host.sh --credentials < codex.env"
-        echo "    2. enable the policy (./bootstrap/scripts/enable-codex-governor.sh), then re-run the installer"
-        echo "  Step 1 is avoidable: re-run this script with CODEX_AUTH_JSON set"
-        echo "  (and CODEX_GH_TOKEN) and it lands in the same run as the install."
+        echo "    2. ./bootstrap/scripts/install-codex-host.sh --enable"
+        echo "  Both are avoidable, and both cost an SSH trip you are already"
+        echo "  making right now: re-run this script with CODEX_AUTH_JSON set"
+        echo "  (and CODEX_GH_TOKEN, and CODEX_ENABLED=1 when you want it"
+        echo "  spending) and all of it lands in the same run as the install."
       fi
     else
       echo "  ! the Codex host install did not complete." >&2

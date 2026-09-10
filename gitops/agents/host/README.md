@@ -180,10 +180,48 @@ expensive kind. Store the value once with
 and the recovery carries it.
 
 Installing does **not** enable the governor. `policy.json` ships
-`"enabled": false`, so the timer ticks and holds until you flip it with
-`./bootstrap/scripts/enable-codex-governor.sh`, commit, and re-run the
-installer. A box can be fully prepared long before it is allowed to spend
-quota.
+`"enabled": false`, so the timer ticks and holds until you say otherwise. A box
+can be fully prepared long before it is allowed to spend quota.
+
+When you do want it spending, the flip is one command **on the box**, in
+whatever session you are already in:
+
+```bash
+./bootstrap/scripts/install-codex-host.sh --enable    # start
+./bootstrap/scripts/install-codex-host.sh --disable   # stop, keep it installed
+```
+
+or `CODEX_ENABLED=1` on the install (and on `restore-cluster.sh`, which passes
+it straight through) to do it in the same run as everything else.
+
+**Both edit the policy copy on the box, never the one in git** — that is the
+whole point of them (changed 2026-09-10). The only previous route to this flip
+was: run `enable-codex-governor.sh` in a checkout, commit, and *re-run the
+installer on the box* to copy the new policy over. That last clause is a second
+SSH session, and SSH here needs `HETZNERSSHKEY` — the one owner action every
+route in this repository is blocked on. So the recovery would install the
+worker, credential it in the same run (fixed 2026-09-10, one step earlier in
+this same sequence), and then leave the thing switched **off** behind the very
+key the owner had just spent their one session on. `enable-codex-governor.sh`
+is still the right tool for the *cluster* path, where a commit is the delivery
+mechanism and Argo does the rest; it was never the right shape for a box whose
+policy arrives by `install -m 0644`.
+
+Three properties make this safe, and each has a test:
+
+- **The committed default stays `false`.** Neither route edits the repository,
+  so no merge switches anyone on. `CODEX_ENABLED` unset is still "install and
+  hold".
+- **It refuses without a credential.** An enabled governor with nothing to
+  authenticate with wakes every five minutes, fails, and sits on a six-hour
+  auth cooldown — recorded against the *queue item's* damped score, so the
+  visible symptom is "that item keeps failing" rather than "this box was never
+  credentialed".
+- **The switch belongs to the box, not to the checkout.** Re-running the
+  installer to roll out a new queue carries the current setting over instead of
+  resetting it to the repository's `false`, which would have turned off a
+  running governor as a side effect of shipping a queue item. `CODEX_ENABLED=0`
+  is how you turn it off deliberately.
 
 ## Operate
 
@@ -194,7 +232,12 @@ systemctl list-timers codex-governor.timer          # when it next fires
 journalctl -u codex-governor.service -f             # what it did
 ```
 
-`--check` on either script starts nothing and writes nothing.
+`--check` on either script starts nothing and writes nothing. Its "governor
+policy" line reports the policy **this box** holds, not the one in your
+checkout — the two are allowed to differ, and before 2026-09-10 it read the
+checkout, so an operator who had enabled it in git and committed but never
+re-run the installer was told "policy enabled, the timer will start workers" by
+a box that was still switched off.
 
 To stop it, `systemctl disable --now codex-governor.timer`. To remove it,
 `CONFIRM=install-codex-host ./bootstrap/scripts/install-codex-host.sh --uninstall`

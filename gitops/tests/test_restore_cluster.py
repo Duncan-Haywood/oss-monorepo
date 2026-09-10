@@ -686,10 +686,20 @@ def test_codex_credentials_failure_does_not_fail_the_restore(box):
 
 
 def test_credentialed_codex_still_does_not_authorise_spend(box):
-    """Installing and credentialing are not the same act as enabling."""
+    """Installing and credentialing are not the same act as enabling.
+
+    The property is unchanged; only the route it names moved. This used to
+    point the owner at `enable-codex-governor.sh`, commit, and a re-run of the
+    installer -- which is a second SSH session, and so a second use of
+    HETZNERSSHKEY. It now names the flag and the one-shot subcommand, both of
+    which land inside the session the owner is already in.
+    """
     result = box.run(WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH, CODEX_GH_TOKEN="ghp_c")
-    assert "enable-codex-governor.sh" in result.stdout
     assert "not authorising spend" in result.stdout
+    assert "CODEX_ENABLED=1" in result.stdout
+    assert "install-codex-host.sh --enable" in result.stdout
+    # And it really did not turn anything on.
+    assert "--enable" not in box.log(), box.log()
 
 
 def test_codex_without_a_gh_token_says_it_cannot_open_a_pr(box):
@@ -1131,3 +1141,66 @@ def test_a_reachable_dry_run_still_ends_with_the_whole_plan(box):
     # The credential line appears at step 0 and again in the closing block, so
     # the reader never has to scroll past the addressing output to re-read it.
     assert result.stdout.count("built-in ChatGPT quota") == 2
+
+
+# ------------------------------------------------- enabling in the same run
+#
+# The sibling of the credential hand-off above, and the last step that still
+# cost a second trip with HETZNERSSHKEY. The recovery used to install the
+# worker, credential it, and then tell the owner to edit `policy.json`, commit,
+# and re-run the installer on the box -- spending the one key the whole
+# repository is blocked on twice, for a switch. `CODEX_ENABLED=1` is the
+# authorisation and it is absent by default, so installing still is not
+# authorising spend; what changed is only where the owner has to be standing.
+
+
+def test_codex_enabled_flips_the_switch_in_the_same_run(box):
+    result = box.run(
+        WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH, CODEX_GH_TOKEN="ghp_c", CODEX_ENABLED=1
+    )
+    assert result.returncode == 0, result.stderr
+    assert "install-codex-host.sh' --enable" in box.log(), box.log()
+    assert "the governor is on" in result.stdout
+
+
+def test_the_switch_is_off_unless_asked_for(box):
+    """Installing is not authorising spend."""
+    result = box.run(WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH, CODEX_GH_TOKEN="ghp_c")
+    assert "--enable" not in box.log(), box.log()
+    assert "deliberately yours" in result.stdout
+
+
+def test_enable_runs_after_the_credential(box):
+    """Enabling before the credential lands is refused by the installer.
+
+    Getting this order wrong would not error loudly -- it would leave the box
+    installed, credentialed and switched off, which is exactly the state this
+    whole change exists to stop the owner having to come back and fix.
+    """
+    box.run(
+        WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH, CODEX_GH_TOKEN="ghp_c", CODEX_ENABLED=1
+    )
+    lines = box.log().splitlines()
+    creds = next(i for i, l in enumerate(lines) if "credentials for codex" in l)
+    enable = next(i for i, l in enumerate(lines) if "--enable" in l)
+    assert creds < enable, f"enabled before credentialing:\n{box.log()}"
+
+
+def test_enabling_is_not_attempted_without_a_credential(box):
+    """An enabled governor with nothing to authenticate with just loops."""
+    result = box.run(WITH_CODEX_HOST=1, CODEX_ENABLED=1)
+    assert result.returncode == 0, result.stderr
+    assert "--enable" not in box.log(), box.log()
+
+
+def test_dry_run_reports_the_switch_before_the_key_is_spent(box):
+    """The rehearsal has to show it: this is the variable that starts spending."""
+    off = box.run(CONFIRM="", DRY_RUN=1, WITH_CODEX_HOST=1)
+    assert "CODEX_ENABLED unset" in off.stdout
+
+    on = box.run(CONFIRM="", DRY_RUN=1, WITH_CODEX_HOST=1, CODEX_AUTH_JSON=CODEX_AUTH,
+                 CODEX_ENABLED=1)
+    assert "would ENABLE it" in on.stdout
+
+    bad = box.run(CONFIRM="", DRY_RUN=1, WITH_CODEX_HOST=1, CODEX_ENABLED=1)
+    assert "would stay disabled" in bad.stdout
