@@ -21496,3 +21496,98 @@ entries:
         session (see above). Merged on the local verification above per
         CLAUDE.md's starvation policy.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session under the standing product-first mandate.
+        Open-PR queue was empty at the start (`list_pull_requests` state=open
+        and a `search_pull_requests` cross-check both returned 0) and
+        `git branch -r --no-merged origin/main` returned 0 branches, so the
+        three-PR merge quota was met with an empty queue rather than skipped.
+      - >-
+        Confirmed `main` itself is green before building on it:
+        `run_workflow_locally.py --tree` passed 9/9 selected workflows. The
+        only not-run steps were `uses:` steps and `portfolio-pages.yml/deploy`,
+        which the tool reports separately and which are not failures.
+      - >-
+        Picked the same gap the session immediately above picked, independently
+        and in the same window: the IndexNow announcement -- this catalogue's
+        only page-enumeration route, because `pages_state.py`'s `indexing` row
+        measured that sitemap auto-discovery cannot happen from a
+        project-Pages subpath -- existed only as a step in
+        `.github/workflows/publish-pages-branch.yml`, which needs an Actions
+        runner. Runners have been starved since 2026-09-04, so every publish
+        that actually reached the live site in that window was a by-hand
+        `publish-branch.sh` run that announced nothing, silently.
+      - >-
+        #4378 landed that core fix first, from the other session. Rather than
+        close this as a duplicate or re-land a parallel implementation, took
+        #4378 as the base and kept only what it could not express, per the
+        mandate's "integrate, do not duplicate" rule. Its `--ref "$BRANCH"` is
+        an improvement this branch did not have (a non-default `BRANCH` would
+        otherwise be announced from the wrong ref) and its wording is what
+        `gitops/tests/test_publish_branch.py` pins, so the merged version
+        matches its strings exactly.
+      - >-
+        Three things #4378 left open, all fixed here. (1) It added the call to
+        `publish-branch.sh` but left the workflow's own `Notify IndexNow` step
+        in place -- so a runner-borne publish would have submitted twice, once
+        through the script and once through the step. Removed the step, since
+        both workflow steps invoke the script; there is now one definition of
+        "publishing includes announcing" rather than a second copy only the
+        runner-borne route would execute. (2) `indexnow.mjs`'s `submit()`
+        called `fetch` with no catch and the CLI had no handler, so a
+        transport failure rejected out of the process -- making the likeliest
+        outcome of `--submit` from an agent sandbox (the egress proxy answers
+        `403 to CONNECT` for `api.indexnow.org`, re-measured this session) a
+        raw `TypeError: fetch failed` stack trace, indistinguishable at a
+        glance from the script being broken. It now returns
+        `{status: 0, ok: false, error}` and exits `EXIT_NO_EGRESS` (3),
+        distinct from 1, which is what lets the shell caller tell "this host
+        cannot reach IndexNow" from "IndexNow refused what we sent" -- the
+        expected case and the real-defect case, which #4378's single
+        best-effort branch reported identically. (3) Added an `INDEXNOW=0`
+        opt-out for a rollback you deliberately do not want announced, and a
+        guard for a host with no node.
+      - >-
+        Verified (Actions starved -- `ci_starvation.py --run 34423728610`
+        classified `runner_id: 0`, and the PR itself drew zero check runs, read
+        from the check-runs endpoint rather than the bare status call):
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        1194 passing; all 21 `platform/ci` unittest modules OK; `gitops/tests`
+        490 passed / 25 skipped before the merge and re-run after it;
+        portfolio ledger/scoring/router/usage/pipeline/infra 431 passed;
+        `agent_review` 21 OK; proposal/privacy/webcheck 172 passing;
+        `checklist_coverage.py` clean; `regen.mjs` rewrote nothing (this change
+        touches no served surface); `build.mjs` + `check.mjs` clean (225
+        products, 882 pages, no dead links); `bash -n` clean.
+        `run_workflow_locally.py --for-changes` passed 8/9 -- the ninth,
+        `publish-pages-branch.yml/publish`, is refused by design because it
+        pushes and is not in `VERIFICATION_ONLY`; its correctness is covered by
+        `test_publish_pages_branch.py` instead.
+      - >-
+        The new cases in `test_publish_pages_branch.AnnouncingThePublishedSnapshot`
+        were checked against the pre-fix tree and all fail there, so they are
+        not vacuous.
+      - >-
+        Measured rather than assumed, and it closed an avenue rather than
+        opening one: with sitemap auto-discovery unavailable a crawler can only
+        reach a page by following links, so the internal link graph is now
+        load-bearing for the whole catalogue's indexability. Crawled the built
+        site from `index.html` -- 880 of 882 pages reachable, and the 2 that
+        are not are `404.html` and `offline.html`, which must be. No orphan
+        work was needed.
+      - >-
+        Re-confirmed the owner's three named priorities are architecturally
+        complete and blocked on one action, so no new asks were added.
+        Deployment: `pages_state.py` reports `deployed: served`, snapshot
+        `current`. Codex CLI on the Hetzner box against the owner's ChatGPT
+        subscription quota (`CODEX_AUTH_JSON`, not an API key): built in
+        `gitops/agents/host/`, 45 tests passing, its worker mandate already
+        carrying this same three-PR-drain direction. Marketing on the Hetzner
+        VMs: `install-portfolio-site-host.sh` exists and is tested. All three
+        wait on `hetzner-ssh-key-is-a-public-key`, already ranked first in the
+        decision queue.
+    mrr_end: 0

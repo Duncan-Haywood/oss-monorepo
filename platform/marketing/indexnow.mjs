@@ -78,6 +78,14 @@ export const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow';
 // silently truncates.
 export const MAX_URLS_PER_REQUEST = 10000;
 
+// Exit code for "the request never left this machine". Distinct from 1 so a
+// caller can tell "this host cannot reach IndexNow" (expected, and not a
+// reason to fail a deploy that already succeeded) from "IndexNow refused what
+// we sent" (a real defect in the payload or the published key file).
+// `platform/pages/publish-branch.sh` is the caller that makes that
+// distinction — see its `announce_to_indexnow`.
+export const EXIT_NO_EGRESS = 3;
+
 /**
  * Every URL this catalogue considers part of its public surface, read from
  * the artifact `catalog.json` itself rather than re-walked from `ventures/`
@@ -156,12 +164,34 @@ export function buildPayload({ baseUrl, urls }) {
   };
 }
 
+/**
+ * POST the payload, distinguishing the two failures that mean different things.
+ *
+ * An HTTP status the API chose (`ok: false`, a real `status`) means the request
+ * arrived and was refused — a bad key, a host mismatch, a rate limit — and the
+ * fix is in the payload. A *transport* failure means the request never left the
+ * machine, and the fix is where you are standing rather than what you sent.
+ *
+ * That second case is the ordinary one here, not an edge: an agent session's
+ * sandbox answers `403 to CONNECT` for `api.indexnow.org` (the same egress
+ * policy `CLAUDE.md` records for `github.io`), so any run of `--submit` from
+ * one hits it. Until now `fetch` simply rejected out of `submit`, and the CLI
+ * had no catch — so the single most likely outcome of the flag printed a raw
+ * `TypeError: fetch failed` stack trace, which reads as a defect in this script
+ * rather than as the environment limit it is. `status: 0` with an `error` is
+ * the same shape the caller already handles, so no branch has to grow.
+ */
 export async function submit(payload) {
-  const res = await fetch(INDEXNOW_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
-    body: JSON.stringify(payload),
-  });
+  let res;
+  try {
+    res = await fetch(INDEXNOW_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    return { status: 0, ok: false, body: '', error: err?.message || String(err) };
+  }
   const body = await res.text();
   return { status: res.status, ok: res.ok, body };
 }
@@ -213,6 +243,16 @@ if (isMain) {
   await assertKeyFilePublished(readFile);
 
   const result = await submit(payload);
+  if (result.error) {
+    console.error(`\nPOST ${INDEXNOW_ENDPOINT} -> could not be sent: ${result.error}`);
+    console.error(
+      'indexnow: the request never left this machine, so nothing was submitted and nothing\n' +
+        '  was broken. This host has no egress to api.indexnow.org — an agent session sandbox\n' +
+        '  answers 403 to CONNECT for it. Re-run from a host with real egress (a GitHub\n' +
+        '  Actions runner, or the Hetzner box once host mode is installed).',
+    );
+    process.exit(EXIT_NO_EGRESS);
+  }
   console.log(`\nPOST ${INDEXNOW_ENDPOINT} -> ${result.status}`);
   if (result.body) console.log(result.body);
   if (!result.ok) {

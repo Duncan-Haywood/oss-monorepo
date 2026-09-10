@@ -203,7 +203,28 @@ Google equivalent, so this is a complement to sitemap submission, not a
 replacement for it. A session's own sandbox cannot reach `api.indexnow.org`
 (the agent egress proxy blocks it, same as `github.io`) — `--submit` only
 does something from a host with real egress, e.g. a GitHub Actions runner.
-Run it after any `publish-branch.sh` that actually pushes.
+From a host without one it now exits `EXIT_NO_EGRESS` (3) and says so, rather
+than rejecting with a raw `TypeError: fetch failed` that reads like a defect
+in this script.
+
+**You do not have to remember to run it after a publish (changed 2026-09-10).**
+This section used to end "Run it after any `publish-branch.sh` that actually
+pushes", and the only other caller was a step in
+`.github/workflows/publish-pages-branch.yml`. Both were correct and neither
+ran: that workflow needs an Actions runner, runners have been starved since
+2026-09-04, so every publish that actually reached the live site in that
+window was a by-hand `publish-branch.sh` run — and each one skipped the
+announcement in silence. On the origin this catalogue serves from, that is not
+a small miss: `pages_state.py`'s `indexing` row measured that sitemap
+auto-discovery cannot happen on a project-Pages subpath, so IndexNow is the
+only enumeration route the site has left.
+
+`publish-branch.sh` now calls this itself, in `announce_to_indexnow`, right
+after a successful push, and the workflow's duplicate step is gone so there is
+one definition of "publishing includes announcing". It never fails the
+publish — by then the site is already live, and a host without egress is not a
+broken deploy — but it always says which of the three outcomes happened.
+`INDEXNOW=0` skips it, for a publish you deliberately do not want announced.
 
 ## The embed offer on the apex
 
