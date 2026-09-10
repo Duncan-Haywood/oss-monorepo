@@ -136,6 +136,62 @@ if [[ "${CONFIRM:-}" != "restore-cluster" && "$DRY_RUN" != "1" ]]; then
   fail "refusing to install without CONFIRM=restore-cluster (or DRY_RUN=1)."
 fi
 
+# ------------------------------------------- step 0: the plan that needs no SSH
+#
+# Which extras were asked for, and which credential is standing behind each, is
+# read entirely from the environment. Nothing here touches a box, so it is
+# checked before SSH rather than after it.
+#
+# WHY THE ORDER MATTERS. Until 2026-09-10 every line of the dry run lived below
+# the SSH gate, so `DRY_RUN=1` -- documented right above as "print the plan and
+# the detected mode, change nothing", and offered to the owner in
+# `decision_queue.py` as the way to see the plan "without changing anything" --
+# printed nothing at all without a working private key. That is exactly
+# backwards for the one thing this script exists for. The owner holds that key
+# for a single session; the run they make with it sets seven environment
+# variables, and a mistyped one is silent (`OPENAI_API_KEY` where
+# `CODEX_AUTH_JSON` was meant bills per token, and the script says so -- below
+# the gate, where they could not read it). The half of the rehearsal that needs
+# no key is the half worth having before the key arrives.
+plan_extras() {
+  if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
+    echo "  codex   ${AG}  would install the Codex host governor (holds until enabled)"
+    if [[ -n "${CODEX_AUTH_JSON:-}" ]]; then
+      echo "                 + would write its credentials (built-in ChatGPT quota)"
+    elif [[ -n "${OPENAI_API_KEY:-}" ]]; then
+      echo "                 + would write its credentials (METERED OPENAI_API_KEY -- bills per tick)"
+    else
+      echo "                 (NO CODEX_AUTH_JSON -- would install uncredentialed)"
+    fi
+  fi
+  if [[ "${WITH_GITHUB_RUNNER_HOST:-0}" == "1" ]]; then
+    echo "  runner  ${AG}  would install the GitHub Actions runner, host mode (holds until credentialed)"
+    if [[ -n "${RUNNER_TOKEN:-}" ]]; then
+      echo "                 + would write its registration token"
+    else
+      echo "                 (NO RUNNER_TOKEN -- would install unregistered)"
+    fi
+  fi
+  if [[ "${WITH_PORTFOLIO_SITE_HOST:-0}" == "1" ]]; then
+    echo -n "  site    ${CP}  would serve the portfolio site from this box's nginx"
+    [[ -n "${SITE_GH_TOKEN:-}" ]] || echo -n "  (NO SITE_GH_TOKEN -- would fail)"
+    [[ -n "${SITE_TLS_EMAIL:-}" ]] && echo "  (+TLS)" || echo "  (HTTP only)"
+  fi
+  if [[ "${WITH_CODEX_HOST:-0}" != "1" && "${WITH_GITHUB_RUNNER_HOST:-0}" != "1" \
+        && "${WITH_PORTFOLIO_SITE_HOST:-0}" != "1" ]]; then
+    echo "  (none -- the cluster only. WITH_CODEX_HOST=1, WITH_GITHUB_RUNNER_HOST=1"
+    echo "   and WITH_PORTFOLIO_SITE_HOST=1 are the three extras, and each is worth"
+    echo "   adding on this run rather than a second one: they all need the SSH key.)"
+  fi
+}
+
+if [[ "$DRY_RUN" == "1" ]]; then
+  step "Dry run — extras and credentials (no SSH needed)"
+  plan_extras
+  echo
+  echo "mode requested: ${MODE}   (the *detected* mode is probed over SSH, below)"
+fi
+
 # ---------------------------------------------------------------- step 1: SSH
 step "SSH reachability"
 # Checked separately and before anything else because the whole reason this
@@ -148,11 +204,24 @@ step "SSH reachability"
 # suspect -- naming only the secret would send them to fix a variable that
 # does not exist in the shell they are standing in.
 key_hint() {
+  local hint
   if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
-    echo "Is the HETZNERSSHKEY secret the *private* key?"
+    hint="Is the HETZNERSSHKEY secret the *private* key?"
   else
-    echo "Is the matching *private* key loaded in your SSH agent? (ssh-add -l)"
+    hint="Is the matching *private* key loaded in your SSH agent? (ssh-add -l)"
   fi
+  # A dry run that stops here has still done real work, and saying so is the
+  # difference between "my env is wrong" and "I learned nothing". Naming what
+  # was checked and what was not is the same discrimination
+  # `run_workflow_locally.py` draws with UNRUN: a stop that means "could not
+  # run" must never read as a stop that means "your input is broken".
+  if [[ "$DRY_RUN" == "1" ]]; then
+    hint+=$'\n''        The extras and credentials printed above WERE checked -- they are'
+    hint+=$'\n''        read from the environment and need no key. What this dry run could'
+    hint+=$'\n''        not reach is only the addressing probe and the existing-cluster'
+    hint+=$'\n''        check, both of which read the boxes themselves.'
+  fi
+  echo "$hint"
 }
 ssh_cp 'echo ok' >/dev/null 2>&1 || fail "cannot SSH to control-plane $CP. $(key_hint)"
 echo "control-plane $CP: ok"
@@ -225,29 +294,11 @@ if [[ "$DRY_RUN" == "1" ]]; then
   echo "  agent   ${AG}  SERVER_URL=${SERVER_URL} NODE_IP=${AGENT_NODE_IP}"
   echo "  argocd  ${CP}  $([[ "$SKIP_ARGOCD" == 1 ]] && echo '(skipped)' || echo '(root Application from gitops/)')"
   echo "server already present: ${SERVER_PRESENT}"
-  if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
-    echo "  codex   ${AG}  would install the Codex host governor (holds until enabled)"
-    if [[ -n "${CODEX_AUTH_JSON:-}" ]]; then
-      echo "                 + would write its credentials (built-in ChatGPT quota)"
-    elif [[ -n "${OPENAI_API_KEY:-}" ]]; then
-      echo "                 + would write its credentials (METERED OPENAI_API_KEY -- bills per tick)"
-    else
-      echo "                 (NO CODEX_AUTH_JSON -- would install uncredentialed)"
-    fi
-  fi
-  if [[ "${WITH_GITHUB_RUNNER_HOST:-0}" == "1" ]]; then
-    echo "  runner  ${AG}  would install the GitHub Actions runner, host mode (holds until credentialed)"
-    if [[ -n "${RUNNER_TOKEN:-}" ]]; then
-      echo "                 + would write its registration token"
-    else
-      echo "                 (NO RUNNER_TOKEN -- would install unregistered)"
-    fi
-  fi
-  if [[ "${WITH_PORTFOLIO_SITE_HOST:-0}" == "1" ]]; then
-    echo -n "  site    ${CP}  would serve the portfolio site from this box's nginx"
-    [[ -n "${SITE_GH_TOKEN:-}" ]] || echo -n "  (NO SITE_GH_TOKEN -- would fail)"
-    [[ -n "${SITE_TLS_EMAIL:-}" ]] && echo "  (+TLS)" || echo "  (HTTP only)"
-  fi
+  # Re-printed rather than only shown at step 0, so that a dry run which
+  # *reaches* here still ends with the whole plan in one block -- the reader
+  # should not have to scroll past the SSH and addressing output to re-read
+  # which credentials were seen.
+  plan_extras
   exit 0
 fi
 

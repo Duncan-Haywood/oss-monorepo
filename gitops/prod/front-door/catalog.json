@@ -580,7 +580,7 @@
       "url": "https://marisstella.dev/tools/ai-crawler-access-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "ai-engineering-academy",

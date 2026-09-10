@@ -151,7 +151,12 @@ CONFIRM=restore-cluster ARGOCD_REPO_TOKEN=<pat> WITH_CODEX_HOST=1 \
 ```
 
 (`DRY_RUN=1` first if you want to see the detected addressing mode without
-changing anything.) That is the whole recovery, end to end — server, agent
+changing anything. Since 2026-09-10 the dry run is also worth running *before*
+you load the key: the part that reads your environment rather than the boxes —
+which extras you asked for, and whether each one's credential is actually set —
+now prints ahead of the SSH gate, so a mistyped variable is catchable outside
+the one session you hold the key. It still exits 1 with no key, and says which
+half it could not reach.) That is the whole recovery, end to end — server, agent
 join, Argo CD, then a Host-header curl on the box for what the apex actually
 returns — and it needs no runner and no repository secret. See
 `bootstrap/README.md` and `gitops/agents/host/README.md` for what

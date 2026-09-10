@@ -94,6 +94,20 @@ decisions:
     — that is the whole recovery, end to end, and it needs no runner and no
     repository secret. Add `DRY_RUN=1` to the `env` for the plan and the
     detected addressing mode without changing anything.
+    **Rehearse that dry run today, before you go looking for the key**
+    (changed 2026-09-10): it used to stop at the SSH gate and print
+    nothing, so the only way to see the plan was to already hold the
+    private key — during the one session this whole recovery gets. It now
+    prints the half that needs no SSH *first*: which extras were asked
+    for, and which credential is standing behind each. Run `DRY_RUN=1
+    WITH_CODEX_HOST=1 WITH_GITHUB_RUNNER_HOST=1
+    WITH_PORTFOLIO_SITE_HOST=1 bootstrap/restore-cluster.sh` with your env
+    set and read that block. It still exits 1 without the key — it
+    genuinely could not probe the boxes — but it names what it did check,
+    so the mistake worth catching early is catchable early. The expensive
+    one is setting `OPENAI_API_KEY` where `CODEX_AUTH_JSON` was meant:
+    both credential the Codex worker, and only the second draws on your
+    plan's included quota.
     **Two more `--put`s are worth making before that run, and as of 2026-09-10
     they finish the job rather than starting a second one.**
     `bootstrap/scripts/load-secrets.sh --put CODEX_AUTH_JSON < ~/.codex/auth.json`
