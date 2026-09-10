@@ -4950,3 +4950,30 @@ products:
           by default, and honor DNT/GPC, so zero is the expected reading
           for a tool nobody has visited or switched the counter on for
           yet.
+  - slug: staffing-markup-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-10
+        signals:
+          live_url_visitors: null
+          placement_priced: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route from its first commit: a markup-and-burden
+          calculator for independent staffing agencies, showing what a
+          markup on the pay rate actually earns once FICA, capped
+          FUTA/SUTA, the workers' comp class code, PTO, benefits,
+          screening and the cost of funding payroll to the client's
+          terms are counted. `placement_priced` is the signal worth
+          watching against repeat visits: this is a per-quote tool
+          rather than a read-once one, so a single price and no return
+          means the burden inputs were too much work for the answer,
+          which is the one design risk the shape carries. First-visitor
+          channel is r/recruiting, r/staffing and r/smallbusiness, plus
+          the search phrases "staffing markup calculator", "bill rate
+          calculator", "markup vs margin staffing", and "what markup
+          should I charge staffing". Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading
+          for a tool nobody has visited or switched the counter on for
+          yet.

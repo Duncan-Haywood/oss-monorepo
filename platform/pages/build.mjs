@@ -466,8 +466,21 @@ const CATEGORY_RULES = [
     // own output, and a four-person shop quoting a corporate order is not
     // that; the axis here is a business pricing work for a customer, which is
     // what this is.
+    //
+    // `staffing-markup-calculator` joined 2026-09-10 and is filed here on its
+    // first commit rather than after a spell in the catch-all — which is what
+    // `build.test.mjs`'s catch-all bound is for, and it fired. A staffing
+    // agency quoting a bill rate is a service business turning labour and its
+    // own carrying costs into a price for a client: the same job as
+    // `booth-rent-vs-commission` and `translator-project-quote`, and not a
+    // trade bid (nothing is priced by area or a site visit), not a marketplace
+    // fee, and not a back-office reconciliation — the number is quoted before
+    // the work, not reconciled after it. `trades` was the near miss, because
+    // `shop-rate-calculator` computes a superficially similar burden; that one
+    // exists to feed the trade bid calculators an overhead rate, and this one
+    // exists to price a third party's labour billed on to a client.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup)/.test(
         slug,
       ),
   },

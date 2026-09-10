@@ -23260,3 +23260,112 @@ entries:
         portfolio/usage portfolio/pipeline infra/tests -q 435 passed;
         node platform/pages/launched.mjs --write (231 tools, 1 added).
     mrr_end: 0
+  - venture: staffing-markup-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture directly from the pipeline: a free,
+        zero-dependency browser calculator for independent staffing
+        agencies and recruiters. duplicate_check.py scored the closest
+        match (shop-rate-calculator) at 0.17 against the final
+        description, well under the 0.45 flag bar, and staffing does not
+        appear in screened-out.md. Read rather than trusted:
+        shop-rate-calculator computes a trade contractor's own crew rate
+        for a contractor bidding their own labour; this prices a third
+        party's labour billed on to a client at a markup on the pay rate.
+      - >-
+        The defect it exists to catch: the trade quotes a markup on the
+        PAY RATE and reads it as a gross margin. Converting it the
+        textbook way (45/145 = 31%) is also wrong, because that identity
+        holds only when the figure marked up is the whole cost -- and
+        FICA, capped FUTA/SUTA, workers' comp, PTO, benefits, screening
+        and payroll admin all sit outside the pay rate. On the worked
+        example the page opens with ($22/h, 40h x 13 weeks, 3% SUTA on a
+        $12,000 base, a $6.20/$100 comp code, net-45 at 12%), a 45%
+        markup returns a 15.8% gross margin, breaks even at 21.9%, and a
+        20% margin needs 52.6%.
+      - >-
+        Three things modelled that a markup rule of thumb cannot. FUTA and
+        SUTA are charged as min(wages, wageBase) rather than as flat
+        percentages, so a 13-week placement carries $385 of the annual
+        charge and a 52-week one only $402 -- 74c an hour against 19c --
+        and the short-assignment effect falls out of the arithmetic
+        without a separate input asking about it. Workers' comp is per
+        $100 of payroll by class code, with the overtime-premium
+        exclusion most states allow as a checkbox. And the cost of
+        funding payroll across the client's payment terms is charged
+        against the loaded cost (the money actually spent), not the
+        invoice: $202 of a $2,626 profit on the example, a line that
+        appears in no markup quote anywhere.
+      - >-
+        Two guards in this repository caught real defects before the
+        first commit shipped, which is the case for keeping them. (1)
+        platform/ci/check_step_grid flagged `weeksOnAssignment` at
+        min="0.1" with step="0.5": the accepted values would have been
+        0.1, 0.6, 1.1..., so a recruiter typing the default 13 would have
+        been rejected by the browser on the primary journey. Fixed with
+        step="any". (2) platform/pages/faq-visible required every
+        authored FAQPage entry to be visible copy; both pages now render
+        the FAQ, and the JSON-LD apostrophes were normalised to match.
+      - >-
+        Four counter-drift sites updated rather than left to go red on
+        main, all of them the "a number that is only ever typed, never
+        recomputed" failure this repo's own tests exist to catch:
+        gitops/ci/README.md's runs-on sentence (via
+        gitops/ci/sync_readme_counts.py, 324->325 of 327 across 287
+        workflows), the mirrored-tool count in infra/OWNER_CHECKLIST.md
+        (three places), gitops/prod/usage/aggregate.py and
+        gitops/prod/front-door/default.conf (two places), and
+        gitops/tests/test_manifests.py's own `total` constant (231->232).
+        platform/ci/publish-surface.yaml gained the new workflow row
+        (classification none, publishes nothing).
+      - >-
+        Categorised on its first commit rather than after a spell in the
+        catch-all: build.test.mjs's catch-all bound fired at 6 against a
+        budget of 5, and the bound's own comment says to prefer fixing
+        the taxonomy over raising it. Filed under `services` (a service
+        business turning labour and carrying costs into a price quoted
+        before the work) beside booth-rent-vs-commission and
+        translator-project-quote, not `trades` and not `backoffice`.
+      - >-
+        Shipped as a crawlable non-orphan. platform/pages/siblings
+        reported 1 orphan against a budget of 0 (ratcheted to 0 by #4465),
+        so shop-rate-calculator's footer now links to it and carries a
+        regression test asserting the href. Enumeration is unavailable on
+        the current project-Pages origin -- the robots.txt a crawler reads
+        belongs to the owner's user-level site -- so a page nothing links
+        to is reachable from nothing. Zero orphans across 232 tools after
+        the change.
+      - >-
+        Verified locally (Actions runners starved per infra_state.yaml,
+        re-read this session: still down). node --test
+        ventures/staffing-markup-calculator/*.test.mjs 45/45; node --test
+        ventures/shop-rate-calculator/*.test.mjs 82/82; node
+        platform/pages/clauses.mjs staffing-markup-calculator clean (2
+        pages, 1 surface); node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs 1206/1206; node --test
+        platform/proposal/*.test.mjs 101/101; node --test
+        platform/privacy/*.test.mjs platform/webcheck/*.test.mjs 79/79, 0
+        skipped (clone unshallowed, so both history-pinned tests ran);
+        python3 -m pytest gitops/tests -q 532 passed/25 skipped; (cd
+        platform/ci && all 22 test_*.py modules) all OK; (cd
+        platform/ci/agent_review && test_review) OK; python3 -m pytest
+        portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q 435 passed;
+        python3 platform/ci/validate_workflows.py clean (287 files);
+        python3 portfolio/scoring/score_ventures.py --check clean (241
+        scored); python3 portfolio/usage/validate_usage.py clean (202
+        products); python3 platform/ci/checklist_coverage.py clean; node
+        platform/pages/launched.mjs --write (232 tools, 1 added);
+        regen.mjs run and the front-door mirror committed; and
+        run_workflow_locally.py --tree across all 9 verification-only
+        workflows.
+      - >-
+        Read on main before starting, and worth recording because it is
+        the reason this session did not drain a PR queue: there were ZERO
+        open pull requests. The three-PR merge quota in the standing
+        brief was therefore satisfied vacuously, not skipped. A
+        --tree sweep of a clean checkout of main was green across all 9
+        verification-only workflows before any change was made.
+    mrr_end: 0
