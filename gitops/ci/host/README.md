@@ -70,6 +70,17 @@ scope `gitops/ci/README.md` already documents for the in-cluster Secret
 (**Administration: Read and write**, scoped to this repository only). The
 same PAT works for either path.
 
+**If you are already running the recovery, this step comes with it** (added
+2026-09-10). `RUNNER_TOKEN` has been in the local secret store's registry
+(`infra/secrets/registry.tsv`) all along, so `load-secrets.sh --exec` already
+exported it — but `bootstrap/restore-cluster.sh` ignored it and told you to
+come back with the SSH key to register the runner by hand. It now pipes it to
+this installer over stdin, after the install, in the same run. After the
+install rather than before on purpose: `write_credentials` chowns the file to
+the `actions-runner` account that the install is what creates, so writing
+first leaves a root-owned file the service cannot read — a failure that looks
+exactly like a rejected PAT.
+
 Installing does **not** register the runner with GitHub. `register-and-run.sh`
 (the systemd unit's `ExecStart`) only calls `config.sh` once a credential is
 present; until then the service holds and retries every five minutes, the
