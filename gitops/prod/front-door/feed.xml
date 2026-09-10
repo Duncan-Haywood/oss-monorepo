@@ -26,6 +26,15 @@
     <summary type="text">Price a bounce house or inflatable rental booking from the truck&#39;s two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet&#39;s replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.</summary>
   </entry>
   <entry>
+    <title>Cache-Control Checker — Vary: *, public + Set-Cookie, weak ETags</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cache-control-check/"/>
+    <id>tag:marisstella.dev,2026:tool/cache-control-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor&#39;s cookie to another), and lower-severity caching directive conflicts. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Canonical Tag Checker — Conflicting, Cross-Domain &amp; Dead-End Canonicals</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/canonical-tag-check/"/>
     <id>tag:marisstella.dev,2026:tool/canonical-tag-check</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Free daycare and childcare tuition calculator. Price a classroom from your own child:staff ratio, staffing cost, and overhead, and see what an empty seat actually costs you at every occupancy level.</summary>
-  </entry>
-  <entry>
-    <title>Coverage Drop Check — Did This PR Lower Line Coverage?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/coverage-drop-check/"/>
-    <id>tag:marisstella.dev,2026:tool/coverage-drop-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.</summary>
   </entry>
 </feed>
