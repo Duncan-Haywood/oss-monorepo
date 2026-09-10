@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 238 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 239 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -366,14 +366,5 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you&#39;re already considering against the breakeven.</summary>
-  </entry>
-  <entry>
-    <title>Gig Driver Net Pay Calculator — What You Keep After Gas</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/gig-driver-net-pay-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/gig-driver-net-pay-calculator</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session&#39;s gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.</summary>
   </entry>
 </feed>
