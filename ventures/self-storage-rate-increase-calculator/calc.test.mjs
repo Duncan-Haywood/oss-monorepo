@@ -30,6 +30,7 @@ const EXAMPLE = {
   baselineMoveOutPercent: 22,
   inducedMoveOutPercent: 6,
   vacantDays: 45,
+  reletSharePercent: 100,
   turnoverCost: 45,
   concessionMonths: 1,
   horizonMonths: 12,
@@ -234,7 +235,63 @@ test('every field is validated and every problem is reported at once', () => {
 test('an empty form is an error rather than a zero', () => {
   const result = calculateIncrease({});
   assert.equal(result.ok, false);
-  assert.equal(result.errors.length, ALL_INPUT_IDS.length);
+  // Every input reports itself except the one with a documented default.
+  // `reletSharePercent` was added after the tool shipped and falls back to
+  // 100 — the assumption every earlier figure was computed under — so a
+  // saved link from before it existed still prices instead of erroring.
+  const reported = new Set(result.errors.map((error) => error.field));
+  assert.deepEqual(
+    ALL_INPUT_IDS.filter((id) => !reported.has(id)),
+    ['reletSharePercent'],
+  );
+  assert.equal(result.errors.length, ALL_INPUT_IDS.length - 1);
+});
+
+test('an absent re-let share reproduces the answer from before the input existed', () => {
+  const { reletSharePercent, ...withoutTheNewInput } = EXAMPLE;
+  const implied = calculateIncrease(withoutTheNewInput);
+  const explicit = calculateIncrease({ ...withoutTheNewInput, reletSharePercent: 100 });
+  assert.equal(implied.ok, true);
+  near(implied.cohortGain, explicit.cohortGain, 1e-9, 'default matches an explicit 100');
+  near(implied.breakEvenPercent, explicit.breakEvenPercent, 1e-9, 'break-even is unchanged');
+  const neverRelet = implied.moveOutCost.items.find((item) => item.key === 'neverRelet');
+  assert.equal(neverRelet.amount, 0, 'the new cost line is zero when everything re-lets');
+});
+
+test('units that never re-let are the cost a soft market adds', () => {
+  const certain = calculateIncrease({ ...EXAMPLE, reletSharePercent: 100 });
+  const soft = calculateIncrease({ ...EXAMPLE, reletSharePercent: 60 });
+
+  const line = soft.moveOutCost.items.find((item) => item.key === 'neverRelet');
+  assert.ok(line.amount > 0, 'a unit that never re-lets has to cost something');
+  // The whole difference between the two answers is that one line: the other
+  // four terms are unchanged, which is what makes it readable rather than a
+  // silent adjustment spread across them.
+  near(
+    soft.moveOutCost.total - certain.moveOutCost.total,
+    line.amount,
+    1e-9,
+    'the new line accounts for the entire difference',
+  );
+  for (const key of ['downtime', 'concession', 'turnover', 'rateGap']) {
+    const before = certain.moveOutCost.items.find((item) => item.key === key).amount;
+    const after = soft.moveOutCost.items.find((item) => item.key === key).amount;
+    near(after, before, 1e-9, `${key} should be untouched by the re-let share`);
+  }
+
+  // And it moves the decision, which is the reason to model it at all.
+  assert.ok(soft.breakEvenPercent < certain.breakEvenPercent, 'a soft market lowers the break-even');
+  assert.ok(soft.cohortGain < certain.cohortGain);
+});
+
+test('a turn is paid on every vacated unit, re-let or not', () => {
+  // The share applies to the rent and the concession, never to the turnover
+  // cost: you still clean out, re-lock and list a unit that then sits.
+  const none = calculateIncrease({ ...EXAMPLE, reletSharePercent: 0 });
+  const turnover = none.moveOutCost.items.find((item) => item.key === 'turnover');
+  assert.equal(turnover.amount, EXAMPLE.turnoverCost);
+  assert.ok(none.reletValue < 0, 'a unit that never re-lets returns less than nothing');
+  near(none.reletValue, -EXAMPLE.turnoverCost, 1e-9, 'it returns exactly the turn it cost');
 });
 
 test('move-out shares that exceed the whole group are rejected', () => {

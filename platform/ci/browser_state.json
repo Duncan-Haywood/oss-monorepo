@@ -2,21 +2,6 @@
   "readings": [
     {
       "checks": [
-        "journey"
-      ],
-      "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
-      "measured": "2026-09-10",
-      "pages": 888,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
-        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
-        "ventures": "49f69ac3bebf27f030d84206ef0d3c1596214ba6"
-      }
-    },
-    {
-      "checks": [
         "highlight"
       ],
       "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
@@ -380,6 +365,48 @@
         "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
         "platform/pages": "d2f8b771a35579bb2096baadc1f513d47b29ddaa",
         "ventures": "2c1f1acdcee21f4ceeb54a8ee7251a8d53f26d17"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "3e61ce5054a5934201353c35c522879bf7d6e092",
+      "measured": "2026-09-10",
+      "pages": 919,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "40c8e66eca01f2d545ca23f25cf1bddbbb2a74bc",
+        "platform/pages": "c5892267b9eac65acc88015c6798e29312cb3851",
+        "ventures": "9214cfdf40870fa691e1d570cac1bb8d37bb4f4c"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "c6afc48e819058a9cf92eb74d7a751f13119ec5d",
+      "measured": "2026-09-10",
+      "pages": 921,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "40c8e66eca01f2d545ca23f25cf1bddbbb2a74bc",
+        "platform/pages": "0e198edffcf090655e824f7eb33ef99860aa8df8",
+        "ventures": "c25c47edd6e32a5052398f9485777f09cd2f01ad"
       }
     }
   ]

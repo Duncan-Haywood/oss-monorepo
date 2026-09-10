@@ -82,6 +82,37 @@ written, a lawyer.
 move-out rate instead of a hunch, which used to take a spreadsheet nobody had
 built.*
 
+## The demand cap, added after the first release
+
+The four costs above all assume the vacated unit comes back: after `vacantDays`,
+at street rate. In a soft market a share of them simply sit, and *that* share is
+a separate question from how long a lease-up takes — a facility can re-let
+quickly in a good month and not at all in a bad one.
+
+`reletSharePercent` is that share, and it is the input that moves the answer
+most. On the worked example:
+
+| Share that re-rents | Cost of one move-out | Break-even move-out rate |
+|---|---|---|
+| 100% | $272 | 60.8% |
+| 80% | $581 | 28.5% |
+| 60% | $890 | 18.6% |
+| 40% | $1,199 | 13.8% |
+
+It enters as its own line in the itemised move-out cost rather than as an
+adjustment spread across the other four, so each of those keeps meaning exactly
+what its label says and the never-re-lets risk is visible on its own. At 100%
+the line is zero and every figure is identical to what the tool produced before
+the input existed.
+
+The share applies to the rent and the concession, never to the turnover cost:
+you still clean out, re-lock and list a unit that then sits. A soft market does
+not make turns cheaper, it makes them stop paying for themselves.
+
+The field defaults to 100 when absent, so a link saved before it existed still
+prices rather than erroring — `calc.test.mjs` asserts that the implied default
+and an explicit 100 give byte-identical answers.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your rents, street rates, unit counts and the
