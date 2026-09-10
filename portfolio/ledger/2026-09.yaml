@@ -21337,3 +21337,83 @@ entries:
         this decision and should be re-read with `browser_state.py` before
         trusting it current.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: null
+    outcomes:
+      - >-
+        Scheduled autonomous-mandate session. Open-PR queue was genuinely
+        empty (`list_pull_requests` state=open returned zero; a bulk
+        `merged: false` reading on recently-closed PRs turned out to be a
+        stale field on that same tool -- confirmed against `pull_request_read`
+        that #4376 and neighbors are in fact merged, and against `git log`
+        that PRs up to #4377 are on `main`), so the mandate's three-PR merge
+        quota is trivially met (nothing to merge). Sampled two of the ~100+
+        auto-named idle branches most relevant to this session's brief
+        (`agent/deploy-cicd-ledger-2868`, `ci/hetzner-ssh-key-diagnostic`);
+        both were fully superseded by later work already on `main` (the
+        second's SSH-key-classification idea now lives, more completely, in
+        `bootstrap/scripts/load-ssh-key.sh`). Did not attempt a full audit of
+        the remaining branches -- CLAUDE.md is explicit that the portfolio's
+        job is not to maintain an admin queue, and both samples read as the
+        same pattern this repo's commit velocity produces constantly.
+      - >-
+        Verified the two infra asks in this session's brief (Hetzner
+        deployment, Codex CLI running against its own quota on the Hetzner
+        box) are already fully built and already the #1 queued owner
+        decision (`hetzner-ssh-key-is-a-public-key`, #3184) -- the Codex
+        "governor" systemd timer/service exists complete at
+        `gitops/agents/host/`, gated only on the owner pasting a real private
+        key plus a Codex/OpenAI credential. Did not duplicate the ask.
+      - >-
+        Confirmed the one deploy route this session can act on without an
+        owner secret -- GitHub Pages via the committed `gh-pages` branch --
+        is current (`pages_state.py --require-current` exit 0, no republish
+        needed).
+      - >-
+        Ran the full local verification sweep CLAUDE.md asks for during a
+        starvation window: `platform/ci/run_workflow_locally.py --tree`
+        (9/9 selected workflows' run: steps passed), all 8
+        `portfolio-validate.yml` validators individually (all clean), the
+        `platform/marketing`/`platform/pages` node suites (232 + 960
+        passing), and `gitops/tests` (493 passed, 25 skipped). `main` is
+        genuinely green right now, not starved-and-assumed-fine.
+      - >-
+        Read `portfolio/DIRECTION.md`'s current-priority guidance (zero
+        nonzero `live_url_visitors` readings across all 234 ventures --
+        confirmed directly against `usage/usage.yaml`, every nonzero signal
+        in the file is a local dry-run counter, not a real visitor) and
+        picked the highest-leverage gap available without owner action:
+        `.github/workflows/publish-pages-branch.yml` notifies IndexNow after
+        a push, but only when a runner picks the workflow up --
+        `platform/pages/publish-branch.sh`, the manual route this repo has
+        been using exclusively while Actions is starved, never did. So every
+        recent manual publish (which is to say, every recent publish) never
+        told Bing/Yandex/Seznam/Naver a page existed. Added the same
+        `indexnow.mjs --submit` call to the script's `PUSH=1` path,
+        best-effort and non-fatal (the site is already live by the time it
+        runs; this session's own sandbox cannot reach `api.indexnow.org` at
+        all, so a failure here is expected from here specifically and must
+        not read as the publish having failed).
+      - >-
+        Tests: extended `gitops/tests/test_publish_branch.py` with a real
+        bare-remote fixture and three new cases (unpushed build never
+        touches IndexNow; a real push does; a failed submission does not
+        fail the script) -- 19/19 passing. `shellcheck` on the modified
+        script: clean. Full `gitops/tests`: 493 passed / 25 skipped
+        (unchanged pass count plus the 3 new). Did not attempt to verify an
+        actual IndexNow submission end-to-end -- this session's egress is
+        blocked to that host by design; the next session with a real Hetzner
+        or Cursor/local-CLI egress path is the one that can.
+      - >-
+        Also started the full whole-catalogue browser/accessibility sweep in
+        the background (`browser_state.py` reported all 7 checks stale after
+        today's front-door churn, this session's own edits included in what
+        staled it). Did not check for an in-progress sweep from another
+        session first -- the ledger entry immediately above this one records
+        a different session starting the same sweep and not finishing it
+        either, so this may be a second concurrent run of the same
+        20-30-minute, idempotent, non-destructive command rather than new
+        work. Read `browser_state.py` fresh before trusting either result;
+        whichever finishes last is the one it reports.
+    mrr_end: 0
