@@ -102,6 +102,8 @@
     footer a { color: #7a1fa2; }
     .seo-link { margin: 10px 0 0; font-size: .9rem; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+    #copyLink { background: #d9f0cf; border-color: #7fbf6a; }
+    #status { min-height: 1.1em; font-size: .82rem; color: #5c4e68; margin: 6px 0 0; }
     .faq { margin-top: 8px; }
     @media (max-width: 820px) {
       .layout { grid-template-columns: 1fr; }
@@ -162,7 +164,10 @@
         <div class="actions">
           <button class="primary" type="submit">Price this lot</button>
           <button type="button" id="compareShipping">Compare free shipping</button>
+          <button type="button" id="copyLink">Copy shareable link</button>
+          <button type="button" id="reset">Reset to defaults</button>
         </div>
+        <p id="status" role="status"></p>
       </section>
     </form>
 
@@ -210,7 +215,7 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or selling advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Hammers, costs, and leftovers are never uploaded and never appear in a usage count — those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Hammers, costs, and leftovers are never uploaded and never appear in a usage count — those are anonymous tallies of which features were used, stored locally. We don't have accounts, tracking cookies, or an analytics vendor. Your category preset, rates, and lot are saved on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere.</p>
     <p>Free and open source. If it changes how you price a show, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
     <p>Comparing fixed-fee retail marketplace fees on one item rather than a livestream lot? The <a href="../marketplace-fee-compare/">marketplace fee compare</a> ranks eBay, Etsy, Amazon, Walmart, TikTok Shop, and an own Shopify store from one set of inputs — Whatnot stays out of that ranking because auction commission and checkout processing are a different question.</p>
     <p>Pricing a nightly stay instead of a livestream lot? The <a href="../str-host-payout-calculator/">STR host payout calculator</a> puts one stay through Airbnb's host-only fee, Vrbo, and a direct booking &mdash; nothing uploaded.</p>
@@ -219,13 +224,25 @@
   <script type="module">
     import { calculateSale, applyCategoryPreset, compareFreeShipping, INPUT_IDS, CATEGORY_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
 
     const el = id => document.getElementById(id);
+    const safe = fn => { try { return fn(); } catch { return undefined; } };
     const money = (value) => {
       const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };
     const pct = value => `${value.toFixed(1)}%`;
+    const STORAGE_KEY = 'whatnot-seller-payout-inputs';
+    let statusTimer;
+    function clearStatus() {
+      el('status').textContent = '';
+    }
+    function flash(message) {
+      el('status').textContent = message;
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(clearStatus, 3000);
+    }
 
     function count(event) {
       recordUsage(localStorage, el('usageOptOut').checked, event);
@@ -234,7 +251,25 @@
     function readInput() {
       const values = Object.fromEntries(INPUT_IDS.map(id => [id, el(id).value]));
       values.giveaway = el('giveaway').checked;
+      values.categoryPreset = el('categoryPreset').value;
       return values;
+    }
+
+    // The values the page shipped with, captured before anything below has a
+    // chance to restore a saved or shared lot over them — this is what
+    // "Reset to defaults" puts back.
+    const DEFAULT_INPUTS = readInput();
+
+    function applyInputs(values) {
+      for (const id of INPUT_IDS) {
+        if (values[id] !== undefined) el(id).value = values[id];
+      }
+      if (values.giveaway !== undefined) el('giveaway').checked = values.giveaway;
+      if (values.categoryPreset !== undefined) el('categoryPreset').value = values.categoryPreset;
+    }
+
+    function persist() {
+      safe(() => localStorage.setItem(STORAGE_KEY, JSON.stringify(readInput())));
     }
 
     let current = null;
@@ -293,15 +328,15 @@
       el('shipCompareOut').hidden = true;
     }
 
-    el('categoryPreset').addEventListener('change', () => {
-      const next = applyCategoryPreset(readInput(), el('categoryPreset').value);
-      el('commissionRate').value = next.commissionRate;
-      el('commissionCap').value = next.commissionCap;
-      hideShipCompare();
-    });
-
-    el('saleForm').addEventListener('submit', event => {
-      event.preventDefault();
+    // Keeps the on-screen headline honest against whatever is currently typed,
+    // with no usage count attached — a keystroke is not "pricing this lot".
+    // Without this, a seller who edits a field and immediately clicks "Copy
+    // shareable link" copies the numbers they typed while their own screen
+    // still shows the *previous* result: the recipient's page computes fresh
+    // from the link and shows a different, correct figure than the sender saw
+    // last, which is indistinguishable from a share link that silently drops a
+    // field. `roundtrip.mjs` catches exactly that shape.
+    function recomputeAndRender() {
       const result = calculateSale(readInput());
       if (!result.ok) {
         showProblems(result.errors);
@@ -310,7 +345,27 @@
       render(result);
       el('exampleNote').hidden = true;
       hideShipCompare();
-      count('sale_calculated');
+    }
+
+    el('categoryPreset').addEventListener('change', () => {
+      const next = applyCategoryPreset(readInput(), el('categoryPreset').value);
+      el('commissionRate').value = next.commissionRate;
+      el('commissionCap').value = next.commissionCap;
+      recomputeAndRender();
+      persist();
+    });
+
+    function onFieldInput() {
+      recomputeAndRender();
+      persist();
+    }
+    for (const id of INPUT_IDS) el(id).addEventListener('input', onFieldInput);
+    el('giveaway').addEventListener('change', onFieldInput);
+
+    el('saleForm').addEventListener('submit', event => {
+      event.preventDefault();
+      recomputeAndRender();
+      if (current) count('sale_calculated');
     });
 
     el('compareShipping').addEventListener('click', () => {
@@ -329,15 +384,50 @@
       count('free_shipping_compared');
     });
 
+    el('copyLink').addEventListener('click', async () => {
+      const query = encodeInputs(readInput());
+      const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+      history.replaceState(null, '', url);
+      try {
+        await navigator.clipboard.writeText(location.href);
+        flash('Link copied.');
+      } catch {
+        flash('Link updated in the address bar.');
+      }
+      count('link_copied');
+    });
+
+    el('reset').addEventListener('click', () => {
+      applyInputs(DEFAULT_INPUTS);
+      safe(() => localStorage.removeItem(STORAGE_KEY));
+      history.replaceState(null, '', location.pathname);
+      hideShipCompare();
+      const example = calculateSale(readInput());
+      if (example.ok) {
+        render(example);
+        current = null;
+        el('exampleNote').hidden = false;
+      }
+      flash('Reset to defaults.');
+    });
+
     (() => {
-      const preset = CATEGORY_PRESETS[el('categoryPreset').value];
-      el('commissionRate').value = preset.commissionRate;
-      el('commissionCap').value = preset.commissionCap;
+      const fromLink = decodeInputs(location.hash || location.search);
+      const saved = safe(() => JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')) || {};
+      const restored = { ...saved, ...fromLink };
+      const hasRestored = Object.keys(restored).length > 0;
+      if (hasRestored) {
+        applyInputs(restored);
+      } else {
+        const preset = CATEGORY_PRESETS[el('categoryPreset').value];
+        el('commissionRate').value = preset.commissionRate;
+        el('commissionCap').value = preset.commissionCap;
+      }
       const example = calculateSale(readInput());
       if (!example.ok) return;
       render(example);
       current = null;
-      el('exampleNote').hidden = false;
+      el('exampleNote').hidden = hasRestored;
     })();
   </script>
 </body>

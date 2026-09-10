@@ -29,6 +29,32 @@ test('every input the arithmetic reads exists on the form', () => {
   assert.ok(ids.has('categoryPreset'));
 });
 
+// A seller retyping the category preset and every rate on each visit is the
+// retyping this venture's own kill criteria asks whether they'll tolerate
+// twice in 90 days — so the form must be saveable and shareable, not just
+// calculable.
+test('the page saves and shares its inputs rather than losing them on reload', () => {
+  assert.ok(ids.has('copyLink'), 'missing #copyLink');
+  assert.ok(ids.has('reset'), 'missing #reset');
+  assert.ok(ids.has('status'));
+  assert.match(script, /from '\.\/share\.mjs'/);
+  assert.match(script, /encodeInputs/);
+  assert.match(script, /decodeInputs/);
+  assert.match(script, /localStorage\.setItem\(STORAGE_KEY/);
+  assert.match(script, /localStorage\.removeItem\(STORAGE_KEY\)/);
+});
+
+test('reset restores the page\'s own shipped defaults, not a blank form', () => {
+  assert.match(script, /const DEFAULT_INPUTS = readInput\(\)/);
+  assert.match(script, /applyInputs\(DEFAULT_INPUTS\)/);
+});
+
+test('a shared or restored lot wins over the shipped worked example', () => {
+  assert.match(script, /const fromLink = decodeInputs\(location\.hash \|\| location\.search\)/);
+  assert.match(script, /const restored = \{ \.\.\.saved, \.\.\.fromLink \}/);
+  assert.match(script, /exampleNote'\)\.hidden = hasRestored/);
+});
+
 test('every form number input is one the arithmetic knows about', () => {
   const known = new Set([...INPUT_IDS, 'usageOptOut']);
   const formInputs = [...markup.matchAll(/<input id="([^"]+)"/g)].map(m => m[1]);
