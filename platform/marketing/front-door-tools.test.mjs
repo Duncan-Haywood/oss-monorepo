@@ -2021,11 +2021,18 @@ test('mirrorHeadroom warns below the ceiling, not at it', async () => {
     'a warn ratio at or above 1 fires only once the build already throws',
   );
 
+  // `Math.ceil`, not `Math.round`: `tight` is `bytes / CEILING >= RATIO`, and a
+  // rounded probe lands on whichever side of the exact product that particular
+  // ceiling happens to round to. At 8 MiB it rounded up and the assertion below
+  // passed; raising the ceiling to 12 MiB made the same expression round *down*
+  // to 0.8499999, so a test about the warn ratio failed for a reason that had
+  // nothing to do with the warn ratio. Ceiling is what "at the ratio" means for
+  // a `>=` bound, and it is independent of the ceiling's value.
   const at = (ratio) =>
     mirrorHeadroom({
       files: [],
       tools: [{ slug: 'a' }],
-      bytes: Math.round(MIRROR_BYTE_CEILING * ratio),
+      bytes: Math.ceil(MIRROR_BYTE_CEILING * ratio),
     });
   assert.equal(at(MIRROR_HEADROOM_WARN_RATIO - 0.01).tight, false);
   assert.equal(at(MIRROR_HEADROOM_WARN_RATIO).tight, true, 'the ratio itself is tight, not just above it');

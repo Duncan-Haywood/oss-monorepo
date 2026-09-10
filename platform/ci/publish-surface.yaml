@@ -776,6 +776,9 @@ workflows:
 - workflow: stair-lift-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: staffing-markup-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: standby-generator-bid-calculator-ci.yml
   classification: none
   publishes: []
