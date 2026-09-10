@@ -126,6 +126,10 @@ test("DoorDash vs Uber Eats page names all three apps and matches the calculator
   assert.match(versus, /href="doordash-fees-for-restaurants\.html"/);
 });
 
+test("links to the menu engineering calculator", () => {
+  assert.match(page, /href="\.\.\/menu-engineering-calculator\/"/, "the sibling-tool link is missing");
+});
+
 // Both put one order through several channels to find the true take-home
 // after fees -- a per-ticket delivery menu and a wholesale invoice. Without
 // this link a crawler entering on this page never reaches the

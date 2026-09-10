@@ -87,6 +87,10 @@ test("share encoding is the allowlisted numeric payload, not free text", () => {
   );
 });
 
+test("links to the seller net sheet calculator", () => {
+  assert.match(html, /href="\.\.\/seller-net-sheet\/"/, "the sibling-tool link is missing");
+});
+
 // Both price one transaction through platform-specific fees to find the true
 // seller payout -- a nightly stay and a livestream lot. Without a crawlable
 // link here, a crawler entering on this page never reaches the Whatnot

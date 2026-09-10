@@ -174,6 +174,10 @@ test('the calculator links to its sibling on the bar side', () => {
   assert.match(html, /href="\.\.\/pour-cost-calculator\/"/);
 });
 
+test('index links to the delivery app margin calculator', () => {
+  assert.match(html, /href="\.\.\/delivery-app-margin-calculator\/"/, 'the sibling-tool link is missing');
+});
+
 test('no wide element can push the page sideways on a phone', () => {
   // Both tables are wider than a 375px viewport by design; each has to scroll
   // inside its own container rather than scrolling the document.

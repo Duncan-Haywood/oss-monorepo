@@ -52,3 +52,7 @@ test("the result panel is an aria-live region so screen readers hear updates and
 test("the copy-status message is announced, matching the role=\"status\" convention used elsewhere", () => {
   assert.match(index, /id="copyStatus"[^>]*role="status"[^>]*aria-live="polite"/);
 });
+
+test("links to the STR host payout calculator", () => {
+  assert.match(index, /href="\.\.\/str-host-payout-calculator\/"/, "the sibling-tool link is missing");
+});

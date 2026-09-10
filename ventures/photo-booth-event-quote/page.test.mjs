@@ -95,3 +95,4 @@ test('index links one hop to the booth-rent-vs-commission sibling', () => {
     'index must link ../booth-rent-vs-commission/ so crawlers reach the booth rent vs commission calculator in one hop',
   );
 });
+

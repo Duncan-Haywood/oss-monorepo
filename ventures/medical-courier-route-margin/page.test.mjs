@@ -77,6 +77,14 @@ test('every .html file in the venture is reachable from the sitemap', () => {
   }
 });
 
+test('index links one hop to the fire-extinguisher-inspection-route-margin sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/fire-extinguisher-inspection-route-margin\/"/,
+    'index must link ../fire-extinguisher-inspection-route-margin/ so a crawler reaches that tool in one hop',
+  );
+});
+
 // Both cost a route's economics per vehicle-hour or per mile for a
 // self-employed driver -- a medical courier and a long-haul owner-operator.
 // Without a crawlable link here, a crawler entering on this page never

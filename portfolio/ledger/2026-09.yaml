@@ -21236,3 +21236,104 @@ entries:
         `checklist_coverage.py` and `pages_state.py` both read clean before
         and after.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session under the standing product-first mandate
+        (three-PR merge quota, then highest-value product work). Open-PR queue
+        was empty at the start (verified via list_pull_requests, state=open) so
+        the quota was met trivially; no stray unreviewed branches either.
+      - >-
+        Re-confirmed, not re-derived, the account owner's standing direction to
+        prioritise deployment/CI-CD and to deploy marketing materials and a
+        Codex-CLI worker on the Hetzner VMs. Read `gitops/agents/queue/
+        deploy-cicd-readiness.yaml` and `marketing-distribution.yaml` (both
+        already encode this exact owner direction from 2026-09-01) and
+        `gitops/agents/host/` (the Codex worker, host mode) plus
+        `gitops/agents/workers/mandate.md` (the standing prompt that worker
+        runs -- already a close mirror of this session's own mandate). All are
+        fully built and tested, gated only on `hetzner-ssh-key-is-a-public-key`
+        (#3184), already the top decision-queue item. Verified fresh rather
+        than trusted: the agent egress proxy still refuses
+        `api.hetzner.cloud:443` (`gateway answered 403 to CONNECT`), so this
+        session has no path to SSH into either box either. No second ask
+        added. GitHub Pages, by contrast, is confirmed live and current
+        (`pages_state.py`: `deployed: served`, snapshot built from the tip of
+        `main`), so the deployment/CI-CD priority is being met through that
+        route while Hetzner stays down.
+      - >-
+        Ran the deploy-cicd-readiness candidate sweep (manifest/workflow
+        defects, gitops/tests-vs-manifest drift, `run_workflow_locally.py`):
+        found nothing new since the 2026-09-02 exhaustive pass and this
+        session's own re-checks -- `gitops/tests` 490 passed/25 skipped, all
+        280 workflow files valid, `publish_surface.py --check` and
+        `check_duplicate_symbols.py` both clean, `build.mjs` + `check.mjs`
+        225 products / 882 pages / no dead links.
+      - >-
+        Closed 5 crawlable-orphan pairs from `siblings.mjs --check`'s
+        worklist (10 -> 4 orphans), reading each README rather than trusting
+        the weak nearest-sibling heuristic: medical-courier-route-margin /
+        fire-extinguisher-inspection-route-margin (same recurring
+        stop-based route-pricing shape as the pool-route-pricing pair);
+        commercial-photo-license-calculator / photo-booth-event-quote (one
+        photographer's two adjacent pricing jobs); str-host-payout-calculator
+        / seller-net-sheet (one property owner's fork -- rent short-term or
+        sell); faire-wholesale-calculator / etsy-profit-calculator (one maker
+        selling wholesale and retail); delivery-app-margin-calculator /
+        menu-engineering-calculator (one restaurant's channel choice and
+        plate pricing). Each page's footer now names the other, with a
+        page.test.mjs (or equivalent) assertion on the href.
+      - >-
+        Two other sessions closed an overlapping set of orphans from the same
+        worklist concurrently (PR #4371's medical-courier/owner-operator,
+        str-host/whatnot, and a duplicate of the commercial-photo/photo-booth
+        pair this session also picked). Merged rather than picked between --
+        every link from every session was kept, since a page carrying more
+        than one honest sibling link is the established shape here (see
+        pool-route-pricing, atm-route-margin). Removed one genuinely
+        duplicate test assertion (commercial-photo-license-calculator gained
+        the same href check from two directions) and rewrote
+        `siblings-budget.json`'s history note to describe the combined
+        outcome rather than either session's partial view. Final state: 4
+        orphans remain (ai-engineering-academy, ats-resume-checker,
+        childcare-tuition-calculator, security-deposit-return-calculator),
+        each a genuinely different vertical with no honest partner; left
+        rather than fabricate a link.
+      - >-
+        Also merged PR #4370 (where-to-sell-calculator reverse handoff) and
+        #4371 into this branch during the same reconciliation, since all
+        three sessions' work touched overlapping files -- resolved 7
+        multi-way conflicts (5 venture index.html/page.test.mjs pairs plus
+        the generated front-door mirror and siblings-budget.json), then
+        re-verified the merged tree rather than trusting either side's
+        pre-merge verification.
+      - >-
+        Verified after merge: `node --test` across all touched ventures plus
+        the full `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        suite (1192 passing), `gitops/tests` (490 passed/25 skipped), the
+        portfolio ledger/scoring/router/usage/pipeline/infra suite (431
+        passed), `checklist_coverage.py` clean, `regen.mjs` re-run and its
+        output committed, `build.mjs` + `check.mjs` clean (225 products, 882
+        pages, no dead links), `siblings.mjs --check` at exactly the
+        committed budget (4).
+      - >-
+        CI could not verify this independently: Actions has been starved
+        (`ci_starvation.py` pattern -- `runner_id: 0`, few seconds, no steps)
+        across the recent history this session read in `infra_state.yaml`.
+        Merged on the local verification above per CLAUDE.md's starvation
+        policy.
+      - >-
+        `browser_state.py` reported all 7 checks stale (front door/builder had
+        changed since the last recorded reading, independent of this
+        session's own footer edits which add to the same served surface), so
+        started the full whole-catalogue browser/accessibility sweep
+        (`npm install --no-save playwright@1.56.0 axe-core`, then
+        `browser_checks.py --record --checks
+        sideways,presets,roundtrip,highlight,contrast,sweep,journey`) in the
+        background. It had not finished by the time this entry was written
+        (a full sweep takes 20-30 minutes); its result was not folded into
+        this decision and should be re-read with `browser_state.py` before
+        trusting it current.
+    mrr_end: 0
