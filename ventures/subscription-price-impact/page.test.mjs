@@ -122,3 +122,22 @@ test('index links one hop to the saas-seat-true-up sibling', () => {
   );
   assert.match(siblingHtml, /SaaS seat true\-up calculator/i);
 });
+
+// `self-storage-rate-increase-calculator` shipped 2026-09-10 as a crawlable
+// orphan: no tool linked to it in one hop, and on the current project-Pages
+// origin the sitemap is never read, so a page nothing links to is reachable
+// from nothing. It is the closest sibling by decision shape — both price a
+// price increase against the churn it causes, one for subscribers and one for
+// storage tenants — so the link is explicit rather than left to rotating
+// related-tool chrome.
+test('index links one hop to the self-storage-rate-increase-calculator sibling', () => {
+  const siblingHtml = readIndexForSiblingCheck(
+    new URL('./index.html', import.meta.url),
+    'utf8',
+  );
+  assert.match(
+    siblingHtml,
+    /href="\.\.\/self\-storage\-rate\-increase\-calculator\/"/,
+    'index must link ../self-storage-rate-increase-calculator/ so a crawler reaches that tool in one hop',
+  );
+});

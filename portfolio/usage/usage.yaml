@@ -5003,6 +5003,35 @@ products:
           default, and honor DNT/GPC, so zero is the expected reading
           for a tool nobody has visited or switched the counter on for
           yet.
+  - slug: self-storage-rate-increase-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-10
+        signals:
+          live_url_visitors: null
+          increase_priced: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route from its first commit: an existing-customer rate
+          increase calculator for independent self-storage operators,
+          costing one induced move-out at the gap between keeping a
+          tenant and re-letting the unit at street rate, and reporting
+          the induced move-out rate at which the increase stops paying.
+          `increase_priced` is the signal worth watching against repeat
+          visits: rate increases run on a quarterly or semi-annual
+          cycle, so a single price and no return within a quarter means
+          either the inputs were too much work for the answer or the
+          answer was not one an operator acted on -- the two design
+          risks this shape carries. First-visitor channel is
+          r/selfstorage and the independent-operator forums where ECRI
+          size and timing are a standing argument, plus the search
+          phrases "self storage rate increase", "ECRI self storage",
+          "how much can I raise storage rent", and "self storage rate
+          increase calculator". Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading
+          for a tool nobody has visited or switched the counter on for
+          yet.
   - slug: security-deposit-return-calculator
     surface: github-pages
     readings:
