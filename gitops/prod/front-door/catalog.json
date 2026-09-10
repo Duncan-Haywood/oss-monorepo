@@ -556,7 +556,7 @@
       "url": "https://marisstella.dev/tools/actions-self-hosted-exposure-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub's own docs warn against on public repos. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "ada-title-ii-evidence",
@@ -748,7 +748,7 @@
       "url": "https://marisstella.dev/tools/chrome-extension-permission-check/",
       "category": "CI checks & developer gates",
       "description": "Free, browser-local checker: scans your extension's JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json's declared permissions, so an unused or missing permission doesn't cost you a Chrome Web Store rejection ('Purple Potassium'). Nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "concrete-lifting-bid-calculator",
@@ -956,7 +956,7 @@
       "url": "https://marisstella.dev/tools/env-example-drift-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "epoxy-garage-floor-bid-calculator",
