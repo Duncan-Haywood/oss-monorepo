@@ -738,11 +738,23 @@ const CATEGORY_RULES = [
     // pricing anything -- the axis this section groups on is the earner, not
     // whether the tool is a calculator or a checker, and `ats-resume-checker`
     // is already the precedent for a checker-shaped member here.
+    //
+    // `craft-fair-booth-calculator` joined 2026-09-10, and it is the clearest
+    // member yet: a maker deciding whether one market booth is worth their
+    // weekend is the same person as `3d-print-price-calculator`'s maker
+    // pricing a print, asking the same question about the same labour at a
+    // different moment. It is deliberately *not* in `service-pricing`
+    // alongside `photo-booth-event-quote` and the route-margin tools, even
+    // though all of them price an event: that section groups on a business
+    // quoting work for a customer, and a maker has no customer to quote —
+    // they are deciding what their own hours are worth against a booth fee
+    // nobody negotiated with them.
     test: (slug) =>
       [
         '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
+        'craft-fair-booth-calculator',
         'gig-driver-net-pay-calculator',
         'newsletter-sponsorship-rate-calculator',
         'sponsor-ready',

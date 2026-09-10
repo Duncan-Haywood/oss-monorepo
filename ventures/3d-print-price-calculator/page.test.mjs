@@ -171,3 +171,16 @@ test("index links one hop to the apparel-decoration-price-calculator sibling", (
     "index must link ../apparel-decoration-price-calculator/ so a crawler reaches that tool in one hop",
   );
 });
+
+// Added 2026-09-10 to close a crawlable-orphan pair: the craft fair booth
+// calculator graduated with outbound links to its siblings and nothing
+// linking back, so no crawler reached it in one hop from any tool. The two
+// share an audience exactly — a maker deciding what their own output and
+// their own hours are worth — and this tool's materials-per-print figure is
+// the input the booth calculator is hardest to guess at.
+test("index links one hop to the craft-fair-booth-calculator sibling", () => {
+  assert.ok(
+    html.includes('href="../craft-fair-booth-calculator/"'),
+    "index must link ../craft-fair-booth-calculator/ so a crawler reaches that tool in one hop",
+  );
+});
