@@ -516,7 +516,7 @@
       "url": "https://marisstella.dev/tools/actions-artifact-poisoning-check/",
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name: pin. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "actions-cache-poisoning-check",
