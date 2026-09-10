@@ -68,7 +68,7 @@ test('targetMonthlyIncome is documented as saved and shareable, not as part of t
 });
 
 test('the page ships a save-and-share draft feature for the visit inputs, matching sibling route calculators', () => {
-  assert.match(html, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  assert.match(html, /import \{ encodeInputs, decodeInputs, formValues \} from '\.\/share\.mjs'/);
   assert.match(html, /id="copyLink"/);
   assert.match(html, /id="reset"/);
   assert.match(html, /id="draftStatus"/);
@@ -88,11 +88,16 @@ test('the location route table is never included in the shareable link or local 
   assert.match(body, /localStorage\.setItem\(DRAFT_KEY, JSON\.stringify\(visitInputs\(\)\)\)/);
 });
 
-test('a shared link wins over a saved draft, and both are applied through applyVisitInputs', () => {
+test('a shared link wins over a saved draft, applied through formValues rather than a plain spread', () => {
+  // Regression for the shared-link-clears defect (platform/ci/check_shared_link_clears.py):
+  // a plain `{ ...saved, ...fromLink }` merge looks like the link wins and is
+  // not -- a field the sender left blank falls through to the recipient's own
+  // saved draft instead of being cleared. formValues(fromLink) is what
+  // actually clears it.
   const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
   const body = scriptMatch[1];
-  assert.match(body, /const restored = \{ \.\.\.saved, \.\.\.fromLink \};/);
-  assert.match(body, /applyVisitInputs\(restored\)/);
+  assert.match(body, /applyVisitInputs\(formValues\(fromLink\)\)/);
+  assert.doesNotMatch(body, /\{\s*\.\.\.saved\s*,\s*\.\.\.fromLink\s*\}/);
   assert.match(body, /applyVisitInputs\(DEFAULT_VISIT_INPUTS\)/, 'Reset to defaults must restore the page\'s own shipped values');
 });
 

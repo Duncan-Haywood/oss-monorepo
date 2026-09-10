@@ -23,7 +23,7 @@ test('the page wires usage counting for both the site and route calculators', ()
 });
 
 test('the page wires save-and-share for the visit inputs, matching sibling route calculators', () => {
-  assert.match(html, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  assert.match(html, /import \{ encodeInputs, decodeInputs, formValues \} from '\.\/share\.mjs'/);
   assert.match(html, /id="copyLink"/);
   assert.match(html, /id="reset"/);
   assert.match(html, /id="linkStatus"/);
@@ -31,6 +31,19 @@ test('the page wires save-and-share for the visit inputs, matching sibling route
   assert.match(html, /recordEvent\('link-copied'\)/);
   assert.match(html, /recordEvent\('reset'\)/);
   assert.match(html, /DRAFT_KEY = 'fire-extinguisher-inspection-route-margin-visit-draft'/);
+});
+
+test('a shared link wins over a saved draft, applied through formValues rather than a plain spread', () => {
+  // Regression for the shared-link-clears defect (platform/ci/check_shared_link_clears.py):
+  // a plain `{ ...saved, ...fromLink }` merge looks like the link wins and is
+  // not -- a field the sender left blank falls through to the recipient's own
+  // saved draft instead of being cleared. formValues(fromLink) is what
+  // actually clears it.
+  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
+  assert.ok(scriptMatch, 'app script not found');
+  const body = scriptMatch[1];
+  assert.match(body, /applyVisitInputs\(formValues\(fromLink\)\)/);
+  assert.doesNotMatch(body, /\{\s*\.\.\.saved\s*,\s*\.\.\.fromLink\s*\}/);
 });
 
 test('the default site inputs match calc.mjs DEFAULTS and produce a positive profit', () => {

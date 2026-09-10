@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DEFAULTS, calculate } from './calc.mjs';
-import { FIELD_IDS, encodeInputs, decodeInputs } from './share.mjs';
+import { FIELD_IDS, encodeInputs, decodeInputs, formValues } from './share.mjs';
 
 test('FIELD_IDS is exactly calc.mjs DEFAULTS, not a restated copy', () => {
   assert.deepEqual(FIELD_IDS, Object.keys(DEFAULTS));
@@ -55,4 +55,30 @@ test('blank or missing fields are simply absent from the encoded query', () => {
   assert.equal(decoded.extinguisherCount, undefined);
   assert.equal(decoded.inspectionFeePerUnit, undefined);
   assert.equal(decoded.mileage, 9);
+});
+
+test('formValues covers every field the form owns, not just the ones a link carried', () => {
+  const values = formValues({ mileage: 9 });
+  assert.deepEqual(Object.keys(values).sort(), [...FIELD_IDS].sort());
+});
+
+test('formValues clears a field a link did not carry, rather than leaving it unwritten', () => {
+  // The exact defect this module exists to prevent: a link that omits
+  // rechargePct must not leave the recipient's own saved draft value in that
+  // box -- see check_shared_link_clears.py and the index.html restore.
+  const { rechargePct, ...withoutRecharge } = DEFAULTS;
+  const decoded = decodeInputs(encodeInputs(withoutRecharge));
+  const values = formValues(decoded);
+  assert.equal(values.rechargePct, '');
+  assert.equal(values.extinguisherCount, String(DEFAULTS.extinguisherCount));
+});
+
+test('formValues on an empty decode clears the whole form', () => {
+  const values = formValues({});
+  for (const id of FIELD_IDS) assert.equal(values[id], '');
+});
+
+test('formValues on a missing argument clears the whole form rather than throwing', () => {
+  const values = formValues();
+  for (const id of FIELD_IDS) assert.equal(values[id], '');
 });
