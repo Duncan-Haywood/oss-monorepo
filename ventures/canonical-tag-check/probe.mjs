@@ -141,10 +141,10 @@ const HREF_ATTR_RE = /\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i;
 const META_ROBOTS_TAG_RE = /<meta\b[^>]*\bname\s*=\s*(?:"robots"|'robots')[^>]*>/gi;
 const CONTENT_ATTR_RE = /\bcontent\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i;
 
-/** Every `<link rel="canonical" href="...">` tag found in the document's
- * `<head>`, in document order, as `{ href, raw }`. `rel` is matched
- * case-insensitively and by exact token (a `rel="alternate canonical"` list
- * still counts; `rel="noncanonical"` does not). */
+/** Every canonical `<link>` tag found in the document's `<head>`, in
+ * document order, as `{ href, raw }`. `rel` is matched case-insensitively
+ * and by exact token (a `rel="alternate canonical"` list still counts;
+ * `rel="noncanonical"` does not). */
 export function extractCanonicalLinks(html) {
   const out = [];
   const head = extractHead(html);
