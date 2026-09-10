@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Affiliate Disclosure Checker vs. Post Affiliate Pro's Disclosure Generator</title>
+<meta name="description" content="Post Affiliate Pro's Disclosure Generator produces new disclosure text from a template. This is a free, zero-account, zero-upload checker that scans a post you already published and reports whether the disclosure it already has is missing or placed too late. Different jobs. Not affiliated with Post Affiliate Pro.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-post-affiliate-pro.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Affiliate Disclosure Checker vs. Post Affiliate Pro's Disclosure Generator">
+<meta property="og:description" content="A generator writes new disclosure text from a template. This checker scans a post you already published and tells you, deterministically, whether the disclosure it already has is missing or placed after the first affiliate link.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/affiliate-disclosure-checker/vs-post-affiliate-pro.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or Post Affiliate Pro's Disclosure Generator?","acceptedAnswer":{"@type":"Answer","text":"They solve opposite halves of the same problem, and a blogger who already has a disclosure will get more value from this checker; one who has never written one will get more value from a generator first. Post Affiliate Pro's Disclosure Generator is a free tool that produces new FTC-compliant disclosure text from a template, for a blog, YouTube channel, or social account that does not have wording yet. Post Affiliate Pro itself is also a paid, ongoing affiliate-network-management platform sold under a subscription account, of which the generator is one free page. Post Affiliate Pro's own site is not reachable from this session to confirm today's specific plan names or pricing, so only its well-documented category and identity are stated here: nothing about it is invented, and no dollar figure for it appears on this page. This checker does the opposite job. It does not write or template any text. It scans a post you already published -- pasted HTML, or a whole build-output directory via the CLI -- for recognised affiliate-link signals, and reports whether a disclosure phrase actually appears before the first one, in the order a visitor would read it, plus whether any Amazon link carries Amazon's own separately required exact statement. It runs free in any browser or as a zero-dependency CLI you can wire into a pre-publish check, keeps no account, and nothing you paste is uploaded. A blogger who has never written a disclosure should start with a generator like Post Affiliate Pro's; a blogger who already has one, and wants to know whether it is actually present and positioned correctly on a specific published page, is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with Post Affiliate Pro?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Post Affiliate Pro. Post Affiliate Pro is a trademark of its owner, named here only to describe what this checker is and is not."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#4a1f5c;overflow-wrap:anywhere}.eyebrow{font-weight:700}header{margin:1rem 0}h1{font-size:clamp(1.6rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:30ch;letter-spacing:-.03em;color:#4a1f5c}.lede{font-size:1.05rem;max-width:64ch;color:#55606f}section{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:1.1rem 1.3rem;margin:1rem 0}h2{margin-top:0;color:#4a1f5c}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e6eaf0;vertical-align:top}th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#55606f}.fine,.note{font-size:.88rem;color:#55606f}footer{color:#55606f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Affiliate Disclosure Checker</a></p>
+<header>
+<h1>Affiliate Disclosure Checker vs. Post Affiliate Pro's Disclosure Generator</h1>
+<p class="lede">Opposite halves of the same problem: Post Affiliate Pro's Disclosure Generator writes new disclosure text from a template, for someone who does not have wording yet. This page is a free, no-account checker for the other half &mdash; whether a post you already published actually has its disclosure, and whether it appears before the first affiliate link.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Post Affiliate Pro's Disclosure Generator</strong> is a free page
+  that produces new FTC-compliant disclosure text from a template &mdash;
+  useful for a blog, YouTube channel, or social account that does not have
+  disclosure wording yet. Post Affiliate Pro itself, of which the generator
+  is one free page, is affiliate-network-management software sold under an
+  ongoing subscription account to merchants running their own affiliate
+  programs. Post Affiliate Pro's own site is not reachable from this
+  session to confirm today's specific plan names or pricing, so only its
+  well-documented category and identity are stated here: nothing about it
+  is invented, and no dollar figure for it appears on this page.
+</p>
+<p>
+  This checker does the opposite job. It does not write or template any
+  text. It scans a post you already published &mdash; pasted HTML, or a
+  whole build-output directory via the CLI &mdash; for recognised
+  affiliate-link signals (Amazon Associates <code>tag=</code> links,
+  <code>amzn.to</code>, <code>rel="sponsored"</code>, and known
+  affiliate-network tracking domains), and reports whether a disclosure
+  phrase actually appears before the first one, in the order a visitor
+  reads the page, plus whether any Amazon link separately carries Amazon's
+  own required exact statement. It runs free in any browser, and the same
+  logic ships as a zero-dependency CLI you can wire into a pre-publish
+  check. No account, no upload, nothing stored.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I have never written a disclosure and need wording to start from.</td><td>Post Affiliate Pro's Disclosure Generator, or a comparable template generator.</td></tr>
+<tr><td>I already have a disclosure and want to know whether this specific published post actually shows it before the first affiliate link.</td><td>This checker &mdash; free, instant, no account, nothing uploaded.</td></tr>
+<tr><td>I want the same check to run automatically before every post publishes.</td><td>This checker's zero-dependency CLI (<code>cli.mjs</code>), run against a build-output directory.</td></tr>
+<tr><td>My Amazon links have a generic disclosure but I'm not sure it has Amazon's own required exact wording.</td><td>This checker's separate Amazon-phrase check.</td></tr>
+<tr><td>I run an affiliate program for my own merchants and need network management, not disclosure wording.</td><td>Post Affiliate Pro's core platform, or a comparable affiliate-network manager &mdash; this checker has none of those features.</td></tr>
+<tr><td>What exactly does "clear and conspicuous" and Amazon's own rule require?</td><td>This checker's <a href="./what-disclosure-does-amazon-associates-and-the-ftc-require.html">disclosure-requirements page</a>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  A blogger with no disclosure yet gets more value from a generator like
+  Post Affiliate Pro's first; a blogger who already has one gets more value
+  from this checker confirming it is actually present, in the right order,
+  on the page a visitor sees &mdash; free, instant, no login, and wired
+  into a pre-publish CI check if you want it there.
+</p>
+<p class="fine">This tool needs no account and no sign-in: the browser page parses HTML you paste entirely in your own browser, and the CLI reads only local files. Neither ever sends your content anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this checker or Post Affiliate Pro's Disclosure Generator?</h3>
+<p>They solve opposite halves of the same problem, and a blogger who already has a disclosure will get more value from this checker; one who has never written one will get more value from a generator first. Post Affiliate Pro's Disclosure Generator is a free tool that produces new FTC-compliant disclosure text from a template, for a blog, YouTube channel, or social account that does not have wording yet. Post Affiliate Pro itself is also a paid, ongoing affiliate-network-management platform sold under a subscription account, of which the generator is one free page. Post Affiliate Pro's own site is not reachable from this session to confirm today's specific plan names or pricing, so only its well-documented category and identity are stated here: nothing about it is invented, and no dollar figure for it appears on this page. This checker does the opposite job. It does not write or template any text. It scans a post you already published -- pasted HTML, or a whole build-output directory via the CLI -- for recognised affiliate-link signals, and reports whether a disclosure phrase actually appears before the first one, in the order a visitor would read it, plus whether any Amazon link carries Amazon's own separately required exact statement. It runs free in any browser or as a zero-dependency CLI you can wire into a pre-publish check, keeps no account, and nothing you paste is uploaded. A blogger who has never written a disclosure should start with a generator like Post Affiliate Pro's; a blogger who already has one, and wants to know whether it is actually present and positioned correctly on a specific published page, is in the right place here.</p>
+<h3>Is this page affiliated with Post Affiliate Pro?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Post Affiliate Pro. Post Affiliate Pro is a trademark of its owner, named here only to describe what this checker is and is not.</p>
+<p class="note">
+  Open <a href="./">Affiliate Disclosure Checker</a> to check your own post, or read <a href="./what-disclosure-does-amazon-associates-and-the-ftc-require.html">what disclosure Amazon Associates and the FTC actually require</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a legal or compliance determination, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any disclosure obligation it helps you check. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+<p>Everything runs in your browser. Your content is never uploaded, and this page makes no live comparison against Post Affiliate Pro &mdash; it is a static page describing publicly documented facts. Free and open source, and optional support via <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
