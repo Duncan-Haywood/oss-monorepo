@@ -22944,4 +22944,71 @@ entries:
         python3 -m pytest gitops/tests -q 525 passed/25 skipped;
         score_ventures.py --check, usage/validate_usage.py, router/validate.py
         all clean.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Defect on the account owner's critical path, found by rehearsing the
+        recovery rather than reading it. `bootstrap/restore-cluster.sh`
+        documents `DRY_RUN=1` as "print the plan and the detected mode,
+        change nothing", and `decision_queue.py` offers it to the owner as
+        the way to see the plan "without changing anything" -- but every
+        line of the dry run lived below the SSH gate, so without a working
+        private key it printed nothing at all and exited 1. Measured here:
+        `DRY_RUN=1 WITH_CODEX_HOST=1 WITH_GITHUB_RUNNER_HOST=1
+        WITH_PORTFOLIO_SITE_HOST=1 bootstrap/restore-cluster.sh` produced
+        two lines, both about SSH.
+      - >-
+        Why that ordering is the wrong way round for this script
+        specifically: `hetzner-ssh-key-is-a-public-key` is the one ask every
+        route to a second origin is blocked on, and the owner holds the key
+        for a single session. The run they make with it sets seven
+        environment variables and a wrong one is silent. The most expensive
+        is `OPENAI_API_KEY` where `CODEX_AUTH_JSON` was meant -- both
+        credential the Codex worker, only the second draws on the ChatGPT
+        plan's included quota rather than billing per token -- and the
+        script has always warned about it from below the gate, where it
+        could not be read until the window was already open.
+      - >-
+        Split the dry run in two. The half that reads the environment rather
+        than the boxes (which extras were requested; whether each one's
+        credential is set, missing, or the metered one) now prints as step 0,
+        before SSH; the half that genuinely needs a box (detected addressing
+        mode, existing-cluster check) stays where it was, and a reachable dry
+        run re-prints the credential block at the end so the whole plan
+        still reads as one piece. An SSH failure during a dry run now names
+        what it did and did not check -- the same UNRUN-vs-FAILED
+        discrimination `run_workflow_locally.py` draws, and for the same
+        reason: a stop meaning "could not reach" must not read as a stop
+        meaning "your input is broken". Exit code is unchanged at 1: the run
+        did not complete, and saying otherwise would be the inverse error.
+      - >-
+        Net effect for the owner: the rehearsal moved out of the blocked
+        window and into today. `asks.yaml` and `infra/OWNER_CHECKLIST.md`
+        now say so at both points where the recovery is described.
+      - >-
+        Tests: 8 added to `gitops/tests/test_restore_cluster.py`, including
+        two negative controls (a non-dry run must not claim the note; a
+        reachable dry run must still print the plan). Verified non-vacuous
+        by stashing the script -- 6 of the 8 fail against the unfixed
+        version, the 2 that pass being the controls. Suite 75/75.
+      - >-
+        Verified locally (Actions starved -- `ci_starvation.py --run
+        34470370625`: `runner_id: 0`, 3s, no steps; a dispatched `Outage
+        triage` at 12:12Z, run 34475459008, also starved in 6s, so no fresh
+        reading of the Hetzner boxes was obtainable this session and
+        `infra_state.yaml` is unchanged): `pytest gitops/tests
+        portfolio/ledger infra/tests` 812 passed / 25 skipped;
+        `platform/marketing`+`platform/pages` 1202/1202; `platform/proposal`
+        + `platform/privacy` + `platform/webcheck` + two ventures'
+        suites 1272/1272; all 22 `platform/ci` unittest modules plus
+        `agent_review/test_review` OK; `checklist_coverage.py` and
+        `score_ventures.py --check` clean; `run_workflow_locally.py --tree`
+        9/9. No browser-checks run needed: no markup a user types into
+        changed. Also attempted a direct TCP probe of both Hetzner boxes
+        from the session sandbox and discarded the result -- :443 reads as
+        OPEN because the agent egress proxy accepts the connection and then
+        answers `403 host_not_allowed`, so it is a reading of the proxy and
+        not of the host. Recorded because the false positive is convincing.
     mrr_end: 0
