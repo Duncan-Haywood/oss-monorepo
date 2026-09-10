@@ -21725,3 +21725,44 @@ entries:
         publish is what surfaced the defect above -- the announcement fired on
         the real path for the first time.
     mrr_end: 0
+  - venture: reverb-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Caught `main` red by re-running `run_workflow_locally.py --tree` after
+        this session's own merges, rather than assuming the earlier 9/9 still
+        held. Two separate regressions had landed in between, both invisible
+        because Actions is starved and every check on both PRs came back
+        `runner_id: 0`.
+      - >-
+        The first was #4383 adding a `money()` formatter that renders a
+        negative as `$-9.24` -- the live rendering defect CLAUDE.md already
+        records shipping once. Another session fixed it in #4385 while this
+        one was diagnosing, so no duplicate work was done; verified their fix
+        passes `check_money_sign.py` rather than taking it on trust.
+      - >-
+        The second is the sharper half, and a concurrent session landed the
+        same fix first (#4386) while this one was verifying: that
+        fix edited `ventures/reverb-fee-calculator/calc.mjs` and never ran
+        `regen.mjs`, so `reverb-fee-calculator__calc.mjs.gz` in the apex mirror
+        still carried the OLD formatter. The bug was fixed on `main` and still
+        live on the served surface -- exactly the defect CLAUDE.md records
+        costing live product twice (#3256-#3258, and again across
+        #3324-#3326), reached from a third direction.
+      - >-
+        Ran `regen.mjs` and committed what it rewrote (the venture's mirror
+        shard and the kustomization file list); #4386 carried the identical
+        two-file regen to `main` minutes earlier, so this entry records the
+        finding rather than claiming the landing. Verified: `node --test
+        platform/marketing/*.test.mjs` 236 passing (was 234/2 failing),
+        `gitops/tests` 493 passed / 25 skipped (regen rewrites that tree, so
+        this line is required by CLAUDE.md whether or not it was edited on
+        purpose), and `run_workflow_locally.py --tree` back to 9/9 from 8/9.
+      - >-
+        Worth noting for the next session, because it is the reusable part: a
+        `--tree` run at the START of a session is not enough. Both regressions
+        landed during this one. The check that found them was re-running it at
+        the END, after other sessions' merges -- which is the only place a
+        starvation-window regression on `main` gets caught at all.
+    mrr_end: 0

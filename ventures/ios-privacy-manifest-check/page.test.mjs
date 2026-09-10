@@ -133,3 +133,19 @@ test('the bundled worked example actually exercises all three report states', ()
   assert.equal(byId.get('NSPrivacyAccessedAPICategoryFileTimestamp'), 'declared-but-not-detected');
   assert.equal(report.ok, false, 'an example with an undeclared category must not report ok');
 });
+
+// missing-privacy-manifest-itms-91061.html already links back to index.html
+// three times and is listed in the sitemap, but nothing on this page pointed
+// forward to it -- so a visitor who lands here first (rather than on the SEO
+// satellite page) could never find it, and the one-way link made it an
+// orphan in the direction that matters for search: nothing on the site's own
+// pages fed it PageRank. Every sibling venture with this same satellite-page
+// shape (ai-crawler-access-check, poshmark-fee-calculator) links forward
+// from its index in exactly this way.
+test('index links forward to its own missing-privacy-manifest-itms-91061 satellite page', () => {
+  assert.match(
+    html,
+    /href="missing-privacy-manifest-itms-91061\.html"/,
+    'index must link missing-privacy-manifest-itms-91061.html so a visitor arriving on index.html can reach the ITMS-91061 explainer, matching the forward-link pattern every sibling satellite page uses',
+  );
+});
