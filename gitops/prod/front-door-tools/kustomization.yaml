@@ -41,10 +41,10 @@
 #   portfolio-front-tools-5: 129 files, 546500 bytes
 #   portfolio-front-tools-6: 125 files, 555202 bytes
 #   portfolio-front-tools-7: 109 files, 556040 bytes
-#   portfolio-front-tools-8: 121 files, 555537 bytes
-#   portfolio-front-tools-9: 124 files, 553878 bytes
-#   portfolio-front-tools-10: 98 files, 556698 bytes
-#   portfolio-front-tools-11: 104 files, 504612 bytes
+#   portfolio-front-tools-8: 121 files, 556922 bytes
+#   portfolio-front-tools-9: 124 files, 556918 bytes
+#   portfolio-front-tools-10: 98 files, 556707 bytes
+#   portfolio-front-tools-11: 105 files, 505164 bytes
 #   portfolio-front-tools-12: 54 files, 264855 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1212,6 +1212,7 @@ configMapGenerator:
       - npm-lifecycle-script-check__engine.mjs.gz=npm-lifecycle-script-check__engine.mjs.gz
       - npm-lifecycle-script-check__index.html.gz=npm-lifecycle-script-check__index.html.gz
       - npm-lifecycle-script-check__usage.mjs.gz=npm-lifecycle-script-check__usage.mjs.gz
+      - npm-lifecycle-script-check__vs-socket.html.gz=npm-lifecycle-script-check__vs-socket.html.gz
       - npm-lifecycle-script-check__why-npm-audit-does-not-catch-a-malicious-install-script.html.gz=npm-lifecycle-script-check__why-npm-audit-does-not-catch-a-malicious-install-script.html.gz
       - package-exports-drift-check__cli.mjs.gz=package-exports-drift-check__cli.mjs.gz
       - package-exports-drift-check__engine.mjs.gz=package-exports-drift-check__engine.mjs.gz
@@ -1252,12 +1253,12 @@ configMapGenerator:
       - pest-control-bid-calculator__index.html.gz=pest-control-bid-calculator__index.html.gz
       - pest-control-bid-calculator__usage.mjs.gz=pest-control-bid-calculator__usage.mjs.gz
       - pest-control-bid-calculator__vs-pestpac.html.gz=pest-control-bid-calculator__vs-pestpac.html.gz
-      - pet-grooming-bid-calculator__calc.mjs.gz=pet-grooming-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pet-grooming-bid-calculator__calc.mjs.gz=pet-grooming-bid-calculator__calc.mjs.gz
       - pet-grooming-bid-calculator__how-much-to-charge.html.gz=pet-grooming-bid-calculator__how-much-to-charge.html.gz
       - pet-grooming-bid-calculator__index.html.gz=pet-grooming-bid-calculator__index.html.gz
       - pet-grooming-bid-calculator__share.mjs.gz=pet-grooming-bid-calculator__share.mjs.gz
@@ -1381,12 +1382,12 @@ configMapGenerator:
       - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
       - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
       - septic-pumping-bid-calculator__share.mjs.gz=septic-pumping-bid-calculator__share.mjs.gz
-      - septic-pumping-bid-calculator__usage.mjs.gz=septic-pumping-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - septic-pumping-bid-calculator__usage.mjs.gz=septic-pumping-bid-calculator__usage.mjs.gz
       - septic-pumping-bid-calculator__vs-servicecore.html.gz=septic-pumping-bid-calculator__vs-servicecore.html.gz
       - sewer-hydrojet-bid-calculator__calc.mjs.gz=sewer-hydrojet-bid-calculator__calc.mjs.gz
       - sewer-hydrojet-bid-calculator__how-much-to-charge-for-hydro-jetting.html.gz=sewer-hydrojet-bid-calculator__how-much-to-charge-for-hydro-jetting.html.gz
@@ -1484,12 +1485,12 @@ configMapGenerator:
       - stair-lift-bid-calculator__index.html.gz=stair-lift-bid-calculator__index.html.gz
       - stair-lift-bid-calculator__should-i-expedite-a-stair-lift-for-hospital-discharge.html.gz=stair-lift-bid-calculator__should-i-expedite-a-stair-lift-for-hospital-discharge.html.gz
       - stair-lift-bid-calculator__should-i-install-a-customer-supplied-stair-lift.html.gz=stair-lift-bid-calculator__should-i-install-a-customer-supplied-stair-lift.html.gz
-      - stair-lift-bid-calculator__usage.mjs.gz=stair-lift-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - stair-lift-bid-calculator__usage.mjs.gz=stair-lift-bid-calculator__usage.mjs.gz
       - stair-lift-bid-calculator__vs-autovu.html.gz=stair-lift-bid-calculator__vs-autovu.html.gz
       - standby-generator-bid-calculator__calc.mjs.gz=standby-generator-bid-calculator__calc.mjs.gz
       - standby-generator-bid-calculator__how-much-to-charge.html.gz=standby-generator-bid-calculator__how-much-to-charge.html.gz
