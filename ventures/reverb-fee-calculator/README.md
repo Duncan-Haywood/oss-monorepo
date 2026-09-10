@@ -44,6 +44,16 @@ It also names the Reverb offer that leaves the same cash as selling the item
 on eBay at your list price, so a lowball can be compared to the other channel
 you would actually use.
 
+Seeing that crossover number is not the same as acting on it — a seller who
+agrees the offer is short still has to write the reply. "Copy counter-offer
+message" turns the same arithmetic into a message ready to paste into the
+Reverb inbox: it names the buyer's offer and, if it falls short of the
+eBay-list crossover, asks for a price rounded up to the nearest whole dollar
+(a counter with cents reads as a spreadsheet, not a person); if the offer
+already clears the crossover, it drafts an acceptance instead of a counter.
+Nothing is sent for you — it is copied to the clipboard, or shown inline if
+the browser refuses clipboard access, for the seller to review and send.
+
 The SEO page
 [`should-i-take-this-reverb-offer.html`](should-i-take-this-reverb-offer.html)
 walks the default worked example ($800 list, $720 offer, $284.33 vs $210.65

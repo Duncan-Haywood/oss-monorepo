@@ -21417,6 +21417,95 @@ entries:
         work. Read `browser_state.py` fresh before trusting either result;
         whichever finishes last is the one it reports.
     mrr_end: 0
+  - venture: reverb-fee-calculator
+    agent_spend_usd: null
+    human_hours: null
+    outcomes:
+      - >-
+        "Set direction" brief. `portfolio/DIRECTION.md` and `AGENTS.md` were
+        substantively rewritten as recently as 2026-09-07 (#3542-class work,
+        landed) and both files' current "North star" sections already state
+        the north star this brief asked for; per their own "before rewriting
+        this brief again" guidance, did not touch either file and built
+        instead.
+      - >-
+        Ran `session_gate.py` (PROCEED; published gh-pages snapshot reported
+        stale, which resolved on its own as other sessions' merges advanced
+        `main` during this session), `decision_queue.py` (top merit-unblocked
+        item is the 8 ventures with no `links.production` at all --
+        `local-site-studio`, `vendor-watch`, `photo-editing`,
+        `quick-pick-survey`, `world-clock-widget`, `retail-pilot-intel`,
+        `garmin-world-traveler-watchface`, `photos-import-tools` -- all
+        genuinely blocked on an owner-only publish/account step, e.g. Vercel,
+        the Connect IQ Store, or a real pilot customer; already the queue's
+        top row, so did not duplicate the ask) and
+        `portfolio/router/allocate.py` (#1 dispatchable: `reverb-fee-calculator`,
+        merit 7.00).
+      - >-
+        Audited the top three router candidates
+        (`reverb-fee-calculator`, `where-to-sell-calculator`,
+        `newsletter-sponsorship-rate-calculator`) plus a catalogue-wide sweep
+        for the common definition-of-done gaps this fleet has been closing
+        (missing GitHub Sponsors link, missing disclaimer text, missing
+        JSON-LD, missing nominative-fair-use clauses on `vs-*` pages,
+        crawlable-orphan links): all 224 ventures already carry the sponsor
+        link and the disclaimer, `clauses.mjs --all` and
+        `siblings.mjs` both report clean, and every venture's `index.html`
+        already carries `application/ld+json`. No forced fix was available
+        there.
+      - >-
+        Shipped a real, friction-driven addition to the #1 candidate instead
+        of a fleet-parity copy: `reverb-fee-calculator` already computes the
+        Reverb offer that matches the same sale's eBay-list cash
+        (`offerThatMatchesEbayList`), and already names it on-screen, but a
+        seller still had to compose their own reply to the buyer with that
+        number. Added `counterOfferMessage()` to `calc.mjs` (a pure function
+        in the same style as the existing `consignmentNote` /
+        `waitForBetterOfferNote` family) and a "Copy counter-offer message"
+        button next to the existing "Copy shareable link" action: it drafts
+        a reply naming the buyer's offer, and either an acceptance (offer
+        already clears the eBay crossover) or a counter asking for the
+        crossover price rounded up to the nearest whole dollar (a counter
+        with cents reads as a spreadsheet, not a person; rounding up keeps
+        the ask at or above the number it is named for). Nothing is sent
+        automatically -- copied to the clipboard, or shown inline as a
+        fallback if the browser refuses clipboard access -- and the feature
+        is client-side only, same as the rest of the calculator. This is the
+        same "copy a drafted message" shape already validated elsewhere in
+        the fleet (e.g. `retainage-cashflow-calculator`'s payment
+        follow-up draft), chosen because it serves this venture's own
+        stated hypothesis (sellers acting on lowball offers), not copied
+        because a sibling has it.
+      - >-
+        Updated the schema.org `featureList`, the header intro copy (which
+        already links each sub-page), and `README.md` to document the new
+        action; extended `calc.test.mjs` (two new cases: counters when the
+        offer falls short, accepts when it already clears the crossover) and
+        `page.test.mjs` (button id and function name wired). Ran
+        `platform/marketing/regen.mjs` afterward and committed the rewritten
+        mirror files, since the change touches a served surface.
+      - >-
+        Verified: `node --test ventures/reverb-fee-calculator/*.test.mjs`
+        (94/94, was 92 before this change), `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` (1192/1192),
+        `node platform/pages/clauses.mjs reverb-fee-calculator` (10 pages
+        clean), `python3 platform/ci/checklist_coverage.py` (clean),
+        `build.mjs` + `check.mjs` (225 products, 882 pages, no dead links),
+        `python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q` (431 passed),
+        `check_ledger_only.py` / `check_direction_only.py` (both OK), and a
+        scoped `browser_checks.py --only reverb-fee-calculator` (6/7 checks
+        passed; `highlight` skipped as not applicable to this tool, not a
+        failure) -- deliberately not a whole-catalogue `--record` sweep,
+        since only one venture's markup changed and two prior sessions
+        today already started (and did not finish) redundant full sweeps
+        against a moving `main`; the fleet-wide reading is `main`'s to
+        refresh once this and any other in-flight markup changes land.
+      - >-
+        Did not attempt: registering any account, taking or moving money, or
+        touching payment/checkout code (none exists here or was added).
+        Nothing needed owner action beyond what is already queued.
+    mrr_end: 0
   - venture: npm-lifecycle-script-check
     agent_spend_usd: null
     human_hours: null
