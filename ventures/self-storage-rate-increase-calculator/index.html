@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Self-Storage Rate Increase Calculator | How Many Move-Outs It Can Absorb</title>
+  <meta name="description" content="Price an existing-customer rate increase (ECRI) at your storage facility: what one induced move-out really costs once the unit re-rents at street rate, and the move-out rate at which the increase stops paying. Free, private, nothing leaves your browser.">
+  <meta property="og:title" content="Self-Storage Rate Increase Calculator">
+  <meta property="og:description" content="A move-out costs the gap, not the rent. Enter your in-place rent, street rate, days-to-lease-up and turnover cost, and see how much churn your rate increase can absorb before it loses money.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Self-Storage Rate Increase Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Break-even induced move-out rate for an existing-customer rate increase; the cost of one induced move-out itemised into downtime at street rate, the move-in concession the replacement tenant gets, turnover cost, and the re-rent uplift that credits it back; expected value of the increase across a group of units over a chosen horizon; the same decision at every increase from 5% to 25% with the move-out rate each one would have to survive; flags for a raised rent that prices above your own street rate; and tenant-protection or insurance income counted as part of what an occupied unit earns"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many move-outs can a rate increase absorb?","acceptedAnswer":{"@type":"Answer","text":"Far more than most operators assume, and this calculator gives the number rather than a feeling. On the worked example the page opens with — 42 units at $118, a 15% increase, a $149 street rate, 45 days to lease up and a free first month — the increase stays profitable until it causes a 60.8% induced move-out rate on top of ordinary churn. That is 25 of the 42 units, against the 2 or 3 an operator would actually expect. The reason the tolerance is so wide is that a vacated unit does not stay vacant: it re-rents at the street rate, which is above what a long-tenured tenant is paying."}},{"@type":"Question","name":"What does one move-out actually cost me?","acceptedAnswer":{"@type":"Answer","text":"Not the rent. On the worked example a tenant who leaves costs $272, not the $1,772 of rent and tenant-protection income they would have paid over a year. The $272 is four terms: $238 of rent lost while the unit sits empty for 45 days, $149 for the free first month the replacement tenant gets, $45 to clean the unit and re-lock and re-list it, minus $160 because the replacement pays the $149 street rate rather than the $135.70 the leaver was raised to. That last term is the one nobody carries in their head, and it is negative — it makes the move-out cheaper — for every unit whose in-place rent sits below street."}},{"@type":"Question","name":"Should I raise an existing tenant above my street rate?","acceptedAnswer":{"@type":"Answer","text":"It is the point at which the arithmetic turns against you, and the calculator flags it. Below street, a move-out is cheap because the unit comes back at more than the leaver was paying. Above street, the same move-out is expensive twice over: you lose the tenant and you re-let at less than they were paying, so the re-rent term flips from a credit to a cost and the break-even move-out rate falls sharply. There is also the part no arithmetic sees — a tenant who checks your website finds a cheaper unit at your own facility, which is the version of this decision that ends up on a review site."}},{"@type":"Question","name":"How often can I raise rent on existing tenants?","acceptedAnswer":{"@type":"Answer","text":"That is a question for your lease and your state, not for this tool, and the answer varies: month-to-month storage leases typically permit an increase with written notice, and the required notice period, delivery method and any cap are set by the lease terms and by state self-storage statutes. This calculator makes no determination about what your lease permits or what notice you owe — it prices the increase you are considering, assuming you have confirmed you may make it. Check the lease and your state’s self-storage act, and ask a lawyer if the answer is not plainly written."}},{"@type":"Question","name":"What move-out rate should I expect from a 15% increase?","acceptedAnswer":{"@type":"Answer","text":"Nobody can tell you that from outside your facility, and a tool that pretended to would be guessing with your revenue. Induced churn depends on tenure, unit size, what the competitor down the road is asking, how the letter is written and how much slack the local market has. What this calculator does is turn the guess into a threshold you can judge: instead of asking how many will leave, ask whether you believe more than 60.8% of this group would walk over $17.70 a month. That is a question an operator who has sent increase letters before can answer, and it is a much easier one."}},{"@type":"Question","name":"Does this work for a facility with mixed unit sizes?","acceptedAnswer":{"@type":"Answer","text":"Run it once per group. The arithmetic is per-unit and the inputs are per-group, so a 10x10 cohort at $118 and a 5x5 cohort at $64 are two runs, not one — their street rates, lease-up times and tenant tenures differ, and averaging them hides exactly the cohort that should not be raised. A facility-wide answer is the sum of the group answers, and the groups that fail are the ones worth knowing about."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and the page makes no network requests — it runs entirely in your browser. Your rents, your street rates, your unit counts and the answers worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control."}},{"@type":"Question","name":"Is this legal, tax, or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type. It makes no determination about what your lease or your state’s self-storage act permits, what notice a tenant is owed, what a unit is worth, or whether an increase is a good idea for your business. Verify every figure against your own management software, your lease, and a qualified professional before you send an increase letter from it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceff3; }
+    body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 800px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.3rem); line-height: 1; margin: 0 0 12px; letter-spacing: -.045em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c4f4a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .76fr); gap: 18px; align-items: start; }
+    section { background: #f9fafb; border: 1px solid #ccd4d8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #12333310; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5560; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a3aeb6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #93261a; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a3aeb6; background: #eaeef1; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dde4e8; }
+    .primary { background: #1c4f4a; border-color: #1c4f4a; color: #f3f7f6; }
+    .primary:hover { background: #163d39; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+    .result { position: sticky; top: 15px; background: #14252c; color: #eef2f4; border-color: #14252c; }
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .negative { color: #ffb3a4; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .belief { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .belief h3 { margin: 0 0 8px; font-size: .95rem; }
+    .belief p { font-size: .85rem; margin: 0; }
+    .belief .gap { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .84rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd0c6; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    .ladder-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 7px 9px; border-bottom: 1px solid #d2dade; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; color: #4a5560; }
+    tr.entered td { background: #e3ecea; font-weight: 700; }
+    tr.loss td { color: #85241a; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5560; }
+    footer a { color: #1c4f4a; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .seo-link a { color: #1c4f4a; }
+    #faq h3 { margin-bottom: 4px; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT SELF-STORAGE OPERATORS</p>
+    <h1>A move-out costs the gap, not the rent.</h1>
+    <p>Every existing-customer rate increase comes down to one number nobody has: how many move-outs it can cause before it stops paying for itself. The reason the guess runs low is that a lost tenant is priced at their rent &mdash; but the unit does not sit empty, it re-lets at your street rate, which is usually <em>above</em> what a long-tenured tenant is paying. Put a real group of units in below and see what a move-out actually costs, and the churn rate the increase would have to survive.</p>
+    <p class="seo-link"><a href="./how-much-can-i-raise-storage-rent.html">How much can I raise rent on an existing storage tenant? &mdash; the worked example in full</a></p>
+  </header>
+
+  <main class="layout">
+    <form id="increaseForm">
+      <section>
+        <h2>The units you are raising</h2>
+        <p class="hint">One group of comparable units &mdash; same size, same in-place rent, same tenure band. Mixed sizes are separate runs; averaging them hides the cohort that should not be raised.</p>
+        <div class="fields">
+          <label>Units in this group <input id="unitCount" type="number" min="1" max="5000" step="1" value="42"></label>
+          <label>Current rent ($/month) <input id="currentRent" type="number" min="1" max="10000" step="0.01" value="118"></label>
+          <label>Increase (%) <input id="increasePercent" type="number" min="0" max="200" step="0.5" value="15"></label>
+          <label>Street rate today ($/month) <input id="streetRate" type="number" min="0" max="10000" step="0.01" value="149"></label>
+          <label>Tenant protection &amp; other income ($/month per occupied unit) <input id="ancillaryPerMonth" type="number" min="0" max="500" step="0.5" value="12"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>What you expect to happen</h2>
+        <p class="hint">The second figure is the assumption the whole decision rests on, and no arithmetic can supply it. Enter what you believe; the panel tells you how wrong you could be and still come out ahead.</p>
+        <div class="fields">
+          <label>Move-outs over the horizon <em>without</em> the increase (%) <input id="baselineMoveOutPercent" type="number" min="0" max="100" step="0.5" value="22"></label>
+          <label>Extra move-outs you think the increase causes (%) <input id="inducedMoveOutPercent" type="number" min="0" max="100" step="0.5" value="6"></label>
+          <label>Judge it over (months) <input id="horizonMonths" type="number" min="1" max="60" step="1" value="12"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>What a turnover costs you</h2>
+        <p class="hint">Your own lease-up time and turn cost, from your management software. These three are what make a move-out expensive; the street rate above is what makes it cheap.</p>
+        <div class="fields">
+          <label>Days empty before it re-rents <input id="vacantDays" type="number" min="0" max="365" step="1" value="45"></label>
+          <label>Turnover cost ($ per move-out) <input id="turnoverCost" type="number" min="0" max="5000" step="1" value="45"></label>
+          <label>Move-in concession (months of street rate) <input id="concessionMonths" type="number" min="0" max="12" step="0.5" value="1"></label>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary">Price this increase</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>The same decision at other increases</h2>
+        <p class="hint">The row in bold is what you entered. Read the break-even column as a question: do you believe more than that share of this group would leave over that much a month?</p>
+        <div class="ladder-wrap">
+          <table id="ladder">
+            <thead>
+              <tr><th scope="col">Increase</th><th scope="col">New rent</th><th scope="col">Break-even move-outs</th><th scope="col">Value over the horizon</th></tr>
+            </thead>
+            <tbody id="ladderBody"></tbody>
+          </table>
+        </div>
+        <p class="hint" id="ladderEmpty" hidden>Fix the errors above and the table will fill in.</p>
+        <p class="hint">A bigger increase buys more from everyone who stays, so it can absorb more move-outs &mdash; but the response it provokes grows too, and this tool does not model that. It prices the decision; the churn is yours to judge.</p>
+      </section>
+    </form>
+
+    <section class="result" id="result" aria-live="polite">
+      <p class="hero-label">Move-outs this increase can absorb</p>
+      <p class="hero-number" id="heroNumber">&mdash;</p>
+      <p class="empty" id="emptyState">Press &ldquo;Price this increase&rdquo; to see what it can absorb.</p>
+      <div id="resultBody" hidden>
+        <div class="belief">
+          <h3>What a move-out looks like, and what it costs</h3>
+          <p class="gap" id="beliefGap">&mdash;</p>
+          <p id="beliefText"></p>
+        </div>
+        <dl>
+          <dt class="group">The increase</dt>
+          <dt>New rent</dt><dd id="outNewRent">&mdash;</dd>
+          <dt>More per unit each month</dt><dd id="outPerUnit">&mdash;</dd>
+          <dt id="outCohortGainLabel">Worth over the horizon</dt><dd id="outCohortGain">&mdash;</dd>
+          <dt>If it caused no extra move-outs</dt><dd id="outCohortGainIfNone">&mdash;</dd>
+
+          <dt class="group">How wrong you can be</dt>
+          <dt>Break-even move-out rate</dt><dd id="outBreakEven">&mdash;</dd>
+          <dt>That many units</dt><dd id="outBreakEvenUnits">&mdash;</dd>
+          <dt>You expect</dt><dd id="outExpected">&mdash;</dd>
+          <dt>Margin of safety</dt><dd id="outMargin">&mdash;</dd>
+
+          <dt class="group">What one induced move-out costs</dt>
+        </dl>
+        <dl id="costList"></dl>
+        <dl>
+          <dt>Total</dt><dd id="outMoveOutCost">&mdash;</dd>
+          <dt>Priced at their rent instead</dt><dd id="outNaiveCost">&mdash;</dd>
+        </dl>
+        <ul class="note-list" id="notes"></ul>
+      </div>
+      <ul class="errors" id="errors"></ul>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>How many move-outs can a rate increase absorb?</h3>
+    <p>Far more than most operators assume, and this calculator gives the number rather than a feeling. On the worked example the page opens with &mdash; 42 units at $118, a 15% increase, a $149 street rate, 45 days to lease up and a free first month &mdash; the increase stays profitable until it causes a 60.8% induced move-out rate on top of ordinary churn. That is 25 of the 42 units, against the 2 or 3 an operator would actually expect. The reason the tolerance is so wide is that a vacated unit does not stay vacant: it re-rents at the street rate, which is above what a long-tenured tenant is paying.</p>
+
+    <h3>What does one move-out actually cost me?</h3>
+    <p>Not the rent. On the worked example a tenant who leaves costs $272, not the $1,772 of rent and tenant-protection income they would have paid over a year. The $272 is four terms: $238 of rent lost while the unit sits empty for 45 days, $149 for the free first month the replacement tenant gets, $45 to clean the unit and re-lock and re-list it, minus $160 because the replacement pays the $149 street rate rather than the $135.70 the leaver was raised to. That last term is the one nobody carries in their head, and it is negative &mdash; it makes the move-out cheaper &mdash; for every unit whose in-place rent sits below street.</p>
+
+    <h3>Should I raise an existing tenant above my street rate?</h3>
+    <p>It is the point at which the arithmetic turns against you, and the calculator flags it. Below street, a move-out is cheap because the unit comes back at more than the leaver was paying. Above street, the same move-out is expensive twice over: you lose the tenant and you re-let at less than they were paying, so the re-rent term flips from a credit to a cost and the break-even move-out rate falls sharply. There is also the part no arithmetic sees &mdash; a tenant who checks your website finds a cheaper unit at your own facility, which is the version of this decision that ends up on a review site.</p>
+
+    <h3>How often can I raise rent on existing tenants?</h3>
+    <p>That is a question for your lease and your state, not for this tool, and the answer varies: month-to-month storage leases typically permit an increase with written notice, and the required notice period, delivery method and any cap are set by the lease terms and by state self-storage statutes. This calculator makes no determination about what your lease permits or what notice you owe &mdash; it prices the increase you are considering, assuming you have confirmed you may make it. Check the lease and your state&rsquo;s self-storage act, and ask a lawyer if the answer is not plainly written.</p>
+
+    <h3>What move-out rate should I expect from a 15% increase?</h3>
+    <p>Nobody can tell you that from outside your facility, and a tool that pretended to would be guessing with your revenue. Induced churn depends on tenure, unit size, what the competitor down the road is asking, how the letter is written and how much slack the local market has. What this calculator does is turn the guess into a threshold you can judge: instead of asking how many will leave, ask whether you believe more than 60.8% of this group would walk over $17.70 a month. That is a question an operator who has sent increase letters before can answer, and it is a much easier one.</p>
+
+    <h3>Does this work for a facility with mixed unit sizes?</h3>
+    <p>Run it once per group. The arithmetic is per-unit and the inputs are per-group, so a 10x10 cohort at $118 and a 5x5 cohort at $64 are two runs, not one &mdash; their street rates, lease-up times and tenant tenures differ, and averaging them hides exactly the cohort that should not be raised. A facility-wide answer is the sum of the group answers, and the groups that fail are the ones worth knowing about.</p>
+
+    <h3>Is any of this uploaded?</h3>
+    <p>No. There is no account and the page makes no network requests &mdash; it runs entirely in your browser. Your rents, your street rates, your unit counts and the answers worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control.</p>
+
+    <h3>Is this legal, tax, or financial advice?</h3>
+    <p>No. It is arithmetic on the figures you type. It makes no determination about what your lease or your state&rsquo;s self-storage act permits, what notice a tenant is owed, what a unit is worth, or whether an increase is a good idea for your business. Verify every figure against your own management software, your lease, and a qualified professional before you send an increase letter from it.</p>
+
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it does not tell you what to charge, what notice your lease or your state&rsquo;s self-storage act requires before an increase takes effect, or whether raising a tenant&rsquo;s rent is a good idea. It is arithmetic on the numbers you type, and the numbers it starts with are an illustrative example rather than market data. Verify every figure against your own management software, your leases, and a qualified professional before acting on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your rents, street rates, unit counts and the answers worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control.</p>
+    <p>Raising the price of a subscription rather than a storage unit? The <a href="../subscription-price-impact/">subscription price impact calculator</a> runs the same break-even against churn for recurring software revenue. Working out whether a rentable asset earns its keep at all? Try the <a href="../equipment-rental-break-even/">equipment rental break-even calculator</a>.</p>
+    <p class="support">Free and open source. If it changes what you send, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateIncrease, rentOnlyMoveOutCost, ALL_INPUT_IDS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const el = (id) => document.getElementById(id);
+    const money = (value) => {
+      const text = `$${Math.round(Math.abs(value)).toLocaleString('en-US')}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const money2 = (value) => {
+      const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const pct = (value) => `${value.toFixed(1)}%`;
+
+    const optedOut = () => el('usageOptOut').checked;
+    const count = (event) => recordUsage(localStorage, optedOut(), event);
+
+    function readInput() {
+      const raw = {};
+      for (const id of ALL_INPUT_IDS) raw[id] = el(id).value;
+      return raw;
+    }
+
+    function clearInvalid() {
+      for (const id of ALL_INPUT_IDS) el(id).removeAttribute('aria-invalid');
+    }
+
+    function renderErrors(errors) {
+      clearInvalid();
+      el('resultBody').hidden = true;
+      el('emptyState').hidden = false;
+      el('emptyState').textContent = 'Some figures need fixing before this can be priced.';
+      el('heroNumber').textContent = '—';
+      el('heroNumber').classList.remove('negative');
+      el('errors').innerHTML = '';
+      el('ladderBody').innerHTML = '';
+      el('ladderEmpty').hidden = false;
+      for (const error of errors) {
+        const field = el(error.field);
+        if (field) field.setAttribute('aria-invalid', 'true');
+        const li = document.createElement('li');
+        li.textContent = error.message;
+        el('errors').append(li);
+      }
+      const first = errors.length > 0 ? el(errors[0].field) : null;
+      if (first) first.focus();
+    }
+
+    function render(result) {
+      clearInvalid();
+      el('errors').innerHTML = '';
+      el('emptyState').hidden = true;
+      el('resultBody').hidden = false;
+      el('ladderEmpty').hidden = true;
+
+      el('heroNumber').textContent =
+        result.breakEvenPercent === null ? 'any number' : pct(result.breakEvenPercent);
+      el('heroNumber').classList.toggle('negative', result.cohortGain < 0);
+
+      const naive = rentOnlyMoveOutCost({
+        newRent: result.newRent,
+        ancillaryPerMonth: Number.parseFloat(el('ancillaryPerMonth').value),
+        horizonMonths: result.horizonMonths,
+      });
+      el('beliefGap').textContent = `${money(naive)} feared → ${money(result.moveOutCost.total)} real`;
+      el('beliefText').textContent =
+        `Losing a tenant looks like ${money(naive)} of rent and other income over ${result.horizonMonths} months. ` +
+        `It is not: the unit re-lets, so what you actually give up is ${money(result.moveOutCost.total)} — the ` +
+        `downtime, the concession and the turn, less what the replacement pays above the leaver's rent.`;
+
+      el('outNewRent').textContent = `${money2(result.newRent)}/mo`;
+      el('outPerUnit').textContent = `${money2(result.rentIncrease)}/mo`;
+      el('outCohortGainLabel').textContent = `Worth over ${result.horizonMonths} months`;
+      el('outCohortGain').textContent = money(result.cohortGain);
+      el('outCohortGainIfNone').textContent = money(result.cohortGainIfNoneInduced);
+
+      el('outBreakEven').textContent =
+        result.breakEvenPercent === null
+          ? 'no rate loses money'
+          : `${pct(result.breakEvenPercent)}${result.breakEvenUnreachable ? ' (all of them)' : ''}`;
+      el('outBreakEvenUnits').textContent =
+        result.breakEvenMoveOuts === null
+          ? '—'
+          : `${result.breakEvenMoveOuts.toFixed(1)} of ${result.unitCount}`;
+      el('outExpected').textContent = `${pct(result.inducedMoveOutPercent)} (${result.expectedInducedMoveOuts.toFixed(1)} units)`;
+      el('outMargin').textContent =
+        result.marginOfSafetyPoints === null
+          ? 'unlimited'
+          : `${result.marginOfSafetyPoints.toFixed(1)} points`;
+
+      const costList = el('costList');
+      costList.innerHTML = '';
+      for (const item of result.moveOutCost.items) {
+        if (item.amount === 0) continue;
+        const dt = document.createElement('dt');
+        dt.textContent = item.label;
+        const dd = document.createElement('dd');
+        dd.textContent = money(item.amount);
+        costList.append(dt, dd);
+      }
+      el('outMoveOutCost').textContent = money(result.moveOutCost.total);
+      el('outNaiveCost').textContent = money(naive);
+
+      const notes = el('notes');
+      notes.innerHTML = '';
+      for (const note of result.notes) {
+        const li = document.createElement('li');
+        li.textContent = note;
+        notes.append(li);
+      }
+
+      const body = el('ladderBody');
+      body.innerHTML = '';
+      for (const rung of result.ladder) {
+        const tr = document.createElement('tr');
+        if (rung.isEntered) tr.className = 'entered';
+        if (rung.gain < 0) tr.classList.add('loss');
+        const breakEven =
+          rung.breakEvenPercent === null
+            ? 'any number'
+            : `${pct(rung.breakEvenPercent)}${rung.breakEvenUnreachable ? '+' : ''}`;
+        for (const text of [
+          `${pct(rung.increasePercent)}${rung.aboveStreet ? ' — above street' : ''}`,
+          `${money2(rung.newRent)}/mo`,
+          breakEven,
+          money(rung.gain),
+        ]) {
+          const td = document.createElement('td');
+          td.textContent = text;
+          tr.append(td);
+        }
+        body.append(tr);
+      }
+    }
+
+    el('increaseForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const result = calculateIncrease(readInput());
+      if (!result.ok) {
+        renderErrors(result.errors);
+        return;
+      }
+      render(result);
+      count('increase_priced');
+    });
+
+    // Open on the worked example rather than on an em-dash. The eleven defaults
+    // above *are* an example facility, and the page's whole claim — that a
+    // move-out costs $272 and not $1,772, so a 15% increase survives a 60.8%
+    // move-out rate — is invisible until something is on screen. No
+    // `increase_priced` count is recorded here: a page load is not a pricing,
+    // and that event is the denominator of this venture's own usage question.
+    (() => {
+      const example = calculateIncrease(readInput());
+      if (example.ok) render(example);
+    })();
+  </script>
+</body>
+</html>

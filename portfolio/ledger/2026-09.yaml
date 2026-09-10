@@ -23925,3 +23925,117 @@ entries:
         workflows green on a clean checkout of main before this change;
         regen.mjs run and the front-door mirror committed.
     mrr_end: 0
+  - venture: self-storage-rate-increase-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a new niche rather than adding a parity
+        feature: session_gate.py returned PROCEED with an empty build-now
+        queue and allocate.py's whole top-40 was "explore an untested
+        hypothesis" on already-built prototypes, which is the case
+        DIRECTION.md's 2026-09-06 owner note says a fresh screened niche
+        outranks. Screened with duplicate_check.py -- closest match
+        `subscription-price-impact` at 0.13, whole top ten under 0.15,
+        well below the 0.45 flag bar -- and read rather than trusted:
+        that venture compares recurring revenue at fixed churn
+        scenarios; this one prices a self-storage existing-customer rate
+        increase, where a lost customer is not lost revenue because the
+        unit re-lets at street rate. No self-storage row exists anywhere
+        in `ventures/` or in `screened-out.md`.
+      - >-
+        The product is one non-obvious number and the arithmetic behind
+        it. Operators price a move-out at the departing tenant's rent;
+        the real cost is the gap between keeping them and re-letting,
+        which decomposes into lease-up downtime, the replacement's
+        move-in concession, the turn cost, and -- running the other way
+        -- (new rent - street rate) x horizon. On the shipped worked
+        example (42 units at $118, +15% to $135.70, $149 street, 45 days
+        empty, free first month, $45 turn, $12 ancillary, 22% ordinary
+        churn) one induced move-out costs $272 against the $1,772 the
+        naive view counts, so the increase survives a 60.8% induced
+        move-out rate -- 25 of 42 units -- and is worth $6,272 across
+        the group over twelve months.
+      - >-
+        Deliberately refuses to forecast induced churn, which is the
+        input that decides the answer and the one no arithmetic can
+        know. It reports a threshold instead, converting an unanswerable
+        question (how many will leave?) into an answerable one (would
+        twenty-five of them leave over $17.70 a month?) -- the
+        observation-not-determination posture PRODUCT_PLAYBOOK 5b asks
+        for. The ladder prices 5% to 25% the same way and flags any rung
+        putting the raised rent above the facility's own street rate,
+        where the re-rent term flips from a credit to a cost.
+      - >-
+        Liability posture is legal rather than financial here: what
+        notice a lease and a state self-storage act require before an
+        increase takes effect. The tool page, the guide page, the
+        README, both FAQs and VENTURE.yaml's gate note all state that
+        the lease and the statute govern and that this prices an
+        increase the operator has already confirmed they may make.
+      - >-
+        Shipped whole per the definition of done: calc.mjs and 23 calc
+        tests, index.html opening on the worked example with per-field
+        validation, an aria-live result panel and every input inside its
+        own label, how-much-can-i-raise-storage-rent.html as the guide
+        page with visible Q&A matching its FAQPage JSON-LD, usage.mjs
+        (local, opt-out, DNT/GPC-honouring, never a figure), README,
+        LICENSE, robots.txt, sitemap.xml, VENTURE.yaml, a CI workflow on
+        the sibling template, a venture-scores row (composite 6.167), a
+        usage baseline, a launch date so it enters the Atom feed, and a
+        publish-surface.yaml row. Filed under `backoffice` on its first
+        commit rather than after a spell in the catch-all -- the
+        section's blurb is "the break-even behind a price change" -- and
+        cross-linked with subscription-price-impact, which also closes
+        the orphan siblings.mjs would otherwise report (0 of 235 orphans
+        after).
+      - >-
+        One real defect caught before merge, by a guard that exists for
+        it: platform/pages/faq-visible.test.mjs flagged five FAQ answers
+        whose JSON-LD used a straight apostrophe where the visible copy
+        used a right single quote; normalised the JSON-LD and re-ran
+        regen.mjs. Counter drift a new venture leaves behind was fixed
+        in the same commit: infra/OWNER_CHECKLIST.md,
+        gitops/prod/usage/aggregate.py,
+        gitops/prod/front-door/default.conf and test_manifests.py's own
+        `total` (233 -> 235 across the merge with staffing-markup-calculator),
+        plus gitops/ci/README.md via sync_readme_counts.py.
+      - >-
+        origin/main moved three commits mid-session (staffing-markup-calculator
+        #4478, browser sweep #4481, actions-cache-poisoning-check #4480);
+        merged it and re-derived the generated mirror from source with
+        resolve-mirror-merge.sh plus regen.mjs rather than picking a
+        side. That merge also cleared a pre-existing red measured
+        earlier in the session: front-door-tools.test.mjs's 85%
+        mirror-headroom assertion was failing on origin/main at 85.2%
+        with 0 recoverable duplicate bytes, before this venture existed;
+        #4478 raised MIRROR_BYTE_CEILING to 12 MiB and the reading is now
+        57.2% with ~175 tools of runway.
+      - >-
+        Verified locally (Actions runners starved; verification done in
+        a separate git worktree because a concurrent session was
+        committing in the shared checkout): node --test on the venture,
+        49/49; node --test across platform/marketing + platform/pages,
+        1206/1206 after the faq-visible fix; node --test on
+        platform/proposal + platform/privacy + platform/webcheck,
+        180/180; checklist_coverage.py clean; clauses.mjs clean on both
+        pages; siblings.mjs 0 orphans of 235; guide-coverage 1 of 1;
+        pytest gitops/tests 532 passed / 25 skipped; pytest across
+        portfolio/ledger, scoring, router, usage, pipeline and
+        infra/tests 432 passed; all 15 platform/ci unittest modules and
+        agent_review's 21 tests pass; publish_surface.py --check,
+        score_ventures.py --check, validate_usage.py and
+        router/validate.py all clean. run_workflow_locally.py
+        --for-changes: 13/15 selected workflows passed, with
+        portfolio-validate.yml at 65/65 run: steps; the 2 not swept are
+        agent-cross-review.yml and hetzner-gitops-ci.yml (secrets this
+        session should not read) plus the write-granting deploy jobs in
+        portfolio-pages.yml and publish-pages-branch.yml. Browser checks
+        were run rather than skipped: npm install --no-save
+        playwright@1.56.0 axe-core, then browser_checks.py --only
+        self-storage-rate-increase-calculator -- 6 of 7 passed including
+        contrast/axe, sweep, journey, presets, roundtrip and sideways,
+        with `highlight` skipped for a missing dependency. Not run: the
+        whole-catalogue --record sweep, which browser_state.py reports
+        stale for reasons predating this branch.
+    mrr_end: 0
