@@ -22533,3 +22533,33 @@ entries:
         cent either page displays. Asserted to a billionth rather than
         exactly, and the test says why.
     mrr_end: 0
+  - venture: carpet-install-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the venture's first decision-support worked-example page,
+        should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html,
+        closing the gap noted against sibling ventures (egress-window-bid-calculator,
+        invoice-payment-terms-calculator) that each carry one but this one had
+        none. Picked the furniture-move extra because calc.mjs prices it as a
+        flat 1.6 crew-hour task independent of floor size, so it produces a
+        clean, size-independent worked number ($113.62 at default rates) across
+        all three built-in job presets rather than one tied to a single job.
+      - >-
+        Verified locally: node --test ventures/carpet-install-bid-calculator/*.test.mjs
+        133/133 pass (new should-i-*.test.mjs recomputes every dollar figure
+        quoted in the article from calc.mjs directly, so the article cannot
+        drift from the calculator's own arithmetic); node platform/pages/clauses.mjs
+        carpet-install-bid-calculator clean; checklist_coverage.py clean; regen.mjs
+        run and gitops/prod/front-door mirror + sitemap committed; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs 1202/1202;
+        python3 -m pytest gitops/tests -q 525 passed/25 skipped; all 22
+        platform/ci unittest modules pass; agent_review test_review 21/21;
+        portfolio/ledger+scoring+router+usage+pipeline+infra/tests 435
+        passed/8 subtests; run_workflow_locally.py --for-changes read (one
+        pages.yml FAIL traced to the tool's own inability to evaluate a
+        `${{ }}` expression, confirmed spurious by running
+        platform/ci/build_pages_site.py + check_pages_links.py directly:
+        861 pages built, every local reference resolves).
+    mrr_end: 0
