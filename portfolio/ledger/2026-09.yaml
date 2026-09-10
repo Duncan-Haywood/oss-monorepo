@@ -21591,3 +21591,48 @@ entries:
         wait on `hetzner-ssh-key-is-a-public-key`, already ranked first in the
         decision queue.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fix-forward on #4379, found by running the thing rather than reasoning
+        about it. That PR added `EXIT_NO_EGRESS` (3) to `indexnow.mjs` so a
+        publish could tell "this host cannot reach IndexNow" (expected, and
+        never a failed deploy) from "IndexNow refused what we sent" (a real
+        defect in the payload or the published key file). The premise was that
+        a blocked host makes `fetch` *reject* -- which is what `curl` shows
+        here (`CONNECT tunnel failed, response 403`).
+      - >-
+        Measured 2026-09-10 by publishing for real after the merge: Node's
+        fetch does not reject. It resolves with an ordinary `403` whose body is
+        the egress proxy's own text ("Host not in allowlist: api.indexnow.org.
+        Add this host to your network egress settings to allow access."). So
+        the run took the generic-failure branch and reported the sandbox limit
+        as an IndexNow rejection -- the exact confusion the exit code exists to
+        remove, shipped inside the change that was removing it. The two
+        transports disagree about the same 403 and only one of them was
+        checked.
+      - >-
+        `isEgressRefusal` now catches that shape too, and the real command
+        exits 3 against the live proxy (verified end to end, not mocked).
+        The match is deliberately narrow -- the proxy's own wording (`not in
+        allowlist` / `network egress settings`), never the bare status --
+        because IndexNow itself answers 403 for an invalid key, which is a
+        genuine defect in the published key file and has to stay loud. Burying
+        that under "no egress" would be worse than the confusion being fixed,
+        so a test pins both directions.
+      - >-
+        Verified: `node --test platform/marketing/*.test.mjs` 236 passing
+        (14 in `indexnow.test.mjs`, up from 12), `test_publish_pages_branch`
+        26 OK, `gitops/tests/test_publish_branch.py` 19 passing (#4378's own
+        tests, still unchanged by this), `bash -n` clean,
+        `checklist_coverage.py` clean, `regen.mjs` rewrote nothing.
+      - >-
+        Also refreshed the published snapshot after #4379 merged
+        (`pages_state.py` read `stale` at ecb636db against `main` at 55b6e192;
+        `publish-branch.sh` republished and it now reads `current`, with
+        GitHub's managed builder picking up the new `gh-pages` tip). That
+        publish is what surfaced the defect above -- the announcement fired on
+        the real path for the first time.
+    mrr_end: 0

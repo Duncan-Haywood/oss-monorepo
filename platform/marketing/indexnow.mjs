@@ -87,6 +87,36 @@ export const MAX_URLS_PER_REQUEST = 10000;
 export const EXIT_NO_EGRESS = 3;
 
 /**
+ * Does this response come from an egress proxy that refused the host, rather
+ * than from IndexNow?
+ *
+ * Measured 2026-09-10, and it is the correction to an assumption the previous
+ * revision of this file shipped. `EXIT_NO_EGRESS` was added on the premise
+ * that a blocked host makes `fetch` *reject* — which is what `curl` sees
+ * (`CONNECT tunnel failed, response 403`). Running the real thing showed
+ * otherwise: Node's fetch resolves with an ordinary `403` whose body is the
+ * proxy's own text, so the run took the generic-failure branch and reported
+ * the sandbox limit as "IndexNow refused what we sent" — precisely the
+ * confusion `EXIT_NO_EGRESS` exists to remove.
+ *
+ * Status alone cannot settle it: IndexNow itself answers `403` for an invalid
+ * key, which is a real defect in the published key file and must stay loud.
+ * The body can, because the proxy names itself:
+ *
+ *   Host not in allowlist: api.indexnow.org. Add this host to your network
+ *   egress settings to allow access.
+ *
+ * So the match is deliberately narrow — two phrases from that sentence, not a
+ * bare "403 plus the word forbidden". A false positive here would bury a
+ * genuine key failure, which is the more expensive mistake of the two.
+ */
+export function isEgressRefusal({ status, body }) {
+  if (status !== 403 || !body) return false;
+  const text = String(body).toLowerCase();
+  return text.includes('not in allowlist') || text.includes('network egress settings');
+}
+
+/**
  * Every URL this catalogue considers part of its public surface, read from
  * the artifact `catalog.json` itself rather than re-walked from `ventures/`
  * — the same "read what actually published" preference `--ref` follows
@@ -243,16 +273,27 @@ if (isMain) {
   await assertKeyFilePublished(readFile);
 
   const result = await submit(payload);
-  if (result.error) {
-    console.error(`\nPOST ${INDEXNOW_ENDPOINT} -> could not be sent: ${result.error}`);
+
+  // Both shapes of "this host cannot reach IndexNow" land here: the request
+  // rejecting outright, and an egress proxy answering in IndexNow's place.
+  // Neither submitted anything and neither broke anything.
+  const noEgress = result.error
+    ? `could not be sent: ${result.error}`
+    : isEgressRefusal(result)
+      ? `${result.status}, from this host's egress proxy rather than from IndexNow`
+      : null;
+  if (noEgress) {
+    console.error(`\nPOST ${INDEXNOW_ENDPOINT} -> ${noEgress}`);
+    if (result.body) console.error(`  ${String(result.body).trim()}`);
     console.error(
-      'indexnow: the request never left this machine, so nothing was submitted and nothing\n' +
-        '  was broken. This host has no egress to api.indexnow.org — an agent session sandbox\n' +
-        '  answers 403 to CONNECT for it. Re-run from a host with real egress (a GitHub\n' +
-        '  Actions runner, or the Hetzner box once host mode is installed).',
+      'indexnow: the request never reached IndexNow, so nothing was submitted and nothing\n' +
+        '  was broken. This host has no egress to api.indexnow.org. Re-run from a host with\n' +
+        '  real egress (a GitHub Actions runner, or the Hetzner box once host mode is\n' +
+        '  installed).',
     );
     process.exit(EXIT_NO_EGRESS);
   }
+
   console.log(`\nPOST ${INDEXNOW_ENDPOINT} -> ${result.status}`);
   if (result.body) console.log(result.body);
   if (!result.ok) {

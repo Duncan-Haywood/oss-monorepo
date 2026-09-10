@@ -206,15 +206,17 @@ announce_to_indexnow() {
     0)
       say "IndexNow notified"
       ;;
-    # `EXIT_NO_EGRESS` in indexnow.mjs. The request never left this machine, so
+    # `EXIT_NO_EGRESS` in indexnow.mjs: the request never reached IndexNow, so
     # nothing was submitted and nothing was broken. Worth its own branch rather
     # than folding into the generic failure below: it is the *expected* outcome
     # from an agent sandbox, and a reader who cannot tell it from a rejected
     # payload will either chase a defect that is not there or learn to ignore
-    # the line entirely.
+    # the line entirely. It covers both shapes of that -- the request rejecting
+    # outright, and an egress proxy answering 403 in IndexNow's place, which is
+    # the one this sandbox actually produces.
     3)
       say "IndexNow submission did not go through -- not fatal, the site is already published."
-      say "    This host has no egress to api.indexnow.org, so the request never left it."
+      say "    This host has no egress to api.indexnow.org, so the request never reached it."
       say "    Re-run 'node platform/marketing/indexnow.mjs --submit --ref $BRANCH' from a"
       say "    host with real egress (an Actions runner, or the Hetzner box under host mode)."
       ;;
