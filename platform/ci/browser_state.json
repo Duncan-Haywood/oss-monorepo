@@ -4,16 +4,6 @@
       "checks": [
         "journey"
       ],
-      "commit": "a7dbb0dfff11329fe90c0535fd4ebf368678e5db",
-      "measured": "2026-09-09",
-      "pages": 874,
-      "result": "pass",
-      "scope": "full"
-    },
-    {
-      "checks": [
-        "journey"
-      ],
       "commit": "0c9b33fcaf1e75e4507f45a961db657fa57de63c",
       "measured": "2026-09-09",
       "pages": 874,
@@ -120,6 +110,112 @@
         "platform/pages": "304cd8726ec58ba8c01300094b6b68d8288ec6d0",
         "ventures": "d4dcdc58027884a22974b03581b99fcdd722cec3"
       }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "39d8d0a5790389da6562e9cb6a6f3f330a30d197",
+      "measured": "2026-09-09",
+      "pages": 866,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "de542be65cb6ee4d6daa14acd2e2cfdc7d638ada",
+      "measured": "2026-09-09",
+      "pages": 868,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "eae120009e356e8f282f3cda41813eb3fafa68d4",
+      "measured": "2026-09-09",
+      "pages": 870,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "1b0dfe046ffc938e3d83c097d5f384add6332f77",
+      "measured": "2026-09-09",
+      "pages": 872,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "b8953905d4aa94050e95be874a101f6260ea8148",
+      "measured": "2026-09-09",
+      "pages": 872,
+      "result": "pass",
+      "scope": "full"
+    },
+    {
+      "checks": [
+        "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "a7dbb0dfff11329fe90c0535fd4ebf368678e5db",
+      "measured": "2026-09-09",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "ada-title-ii-evidence"
+      ]
+    },
+    {
+      "checks": [
+        "journey"
+      ],
+      "commit": "a7dbb0dfff11329fe90c0535fd4ebf368678e5db",
+      "measured": "2026-09-09",
+      "pages": 874,
+      "result": "pass",
+      "scope": "full"
     },
     {
       "checks": [
@@ -324,6 +420,57 @@
     {
       "checks": [
         "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "de541bf9f2c813f1a8f0041c6e5a3f98032de97a",
+      "measured": "2026-09-10",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "wash-and-fold-price-calculator"
+      ],
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
+        "ventures": "a67924c06460a101357ebca50251ecdb1f6eb3a4"
+      }
+    },
+    {
+      "checks": [
+        "journey"
+      ],
+      "commit": "de541bf9f2c813f1a8f0041c6e5a3f98032de97a",
+      "measured": "2026-09-10",
+      "pages": 888,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
+        "ventures": "a67924c06460a101357ebca50251ecdb1f6eb3a4"
+      }
+    },
+    {
+      "checks": [
+        "highlight"
+      ],
+      "commit": "de541bf9f2c813f1a8f0041c6e5a3f98032de97a",
+      "measured": "2026-09-10",
+      "pages": 888,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
+        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
+        "ventures": "a67924c06460a101357ebca50251ecdb1f6eb3a4"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
         "highlight",
         "journey",
         "presets",
@@ -331,7 +478,7 @@
         "sideways",
         "sweep"
       ],
-      "commit": "f2fe86d5129936425cb8443d1fe0a03b5469d2c1",
+      "commit": "3011b853a64186079a1ef605a7ed56410e9485dd",
       "measured": "2026-09-10",
       "pages": 888,
       "result": "pass",
@@ -340,29 +487,6 @@
         "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
         "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
         "ventures": "49f69ac3bebf27f030d84206ef0d3c1596214ba6"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "0c0cd838985e7b1a25a11c1d119198c1cea487dd",
-      "measured": "2026-09-10",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "kdp-royalty-calculator",
-        "pour-cost-calculator",
-        "wash-and-fold-price-calculator"
-      ],
-      "surface": {
-        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
-        "platform/pages": "7960b3681322cda1bfce692a46b1f92d88139344",
-        "ventures": "2d53795455b10441dbb2a86d6343eb10bf035194"
       }
     }
   ]

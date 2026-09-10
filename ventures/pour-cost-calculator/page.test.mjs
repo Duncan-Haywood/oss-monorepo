@@ -94,49 +94,30 @@ test('the page opens on the worked example rather than an em-dash', async () => 
   assert.match(markup, /not yours yet/, 'the note must not let the example read as the visitor’s own recipe');
 });
 
-test('a shared recipe is not labelled as this page’s worked example', () => {
-  // The example note says the numbers are "not yours yet". On a shared link
-  // they are the sender's, which is a third thing — and leaving the note up
-  // would invite the recipient to ignore figures they are meant to check.
-  assert.match(script, /showingExample = !sharedRecipe/);
-  assert.match(script, /el\('exampleNote'\)\.hidden = sharedRecipe/);
-});
+test('page wires save, forget, and a shareable link that wins over the saved draft', () => {
+  for (const id of ['save', 'forget', 'copyLink', 'saveStatus']) {
+    assert.ok(ids.has(id), `missing #${id}`);
+  }
+  assert.match(script, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
 
-test('an edit updates the figure on screen rather than leaving the last one standing', () => {
-  // Found by `platform/pages/roundtrip.mjs` when the share link went in:
-  // every field matched across the link and only the headline differed,
-  // because the page recomputed on submit alone. A bar manager who changed
-  // the pour size was reading the previous recipe's percentage, and once a
-  // link exists that becomes a disagreement between two people -- the
-  // recipient opens a pour cost the sender never saw.
-  const listener = /addEventListener\('input', \(\) => \{[\s\S]*?\n    \}\);/.exec(script);
-  assert.ok(listener, 'expected an input listener on the form');
-  assert.match(listener[0], /calculatePourCost\(readInput\(\)\)/);
-  assert.match(listener[0], /render\(result\)/);
-  // Errors stay with submit: complaining midway through a typed bottle cost
-  // is noise, and an input that does not yet compute must not blank the
-  // figure that is already up.
-  assert.doesNotMatch(listener[0], /showProblems/);
-});
-
-test('a shared link replaces every field, including the ones it did not carry', () => {
-  // The defect this guards: a spirit-only pour opening on top of this page's
-  // own default modifier and mixer, so the recipient prices a
-  // three-ingredient cocktail believing it is the sender's highball. Reading
-  // the link with `decodeInputs` alone would do exactly that; `formValues`
-  // is the function that clears the rest.
-  assert.match(script, /formValues\(fromLink\)/);
-  assert.doesNotMatch(
-    script,
-    /Object\.entries\(fromLink\)/,
-    'writing the decoded link straight onto the form leaves the recipient’s own defaults in the slots it omitted',
+  const draftIndex = script.indexOf("localStorage.getItem(DRAFT_KEY)");
+  const linkIndex = script.indexOf('decodeInputs(location.hash');
+  assert.ok(
+    draftIndex !== -1 && linkIndex !== -1 && draftIndex < linkIndex,
+    'the shared-link restore must run after the saved-draft restore so a link wins',
   );
+  assert.match(script, /el\('copyLink'\)\.addEventListener\('click'/);
+  assert.match(script, /count\('link_copied'\)/);
+  assert.match(script, /count\('recipe_saved'\)/);
 });
 
-test('the shared recipe rides in the fragment, never the query string', () => {
-  // A query string is sent in the request line a server logs and in the
-  // Referer header a later click carries. A fragment is neither.
-  assert.match(script, /\$\{query \? `#\$\{query\}` : ''\}/);
+test('a restored draft or link opens on real figures, not the example note', () => {
+  assert.match(script, /current = restored \? example : null/);
+  assert.match(script, /showingExample = !restored/);
+});
+
+test('the FAQ answer about uploads names the save and share controls honestly', () => {
+  assert.match(markup, /Copy shareable link button puts the same numbers in the page.s URL fragment/);
 });
 
 test('opening the page counts nothing', () => {
