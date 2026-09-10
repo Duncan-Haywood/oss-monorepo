@@ -94,6 +94,32 @@ test('the page opens on the worked example rather than an em-dash', async () => 
   assert.match(markup, /not yours yet/, 'the note must not let the example read as the visitor’s own recipe');
 });
 
+test('page wires save, forget, and a shareable link that wins over the saved draft', () => {
+  for (const id of ['save', 'forget', 'copyLink', 'saveStatus']) {
+    assert.ok(ids.has(id), `missing #${id}`);
+  }
+  assert.match(script, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+
+  const draftIndex = script.indexOf("localStorage.getItem(DRAFT_KEY)");
+  const linkIndex = script.indexOf('decodeInputs(location.hash');
+  assert.ok(
+    draftIndex !== -1 && linkIndex !== -1 && draftIndex < linkIndex,
+    'the shared-link restore must run after the saved-draft restore so a link wins',
+  );
+  assert.match(script, /el\('copyLink'\)\.addEventListener\('click'/);
+  assert.match(script, /count\('link_copied'\)/);
+  assert.match(script, /count\('recipe_saved'\)/);
+});
+
+test('a restored draft or link opens on real figures, not the example note', () => {
+  assert.match(script, /current = restored \? example : null/);
+  assert.match(script, /showingExample = !restored/);
+});
+
+test('the FAQ answer about uploads names the save and share controls honestly', () => {
+  assert.match(markup, /Copy shareable link button puts the same numbers in the page.s URL fragment/);
+});
+
 test('opening the page counts nothing', () => {
   const initial = /\(\(\) => \{[\s\S]*?\}\)\(\);/.exec(script);
   assert.ok(initial, 'expected the load-time render to be a self-calling block');
