@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Canonical Tag Checker vs. Screaming Frog SEO Spider — One URL vs. a Whole-Site Crawl</title>
+<meta name="description" content="How the free Canonical Tag Checker compares to Screaming Frog SEO Spider: a zero-install, one-URL CI gate for canonical-tag evidence next to a downloadable, whole-site crawler -- and when each is the right tool.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/canonical-tag-check/vs-screaming-frog.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is this a replacement for Screaming Frog SEO Spider?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Screaming Frog SEO Spider crawls an entire site and reports on dozens of SEO signals at once -- titles, meta descriptions, status codes, redirect chains, hreflang, structured data, and canonicals among them. This checker does one thing for one URL at a time: fetch it, read its canonical tag(s), and follow the canonical to check it actually resolves. It is a narrow, free, scriptable gate, not a crawler." }
+    },
+    {
+      "@type": "Question",
+      "name": "When should I use this instead of a full crawl?",
+      "acceptedAnswer": { "@type": "Answer", "text": "When you want a fast, no-install answer for one URL -- checking a single page before or after a deploy, or wiring a canonical-tag regression gate into your own CI against a staging URL -- without installing desktop software or running a crawl of the whole site." }
+    },
+    {
+      "@type": "Question",
+      "name": "When should I use Screaming Frog instead?",
+      "acceptedAnswer": { "@type": "Answer", "text": "When you need the whole picture: every URL on a site, cross-referenced against sitemaps, internal links, and dozens of other SEO signals at once, with a desktop UI for exploring the results. That is a fundamentally different job from checking one URL's canonical evidence, and Screaming Frog is a well-established, purpose-built tool for it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do the two tools check the same things?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Canonical tags are one of many checks a full Screaming Frog crawl covers. This tool covers only that one signal, in more focused depth for a single URL: it also follows the canonical to its own destination and reports whether that destination actually resolves, redirects, or is itself marked noindex -- evidence a same-page-only canonical audit would not surface." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.4rem, 4vw, 2rem); margin: 0 0 0.8rem; }
+  h2 { font-size: 1.15rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.8rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+  .trademark { font-size: 0.85rem; opacity: 0.8; }
+</style>
+</head>
+<body>
+<h1>Canonical Tag Checker vs. Screaming Frog SEO Spider</h1>
+
+<p>These solve different problems and are not in competition with each other. This checker
+answers one narrow question fast, for free, with no install: <em>does this one URL's canonical
+tag actually check out?</em> Screaming Frog SEO Spider answers a much bigger question: <em>what
+does every URL on this site look like, across dozens of SEO signals at once?</em></p>
+
+<table>
+  <thead><tr><th></th><th>Canonical Tag Checker</th><th>Screaming Frog SEO Spider</th></tr></thead>
+  <tbody>
+    <tr><td>Scope</td><td>One URL per run</td><td>An entire site, crawled</td></tr>
+    <tr><td>What it checks</td><td>Canonical-tag evidence only: conflicting tags, cross-domain, protocol mismatch, and whether the canonical target itself resolves, redirects, or is noindexed</td><td>Dozens of SEO signals: status codes, redirects, titles, meta descriptions, hreflang, structured data, canonicals, and more</td></tr>
+    <tr><td>Install</td><td>None -- a browser page, or a zero-dependency Node CLI</td><td>A downloadable desktop application</td></tr>
+    <tr><td>Where it fits</td><td>A CI gate against one URL, or a quick check before/after a deploy</td><td>A periodic full-site technical SEO audit</td></tr>
+    <tr><td>Cost</td><td>Free</td><td>See <a href="https://www.screamingfrog.co.uk/seo-spider/" rel="nofollow noopener">screamingfrog.co.uk</a> for current licensing</td></tr>
+  </tbody>
+</table>
+
+<h2>Common questions</h2>
+<h3>Is this a replacement for Screaming Frog SEO Spider?</h3>
+<p>No. Screaming Frog SEO Spider crawls an entire site and reports on dozens of SEO signals at once -- titles, meta descriptions, status codes, redirect chains, hreflang, structured data, and canonicals among them. This checker does one thing for one URL at a time: fetch it, read its canonical tag(s), and follow the canonical to check it actually resolves. It is a narrow, free, scriptable gate, not a crawler.</p>
+<h3>When should I use this instead of a full crawl?</h3>
+<p>When you want a fast, no-install answer for one URL -- checking a single page before or after a deploy, or wiring a canonical-tag regression gate into your own CI against a staging URL -- without installing desktop software or running a crawl of the whole site.</p>
+<h3>When should I use Screaming Frog instead?</h3>
+<p>When you need the whole picture: every URL on a site, cross-referenced against sitemaps, internal links, and dozens of other SEO signals at once, with a desktop UI for exploring the results. That is a fundamentally different job from checking one URL's canonical evidence, and Screaming Frog is a well-established, purpose-built tool for it.</p>
+<h3>Do the two tools check the same things?</h3>
+<p>Canonical tags are one of many checks a full Screaming Frog crawl covers. This tool covers only that one signal, in more focused depth for a single URL: it also follows the canonical to its own destination and reports whether that destination actually resolves, redirects, or is itself marked noindex -- evidence a same-page-only canonical audit would not surface.</p>
+
+<p><a href="index.html">&larr; Back to the Canonical Tag Checker</a></p>
+
+<footer>
+  <p class="trademark">Screaming Frog and Screaming Frog SEO Spider are trademarks of Screaming Frog
+  Ltd. This page and this tool are not affiliated with, endorsed by, or sponsored by Screaming Frog
+  Ltd.; the name is used only to identify the referenced product and remains the
+  trademark of its owner.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not SEO advice, and it does not replace a qualified SEO review.
+  You are responsible for reviewing and verifying its output before relying on it, and for having
+  authorisation to check any URL you point it at. To the maximum extent permitted by law, the
+  authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
