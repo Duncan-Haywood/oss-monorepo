@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 235,
-  "collection_total": 235,
+  "served_here": 236,
+  "collection_total": 236,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 25
+      "tool_count": 26
     },
     {
       "id": "evidence",
@@ -1596,6 +1596,14 @@
       "url": "https://marisstella.dev/tools/security-deposit-return-calculator/",
       "category": "More free tools",
       "description": "Free security deposit refund calculator: itemize deductions against a tenant's deposit and see the refund or balance due. Plus a prorated rent calculator for a partial first or last month. Entirely client-side, nothing uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "security-headers-check",
+      "name": "Security Headers Checker — Clickjacking, CSP unsafe-inline, HSTS",
+      "url": "https://marisstella.dev/tools/security-headers-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on missing clickjacking protection, X-Frame-Options: ALLOW-FROM being ignored by current browsers, a CSP that allows unsafe-inline or wildcard script sources, and missing HSTS. Nothing uploaded.",
       "pages": 2
     },
     {

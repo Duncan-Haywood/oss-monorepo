@@ -24039,6 +24039,82 @@ entries:
         whole-catalogue --record sweep, which browser_state.py reports
         stale for reasons predating this branch.
     mrr_end: 0
+  - venture: security-headers-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture per the standing brief's priority on new
+        ventures over ledger prose: session_gate.py's build-now queue is
+        empty and DIRECTION.md's 2026-09-06 owner note ranks a genuine
+        fresh niche over another parity feature on an already-built
+        prototype. Picked the CLI/browser-checker archetype
+        (pipeline/README.md's "archetype itself" section) over a 237th
+        <trade>-bid-calculator, given 141+ zero-visitor calculators
+        already in the fleet.
+      - >-
+        Shipped a free CLI (+ browser report-viewer) that sends one real
+        HTTP GET to a URL and classifies the response's
+        Content-Security-Policy and frame-protection headers into named
+        misconfiguration patterns: missing clickjacking protection (no
+        frame-ancestors and no X-Frame-Options), X-Frame-Options:
+        ALLOW-FROM (a value every current major browser silently
+        ignores), CSP script-src/default-src-fallback allowing
+        'unsafe-inline' with no nonce/hash to override it, a CSP wildcard
+        script source, CSP shipped only as report-only, and missing HSTS
+        on an HTTPS response. The classification applies the CSP spec's
+        actual fallback rules (frame-ancestors does not inherit from
+        default-src; script-src does) rather than a naive header-presence
+        grep, which is the whole differentiation from curl -I or a raw
+        header dump.
+      - >-
+        Screened with duplicate_check.py before building: closest match
+        was cors-misconfig-check at 0.30 (pwa-installability-check 0.20,
+        sri-check 0.12), well under the 0.45 flag bar -- no existing
+        venture reads Content-Security-Policy or X-Frame-Options. Scored
+        per pipeline/README.md's 8-dimension rubric: composite 6.167,
+        floor 1 on ai_leverage (no AI in the product, deliberately --
+        deterministic header-grammar parsing), both gates
+        (liability_containment, ethical_robustness) pass. Full basis and
+        gate notes recorded in portfolio/scoring/venture-scores.yaml.
+      - >-
+        Verified before pushing: check_no_payment_code.py,
+        router/validate.py, checklist_coverage.py all clean;
+        `node --test` across the venture's 5 test files (61 assertions:
+        analyze/probe/check/usage/page) all pass, covering both
+        true-positive and true-negative cases for every finding, including
+        the CSP fallback edge cases (nonce/hash overriding unsafe-inline,
+        default-src fallback, frame-ancestors overriding ALLOW-FROM).
+        `node --test` across platform/marketing, platform/pages,
+        platform/proposal, platform/privacy, platform/webcheck all pass.
+        `python3 -m pytest gitops/tests` initially failed the mirrored-tool
+        count (235 -> 236, since this venture's static index.html entered
+        the mirror the moment `regen.mjs` ran) -- fixed forward in the same
+        commit across the four places CLAUDE.md names
+        (infra/OWNER_CHECKLIST.md, gitops/prod/usage/aggregate.py,
+        gitops/prod/front-door/default.conf x2, and the test file's own
+        pinned constant), then reran clean (532 passed). The full
+        `platform/ci` unittest sweep (22 modules) initially failed two more
+        of the same shape -- `validate_workflows.py` (no per-venture CI
+        workflow yet; added `security-headers-check-ci.yml`, copied from
+        `cors-misconfig-check-ci.yml`) and `publish_surface.py` (new
+        workflow not yet classified in `publish-surface.yaml`; added a
+        `classification: none` row) -- both fixed forward, then reran
+        clean. `score_ventures.py --check` and its own unit tests, and
+        `router/test_allocate.py`'s merit-coverage test, likewise failed
+        until the `venture-scores.yaml` row above was added, then passed.
+        `pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests`: 435 passed.
+        `run_workflow_locally.py --for-changes`: clean after the fixes
+        above (rerun pending in this same session). Browser checks
+        (`browser_checks.py --only security-headers-check`, after
+        `npm install --no-save playwright@1.56.0 axe-core`): 6 of 7
+        passed including contrast/axe, sweep (worked-example flow),
+        journey, presets, roundtrip and sideways, with `highlight` skipped
+        (this tool makes no highlight promise). Not run: the
+        whole-catalogue `--record` sweep, which `browser_state.py` already
+        reported stale for reasons predating this branch.
+    mrr_end: 0
   - venture: carpet-install-bid-calculator
     agent_spend_usd: null
     human_hours: 0

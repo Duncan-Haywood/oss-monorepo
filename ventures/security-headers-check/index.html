@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security Headers Checker — Clickjacking, CSP unsafe-inline, HSTS</title>
+<meta name="description" content="Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on missing clickjacking protection, X-Frame-Options: ALLOW-FROM being ignored by current browsers, a CSP that allows unsafe-inline or wildcard script sources, and missing HSTS. Nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/security-headers-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Security Headers Checker">
+<meta property="og:description" content="Paste the JSON from the CLI probe and get a plain-English report on clickjacking, CSP unsafe-inline/wildcard script-src, and missing HSTS. Free, local, no upload.">
+<meta property="og:url" content="https://example.invalid/security-headers-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Security Headers Checker",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (report viewer runs in a web browser); a Node.js CLI performs the actual probing",
+  "description": "Sends a real GET request to a target URL and classifies the response's Content-Security-Policy and frame-protection headers into named misconfiguration patterns: missing clickjacking protection, X-Frame-Options: ALLOW-FROM being silently ignored by current browsers, CSP allowing 'unsafe-inline' script with no nonce/hash, CSP allowing a wildcard script source, CSP present only as report-only, and missing Strict-Transport-Security.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Sends 1 real HTTP request to a target URL you choose",
+    "Applies the correct CSP fallback rule: frame-ancestors does not inherit from default-src, script-src does",
+    "Flags X-Frame-Options: ALLOW-FROM, which every current major browser silently ignores",
+    "Flags a CSP script-src (or default-src fallback) that allows 'unsafe-inline' with no nonce or hash to override it",
+    "Flags a CSP script-src that allows a wildcard host or scheme source",
+    "Flags Content-Security-Policy-Report-Only used with no enforcing CSP",
+    "Flags a missing Strict-Transport-Security header on an HTTPS response",
+    "CLI makes the actual request; the browser page only renders a report you paste in -- nothing uploaded"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does a missing frame-ancestors or X-Frame-Options header let an attacker do?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Without either header, any site on the web can load your page inside an iframe and overlay it, tricking a visitor into clicking a button on your page while believing they're clicking something else -- clickjacking. It can turn a 'log in with Google' click, a funds-transfer confirmation, or a cookie-consent toggle into an action the visitor never meant to take." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does X-Frame-Options: ALLOW-FROM show up as a danger finding instead of protected?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Every current major browser engine dropped support for the ALLOW-FROM value once CSP2's frame-ancestors directive shipped as the replacement. A response sending it looks protected in a raw header dump, but no browser in real use today actually honours it -- the page has no frame protection at all unless a CSP frame-ancestors directive is also present." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does CSP frame-ancestors inherit from default-src the way script-src does?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Most CSP fetch directives fall back to default-src when they're not explicitly set, but frame-ancestors is a navigation directive and the spec does not give it that fallback. A policy of default-src 'self' alone provides zero clickjacking protection -- frame-ancestors has to be spelled out on its own." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does 'unsafe-inline' only count as a finding when there's no nonce or hash?",
+      "acceptedAnswer": { "@type": "Answer", "text": "CSP2 and later browsers ignore 'unsafe-inline' entirely whenever a nonce-source or hash-source is also present in the same directive -- it's kept in the header only so CSP1-era browsers still get some protection. So a script-src carrying both a nonce and 'unsafe-inline' is correctly configured for every browser that matters today; this tool only flags 'unsafe-inline' when nothing overrides it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does this need a CLI instead of just checking a URL I type into the page?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Nothing stops a browser page from making the request itself for a same-origin target, but checking an arbitrary third-party URL from inside a browser tab runs into the same CORS and mixed-content restrictions the page you're checking is designed to resist -- and a page that could reach any URL you type would itself be a server-side request forgery risk. A small local CLI with no such restriction, run from your own machine, is the same shape every other tool in this class (curl, securityheaders-style scanners) uses." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean the site has no security-header issues?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks a specific, well-documented set of frame-protection, CSP-strength, and HSTS patterns from one response -- it is not a full security assessment, does not crawl other pages on the site, and cannot see a misconfiguration this tool's checks don't happen to cover (Permissions-Policy, cookie flags, and Subresource Integrity, for instance, are out of scope here -- see sri-check for that last one). Treat a clean report as evidence about these specific patterns, not a determination that the site is secure." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  textarea { width: 100%; min-height: 160px; box-sizing: border-box; padding: 0.6rem; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding h3 { margin: 0 0 0.2rem; }
+  .finding .evidence { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; opacity: 0.85; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.86rem; }
+  th, td { border: 1px solid #8886; padding: 0.35rem 0.5rem; text-align: left; vertical-align: top; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>Security Headers Checker</h1>
+<p>
+  Sends one real HTTP GET request to a URL you choose and classifies the response's frame-protection
+  and Content-Security-Policy headers into well-documented misconfiguration patterns: <strong>missing
+  clickjacking protection</strong>, <strong>X-Frame-Options: ALLOW-FROM</strong> (a value every current
+  browser silently ignores), a CSP <strong>script-src allowing <code>'unsafe-inline'</code></strong>
+  with no nonce or hash to override it, a CSP <strong>wildcard script source</strong>, CSP shipped only
+  as <strong>report-only</strong>, and a <strong>missing Strict-Transport-Security</strong> header.
+  Only point it at a system you own or are authorised to test.
+</p>
+
+<div class="card">
+  <h2>1. Run the CLI against your site</h2>
+  <p>Node.js, no dependencies to install:</p>
+  <pre class="cmd"><code>node check.mjs https://example.com --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/security-headers-check" rel="noopener">check.mjs, probe.mjs, and analyze.mjs from the repo</a>
+    — plain Node, nothing to install. It only ever talks to the URL you pass; nothing goes
+    through this site.
+  </p>
+</div>
+
+<div class="card">
+  <h2>2. Paste the JSON output here</h2>
+  <textarea id="payload" spellcheck="false" placeholder='{"target": "https://example.com/", "probe": {"ok": true, "status": 200, "protocol": "https:", "headers": {...}}}'></textarea>
+  <p>
+    <button type="button" class="primary" id="check">Check</button>
+    <button type="button" id="load-example">Load worked example (vulnerable)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Paste the JSON from step 1 and click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+  <h3>Raw response headers</h3>
+  <table id="header-table"><tbody></tbody></table>
+</section>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>What does a missing frame-ancestors or X-Frame-Options header let an attacker do?</h3>
+  <p>Without either header, any site on the web can load your page inside an iframe and overlay it, tricking a visitor into clicking a button on your page while believing they're clicking something else -- clickjacking. It can turn a 'log in with Google' click, a funds-transfer confirmation, or a cookie-consent toggle into an action the visitor never meant to take.</p>
+  <h3>Why does X-Frame-Options: ALLOW-FROM show up as a danger finding instead of protected?</h3>
+  <p>Every current major browser engine dropped support for the ALLOW-FROM value once CSP2's frame-ancestors directive shipped as the replacement. A response sending it looks protected in a raw header dump, but no browser in real use today actually honours it -- the page has no frame protection at all unless a CSP frame-ancestors directive is also present.</p>
+  <h3>Does CSP frame-ancestors inherit from default-src the way script-src does?</h3>
+  <p>No. Most CSP fetch directives fall back to default-src when they're not explicitly set, but frame-ancestors is a navigation directive and the spec does not give it that fallback. A policy of default-src 'self' alone provides zero clickjacking protection -- frame-ancestors has to be spelled out on its own. More background: <a href="clickjacking-and-csp-frame-ancestors.html">why X-Frame-Options: ALLOW-FROM doesn't protect you anymore</a>.</p>
+  <h3>Why does 'unsafe-inline' only count as a finding when there's no nonce or hash?</h3>
+  <p>CSP2 and later browsers ignore 'unsafe-inline' entirely whenever a nonce-source or hash-source is also present in the same directive -- it's kept in the header only so CSP1-era browsers still get some protection. So a script-src carrying both a nonce and 'unsafe-inline' is correctly configured for every browser that matters today; this tool only flags 'unsafe-inline' when nothing overrides it.</p>
+  <h3>Why does this need a CLI instead of just checking a URL I type into the page?</h3>
+  <p>Nothing stops a browser page from making the request itself for a same-origin target, but checking an arbitrary third-party URL from inside a browser tab runs into the same CORS and mixed-content restrictions the page you're checking is designed to resist -- and a page that could reach any URL you type would itself be a server-side request forgery risk. A small local CLI with no such restriction, run from your own machine, is the same shape every other tool in this class (curl, securityheaders-style scanners) uses.</p>
+  <h3>Does a clean report mean the site has no security-header issues?</h3>
+  <p>No. This checks a specific, well-documented set of frame-protection, CSP-strength, and HSTS patterns from one response -- it is not a full security assessment, does not crawl other pages on the site, and cannot see a misconfiguration this tool's checks don't happen to cover (Permissions-Policy, cookie flags, and Subresource Integrity, for instance, are out of scope here -- see <a href="../sri-check/">sri-check</a> for that last one). Treat a clean report as evidence about these specific patterns, not a determination that the site is secure.</p>
+</section>
+
+<script type="module">
+  import { buildReport } from './analyze.mjs';
+  import { recordUsage } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    payload: $('#payload'), status: $('#status'), reportCard: $('#report-card'),
+    verdict: $('#verdict'), findings: $('#findings'), headerTable: $('#header-table tbody'),
+  };
+
+  const EXAMPLE = {
+    target: 'https://app.example.com/',
+    probe: {
+      ok: true, status: 200, protocol: 'https:',
+      headers: {
+        'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https:",
+        'content-security-policy-report-only': null,
+        'x-frame-options': 'ALLOW-FROM https://partner.example.com',
+        'strict-transport-security': null,
+      },
+    },
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.incomplete) {
+      els.verdict.textContent = `The probe did not complete: ${report.probe.error} -- re-run and try again.`;
+    } else if (report.dangerCount > 0) {
+      els.verdict.textContent = `${report.dangerCount} danger-level finding(s), ${report.noticeCount} notice(s).`;
+    } else if (report.noticeCount > 0) {
+      els.verdict.textContent = `No danger-level findings. ${report.noticeCount} notice(s) worth a look.`;
+    } else {
+      els.verdict.textContent = 'None of the patterns this tool checks for were found.';
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No findings to show.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+          <p>${escapeHtml(f.detail)}</p>
+          <p class="evidence">${escapeHtml(f.evidenceHeader)}</p>
+        </div>`).join('');
+
+    const h = report.probe.headers ?? {};
+    els.headerTable.innerHTML = [
+      ['content-security-policy', h['content-security-policy']],
+      ['content-security-policy-report-only', h['content-security-policy-report-only']],
+      ['x-frame-options', h['x-frame-options']],
+      ['strict-transport-security', h['strict-transport-security']],
+    ].map(([name, value]) => `<tr><th>${escapeHtml(name)}</th><td>${escapeHtml(value ?? '(not set)')}</td></tr>`).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function runCheck(payload, event) {
+    let report;
+    try {
+      if (!payload || typeof payload !== 'object' || !payload.probe || typeof payload.probe !== 'object') {
+        throw new Error('Expected an object with a "probe" object -- the exact shape "node check.mjs <url> --json" prints.');
+      }
+      report = buildReport(payload.target ?? '(unknown target)', payload.probe);
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+      els.reportCard.hidden = true;
+      return;
+    }
+    render(report);
+    els.status.textContent = '';
+    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+  }
+
+  $('#check').addEventListener('click', () => {
+    const text = els.payload.value.trim();
+    if (!text) {
+      els.status.innerHTML = '<span class="error">Paste the JSON from step 1 first.</span>';
+      return;
+    }
+    let payload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node check.mjs &lt;url&gt; --json".</span>';
+      return;
+    }
+    runCheck(payload, 'check_run');
+  });
+
+  $('#load-example').addEventListener('click', () => {
+    els.payload.value = JSON.stringify(EXAMPLE, null, 2);
+    runCheck(EXAMPLE, 'example_loaded');
+    els.status.textContent = 'Worked example: ALLOW-FROM (ignored by current browsers) and unsafe-inline with no nonce.';
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.payload.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Paste the JSON from step 1 and click Check.';
+  });
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific, well-documented set of
+  frame-protection, CSP-strength, and HSTS patterns from one response. It is not a full security
+  assessment, does not crawl other pages on the site, and cannot see a pattern it doesn't check for.
+  A clean report describes what this one request found, not a guarantee the site has no
+  security-header issues.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not security advice, and it does not replace a qualified
+  security review or penetration test. <strong>You are responsible for reviewing and verifying
+  its output before relying on it</strong>, and for having authorisation to test any system you
+  point the CLI at. To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI's request goes straight from your
+  machine to the URL you name -- never through this site. The page you're reading now only
+  parses JSON you paste into it locally; nothing is uploaded. The only thing stored is an
+  anonymous local count of which features were used and the day -- no target URLs, no response
+  headers, no account, no tracking cookies, no analytics vendor. Turn it off with the checkbox
+  above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass on your API: <a href="../cors-misconfig-check/">CORS misconfiguration
+  checker</a> covers a different response-header evidence class (a reflected <code>Origin</code>
+  rather than a frame or script policy), and <a href="../sri-check/">Subresource Integrity
+  checker</a> covers a script tag's own hash against what a CDN actually serves.</p>
+</footer>
+</body>
+</html>
