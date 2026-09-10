@@ -102,6 +102,23 @@ test('a shared recipe is not labelled as this page’s worked example', () => {
   assert.match(script, /el\('exampleNote'\)\.hidden = sharedRecipe/);
 });
 
+test('an edit updates the figure on screen rather than leaving the last one standing', () => {
+  // Found by `platform/pages/roundtrip.mjs` when the share link went in:
+  // every field matched across the link and only the headline differed,
+  // because the page recomputed on submit alone. A bar manager who changed
+  // the pour size was reading the previous recipe's percentage, and once a
+  // link exists that becomes a disagreement between two people -- the
+  // recipient opens a pour cost the sender never saw.
+  const listener = /addEventListener\('input', \(\) => \{[\s\S]*?\n    \}\);/.exec(script);
+  assert.ok(listener, 'expected an input listener on the form');
+  assert.match(listener[0], /calculatePourCost\(readInput\(\)\)/);
+  assert.match(listener[0], /render\(result\)/);
+  // Errors stay with submit: complaining midway through a typed bottle cost
+  // is noise, and an input that does not yet compute must not blank the
+  // figure that is already up.
+  assert.doesNotMatch(listener[0], /showProblems/);
+});
+
 test('a shared link replaces every field, including the ones it did not carry', () => {
   // The defect this guards: a spirit-only pour opening on top of this page's
   // own default modifier and mixer, so the recipient prices a
