@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Subresource Integrity (SRI) Checker &amp; Hash Generator</title>
+<meta name="description" content="Free tool: generate a sha384 integrity= hash for any script or stylesheet, or run a CLI that checks a page's cross-origin tags for a missing integrity attribute, a missing crossorigin attribute, or a hash that no longer matches what the CDN serves. Nothing uploaded.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/sri-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Subresource Integrity (SRI) Checker & Hash Generator">
+<meta property="og:description" content="Generate an integrity= hash locally, or paste a CLI report for a plain-English check of every cross-origin script/stylesheet tag on a page. Free, local, no upload.">
+<meta property="og:url" content="https://example.invalid/sri-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Subresource Integrity (SRI) Checker & Hash Generator",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (hash generator and report viewer run in a web browser); a Node.js CLI performs the page/asset fetching",
+  "description": "Computes a sha256/sha384/sha512 integrity hash for pasted script/stylesheet content entirely in the browser, and (via a companion CLI) fetches a page and every cross-origin asset it loads to report a missing integrity attribute, a missing crossorigin attribute, or a hash that no longer matches what the CDN currently serves.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Generates a sha256/sha384/sha512 integrity= value from pasted script or stylesheet content, entirely in your browser",
+    "CLI fetches a page and finds every script tag with a src attribute and stylesheet link tag loaded from a different origin",
+    "Flags a cross-origin tag with no integrity attribute at all",
+    "Flags an integrity attribute with no crossorigin attribute, which most browsers silently fail to enforce",
+    "Re-fetches each asset that declares a hash and flags one that no longer matches what the CDN serves right now",
+    "CLI makes the actual requests; the browser page only renders a report you paste in -- nothing uploaded"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Subresource Integrity and why does it matter?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Subresource Integrity (SRI) lets a page declare the exact cryptographic hash a script or stylesheet must have before the browser will run or apply it. Without it, a page that loads a library from a third-party CDN is trusting that CDN completely: if the CDN is compromised, misconfigured, or silently changes what it serves, every site loading that file runs whatever it now contains. An integrity attribute turns that silent trust into a check the browser enforces itself." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do I need a CLI instead of just checking a URL I type into the page?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Reading another site's response body from browser JavaScript is restricted by CORS, and most pages you would want to check do not opt a script into letting your tab read their full HTML. The CLI has no such restriction — it fetches the page and each cross-origin asset directly, the same way curl or any other HTTP client would, then hands the browser page a JSON report to render. The hash generator above does not have this limitation: it hashes content you paste in, with no fetch involved at all." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does an integrity attribute need a crossorigin attribute too?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Per the Fetch spec, a cross-origin request has to opt into CORS mode before the browser is allowed to read enough about the response to verify a hash against it. A crossorigin attribute is what makes that opt-in. Without it, most browsers silently skip the integrity check on a cross-origin tag rather than enforcing it — which is worse than having no integrity attribute at all, because the page looks protected and is not." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does a hash mismatch finding actually mean?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It means the file this tool just fetched from the declared URL does not match the hash written into the page's integrity attribute. Either the CDN-served file has changed since the tag was written — in which case browsers will now refuse to load it at all, breaking the page for every visitor — or the hash was wrong from the moment it was added. Either way, the fix is to regenerate the hash from the file as it exists right now." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean report mean the page has no supply-chain risk?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This checks one specific, well-documented protection — integrity hashes on cross-origin script and stylesheet tags — not a full security assessment. It does not evaluate same-origin code, inline scripts, iframes, images, fonts, or any other resource type, and it cannot see a risk outside that scope. Treat a clean report as evidence about this one protection, not a determination that the page is secure." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; }
+  h1 { font-size: clamp(1.5rem, 4.5vw, 2.2rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  textarea { width: 100%; min-height: 140px; box-sizing: border-box; padding: 0.6rem; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  input[type=text] { width: 100%; box-sizing: border-box; padding: 0.5rem; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid #8888; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; }
+  code.out { display: block; background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-wrap: anywhere; font-size: 0.85rem; margin: 0.4rem 0; }
+  button { font-size: 1rem; padding: 0.5rem 1rem; cursor: pointer; margin: 0.3rem 0.5rem 0.3rem 0; border-radius: 6px; border: 1px solid #8888; background: transparent; }
+  button.primary { background: #0a7c42; color: #fff; border-color: #0a7c42; }
+  select { font-size: 0.95rem; padding: 0.35rem 0.5rem; border-radius: 6px; border: 1px solid #8888; }
+  .status-note { font-size: 0.88rem; opacity: 0.8; }
+  .error { color: #c0392b; font-weight: 600; }
+  .verdict { font-size: 1.2rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.ok { color: #0a7c42; }
+  .verdict.bad { color: #c0392b; }
+  .finding { border-left: 4px solid #c0392b; padding: 0.4rem 0 0.4rem 0.8rem; margin: 0.7rem 0; }
+  .finding.notice { border-left-color: #b8860b; }
+  .finding h3 { margin: 0 0 0.2rem; word-break: break-word; }
+  .finding .url { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; opacity: 0.85; word-break: break-all; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>Subresource Integrity (SRI) Checker &amp; Hash Generator</h1>
+<p>
+  Two tools for the same protection: generate the <code>integrity="sha384-..."</code>
+  value a &lt;script&gt; or &lt;link&gt; tag needs, or check a page's cross-origin
+  tags for a <strong>missing integrity attribute</strong>, a
+  <strong>missing crossorigin attribute</strong> (which quietly disables the check
+  in most browsers), or a hash that <strong>no longer matches</strong> what the CDN
+  serves today.
+</p>
+
+<div class="card">
+  <h2>Generate a hash</h2>
+  <p>Paste the exact file contents (the script or stylesheet as it will be served) — hashed
+  entirely in your browser, nothing sent anywhere.</p>
+  <textarea id="hashInput" spellcheck="false" placeholder="Paste the script or stylesheet contents here..."></textarea>
+  <p>
+    <label>Algorithm
+      <select id="hashAlgo">
+        <option value="sha384" selected>sha384 (recommended)</option>
+        <option value="sha256">sha256</option>
+        <option value="sha512">sha512</option>
+      </select>
+    </label>
+    <button type="button" class="primary" id="generate">Generate hash</button>
+  </p>
+  <code class="out" id="hashOutput" hidden></code>
+  <p class="status-note" id="hashStatus">Paste content above and click Generate hash.</p>
+</div>
+
+<div class="card">
+  <h2>Check a page</h2>
+  <p>Node.js CLI, no dependencies to install — fetches the page and every cross-origin
+  asset it loads, then hashes what each one currently serves:</p>
+  <pre class="cmd"><code>node check.mjs https://example.com/ --json</code></pre>
+  <p class="status-note">
+    Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/sri-check" rel="noopener">check.mjs, probe.mjs, and sri.mjs from the repo</a>
+    — plain Node, nothing to install. It only ever talks to the page URL you pass and the
+    asset URLs that page itself references; nothing goes through this site.
+  </p>
+  <textarea id="payload" spellcheck="false" placeholder='{"page": "https://example.com/", "assets": [...], "findings": [...]}'></textarea>
+  <p>
+    <button type="button" class="primary" id="check">Check</button>
+    <button type="button" id="load-example">Load worked example (vulnerable)</button>
+    <button type="button" id="clear">Clear</button>
+  </p>
+  <p class="status-note" id="status">Paste the JSON from the CLI and click Check.</p>
+</div>
+
+<section class="card" id="report-card" aria-live="polite" hidden>
+  <h2>Report</h2>
+  <p class="verdict" id="verdict"></p>
+  <div id="findings"></div>
+</section>
+
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>What is Subresource Integrity and why does it matter?</h3>
+  <p>Subresource Integrity (SRI) lets a page declare the exact cryptographic hash a script or stylesheet must have before the browser will run or apply it. Without it, a page that loads a library from a third-party CDN is trusting that CDN completely: if the CDN is compromised, misconfigured, or silently changes what it serves, every site loading that file runs whatever it now contains. An integrity attribute turns that silent trust into a check the browser enforces itself.</p>
+  <h3>Why do I need a CLI instead of just checking a URL I type into the page?</h3>
+  <p>Reading another site's response body from browser JavaScript is restricted by CORS, and most pages you would want to check do not opt a script into letting your tab read their full HTML. The CLI has no such restriction — it fetches the page and each cross-origin asset directly, the same way curl or any other HTTP client would, then hands the browser page a JSON report to render. The hash generator above does not have this limitation: it hashes content you paste in, with no fetch involved at all.</p>
+  <h3>Why does an integrity attribute need a crossorigin attribute too?</h3>
+  <p>Per the Fetch spec, a cross-origin request has to opt into CORS mode before the browser is allowed to read enough about the response to verify a hash against it. A crossorigin attribute is what makes that opt-in. Without it, most browsers silently skip the integrity check on a cross-origin tag rather than enforcing it — which is worse than having no integrity attribute at all, because the page looks protected and is not.</p>
+  <h3>What does a hash mismatch finding actually mean?</h3>
+  <p>It means the file this tool just fetched from the declared URL does not match the hash written into the page's integrity attribute. Either the CDN-served file has changed since the tag was written — in which case browsers will now refuse to load it at all, breaking the page for every visitor — or the hash was wrong from the moment it was added. Either way, the fix is to regenerate the hash from the file as it exists right now.</p>
+  <h3>Does a clean report mean the page has no supply-chain risk?</h3>
+  <p>No. This checks one specific, well-documented protection — integrity hashes on cross-origin script and stylesheet tags — not a full security assessment. It does not evaluate same-origin code, inline scripts, iframes, images, fonts, or any other resource type, and it cannot see a risk outside that scope. Treat a clean report as evidence about this one protection, not a determination that the page is secure.</p>
+  <p>More background: <a href="why-does-sri-need-the-crossorigin-attribute.html">why an integrity attribute with no crossorigin attribute leaves a page unprotected</a>.</p>
+</section>
+
+<script type="module">
+  import { extractCrossOriginAssets, buildReport, digestBase64, integrityValue } from './sri.mjs';
+  import { recordUsage } from './usage.mjs';
+
+  const $ = (sel) => document.querySelector(sel);
+  const els = {
+    hashInput: $('#hashInput'), hashAlgo: $('#hashAlgo'), hashOutput: $('#hashOutput'), hashStatus: $('#hashStatus'),
+    payload: $('#payload'), status: $('#status'), reportCard: $('#report-card'),
+    verdict: $('#verdict'), findings: $('#findings'),
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  }
+
+  function optedOut() {
+    return document.getElementById('usageOptOut')?.checked ?? false;
+  }
+
+  $('#generate').addEventListener('click', async () => {
+    const text = els.hashInput.value;
+    if (!text) {
+      els.hashStatus.innerHTML = '<span class="error">Paste some content first.</span>';
+      els.hashOutput.hidden = true;
+      return;
+    }
+    try {
+      const algo = els.hashAlgo.value;
+      const bytes = new TextEncoder().encode(text);
+      const hash = await digestBase64(algo, bytes);
+      const value = integrityValue(algo, hash);
+      els.hashOutput.hidden = false;
+      els.hashOutput.textContent = `integrity="${value}" crossorigin="anonymous"`;
+      els.hashStatus.textContent = 'Paste that whole attribute pair onto your script or link tag.';
+      recordUsage(localStorage, optedOut(), 'hash_generated');
+    } catch (err) {
+      els.hashStatus.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+      els.hashOutput.hidden = true;
+    }
+  });
+
+  const EXAMPLE = {
+    page: 'https://example.com/',
+    findings: [],
+    assets: [],
+    _rawAssets: [
+      { kind: 'script', url: 'https://cdn.example.com/widget.js', integrity: null, crossoriginAttr: false },
+      {
+        kind: 'script',
+        url: 'https://cdn.example.com/analytics.js',
+        integrity: 'sha384-stalehashfromwhenthistagwaswritten00000000000000000000000',
+        crossoriginAttr: true,
+      },
+    ],
+    _rawFetchResults: {
+      'https://cdn.example.com/analytics.js': {
+        ok: true,
+        hashes: { sha384: 'currenthashthecdnservesnow0000000000000000000000000000000' },
+        error: null,
+      },
+    },
+  };
+
+  function render(report) {
+    els.verdict.className = `verdict ${report.ok ? 'ok' : 'bad'}`;
+    if (report.fetchError) {
+      els.verdict.textContent = `Could not fetch the page: ${report.fetchError}`;
+    } else if (report.dangerCount > 0) {
+      els.verdict.textContent = `${report.dangerCount} danger-level finding(s) across ${report.thirdPartyCount} cross-origin tag(s), ${report.noticeCount} notice(s).`;
+    } else if (report.noticeCount > 0) {
+      els.verdict.textContent = `No danger-level findings across ${report.thirdPartyCount} cross-origin tag(s). ${report.noticeCount} notice(s) worth a look.`;
+    } else if (report.thirdPartyCount === 0) {
+      els.verdict.textContent = 'No cross-origin script or stylesheet tags found on this page.';
+    } else {
+      els.verdict.textContent = `All ${report.thirdPartyCount} cross-origin tag(s) carry a valid, matching integrity hash.`;
+    }
+
+    els.findings.innerHTML = report.findings.length === 0
+      ? '<p>No findings to show.</p>'
+      : report.findings.map((f) => `
+        <div class="finding ${f.severity === 'notice' ? 'notice' : ''}">
+          <h3>${escapeHtml(f.title)} <small>(${f.severity})</small></h3>
+          <p class="url">${escapeHtml(f.url)}</p>
+          <p>${escapeHtml(f.detail)}</p>
+        </div>`).join('');
+
+    els.reportCard.hidden = false;
+    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function runCheckFromPayload(payload, event) {
+    let report;
+    try {
+      if (!payload || typeof payload !== 'object' || typeof payload.page !== 'string') {
+        throw new Error('Expected an object with a "page" field -- the exact shape "node check.mjs <url> --json" prints.');
+      }
+      if (payload.fetchError) {
+        report = { page: payload.page, assets: [], findings: [], dangerCount: 0, noticeCount: 0, thirdPartyCount: 0, ok: false, fetchError: payload.fetchError };
+      } else if (Array.isArray(payload.assets) && Array.isArray(payload.findings) && !payload._rawAssets) {
+        // Already-built report shape (what the CLI's --json actually prints).
+        report = payload;
+      } else {
+        // The worked example ships raw assets + fetch results so this page can
+        // demonstrate buildReport()'s own classification, not a canned finding list.
+        const fetchResults = new Map(Object.entries(payload._rawFetchResults || {}));
+        report = buildReport(payload.page, payload._rawAssets || [], fetchResults);
+      }
+    } catch (err) {
+      els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+      els.reportCard.hidden = true;
+      return;
+    }
+    render(report);
+    els.status.textContent = '';
+    recordUsage(localStorage, optedOut(), event);
+  }
+
+  $('#check').addEventListener('click', () => {
+    const text = els.payload.value.trim();
+    if (!text) {
+      els.status.innerHTML = '<span class="error">Paste the JSON from the CLI first.</span>';
+      return;
+    }
+    let payload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node check.mjs &lt;url&gt; --json".</span>';
+      return;
+    }
+    runCheckFromPayload(payload, 'check_run');
+  });
+
+  $('#load-example').addEventListener('click', () => {
+    els.payload.value = JSON.stringify(EXAMPLE, null, 2);
+    runCheckFromPayload(EXAMPLE, 'example_loaded');
+    els.status.textContent = 'Worked example: one tag missing integrity entirely, one with a stale hash the CDN no longer matches.';
+  });
+
+  $('#clear').addEventListener('click', () => {
+    els.payload.value = '';
+    els.reportCard.hidden = true;
+    els.status.textContent = 'Paste the JSON from the CLI and click Check.';
+  });
+
+  // Exposed for page.test.mjs's worked-example assertion, which needs to run
+  // the real classification engine against this page's own bundled example
+  // without a browser.
+  window.__sriCheckExample = { extractCrossOriginAssets, buildReport, EXAMPLE };
+</script>
+
+<footer>
+  <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> This checks one specific protection —
+  integrity hashes on cross-origin script and stylesheet tags. It is not a full security
+  assessment, does not evaluate inline scripts, iframes, images, fonts, or same-origin code,
+  and cannot see a risk outside that scope. A clean report describes what this check found,
+  not a guarantee the page has no supply-chain risk.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of
+  any kind, express or implied. It is not security advice, and it does not replace a
+  qualified security review. <strong>You are responsible for reviewing and verifying its
+  output before relying on it.</strong> To the maximum extent permitted by law, the authors
+  accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be
+  slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The hash generator only hashes content you
+  paste in, locally. The CLI's requests go straight from your machine to the page and asset
+  URLs it names — never through this site. The page you're reading now only parses JSON you
+  paste into it; nothing is uploaded. The only thing stored is an anonymous local count of
+  which features were used and the day — no page URLs, no pasted content, no account, no
+  tracking cookies, no analytics vendor. Turn it off with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+  <p>Also worth a pass on your CI: <a href="../cors-misconfig-check/">CORS misconfiguration
+  checker</a> tests a different class of tag-and-response evidence with the same "real fetch,
+  named finding" shape as this tool.</p>
+</footer>
+</body>
+</html>

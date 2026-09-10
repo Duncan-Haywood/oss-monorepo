@@ -705,6 +705,22 @@ const CATEGORY_RULES = [
     // neighbors above are: one tool does not earn a whole family pattern,
     // and landing it here rather than the catch-all is also what keeps that
     // catch-all inside the bound `build.test.mjs` puts on it.
+    // `sri-check` joined 2026-09-10. Same shape again -- a zero-dependency
+    // CLI plus a matching browser page, run by a developer against their
+    // own page's cross-origin tags -- just for a live network probe
+    // (re-fetching each declared-integrity asset to check the hash still
+    // matches) rather than a static source/manifest/config file, the same
+    // "browser can't do the full check itself" split `cors-misconfig-check`
+    // established (reading another origin's response body is CORS-gated).
+    // Unlike every member above it, its browser half is not only a report
+    // viewer: the standalone hash generator half needs no CLI and no fetch
+    // at all, since it only hashes content pasted in. It cross-links
+    // `cors-misconfig-check` as Related (same "real fetch, name the exact
+    // evidence" question, a different tag-and-response risk). Listed by
+    // exact slug rather than a new prefix, the same way its neighbors above
+    // are: one tool does not earn a whole family pattern, and landing it
+    // here rather than the catch-all is also what keeps that catch-all
+    // inside the bound `build.test.mjs` puts on it.
     //
     // `email-auth-check` joined 2026-09-10. Same shape again -- a zero-
     // dependency CLI plus a matching browser page, run against records the
@@ -740,7 +756,7 @@ const CATEGORY_RULES = [
     // and landing it here rather than the catch-all is also what keeps that
     // catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|email-auth-check|pwa-installability-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check)/.test(
         slug,
       ),
   },
