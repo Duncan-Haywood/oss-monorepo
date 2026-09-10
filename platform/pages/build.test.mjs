@@ -3912,6 +3912,70 @@ test('surfaceExternalFetchHosts does not flag a .mjs file that fetches only a sa
   assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
 });
 
+test('surfaceExternalFetchHosts does not treat the word "fetch(" inside a comment as a real fetch-shaped call', async () => {
+  // cors-misconfig-check/probe.mjs explains, in its header comment, why it
+  // deliberately does NOT use fetch() -- and says so using the literal text
+  // "fetch()" twice. That alone used to satisfy the scanner's `/fetch\w*\(/`
+  // trigger, turning on the catch-all rule ("grab every https:// literal in
+  // this file") for a file that makes no fetch call anywhere in its real
+  // code. The catch-all then published the un-resolved half of this file's
+  // own template-literal test fixtures -- `cors-probe-${randomBytes(6)...}`,
+  // `evil-${hostname}` -- on /about/, llms.txt and every guide page's
+  // "except on..." sentence, mixed in with genuine hosts like dns.google.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-comment-'));
+  await fs.writeFile(
+    path.join(dir, 'probe.mjs'),
+    `// Uses Node's http/https clients deliberately, not fetch(): fetch()
+    // cannot set a spoofed Origin header, which is the whole point here.
+    import { randomBytes } from 'node:crypto';
+    export function buildProbeSet(targetUrl, { randomOrigin } = {}) {
+      const hostname = new URL(targetUrl).hostname;
+      const nonce = randomOrigin ?? \`https://cors-probe-\${randomBytes(6).toString('hex')}.invalid\`;
+      return [
+        { label: 'reflect', requestOrigin: nonce },
+        { label: 'suffix-match', requestOrigin: \`https://evil-\${hostname}\` },
+      ];
+    }`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
+});
+
+test('surfaceExternalFetchHosts skips a doc comment\'s illustrative example host even when the file makes a real fetch call elsewhere', async () => {
+  // A `//` comment explaining what an attack-style Origin header looks like
+  // ("https://evil-target.example.com") is documentation, not a network
+  // target -- but the catch-all rule read raw source text, so once a file's
+  // real fetch() call turned it on, an example host mentioned only in a
+  // comment was indistinguishable from one actually requested.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-doc-example-'));
+  await fs.writeFile(
+    path.join(dir, 'lookup.mjs'),
+    `// e.g. a suffix match: "https://evil-target.example.com" is not the
+    // real target and must never be requested or reported as one.
+    export async function lookup(name) {
+      return fetch(\`https://dns.google/resolve?name=\${encodeURIComponent(name)}\`);
+    }`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), ['dns.google']);
+});
+
+test('surfaceExternalFetchHosts does not report an un-resolved template placeholder as a host', async () => {
+  // ai-crawler-access-check/cli.mjs genuinely calls fetch() -- against
+  // whatever domain the CLI's own user names, via `fetch(\`https://${input}\`
+  // )\`. The catch-all's blind quoted-string scan grabbed that literal
+  // template text whole, and `new URL('https://${input}').host` happily
+  // returns the string `${input}` -- a WHATWG URL parse succeeding is not
+  // proof the text names a real host.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-placeholder-'));
+  await fs.writeFile(
+    path.join(dir, 'cli.mjs'),
+    `export async function fetchText(input) {
+      const res = await fetch(\`https://\${input}\`, { redirect: 'follow' });
+      return res.text();
+    }`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
+});
+
 test('a category holding a documented external-call exception says so, not "nothing you type is uploaded" unconditionally', async () => {
   // A category's "nothing you type is uploaded" line is a privacy claim, not
   // decoration -- and it is false for a category that files a tool like
