@@ -1034,3 +1034,100 @@ def test_a_clean_cluster_restore_says_nothing_about_failing(box):
     assert result.returncode == 0, result.stderr
     assert "cluster restore FAILED" not in result.stderr
     assert "cluster restore failed" not in result.stderr
+
+
+# --------------------------------------------------------------------------
+# The dry run's credential half, which must not need SSH.
+#
+# `DRY_RUN=1` is documented at the top of the script as "print the plan and
+# the detected mode, change nothing", and `portfolio/ledger/decision_queue.py`
+# offers it to the account owner as the way to see the plan "without changing
+# anything". Until 2026-09-10 every line of it lived below the SSH gate, so on
+# the one machine that matters -- the owner's, before they have loaded the
+# private key -- it printed nothing at all and exited 1.
+#
+# That is the wrong way round for this particular script. The owner holds
+# HETZNERSSHKEY's counterpart for a single session; the run they make with it
+# sets seven environment variables, and getting one wrong is silent. The most
+# expensive of those mistakes is `OPENAI_API_KEY` where `CODEX_AUTH_JSON` was
+# meant: both credential the Codex worker, and only one of them draws on the
+# ChatGPT plan's included quota rather than billing per token. The script has
+# always said so -- from below the gate, where it could not be read until the
+# window was already open.
+
+
+def test_dry_run_prints_the_extras_plan_without_any_ssh(box):
+    """The half of the rehearsal that needs no key must happen before the key."""
+    result = box.run(CONFIRM="", DRY_RUN=1, CP="root@0.0.0.0",
+                     WITH_CODEX_HOST=1, WITH_GITHUB_RUNNER_HOST=1)
+
+    assert "would install the Codex host governor" in result.stdout
+    assert "would install the GitHub Actions runner" in result.stdout
+    assert "install-codex-host.sh" not in box.log()
+
+
+def test_dry_run_flags_the_metered_key_without_any_ssh(box):
+    """The mistake worth catching before the window, not during it."""
+    result = box.run(CONFIRM="", DRY_RUN=1, CP="root@0.0.0.0",
+                     WITH_CODEX_HOST=1, OPENAI_API_KEY="sk-test")
+
+    assert "METERED OPENAI_API_KEY" in result.stdout, (
+        "a dry run without SSH said nothing about the credential that bills "
+        "per tick, which is the one the owner most needs to catch early"
+    )
+
+
+def test_dry_run_flags_a_missing_site_token_without_any_ssh(box):
+    result = box.run(CONFIRM="", DRY_RUN=1, CP="root@0.0.0.0",
+                     WITH_PORTFOLIO_SITE_HOST=1)
+
+    assert "NO SITE_GH_TOKEN" in result.stdout
+
+
+def test_dry_run_names_the_extras_when_none_were_requested(box):
+    """An empty plan should say what it could have carried.
+
+    All three extras need the same SSH key, so the run that has it is the run
+    to add them on. A dry run that printed nothing would not say that.
+    """
+    result = box.run(CONFIRM="", DRY_RUN=1, CP="root@0.0.0.0")
+
+    assert "WITH_CODEX_HOST=1" in result.stdout
+    assert "WITH_GITHUB_RUNNER_HOST=1" in result.stdout
+    assert "WITH_PORTFOLIO_SITE_HOST=1" in result.stdout
+
+
+def test_a_dry_run_stopped_by_ssh_says_what_it_did_check(box):
+    """`UNRUN`, not `FAILED`.
+
+    The same discrimination `platform/ci/run_workflow_locally.py` draws: a
+    stop that means "could not reach the boxes" must not read as a stop that
+    means "your environment is wrong", or the reader learns to ignore both.
+    """
+    result = box.run(CONFIRM="", DRY_RUN=1, CP="root@0.0.0.0",
+                     WITH_CODEX_HOST=1)
+
+    assert result.returncode != 0, "an incomplete dry run must not exit 0"
+    assert "WERE checked" in result.stderr
+    assert "addressing probe" in result.stderr
+
+
+def test_a_real_run_stopped_by_ssh_does_not_claim_a_dry_run(box):
+    """The note above belongs to DRY_RUN only."""
+    result = box.run(CP="root@0.0.0.0", WITH_CODEX_HOST=1)
+
+    assert result.returncode != 0
+    assert "WERE checked" not in result.stderr
+
+
+def test_a_reachable_dry_run_still_ends_with_the_whole_plan(box):
+    """Reaching the boxes must not cost the reader the credential lines."""
+    result = box.run(CONFIRM="", DRY_RUN=1, WITH_CODEX_HOST=1,
+                     CODEX_AUTH_JSON='{"tokens":{}}')
+
+    assert result.returncode == 0, result.stderr
+    assert "detected: public" in result.stdout
+    assert "would install" in result.stdout
+    # The credential line appears at step 0 and again in the closing block, so
+    # the reader never has to scroll past the addressing output to re-read it.
+    assert result.stdout.count("built-in ChatGPT quota") == 2
