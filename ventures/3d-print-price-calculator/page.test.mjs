@@ -184,3 +184,17 @@ test("index links one hop to the craft-fair-booth-calculator sibling", () => {
     "index must link ../craft-fair-booth-calculator/ so a crawler reaches that tool in one hop",
   );
 });
+
+// One maker, two halves of the same build: the printed enclosure and the
+// circuit inside it. The academy's hub is the catalogue's only electronics
+// surface and had no inbound sibling link at all, so a crawler entering
+// anywhere else could not reach it in one hop -- and with sitemap enumeration
+// unavailable on this origin (platform/ci/pages_state.py's `indexing` row) a
+// page reachable only from the sitemap is reachable from nothing.
+test('index links one hop to the ai-engineering-academy electronics tools', () => {
+  assert.match(
+    html,
+    /href="\.\.\/ai-engineering-academy\/"/,
+    'index must link ../ai-engineering-academy/ so crawlers reach the electronics calculators in one hop',
+  );
+});

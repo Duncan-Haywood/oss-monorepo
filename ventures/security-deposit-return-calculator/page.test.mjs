@@ -24,3 +24,13 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(robots, /sitemap\.xml/);
   assert.match(sitemap, /index\.html/);
 });
+
+// Reciprocal of the link in str-host-payout-calculator's footer: the same
+// property owner, the other letting model.
+test("index links one hop to the str-host-payout-calculator sibling", () => {
+  assert.match(
+    page("index.html"),
+    /href="\.\.\/str-host-payout-calculator\/"/,
+    "index must link ../str-host-payout-calculator/ so a reader comparing letting models reaches it in one hop",
+  );
+});
