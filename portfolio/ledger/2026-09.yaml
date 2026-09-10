@@ -25014,3 +25014,58 @@ entries:
         which is real content -- every mirrored page prints the tool count in
         its back-link.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Measured that `python3 -m pytest gitops/tests -q` -- the line
+        CLAUDE.md's starvation checklist sends every session to -- reported
+        "533 passed, 25 skipped" on a clean checkout of main, and that 17 of
+        those 25 skips were test_front_door_serving.py: the only check in the
+        tree that boots a real nginx over the front door's own built
+        ConfigMaps and asks it for a tool page. Its docstring is explicit that
+        both ways the gz-only mirror can go dark are textually clean, so every
+        other apex check passes while the whole product surface 404s. Six more
+        were test_load_ssh_key.py, guarding the loader for HETZNERSSHKEY --
+        the credential every route to the Hetzner boxes is blocked on.
+      - >-
+        Both skipped for a missing binary, not a defect. One apt-get line
+        (nginx-light, openssh-client) and both ran: 19 pass and 11 pass. The
+        nginx front-door config genuinely serves and the SSH key loader is
+        sound -- neither had been demonstrated in a session before today. The
+        same suite now reads 557 passed / 1 skipped, so 24 assertions that
+        were silently unrun are now executed.
+      - >-
+        Added platform/ci/guard_state.py: runs the checklist's pytest suites,
+        reads what actually skipped, and sorts each reason into FIXABLE (names
+        the install command), ENVIRONMENTAL (wants a GitHub-hosted runner) or
+        UNCLASSIFIED, printed loudest because an unrecognised reason is how
+        its own table would go stale. --require-runnable exits 1 while a
+        fixable skip stands, the same discipline as pages_state.py
+        --require-current: a reminder competes with everything else in a long
+        file, an exit code does not. It reads what skipped rather than
+        scanning for skip predicates, because a static scan would miss every
+        guard whose condition is computed and invent guards from which() calls
+        that skip nothing.
+      - >-
+        This is the sixth instance of the shape CLAUDE.md already records five
+        times (platform/proposal, privacy/webcheck, the shallow-clone history
+        blobs, browser_checks' 48 unrun axe violations, run_workflow_locally's
+        UNRUN steps). The new half is the direction: those were reds and
+        absences, and this is a *green* that means nothing ran, which is worse
+        because nobody investigates a pass. hetzner-gitops-ci.yml had already
+        learned it and installs nginx-light with a comment saying why -- only
+        the list a session follows during a starvation window had not, which
+        is exactly the window where CI running a guard is the same as nothing
+        running it.
+      - >-
+        Verified locally (Actions still starved per infra_state.yaml, run
+        34423728610). pytest gitops/tests 557 passed / 1 skipped; portfolio
+        ledger/scoring/router/usage/pipeline + infra/tests 435 passed; all 23
+        platform/ci unittest modules green including the new test_guard_state
+        (15 tests); agent_review OK; checklist_coverage clean;
+        validate_workflows 298 valid; run_workflow_locally --for-changes
+        portfolio-validate 66/66 run steps passed, the 4 not run being the
+        external agent-cross-review reviewer jobs.
+    mrr_end: 0

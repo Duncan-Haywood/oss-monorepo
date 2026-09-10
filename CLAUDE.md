@@ -147,6 +147,61 @@ pytest, so that `gitops/tests` line exits `No module named pytest` rather than
 failing any test. Do not read that as a clean run. The `platform/ci` line needs
 no pytest — those suites are `unittest`.)
 
+**`pip install pytest` is not the whole barrier, and the rest of it has been
+invisible since it was written (added 2026-09-10).** That parenthesis warns
+about the run that fails loudly. The run that *succeeds* needs two more lines:
+
+```
+apt-get install -y --no-install-recommends nginx-light openssh-client
+python3 platform/ci/guard_state.py --require-runnable   # what still is not running
+```
+
+Measured that day on a clean checkout of `main`, with pytest already
+installed, the `gitops/tests` line read `533 passed, 25 skipped` — which is
+what a clean run looks like, and is why the sessions reporting the tree green
+off it were not being careless. **Seventeen of those 25 were
+`test_front_door_serving.py`**: the only check in this tree that boots a real
+nginx over the front door's own built ConfigMaps and asks it for a tool page.
+Its own docstring says why it is the one worth having — both ways the gz-only
+mirror can go dark (`try_files` on an absent uncompressed name, a positional
+capture in a `rewrite`) are *textually clean*, so every other check on the
+apex passes while the entire product surface 404s. Six more were
+`test_load_ssh_key.py`, guarding the loader for `HETZNERSSHKEY`, the one
+credential every route to the Hetzner boxes is blocked on.
+
+Both skipped for a missing binary, both installed in one `apt-get`, and both
+then passed — 19 and 11. Nothing was broken. That is the point: the session
+could not have known that, and neither could the ones before it. The CI
+workflow had already learned this (`hetzner-gitops-ci.yml` installs
+`nginx-light` and carries a comment explaining why); only the list a session
+follows during a starvation window had not — which is precisely the window in
+which CI running them is the same as nothing running them.
+
+This is the same defect as the Playwright block below, reached from a sixth
+direction, and the arithmetic is identical: one install line was the entire
+barrier between a correct guard and a guard nobody runs. `guard_state.py` is
+that command turned into a check — it runs the checklist's pytest suites,
+reads what actually skipped, and sorts each reason into **FIXABLE** (names a
+tool, prints the install line), **ENVIRONMENTAL** (wants a GitHub-hosted
+runner; genuinely not about this tree) or **UNCLASSIFIED**, which it prints
+loudest because an unrecognised reason is how its own table would go stale.
+`--require-runnable` exits 1 while a fixable skip stands, for the same reason
+`pages_state.py --require-current` does: a reminder competes with everything
+else in a long file, and an exit code does not.
+
+It reads what skipped rather than scanning the sources for skip predicates,
+deliberately — a static scan would miss every guard whose condition is
+computed (`test_front_door_serving.py` resolves nginx from a candidate list,
+not a literal) while inventing guards from `shutil.which` calls that skip
+nothing. Same import-don't-restate rule this file records three times over.
+
+**A skip is a green that means nothing ran.** `run_workflow_locally.py` closed
+this hole at the *step* level on 2026-09-07 by reporting `UNRUN` rather than
+`FAILED`, on the stated grounds that a red meaning "nothing ran" wearing the
+costume of a red meaning "your code is broken" trains a reader to ignore the
+result. A skip is that costume worn the other way round, and it is worse,
+because nobody investigates a pass.
+
 **The same shape had a third instance, in `node --test` rather than pytest, and
 it is closed (2026-09-07).** `platform/webcheck/page-integrity.test.mjs` pins
 its checker against the exact `index.html` blobs from the commits where two
