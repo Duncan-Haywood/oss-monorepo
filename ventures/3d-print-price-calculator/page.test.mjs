@@ -155,3 +155,10 @@ test('the privacy copy explains save, forget, and the shareable link consistentl
   const visible = html.match(/<h3>Does anything I type get uploaded\?<\/h3><p>([^<]+)<\/p>/)[1];
   assert.equal(visible, answer, 'visible FAQ answer must match its JSON-LD twin exactly');
 });
+
+test("index links one hop to the apparel-decoration-price-calculator sibling", () => {
+  assert.ok(
+    html.includes('href="../apparel-decoration-price-calculator/"'),
+    "index must link ../apparel-decoration-price-calculator/ so a crawler reaches that tool in one hop",
+  );
+});

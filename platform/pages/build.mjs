@@ -454,8 +454,20 @@ const CATEGORY_RULES = [
     // route members of this section already share. Listed here by exact
     // prefix rather than left in the catch-all, which is where every entry
     // above it started.
+    //
+    // `apparel-decoration-price-calculator` joined 2026-09-10 for the same
+    // reason as `wash-and-fold` directly above: a small shop turning its own
+    // labour, machine and material costs into a number it quotes a customer.
+    // It is not a trade bid (nothing is priced by area or by site visit) and
+    // not a marketplace fee tool. The one section that could also have
+    // claimed it is `solo-earner`, which holds `3d-print-price-calculator` —
+    // the tool this one is cross-linked to and the closest thing to it by
+    // shape. That section groups on the *earner*, a person monetising their
+    // own output, and a four-person shop quoting a corporate order is not
+    // that; the axis here is a business pricing work for a customer, which is
+    // what this is.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration)/.test(
         slug,
       ),
   },
@@ -5570,8 +5582,20 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
     .replace(/<\/body>/i, `${footer}\n</body>`);
 }
 
-/** A copy-link button a venture wrote itself, in any of its four spellings. */
-const OWN_COPY_BUTTON = /<button[^>]*\bid="(share|copyShare|copyLink|shareLink)"/;
+/**
+ * A copy-link button a venture wrote itself, in any of its five spellings.
+ *
+ * `copy-link` was added 2026-09-10, found while fixing the same gap in
+ * `roundtrip.mjs` (which had grown eleven recognised spellings to this file's
+ * four): `wash-and-fold-price-calculator`, `sponsor-ready` and
+ * `ai-engineering-academy/tools/rc-filter-calculator` all ship a real button
+ * under this id. None currently sit in the bid-calculator family this gate
+ * guards, so the duplicate-button bug this regex exists to prevent has not
+ * fired yet for them -- but the next venture that reuses this id and *is* a
+ * bid calculator would silently get two share controls, exactly the
+ * `freelance-retainer-calculator` failure documented below.
+ */
+const OWN_COPY_BUTTON = /<button[^>]*\bid="(share|copyShare|copyLink|shareLink|copy-link)"/;
 
 /**
  * Does this page already carry a share control of its own?
