@@ -669,6 +669,145 @@ class RefusesToPublishAnUnmergedSource(unittest.TestCase):
             )
 
 
+class AnnouncingThePublishedSnapshot(unittest.TestCase):
+    """`publish-branch.sh` announces to IndexNow; the workflow no longer does.
+
+    The announcement used to live only in this workflow's own `Notify IndexNow`
+    step. That step needs an Actions runner, runners have been starved since
+    2026-09-04, and so every publish that actually reached the live site in
+    that window was a by-hand `publish-branch.sh` run -- which had no such
+    step and announced nothing, silently. `platform/marketing/README.md`
+    covered the gap in prose ("Run it after any publish-branch.sh that
+    actually pushes"), which is the mitigation this repository has three times
+    recorded as insufficient.
+
+    It matters on this origin specifically: `pages_state.py`'s `indexing` row
+    measured that sitemap auto-discovery cannot happen from a project-Pages
+    subpath, so IndexNow is the only page-enumeration route the catalogue has.
+
+    These cases pin the three ways that fix could quietly come undone.
+    """
+
+    SHELL = ROOT / "platform" / "pages" / "publish-branch.sh"
+    FUNCTION = "announce_to_indexnow"
+
+    def setUp(self) -> None:
+        self.assertTrue(self.SHELL.is_file(), f"{self.SHELL} is missing")
+        self.source = self.SHELL.read_text()
+
+    def _function_body(self) -> str:
+        """The function's own text, so it can be run without the whole script.
+
+        Extracted rather than sourced because the script is top-to-bottom under
+        `set -euo pipefail` and would try to publish. If the function is
+        renamed this returns nothing and every case below fails by name, which
+        is the intended way for a rename to surface.
+        """
+        start = self.source.find(f"{self.FUNCTION}() {{")
+        self.assertNotEqual(
+            start, -1, f"{self.FUNCTION} is not defined in {self.SHELL.name}"
+        )
+        end = self.source.find("\n}\n", start)
+        self.assertNotEqual(end, -1, f"{self.FUNCTION} has no closing brace")
+        return self.source[start : end + 3]
+
+    def _run_function(self, node_exit: int, env: dict | None = None):
+        """Run the function alone, with a stub `node` that exits how we choose."""
+        import subprocess
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            bin_dir = tmp_path / "bin"
+            bin_dir.mkdir()
+            stub = bin_dir / "node"
+            stub.write_text(f"#!/bin/sh\nexit {node_exit}\n")
+            stub.chmod(0o755)
+
+            harness = (
+                "set -euo pipefail\n"
+                'say() { printf "%s\\n" "$*"; }\n'
+                f'repo_root="{tmp_path}"\n'
+                f"{self._function_body()}\n"
+                # `|| echo` rather than a bare call: under `set -e` a non-zero
+                # return would end the harness, and "did it return 0?" is
+                # precisely what the deploy-must-not-fail case asserts.
+                f"{self.FUNCTION} || echo RETURNED_NONZERO\n"
+            )
+            run_env = {
+                "PATH": f"{bin_dir}:/usr/bin:/bin",
+                **(env or {}),
+            }
+            return subprocess.run(
+                ["bash", "-c", harness],
+                capture_output=True,
+                text=True,
+                env=run_env,
+            )
+
+    def test_the_push_branch_announces_the_snapshot(self) -> None:
+        """The call sits on the pushed path, and only there."""
+        self.assertIn(
+            self.FUNCTION + "\n",
+            self.source,
+            f"{self.SHELL.name} defines {self.FUNCTION} but never calls it",
+        )
+        pushed = self.source.find('say "pushed"')
+        not_pushed = self.source.find("not pushed (set PUSH=1 to push)")
+        self.assertNotEqual(pushed, -1)
+        self.assertNotEqual(not_pushed, -1)
+        call = self.source.find(f"  {self.FUNCTION}\n", pushed)
+        self.assertNotEqual(call, -1, "the announcement is not on the pushed path")
+        self.assertLess(
+            call,
+            not_pushed,
+            "the announcement must sit inside the PUSH=1 branch -- announcing a "
+            "snapshot that was built and verified but never pushed tells the "
+            "engines about content that is not live",
+        )
+
+    def test_the_workflow_does_not_also_submit(self) -> None:
+        """No second copy: both workflow steps go through the script."""
+        doc = load()
+        runs = [str(s.get("run", "")) for s in doc["jobs"]["publish"]["steps"]]
+        submitting = [r for r in runs if "indexnow" in r and "--submit" in r]
+        self.assertEqual(
+            submitting,
+            [],
+            "the workflow invokes indexnow.mjs --submit directly as well as "
+            "through publish-branch.sh, so a real publish would double-submit",
+        )
+
+    def test_a_host_without_egress_does_not_fail_the_publish(self) -> None:
+        """Exit 3 (EXIT_NO_EGRESS) reports; it never fails a live deploy."""
+        result = self._run_function(node_exit=3)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("RETURNED_NONZERO", result.stdout)
+        combined = result.stdout + result.stderr
+        self.assertIn("no egress", combined)
+        self.assertIn(
+            "The site IS live",
+            combined,
+            "a reader must not mistake a missed notification for a failed deploy",
+        )
+
+    def test_any_other_failure_is_reported_and_still_does_not_fail(self) -> None:
+        result = self._run_function(node_exit=1)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("RETURNED_NONZERO", result.stdout)
+        self.assertIn("submission failed", result.stdout + result.stderr)
+
+    def test_a_successful_submission_says_so(self) -> None:
+        result = self._run_function(node_exit=0)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("IndexNow: submitted", result.stdout)
+
+    def test_it_can_be_switched_off_without_editing_the_script(self) -> None:
+        """INDEXNOW=0, for a rollback you deliberately do not announce."""
+        result = self._run_function(node_exit=0, env={"INDEXNOW": "0"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("skipped (INDEXNOW=0)", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

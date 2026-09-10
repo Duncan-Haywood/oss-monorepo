@@ -14,6 +14,7 @@ import {
   submit,
   readerFor,
   assertKeyFilePublished,
+  EXIT_NO_EGRESS,
 } from './indexnow.mjs';
 import { INDEXNOW_KEY, indexNowKeyFileName } from '../pages/build.mjs';
 
@@ -139,3 +140,32 @@ test('CLI refuses an empty URL list rather than submitting nothing', () =>
     await fs.writeFile(path.join(dir, 'catalog.json'), JSON.stringify({}));
     assert.throws(() => execFileSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8', stdio: 'pipe' }));
   }));
+
+// A transport failure and a rejection by the API mean different things and
+// need different reactions, and until 2026-09-10 `submit` could not express
+// the first at all -- `fetch` rejected straight out of it, past a CLI with no
+// catch. That made the single most likely outcome of `--submit` in an agent
+// sandbox (whose egress proxy answers 403 to CONNECT for api.indexnow.org) a
+// raw `TypeError: fetch failed` stack trace, indistinguishable at a glance
+// from this script being broken.
+test('submit reports a transport failure as a result rather than throwing', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => {
+    throw new TypeError('fetch failed');
+  });
+  const result = await submit(buildPayload({ baseUrl: 'https://example.test/site/', urls: ['https://example.test/site/'] }));
+  assert.equal(result.ok, false);
+  // Status 0 rather than an HTTP code: nothing answered, so there is no code
+  // to report, and a caller switching on `status` must not mistake this for
+  // one the API chose.
+  assert.equal(result.status, 0);
+  assert.match(result.error, /fetch failed/);
+});
+
+test('EXIT_NO_EGRESS is distinct from the ordinary failure exit', () => {
+  // publish-branch.sh's `announce_to_indexnow` switches on this to tell "this
+  // host cannot reach IndexNow" (expected; never fails a deploy that already
+  // succeeded) from "IndexNow refused what we sent" (a real defect). Collapsing
+  // them back to 1 would silently turn the second into the first.
+  assert.notEqual(EXIT_NO_EGRESS, 0);
+  assert.notEqual(EXIT_NO_EGRESS, 1);
+});

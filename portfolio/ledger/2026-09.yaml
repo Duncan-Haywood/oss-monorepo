@@ -21337,3 +21337,97 @@ entries:
         this decision and should be re-read with `browser_state.py` before
         trusting it current.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session under the standing product-first mandate.
+        Open-PR queue was empty (`list_pull_requests` state=open and a
+        `search_pull_requests` cross-check both returned 0), and
+        `git branch -r --no-merged origin/main` returned 0 branches, so the
+        three-PR merge quota was met with an empty queue rather than skipped.
+      - >-
+        Confirmed `main` itself is green before building on it:
+        `run_workflow_locally.py --tree` passed 9/9 selected workflows. The
+        only not-run steps were `uses:` steps (checkout/setup-node/
+        setup-python) and `portfolio-pages.yml/deploy`, which the tool reports
+        separately and which are not failures.
+      - >-
+        Closed a live route-drift hole in the deploy path, which is the
+        account owner's first-named priority. The IndexNow announcement --
+        this catalogue's ONLY page-enumeration route, because
+        `pages_state.py`'s `indexing` row measured that sitemap
+        auto-discovery cannot happen from a project-Pages subpath -- existed
+        in exactly one place: a `Notify IndexNow` step in
+        `.github/workflows/publish-pages-branch.yml`. That workflow needs an
+        Actions runner, and runners have been starved since 2026-09-04, so
+        every publish that has actually reached the live site in that window
+        was a by-hand `platform/pages/publish-branch.sh` run -- which had no
+        such step and announced nothing, silently. The gap was covered by one
+        line of prose in `platform/marketing/README.md` ("Run it after any
+        publish-branch.sh that actually pushes"), which is the mitigation
+        this repository has already recorded as insufficient three times
+        (`pages_state.py --require-current`, `platform/proposal/`, the
+        front-door mirror).
+      - >-
+        Fix: `publish-branch.sh` now announces the snapshot itself in
+        `announce_to_indexnow`, immediately after the force-push it just
+        made, and the workflow's duplicate step is removed so there is one
+        definition of "publishing includes announcing" rather than a second
+        copy only the runner-borne route would ever execute. Both workflow
+        steps invoke the script, so the workflow still announces on a real
+        publish. Placement is load-bearing and correct by construction: the
+        script does `update-ref refs/heads/gh-pages` before it pushes, so
+        `indexnow.mjs --ref gh-pages` reads exactly the tree that went out.
+        The announcement never fails the publish -- by then the site is live,
+        and the likeliest reason to fail is a host with no egress, which is
+        not a broken deploy -- but it always reports which of three outcomes
+        happened. `INDEXNOW=0` skips it for a deliberate unannounced
+        rollback.
+      - >-
+        Second defect found and fixed in the same path: `submit()` called
+        `fetch` with no catch and the CLI had no handler, so a transport
+        failure rejected out of the process. That made the single most likely
+        outcome of `--submit` in an agent sandbox (the egress proxy answers
+        `403 to CONNECT` for `api.indexnow.org`, re-measured this session)
+        a raw `TypeError: fetch failed` stack trace -- indistinguishable at a
+        glance from the script being broken. It now returns
+        `{status: 0, ok: false, error}` and the CLI exits `EXIT_NO_EGRESS`
+        (3), distinct from 1, which is what lets the shell caller tell "this
+        host cannot reach IndexNow" from "IndexNow refused what we sent".
+      - >-
+        Verified (Actions starved, so run here per CLAUDE.md's starvation
+        policy): `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` 1194 passing / 0 failing;
+        `platform/ci` all 21 unittest modules OK; `gitops/tests` 490 passed /
+        25 skipped; portfolio ledger/scoring/router/usage/pipeline/infra 431
+        passed; `agent_review` 21 OK; `checklist_coverage.py` clean;
+        `regen.mjs` re-run and rewrote nothing (this change does not touch a
+        served surface); `build.mjs` + `check.mjs` clean (225 products, 882
+        pages, no dead links). The 6 new cases in
+        `test_publish_pages_branch.AnnouncingThePublishedSnapshot` were
+        checked against the pre-fix tree and all 6 fail there, so they are
+        not vacuous.
+      - >-
+        Measured rather than assumed, and it closed an avenue rather than
+        opening one: with sitemap auto-discovery unavailable, a crawler can
+        only reach a page by following links, so the internal link graph is
+        now load-bearing for the whole catalogue's indexability. Crawled the
+        built site from `index.html`: 880 of 882 pages are reachable, and the
+        2 that are not are `404.html` and `offline.html`, which must be. No
+        orphan work was needed -- the previous session's sibling-link pass
+        had already closed it.
+      - >-
+        Re-confirmed the owner's three named priorities are architecturally
+        complete and blocked on one action, so no new asks were added.
+        Deployment: `pages_state.py` reports `deployed: served` and the
+        `gh-pages` snapshot `current` at `main`'s tip. Codex CLI on the
+        Hetzner box under the owner's ChatGPT subscription quota
+        (`CODEX_AUTH_JSON`, not an API key): built in `gitops/agents/host/`
+        with a mandate already carrying this same three-PR-drain direction,
+        45 tests passing. Marketing on the Hetzner VMs:
+        `install-portfolio-site-host.sh` exists and is tested. All three wait
+        on `hetzner-ssh-key-is-a-public-key`, already ranked first in the
+        decision queue.
+    mrr_end: 0

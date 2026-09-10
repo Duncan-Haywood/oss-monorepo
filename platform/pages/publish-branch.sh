@@ -137,6 +137,81 @@ resolve_cname() {
   printf ''
 }
 
+# Tell IndexNow-participating engines that the snapshot just pushed exists.
+#
+# WHY THIS LIVES HERE AND NOT ONLY IN THE WORKFLOW
+#
+# `.github/workflows/publish-pages-branch.yml` has had a `Notify IndexNow` step
+# since the script was written, and `platform/marketing/README.md` closed its
+# IndexNow section with "Run it after any `publish-branch.sh` that actually
+# pushes." Both were correct and neither ran, because that workflow needs an
+# Actions runner and runners have been starved since 2026-09-04 -- so every
+# publish that has actually reached the live site in that window was a by-hand
+# run of *this* script, and every one of them skipped the announcement in
+# silence. The prose reminder was the only thing standing in the gap, which is
+# the failure mode this repository has now recorded three times against
+# `pages_state.py --require-current`, `platform/proposal/` and the front-door
+# mirror: a reminder competes with everything else in a long file, and an
+# executed step does not.
+#
+# It matters more here than the usual "keep two routes in step", because
+# IndexNow is not a nice-to-have on this origin. `pages_state.py`'s `indexing`
+# row measured that `robots.txt` -- and the `Sitemap:` line naming all 882
+# published pages -- is unreachable to a crawler on a project-Pages subpath, so
+# sitemap auto-discovery has never once happened for this catalogue. IndexNow
+# is the one enumeration route that survives that, because it names its key's
+# location in the request instead of assuming the host root. Skipping it left
+# the catalogue with no enumeration route at all.
+#
+# WHY IT NEVER FAILS THE PUBLISH
+#
+# By the time this runs the force-push has already succeeded and the site is
+# live. Failing the script here would report a *successful deploy* as a failure
+# -- and the most likely reason to fail is that the host has no egress to
+# api.indexnow.org, which is true of every agent session sandbox and is not a
+# defect in anything. So this reports and returns 0. What it must not do is
+# report *nothing*: the announcement is loud either way, which is the whole
+# point of moving it out of prose.
+#
+# `INDEXNOW=0` skips it, for a publish you deliberately do not want announced
+# (a rollback, or a snapshot you are about to replace).
+announce_to_indexnow() {
+  if [ "${INDEXNOW:-1}" = '0' ]; then
+    say "IndexNow: skipped (INDEXNOW=0)"
+    return 0
+  fi
+  if ! command -v node >/dev/null 2>&1; then
+    say "IndexNow: skipped -- no node on PATH. Announce with:"
+    say "    node platform/marketing/indexnow.mjs --submit"
+    return 0
+  fi
+
+  echo
+  echo "Announcing the published snapshot to IndexNow..."
+  local status=0
+  node "$repo_root/platform/marketing/indexnow.mjs" --submit || status=$?
+
+  case "$status" in
+    0)
+      say "IndexNow: submitted"
+      ;;
+    # `EXIT_NO_EGRESS` in indexnow.mjs. The request never left this machine,
+    # so nothing was submitted and nothing was broken -- name the next step
+    # rather than dressing an environment limit up as a failure.
+    3)
+      say "IndexNow: not announced -- this host has no egress to api.indexnow.org."
+      say "    The site IS live; only the notification did not go out. Re-run"
+      say "    'node platform/marketing/indexnow.mjs --submit' from a host with"
+      say "    egress (an Actions runner, or the Hetzner box under host mode)."
+      ;;
+    *)
+      say "IndexNow: submission failed (exit $status) -- see the output above."
+      say "    The site IS live; only the notification did not go out."
+      ;;
+  esac
+  return 0
+}
+
 # `actions/checkout` fetches one branch, so inside the publishing workflow the
 # serving branch is not in the clone at all -- which is precisely where an
 # unnoticed drop would be automated. Fetch it before reading, and when the ref
@@ -384,6 +459,7 @@ if [ "${PUSH:-}" = '1' ]; then
   # backwards case ruled out just above.
   git -C "$repo_root" push --force origin "refs/heads/$BRANCH:refs/heads/$BRANCH"
   say "pushed"
+  announce_to_indexnow
 else
   echo
   say "not pushed (set PUSH=1 to push)"
