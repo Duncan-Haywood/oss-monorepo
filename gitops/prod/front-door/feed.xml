@@ -62,6 +62,15 @@
     <summary type="text">Paste or load a Google Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON) and get a deterministic, item-by-item report of missing required fields, invalid GTIN checksums, malformed prices, and the documented disapproval triggers -- before the crawler finds them. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>GitHub Actions OIDC Trust Policy Checker — AWS sub/aud conditions</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/oidc-trust-policy-check/"/>
+    <id>tag:marisstella.dev,2026:tool/oidc-trust-policy-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste an AWS IAM role trust policy and see whether its GitHub Actions OIDC conditions actually restrict which repository, branch or environment can assume the role. Catches a missing sub condition, a wildcard that spans repositories, repo:org/name:* (which includes pull requests from forks), and a literal * under StringEquals. Nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>PWA Installability Checker — Manifest, Icons, Display Mode</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pwa-installability-check/"/>
     <id>tag:marisstella.dev,2026:tool/pwa-installability-check</id>

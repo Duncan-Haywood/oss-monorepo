@@ -24400,6 +24400,97 @@ entries:
         node --test across platform/marketing + platform/pages 1218/1218,
         no regression; checklist_coverage.py clean.
     mrr_end: 0
+  - venture: oidc-trust-policy-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture. The open-PR queue was empty at the start of
+        the run (0 open PRs, verified against the API rather than an earlier
+        session's list), so the standing three-PR merge floor was satisfied
+        vacuously and the run went straight to product work.
+        session_gate.py returned PROCEED with an empty build-now pipeline,
+        and DIRECTION.md's 2026-09-06 owner note ranks a genuine fresh niche
+        above another parity feature on a prototype nobody has visited.
+        Picked the browser-tool/CLI-checker archetype over a 239th
+        <trade>-bid-calculator.
+      - >-
+        Shipped a free browser tool (+ zero-dependency CLI) that reads an AWS
+        IAM role trust policy federating GitHub Actions over OIDC and reports
+        whether its conditions actually restrict which repository, branch or
+        environment may assume the role. Findings: no `sub` condition at all
+        (assumable by any repository on GitHub), a wildcard reaching past one
+        owner/repo pair, `repo:owner/name:*` (which admits the
+        `pull_request` context and therefore a fork's pull request), an
+        explicit `pull_request` context, a negated operator that excludes
+        rather than pins, GitHub claim keys on a non-GitHub principal, and a
+        missing or wildcarded `aud`.
+      - >-
+        The differentiation is operator semantics in both directions, which
+        is what a naive asterisk grep gets wrong. A `*` under `StringEquals`
+        is a literal, so the condition never matches a real token and the
+        role cannot be assumed at all -- that fails CLOSED and is reported as
+        a notice, not a wildcard danger, because a checker that called it
+        critical would send its reader to tighten a policy that is already
+        refusing everybody while the real symptom is a broken deploy. In the
+        other direction, IAM grants when ANY value in a multi-value condition
+        matches, so the tool reports the WIDEST entry rather than the first:
+        four pinned branches plus one `repo:org/name:*` is as open as the
+        wildcard alone, and reading the list top-down finds the four good
+        rows first. The bundled worked example is exactly that case.
+      - >-
+        Also recorded, because it is the misconception the tool exists to
+        correct: pinning `aud` restricts nothing about WHO. Every AWS/GitHub
+        OIDC integration uses the audience `sts.amazonaws.com`, so a policy
+        that pins `aud` and leaves `sub` unconstrained is assumable by a
+        workflow in any repository on GitHub, while looking like a condition
+        block that does its job.
+      - >-
+        Screened with duplicate_check.py before building: closest matches
+        were package-exports-drift-check, actions-self-hosted-exposure-check,
+        actions-cache-poisoning-check and actions-injection-check, all at
+        0.11 against the final description -- far under the 0.45 flag bar.
+        The distinction is load-bearing rather than cosmetic: every existing
+        actions-* venture scans the repository's workflow YAML, and this
+        reads the cloud IAM trust policy those workflows authenticate
+        against -- the opposite end of the same trust boundary, in a
+        different document. Scored per pipeline/README.md's 8-dimension
+        rubric: composite 6.333, floor 1 on ai_leverage (no AI in the
+        product, deliberately -- deterministic grammar parsing), both gates
+        (liability_containment, ethical_robustness) pass. Basis and gate
+        notes in portfolio/scoring/venture-scores.yaml.
+      - >-
+        Two guards caught real defects in this venture's own first draft, and
+        both are the kind CLAUDE.md records as having cost live product
+        before. `faq-visible.test.mjs` found the page's FAQPage JSON-LD
+        diverging from its visible copy by punctuation (`--` against `—`) in
+        four answers -- the same divergence class that shipped in #3671.
+        `siblings.test.mjs` found the new tool was a crawlable orphan: it
+        linked out to two sibling checkers and nothing linked back, so no
+        crawler could reach it from another tool in one hop. That matters
+        more than usual on this origin, where sitemap enumeration is
+        unavailable (pages_state.py's `indexing` row) and an internal link is
+        the only route. Closed the pair reciprocally from
+        actions-permissions-check, with a test on each side pinning the href,
+        so the orphan budget stays at 0 rather than being raised.
+      - >-
+        Verified before pushing, with runners starved (ci_starvation.py):
+        the venture's own 72 `node --test` assertions across
+        analyze/check/usage/page, covering true positives AND true negatives
+        (a correctly pinned policy must return zero findings, or the tool is
+        noise) plus every operator-semantics edge case. Both CLI journeys
+        exercised by hand -- the headline "aud pinned, sub absent" policy
+        exits 1 naming the finding, a correctly pinned policy exits 0, and
+        the `aws iam get-role | node check.mjs -` stdin route works.
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        1206/1206. `pytest gitops/tests` 532 passed (after fixing forward the
+        mirrored-tool count 237 -> 238 in the four places CLAUDE.md names,
+        and re-running gitops/ci/sync_readme_counts.py for the added
+        workflow). `pytest portfolio/...` 435 passed. All 20 platform/ci
+        unittest modules OK; agent_review's 21 OK. score_ventures.py --check,
+        checklist_coverage.py and build+check.mjs (238 products, 929 pages,
+        no dead links) all clean.
+    mrr_end: 0
   - venture: social-preview-check
     agent_spend_usd: null
     human_hours: 0
