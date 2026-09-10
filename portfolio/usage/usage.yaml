@@ -5084,3 +5084,27 @@ products:
           alone. Counts are local, opt-in, off by default, and honor
           DNT/GPC, so zero is the expected reading for a tool nobody has
           visited or switched the counter on for yet.
+  - slug: canonical-tag-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-10
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route from its first commit: a CLI + browser report
+          viewer that fetches a URL for real, reads its canonical tag(s),
+          and follows a single canonical to check it actually resolves and
+          isn't itself noindexed. `check_run` is the signal worth watching
+          against repeat use: a developer or SEO practitioner debugging one
+          page returns to run it again after a fix, or wires the CLI into
+          their own CI as a regression gate (which would not register here
+          at all, since that traffic never touches this page). First-
+          visitor channel is technical-SEO forums (r/TechSEO, r/SEO,
+          Google Search Central's help forum) and developers searching the
+          specific failure ("conflicting canonical tags", "canonical
+          points to noindex page"). Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for
+          a tool nobody has visited or switched the counter on for yet.

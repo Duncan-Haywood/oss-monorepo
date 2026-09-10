@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 237,
-  "collection_total": 237,
+  "served_here": 239,
+  "collection_total": 239,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 26
+      "tool_count": 28
     },
     {
       "id": "evidence",
@@ -701,6 +701,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a kitchen cabinet refinish from doors, drawer fronts, face frames, hardware, degrease, and a dark-to-light extra coat — then see price per door, price per painted piece, and the walk-away number.",
       "pages": 3
+    },
+    {
+      "slug": "canonical-tag-check",
+      "name": "Canonical Tag Checker — Conflicting, Cross-Domain & Dead-End Canonicals",
+      "url": "https://marisstella.dev/tools/canonical-tag-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical that 404s or is itself marked noindex. Nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "card-processing-fee-audit",
@@ -1391,6 +1399,14 @@
       "pages": 3
     },
     {
+      "slug": "oidc-trust-policy-check",
+      "name": "GitHub Actions OIDC Trust Policy Checker — AWS sub/aud conditions",
+      "url": "https://marisstella.dev/tools/oidc-trust-policy-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: paste an AWS IAM role trust policy and see whether its GitHub Actions OIDC conditions actually restrict which repository, branch or environment can assume the role. Catches a missing sub condition, a wildcard that spans repositories, repo:org/name:* (which includes pull requests from forks), and a literal * under StringEquals. Nothing is uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "package-exports-drift-check",
       "name": "package.json Exports Drift Check — Does \"exports\" Point at Files That Exist?",
       "url": "https://marisstella.dev/tools/package-exports-drift-check/",
@@ -1540,7 +1556,7 @@
       "url": "https://marisstella.dev/tools/pwa-installability-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: run a CLI that fetches your page, its Web App Manifest, and every icon it lists, then paste the JSON here for a plain-English report against Chrome's installability criteria -- the same checks Lighthouse's installable-manifest audit runs, no Chrome required. Nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "quote-margin-check",

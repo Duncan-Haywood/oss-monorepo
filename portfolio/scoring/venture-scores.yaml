@@ -9452,6 +9452,150 @@ ventures:
       report is evidence from one specific request against a specific set
       of named patterns, not a full security assessment or a determination
       that the target is secure.
+
+  - slug: oidc-trust-policy-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether an IAM condition pins the
+      GitHub `sub` claim to one repository is decided by parsing the claim's
+      documented grammar (`repo:<owner>/<repo>:<context>`) against IAM's
+      documented operator semantics (`*` is a wildcard under StringLike and
+      a literal under StringEquals; a multi-value condition grants when any
+      value matches) -- a factual, deterministic comparison, not a model
+      judgment, and it never claims a security assessment or penetration
+      test.
+    basis: >-
+      Screened 2026-09-10 per portfolio/pipeline/README.md's "archetype
+      itself" section: a browser tool + zero-dependency CLI in the same
+      shape as the actions-* checkers, not a 239th <trade>-bid-calculator.
+      duplicate_check.py scored the closest existing ventures
+      (package-exports-drift-check, actions-self-hosted-exposure-check,
+      actions-cache-poisoning-check, actions-injection-check) at 0.11
+      against the final description, far under the 0.45 flag bar. The
+      distinction is load-bearing rather than cosmetic: every existing
+      actions-* venture scans the *repository's workflow YAML*, and this
+      reads the *cloud IAM trust policy* those workflows authenticate
+      against -- the opposite end of the same trust boundary, in a
+      different document, owned by a different team in most organisations.
+      Autonomous ops 10 / gross margin 10: the page computes in the
+      visitor's own browser and the CLI reads a local file, so it makes no
+      network request at all and needs no credential of any kind; serving
+      one more user costs a static file and needs no human review of any
+      output.
+      Distribution 7: the population is every team that has moved GitHub
+      Actions from a long-lived AWS_SECRET_ACCESS_KEY to keyless OIDC,
+      which is what both AWS's and GitHub's own documentation now steer
+      users to, so it is large and growing rather than a fixed niche.
+      Specific, recurring search phrases ("GitHub Actions OIDC trust policy
+      sub wildcard", "repo:org/repo:* pull_request fork", "StringLike vs
+      StringEquals sub claim", "AssumeRoleWithWebIdentity any repository").
+      The existing free material on this is prose -- AWS documentation and
+      blog posts -- rather than a tool that reads the reader's own policy
+      and names the finding, which is the gap.
+      Time to revenue 6, defensibility 4: donations-only; the rules are
+      public and reimplementable, so defensibility rests on getting the
+      operator semantics right in both directions -- notably reporting a
+      literal `*` under StringEquals as a fails-closed notice rather than a
+      wildcard danger, which is the finding a naive asterisk grep inverts,
+      and reporting the widest entry of a multi-value condition rather than
+      the first -- plus a zero-install, zero-credential path that a
+      security-conscious reader can actually use on a production policy.
+      Slightly above security-headers-check's 3 because the input is a
+      document the user already holds, so there is no probe step to
+      reimplement around and the correctness surface is the whole product.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      liability_containment passes -- the tool reads a policy the
+      user pastes, makes no network request, stores nothing but an
+      anonymous local event count, and the copy states plainly and
+      repeatedly that it reads the trust policy only (not the role's
+      permissions, not who can push to a pinned branch, not whether an
+      environment has reviewers), so a clean report is evidence about named
+      conditions rather than a determination that the setup is secure.
+      ethical_robustness passes -- it inspects a document its own user
+      supplies about infrastructure they control, touches no third-party
+      system, and cannot be pointed at anyone else.
+
+  - slug: canonical-tag-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether two canonical tags name
+      different URLs, whether a canonical's host matches the page's own
+      host, or whether the page it points at carries a noindex directive,
+      is decided by parsing the tag's own markup and the target's own
+      response headers against a fixed rule set -- a factual, deterministic
+      comparison, not a model judgment, and it never claims an SEO
+      assessment.
+    basis: >-
+      Screened 2026-09-10. duplicate_check.py scored every existing venture
+      well under the 0.45 flag bar (pwa-installability-check 0.13,
+      sri-check 0.12, affiliate-disclosure-checker and
+      wordpress-plugin-review-check 0.09) -- no existing venture reads a
+      canonical link tag. Same "real fetch, name the exact response
+      evidence" shape as cors-misconfig-check, security-headers-check and
+      sri-check, just for canonicalization signals rather than a reflected
+      Origin, a CSP directive, or a stale integrity hash. Autonomous ops
+      10 / gross margin 10: the CLI's one or two fetches run from the
+      user's own machine against URLs they choose, and the browser page
+      only renders a report already produced, so serving one more user
+      costs a static file and needs no human review of any output.
+      Distribution 7: canonicalization is one of the most commonly
+      misconfigured on-page SEO signals in practice, and the audience spans
+      both technical SEO practitioners (r/TechSEO, r/SEO, Google Search
+      Central's own help forum, where canonical questions are a recurring
+      thread) and any developer auditing a domain migration or a CMS
+      change for mixed http/https or leftover staging-URL canonicals --
+      specific, recurring search phrases ("conflicting canonical tags",
+      "canonical points to noindex page", "cross-domain canonical URL")
+      that this tool's plain-English, named-pattern report answers more
+      directly than a general full-site crawler's summary view does.
+      Time to revenue 6, defensibility 3: donations-only like every other
+      tool here; a transparent probe-and-classify tool over one HTML tag
+      and up to two HTTP fetches is easy to reimplement, and general SEO
+      crawlers already check canonicals as one signal among many, so
+      defensibility rests only on the specific pattern set, the
+      canonical-target follow-through (checking the page a canonical
+      points at actually resolves and isn't itself noindexed, which a
+      same-page-only canonical audit would not surface), and this
+      portfolio's disclaimer/usage conventions -- not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only ordinary, unauthenticated GET requests from
+      the user's own machine to URL(s) the user chooses -- never this
+      portfolio's infrastructure touching a third party, no different in
+      kind from curl. Both pages carry an explicit "only check systems you
+      own or are authorised to check" caution, the same posture as this
+      portfolio's other request-based checkers. A fetch that fails is
+      reported as incomplete rather than silently skipped or guessed at,
+      and a finding is only ever raised from a tag or response header this
+      tool actually observed. Both pages' footers and FAQs state plainly
+      that a clean report is evidence from one or two specific fetches
+      against a specific set of named patterns, not a full SEO audit or a
+      determination that the page has no other SEO issues.
   - slug: cookie-security-check
     scores:
       ai_leverage: 1
