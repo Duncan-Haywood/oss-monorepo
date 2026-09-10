@@ -22069,6 +22069,141 @@ entries:
         restricted network -- reported as unrun rather than a silent skip;
         none of those suites cover the files this change touches.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Named session with a fixed lane order (fix a broken live product >
+        act on real usage signal > new venture > router's top task). Lane 1:
+        `browser_state.py` reported all 7 whole-catalogue checks stale
+        (builder changed by the just-merged `cors-misconfig-check`), so ran
+        the full sweep rather than a subset. Lane 2: re-confirmed
+        `usage.yaml`'s `live_url_visitors` is `null` on all 362 readings --
+        no real traffic signal exists yet, matching `usage/README.md`'s own
+        reading, so no product had friction worth chasing on that basis.
+      - >-
+        The first full sweep (built from the session's stale branch base,
+        `eb1a1897`) came back with `roundtrip: FAILED` -- `dog-walking-route-
+        pricing`'s copy-link silently dropped `weeksPerMonth` and
+        `targetMonthlyIncome`, the same "recipient computes a different
+        number than the sender saw" class CLAUDE.md already records for
+        `share.mjs` on another venture. Before writing a fix, `git fetch
+        origin main` showed the branch was 4 commits behind: another session
+        had already caught the identical defect and merged the fix
+        (`d6f231e7`, #4397) minutes earlier. Fast-forwarded the branch onto
+        `origin/main` (0 local commits existed to lose) rather than
+        re-deriving the same patch, per the duplicate-work guidance in
+        CLAUDE.md/AGENTS.md.
+      - >-
+        The now-stale build meant the sweep's eventual `--record` would have
+        stamped the *new* commit with results measured against the *old*
+        tree (3 more merges landed meanwhile: `wash-and-fold-price-calculator`,
+        a CORS-check server fix, `childcare-tuition-calculator`). Killed the
+        in-flight sweep before it reached `--record`, confirmed
+        `browser_state.json` was untouched, and re-ran the full sweep clean
+        against the fast-forwarded tree instead of letting a mismatched
+        commit/content pairing get recorded.
+      - >-
+        Result: all 7 checks (sideways, presets, roundtrip, highlight,
+        contrast, sweep, journey) pass across 887 pages at `bb1b7bfc`,
+        including a clean re-check of the just-fixed `dog-walking-route-
+        pricing` roundtrip (174/174 share links round-trip) and 885 pages x
+        2 viewports with zero WCAG A/AA violations. Recorded via
+        `browser_checks.py --record`; `browser_state.py` now reports
+        `current` on every check rather than `stale`.
+      - >-
+        Investigated lane 4's #1 router-ranked venture (`reverb-fee-
+        calculator`, merit 7.00) before settling on lane 1: found its
+        bidirectional handoff with `where-to-sell-calculator` (share-link
+        field mapping, reverse `handoff_where_to_sell` usage event, a
+        dedicated `vs-reverbs-selling-fees-page.html`) and satellite SEO
+        pages already fully built and tested (94/94 and 259/259 combined),
+        so there was no unbuilt gap to add depth to -- adding a parity
+        feature nobody asked for on top of an already-complete pair would
+        have been the fleet-parity trap DIRECTION.md warns against, not real
+        work.
+      - >-
+        Verified on the fast-forwarded tree: `node --test` on the four most
+        recently touched ventures (`dog-walking-route-pricing`,
+        `childcare-tuition-calculator`, `wash-and-fold-price-calculator`,
+        `cors-misconfig-check`) 192/192; `reverb-fee-calculator` +
+        `where-to-sell-calculator` 259/259; `platform/marketing` +
+        `platform/pages` 1061/1061 (includes the 82s `front-door-tools`
+        mirror-headroom case); `platform/proposal`+`platform/privacy`+
+        `platform/webcheck` 172/172 (2 skips are the documented shallow-clone
+        history-pin SKIPs, not failures); all 15 `platform/ci` unittest
+        modules + `agent_review/test_review` (21/21) OK; `pytest gitops/tests`
+        506 passed / 25 skipped; `pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests` 431
+        passed / 8 subtests; `router/validate.py` (235 ventures),
+        `score_ventures.py --check` (236 scores), `usage/validate_usage.py`
+        (200 products / 386 readings), `pipeline/validate_doc_consistency.py`
+        and `validate_candidates.py` (36 candidates), `pipeline/probes/
+        validate_probe_index.py`, `score_sensitivity.py`, and
+        `front-door-tools.mjs --headroom` (82.2% of mirror budget used, room
+        for ~48 more tools) all clean; `checklist_coverage.py` clean.
+        `session_gate.py` read PROCEED (meta-work share 32%, well under the
+        70% threshold) at the start of the session.
+      - >-
+        Did not open a PR or push -- per this session's brief, changes are
+        left in the working tree on `claude/magical-knuth-yggz75` (now
+        fast-forwarded to `bb1b7bfc`) for the requesting session to review
+        and commit. Only file touched: `platform/ci/browser_state.json`.
+    mrr_end: 0
+  - venture: wash-and-fold-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a vs-Cents comparison page. This venture's own VENTURE.yaml
+        already named Cents, CleanCloud and Curbside Laundries as the
+        category's subscription POS/route vendors, but it was one of 22
+        ventures (out of 236) with no `vs-*.html` anywhere in the tree
+        (checked both the venture root and the `site/` subdirectory some
+        ventures use, per CLAUDE.md's "168 became 169" lesson about
+        `venturePageRoot`'s two candidate paths). Cents is the most
+        commonly-searched-for vendor in the niche. Follows the existing
+        vs-page discipline (see equipment-rental-break-even/site/vs-booqable.html):
+        no invented pricing for the named platform, an explicit
+        not-affiliated statement, FAQPage JSON-LD matched verbatim to
+        visible copy, no disparagement. Linked from index.html, listed in
+        sitemap.xml, regenerated into the front-door mirror with
+        `platform/marketing/regen.mjs`.
+      - >-
+        Verified: `node --test ventures/wash-and-fold-price-calculator/*.test.mjs`
+        (59/59, after merging a concurrent session's share-link feature
+        added to the same venture mid-session), `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` (1196/1196),
+        `platform/pages/build.mjs` + `check.mjs` (227 products, 889 pages,
+        no dead links) both before and after the merge.
+      - >-
+        Also worked this session's explicit ask to prioritize Hetzner
+        deployment/CI-CD and a Codex CLI worker there. Confirms the same
+        blocker another concurrent session recorded earlier today: every
+        route to the Hetzner boxes (`k3s-cluster`, the self-hosted CI
+        runners in `gitops/ci/`, and the systemd-timer Codex host mode in
+        `gitops/agents/host/` -- code-complete and verified this session,
+        `python3 -m pytest gitops/tests/test_host_governor.py
+        gitops/tests/test_install_codex_host.py` 45/45 and
+        `systemd-analyze verify` clean on both unit files) is blocked on the
+        single owner action `hetzner-ssh-key-is-a-public-key` (decision
+        queue item #1, unresolved since 2026-09-04). No session can rotate
+        it: `agent-session-egress` is `down` for this session too --
+        `/dev/tcp/89.167.29.39/22` does not connect and there is no `ssh`
+        binary in the image. GitHub Pages remains the one working,
+        Hetzner-independent deploy route (`pages_state.py`: `deployed:
+        served`, snapshot `current` as of this session), which is what this
+        entry's marketing page publishes through once merged and
+        `publish-branch.sh` is re-run.
+      - >-
+        Sampled ~26 of the ~177 open branches with commits ahead of `main`
+        via `supersede_check.py` (12 hand-checked here, plus a background
+        sweep of the rest): every one checked came back SUPERSEDED. No open
+        PRs existed at session start (0), so the mandate's 3-PR merge quota
+        applies vacuously this session; product work proceeded per "if none
+        exist, start new work after the overlap check."
+    mrr_end: 0
   - venture: apparel-decoration-price-calculator
     agent_spend_usd: null
     human_hours: 0

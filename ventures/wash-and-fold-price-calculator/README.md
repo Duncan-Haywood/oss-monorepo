@@ -48,12 +48,15 @@ not a recommended price and not a market study.
 Everything runs in your browser. Your wages, utility rates, volumes and prices
 are never uploaded, and there are no accounts, cookies, or analytics vendors.
 Pressing *Save my numbers on this device* writes them to this browser's own
-local storage on this device only; *Forget my numbers* deletes them. We count
+local storage on this device only; *Forget my numbers* deletes them. *Copy
+shareable link* puts the same numbers in the page's own URL fragment instead —
+your browser never sends a fragment to a server, so a shared scenario stays
+off every machine it passes through on the way to the recipient. We count
 anonymous local feature events only (`estimate`, `example_loaded`,
-`inputs_saved`), with a visible opt-out that persists across visits. Do Not
-Track and Global Privacy Control disable counting automatically. No people,
-rates, or customer details are recorded, and the counter is never transmitted
-to the maintainers.
+`inputs_saved`, `link_copied`), with a visible opt-out that persists across
+visits. Do Not Track and Global Privacy Control disable counting
+automatically. No people, rates, or customer details are recorded, and the
+counter is never transmitted to the maintainers.
 
 ## Disclaimer
 
@@ -89,4 +92,6 @@ node --test ventures/wash-and-fold-price-calculator/*.test.mjs
 `page.test.mjs` covers the disclaimers, the privacy copy, the SEO markup, the
 labelled inputs, the sibling link, and that the page's shipped defaults and its
 example button agree with each other; `usage.test.mjs` covers the local counter,
-its opt-out, and the Do Not Track / Global Privacy Control signals.
+its opt-out, and the Do Not Track / Global Privacy Control signals;
+`share.test.mjs` covers the shareable-link encode/decode round trip, including
+that its field list always matches `calculator.mjs`'s `INPUT_FIELDS`.
