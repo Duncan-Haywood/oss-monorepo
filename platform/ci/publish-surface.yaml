@@ -647,6 +647,9 @@ workflows:
     step: runs 'publish-branch.sh'
     gates:
     - vars.PAGES_BRANCH_PUBLISH == 'true'
+- workflow: pwa-installability-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: quick-pick-survey-ci.yml
   classification: none
   publishes: []

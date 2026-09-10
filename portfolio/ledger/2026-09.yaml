@@ -23260,3 +23260,130 @@ entries:
         portfolio/usage portfolio/pipeline infra/tests -q 435 passed;
         node platform/pages/launched.mjs --write (231 tools, 1 added).
     mrr_end: 0
+  - venture: pwa-installability-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, graduated and shipped this session per
+        portfolio/pipeline/README.md's "archetype itself" section: a
+        zero-dependency CLI + browser report-viewer, not a 242nd
+        <trade>-bid-calculator. Fetches a page, its linked Web App
+        Manifest, and every icon the manifest lists, then classifies the
+        result against Chrome's documented installability criteria --
+        manifest present and parseable, name/short_name, an installable
+        display mode (missing defaults to "browser", which fails the same
+        way Chrome reads it), a secure origin, and a reachable
+        192x192-or-larger icon, plus notices for a missing 512x512 icon,
+        start_url, or theme/background color. These are the exact checks
+        behind Lighthouse's own "installable-manifest" audit, derived
+        from Chrome's published documentation, with no Chrome or
+        Puppeteer dependency -- the gap this fills, since the canonical
+        way to run this exact check today needs a full Chrome/Lighthouse
+        install. The browser page can only render a pasted report, never
+        fetch a third-party URL on its own, because that would be a
+        cross-origin request almost no target site's server opts into via
+        CORS headers -- the same "the browser half cannot do the network
+        half" shape cors-misconfig-check documents, for ordinary
+        same-origin-policy reasons rather than a forbidden request
+        header.
+      - >-
+        Channel evidence: developers debugging "Add to Home Screen not
+        showing" / "PWA not installable" are a recurring, specific
+        search population (that exact terminology, plus "manifest
+        display browser not installable"), and r/webdev, the smaller but
+        active r/PWA, and the web.dev/Lighthouse GitHub issue tracker are
+        named, active places this exact failure mode gets discussed.
+        `duplicate_check.py` scored the closest existing venture
+        (chrome-extension-permission-check -- a different artifact, a
+        browser extension manifest's declared permissions vs. its own
+        source, rather than a Web App Manifest's installability fields)
+        at 0.16 against the final description, well under the 0.45 flag
+        bar; not in screened-out.md. Liability/ethical gates both pass
+        (portfolio/scoring/venture-scores.yaml): every finding is a
+        factual, deterministic comparison against a fixed, published
+        checklist, never a security/compliance determination, and the
+        page/README/FAQ all say so explicitly.
+      - >-
+        Shipping this surfaced and fixed four pre-existing, unrelated
+        drift defects the checklist commands actually caught rather than
+        missed -- the same "a number that is only ever typed, never
+        recomputed" failure mode CLAUDE.md already documents for this
+        exact four/five-file set: (1) the mirrored-tool-count sentences
+        typed out in infra/OWNER_CHECKLIST.md (three places),
+        gitops/prod/usage/aggregate.py, gitops/prod/front-door/
+        default.conf (two places), and gitops/tests/test_manifests.py's
+        own hardcoded `total` all needed 231 -> 232
+        (test_mirrored_tool_count_matches_what_the_docs_claim); (2)
+        gitops/ci/README.md's "N of M runs-on lines across P workflows"
+        sentence needed resyncing after this venture's own -ci.yml
+        landed, fixed with gitops/ci/sync_readme_counts.py rather than
+        hand-edited; (3) the fleet's dev-tool-checker category family in
+        platform/pages/build.mjs would have grown its "more" catch-all
+        past its committed budget of 5 with this venture unclassified, so
+        it was added by exact slug to the existing
+        zero-dependency-CLI-plus-browser-checker family
+        (cors-misconfig-check/chrome-extension-permission-check's
+        pattern) rather than left to inflate the catch-all
+        (build.test.mjs's "the catch-all holds only what no section
+        claims"); (4) the new page was a crawlable orphan (nothing linked
+        to it) against siblings.test.mjs's committed budget of 0, closed
+        with a reciprocal cross-link to chrome-extension-permission-check
+        (both are "read a manifest you already have, name the exact
+        missing field" checkers) -- added both directions, matching the
+        committed pattern that venture already carries to two other
+        siblings. None of the four were introduced by this change; all
+        four are pre-existing drift the repo's own tests exist to catch,
+        fixed forward in this same PR.
+      - >-
+        A real defect in this venture's own first draft was also found
+        and fixed before shipping, by the dead-link scan in
+        `platform/pages/check.mjs` (run via
+        `platform/ci/run_workflow_locally.py --for-changes`, which builds
+        the actual Pages artifact rather than trusting `node --test`
+        alone): `analyze.mjs` and `probe.mjs` each carried a code comment
+        reading `<link rel="manifest" href="...">` as prose -- the
+        literal three-character string inside the double-quoted href
+        attribute matched the site's own href/src link scanner (which
+        scans raw .mjs source, not just rendered HTML, to catch a broken
+        relative import), and it resolved "..." as a dead relative link
+        on the published page. Fixed by rewording both comments to avoid
+        writing that exact attribute-value pair; re-verified with a full
+        `platform/pages/build.mjs` + `check.mjs` run afterward: 232
+        products, 907 pages, no dead links.
+      - >-
+        Verified locally (Actions runners not evaluated for starvation
+        this session since this is new work, not a red-check
+        investigation): node --test ventures/pwa-installability-check
+        59/59; node platform/pages/clauses.mjs pwa-installability-check
+        chrome-extension-permission-check clean; python3
+        portfolio/router/validate.py clean (240 VENTURE.yaml); python3
+        portfolio/scoring/score_ventures.py --check clean (241 scored);
+        python3 portfolio/usage/validate_usage.py clean (202 products,
+        388 readings); python3 platform/ci/check_no_payment_code.py
+        clean; python3 platform/ci/checklist_coverage.py clean; regen.mjs
+        run (twice -- once before, once after the dead-link fix above)
+        and the gitops/prod/front-door mirror + sitemap + kustomization
+        committed; node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs 1206/1206; python3 -m pytest
+        gitops/tests -q 532 passed/25 skipped; (cd platform/ci && all 22
+        test_*.py modules) all OK; (cd platform/ci/agent_review &&
+        test_review) 21/21 OK; python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage
+        portfolio/pipeline infra/tests -q 435 passed/8 subtests; python3
+        gitops/ci/sync_readme_counts.py --check clean; node
+        platform/pages/launched.mjs --write (232 tools, 1 added).
+        python3 platform/ci/run_workflow_locally.py --for-changes was run
+        twice while this diff was still being edited concurrently, so its
+        first pass's failures (the dead-link defect above, plus a
+        transient node --test failure against a mirror mid-regen) are
+        not a live reading of the final tree -- superseded by the direct,
+        sequential checks listed above, each run against the tree as
+        finally committed. Not run: browser/contrast checks
+        (`platform/ci/browser_checks.py`) -- this venture's UI is
+        materially identical in structure (textarea, buttons, findings
+        list) to cors-misconfig-check and email-auth-check, both already
+        swept clean, and no live network fetch of the published URL is
+        possible from this sandbox (egress proxy denies non-allowlisted
+        hosts).
+    mrr_end: 0
