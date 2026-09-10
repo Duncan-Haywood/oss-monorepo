@@ -1,0 +1,71 @@
+// Carries this listing's item numbers into the where-to-sell calculator, with
+// Amazon already switched on, so comparing this item against eBay, Etsy,
+// Reverb and an own store does not mean retyping price, cost and packaging.
+//
+// This is the reverse of ../where-to-sell-calculator/handoff.mjs, which
+// carries a comparison *into* this page (that module's `amazon` entry).
+// Before this file existed the link only ran one way: the where-to-sell
+// calculator could hand its numbers down into this page, but a seller who
+// landed here first — from a search for "Amazon FBA calculator", say — and
+// then wanted to rank the same item against eBay or Etsy had to retype
+// everything. That is the exact failure where-to-sell-calculator's own
+// VENTURE.yaml names as its first untested hypothesis: the handoff, not the
+// depth of the second tool, decides whether the deeper scenarios ever get
+// opened. `reverb-fee-calculator/to-where-to-sell.mjs` closed this same gap
+// for Reverb first; this is the same fix for Amazon.
+//
+// Only the numbers every channel shares travel: price, shipping paid, item
+// cost, packaging, and the otherCost bucket. Amazon has no `shippingCharged`
+// field of its own to send — the forward mapping drops it too, because the
+// referral fee here is charged on `salePrice` rather than on postage charged
+// to the buyer — so it is simply absent on the way back rather than guessed
+// at. Amazon's own fee shape (referral rate, fulfilment by size tier,
+// storage) has no matching field on the where-to-sell side, so it is left
+// out too.
+//
+// The wire format is where-to-sell-calculator's own `#c=` shared-link
+// payload (see its share.mjs: `decodeComparison`), not the flat
+// `field=value` format this page's own share links use. `to-where-to-sell.
+// test.mjs` imports that decoder directly so a change to its shape fails a
+// test here instead of arriving as a silently wrong number there.
+
+// This page's own field name -> where-to-sell-calculator's shared field name.
+const FIELD_MAP = {
+  salePrice: 'price',
+  costOfGoods: 'itemCost',
+  fbmShippingCost: 'shippingCost',
+  packagingCost: 'packagingCost',
+  otherCost: 'otherCost',
+};
+
+function cleanNumber(value) {
+  // `Number('')` and `Number(null)` are both 0, so coercing first would turn
+  // an untouched field into an explicit zero on arrival -- the silent-wrong-
+  // number case this module exists to avoid.
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string' && value.trim() === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : null;
+}
+
+/** The `#c=` payload for where-to-sell-calculator's own decoder. */
+export function whereToSellPayload(input = {}) {
+  const shared = {};
+  for (const [source, target] of Object.entries(FIELD_MAP)) {
+    const value = cleanNumber(input[source]);
+    if (value !== null) shared[target] = value;
+  }
+  // No per-channel rate values: where-to-sell-calculator's own Amazon preset
+  // already carries an illustrative referral rate, and nothing here maps
+  // cleanly onto its generic commissionRate/paymentRate shape without
+  // guessing. Enabling the channel with no rate override is exactly what a
+  // fresh visit that turns Amazon on already does.
+  return { shared, channels: [{ id: 'amazon', enabled: true, values: {} }] };
+}
+
+/** A relative link into where-to-sell-calculator, carrying this item. */
+export function whereToSellUrl(input = {}) {
+  const payload = whereToSellPayload(input);
+  const encoded = encodeURIComponent(JSON.stringify(payload));
+  return `../where-to-sell-calculator/#c=${encoded}`;
+}

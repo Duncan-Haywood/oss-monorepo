@@ -21180,3 +21180,59 @@ entries:
         sandbox's tool timeouts and was abandoned rather than trusted
         half-finished.
     mrr_end: 0
+  - venture: where-to-sell-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked from `allocate.py`'s top-merit queue: this venture's own
+        VENTURE.yaml names its first untested hypothesis as "a seller who has
+        just seen a channel win will open that channel's own calculator if
+        the item carries over, and will not if it means retyping the item."
+        Before this session, that handoff ran both ways for exactly one of
+        five channels: `reverb-fee-calculator/to-where-to-sell.mjs` (an
+        earlier PR) let a seller land on Reverb first and carry the item
+        into this comparison, but eBay, Etsy, Amazon and Shopify only had
+        the forward direction (this page carrying values into them) --
+        `where-to-sell-calculator/handoff.mjs`. A seller who searched their
+        way to eBay's or Amazon's own calculator first, plausibly the more
+        common entry point given their traffic against a niche marketplace,
+        had no way into the cross-channel comparison without retyping price,
+        shipping and cost by hand.
+      - >-
+        Shipped the same fix for the other four channels: `to-where-to-
+        sell.mjs` + `to-where-to-sell.test.mjs` in `ebay-fee-calculator`,
+        `etsy-profit-calculator`, `amazon-fba-calculator` and
+        `shopify-fee-calculator`, each mapping that venture's own input
+        field names onto where-to-sell-calculator's shared fields and its
+        own channel id (mirroring the Reverb module and channel-parity
+        pattern already in the repo). Wired a "keep going with this item"
+        link (id="whereToSellLink") into each page's footer, updated on
+        every recalculation from the live inputs, plus a
+        `handoff_where_to_sell` local usage-counter event fired on click --
+        the same privacy-preserving, opt-out-respecting counter pattern
+        every sibling venture already uses (records only that the handoff
+        happened and the day, never the item). Consolidated a duplicate
+        where-to-sell paragraph already sitting in shopify-fee-calculator's
+        footer rather than adding a third. Updated where-to-sell-
+        calculator's own README to describe the handoff as bidirectional
+        for all five channels and to list the three handoff events
+        (`handoff_amazon`, `handoff_reverb`, `handoff_own-store`) its
+        footer text had fallen behind on -- the code already recorded all
+        five, the prose only named two.
+      - >-
+        Tested: each new module's own test.mjs decodes its generated link
+        through where-to-sell-calculator's real `decodeComparison` (imported,
+        not restated) and asserts the shared fields arrive, the channel is
+        enabled, source-only fields never leak into the shared payload, and
+        blank/negative/non-numeric inputs are dropped rather than sent as a
+        silent zero -- the same discipline `handoff.test.mjs` already holds
+        the forward direction to. `node --test` across all six touched
+        ventures (ebay-fee-calculator, etsy-profit-calculator,
+        amazon-fba-calculator, shopify-fee-calculator,
+        where-to-sell-calculator, reverb-fee-calculator): 1546 passing, 0
+        failing. No shared platform/marketing code touched, so
+        `regen.mjs` and the marketing/pages suites were not re-run.
+        `checklist_coverage.py` and `pages_state.py` both read clean before
+        and after.
+    mrr_end: 0
