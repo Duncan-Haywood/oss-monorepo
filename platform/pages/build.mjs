@@ -5582,8 +5582,20 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
     .replace(/<\/body>/i, `${footer}\n</body>`);
 }
 
-/** A copy-link button a venture wrote itself, in any of its four spellings. */
-const OWN_COPY_BUTTON = /<button[^>]*\bid="(share|copyShare|copyLink|shareLink)"/;
+/**
+ * A copy-link button a venture wrote itself, in any of its five spellings.
+ *
+ * `copy-link` was added 2026-09-10, found while fixing the same gap in
+ * `roundtrip.mjs` (which had grown eleven recognised spellings to this file's
+ * four): `wash-and-fold-price-calculator`, `sponsor-ready` and
+ * `ai-engineering-academy/tools/rc-filter-calculator` all ship a real button
+ * under this id. None currently sit in the bid-calculator family this gate
+ * guards, so the duplicate-button bug this regex exists to prevent has not
+ * fired yet for them -- but the next venture that reuses this id and *is* a
+ * bid calculator would silently get two share controls, exactly the
+ * `freelance-retainer-calculator` failure documented below.
+ */
+const OWN_COPY_BUTTON = /<button[^>]*\bid="(share|copyShare|copyLink|shareLink|copy-link)"/;
 
 /**
  * Does this page already carry a share control of its own?
