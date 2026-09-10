@@ -47,3 +47,16 @@ test('the ratio disclaimer is not undercut by an asserted state ratio table anyw
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /does not assert (either one|one) for you|never asserts one/);
 });
+
+// Closest sibling: same fixed-cost-over-occupancy shape (a room or a lesson
+// slot both cost the same whether filled or not), but one teacher's booked
+// lessons rather than a classroom of enrolled children. It was a crawlable
+// orphan (siblings.mjs) until this link closed it.
+test('index links one hop to the music-lesson-break-even sibling', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/music-lesson-break-even\/"/,
+    'index must link ../music-lesson-break-even/ so crawlers reach the music lesson pricing calculator in one hop',
+  );
+});
