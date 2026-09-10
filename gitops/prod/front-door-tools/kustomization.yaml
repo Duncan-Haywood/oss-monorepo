@@ -33,20 +33,20 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556388 bytes
+#   portfolio-front-tools-0: 136 files, 556389 bytes
 #   portfolio-front-tools-1: 110 files, 555642 bytes
-#   portfolio-front-tools-2: 149 files, 548230 bytes
-#   portfolio-front-tools-3: 144 files, 554958 bytes
-#   portfolio-front-tools-4: 121 files, 553062 bytes
-#   portfolio-front-tools-5: 128 files, 555588 bytes
-#   portfolio-front-tools-6: 137 files, 551401 bytes
-#   portfolio-front-tools-7: 113 files, 556631 bytes
-#   portfolio-front-tools-8: 115 files, 556245 bytes
-#   portfolio-front-tools-9: 123 files, 554637 bytes
-#   portfolio-front-tools-10: 116 files, 554971 bytes
-#   portfolio-front-tools-11: 109 files, 555914 bytes
-#   portfolio-front-tools-12: 82 files, 392089 bytes
-#   portfolio-front-tools-13: 56 files, 274095 bytes
+#   portfolio-front-tools-2: 149 files, 548218 bytes
+#   portfolio-front-tools-3: 144 files, 555011 bytes
+#   portfolio-front-tools-4: 121 files, 553112 bytes
+#   portfolio-front-tools-5: 128 files, 555491 bytes
+#   portfolio-front-tools-6: 137 files, 551457 bytes
+#   portfolio-front-tools-7: 113 files, 556650 bytes
+#   portfolio-front-tools-8: 115 files, 556209 bytes
+#   portfolio-front-tools-9: 123 files, 554545 bytes
+#   portfolio-front-tools-10: 116 files, 554903 bytes
+#   portfolio-front-tools-11: 113 files, 556028 bytes
+#   portfolio-front-tools-12: 86 files, 417713 bytes
+#   portfolio-front-tools-13: 56 files, 274054 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1558,6 +1558,14 @@ configMapGenerator:
       - snow-removal-bid-calculator__share.mjs.gz=snow-removal-bid-calculator__share.mjs.gz
       - snow-removal-bid-calculator__usage.mjs.gz=snow-removal-bid-calculator__usage.mjs.gz
       - snow-removal-bid-calculator__vs-aspire.html.gz=snow-removal-bid-calculator__vs-aspire.html.gz
+      - social-preview-check__analyze.mjs.gz=social-preview-check__analyze.mjs.gz
+      - social-preview-check__check.mjs.gz=social-preview-check__check.mjs.gz
+      - social-preview-check__imagesize.mjs.gz=social-preview-check__imagesize.mjs.gz
+      - social-preview-check__index.html.gz=social-preview-check__index.html.gz
+      - social-preview-check__metatags.mjs.gz=social-preview-check__metatags.mjs.gz
+      - social-preview-check__probe.mjs.gz=social-preview-check__probe.mjs.gz
+      - social-preview-check__social-preview-fallback-rules.html.gz=social-preview-check__social-preview-fallback-rules.html.gz
+      - social-preview-check__usage.mjs.gz=social-preview-check__usage.mjs.gz
       - sod-install-bid-calculator__calc.mjs.gz=sod-install-bid-calculator__calc.mjs.gz
       - sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz=sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz
       - sod-install-bid-calculator__index.html.gz=sod-install-bid-calculator__index.html.gz
@@ -1621,15 +1629,15 @@ configMapGenerator:
       - sump-pump-bid-calculator__share.mjs.gz=sump-pump-bid-calculator__share.mjs.gz
       - sump-pump-bid-calculator__usage.mjs.gz=sump-pump-bid-calculator__usage.mjs.gz
       - sump-pump-bid-calculator__vs-servicetitan.html.gz=sump-pump-bid-calculator__vs-servicetitan.html.gz
-      - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
-      - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
-      - sunroom-bid-calculator__index.html.gz=sunroom-bid-calculator__index.html.gz
-      - sunroom-bid-calculator__usage.mjs.gz=sunroom-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
+      - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
+      - sunroom-bid-calculator__index.html.gz=sunroom-bid-calculator__index.html.gz
+      - sunroom-bid-calculator__usage.mjs.gz=sunroom-bid-calculator__usage.mjs.gz
       - sunroom-bid-calculator__vs-jobber.html.gz=sunroom-bid-calculator__vs-jobber.html.gz
       - tender-radar__calc.mjs.gz=tender-radar__calc.mjs.gz
       - tender-radar__draft.mjs.gz=tender-radar__draft.mjs.gz
