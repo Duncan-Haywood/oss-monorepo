@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 135 files, 555252 bytes
 #   portfolio-front-tools-7: 112 files, 551852 bytes
 #   portfolio-front-tools-8: 116 files, 556138 bytes
-#   portfolio-front-tools-9: 126 files, 546311 bytes
+#   portfolio-front-tools-9: 127 files, 551394 bytes
 #   portfolio-front-tools-10: 104 files, 556574 bytes
 #   portfolio-front-tools-11: 113 files, 553565 bytes
 #   portfolio-front-tools-12: 61 files, 292475 bytes
@@ -1374,6 +1374,7 @@ configMapGenerator:
       - print-atelier__usage.mjs.gz=print-atelier__usage.mjs.gz
       - print-atelier__vs-printful.html.gz=print-atelier__vs-printful.html.gz
       - print-atelier__what-resolution-do-i-need-to-print-my-artwork.html.gz=print-atelier__what-resolution-do-i-need-to-print-my-artwork.html.gz
+      - pwa-installability-check__add-to-home-screen-not-showing.html.gz=pwa-installability-check__add-to-home-screen-not-showing.html.gz
       - pwa-installability-check__analyze.mjs.gz=pwa-installability-check__analyze.mjs.gz
       - pwa-installability-check__check.mjs.gz=pwa-installability-check__check.mjs.gz
       - pwa-installability-check__index.html.gz=pwa-installability-check__index.html.gz
