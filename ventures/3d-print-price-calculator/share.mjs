@@ -11,22 +11,37 @@
 // fragment is not sent in the request line a server logs, nor in a
 // `Referer` header a later click would carry.
 //
-// The field list is imported from `calc.mjs`'s `DEFAULTS` rather than
-// restated here, so a field added to the arithmetic is shareable the moment
-// it exists -- this portfolio has twice paid for a copied field list going
-// stale instead of being derived (see CLAUDE.md, "168 became 169").
+// The required field list is imported from `calc.mjs`'s `DEFAULTS` rather
+// than restated here, so a field added to the arithmetic is shareable the
+// moment it exists -- this portfolio has twice paid for a copied field list
+// going stale instead of being derived (see CLAUDE.md, "168 became 169").
 //
-// Every field here is a required number with no "leave it blank to skip
-// this ingredient" slot the way `pour-cost-calculator`'s modifier and mixer
-// are -- there is nothing optional to preserve. `formValues` still clears
-// any field a link does not carry, rather than leaving it unwritten: the
-// same link could be opened on a page mid-edit or holding a saved draft, and
-// leaving a stale value sitting in an unrelated field would silently mix
-// the sender's price with a stranger's electricity rate.
+// `actualSellingPrice` is the one field that is not: it is only present once
+// a maker has a real price to check, and `''` (nothing typed yet) is a
+// materially different state from `0` (a giveaway). Leaving it out of the
+// link the way the first version of this file did is the exact
+// silent-divergence defect this portfolio has shipped before (a link that
+// dropped `quantity` and `targetMargin`, so the recipient computed a
+// different profit than the sender saw) -- here a co-seller who opens a
+// shared link no longer sees the price the sender was checking, and the
+// "check a price" panel goes quiet with nothing on screen to say why.
+// `formValues` still clears any field a link does not carry, rather than
+// leaving it unwritten: the same link could be opened on a page mid-edit or
+// holding a saved draft, and leaving a stale value sitting in an unrelated
+// field would silently mix the sender's price with a stranger's electricity
+// rate.
 
 import { DEFAULTS } from './calc.mjs';
 
-export const FIELD_IDS = Object.keys(DEFAULTS);
+/** Every field `calculatePrice` requires -- calc.mjs's own DEFAULTS keys. */
+export const REQUIRED_FIELD_IDS = Object.freeze(Object.keys(DEFAULTS));
+
+/** The one field the arithmetic treats as optional. See the header comment
+ * above for why a link with nothing checked must leave this cleared, not
+ * defaulted to 0 or left holding the recipient's own leftover figure. */
+export const OPTIONAL_FIELD_IDS = Object.freeze(['actualSellingPrice']);
+
+export const FIELD_IDS = Object.freeze([...REQUIRED_FIELD_IDS, ...OPTIONAL_FIELD_IDS]);
 
 function usableNumber(value) {
   if (value === '' || value === null || value === undefined) return null;

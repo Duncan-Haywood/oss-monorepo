@@ -96,9 +96,9 @@
 <footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, measure your printer's actual power draw, predict actual failure rates, or replace your own pricing judgment, accountant, or marketplace's fee schedule.</p><p>MIT licensed. If it helped you price a print, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
 
 <script type="module">
-import { calculatePrice, DEFAULTS } from './calc.mjs';
+import { calculatePrice } from './calc.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
-import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+import { encodeInputs, decodeInputs, formValues, REQUIRED_FIELD_IDS } from './share.mjs';
 const DRAFT_KEY = '3d-print-price-calculator-draft';
 const el = id => document.getElementById(id);
 const money = (n) => {
@@ -106,7 +106,7 @@ const money = (n) => {
   const text = format(Math.abs(n));
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
-const FIELD_IDS = Object.keys(DEFAULTS);
+const FIELD_IDS = REQUIRED_FIELD_IDS;
 let counted = false;
 let actualCounted = false;
 
@@ -187,7 +187,7 @@ el('forget').addEventListener('click', () => {
 });
 
 el('copyLink').addEventListener('click', async () => {
-  const query = encodeInputs(fieldInputs());
+  const query = encodeInputs({ ...fieldInputs(), actualSellingPrice: el('actualSellingPrice').value });
   const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
   history.replaceState(null, '', url);
   try {
@@ -211,7 +211,11 @@ try {
 
 const fromLink = decodeInputs(location.hash || location.search);
 if (Object.keys(fromLink).length > 0) {
-  writeInputs(formValues(fromLink));
+  const shared = formValues(fromLink);
+  writeInputs(shared);
+  // formValues clears actualSellingPrice too when the link didn't carry one,
+  // the same reasoning as writeInputs above -- see share.mjs.
+  el('actualSellingPrice').value = shared.actualSellingPrice;
   el('linkStatus').textContent = 'Opened a shared scenario. Review the numbers before you use them.';
 }
 
