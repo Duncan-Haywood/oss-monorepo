@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 236,
-  "collection_total": 236,
+  "served_here": 237,
+  "collection_total": 237,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -44,7 +44,7 @@
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
-      "tool_count": 16
+      "tool_count": 17
     },
     {
       "id": "backoffice",
@@ -685,6 +685,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a residential boiler replacement from input MBH, hot water versus steam, like-for-like versus condensing versus steam-to-hot-water, extras, owner-supplied versus tech-supplied, weekday versus Saturday no-heat, and whether one more winter of patches still beats replacing — plus the walk-away price a $4,500 hang-only special cannot see.",
       "pages": 6
+    },
+    {
+      "slug": "bounce-house-rental-calculator",
+      "name": "Bounce House Rental Calculator",
+      "url": "https://marisstella.dev/tools/bounce-house-rental-calculator/",
+      "category": "Service business pricing & quotes",
+      "description": "Price a bounce house or inflatable rental booking from the truck's two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet's replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.",
+      "pages": 2
     },
     {
       "slug": "cabinet-refinishing-bid-calculator",

@@ -577,11 +577,55 @@ export function offlineHead(rootRel) {
   </script>`;
 }
 
-const MARKER = 'rel="manifest"';
+/**
+ * A real `<link>` element whose `rel` carries the `manifest` token.
+ *
+ * `rel` is a space-separated token list, so `rel="manifest alternate"` counts
+ * and `rel="manifest-notes"` does not; the value may be double-quoted,
+ * single-quoted, or bare.
+ */
+const MANIFEST_LINK = /<link\b[^>]*\brel\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))[^>]*>/gi;
+
+/** Head content with comments, scripts and styles removed. */
+function scannableHead(html) {
+  const end = html.indexOf('</head>');
+  return (end === -1 ? html : html.slice(0, end))
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ');
+}
+
+/**
+ * Does this page already link a Web App Manifest?
+ *
+ * Exported for the test, and deliberately not a substring search. Until
+ * 2026-09-10 this was `html.includes('rel="manifest"')` against the whole
+ * file, which conflated "this page links a manifest" with "this page mentions
+ * the attribute". Any page *about* manifests — which is exactly what the PWA
+ * and AI-crawler ventures publish — that spelled the attribute unescaped in
+ * prose, a code sample, or even an HTML comment warning about this very trap
+ * was read as already-wired, so the build skipped its service worker. It was
+ * caught by build.test.mjs rather than shipped, but the fix that test demanded
+ * was to contort the copy, which is the wrong thing for a guard to ask of an
+ * author writing correctly about the subject.
+ *
+ * Scanning only the head, and only outside comments/scripts/styles, also
+ * settles the JSON-LD case by construction: an escaped `rel=\"manifest\"`
+ * inside a `<script type="application/ld+json">` block is documentation about
+ * a manifest link, never a manifest link.
+ */
+export function linksManifest(html) {
+  const head = scannableHead(html);
+  for (const match of head.matchAll(MANIFEST_LINK)) {
+    const rel = match[1] ?? match[2] ?? match[3] ?? '';
+    if (rel.trim().split(/\s+/).some((token) => token.toLowerCase() === 'manifest')) return true;
+  }
+  return false;
+}
 
 /** Insert the offline wiring into a page's head, idempotently. */
 export function injectOfflineSupport(html, rootRel) {
-  if (html.includes(MARKER)) return { html, injected: false };
+  if (linksManifest(html)) return { html, injected: false };
   const index = html.indexOf('</head>');
   if (index === -1) return { html, injected: false };
   return {

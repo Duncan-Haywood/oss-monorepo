@@ -478,8 +478,17 @@ const CATEGORY_RULES = [
     // `shop-rate-calculator` computes a superficially similar burden; that one
     // exists to feed the trade bid calculators an overhead rate, and this one
     // exists to price a third party's labour billed on to a client.
+    // `bounce-house-rental-calculator` joined 2026-09-10 on its first commit,
+    // filed here rather than left for a catch-all spell: an inflatable
+    // rental operator pricing one event booking from delivery, setup labor,
+    // a generator, a wet-unit attendant and fleet-value insurance is the
+    // same job as `photo-booth-event-quote` and `portable-restroom` above —
+    // a solo or small operator turning travel, labor and equipment cost into
+    // a price against a flat per-unit headline rate that hides the real
+    // cost. Not a trade bid (nothing priced by area or a site visit) and not
+    // the route-margin shape (one booking, not a rolled-up monthly route).
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental)/.test(
         slug,
       ),
   },
