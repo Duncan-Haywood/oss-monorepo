@@ -3866,5 +3866,49 @@
       "notes": "Weather may require rescheduling; we will call ahead."
     },
     "disclaimerTail": "It is not a roofing, structural, or ice-dam-prevention assessment, and it does not replace your own contract or insurance."
+  },
+  "wildlife-exclusion-bid-calculator": {
+    "jobTitle": "Wildlife exclusion — {species}",
+    "priceField": "price",
+    "depositPercent": 25,
+    "scope": [
+      "Inspect the structure and identify every active and probable entry point",
+      {
+        "line": "Set and monitor {trapsSet~0} trap{trapsSet+s} over {trapDays~0} day{trapDays+s}, checked on each of {trapCheckVisits~0} return visit{trapCheckVisits+s}",
+        "when": "trapsSet"
+      },
+      {
+        "line": "Install {oneWayDoors~0} one-way exclusion device{oneWayDoors+s} and return to remove {oneWayDoors+them} once the structure is clear",
+        "when": "oneWayDoors"
+      },
+      {
+        "line": "Seal {exclusionLinearFeet~0} linear feet of entry points, gaps and roof line with exclusion-grade material — {heightTier}",
+        "when": "exclusionLinearFeet"
+      },
+      {
+        "line": "Clean and disinfect {deconSquareFeet~0} sq ft of affected area, bag the waste and dispose of it",
+        "when": "deconSquareFeet"
+      },
+      {
+        "line": "Remove contaminated insulation and install {insulationReplaceSqFt~0} sq ft of replacement",
+        "when": "insulationReplaceSqFt"
+      },
+      {
+        "line": "Repair the damage caused by the entry",
+        "when": "repairCost"
+      },
+      {
+        "line": "Warranty on the exclusion work: {warrantyYears~0} year{warrantyYears+s}",
+        "when": "warrantyYears"
+      },
+      "Work performed under our own state wildlife control licence, following the humane-handling and trap-check requirements it carries"
+    ],
+    "placeholders": {
+      "companyName": "Ridgeline Wildlife Control LLC",
+      "scope": "Raccoon removal and permanent exclusion, two-story attic\nAttic decontamination and insulation replacement",
+      "exclusions": "General pest treatment and ongoing pest service\nRoof, gutter or structural replacement beyond the sealed entry points\nMould remediation and air-quality testing",
+      "notes": "Traps are checked once every 24 hours while they are set. The seal is not complete until the one-way devices come off, which is the final visit."
+    },
+    "disclaimerTail": "Wildlife activity, weather and access can change what a job needs once it is open; it is not a guarantee that no animal will re-enter, a structural or mould inspection, or a health assessment of the affected area."
   }
 }

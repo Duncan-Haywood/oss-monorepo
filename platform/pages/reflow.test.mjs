@@ -129,6 +129,33 @@ test('the min-width relaxations are zero-specificity and phone-only', () => {
   assert.ok(!/:where\(\*\)/.test(narrow), 'the blunt rule was measured and was worse than the bug');
 });
 
+test('headings may break a long word, and only where one would overflow', () => {
+  // Cause (4): `vs-securityheaders.html` was 365px inside a 360px window, the
+  // whole 5px coming from an <h1> naming a bare domain.
+  assert.match(REFLOW_CSS, /:where\(h1,h2,h3,h4,h5,h6\)\{overflow-wrap:break-word\}/);
+
+  // `anywhere` also shrinks min-content width, which resizes the heading's
+  // flex/grid parent on every page. `break-word` does not, which is the whole
+  // reason it is the one chosen.
+  assert.ok(
+    !/overflow-wrap:\s*anywhere/.test(REFLOW_CSS),
+    'break-word is deliberate: anywhere would change layout everywhere to fix one page',
+  );
+
+  // Zero specificity, so a venture that set its own heading wrapping keeps it.
+  const rule = REFLOW_CSS.split('\n').find((line) => /^\s*[^\s/*].*overflow-wrap:break-word/.test(line));
+  assert.match(rule.trim(), /^:where\(/);
+
+  // Not inside the narrow-viewport query: a token too long for the line is too
+  // long at any width.
+  const narrow = REFLOW_CSS.slice(REFLOW_CSS.indexOf('@media (max-width:640px)'));
+  const narrowBlockEnd = narrow.indexOf('\n}');
+  assert.ok(
+    !narrow.slice(0, narrowBlockEnd).includes('overflow-wrap:break-word'),
+    'heading wrapping must apply at every viewport, not only on a phone',
+  );
+});
+
 test('the runtime wrap skips a table that is already boxed', () => {
   // It is spliced into a function body in the built chrome script, so it has to
   // be ES5 statements and it has to test the class before wrapping — otherwise

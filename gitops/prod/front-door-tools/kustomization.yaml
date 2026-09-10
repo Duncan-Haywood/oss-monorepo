@@ -33,20 +33,20 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556417 bytes
-#   portfolio-front-tools-1: 110 files, 555669 bytes
-#   portfolio-front-tools-2: 149 files, 548245 bytes
-#   portfolio-front-tools-3: 144 files, 554901 bytes
-#   portfolio-front-tools-4: 118 files, 555968 bytes
-#   portfolio-front-tools-5: 131 files, 554869 bytes
+#   portfolio-front-tools-0: 136 files, 556406 bytes
+#   portfolio-front-tools-1: 110 files, 555659 bytes
+#   portfolio-front-tools-2: 149 files, 548246 bytes
+#   portfolio-front-tools-3: 144 files, 554895 bytes
+#   portfolio-front-tools-4: 118 files, 555944 bytes
+#   portfolio-front-tools-5: 131 files, 554848 bytes
 #   portfolio-front-tools-6: 132 files, 554963 bytes
-#   portfolio-front-tools-7: 114 files, 554001 bytes
-#   portfolio-front-tools-8: 116 files, 553181 bytes
-#   portfolio-front-tools-9: 126 files, 556265 bytes
-#   portfolio-front-tools-10: 107 files, 550368 bytes
-#   portfolio-front-tools-11: 114 files, 556633 bytes
-#   portfolio-front-tools-12: 68 files, 330307 bytes
-#   portfolio-front-tools-13: 56 files, 274207 bytes
+#   portfolio-front-tools-7: 114 files, 553974 bytes
+#   portfolio-front-tools-8: 116 files, 553198 bytes
+#   portfolio-front-tools-9: 126 files, 556401 bytes
+#   portfolio-front-tools-10: 107 files, 550375 bytes
+#   portfolio-front-tools-11: 114 files, 556645 bytes
+#   portfolio-front-tools-12: 74 files, 360624 bytes
+#   portfolio-front-tools-13: 54 files, 272596 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1694,17 +1694,17 @@ configMapGenerator:
       - water-heater-bid-calculator__vs-servicetitan.html.gz=water-heater-bid-calculator__vs-servicetitan.html.gz
       - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
       - water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz=water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz
-  - name: portfolio-front-tools-13
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - water-softener-bid-calculator__index.html.gz=water-softener-bid-calculator__index.html.gz
       - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
       - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
       - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
       - well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz=well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz
+  - name: portfolio-front-tools-13
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
       - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
       - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
@@ -1738,6 +1738,10 @@ configMapGenerator:
       - which-job-first__index.html.gz=which-job-first__index.html.gz
       - which-job-first__rank.mjs.gz=which-job-first__rank.mjs.gz
       - which-job-first__vs-jobber.html.gz=which-job-first__vs-jobber.html.gz
+      - wildlife-exclusion-bid-calculator__calc.mjs.gz=wildlife-exclusion-bid-calculator__calc.mjs.gz
+      - wildlife-exclusion-bid-calculator__index.html.gz=wildlife-exclusion-bid-calculator__index.html.gz
+      - wildlife-exclusion-bid-calculator__usage.mjs.gz=wildlife-exclusion-bid-calculator__usage.mjs.gz
+      - wildlife-exclusion-bid-calculator__what-to-charge-for-wildlife-exclusion.html.gz=wildlife-exclusion-bid-calculator__what-to-charge-for-wildlife-exclusion.html.gz
       - window-cleaning-bid-calculator__calc.mjs.gz=window-cleaning-bid-calculator__calc.mjs.gz
       - window-cleaning-bid-calculator__how-much-to-charge-per-window.html.gz=window-cleaning-bid-calculator__how-much-to-charge-per-window.html.gz
       - window-cleaning-bid-calculator__index.html.gz=window-cleaning-bid-calculator__index.html.gz

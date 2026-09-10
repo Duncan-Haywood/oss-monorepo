@@ -24362,3 +24362,109 @@ entries:
         checklist_coverage.py clean (platform/pages was already a named
         directory, so the new suite needs no CLAUDE.md line).
     mrr_end: 0
+  - venture: wildlife-exclusion-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture into a niche the portfolio's 246 existing
+        ventures did not cover: one-off nuisance-wildlife exclusion, priced
+        for independent NWCOs. It is deliberately not
+        pest-control-bid-calculator, which prices a recurring route account
+        (a stop, a drive, a frequency, repeated indefinitely). This prices a
+        project that happens once and then carries a warranty, and the two
+        share a trade adjacency and almost no formula --
+        duplicate_check.py's closest pre-existing match scored 0.11, with
+        pest-control at 0.07, far under the 0.45 flag bar. The 0.95 the
+        tool reports is this venture's own VENTURE.yaml, added before the
+        check was run.
+      - >-
+        The product's argument is a visit count, not a rate. The homeowner
+        is holding a "$395 raccoon removal" ad, and that ad prices one
+        trip; the worked example the page opens on is eight -- an
+        inspection, an install, a trap check on each of five days (most
+        states require every 24 hours), and a trip back to pull the one-way
+        device. That is 224 miles and $306.53 of paid drive time before
+        anyone touches the roof, against $124.77 of on-site trapping
+        labor. Walk-away $2,896.07, bid at 22% net margin $3,712.91, so the
+        ad is $2,501.07 short of what the job costs to do.
+      - >-
+        Three modelling decisions worth recording because each was a place
+        the tool could have been wrong in its own favour. Height is a
+        multiplier on exclusion labor only (1.7x at a two-story eave: the
+        same 45 ft is $155.80 at ground level and $264.86 up the ladder)
+        and deliberately does not touch trap checks in the yard or decon in
+        the attic, which take the same time however high the roof is. The
+        trap-check crew is a separate input from the seal crew, because one
+        tech usually goes back alone -- charging the full crew for all five
+        checks would have overstated this job by $218.50, and overstating
+        is how the tool loses the argument it exists to win. The warranty
+        reserve is taken against the warranted work alone (exclusion labor,
+        exclusion material, devices -- $453.86 here, so 8% is $36.31),
+        never the whole invoice, because a callback is a hole that
+        reopened, not an attic that was already cleaned.
+      - >-
+        Five flags, each worded on the page as a prompt rather than a
+        determination: a maternity-season schedule for the chosen species,
+        trapping days with no checks budgeted, traps quoted on a species
+        nobody traps (bats and birds are excluded through one-way devices),
+        devices left with no removal trip, and a warranty sold with a 0%
+        reserve. The maternity flag is the one that could be misread as
+        legal advice, so it carries "confirm the window with your state
+        wildlife agency -- this is a prompt, not a legal determination" in
+        the message itself, not only in the footer. Trap-check frequency is
+        an operator input throughout; the tool asserts no rule about it.
+      - >-
+        Adopted the customer proposal (platform/proposal/adopt.mjs, 85th
+        trade entry) rather than taking the documented not-adopted
+        exception. For a $3,700 job the printed sheet is the artifact that
+        wins or loses it, and the scope lines draft from the calc result,
+        so the printed scope and the priced job cannot drift apart.
+        Adoption added two usage events; both are named in the footer,
+        along with what the proposal persists (the contractor's own
+        business block) and what it deliberately does not (the customer's
+        name and address).
+      - >-
+        Split the burdened labor rate into hourlyWage + burdenRate so the
+        page carries all four shared shop-rate fields and joins the
+        site-wide rates a contractor types once. Chosen to be
+        figure-preserving: $25 at a 52% burden is exactly the $38 the
+        worked example already documented, so no published number moved.
+      - >-
+        Fixed a live reflow defect this run surfaced that was not this
+        venture's: security-headers-check/vs-securityheaders.html (#4496,
+        merged the same day) rendered 365px inside a 360px window, the
+        whole 5px coming from an <h1> naming a bare domain --
+        "(securityheaders.com)" has no space and no hyphen, so the heading's
+        content ran 29px past its own box with overflow:visible handing the
+        difference to the document. Fixed as a fourth documented cause in
+        reflow.mjs rather than as page CSS, so the next comparison page to
+        name a hostname gets it on the day it ships. break-word rather than
+        anywhere, because anywhere also shrinks min-content width and would
+        resize the heading's flex/grid parent on every page to fix five
+        pixels on one. Verified: 929 pages at 360px, none scroll sideways,
+        against 1 before.
+      - >-
+        Verified locally (Actions runners still starved per infra_state.yaml,
+        re-measured today, run 34423728610; not re-dispatched). Full browser
+        suite with Playwright 1.56.0 against the preinstalled Chromium:
+        contrast clean over 926 pages x 2 viewports with no WCAG A/AA
+        violations, sweep 244/244 tools answering, journey all steps pass,
+        sideways 929/929. node --test across platform/pages, marketing,
+        proposal, privacy and webcheck 1397 pass / 2 skip (both the
+        documented shallow-clone history-blob skips); the venture's own suite
+        103/103; pest-control 121/121. pytest gitops/tests 533 passed;
+        portfolio ledger/scoring/router/usage/pipeline + infra/tests 435
+        passed; all 20 platform/ci unittest modules OK; agent_review OK.
+        score_ventures.py --check consistent across 247; validate_usage.py
+        valid at 207 products; checklist_coverage clean; siblings 0 crawlable
+        orphans of 238.
+      - >-
+        Four counts that go stale when a venture gains a browser surface were
+        updated together, as CLAUDE.md's gitops/tests note predicts: 237 to
+        238 in infra/OWNER_CHECKLIST.md, gitops/prod/usage/aggregate.py and
+        twice in gitops/prod/front-door/default.conf, plus the total in
+        test_manifests.py. The mirror regen rewrote 936 front-door blobs,
+        which is real content -- every mirrored page prints the tool count in
+        its back-link.
+    mrr_end: 0

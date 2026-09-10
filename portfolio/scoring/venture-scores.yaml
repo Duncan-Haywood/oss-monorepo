@@ -9452,3 +9452,81 @@ ventures:
       report is evidence from one specific request against a specific set
       of named patterns, not a full security assessment or a determination
       that the target is secure.
+
+  - slug: wildlife-exclusion-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. An operator sends a real bid off
+      this number, and the argument the bid has to survive is a homeowner
+      holding a competitor's flat removal fee -- so every line, especially
+      the visit count, has to be one the operator can defend out loud
+      against that number. A model's guess at how many trap checks a job
+      needs or how long a two-story seal takes would make the bid less
+      defensible without making it more correct, and the tool's whole claim
+      is that the arithmetic is checkable.
+    basis: >-
+      Screened 2026-09-10. `duplicate_check.py` scored the closest
+      pre-existing match (`self-storage-rate-increase-calculator`) at 0.11
+      against the final description, far under the 0.45 flag bar; the next
+      scores were `bounce-house-rental-calculator` (0.08),
+      `pest-control-bid-calculator` (0.07) and
+      `attic-insulation-bid-calculator` (0.06). The 0.95 the tool reports is
+      this venture's own VENTURE.yaml, added before the check was run.
+      Read rather than trusted, because the low score on
+      `pest-control-bid-calculator` is the one that had to be verified by
+      hand: that tool prices a *recurring route account* -- a stop, a drive,
+      a frequency, repeated indefinitely -- and its arithmetic is
+      per-visit-cost times visits-per-year. This prices a *project* that
+      happens once and then carries a warranty, and its arithmetic is an
+      explicit count of the visits one job takes. They share a trade
+      adjacency and almost no formula; pricing a wildlife exclusion with the
+      route tool is how it ends up quoted at a pest-control stop price,
+      which is the specific error this exists to correct.
+      `attic-insulation-bid-calculator` overlaps on one line item (insulation
+      by the square foot) and nothing else -- it prices an R-value delta for
+      an insulation contractor, not a contaminated removal for an NWCO.
+      Not already a `ventures/` directory or a `screened-out.md` row under
+      any name. Distribution 6: real search demand ("bat exclusion cost",
+      "how much to charge for wildlife removal", "raccoon removal price")
+      and organised trade communities (the National Wildlife Control
+      Operators Association, state NWCO associations, and active pest- and
+      wildlife-control forums where pricing threads recur) -- one lower than
+      the bounce-house tool because the operator population is smaller, and
+      not higher because these are venues to be found in rather than a
+      channel this portfolio owns. Time to revenue 7, defensibility 4:
+      donations-only like every other tool here, and the arithmetic is
+      public; defensibility rests on naming the specific costs a flat
+      removal fee omits -- the per-trap-day return trip, the height tier,
+      the warranty reserve -- rather than on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, and this niche needed the gate read carefully rather than
+      assumed, because it is the first tool here adjacent to a *regulated
+      wildlife* activity. Everything runs in the visitor's browser on
+      figures they type, nothing is uploaded, and no third party's data is
+      touched. The two real exposures are both regulatory rather than
+      financial: how often a set trap must legally be checked, and whether a
+      species may lawfully be excluded on a given date. The tool makes
+      neither determination. Checks-per-day is an operator input, not a rule
+      the tool asserts, and the maternity-season signal is worded on the
+      page itself -- not only in the footer -- as a prompt to confirm the
+      window with the operator's own state wildlife agency, explicitly "not
+      a legal determination". The page, the guide, the README and the FAQ
+      each say plainly that the state wildlife code, the operator's licence
+      conditions and a qualified professional govern. Ethically the tool
+      argues *for* the more complete job -- counting the exclusion, the
+      decontamination and the return trips a flat removal fee omits -- which
+      is the direction that leaves the animal and the homeowner better off
+      rather than worse.

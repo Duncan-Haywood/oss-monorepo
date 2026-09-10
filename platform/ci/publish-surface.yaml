@@ -722,6 +722,9 @@ workflows:
 - workflow: bounce-house-rental-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: wildlife-exclusion-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: seller-net-sheet-ci.yml
   classification: none
   publishes: []
