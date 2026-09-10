@@ -26,6 +26,15 @@
     <summary type="text">Price a bounce house or inflatable rental booking from the truck&#39;s two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet&#39;s replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.</summary>
   </entry>
   <entry>
+    <title>Canonical Tag Checker — Conflicting, Cross-Domain &amp; Dead-End Canonicals</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/canonical-tag-check/"/>
+    <id>tag:marisstella.dev,2026:tool/canonical-tag-check</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical that 404s or is itself marked noindex. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>CORS Misconfiguration Checker — Reflected Origin, Null Origin, Unanchored Allow-Lists</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cors-misconfig-check/"/>
     <id>tag:marisstella.dev,2026:tool/cors-misconfig-check</id>

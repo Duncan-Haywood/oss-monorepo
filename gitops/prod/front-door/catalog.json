@@ -703,6 +703,14 @@
       "pages": 3
     },
     {
+      "slug": "canonical-tag-check",
+      "name": "Canonical Tag Checker — Conflicting, Cross-Domain & Dead-End Canonicals",
+      "url": "https://marisstella.dev/tools/canonical-tag-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical that 404s or is itself marked noindex. Nothing uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "card-processing-fee-audit",
       "name": "Card Processing Fee Audit — Split Your Statement Into Interchange and Markup",
       "url": "https://marisstella.dev/tools/card-processing-fee-audit/",

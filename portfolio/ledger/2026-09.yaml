@@ -24491,6 +24491,122 @@ entries:
         checklist_coverage.py and build+check.mjs (238 products, 929 pages,
         no dead links) all clean.
     mrr_end: 0
+  - venture: canonical-tag-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First cleared the open-PR queue for this session: PR #4492
+        (bounce-house-rental-calculator) was reviewed, its mirror-conflict
+        with a newly-merged sibling PR resolved (conflicting front-door
+        gzip shards taken from main's side, gitops/tests/test_manifests.py
+        and the ledger/scoring/usage YAML conflicts hand-merged, then
+        regen.mjs rerun), and the fix was ready to push when a concurrent
+        session merged the identical PR first -- confirmed via
+        pull_request_read that #4492 was already merged, so the duplicate
+        work was discarded rather than pushed. No other PRs were open
+        (checked via list_pull_requests before and after). Checked
+        infra_state.yaml and decision_queue.py for the session's Hetzner/
+        Codex-CLI ask: both the marketing deployment route and a
+        systemd-timer Codex worker (gitops/agents/host/, spending the
+        owner's ChatGPT plan quota rather than a billed API key) are
+        already built and already queued as part of decision #1
+        (hetzner-ssh-key-is-a-public-key) -- blocked on the owner rotating
+        a real SSH private key from their own machine, which no session
+        can do. GitHub Pages deployment was confirmed current
+        (pages_state.py --require-current, built from the tip of main)
+        with nothing to refresh.
+      - >-
+        Graduated and shipped a new venture: a CLI + browser report-viewer
+        that fetches a URL for real, reads its canonical link tag(s), and
+        -- when there is exactly one -- fetches that URL too, classifying
+        the evidence into eight named canonicalization misconfiguration
+        patterns: multiple conflicting canonical tags, a relative or
+        cross-domain canonical, a protocol mismatch, and a canonical
+        target that is unreachable, redirects, or is itself marked
+        noindex. Screened with duplicate_check.py (closest match
+        pwa-installability-check at 0.13, well under the 0.45 flag bar --
+        no existing venture reads a canonical tag); scored per
+        pipeline/README.md's 8-dimension rubric (composite 6.167, floor 1
+        on ai_leverage, both gates pass). Filed under the `ci` category in
+        platform/pages/build.mjs on its first commit, cross-linked with
+        structured-data-drift-check and security-headers-check as
+        Related, and added the reciprocal link from
+        structured-data-drift-check's footer in the same commit (closing
+        the one crawlable orphan siblings.mjs would otherwise have
+        reported -- 0 of 238 orphans after).
+      - >-
+        Full vertical slice: probe.mjs (redirect-following fetch plus a
+        regex HTML head parser for canonical link tags and meta robots,
+        21 tests against a local loopback server, never the real
+        internet), analyze.mjs (pure classification engine, 20 tests),
+        check.mjs (CLI entry point), usage.mjs (local, opt-out,
+        DNT/GPC-honouring), index.html (paste-JSON report viewer with a
+        worked example demonstrating a real danger finding), a
+        vs-screaming-frog.html comparison page (trademark disclaimer, no
+        unverifiable pricing/traction claims, static/no-script), README,
+        LICENSE, robots.txt, sitemap.xml, VENTURE.yaml, a CI workflow
+        copied from the sibling template, a venture-scores.yaml row, a
+        usage.yaml baseline, and a launched.json entry.
+      - >-
+        Two real bugs caught and fixed during verification rather than
+        found later. First: the worked example's illustrative `raw` tag
+        strings and two prose sentences describing the tag syntax
+        (`<link rel="canonical">`, entity-escaped in one case) were
+        themselves literal canonical-tag-shaped text, which both
+        front-door-tools.test.mjs's per-mirrored-page canonical count and
+        build.test.mjs's per-published-page canonical count correctly
+        flagged as "more than one canonical" on the checker's own page --
+        rewritten to describe the tag without reproducing its exact
+        markup. Second: faq-visible.test.mjs caught the FAQPage JSON-LD
+        answers using "--" while the matching visible paragraphs used a
+        real em-dash ("—") in several places, plus one visible answer
+        missing a word ("with tracking parameters") present in the
+        JSON-LD -- both fixed to be textually identical after tag-
+        stripping, the same class of defect CLAUDE.md already records
+        against carpet-molding-style duplicate pages.
+      - >-
+        Fixed the mirrored-tool-count drift a new venture leaves behind,
+        in the four places CLAUDE.md names (infra/OWNER_CHECKLIST.md x3,
+        gitops/prod/usage/aggregate.py, gitops/prod/front-door/
+        default.conf x2, and gitops/tests/test_manifests.py's own
+        hardcoded `total`, 237 -> 238), plus a stale runs-on count in
+        gitops/ci/README.md fixed via
+        `python3 gitops/ci/sync_readme_counts.py` (the new CI workflow
+        added two more runs-on lines since that sentence was last
+        synced), and a publish-surface.yaml row for the new workflow.
+      - >-
+        Verified locally (Actions runners confirmed starved today --
+        every check run 26 checks on the last merged PR came back
+        runner_id: 0 in ~3s): node --test on the venture, 77/77; node
+        --test across platform/marketing + platform/pages, 1218/1218
+        (after the two rounds of fixes above); node --test on
+        platform/proposal, 101/101; node --test on platform/privacy +
+        platform/webcheck, 79/79; checklist_coverage.py clean; clauses.mjs
+        clean on both pages; siblings.mjs 0 of 238 orphans; pytest
+        gitops/tests 533 passed / 25 skipped (initially 2 failed on the
+        stale runs-on count, fixed forward above, then clean); pytest
+        across portfolio/ledger, scoring, router, usage, pipeline and
+        infra/tests 435 passed; all 22 platform/ci unittest modules
+        (including agent_review's 21 tests) pass; score_ventures.py
+        --check, validate_usage.py, router/validate.py,
+        validate_doc_consistency.py, validate_candidates.py,
+        validate_probe_index.py, score_sensitivity.py,
+        front-door-tools.mjs --headroom, and check_no_payment_code.py all
+        clean. run_workflow_locally.py --for-changes was still running at
+        push time (this repo's own prior sessions record it hanging past
+        several minutes with no output); the eight validators it wraps
+        were each run individually above instead, all clean.
+      - >-
+        Not run: the whole-catalogue --record browser sweep (a 20-30
+        minute separate undertaking) and a live browser_checks.py --only
+        pass (this session's sandbox has no Playwright browser install
+        step run yet this session). Both pages were verified structurally
+        (JSON-LD validity, FAQ visible-text parity, disclaimer/privacy/
+        authorisation clauses, sponsor link, MIT license link, usage
+        opt-out control) via the automated test suite above rather than a
+        rendered-browser pass.
+    mrr_end: 0
   - venture: social-preview-check
     agent_spend_usd: null
     human_hours: 0
