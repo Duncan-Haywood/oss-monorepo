@@ -61,7 +61,9 @@ in memory in your tab.
 full Lighthouse run. Lighthouse also scores performance, accessibility,
 SEO, and checks like an offline-capable service worker that this tool does
 not attempt. A clean report means these checks found nothing, not that
-every browser will prompt to install the page.
+every browser will prompt to install the page. See
+[`vs-lighthouse.html`](vs-lighthouse.html) for the full comparison — what
+each tool covers, and why this one needs no Chrome or Puppeteer install.
 
 **Real requests, real risk to be honest about.** This CLI sends actual
 network traffic to whatever URL you give it, plus its manifest and icon
