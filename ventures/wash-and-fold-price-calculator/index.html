@@ -12,7 +12,7 @@
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wash and Fold Price Per Pound Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates the cost of processing one wash-dry-fold order from labour minutes, wash and dry cycles, supplies, pickup-and-delivery stops and an allocated overhead share, then reports cost per pound, the break-even price per pound, margin at the operator's current price, and the volume needed for a monthly profit goal. Entirely client-side; nothing is uploaded."}
   </script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge per pound for wash and fold?","acceptedAnswer":{"@type":"Answer","text":"There is no single right number, because the cost side varies more than the price side: a shop paying $0.09 a gallon for water with 40 lb washers has a different floor than one paying $0.02 with 20 lb machines. Work out your own cost per pound first — labour minutes, wash and dry cycles, supplies, any delivery stops, and a share of overhead — then set the price above it by the margin you need. This calculator does that arithmetic on your own numbers; what your market will bear is a separate question it cannot answer."}},{"@type":"Question","name":"Why does a small wash and fold order lose money at the same price per pound?","acceptedAnswer":{"@type":"Answer","text":"Because a lot of the cost is per order rather than per pound. Intake, tagging, staging, bagging and checkout take the same minutes on a 10 lb order as on a 30 lb one, a pickup and a delivery are two stops either way, and a half-full washer costs a full cycle. Spread over ten pounds instead of thirty, those fixed costs are three times as heavy per pound — which is what a minimum charge exists to cover."}},{"@type":"Question","name":"What should the wash cost per load include?","acceptedAnswer":{"@type":"Answer","text":"Everything one cycle consumes: water at your metered rate, sewer if it is billed on water volume, the gas or electricity to heat that water, the electricity the machine draws, and a wear-and-replacement allowance for the machine itself. Read the rates off your own utility bills and your machine's rated water consumption per cycle rather than a published average, because tariffs and machine efficiency differ enormously between towns and between machines."}},{"@type":"Question","name":"Should pickup and delivery be priced into the per-pound rate or charged separately?","acceptedAnswer":{"@type":"Answer","text":"Either works, and the calculator shows why the choice matters: delivery cost is per stop, so it falls per pound as orders get bigger. Folding it into the per-pound rate means large orders subsidise small ones; charging a delivery fee or setting a route minimum puts the cost where it is incurred. Enter your stops per order, drive minutes and vehicle cost per mile to see how big the effect is at your average order weight."}},{"@type":"Question","name":"Does anything I type here get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in this browser, and nothing you enter is sent anywhere — there are no accounts, no cookies, and no analytics vendor. If you use the save button, your numbers are written to this browser's own local storage on this device only, and the forget button deletes them. Anonymous feature counts (estimate, example_loaded, inputs_saved) are stored the same local way and can be switched off."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge per pound for wash and fold?","acceptedAnswer":{"@type":"Answer","text":"There is no single right number, because the cost side varies more than the price side: a shop paying $0.09 a gallon for water with 40 lb washers has a different floor than one paying $0.02 with 20 lb machines. Work out your own cost per pound first — labour minutes, wash and dry cycles, supplies, any delivery stops, and a share of overhead — then set the price above it by the margin you need. This calculator does that arithmetic on your own numbers; what your market will bear is a separate question it cannot answer."}},{"@type":"Question","name":"Why does a small wash and fold order lose money at the same price per pound?","acceptedAnswer":{"@type":"Answer","text":"Because a lot of the cost is per order rather than per pound. Intake, tagging, staging, bagging and checkout take the same minutes on a 10 lb order as on a 30 lb one, a pickup and a delivery are two stops either way, and a half-full washer costs a full cycle. Spread over ten pounds instead of thirty, those fixed costs are three times as heavy per pound — which is what a minimum charge exists to cover."}},{"@type":"Question","name":"What should the wash cost per load include?","acceptedAnswer":{"@type":"Answer","text":"Everything one cycle consumes: water at your metered rate, sewer if it is billed on water volume, the gas or electricity to heat that water, the electricity the machine draws, and a wear-and-replacement allowance for the machine itself. Read the rates off your own utility bills and your machine's rated water consumption per cycle rather than a published average, because tariffs and machine efficiency differ enormously between towns and between machines."}},{"@type":"Question","name":"Should pickup and delivery be priced into the per-pound rate or charged separately?","acceptedAnswer":{"@type":"Answer","text":"Either works, and the calculator shows why the choice matters: delivery cost is per stop, so it falls per pound as orders get bigger. Folding it into the per-pound rate means large orders subsidise small ones; charging a delivery fee or setting a route minimum puts the cost where it is incurred. Enter your stops per order, drive minutes and vehicle cost per mile to see how big the effect is at your average order weight."}},{"@type":"Question","name":"Does anything I type here get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in this browser, and nothing you enter is sent anywhere — there are no accounts, no cookies, and no analytics vendor. If you use the save button, your numbers are written to this browser's own local storage on this device only, and the forget button deletes them. The Copy shareable link button puts the same numbers in the page's own URL fragment instead of a server, which your browser never sends anywhere. Anonymous feature counts (estimate, example_loaded, inputs_saved, link_copied) are stored the same local way and can be switched off."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
     body { max-width: 1040px; margin: auto; padding: 28px 18px; }
@@ -63,6 +63,8 @@
     processing one order, the break-even price per pound, and the margin at
     what you charge today. The competitor's sign down the road is not a costing
     model; this is.</p>
+    <p><a href="./how-much-to-charge-for-wash-and-fold.html">How much should I
+    charge for wash and fold? A worked example</a></p>
     <p class="note">Everything runs in this browser. Your wages, utility rates
     and volumes are never uploaded — see the privacy note in the footer.</p>
   </header>
@@ -190,10 +192,12 @@
       <button type="button" class="secondary" id="load-example">Load an example</button>
       <button type="button" class="secondary" id="save">Save my numbers on this device</button>
       <button type="button" class="secondary" id="forget">Forget my numbers</button>
+      <button type="button" class="secondary" id="copy-link">Copy shareable link</button>
     </p>
     <p class="note" id="status">Fill in what you know and press Calculate. The
     figures shown are a delivery-route example, not a benchmark — replace them
     with your own.</p>
+    <p class="note" id="link-status" role="status"></p>
   </section>
 
   <section class="card" id="report" aria-live="polite" hidden>
@@ -242,7 +246,7 @@
     <h3>Should pickup and delivery be priced into the per-pound rate or charged separately?</h3>
     <p>Either works, and the calculator shows why the choice matters: delivery cost is per stop, so it falls per pound as orders get bigger. Folding it into the per-pound rate means large orders subsidise small ones; charging a delivery fee or setting a route minimum puts the cost where it is incurred. Enter your stops per order, drive minutes and vehicle cost per mile to see how big the effect is at your average order weight.</p>
     <h3>Does anything I type here get uploaded?</h3>
-    <p>No. Every calculation runs in this browser, and nothing you enter is sent anywhere — there are no accounts, no cookies, and no analytics vendor. If you use the save button, your numbers are written to this browser's own local storage on this device only, and the forget button deletes them. Anonymous feature counts (estimate, example_loaded, inputs_saved) are stored the same local way and can be switched off.</p>
+    <p>No. Every calculation runs in this browser, and nothing you enter is sent anywhere — there are no accounts, no cookies, and no analytics vendor. If you use the save button, your numbers are written to this browser's own local storage on this device only, and the forget button deletes them. The Copy shareable link button puts the same numbers in the page's own URL fragment instead of a server, which your browser never sends anywhere. Anonymous feature counts (estimate, example_loaded, inputs_saved, link_copied) are stored the same local way and can be switched off.</p>
   </section>
   </main>
 
@@ -251,26 +255,21 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p>This calculator produces arithmetic observations from numbers you supply. It does not determine what your service is worth in your market, does not read your utility bills, and does not assess whether any wage, employment, or environmental rule applies to your operation.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Everything runs in your browser. Your rates and volumes are never uploaded; there are no accounts, cookies, or analytics vendors. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget my numbers</em> deletes them. Anonymous feature events (<code>estimate</code>, <code>example_loaded</code>, <code>inputs_saved</code>) are counted in local storage too and never transmitted. Do Not Track and Global Privacy Control turn counting off automatically.</p>
+    <p>Everything runs in your browser. Your rates and volumes are never uploaded; there are no accounts, cookies, or analytics vendors. Saving your numbers writes them to this browser's local storage on this device only, and <em>Forget my numbers</em> deletes them. <em>Copy shareable link</em> puts the same numbers in the page's URL fragment instead of a server — nothing about your numbers leaves your device either way. Anonymous feature events (<code>estimate</code>, <code>example_loaded</code>, <code>inputs_saved</code>, <code>link_copied</code>) are counted in local storage too and never transmitted. Do Not Track and Global Privacy Control turn counting off automatically.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button> <span id="optout-status" class="note"></span></p>
     <p>Also running a route of recurring residential stops? The <a href="../dog-walking-route-pricing/">dog walking and pet sitting rate calculator</a> prices a visit from on-site time, drive time and mileage, and checks a client list against a monthly income goal.</p>
+    <p>Already running orders and routes through <a href="./vs-cents.html">Cents</a> or a comparable platform? See <a href="./vs-cents.html">how this calculator differs from Cents</a> — this is a private cost worksheet, not a POS or route subscription.</p>
     <p>Free and open source. If this helped you price the next pound, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { computeWashAndFold } from "./calculator.mjs";
+    import { computeWashAndFold, INPUT_FIELDS } from "./calculator.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { encodeInputs, decodeInputs } from "./share.mjs";
 
     const DRAFT_KEY = "wash-and-fold-inputs";
     const $ = (sel) => document.querySelector(sel);
-    const FIELDS = [
-      "pricePerPound", "avgOrderPounds", "minimumCharge", "minimumOrderPounds",
-      "laborMinutesPerPound", "fixedMinutesPerOrder", "wagePerHour", "payrollLoadPct",
-      "poundsPerWasherLoad", "washCostPerLoad", "poundsPerDryerLoad", "dryCostPerLoad",
-      "suppliesCostPerPound", "deliveryStopsPerOrder", "driveMinutesPerStop", "milesPerStop",
-      "vehicleCostPerMile", "monthlyOverhead", "monthlyPounds", "targetMarginPct",
-      "monthlyProfitGoal",
-    ];
+    const FIELDS = INPUT_FIELDS;
     const EXAMPLE = {
       pricePerPound: 1.75, avgOrderPounds: 22, minimumCharge: 20, minimumOrderPounds: 10,
       laborMinutesPerPound: 0.9, fixedMinutesPerOrder: 9, wagePerHour: 16, payrollLoadPct: 18,
@@ -415,6 +414,9 @@
       $("#optout-status").textContent = "Local counts deleted. Nothing had left this device anyway.";
     });
 
+    // A shared link wins over a saved local draft so the recipient always
+    // sees the sender's numbers; whatever the link omits still falls back
+    // to the draft, then to the form's own shipped defaults.
     try {
       const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
       if (saved && typeof saved === "object") {
@@ -424,6 +426,25 @@
     } catch {
       /* storage is optional */
     }
+
+    const fromLink = decodeInputs(location.hash || location.search);
+    if (Object.keys(fromLink).length) {
+      writeInputs(fromLink);
+      $("#link-status").textContent = "Opened a shared scenario. Review the numbers before you rely on them.";
+    }
+
+    $("#copy-link").addEventListener("click", async () => {
+      const query = encodeInputs(readInputs());
+      const url = `${location.pathname}${location.search}${query ? `#${query}` : ""}`;
+      history.replaceState(null, "", url);
+      try {
+        await navigator.clipboard.writeText(location.href);
+        $("#link-status").textContent = "Link copied. Nothing was uploaded — the numbers ride in the URL itself.";
+      } catch {
+        $("#link-status").textContent = "Copy was blocked — the link is now in your address bar.";
+      }
+      recordUsage("link_copied");
+    });
 
     if (usageOptedOut()) {
       $("#optout").disabled = true;
