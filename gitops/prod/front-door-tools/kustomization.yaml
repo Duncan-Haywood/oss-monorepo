@@ -42,10 +42,10 @@
 #   portfolio-front-tools-6: 128 files, 553481 bytes
 #   portfolio-front-tools-7: 107 files, 556139 bytes
 #   portfolio-front-tools-8: 121 files, 555548 bytes
-#   portfolio-front-tools-9: 126 files, 550728 bytes
+#   portfolio-front-tools-9: 127 files, 552747 bytes
 #   portfolio-front-tools-10: 100 files, 554020 bytes
 #   portfolio-front-tools-11: 111 files, 556583 bytes
-#   portfolio-front-tools-12: 74 files, 345844 bytes
+#   portfolio-front-tools-12: 74 files, 348374 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1321,6 +1321,7 @@ configMapGenerator:
       - poshmark-fee-calculator__index.html.gz=poshmark-fee-calculator__index.html.gz
       - poshmark-fee-calculator__is-a-lower-offer-worth-it-on-poshmark.html.gz=poshmark-fee-calculator__is-a-lower-offer-worth-it-on-poshmark.html.gz
       - poshmark-fee-calculator__share.mjs.gz=poshmark-fee-calculator__share.mjs.gz
+      - poshmark-fee-calculator__to-where-to-sell.mjs.gz=poshmark-fee-calculator__to-where-to-sell.mjs.gz
       - poshmark-fee-calculator__usage.mjs.gz=poshmark-fee-calculator__usage.mjs.gz
       - poshmark-fee-calculator__vs-poshmarks-how-it-works-page.html.gz=poshmark-fee-calculator__vs-poshmarks-how-it-works-page.html.gz
       - pour-cost-calculator__calc.mjs.gz=pour-cost-calculator__calc.mjs.gz

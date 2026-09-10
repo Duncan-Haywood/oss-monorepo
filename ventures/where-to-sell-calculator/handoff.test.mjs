@@ -26,6 +26,7 @@ import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs
 import { INPUT_FIELDS as REVERB_FIELDS } from '../reverb-fee-calculator/calc.mjs';
 import { FIELD_IDS as TIKTOK_FIELDS } from '../tiktok-shop-fee-calculator/calc.mjs';
 import { INPUT_IDS as WHATNOT_FIELDS } from '../whatnot-seller-payout/calc.mjs';
+import { INPUT_IDS as POSHMARK_FIELDS } from '../poshmark-fee-calculator/calc.mjs';
 
 const TARGET_FIELDS = {
   'ebay-fee-calculator': EBAY_FIELDS,
@@ -35,6 +36,7 @@ const TARGET_FIELDS = {
   'reverb-fee-calculator': REVERB_FIELDS,
   'tiktok-shop-fee-calculator': TIKTOK_FIELDS,
   'whatnot-seller-payout': WHATNOT_FIELDS,
+  'poshmark-fee-calculator': POSHMARK_FIELDS,
 };
 
 const SHARED = {
