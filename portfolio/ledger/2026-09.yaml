@@ -22793,3 +22793,46 @@ entries:
         build step with real values rather than skipping it, built and
         checked the artifact clean (3/3).
     mrr_end: 0
+  - venture: affiliate-disclosure-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Completeness gap, found by enumerating rather than recalling: of 238
+        ventures, affiliate-disclosure-checker (graduated PR #4333/#4451
+        mirror regen) was the only one with no `README.md` -- the file
+        `PRODUCT_PLAYBOOK.md`'s definition of done requires to carry the
+        LICENSE, disclaimer, and privacy line. The venture's `index.html`
+        and `LICENSE` already carried all three; only the repo-facing
+        landing doc was missing. `README.md` is deliberately excluded from
+        the published-site build (`build.mjs` `EXCLUDED_FILES`), so this
+        was invisible to every browser/mirror check and to a stranger
+        opening the deployed tool -- only visible to someone reading the
+        venture directory itself.
+      - >-
+        Added `ventures/affiliate-disclosure-checker/README.md`, modelled on
+        sibling checkers' (`env-example-drift-check`) README shape: problem
+        statement in the user's words, why it exists, try-without-installing
+        and CLI quickstart, the signals table, disclaimers (no-warranty,
+        not-affiliated/trademark), privacy-conscious usage tracking, dev/test
+        command, and status. No code, build, mirror, or gitops surface
+        changed.
+      - >-
+        Verified locally (Actions starved -- `ci_starvation.py --run
+        34472132801`: `runner_id: 0`, 3s, no steps): venture's own `node
+        --test engine.test.mjs cli.test.mjs page.test.mjs` 38/38;
+        `platform/marketing`+`platform/pages` 1202/1202; `platform/proposal`
+        101/101; `platform/privacy`+`platform/webcheck` 79/79; `pytest
+        portfolio/{ledger,scoring,router,usage,pipeline} infra/tests` 435
+        passed/8 subtests; all 21 `platform/ci` unittest modules
+        (`test_*.py`) plus `agent_review/test_review` 21/21;
+        `checklist_coverage.py`, `clauses.mjs affiliate-disclosure-checker`,
+        `check_no_payment_code.py`, `validate_doc_consistency.py`,
+        `validate_candidates.py`, `probes/validate_probe_index.py`,
+        `score_sensitivity.py`, `score_ventures.py --check` (239),
+        `router/validate.py` (238), `usage/validate_usage.py` (200
+        products), `front-door-tools.mjs --headroom`, `publish_surface.py
+        --check` all clean. No browser-checks run needed: no markup a user
+        types into changed. `run_workflow_locally.py --tree` run against
+        this branch; see the PR body for its result.
+    mrr_end: 0
