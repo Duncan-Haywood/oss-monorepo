@@ -24362,3 +24362,74 @@ entries:
         checklist_coverage.py clean (platform/pages was already a named
         directory, so the new suite needs no CLAUDE.md line).
     mrr_end: 0
+  - venture: docker-base-image-pin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `docker-base-image-pin-check`, a free
+        read-only checker (zero-dependency Python CLI + browser page) that
+        scans Dockerfiles for `FROM` lines referencing a base image by a
+        mutable tag (`node:18`, bare `latest`, or no tag at all) instead of
+        a pinned content digest (`@sha256:...`). Same shape as
+        `pinned-actions-check` (the fleet's proven "mutable tag vs. pinned
+        reference" CLI/browser/comparison-page archetype,
+        `pipeline/README.md`'s recommended shape over a 248th
+        `<trade>-bid-calculator`), applied to a different, equally
+        well-documented supply-chain surface: a container build's base
+        image rather than a GitHub Actions `uses:` line. The distinguishing
+        finding: a specific-looking tag like `node:18` is still mutable,
+        and Hadolint's own documented DL3006/DL3007 rules stop at "has an
+        explicit, non-latest tag" without requiring a digest -- the gap
+        `vs-hadolint.html` names with sourced facts, no live comparison.
+      - >-
+        `duplicate_check.py` scored every existing venture, screened-out
+        row, ai-first-markets idea, and pipeline candidate below 0.13
+        against the draft description and below 0.38 (pinned-actions-check
+        itself) against the final one -- both well under the 0.45 bar.
+        Liability/ethics gates: pass/pass -- a read-only static-text
+        scanner, no network call of its own, no advice-of-record, no
+        personal data; every mutable finding prints a `docker buildx
+        imagetools inspect` command for the user to run themselves rather
+        than resolving or pinning anything on the tool's behalf.
+      - >-
+        Full vertical slice in one commit: check.py + classify.mjs (43 + 31
+        tests, including a CLI/browser parity test), test_check.py,
+        classify.test.mjs, index.html (interactive checker + FAQPage/
+        SoftwareApplication JSON-LD), a how-to guide page and a
+        vs-hadolint.html comparison page (11 page.test.mjs assertions),
+        usage.mjs (local-only, DNT/GPC-honouring), README, LICENSE,
+        robots.txt, sitemap.xml, VENTURE.yaml, a dedicated CI workflow, a
+        venture-scores.yaml row (composite 6.0, both gates pass), and a
+        usage.yaml zero baseline. Filed under the `ci` category in
+        build.mjs on this first commit. Added a reciprocal link from
+        `pinned-actions-check` (closing the sibling pair the fleet's own
+        `siblings.test.mjs` orphan-budget check enforces at 0 headroom).
+        Fixed the mirrored-tool-count drift the new venture otherwise
+        leaves behind in `infra/OWNER_CHECKLIST.md` (237->238, 3 places),
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/
+        default.conf` (2 places), and `gitops/tests/test_manifests.py`'s
+        hardcoded `total`; ran `gitops/ci/sync_readme_counts.py` for the
+        new workflow's `runs-on` count and `platform/ci/publish_surface.py
+        --write` for its publish-surface row; ran
+        `node platform/pages/launched.mjs --write` and
+        `node platform/marketing/regen.mjs` and committed what both
+        rewrote (mirror shards + front-door static site).
+      - >-
+        Verified locally (Actions runners starved per infra_state.yaml):
+        node --test on the venture's own 3 files 42/42; node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs green
+        (this catalogue's whole-portfolio guards, including
+        faq-visible.test.mjs and siblings.test.mjs's orphan budget, both
+        of which caught real authoring mistakes on this venture's pages
+        before this entry was written -- see the PR for the fixes);
+        python3 -m pytest gitops/tests -q 533 passed / 25 skipped;
+        python3 -m pytest portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
+        green; platform/ci's 15 unittest modules green;
+        checklist_coverage.py clean; score_ventures.py --check and
+        router/validate.py clean over all 248 ventures;
+        usage/validate_usage.py clean; clauses.mjs docker-base-image-pin-
+        check clean; platform/proposal and platform/privacy +
+        platform/webcheck suites green (pre-existing, unaffected).
+    mrr_end: 0
