@@ -26,6 +26,7 @@ function healthySet() {
     probe('null-origin', 'null'),
     probe('prefix-match', 'https://api.example.com.attacker-controlled.invalid'),
     probe('suffix-match', 'https://evil-api.example.com'),
+    probe('same-origin', 'https://api.example.com'),
   ];
 }
 
@@ -164,8 +165,70 @@ test('an empty or missing probes array is handled without throwing', () => {
   assert.equal(report.findings.length, 0);
 });
 
-test('PROBE_LABELS lists exactly the five probes this tool sends', () => {
-  assert.deepEqual(PROBE_LABELS, ['baseline', 'reflect', 'null-origin', 'prefix-match', 'suffix-match']);
+test('PROBE_LABELS lists exactly the six probes this tool sends', () => {
+  assert.deepEqual(PROBE_LABELS, [
+    'baseline', 'reflect', 'null-origin', 'prefix-match', 'suffix-match', 'same-origin',
+  ]);
+});
+
+// The four tests below are the ones that matter for the Vary: Origin check.
+// Before the `same-origin` probe existed it looked only at `reflect`, so it
+// could only ever fire on a server that had already been flagged for
+// trusting arbitrary origins -- and for the population the finding is
+// actually about (a working allow-list in front of a shared cache) it never
+// fired at all. The first test is that missed case.
+
+test('a working allow-list that omits Vary: Origin is still a cache-poisoning notice', () => {
+  const probes = healthySet();
+  const same = probes.find((p) => p.label === 'same-origin');
+  same.headers['access-control-allow-origin'] = same.requestOrigin;
+
+  const report = buildReport('https://api.example.com/', probes);
+  // Nothing dangerous: it echoed back an origin it is supposed to echo back.
+  assert.equal(report.dangerCount, 0);
+  const finding = report.findings.find((f) => f.id === 'missing-vary-origin');
+  assert.ok(finding, 'expected the Vary: Origin notice');
+  assert.equal(finding.severity, 'notice');
+  assert.equal(finding.probeLabel, 'same-origin');
+  assert.match(finding.detail, /allow-list itself is behaving correctly/);
+});
+
+test('the same allow-list with Vary: Origin present reports clean', () => {
+  const probes = healthySet();
+  const same = probes.find((p) => p.label === 'same-origin');
+  same.headers['access-control-allow-origin'] = same.requestOrigin;
+  same.headers.vary = 'Accept-Encoding, Origin';
+
+  const report = buildReport('https://api.example.com/', probes);
+  assert.equal(report.ok, true);
+  assert.deepEqual(report.findings, []);
+});
+
+test('a static Access-Control-Allow-Origin is not a Vary finding', () => {
+  // The server sends its own origin unconditionally -- including on the
+  // baseline request that carried no Origin header at all. That response is
+  // identical for every caller, so no cache can confuse it and no Vary is
+  // owed. Reading this as "dynamic" is the false positive the baseline
+  // comparison exists to prevent.
+  const probes = healthySet();
+  for (const p of probes) {
+    p.headers['access-control-allow-origin'] = 'https://api.example.com';
+  }
+
+  const report = buildReport('https://api.example.com/', probes);
+  assert.equal(report.findings.find((f) => f.id === 'missing-vary-origin'), undefined);
+});
+
+test('echoing the site own origin is never a danger finding on its own', () => {
+  const probes = healthySet();
+  const same = probes.find((p) => p.label === 'same-origin');
+  same.headers['access-control-allow-origin'] = same.requestOrigin;
+  same.headers['access-control-allow-credentials'] = 'true';
+  same.headers.vary = 'Origin';
+
+  const report = buildReport('https://api.example.com/', probes);
+  assert.equal(report.dangerCount, 0);
+  assert.equal(report.ok, true);
 });
 
 test('every finding carries the fields the UI and CLI render', () => {
@@ -185,7 +248,7 @@ test('every finding carries the fields the UI and CLI render', () => {
 
 test('report echoes back a normalised probes array for rendering', () => {
   const report = buildReport('https://api.example.com/', healthySet());
-  assert.equal(report.probes.length, 5);
+  assert.equal(report.probes.length, 6);
   for (const p of report.probes) {
     assert.ok(PROBE_LABELS.includes(p.label));
     assert.equal(typeof p.ok, 'boolean');

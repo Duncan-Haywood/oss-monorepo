@@ -21868,3 +21868,204 @@ entries:
         this session, run 34423728610) read down, so PR checks are read as
         starvation rather than signal per CLAUDE.md.
     mrr_end: 0
+  - venture: wash-and-fold-price-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/wash-and-fold-price-calculator`,
+        a free browser calculator that turns a laundromat's or laundry
+        pickup-and-delivery operator's own labour minutes, wash and dry
+        cycle costs, supplies, delivery stops and overhead share into a cost
+        per pound, a break-even price per pound, the price that hits a
+        target margin, and the margin at what they charge today. Two things
+        a flat "$1.75 a pound" hides are the substance of it: machine cost
+        is stepwise (a 22 lb order on 20 lb washers runs two washers, and
+        the second costs a full cycle whether it is full or a tenth full),
+        and much of the cost is per *order* rather than per pound (intake,
+        tagging, a pickup and a delivery), so the tool costs the smallest
+        order the operator accepts separately and flags a minimum charge
+        that does not cover it.
+      - >-
+        Why this niche: a service the portfolio does not otherwise touch.
+        The nearest existing ventures cost a technician's stop list
+        (`pool-route-pricing`, `dog-walking-route-pricing`,
+        `medical-courier-route-margin`) or a cleaning contract by area and
+        frequency (`janitorial-bid-calculator`); none costs a per-unit-weight
+        processed good. `duplicate_check.py` on two phrasings scored nothing
+        at or above 0.21 against any venture, pipeline candidate,
+        screened-out row, or ai-first-markets idea. Named channel:
+        r/laundromat, the Coin Laundry Association community and the
+        laundromat-owner Facebook groups carry recurring "what should I
+        charge per pound for WDF" and "is delivery worth it" threads, and
+        the search phrases ("wash and fold price per pound", "how much
+        should I charge for wash and fold") are the evergreen version of
+        that question. Gates recorded in `VENTURE.yaml` and
+        `venture-scores.yaml` (composite 5.833, floor 1 `ai_leverage`):
+        the tool states no tariff, no wage rule and no benchmark price, and
+        both page and README say the output is a cost floor rather than a
+        recommended price.
+      - >-
+        Shipped with an inbound sibling link from its first commit rather
+        than as a 4th orphan against a budget already at its 3/3 ceiling:
+        `dog-walking-route-pricing`'s footer now names it (the same per-stop
+        drive-time arithmetic, priced by the pound instead of by the visit)
+        and its own footer names that tool back, with a `page.test.mjs`
+        assertion on the href in both ventures. `siblings.mjs --check`
+        reports 3 of 226 orphans, unchanged and in budget, so
+        `siblings-budget.json` needed no raise. Also filed the slug into
+        `build.mjs`'s `services` category rather than leaving it in the
+        catch-all, whose bound exists to ask exactly that question.
+      - >-
+        Registration completed in the same commit, per the checklist several
+        earlier venture PRs missed: CI workflow
+        (`.github/workflows/wash-and-fold-price-calculator-ci.yml`),
+        `venture-scores.yaml` row, `platform/ci/publish-surface.yaml` via
+        `publish_surface.py --write`, `platform/pages/launched.json` via
+        `launched.mjs --write`, the front-door regen, and the five
+        hand-typed mirrored-tool counts (225 -> 226) in
+        `gitops/tests/test_manifests.py`, `infra/OWNER_CHECKLIST.md` (three
+        sentences), `gitops/prod/usage/aggregate.py` and
+        `gitops/prod/front-door/default.conf` (twice), plus
+        `gitops/ci/sync_readme_counts.py` for the new workflow's runs-on
+        line.
+      - >-
+        Verification (Actions starved, so run here per CLAUDE.md): `node
+        --test ventures/wash-and-fold-price-calculator` 38/38; `node --test
+        ventures/dog-walking-route-pricing` 56/56; `node
+        platform/pages/clauses.mjs wash-and-fold-price-calculator` clean;
+        `node platform/marketing/regen.mjs` (2 generators, surface current)
+        and `front-door-tools.mjs --headroom` (82.1%, ~49 tools left);
+        `siblings.mjs --check` 3/226 in budget; `score_ventures.py --check`
+        235/235 consistent; `router/validate.py` 234 files valid;
+        `usage/validate_usage.py` and `checklist_coverage.py` clean;
+        `pytest gitops/tests` 506 passed / 25 skipped.
+    mrr_end: 0
+  - venture: cors-misconfig-check
+    agent_spend_usd: null
+    human_hours: null
+    outcomes:
+      - >-
+        Reviewed and repaired the open PR queue first. #4390 (apex mirror
+        refresh) verified clean locally -- regen produced no diff on its
+        branch, `platform/marketing`+`platform/pages` 1196/1196, `pytest
+        gitops/tests` 493/25, `portfolio` suites 431, all 15 `platform/ci`
+        unittest modules, `agent_review` 21, and all eight
+        `portfolio-validate.yml` validators -- and merged. #4391 (the
+        cors-misconfig-check venture) arrived `dirty` after #4392/#4393
+        landed; the two conflicts were both generated files
+        (`front-door-tools/ios-privacy-manifest-check__index.html.gz` and
+        `kustomization.yaml`), resolved by taking `main` and re-running
+        `regen.mjs` rather than hand-editing generator output, re-verified on
+        the merged tree (`--for-changes`: 63/63 and 2/2 `run:` steps), pushed
+        to the PR branch, and merged. `ci_starvation.py --run 34432407746`
+        read starvation (4 of 6 jobs `runner_id: 0`, 2-3s, no steps), so every
+        red check on both PRs is absent CI, not a result.
+      - >-
+        Then fixed a false negative in the venture just merged. Its
+        `missing-vary-origin` notice -- advertised on the page, the README and
+        the JSON-LD as one of the two things this tool reports -- could only
+        ever fire on the `reflect` probe, which by construction only echoes
+        back on a server that has ALREADY been flagged for trusting arbitrary
+        origins. So for the population the finding is actually about (a
+        working allow-list behind a shared cache, the ordinary shape of CORS
+        cache poisoning) the check was dead: every such server reported
+        perfectly clean.
+      - >-
+        Added a sixth probe, `same-origin`, sending the target's own origin.
+        It is never a finding on its own -- echoing back your own origin is
+        the correct answer -- and exists solely to give the Vary check a case
+        it can see. The false positive it would otherwise introduce is ruled
+        out by comparing against the `baseline` probe: a server that sends the
+        same `Access-Control-Allow-Origin` with no `Origin` header at all is
+        answering statically, and a response identical for everybody owes no
+        `Vary`. Only a header that changes with the request is reported.
+      - >-
+        Verified end to end against two local servers rather than only in
+        unit tests: a correct allow-list without `Vary: Origin` now produces
+        the notice and exits 0 (notice, not danger); the same server with
+        `Vary: Origin` present reports clean. Four new `analyze.test.mjs`
+        cases pin both directions plus the static-header non-finding; the
+        venture suite is 57/57 (was 53). Copy, JSON-LD FAQ and the satellite
+        page updated from five requests to six with a new Q&A explaining why
+        one request carries the user's own origin, kept identical between
+        JSON-LD and visible text for `faq-visible.test.mjs`.
+      - >-
+        Ran `regen.mjs` and committed the five mirror shards plus
+        `kustomization.yaml` it rewrote. Verified on the branch:
+        `ventures/cors-misconfig-check` 57/57, `platform/marketing` +
+        `platform/pages` 1196/1196, `platform/proposal` + `platform/privacy` +
+        `platform/webcheck` 172/172 (0 skipped -- `git fetch --unshallow`
+        first, so both history-pinned `page-integrity` tests actually ran),
+        `pytest gitops/tests` 506 passed / 25 skipped, `checklist_coverage`,
+        `router/validate.py`, `score_ventures.py --check`,
+        `validate_usage.py`, `validate_doc_consistency.py` and
+        `validate_candidates.py` all clean.
+      - >-
+        Also re-ran the full browser/accessibility sweep, which
+        `browser_state.py` reported STALE on all seven checks after the day's
+        venture merges. CLAUDE.md records that sessions skip these because
+        they believe Playwright is unavailable; it is one `npm install
+        --no-save playwright@1.56.0 axe-core` away, and the last first-time
+        run of it found 48 critical axe violations across three live products.
+    mrr_end: 0
+  - venture: childcare-tuition-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Zero open PRs existed at session start
+        (sampled 19 of the 177 branches unmerged into `main` with
+        `supersede_check.py` after `git fetch --unshallow` -- every one was
+        either SUPERSEDED via the identical-merge proof or a stale draft
+        `main` has since overtaken on every unmatched line, matching the
+        2026-09-05 full-sweep finding of "nothing repairable remained"), so
+        the session moved to product work per CLAUDE.md's "if none exist,
+        start new work" rule.
+      - >-
+        Added the save-and-share pattern already shipped on sibling
+        calculators (most recently `whatnot-seller-payout`/#4389,
+        `dog-walking-route-pricing`/#4395) to
+        `childcare-tuition-calculator`, the last calculator-shaped venture
+        missing it (found via `comm` against every `ventures/*/share.mjs`,
+        filtered to the `-calculator`/`-quote`/`-pricing` shape). This
+        venture already saved its 11-field local draft to `localStorage` and
+        had no way to hand a classroom's numbers to a co-director or another
+        device without retyping them -- `share.mjs` (+ 6 new
+        `share.test.mjs` round-trip cases, `FIELD_IDS` asserted equal to
+        `calc.mjs`'s own `INPUT_FIELDS` so a future arithmetic field is
+        shareable without restating anything) now encodes the classroom into
+        a URL fragment. Wired a "Copy shareable link" button; a link wins
+        over the saved draft on load, matching the established precedent.
+        Updated the privacy paragraph and the "is my data uploaded" FAQ
+        answer (both the visible copy and its FAQPage JSON-LD, kept
+        byte-identical per `platform/pages/faq-visible.test.mjs`'s substring
+        check) to name the new button honestly. Added 3 new `page.test.mjs`
+        assertions pinning the link-wins-over-draft ordering and the FAQ
+        wording.
+      - >-
+        Also found, while investigating this session's explicit ask to
+        prioritize Hetzner deployment and CI/CD: every route to
+        `marisstella.dev`/the k3s cluster (including the already-built
+        systemd-timer Codex host mode in `gitops/agents/host/`, gated
+        `"enabled": false`) remains blocked on the single owner action
+        `hetzner-ssh-key-is-a-public-key` (Ask #1, unchanged since
+        2026-09-04) -- no code work closes it. GitHub Pages, the working
+        deploy route, read `current` at session start (built from
+        `eb1a1897`) but had gone `stale` by the time this entry was written
+        (`main` advanced to `e7ac56f6` from concurrent sessions);
+        refreshed via `publish-branch.sh` in the same session, recorded
+        separately below once confirmed current.
+      - >-
+        Verified: `node --test` in `childcare-tuition-calculator` 31/31 (up
+        from 25); `platform/marketing`+`platform/pages` 1196/1196 (re-run
+        clean after `regen.mjs`, which rewrote this venture's mirror shard);
+        all 21 `platform/ci`+`agent_review` unittest modules OK;
+        `checklist_coverage.py` clean. `ci_starvation.py` (run 34423728610,
+        re-confirmed this session) read down, so PR checks are read as
+        starvation rather than signal per CLAUDE.md. `pytest`-based suites
+        (`gitops/tests`, `portfolio/ledger` etc.) could not run this
+        session -- `pip install pytest` timed out against this sandbox's
+        restricted network -- reported as unrun rather than a silent skip;
+        none of those suites cover the files this change touches.
+    mrr_end: 0

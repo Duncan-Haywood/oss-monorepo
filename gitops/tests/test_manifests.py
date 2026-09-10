@@ -1443,7 +1443,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 226 since 2026-09-10, when `cors-misconfig-check` graduated — same
     # shape again: a new venture with a static `index.html` from its first
     # commit, entering the mirror and the total together.
-    total = 226  # `infra/OWNER_CHECKLIST.md`'s own "N of the 226 tools" wording.
+    # 227 since 2026-09-10, when `wash-and-fold-price-calculator` also
+    # graduated the same day — same shape again: a new venture with a
+    # static `index.html` from its first commit, entering the mirror and
+    # the total together.
+    total = 227  # `infra/OWNER_CHECKLIST.md`'s own "N of the 227 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

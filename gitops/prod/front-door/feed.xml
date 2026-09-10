@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 226 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 227 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: run a CLI that sends real requests with crafted Origin headers to your API, then paste the JSON here for a plain-English report on reflected-origin, null-origin, and unanchored allow-list CORS misconfigurations. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Wash and Fold Price Per Pound Calculator — Cost, Break-Even &amp; Margin</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wash-and-fold-price-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/wash-and-fold-price-calculator</id>
+    <published>2026-09-10T00:00:00Z</published>
+    <updated>2026-09-10T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free wash and fold pricing calculator for laundromats and laundry pickup-and-delivery routes: work out your real cost per pound from labour minutes, wash and dry cycles, supplies, delivery stops and overhead, then see the break-even price per pound and the margin at what you charge today. Runs entirely in your browser.</summary>
   </entry>
   <entry>
     <title>GitHub Actions Artifact Poisoning Check — workflow_run Download &amp; Execute</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-06T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Read five numbers off your merchant statement and see how much of your card processing bill is network interchange you cannot negotiate and how much is processor markup you can. Free, private, runs in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Custom Farm Rate Calculator — Price Custom Field Work Per Acre</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/custom-farm-rate-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/custom-farm-rate-calculator</id>
-    <published>2026-09-06T00:00:00Z</published>
-    <updated>2026-09-06T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free calculator for custom farm operators: find the rate to charge per acre for combining, planting, spraying, baling, or tillage work, from your own machine speed, width, fuel, repairs, ownership cost, and labor — then check a season of jobs against an income goal.</summary>
   </entry>
 </feed>

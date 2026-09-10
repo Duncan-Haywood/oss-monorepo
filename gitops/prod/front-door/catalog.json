@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 226,
-  "collection_total": 226,
+  "served_here": 227,
+  "collection_total": 227,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -56,7 +56,7 @@
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
-      "tool_count": 13
+      "tool_count": 14
     },
     {
       "id": "logistics",
@@ -1805,6 +1805,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a walk-in tub from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove swap versus relocate versus new-construction versus custom opening, inward versus outward versus walk-through door, contractor-supplied versus customer-supplied tub, weekday versus only-bath-in-use versus Saturday / after-hours, and extras — plus the walk-away price a $3,499 installed special cannot see.",
       "pages": 5
+    },
+    {
+      "slug": "wash-and-fold-price-calculator",
+      "name": "Wash and Fold Price Per Pound Calculator — Cost, Break-Even & Margin",
+      "url": "https://marisstella.dev/tools/wash-and-fold-price-calculator/",
+      "category": "Service business pricing & quotes",
+      "description": "Free wash and fold pricing calculator for laundromats and laundry pickup-and-delivery routes: work out your real cost per pound from labour minutes, wash and dry cycles, supplies, delivery stops and overhead, then see the break-even price per pound and the margin at what you charge today. Runs entirely in your browser.",
+      "pages": 1
     },
     {
       "slug": "water-heater-bid-calculator",
