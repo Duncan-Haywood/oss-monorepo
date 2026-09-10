@@ -1,13 +1,15 @@
 // A dog walker re-types the same visit assumptions — drive minutes, mileage
 // rate, target hourly rate, overnight on-call hours — for every route they
-// price. This module keeps that one-visit form: restored in the visitor's
-// own browser between sessions, and carried into a link they can send
-// themselves or a co-walker covering a route.
+// price. This module keeps that one-visit form, plus the two route-wide
+// settings (weeks per month, target monthly income) that shape the "Your
+// route this month" summary: restored in the visitor's own browser between
+// sessions, and carried into a link they can send themselves or a co-walker
+// covering a route.
 //
-// Deliberately out of scope: the client list in the "Your route this month"
-// table. That table's own copy promises client names and per-client prices
-// are never saved anywhere, and this module must not quietly break that
-// promise — so it only ever touches the visit fields below.
+// Deliberately out of scope: the per-client rows in that same table. Their
+// own copy promises client names and prices are never saved anywhere, and
+// this module must not quietly break that promise — so it only ever touches
+// the fields in calc.mjs's DEFAULTS below, never a client-row value.
 //
 // Nothing here is transmitted. `localStorage` is the visitor's own disk, and
 // the link is only ever built in their browser and copied by them. The visit
