@@ -95,7 +95,7 @@ node cli.mjs check --example .env.example src --strict          # also fail on u
       <tbody id="checked-languages-rows"></tbody>
     </table>
     <p class="note">Matched line by line, name only — the tool never reads or reports a value on either side. Shell scripts, YAML, and Docker Compose files are not scanned in v0; paste the application source that actually reads the variable instead.</p>
-    <p class="note">More: <a href="why-env-example-files-drift-from-the-code-that-reads-them.html">why example files drift from the code that reads them, and where to wire this into CI</a>.</p>
+    <p class="note">More: <a href="why-env-example-files-drift-from-the-code-that-reads-them.html">why example files drift from the code that reads them, and where to wire this into CI</a>. Already running dotenv-linter on your <code>.env</code> files? See <a href="vs-dotenv-linter.html">how the two compare</a> -- they check different things and compose.</p>
   </section>
 
   <section class="card">
