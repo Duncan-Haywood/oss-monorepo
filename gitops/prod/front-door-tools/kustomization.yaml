@@ -37,15 +37,15 @@
 #   portfolio-front-tools-1: 110 files, 555652 bytes
 #   portfolio-front-tools-2: 149 files, 548293 bytes
 #   portfolio-front-tools-3: 145 files, 557050 bytes
-#   portfolio-front-tools-4: 123 files, 556224 bytes
-#   portfolio-front-tools-5: 122 files, 542530 bytes
+#   portfolio-front-tools-4: 120 files, 551851 bytes
+#   portfolio-front-tools-5: 126 files, 551056 bytes
 #   portfolio-front-tools-6: 135 files, 555252 bytes
 #   portfolio-front-tools-7: 112 files, 551852 bytes
 #   portfolio-front-tools-8: 116 files, 556138 bytes
 #   portfolio-front-tools-9: 127 files, 551394 bytes
-#   portfolio-front-tools-10: 104 files, 556574 bytes
-#   portfolio-front-tools-11: 113 files, 553565 bytes
-#   portfolio-front-tools-12: 61 files, 292475 bytes
+#   portfolio-front-tools-10: 103 files, 554848 bytes
+#   portfolio-front-tools-11: 113 files, 555157 bytes
+#   portfolio-front-tools-12: 62 files, 295395 bytes
 #   portfolio-front-tools-13: 56 files, 274116 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -711,6 +711,7 @@ configMapGenerator:
       - carpet-install-bid-calculator__calc.mjs.gz=carpet-install-bid-calculator__calc.mjs.gz
       - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
       - carpet-install-bid-calculator__index.html.gz=carpet-install-bid-calculator__index.html.gz
+      - carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz=carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz
       - carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz=carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz
       - carpet-install-bid-calculator__usage.mjs.gz=carpet-install-bid-calculator__usage.mjs.gz
       - carpet-install-bid-calculator__vs-measuresquare.html.gz=carpet-install-bid-calculator__vs-measuresquare.html.gz
@@ -748,15 +749,15 @@ configMapGenerator:
       - consent-change-record__index.html.gz=consent-change-record__index.html.gz
       - consent-change-record__style.css.gz=consent-change-record__style.css.gz
       - consent-change-record__tool__har-diff.mjs.gz=consent-change-record__tool__har-diff.mjs.gz
-      - consent-change-record__tool__index.html.gz=consent-change-record__tool__index.html.gz
-      - consent-change-record__tool__trackers.mjs.gz=consent-change-record__tool__trackers.mjs.gz
-      - consent-change-record__tool__usage.mjs.gz=consent-change-record__tool__usage.mjs.gz
-      - consent-change-record__usage.mjs.gz=consent-change-record__usage.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - consent-change-record__tool__index.html.gz=consent-change-record__tool__index.html.gz
+      - consent-change-record__tool__trackers.mjs.gz=consent-change-record__tool__trackers.mjs.gz
+      - consent-change-record__tool__usage.mjs.gz=consent-change-record__tool__usage.mjs.gz
+      - consent-change-record__usage.mjs.gz=consent-change-record__usage.mjs.gz
       - consent-change-record__vs-cookiebot.html.gz=consent-change-record__vs-cookiebot.html.gz
       - consent-change-record__what-did-my-cookie-banner-actually-change.html.gz=consent-change-record__what-did-my-cookie-banner-actually-change.html.gz
       - cors-misconfig-check__analyze.mjs.gz=cors-misconfig-check__analyze.mjs.gz
@@ -1497,12 +1498,12 @@ configMapGenerator:
       - shopify-fee-calculator__should-i-take-shopify-capital.html.gz=shopify-fee-calculator__should-i-take-shopify-capital.html.gz
       - shopify-fee-calculator__to-where-to-sell.mjs.gz=shopify-fee-calculator__to-where-to-sell.mjs.gz
       - shopify-fee-calculator__usage.mjs.gz=shopify-fee-calculator__usage.mjs.gz
-      - shopify-fee-calculator__vs-beprofit.html.gz=shopify-fee-calculator__vs-beprofit.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__vs-beprofit.html.gz=shopify-fee-calculator__vs-beprofit.html.gz
       - shopify-fee-calculator__which-shopify-promo-costs-less.html.gz=shopify-fee-calculator__which-shopify-promo-costs-less.html.gz
       - shopify-fee-calculator__why-paypal-costs-more.html.gz=shopify-fee-calculator__why-paypal-costs-more.html.gz
       - shopify-permission-drift__capture.html.gz=shopify-permission-drift__capture.html.gz
@@ -1615,12 +1616,12 @@ configMapGenerator:
       - tree-service-bid-calculator__usage.mjs.gz=tree-service-bid-calculator__usage.mjs.gz
       - tree-service-bid-calculator__vs-singleops.html.gz=tree-service-bid-calculator__vs-singleops.html.gz
       - tuckpointing-bid-calculator__calc.mjs.gz=tuckpointing-bid-calculator__calc.mjs.gz
-      - tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz=tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz=tuckpointing-bid-calculator__how-much-to-charge-for-tuckpointing.html.gz
       - tuckpointing-bid-calculator__index.html.gz=tuckpointing-bid-calculator__index.html.gz
       - tuckpointing-bid-calculator__usage.mjs.gz=tuckpointing-bid-calculator__usage.mjs.gz
       - tuckpointing-bid-calculator__vs-quoteiq.html.gz=tuckpointing-bid-calculator__vs-quoteiq.html.gz

@@ -5032,3 +5032,28 @@ products:
           default, and honor DNT/GPC, so zero is the expected reading
           for a tool nobody has visited or switched the counter on for
           yet.
+  - slug: security-deposit-return-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-10
+        signals:
+          live_url_visitors: null
+          deposit_calculated: 0
+          proration_calculated: 0
+          statement_copied: 0
+          example_loaded: 0
+        note: >-
+          Baseline at the point the deposit calculator gained an output
+          that can leave the browser. `statement_copied` is the reading
+          worth watching against `deposit_calculated`: the ratio between
+          them is the one signal that separates "somebody totalled some
+          numbers" from "somebody produced the itemized statement they
+          actually had to send", which is this tool's whole claim to
+          being used twice rather than once. A high
+          `deposit_calculated` with a flat `statement_copied` would say
+          the arithmetic is the product and the statement is not wanted;
+          the reverse would say the copy is the reason people come. Both
+          are actionable and neither is knowable from the refund count
+          alone. Counts are local, opt-in, off by default, and honor
+          DNT/GPC, so zero is the expected reading for a tool nobody has
+          visited or switched the counter on for yet.
