@@ -8,6 +8,7 @@ import { buildReport } from './analyze.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(HERE, 'index.html'), 'utf8');
 const docHtml = readFileSync(join(HERE, 'clickjacking-and-csp-frame-ancestors.html'), 'utf8');
+const vsHtml = readFileSync(join(HERE, 'vs-securityheaders.html'), 'utf8');
 
 function jsonLdBlocks(source) {
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
@@ -105,6 +106,21 @@ function extractConst(name) {
   // eslint-disable-next-line no-new-func
   return Function(`"use strict"; return (${match[1]});`)();
 }
+
+test('index links to the Security Headers comparison page, and it links back', () => {
+  assert.match(html, /href="vs-securityheaders\.html"/);
+  assert.match(vsHtml, /href="index\.html"/);
+});
+
+test('the comparison page carries valid FAQPage JSON-LD and the no-warranty disclaimer', () => {
+  const blocks = jsonLdBlocks(vsHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  assert.match(vsHtml, /No warranty/);
+  assert.match(vsHtml, /provided free and as-is, without warranty/);
+  assert.match(vsHtml, /not affiliated with, endorsed by, or sponsored by Scott Helme/i);
+});
 
 test('the bundled worked example is valid input for buildReport and produces danger findings', () => {
   const example = extractConst('EXAMPLE');
