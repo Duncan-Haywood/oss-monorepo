@@ -1702,6 +1702,9 @@
     <loc>https://marisstella.dev/tools/package-exports-drift-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/package-exports-drift-check/vs-publint.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/package-exports-drift-check/why-package-json-exports-fields-drift-from-what-you-actually-publish.html</loc>
   </url>
   <url>
