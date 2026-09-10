@@ -1,0 +1,101 @@
+name: merchant-feed-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that checks a Google Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON) against the published product-data specification -- required fields, GTIN/MPN identifier rules, price and availability formatting, and known promotional-text disapproval triggers -- so a seller catches a feed error before the crawler disapproves the item. A deterministic data-specification linter, not a policy or compliance guarantee.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section (2026-09-07) argues explicitly for
+# this shape over another <trade>-bid-calculator, since 141+ of ~228 ventures
+# already share that shape with zero recorded visitors between them. Same
+# "paste or load a file, get a deterministic report, matching zero-dependency
+# CLI usable as a CI gate" shape as license-drift-check and
+# structured-data-drift-check, applied to a product feed instead of a
+# dependency-tree snapshot or a page's own JSON-LD.
+#
+# duplicate_check.py (run 2026-09-10) scored every existing venture,
+# screened-out.md row, ai-first-markets idea, and pipeline candidate below
+# 0.10 for this idea's description ("Zero-upload CLI and browser checker that
+# validates a Google Merchant Center / Meta Catalog product feed... so
+# Shopify and WooCommerce sellers catch a feed error that would get products
+# disapproved before Google's crawler does") -- nowhere near the 0.45 review
+# bar. Closest matches by eye, and why none of them is this: `ai-first-markets`
+# idea "AI QA for E-commerce" (id 07) is AI agents visually browsing a
+# storefront for checkout/UX bugs -- a different mechanism (vision-model
+# exploratory testing) on a different surface (rendered pages, not a feed
+# file) entirely; `dns-configuration-evidence` diffs DNS resolver *answers*
+# over time for a domain, not product-attribute conformance; every existing
+# `-check`/`-drift-check` venture (chrome-extension-permission-check,
+# wordpress-plugin-review-check, npm-lifecycle-script-check,
+# actions-artifact-poisoning-check, structured-data-drift-check) checks a
+# different artifact (a manifest, a readme/header pair, a lockfile, workflow
+# YAML, a page's own JSON-LD) with no shared data model to this one's feed
+# rows and GTIN checksums.
+#
+# Distribution channel this was picked for, verified by web search on
+# 2026-09-10 rather than assumed: Google's and Yahoo's bulk-sender email
+# rules are a different, unrelated topic that also uses "SPF/DKIM/DMARC" --
+# checked and explicitly rejected as this venture's niche after confirming
+# multiple existing free open-source CLI checkers already cover that
+# specific space (fdzdev/DMARC-SPF-Checker, GlobalCyberAlliance/
+# DomainSecurityScanner, MarkoH17/EmailSecCheck, and a marketplace GitHub
+# Action, among others) -- crowded with no clear differentiation for a 237th
+# venture to add. This venture instead targets Google Merchant Center /
+# Meta Catalog feed disapprovals: a real, current, and specifically *not yet
+# free-CLI-served* pain point. Evidence:
+#   - Dated, ongoing seller pain with a real forum trail: Shopify's own
+#     community forum carries recurring, actively-answered threads on this
+#     exact problem ("Why is Google Merchant Center disapproving all my
+#     products?", "Items disapproved... Due To Violation Of Shopping Ads
+#     Policies", "GOOGLE MERCHANT CENTER Account suspended due to policy
+#     violation") -- these are the r/shopify-adjacent channel this niche
+#     actually has (Shopify's community forum functioning as the practical
+#     equivalent of a trade subreddit for this exact audience).
+#   - Demonstrated organic search demand: at least six independent, unrelated
+#     businesses (Adsmurai, Kontrolit, FeedRevision, ProductPrime, ecomseo,
+#     mysitemapgenerator) each built and publish a free "Google Shopping /
+#     Merchant Center feed validator" landing page -- confirmed by search --
+#     which each business would only do to capture existing search volume on
+#     phrases like "google merchant center feed validator" and "shopping feed
+#     errors". That volume is real; none of what was found is a scriptable,
+#     zero-account CLI a merchant can wire into their own CI/deploy pipeline
+#     the way `license-drift-check`'s CLI runs as a gate -- every incumbent
+#     found is a one-off web-form upload tool. The CI-gate angle is the
+#     differentiated wedge, not the checker concept itself.
+#   - Named documented reason set, sourced in README.md and the docs page:
+#     missing/invalid GTIN or MPN identifier, malformed price/availability,
+#     promotional text in title/description, and duplicate item IDs are each
+#     independently corroborated by Google's own published help content and
+#     the Shopify community threads above as common, current disapproval
+#     causes (verified 2026-09-10).
+hypotheses:
+  - claim: A Shopify/WooCommerce merchant or their developer who has hit a Google Merchant Center or Meta Catalog disapproval will search for a way to catch the same class of error before the next feed sync, and will use the free checker or wire the CLI into their own CI/deploy pipeline.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A merchant reviewing a feed export from their CMS will prefer a one-command, deterministic conformance check over manually re-reading Google's product-data specification against each row.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only a file loaded or
+  # pasted in the visitor's own browser (no fetch, no upload), and the CLI
+  # reads only a local file with no network call at all. Serving one more
+  # user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI/deploy pipeline within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/merchant-feed-check/
+  analytics: null
