@@ -40,6 +40,16 @@ test('an overnight visit (zero on-site minutes) still round-trips a legitimate z
   assert.equal(decoded.overnightNights, 2);
 });
 
+test('the route-wide settings (weeks per month, target monthly income) round-trip too, not just the visit fields', () => {
+  // Regression: these two shaped the "Your route this month" summary but
+  // were missing from calc.mjs's DEFAULTS, so a shared link silently
+  // dropped them and the recipient saw a different income gap than the
+  // sender did -- the same class of bug share.mjs's own header warns about.
+  const decoded = decodeInputs(encodeInputs(DEFAULTS));
+  assert.equal(decoded.weeksPerMonth, DEFAULTS.weeksPerMonth);
+  assert.equal(decoded.targetMonthlyIncome, DEFAULTS.targetMonthlyIncome);
+});
+
 test('blank or missing fields are simply absent from the encoded query', () => {
   const encoded = encodeInputs({ visitMinutes: '', driveMinutes: undefined, mileage: 4 });
   const decoded = decodeInputs(encoded);
