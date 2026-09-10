@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { INPUT_IDS, CATEGORY_PRESETS, calculateSale } from './calc.mjs';
-import { encodeInputs, decodeInputs } from './share.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
 
 const SAMPLE = {
   salePrice: 50, shippingCharged: 5, taxCharged: 0, shippingCost: 4,
@@ -58,4 +58,30 @@ test('a non-string source decodes to nothing rather than throwing', () => {
 test('a leading ? or # is accepted so location.hash needs no trimming', () => {
   assert.deepEqual(decodeInputs('?salePrice=50'), { salePrice: 50 });
   assert.deepEqual(decodeInputs('#salePrice=50'), { salePrice: 50 });
+});
+
+test('formValues covers every numeric field the form owns, not just the ones a link carried', () => {
+  const values = formValues({ salePrice: 50 });
+  assert.deepEqual(Object.keys(values).sort(), [...INPUT_IDS].sort());
+});
+
+test('formValues clears a numeric field a link did not carry, rather than leaving it unwritten', () => {
+  // The exact defect this module exists to prevent: a link that omits
+  // itemCost must not leave the recipient's own saved draft value in that
+  // box -- see check_shared_link_clears.py and the index.html restore.
+  const { itemCost, ...withoutItemCost } = SAMPLE;
+  const decoded = decodeInputs(encodeInputs(withoutItemCost));
+  const values = formValues(decoded);
+  assert.equal(values.itemCost, '');
+  assert.equal(values.salePrice, String(SAMPLE.salePrice));
+});
+
+test('formValues on an empty decode clears every numeric field', () => {
+  const values = formValues({});
+  for (const id of INPUT_IDS) assert.equal(values[id], '');
+});
+
+test('formValues on a missing argument clears every numeric field rather than throwing', () => {
+  const values = formValues();
+  for (const id of INPUT_IDS) assert.equal(values[id], '');
 });
