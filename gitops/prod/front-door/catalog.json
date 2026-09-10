@@ -748,7 +748,7 @@
       "url": "https://marisstella.dev/tools/chrome-extension-permission-check/",
       "category": "CI checks & developer gates",
       "description": "Free, browser-local checker: scans your extension's JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json's declared permissions, so an unused or missing permission doesn't cost you a Chrome Web Store rejection ('Purple Potassium'). Nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "concrete-lifting-bid-calculator",
