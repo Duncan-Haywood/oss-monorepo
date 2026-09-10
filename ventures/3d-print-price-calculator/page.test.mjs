@@ -11,8 +11,8 @@ test('every DEFAULTS field has a matching input on the page', () => {
   }
 });
 
-test('the page imports calculatePrice and DEFAULTS from calc.mjs', () => {
-  assert.match(html, /import \{ calculatePrice, DEFAULTS \} from '\.\/calc\.mjs'/);
+test('the page imports calculatePrice from calc.mjs', () => {
+  assert.match(html, /import \{ calculatePrice \} from '\.\/calc\.mjs'/);
 });
 
 test('the page wires usage counting for both the suggested price and the price check', () => {
@@ -123,7 +123,16 @@ test('the page ships save, forget, and copy-link controls, matching sibling calc
 });
 
 test('the page imports share.mjs rather than restating its own encode/decode logic', () => {
-  assert.match(html, /import \{ encodeInputs, decodeInputs, formValues \} from '\.\/share\.mjs'/);
+  assert.match(html, /import \{ encodeInputs, decodeInputs, formValues, REQUIRED_FIELD_IDS \} from '\.\/share\.mjs'/);
+});
+
+// The exact bug this venture shipped and then re-shipped in miniature: a
+// share link that carries every DEFAULTS field but silently drops the one
+// optional "price I'm checking" field, so a co-seller opening the link sees
+// no price-check panel at all with nothing on screen to say why it vanished.
+test('the copied link and the shared-link restore both carry actualSellingPrice, not just the DEFAULTS fields', () => {
+  assert.match(html, /encodeInputs\(\{ \.\.\.fieldInputs\(\), actualSellingPrice: el\('actualSellingPrice'\)\.value \}\)/);
+  assert.match(html, /el\('actualSellingPrice'\)\.value = shared\.actualSellingPrice/);
 });
 
 // The exact silent-divergence defect this portfolio has shipped before: a
@@ -134,7 +143,7 @@ test('the page imports share.mjs rather than restating its own encode/decode log
 // rather than writing a decoded link straight onto the form.
 test('a shared link is applied through formValues, never written to the form directly', () => {
   assert.doesNotMatch(html, /writeInputs\(fromLink\)/);
-  assert.match(html, /writeInputs\(formValues\(fromLink\)\)/);
+  assert.match(html, /const shared = formValues\(fromLink\);\s*\n\s*writeInputs\(shared\);/);
 });
 
 test('a shared link takes priority over a saved draft on load', () => {
