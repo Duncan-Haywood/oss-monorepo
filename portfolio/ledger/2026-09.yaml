@@ -7486,7 +7486,6 @@ entries:
         corrections were judged the highest-value close to this run rather
         than manufacturing a lower-value diff to hit a self-imposed count.
     mrr_end: null
-    mrr_end: null
   - venture: deck-staining-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -28640,7 +28639,6 @@ entries:
         `gh-pages` deploy route (the one live path, independent of the SSH
         key) was confirmed `current` and `served` before and after this
         change.
-    mrr_end: 0
     mrr_end: 0
   - venture: terraform-plan-secret-exposure-check
     agent_spend_usd: null

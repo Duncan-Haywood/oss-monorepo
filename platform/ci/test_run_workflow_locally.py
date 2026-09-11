@@ -1091,5 +1091,83 @@ class Tree(unittest.TestCase):
             "nothing until the buffer fills or the process exits")
 
 
+class CheckoutStability(unittest.TestCase):
+    """A sweep whose tree moved under it is not a reading of anything.
+
+    Measured 2026-09-11: a `--tree` sweep started on `main` reported
+    `FAILED validate / Check the apex tool mirror is not stale`. The mirror
+    was not stale -- the session had checked out another PR's branch while
+    the sweep ran. Re-run on an untouched worktree at the same commit, the
+    identical step passed 260/260.
+    """
+
+    def sweep(self, before, after):
+        """Run an empty-but-nonzero selection with a fingerprint sequence."""
+        real = runner.checkout_fingerprint
+        seq = iter([before, after])
+        runner.checkout_fingerprint = lambda: next(seq)
+        wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30),
+                    [("w.yml", wf, {"j"})], [])
+        finally:
+            runner.checkout_fingerprint = real
+        return code, out.getvalue()
+
+    def test_a_moved_head_fails_the_sweep_and_names_both_commits(self):
+        code, out = self.sweep(("a" * 40, "d1"), ("b" * 40, "d1"))
+        self.assertEqual(code, 1)
+        self.assertIn("UNSTABLE CHECKOUT", out)
+        self.assertIn("aaaaaaaaa", out)
+        self.assertIn("bbbbbbbbb", out)
+
+    def test_changed_tracked_files_fail_even_when_head_held_still(self):
+        # The commoner shape: another session runs `regen.mjs` or resolves a
+        # conflict in this checkout without committing. HEAD never moves.
+        code, out = self.sweep(("a" * 40, "d1"), ("a" * 40, "d2"))
+        self.assertEqual(code, 1)
+        self.assertIn("UNSTABLE CHECKOUT", out)
+        self.assertIn("HEAD did not move", out)
+
+    def test_a_still_checkout_does_not_trip_it(self):
+        # A guard that fails on correct input gets switched off within a day.
+        code, out = self.sweep(("a" * 40, "d1"), ("a" * 40, "d1"))
+        self.assertEqual(code, 0)
+        self.assertNotIn("UNSTABLE CHECKOUT", out)
+
+    def test_an_unmeasurable_fingerprint_is_not_a_finding(self):
+        # No git binary, or not a repository. "Could not measure" must not
+        # masquerade as "the tree moved" -- the same distinction this file
+        # draws between UNRUN and FAILED.
+        code, out = self.sweep(None, None)
+        self.assertEqual(code, 0)
+        self.assertNotIn("UNSTABLE CHECKOUT", out)
+        self.assertIsNone(runner.checkout_drift(None, ("a" * 40, "d1")))
+        self.assertIsNone(runner.checkout_drift(("a" * 40, "d1"), None))
+
+    def test_the_failure_is_reported_after_the_verdict_it_invalidates(self):
+        # It invalidates a pass and a failure alike, so it has to read as a
+        # note about the whole run rather than as one more failing workflow.
+        _, out = self.sweep(("a" * 40, "d1"), ("b" * 40, "d1"))
+        self.assertLess(out.index("workflow(s) passed."),
+                        out.index("UNSTABLE CHECKOUT"))
+
+    def test_the_real_fingerprint_reads_this_repository(self):
+        # Asserts the premise rather than assuming it: the function really
+        # does return this checkout's HEAD, so a test suite passing on
+        # mocks cannot hide a fingerprint that never measured anything.
+        fp = runner.checkout_fingerprint()
+        self.assertIsNotNone(fp)
+        head, digest = fp
+        self.assertEqual(len(head), 40, head)
+        self.assertEqual(len(digest), 64, digest)
+        self.assertEqual(fp, runner.checkout_fingerprint(),
+                         "the fingerprint is not stable across two reads of "
+                         "an unchanged tree, so it would cry wolf on every run")
+
+
 if __name__ == "__main__":
     unittest.main()
