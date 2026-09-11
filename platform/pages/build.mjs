@@ -1113,11 +1113,22 @@ const CATEGORY_RULES = [
     // Cross-linked with `epk-generator` in the same commit (each footer
     // names the other, with a page.test.mjs assertion on the href in both
     // ventures) rather than shipping as an orphan to close later.
+    //
+    // `brand-deal-rate-calculator` joined 2026-09-11, the same day: a social
+    // media creator pricing a sponsored post from their own follower count
+    // and engagement rate is the same move as `newsletter-sponsorship-rate-calculator`'s
+    // newsletter operator pricing an ad slot -- an individual working out
+    // what their own audience is worth, on a different channel. It shipped
+    // with a reciprocal inbound sibling link from
+    // `newsletter-sponsorship-rate-calculator`'s first commit rather than
+    // landing in the catch-all, which is also what keeps that catch-all
+    // inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
       [
         '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
+        'brand-deal-rate-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
         'gig-driver-net-pay-calculator',

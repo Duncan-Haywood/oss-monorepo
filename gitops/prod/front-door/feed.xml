@@ -35,6 +35,15 @@
     <summary type="text">Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic &quot;can&#39;t contain an alpha channel&quot; rejection), wrong pixel dimensions, a HEIC renamed to .png, and a screenshot set whose members disagree about their own size. Runs entirely in your browser; nothing is uploaded. A zero-dependency CLI does the same in CI.</summary>
   </entry>
   <entry>
+    <title>Brand Deal Rate Calculator — Free, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/brand-deal-rate-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/brand-deal-rate-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free influencer brand deal rate calculator. Enter your follower count, engagement rate, and platform to get a price range for a feed post, Story, Reel/short video, and dedicated video — based on commonly cited creator-economy CPM benchmarks. No sign-up, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>CODEOWNERS Shadow Checker — Find Rules GitHub Silently Overrides</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/codeowners-shadow-check/"/>
     <id>tag:marisstella.dev,2026:tool/codeowners-shadow-check</id>

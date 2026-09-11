@@ -8185,6 +8185,53 @@ ventures:
       Ethically: every input is a number the operator already knows about
       their own list, nothing is scraped or inferred about a third party,
       and all computation is client-side.
+  - slug: brand-deal-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is arithmetic on
+      engaged-followers-per-1000 CPM benchmarks against numbers the creator
+      already knows about their own account, and adding inference would
+      only make the result less checkable.
+    basis: >-
+      Graduated 2026-09-11 as a browser-local influencer brand-deal pricing
+      calculator, modeled on the already-graduated
+      newsletter-sponsorship-rate-calculator (same reasoning: a
+      creator-economy audience the portfolio does not otherwise serve, this
+      time social-platform sponsorship rather than email). Screened against
+      120+ existing trade-bid calculators and the saturated
+      marketplace-fee-calculator and dev-tooling-checker shapes for a third,
+      distinct creator-economy angle. duplicate_check.py scored nothing >=
+      0.10 against any existing venture, pipeline candidate, or
+      screened-out row. Defensibility 3: the engaged-followers CPM pricing
+      logic is publicly documented by rate-card guides and marketplaces
+      themselves; what is not free elsewhere is seeing those benchmark
+      numbers without first signing up with or connecting an account to one
+      of them. Distribution 6: "how much to charge for a sponsored post"
+      and "brand deal rate calculator" are recurring, named-intent queries
+      in creator-economy communities — real but a narrower buyer pool than
+      a mass-market trade niche.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Output is a price range framed explicitly as a negotiation
+      starting point, never a quote, guarantee, or valuation performed on
+      the user's behalf — being wrong costs a creator a miscalibrated ask
+      in one negotiation, not a filing or a contract obligation.
+      Ethically: every input is a number the creator already knows about
+      their own account, nothing is scraped or inferred about a third
+      party or about the brand on the other side of the deal, and all
+      computation is client-side.
   - slug: ios-privacy-manifest-check
     scores:
       ai_leverage: 1
