@@ -1,5 +1,93 @@
 period: 2026-09
 entries:
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `main` was red and had been since #4573 merged that morning. Found by
+        `run_workflow_locally.py --tree` (the line CLAUDE.md added on
+        2026-09-07 for exactly this, and the only one that asks "is `main`
+        green?" rather than "is my diff sound?"): `portfolio-validate.yml`
+        66/68, two steps failing — `publish_surface.py --check` and
+        `test_publish_surface`, both on
+        `actions-minutes-estimator-ci.yml: new workflow, classified 'none'
+        and not in publish-surface.yaml`. Actions was starved all day
+        (`runner_id: 0`, 3-5s, no steps, 60 consecutive runs), so no check
+        that could have said so ever ran. Confirmed the classification by
+        reading the workflow rather than trusting the default — `permissions:
+        contents: read`, one `node --test` step, no deploy, no push, so
+        `none` is correct — then recorded it with `--write`. Three lines;
+        `portfolio-validate.yml` is back to 68/68.
+      - >-
+        Fixed the cause rather than only the instance, because this is the
+        fourth of this exact shape in two weeks (2026-08-29's two red steps,
+        09-07's `validate_doc_consistency.py`, 09-07's `score_ventures.py
+        --check`, now this) and all four were found by a session that
+        happened to look. The connection nobody had drawn: `validate_
+        workflows.py` invariant 7 *requires* a venture shipping `*.test.mjs`
+        to add `<slug>-ci.yml`, and adding a workflow is precisely what makes
+        `publish_surface.py --check` fail. So the repo had one guard ordering
+        a session to create the condition that breaks another guard, and the
+        message named only the first half. A session following it exactly
+        landed `main` red — which is what #4573 did, while the graduations
+        either side of it (#4559, #4567) updated the snapshot from
+        recollection and were fine. Invariant 7's message now names `python3
+        platform/ci/publish_surface.py --write` and says why the second check
+        exists (a new workflow is a new thing a merge could publish, so the
+        classification is confirmed rather than inferred), with a test pinning
+        that the remedy carries both halves, and the same line added to
+        `PRODUCT_PLAYBOOK.md` §7 — which listed `router/validate.py` and not
+        this, and is the list a graduating session actually follows.
+      - >-
+        Measured rather than inherited, and nothing else was wrong. Cleared
+        the 24 guards `guard_state.py --require-runnable` reported FIXABLE
+        (`apt-get update && apt-get install -y --no-install-recommends
+        nginx-light openssh-client` — the `apt-get update &&` half is
+        load-bearing, as CLAUDE.md records): `test_front_door_serving.py` and
+        `test_load_ssh_key.py` 30 passed / 1 skipped (environmental, GitHub-
+        runner-only), so the front-door mirror and the `HETZNERSSHKEY` loader
+        are genuinely green and not merely unrun. Link-crawlability of the
+        live catalogue, which matters because `pages_state.py` measured that
+        sitemap auto-discovery *cannot* happen from a project-Pages subpath
+        and link-following is therefore the only enumeration route: BFS from
+        `index.html` over the published `gh-pages` artifact reaches 978 of 980
+        pages at depth <= 2, the two misses being `404.html` and
+        `offline.html`, which are intentionally unlinked. Sitemap coverage is
+        a 254-child index, not the 254-of-980 gap a raw `<loc>` count
+        suggests. IndexNow payload validated against the live snapshot (978
+        URLs — independently equal to the reachable count — correct host,
+        origin and `keyLocation`, key file content matching its filename
+        stem, 33/33 `indexnow.test.mjs`), so the first un-starved run of
+        `publish-pages-branch.yml` will announce correctly; its bare `--ref
+        gh-pages` is already covered by the step's own `git fetch
+        --depth=1 origin gh-pages:gh-pages`. Rehearsed the owner's one-shot
+        recovery (`DRY_RUN=1 WITH_CODEX_HOST=1 WITH_GITHUB_RUNNER_HOST=1
+        WITH_PORTFOLIO_SITE_HOST=1 bootstrap/restore-cluster.sh`): it prints
+        the credential plan before the SSH gate as intended and names each
+        missing credential, so no defect there either. Every Hetzner route —
+        the Codex worker on the owner's included ChatGPT quota, the portfolio
+        site box, the self-hosted runner — remains blocked on the single
+        queued ask `hetzner-ssh-key-is-a-public-key`, already #1 in
+        `decision_queue.py`. No duplicate ask added.
+      - >-
+        Verified: `run_workflow_locally.py --tree` before (8/9, the one
+        failure being the two steps above) and `--for-changes` after
+        (`portfolio-validate.yml` 68/68; 5/6 workflows, the sixth being
+        `agent-cross-review.yml`'s four reviewer jobs, which need the
+        reviewer GitHub Apps and did not run — not a green check, said here
+        rather than reported as a pass); all 15 `platform/ci` unittest
+        modules green including `test_validate_workflows` 38/38 with the new
+        case and `test_publish_surface` 77/77; `validate_workflows.py` all
+        308 workflow files valid; `checklist_coverage.py` clean.
+      - >-
+        Open-PR quota: vacuous. `list_pull_requests` returned zero open PRs
+        at the start of the run, so there was nothing to review, repair or
+        merge, and the mandate's "if none exist, start new work" branch
+        applies. The branch backlog was established as spent by the 09-05
+        sessions (232 branches checked with `supersede_check.py`); no new
+        unique work has appeared since.
+    mrr_end: 0
   - venture: codeowners-shadow-check
     agent_spend_usd: null
     human_hours: 0
@@ -96,7 +184,6 @@ entries:
         step above against the rebased tree rather than trusting the
         pre-rebase run.
     mrr_end: 0
-
   - venture: actions-minutes-estimator
     agent_spend_usd: null
     human_hours: 0

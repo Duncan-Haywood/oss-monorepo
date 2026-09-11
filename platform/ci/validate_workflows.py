@@ -351,6 +351,24 @@ def check_venture_tests_run(paths, ventures_dir=VENTURES_DIR):
     *run* the tests. Five of the sixteen ventures this check first found had
     the first half and not the second: a slug-filtered workflow that ran only
     `pytest`, added before the venture had a browser page.
+
+    **The remedy this check names creates a second obligation, and saying so is
+    part of the message (added 2026-09-11).** Adding `<slug>-ci.yml` is a new
+    workflow, and `publish_surface.py --check` fails on any workflow absent
+    from `publish-surface.yaml` -- deliberately, because a new workflow is a
+    new thing a merge to `main` could publish and its classification is worth
+    confirming by hand rather than inferring. So this check tells a session to
+    do the exact thing that turns another check red, and until now it did not
+    mention the second step.
+
+    That is not hypothetical. #4573 graduated `actions-minutes-estimator`,
+    followed this message, added the workflow, and left `main` red on
+    `publish_surface.py --check` and `test_publish_surface` -- for the rest of
+    the day, because Actions was starved (`runner_id: 0`) and no check that
+    could have said so ever ran. The two graduations either side of it
+    (#4559, #4567) updated the snapshot in the same commit and were fine, which
+    is what a step carried by recollection rather than by the instruction looks
+    like: mostly done, silently missed, and only visible when CI is watching.
     """
     if not ventures_dir.is_dir():
         return []
@@ -387,7 +405,11 @@ def check_venture_tests_run(paths, ventures_dir=VENTURES_DIR):
             "do not run venture unit tests, so these assertions execute only on "
             "a contributor's machine. Add `.github/workflows/"
             f"{venture.name}-ci.yml` (copy a sibling), or add a `node --test` "
-            "job to the workflow this venture already has"
+            "job to the workflow this venture already has. If you add the "
+            "workflow file, record it in the same commit with `python3 "
+            "platform/ci/publish_surface.py --write` -- a new workflow is a new "
+            "thing a merge to `main` could publish, so `--check` fails until the "
+            "snapshot names it and its classification has been confirmed"
         )
     return errors
 
