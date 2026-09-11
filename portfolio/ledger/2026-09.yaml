@@ -26926,3 +26926,70 @@ entries:
         re-verifying a fleet that hasn't regressed, and re-checked open PRs
         immediately before pushing per the duplicate-PR collision rule.
     mrr_end: 0
+  - venture: ifta-quarterly-fuel-tax-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked recent commits and open PRs first to avoid the fleet's
+        active shareable/saved-bid-link workstream (wildlife-exclusion,
+        shop-rate, staffing-markup all landed one in the prior hour) —
+        picked a venture nobody was mid-flight on instead of a sixth
+        instance of the same feature. `grep -L` over `ventures/*/index.html`
+        for the share-link pattern is the wrong tool for this now:
+        `platform/pages/build.mjs` injects a generic save/share band into
+        122 of 254 pages at build time, so most "missing" hits are already
+        served — verified by an actual local build (`node
+        platform/pages/build.mjs --out=/tmp/build-check`) rather than
+        trusting the source grep. `ifta-quarterly-fuel-tax-calculator`'s
+        75-input jurisdiction table uses class+data-row cells with no
+        `id` attributes, which the generic mechanism cannot address, so it
+        was a genuine, unclaimed gap on a real 12-row/6-column calculator.
+      - >-
+        Added a per-venture `share.mjs` (localStorage save + a URL-fragment
+        share link) following the fleet's established pattern
+        (`wildlife-exclusion-bid-calculator/share.mjs`), adapted for a
+        fixed row table: the field list is imported from `calc.mjs`'s own
+        `ROW_COUNT`/`ROW_FIELDS`/`GLOBAL_INPUT_IDS` rather than restated,
+        per CLAUDE.md's recorded lesson that a second hand-kept field list
+        is exactly how a shared link silently drops a field. 18 new unit
+        tests cover round-tripping, row truncation at `ROW_COUNT`, dropped
+        blank rows, rejected negative/non-numeric/over-length values on
+        both directions, and blocked storage.
+      - >-
+        Wired it into `index.html`: a "Copy a link to this quarter" button,
+        automatic save-to-browser on every edit, a restore-on-load path
+        that prefers a link over a saved quarter over the shipped example,
+        and a new FAQ entry (visible + matching FAQPage JSON-LD) and
+        footer-privacy sentence disclosing what is saved and that the link
+        travels in the fragment, never the query string. Also made the
+        return recompute live on every keystroke (previously only on an
+        explicit "Work the return" click) — required for headline
+        consistency between what a sender sees before copying a link and
+        what the recipient sees, and now matches every sibling calculator's
+        live-recompute convention.
+      - >-
+        Ran the venture's full suite (67/67, including the pre-existing
+        `page.test.mjs`, updated for the new counted `link_copied` event),
+        `checklist_coverage.py`, `clauses.mjs` and `faq-coverage.mjs`
+        clean, and all 1238 `platform/marketing`+`platform/pages` tests.
+        Installed Playwright 1.56.0 + axe-core and ran the scoped browser
+        check (`browser_checks.py --only ifta-quarterly-fuel-tax-calculator`)
+        — this caught a real bug the static tests couldn't: the fleet's
+        `roundtrip` check failed on the first pass because the page's old
+        click-to-compute UX left the headline blank before a link was
+        copied while the link itself always carried live field values,
+        exactly the sender-vs-recipient mismatch the check exists to catch.
+        Fixed by making the return live-recompute (above); re-run passed
+        (sideways/presets/roundtrip/contrast/sweep all `ok`, `highlight`
+        correctly not-applicable to this venture).
+      - >-
+        `node platform/marketing/regen.mjs` picked up the new share.mjs
+        mirror shard, and also picked up unrelated pre-existing drift on
+        `main`: `wildlife-exclusion-bid-calculator`'s mirrored
+        `index.html.gz` was stale relative to its source (its own
+        share-link PR landed without a regen run) — the same defect
+        CLAUDE.md already records costing live product; committed the fix
+        alongside since it was a byproduct of running the required
+        checklist step, not separate scope.
+    mrr_end: 0
