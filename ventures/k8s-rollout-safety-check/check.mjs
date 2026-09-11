@@ -10,6 +10,7 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
 import { analyzeSources, summaryLine, CHECKS, RISK } from './engine.mjs';
 
 const YAML_EXT = new Set(['.yaml', '.yml']);
@@ -29,7 +30,8 @@ Options:
 
 Exit codes:
   0  no findings, or findings but --fail-on-risk was not given
-  1  a path could not be read, or an argument was invalid
+  1  a path could not be read, an argument was invalid, or a file could not be
+     parsed as YAML (an unparsed file is unchecked, never clean)
   2  --fail-on-risk was given and at least one risk-level finding was found
 
 Reads YAML only. Makes no network calls and needs no cluster access.`;
@@ -171,14 +173,32 @@ export async function main(argv, io = console) {
     io.log(renderText(result));
   }
 
+  // A file that could not be parsed was never analysed, so a 0 here would mean
+  // "this gate passed" when the honest answer is "this gate did not run". That
+  // is the failure this whole tool exists to make visible, and a CI gate that
+  // goes green because it could not read its input is the worst version of it.
+  // Reported independently of the risk count, and independently of
+  // --fail-on-risk, because the risk count is exactly what is unknown.
+  if (result.errors.length) {
+    io.error(
+      `${result.errors.length} file(s) could not be read as YAML, so they were not analysed. ` +
+      'Exiting non-zero: an unparsed file is an unchecked file, not a clean one.',
+    );
+    return 1;
+  }
   if (opts.failOnRisk && result.counts.risk > 0) return 2;
   return 0;
 }
 
 // `import.meta.main` is not available on every Node this should run on, so
-// compare the resolved entry path instead.
+// compare the resolved entry path instead. `fileURLToPath` rather than
+// `new URL(...).pathname`: the raw pathname keeps percent-escapes, so a
+// checkout under a directory with a space in its name would never match
+// argv[1] -- and on Windows it carries an extra leading slash before the
+// drive letter. Either way the CLI would exit 0 printing nothing at all,
+// which for a gate is the worst possible way to fail.
 const invokedDirectly = process.argv[1]
-  && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname);
+  && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
 if (invokedDirectly) {
   process.exitCode = await main(process.argv.slice(2));
 }

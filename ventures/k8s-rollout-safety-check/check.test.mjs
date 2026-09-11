@@ -180,9 +180,13 @@ test('a single file path is accepted directly', async () => {
 });
 
 test('an unparseable file is named without suppressing the rest of the run', async () => {
-  const dir = await fixtureDir({ 'broken.yaml': 'a: &x 1\nb: *x\n', 'deploy.yaml': RISKY });
+  // The findings from the readable files are still reported in full -- one bad
+  // file must not hide the rest. The exit code is 1 rather than 0 because a
+  // file that was never analysed is unchecked, not clean; see the regression
+  // test below for why that distinction matters in a CI gate.
+  const dir = await fixtureDir({ 'broken.yaml': 'a: &x 1\nb: 2\n', 'deploy.yaml': RISKY });
   const { out, io } = capture();
-  assert.equal(await main([dir], io), 0);
+  assert.equal(await main([dir], io), 1);
   const printed = out.join('\n');
   assert.match(printed, /broken\.yaml: could not be read as YAML/);
   assert.match(printed, /drop live requests/, 'the good file must still be reported');
@@ -202,4 +206,66 @@ test('long prose in the report is wrapped rather than emitted as one CI-log line
   for (const line of renderText(result).split('\n')) {
     assert.ok(line.length <= 100, `line too long for a CI log: ${line}`);
   }
+});
+
+// Regressions from the automated review on PR #4551.
+
+test('a file that cannot be parsed exits non-zero, even without --fail-on-risk', async () => {
+  // A gate that goes green because it could not read its input is the exact
+  // failure this tool exists to make visible. Previously the single-file case
+  // printed "No Deployment found" plus a parse error and exited 0.
+  const dir = await fixtureDir({ 'deploy.yaml': 'a: &x 1\nb: 2\n' });
+  const { out, err, io } = capture();
+  assert.equal(await main([dir], io), 1);
+  assert.match(out.join('\n'), /could not be read as YAML/);
+  assert.match(err.join('\n'), /unparsed file is an unchecked file/);
+
+  const gated = capture();
+  assert.equal(await main([dir, '--fail-on-risk'], gated.io), 1);
+});
+
+test('a parse error in one file of a directory still exits non-zero', async () => {
+  const dir = await fixtureDir({ 'broken.yaml': 'a: &x 1\nb: 2\n', 'deploy.yaml': SAFE });
+  const { io } = capture();
+  assert.equal(await main([dir, '--fail-on-risk'], io), 1);
+});
+
+test('the CLI entry-point check survives a path containing a space', async () => {
+  // `new URL(import.meta.url).pathname` keeps percent-escapes, so a checkout
+  // under "my repo/" never matched argv[1] and the CLI exited 0 printing
+  // nothing at all -- the worst way for a gate to fail.
+  const { fileURLToPath } = await import('node:url');
+  const spaced = new URL('file:///tmp/my%20repo/check.mjs');
+  assert.equal(fileURLToPath(spaced), '/tmp/my repo/check.mjs');
+  assert.notEqual(spaced.pathname, '/tmp/my repo/check.mjs');
+});
+
+test('a kind: List from kubectl is analysed, not reported as empty', async () => {
+  const dir = await fixtureDir({
+    'kubectl.yaml': `apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: web
+    spec:
+      replicas: 2
+      template:
+        metadata:
+          labels:
+            app: web
+        spec:
+          containers:
+            - name: web
+              image: nginx:1.27
+              ports:
+                - containerPort: 80
+`,
+  });
+  const { out, io } = capture();
+  assert.equal(await main([dir, '--format', 'json'], io), 0);
+  const parsed = JSON.parse(out.join('\n'));
+  assert.equal(parsed.verdict, 'drops-requests');
+  assert.deepEqual(parsed.deployments, ['Deployment/web']);
 });

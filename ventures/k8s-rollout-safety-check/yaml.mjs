@@ -378,6 +378,20 @@ export function parseDocuments(text) {
   for (const slice of slices) {
     const reader = new Reader(slice.lines, slice.offset);
     const value = reader.parseNode(0);
+    // A partial parse is the one outcome this reader must never produce
+    // quietly. If `parseNode` stopped early -- on a construct outside the
+    // supported subset, such as a quoted scalar continued across lines in an
+    // annotation -- everything after that point, `spec` included, would be
+    // dropped, and a Deployment that drops requests on every rollout would be
+    // reported as carrying no risk. Refusing the document is the honest
+    // answer; a silently truncated one is not.
+    const leftover = reader.peek();
+    if (leftover) {
+      throw new YamlError(
+        `unparsed content remains in this document, starting at: ${leftover.text.slice(0, 60)}`,
+        reader.lineOf(leftover.index),
+      );
+    }
     if (value !== null && !(typeof value === 'object' && Object.keys(value).length === 0)) {
       docs.push(value);
     }

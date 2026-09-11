@@ -67,25 +67,96 @@ function podLabels(deployment) {
   return deployment.spec?.template?.metadata?.labels ?? {};
 }
 
-/** A PodDisruptionBudget selects a Deployment's pods when every label in its
- * matchLabels is present, with the same value, on the pod template. */
+/** Kubernetes treats an absent namespace as `default`, and a PodDisruptionBudget
+ * only ever governs pods in its own namespace. */
+export function namespaceOf(doc) {
+  const ns = doc?.metadata?.namespace;
+  return typeof ns === 'string' && ns.trim() !== '' ? ns : 'default';
+}
+
+/** Evaluate a full LabelSelector (`matchLabels` + `matchExpressions`) against a
+ * label map, with Kubernetes' own semantics: the two are ANDed, and an *empty*
+ * selector matches everything in the namespace rather than nothing. */
+export function selectorMatches(selector, labels) {
+  if (!selector || typeof selector !== 'object') return false;
+  const matchLabels = selector.matchLabels ?? {};
+  const matchExpressions = Array.isArray(selector.matchExpressions) ? selector.matchExpressions : [];
+  if (typeof matchLabels !== 'object' || matchLabels === null) return false;
+
+  for (const [k, v] of Object.entries(matchLabels)) {
+    if (!(k in labels) || String(labels[k]) !== String(v)) return false;
+  }
+  for (const expr of matchExpressions) {
+    const key = expr?.key;
+    const values = (Array.isArray(expr?.values) ? expr.values : []).map(String);
+    const present = key in labels;
+    const value = present ? String(labels[key]) : undefined;
+    switch (expr?.operator) {
+      case 'In': if (!present || !values.includes(value)) return false; break;
+      case 'NotIn': if (present && values.includes(value)) return false; break;
+      case 'Exists': if (!present) return false; break;
+      case 'DoesNotExist': if (present) return false; break;
+      // An operator this reader does not know must not silently match --
+      // that would invent a PodDisruptionBudget that does not exist.
+      default: return false;
+    }
+  }
+  return true;
+}
+
+/** A PodDisruptionBudget selects a Deployment's pods when it is in the same
+ * namespace and its selector matches the pod template's labels. */
 export function pdbSelects(pdb, deployment) {
-  const selector = pdb.spec?.selector?.matchLabels;
+  if (namespaceOf(pdb) !== namespaceOf(deployment)) return false;
+  return selectorMatches(pdb.spec?.selector, podLabels(deployment));
+}
+
+/** Services select pods with a plain label map, not a LabelSelector. */
+function serviceSelects(service, deployment) {
+  const selector = service?.spec?.selector;
   if (!selector || typeof selector !== 'object') return false;
   const entries = Object.entries(selector);
   if (entries.length === 0) return false;
+  if (namespaceOf(service) !== namespaceOf(deployment)) return false;
   const labels = podLabels(deployment);
   return entries.every(([k, v]) => String(labels[k]) === String(v));
 }
 
-/** Containers that can receive traffic. A container declaring a containerPort
- * is serving; when no container in the pod declares one, the manifest does not
- * say, so every container is checked rather than none. Sidecars without ports
- * are skipped so a log shipper does not produce a readiness finding. */
-export function servingContainers(podSpec) {
+/**
+ * Containers that can receive traffic.
+ *
+ * When a Service in the same input selects these pods, its `targetPort` names
+ * the recipient exactly, and only those containers are checked.
+ *
+ * With no Service to read, **every** container is checked. An earlier version
+ * inferred the recipient from `containerPort`, which is wrong in the direction
+ * that matters: `containerPort` is purely informational, a Service may target a
+ * port no container declares, and a pod whose application omits it while a
+ * metrics sidecar declares one would have had the application skipped entirely
+ * — the traffic-serving container missing both a readinessProbe and a preStop
+ * hook, with nothing reported. A missed finding on the real container is worse
+ * than a redundant one on a sidecar, so the safe default is to check them all
+ * and let the reader supply a Service for precision.
+ */
+export function servingContainers(podSpec, { service = null, deployment = null } = {}) {
   const containers = Array.isArray(podSpec?.containers) ? podSpec.containers : [];
-  const withPorts = containers.filter((c) => Array.isArray(c?.ports) && c.ports.length > 0);
-  return withPorts.length > 0 ? withPorts : containers;
+  if (!service || !deployment) return containers;
+
+  const targets = new Set();
+  for (const port of Array.isArray(service.spec?.ports) ? service.spec.ports : []) {
+    targets.add(port?.targetPort ?? port?.port);
+  }
+  if (targets.size === 0) return containers;
+
+  const matched = containers.filter((c) =>
+    (Array.isArray(c?.ports) ? c.ports : []).some(
+      (p) => targets.has(p?.containerPort) || (p?.name != null && targets.has(p.name)),
+    ),
+  );
+  // A targetPort no container declares is legal, and means the manifest does
+  // not say which container answers. Abstaining into "check everything" keeps
+  // the safe direction.
+  return matched.length > 0 ? matched : containers;
 }
 
 function probeTarget(probe) {
@@ -108,7 +179,7 @@ function finding(id, resource, container, impact, fix) {
   return { id, severity: meta.severity, title: meta.title, resource, container, impact, fix };
 }
 
-function analyzeDeployment(deployment, pdbs) {
+function analyzeDeployment(deployment, pdbs, { services = [], scaleFor = () => null } = {}) {
   const out = [];
   const where = resourceLabel(deployment);
   const spec = deployment.spec ?? {};
@@ -154,7 +225,8 @@ function analyzeDeployment(deployment, pdbs) {
     : DEFAULT_GRACE_PERIOD;
   const graceIsDefault = typeof podSpec.terminationGracePeriodSeconds !== 'number';
 
-  for (const container of servingContainers(podSpec)) {
+  const service = services.find((s) => serviceSelects(s, deployment)) ?? null;
+  for (const container of servingContainers(podSpec, { service, deployment })) {
     const name = container?.name ?? '(unnamed container)';
 
     if (!container?.readinessProbe) {
@@ -216,20 +288,32 @@ function analyzeDeployment(deployment, pdbs) {
   }
   for (const pdb of matching) {
     const pdbWhere = resourceLabel(pdb);
-    const minAvailable = resolveReplicaCount(pdb.spec?.minAvailable, replicas);
-    const maxUnavailable = resolveReplicaCount(pdb.spec?.maxUnavailable, replicas);
-    if (minAvailable != null && replicas > 0 && minAvailable >= replicas) {
+    // A budget is evaluated against the *total* desired pods it selects, not
+    // this one Deployment's replicas. Two matching 2-replica Deployments under
+    // `minAvailable: 3` permit an eviction; resolving against 2 twice would
+    // report two blocked drains that do not exist.
+    const scale = scaleFor(pdb) ?? replicas;
+    const shared = scale !== replicas;
+    // Kubernetes rounds a PodDisruptionBudget percentage **up**, for both
+    // fields -- unlike a Deployment's maxUnavailable, which rounds down. Using
+    // the Deployment rule here read `minAvailable: 67%` of 3 as 2 and missed a
+    // budget that actually blocks, and read `maxUnavailable: 1%` as 0 and
+    // invented one that does not.
+    const minAvailable = resolveReplicaCount(pdb.spec?.minAvailable, scale, { roundUp: true });
+    const maxUnavailable = resolveReplicaCount(pdb.spec?.maxUnavailable, scale, { roundUp: true });
+    const against = shared ? `${scale} pod(s) across every workload it selects` : `${scale} replica(s)`;
+    if (minAvailable != null && scale > 0 && minAvailable >= scale) {
       out.push(finding(
         'pdb-blocks-drain', pdbWhere, null,
-        `minAvailable resolves to ${minAvailable} with ${replicas} replica(s), so evicting even one pod would break the budget. \`kubectl drain\` does not fail here — it blocks and retries indefinitely, which is why this usually shows up as a cluster upgrade that appears to hang rather than as an error.`,
-        `Set minAvailable below the replica count (\`minAvailable: ${Math.max(1, replicas - 1)}\` at ${replicas} replicas), or raise the replica count.`,
+        `minAvailable resolves to ${minAvailable} against ${against}, so evicting even one pod would break the budget. \`kubectl drain\` does not fail here — it blocks and retries indefinitely, which is why this usually shows up as a cluster upgrade that appears to hang rather than as an error.`,
+        `Set minAvailable below the selected pod count (\`minAvailable: ${Math.max(1, scale - 1)}\` at ${scale}), or raise the replica count.`,
       ));
     }
     if (maxUnavailable === 0) {
       out.push(finding(
         'pdb-blocks-drain', pdbWhere, null,
-        'maxUnavailable resolves to 0, so no pod may ever be voluntarily evicted. A node drain blocks forever rather than failing, so a cluster upgrade stalls with no error to point at.',
-        'Set `maxUnavailable: 1` (or a minAvailable below the replica count) so a drain can make progress one pod at a time.',
+        `maxUnavailable resolves to 0 against ${against}, so no pod may ever be voluntarily evicted. A node drain blocks forever rather than failing, so a cluster upgrade stalls with no error to point at.`,
+        'Set `maxUnavailable: 1` (or a minAvailable below the selected pod count) so a drain can make progress one pod at a time.',
       ));
     }
   }
@@ -243,16 +327,51 @@ const SEVERITY_ORDER = { [RISK]: 0, [WARN]: 1 };
  * Analyze parsed manifest documents.
  * @returns {{findings: Array, deployments: Array<string>, skipped: Array<string>, verdict: string, counts: {risk: number, warn: number}}}
  */
+/** `kubectl get deploy,pdb -o yaml` -- the command this tool's own page tells
+ * you to run -- returns a single `kind: List` whose resources are under
+ * `items`, not a stream of documents. Filtering only the top level reported
+ * "No Deployment found" on exactly that input, so a Deployment that drops
+ * every pod at once passed `--fail-on-risk` silently. Lists nest, so this
+ * flattens recursively. */
+export function flattenLists(docs, depth = 0) {
+  const out = [];
+  if (depth > 10) return out; // a self-referential structure cannot loop forever
+  for (const doc of Array.isArray(docs) ? docs : []) {
+    if (!doc || typeof doc !== 'object' || Array.isArray(doc)) continue;
+    if (typeof doc.kind === 'string' && doc.kind.endsWith('List') && Array.isArray(doc.items)) {
+      out.push(...flattenLists(doc.items, depth + 1));
+    } else {
+      out.push(doc);
+    }
+  }
+  return out;
+}
+
 export function analyzeDocuments(docs) {
-  const list = Array.isArray(docs) ? docs.filter((d) => d && typeof d === 'object' && !Array.isArray(d)) : [];
+  const list = flattenLists(docs);
   const deployments = list.filter((d) => d.kind === 'Deployment');
   const pdbs = list.filter((d) => d.kind === 'PodDisruptionBudget');
+  const services = list.filter((d) => d.kind === 'Service');
   const skipped = list
     .filter((d) => d.kind && d.kind !== 'Deployment' && d.kind !== 'PodDisruptionBudget')
     .map((d) => resourceLabel(d));
 
+  // Total desired pods each PodDisruptionBudget selects, summed across every
+  // Deployment it covers, so a shared budget is judged against what it
+  // actually governs.
+  const scaleFor = (pdb) => {
+    const covered = deployments.filter((d) => pdbSelects(pdb, d));
+    if (covered.length === 0) return null;
+    return covered.reduce(
+      (sum, d) => sum + (typeof d.spec?.replicas === 'number' ? d.spec.replicas : 1),
+      0,
+    );
+  };
+
   const findings = [];
-  for (const deployment of deployments) findings.push(...analyzeDeployment(deployment, pdbs));
+  for (const deployment of deployments) {
+    findings.push(...analyzeDeployment(deployment, pdbs, { services, scaleFor }));
+  }
   findings.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
 
   const counts = {

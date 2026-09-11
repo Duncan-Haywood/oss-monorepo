@@ -8,6 +8,9 @@ import {
   preStopSleepSeconds,
   pdbSelects,
   servingContainers,
+  selectorMatches,
+  namespaceOf,
+  flattenLists,
   summaryLine,
   CHECKS,
   RISK,
@@ -281,19 +284,34 @@ test('a Deployment with no matching PDB is warned about, and the warning says it
   assert.match(f.fix, /does not apply/);
 });
 
-test('a sidecar without ports does not produce probe findings', () => {
+// Rewritten after the PR #4551 review. These two originally asserted that a
+// container without a `containerPort` was skipped -- which was the bug, not
+// the feature: `containerPort` is informational, a Service can target a port
+// no container declares, and an app that omits it beside a metrics sidecar
+// that declares one was skipped entirely. The tool now checks every container
+// unless a Service says which one serves, so a sidecar produces an extra
+// finding and the application never goes unchecked. A redundant finding is a
+// cost; a missed one on the container that actually answers is a wrong
+// verdict.
+test('a sidecar is checked too, rather than letting the app go unchecked', () => {
   const yaml = safeDeployment(`        - name: log-shipper
           image: ghcr.io/acme/vector:0.39.0
 `);
-  const result = run(yaml);
-  assert.deepEqual(result.findings, [], 'the port-less sidecar must be skipped, not reported');
+  const reported = run(yaml).findings.filter((f) => f.container === 'log-shipper').map((f) => f.id);
+  assert.ok(reported.includes('no-readiness-probe'));
+  assert.ok(reported.includes('no-prestop-hook'));
+  // The correctly-configured app container still produces nothing.
+  assert.deepEqual(run(yaml).findings.filter((f) => f.container === 'api'), []);
 });
 
-test('when no container declares a port, every container is checked', () => {
-  const podSpec = { containers: [{ name: 'a' }, { name: 'b' }] };
-  assert.deepEqual(servingContainers(podSpec).map((c) => c.name), ['a', 'b']);
+test('with no Service to read, every container is checked', () => {
+  assert.deepEqual(servingContainers({ containers: [{ name: 'a' }, { name: 'b' }] }).map((c) => c.name), ['a', 'b']);
   const withPorts = { containers: [{ name: 'a', ports: [{ containerPort: 80 }] }, { name: 'b' }] };
-  assert.deepEqual(servingContainers(withPorts).map((c) => c.name), ['a']);
+  assert.deepEqual(
+    servingContainers(withPorts).map((c) => c.name),
+    ['a', 'b'],
+    'a declared containerPort is not evidence that the other container does not serve',
+  );
 });
 
 test('kinds other than Deployment and PDB are listed as skipped, never silently dropped', () => {
@@ -348,8 +366,15 @@ test('PDB selection needs every label to match', () => {
   const deployment = { spec: { template: { metadata: { labels: { app: 'api', tier: 'web' } } } } };
   assert.ok(pdbSelects({ spec: { selector: { matchLabels: { app: 'api' } } } }, deployment));
   assert.ok(!pdbSelects({ spec: { selector: { matchLabels: { app: 'api', tier: 'batch' } } } }, deployment));
-  assert.ok(!pdbSelects({ spec: { selector: { matchLabels: {} } } }, deployment), 'an empty selector is not a match');
-  assert.ok(!pdbSelects({ spec: {} }, deployment));
+  // An *absent* selector selects nothing this tool can reason about; an
+  // *empty* one matches every pod in the namespace, per policy/v1. The first
+  // draft treated both as "no match", which produced a false `no-pdb-found`
+  // against a budget that does in fact cover these pods.
+  assert.ok(!pdbSelects({ spec: {} }, deployment), 'no selector at all');
+  assert.ok(
+    pdbSelects({ spec: { selector: {} } }, deployment),
+    'an empty policy/v1 selector matches everything in the namespace',
+  );
 });
 
 test('every check id in CHECKS is reachable and every finding id is declared', () => {
@@ -382,4 +407,224 @@ test('the summary line states the consequence, not a score', () => {
 `, '');
   assert.match(summaryLine(run(broken)), /can drop live requests/);
   assert.match(summaryLine(run(safeDeployment())), /No rollout-safety problems/);
+});
+
+// ---------------------------------------------------------------------------
+// Regressions from the automated review on PR #4551. Every one of these was a
+// real defect that produced a WRONG verdict rather than a missing feature,
+// which for a safety checker is the only severity that matters: a tool that
+// says "clean" about a rollout that drops requests is worse than no tool.
+// ---------------------------------------------------------------------------
+
+test('a kind: List wrapper is unwrapped, because that is what kubectl emits', () => {
+  // `kubectl get deploy,pdb -o yaml` -- the command index.html tells the
+  // visitor to run -- returns ONE `kind: List`. Filtering the top level only
+  // reported "No Deployment found" and let --fail-on-risk exit 0 on a
+  // Deployment that takes every pod down at once.
+  const result = run(`apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: api
+    spec:
+      replicas: 2
+      strategy:
+        rollingUpdate:
+          maxUnavailable: 2
+      template:
+        metadata:
+          labels:
+            app: api
+        spec:
+          containers:
+            - name: api
+              ports:
+                - containerPort: 8080
+`);
+  assert.deepEqual(result.deployments, ['Deployment/api']);
+  assert.equal(result.verdict, 'drops-requests');
+  assert.ok(ids(result).includes('max-unavailable-all-pods'));
+  assert.ok(ids(result).includes('no-readiness-probe'));
+});
+
+test('nested lists flatten, and a non-list kind ending in "List" is not mangled', () => {
+  const nested = flattenLists([
+    { kind: 'List', items: [{ kind: 'List', items: [{ kind: 'Deployment', metadata: { name: 'a' } }] }] },
+  ]);
+  assert.deepEqual(nested.map((d) => d.metadata.name), ['a']);
+  // `kind` ending in List but with no `items` array is a real resource.
+  assert.deepEqual(flattenLists([{ kind: 'DeploymentList' }]).length, 1);
+});
+
+test('a PodDisruptionBudget in another namespace does not select these pods', () => {
+  // PDBs are namespaced. Matching on labels alone let a PDB from one namespace
+  // suppress `no-pdb-found` on an identically-labelled Deployment in another.
+  const deployment = { kind: 'Deployment', metadata: { namespace: 'prod' }, spec: { template: { metadata: { labels: { app: 'api' } } } } };
+  const samePlace = { kind: 'PodDisruptionBudget', metadata: { namespace: 'prod' }, spec: { selector: { matchLabels: { app: 'api' } } } };
+  const elsewhere = { kind: 'PodDisruptionBudget', metadata: { namespace: 'staging' }, spec: { selector: { matchLabels: { app: 'api' } } } };
+  assert.ok(pdbSelects(samePlace, deployment));
+  assert.ok(!pdbSelects(elsewhere, deployment));
+  // An absent namespace means `default` on both sides, not "any".
+  const bare = { kind: 'Deployment', spec: { template: { metadata: { labels: { app: 'api' } } } } };
+  assert.equal(namespaceOf(bare), 'default');
+  assert.ok(pdbSelects({ kind: 'PodDisruptionBudget', metadata: { namespace: 'default' }, spec: { selector: { matchLabels: { app: 'api' } } } }, bare));
+  assert.ok(!pdbSelects(elsewhere, bare));
+});
+
+test('a selector using matchExpressions is evaluated, not ignored', () => {
+  const labels = { app: 'api', tier: 'web' };
+  assert.ok(selectorMatches({ matchExpressions: [{ key: 'app', operator: 'In', values: ['api', 'worker'] }] }, labels));
+  assert.ok(!selectorMatches({ matchExpressions: [{ key: 'app', operator: 'In', values: ['worker'] }] }, labels));
+  assert.ok(selectorMatches({ matchExpressions: [{ key: 'app', operator: 'Exists' }] }, labels));
+  assert.ok(!selectorMatches({ matchExpressions: [{ key: 'nope', operator: 'Exists' }] }, labels));
+  assert.ok(selectorMatches({ matchExpressions: [{ key: 'nope', operator: 'DoesNotExist' }] }, labels));
+  assert.ok(!selectorMatches({ matchExpressions: [{ key: 'app', operator: 'NotIn', values: ['api'] }] }, labels));
+  // matchLabels and matchExpressions are ANDed.
+  assert.ok(!selectorMatches({ matchLabels: { tier: 'batch' }, matchExpressions: [{ key: 'app', operator: 'Exists' }] }, labels));
+  // An empty selector matches everything in the namespace, per policy/v1.
+  assert.ok(selectorMatches({}, labels));
+  // An operator this reader does not know must never silently match -- that
+  // would invent a budget the cluster does not have.
+  assert.ok(!selectorMatches({ matchExpressions: [{ key: 'app', operator: 'Sideways', values: [] }] }, labels));
+});
+
+test('PodDisruptionBudget percentages round UP, unlike a Deployment maxUnavailable', () => {
+  // Kubernetes rounds a PDB percentage up for both fields. Using the
+  // Deployment round-down rule read `minAvailable: 67%` of 3 as 2 and missed a
+  // budget that genuinely blocks every eviction.
+  const yaml = safeDeployment().replace('  minAvailable: 2', '  minAvailable: 67%');
+  const f = run(yaml).findings.find((x) => x.id === 'pdb-blocks-drain');
+  assert.ok(f, 'ceil(0.67 * 3) = 3 of 3 replicas blocks a drain');
+  // And the other direction: 1% of 3 is 1, not 0, so it is NOT a blocked drain.
+  const ok = safeDeployment().replace('  minAvailable: 2', '  maxUnavailable: 1%');
+  assert.ok(!ids(run(ok)).includes('pdb-blocks-drain'), 'ceil(0.01 * 3) = 1, which permits an eviction');
+});
+
+test('a budget shared by two Deployments is resolved against their combined scale', () => {
+  // Two 2-replica Deployments under `minAvailable: 3` permit one eviction out
+  // of four. Resolving against one Deployment's 2 replicas twice reported two
+  // blocked drains that do not exist.
+  const two = (name) => `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${name}
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: shared
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: c
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 80
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: 5
+---
+`;
+  const result = run(`${two('a')}${two('b')}apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: shared
+spec:
+  minAvailable: 3
+  selector:
+    matchLabels:
+      app: shared
+`);
+  assert.ok(!ids(result).includes('pdb-blocks-drain'), '3 of 4 selected pods permits one eviction');
+  // At minAvailable 4 of the same 4 pods, it genuinely blocks.
+  const blocked = run(`${two('a')}${two('b')}apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: shared
+spec:
+  minAvailable: 4
+  selector:
+    matchLabels:
+      app: shared
+`);
+  const f = blocked.findings.find((x) => x.id === 'pdb-blocks-drain');
+  assert.ok(f);
+  assert.match(f.impact, /across every workload it selects/);
+});
+
+test('every container is checked when no Service says which one serves', () => {
+  // containerPort is informational and a Service may target a port no
+  // container declares. Inferring the recipient from it meant that an app
+  // omitting containerPort beside a metrics sidecar that declares one had the
+  // APP skipped -- the exact container whose missing probe drops requests.
+  const podSpec = {
+    containers: [
+      { name: 'app' },
+      { name: 'metrics', ports: [{ containerPort: 9090 }] },
+    ],
+  };
+  assert.deepEqual(servingContainers(podSpec).map((c) => c.name), ['app', 'metrics']);
+});
+
+test('a Service in the input narrows the check to the container it targets', () => {
+  const deployment = {
+    kind: 'Deployment',
+    metadata: { name: 'api' },
+    spec: { template: { metadata: { labels: { app: 'api' } } } },
+  };
+  const service = {
+    kind: 'Service',
+    metadata: { name: 'api' },
+    spec: { selector: { app: 'api' }, ports: [{ port: 80, targetPort: 8080 }] },
+  };
+  const podSpec = {
+    containers: [
+      { name: 'app', ports: [{ containerPort: 8080 }] },
+      { name: 'metrics', ports: [{ containerPort: 9090 }] },
+    ],
+  };
+  assert.deepEqual(
+    servingContainers(podSpec, { service, deployment }).map((c) => c.name),
+    ['app'],
+    'only the container the Service targets',
+  );
+  // A named targetPort resolves too.
+  const named = { ...service, spec: { ...service.spec, ports: [{ port: 80, targetPort: 'http' }] } };
+  const namedPods = { containers: [{ name: 'app', ports: [{ name: 'http', containerPort: 8080 }] }, { name: 'metrics', ports: [{ containerPort: 9090 }] }] };
+  assert.deepEqual(servingContainers(namedPods, { service: named, deployment }).map((c) => c.name), ['app']);
+  // A targetPort no container declares is legal and means the manifest does
+  // not say -- abstain into checking everything rather than checking nothing.
+  const unmatched = { ...service, spec: { ...service.spec, ports: [{ port: 80, targetPort: 7777 }] } };
+  assert.deepEqual(servingContainers(podSpec, { service: unmatched, deployment }).map((c) => c.name), ['app', 'metrics']);
+});
+
+test('a sidecar-only Service does not hide the app container from the checks', () => {
+  const result = run(`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: app
+        - name: metrics
+          ports:
+            - containerPort: 9090
+`);
+  const missing = result.findings.filter((f) => f.id === 'no-readiness-probe').map((f) => f.container);
+  assert.ok(missing.includes('app'), 'the port-less application container must still be checked');
 });
