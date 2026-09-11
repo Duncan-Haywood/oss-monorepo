@@ -30,8 +30,18 @@ node check.mjs --fail-on-risk      # exit 2 when a rollout can drop requests
 ```
 
 Exit codes: `0` clean (or findings without `--fail-on-risk`), `1` a path could
-not be read or an argument was invalid, `2` `--fail-on-risk` and at least one
-risk-level finding.
+not be read, an argument was invalid, **or a file could not be parsed**, `2`
+`--fail-on-risk` and at least one risk-level finding.
+
+That middle case is deliberate and does not depend on `--fail-on-risk`: a file
+that could not be parsed was never analysed, so exiting `0` would tell CI "this
+gate passed" when the honest answer is "this gate did not run". An unparsed file
+is unchecked, never clean.
+
+Paste or pass the `Service` alongside the Deployment when you have it. Without
+one, the tool cannot tell the application container from a sidecar and checks
+**every** container — safe, but noisier. With one, it resolves `targetPort` to
+the container that actually answers and checks only that.
 
 Helm and Kustomize users: render first, then check the output.
 
@@ -74,10 +84,13 @@ is the only way to see it.
 
 ## What it deliberately does not do
 
-- **Only `Deployment` and `PodDisruptionBudget`.** StatefulSet, DaemonSet and
-  Job rollouts have different ordering semantics; applying Deployment rules to
-  them would produce confident wrong answers. Other kinds are reported as
-  skipped, never silently dropped.
+- **Only `Deployment` and `PodDisruptionBudget` are judged.** StatefulSet,
+  DaemonSet and Job rollouts have different ordering semantics; applying
+  Deployment rules to them would produce confident wrong answers. Other kinds
+  are reported as skipped, never silently dropped — except `Service`, which is
+  *read* (not judged) to identify which container receives traffic. A
+  `kind: List` wrapper, which is what `kubectl get -o yaml` returns, is
+  unwrapped.
 - **No score.** A score answers "how am I doing?"; the question here is "will
   this break?". 7/10 does not say whether the missing three are the ones that
   drop requests.
@@ -125,6 +138,33 @@ Deployments.
 That is the argument for shipping a checker against manifests you actually
 operate: the bug was not in the checks, it was in refusing to read the input,
 and no unit test written against tidy fixtures would have found it.
+
+## What review caught
+
+An automated review on the PR found eight more, and every one produced a
+*wrong verdict* rather than a missing feature — the only severity that matters
+here, because a tool that says "clean" about a rollout that drops requests is
+worse than no tool. The three that mattered most:
+
+- **`kind: List` was not unwrapped.** `kubectl get deploy,pdb -o yaml` — the
+  command this tool's own page tells you to run — returns one `List` whose
+  resources are under `items`. Filtering only the top level reported "No
+  Deployment found" and let `--fail-on-risk` exit `0` on a Deployment that
+  takes every pod down at once. The recommended workflow was the broken one.
+- **A partial parse was silent.** If the YAML reader stopped early on an
+  unsupported construct, everything after it — `spec` included — was dropped,
+  and the Deployment came back with no findings. It now refuses the document.
+- **The serving-container heuristic could skip the app.** `containerPort` is
+  informational, so a pod whose application omits it beside a metrics sidecar
+  that declares one had the *application* skipped entirely. Every container is
+  now checked unless a `Service` says which one answers.
+
+The rest: PodDisruptionBudget percentages round up (not down, which is the
+Deployment rule), budgets are matched within a namespace, `matchExpressions`
+and empty selectors are evaluated, a budget shared by several Deployments is
+resolved against their combined scale, parse failures exit non-zero, and the
+CLI entry-point check uses `fileURLToPath` so a checkout under a path with a
+space still runs. Each is pinned by a named regression test.
 
 ## Licence and support
 

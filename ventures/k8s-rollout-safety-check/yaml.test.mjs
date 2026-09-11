@@ -186,3 +186,30 @@ test('a percentage rollout setting survives as a string', () => {
   assert.equal(doc.strategy.rollingUpdate.maxUnavailable, '25%');
   assert.equal(doc.strategy.rollingUpdate.maxSurge, 1);
 });
+
+test('a document the reader cannot fully consume is refused, never truncated', () => {
+  // The failure this guards is silent and severe: if parseNode stops early on
+  // an unsupported construct, everything after it -- `spec` included -- would
+  // be dropped, and a Deployment that drops requests on every rollout would
+  // come back with no findings at all. Refusing is the honest answer.
+  assert.throws(
+    () => parseDocuments('kind: Deployment\nmetadata:\n  annotations:\n    note: "line one\n      line two"\nspec:\n  replicas: 1\n'),
+    (err) => err instanceof YamlError && /unparsed content remains/.test(err.message),
+  );
+});
+
+test('an ordinary manifest is not caught by the unconsumed-content guard', () => {
+  const [doc] = parseDocuments(`kind: Deployment
+metadata:
+  name: api
+  annotations:
+    description: >-
+      a folded note
+      across lines
+    single: "one line"
+spec:
+  replicas: 2
+`);
+  assert.equal(doc.spec.replicas, 2);
+  assert.equal(doc.metadata.annotations.description, 'a folded note across lines');
+});
