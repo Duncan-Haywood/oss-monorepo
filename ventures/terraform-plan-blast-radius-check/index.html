@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Terraform Plan Blast Radius Check — What This Apply Actually Destroys</title>
+  <meta name="description" content="Paste or load a Terraform structured plan (terraform show -json) and see its blast radius before you apply: every destroy and replace called out individually with the attribute that forced it, a loud flag when a replace hits a database, disk, bucket, DNS record, load balancer or secret, and a true-deletion list. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Which of these resources is your terraform apply about to destroy?">
+  <meta property="og:description" content="A plan summary counts a replaced production database in the same column as a moved security-group rule. This reads the structured plan JSON and puts the destroys, the replaces, and the attribute that forced each one at the top -- free, no upload, with a matching CLI you can run as a pre-apply CI gate.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Terraform Plan Blast Radius Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Reads a Terraform structured plan (terraform show -json) and reports its blast radius before apply: a per-type and per-module action summary, every destroy and replace individually with the replace_paths attribute and action_reason the plan JSON carries, a flag when a replace hits a resource type that holds data, and a true-deletion list. Runs entirely in the browser or as a zero-dependency Node CLI usable as a pre-apply CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can't I just read the Plan: N to add, N to change, N to destroy line?","acceptedAnswer":{"@type":"Answer","text":"Because a replacement is counted in both the add column and the destroy column, so that line cannot tell you whether the 2 destroys are a pair of scratch resources going away or your production database being recreated empty. The detail that separates them is hundreds of lines further up, in a diff nobody scrolls back through. This tool reads the same plan and puts the replaces and destroys at the top, each with the attribute that forced it."}},{"@type":"Question","name":"How does it decide a resource type holds data?","acceptedAnswer":{"@type":"Answer","text":"By the resource type name, split on underscores and matched against a token list per category — database, disk or volume, bucket, DNS, load balancer, secret, stateful Kubernetes object, queue or stream, and search cluster. Type names are the one part of a plan that is stable across providers and needs no schema lookup, so this works offline against a provider the tool has never seen. It is deliberately biased toward flagging, because an extra flag costs five seconds of reading and a missed one costs a database, and the report always names the token that matched so you can dismiss a false positive at a glance."}},{"@type":"Question","name":"Is my plan uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses a pasted or locally loaded file entirely in your own browser and never sends it anywhere. The CLI reads only a local file — no network call, ever. That matters more than usual here: a structured plan contains your whole infrastructure layout and often real attribute values."}},{"@type":"Question","name":"What file does it need?","acceptedAnswer":{"@type":"Answer","text":"The structured plan JSON from terraform show -json, not the human-readable terraform plan output and not the line-by-line terraform plan -json stream. Run: terraform plan -out=tfplan && terraform show -json tfplan > plan.json"}},{"@type":"Question","name":"Why is a replace sometimes listed with no attribute that forced it?","acceptedAnswer":{"@type":"Answer","text":"Because the plan did not carry one. replace_paths is populated when a provider marks the change as requiring replacement, but a resource replaced because it is tainted or because you passed -replace=ADDRESS has no forcing attribute at all. In those cases the tool shows the action_reason code instead, which is what the plan does say."}},{"@type":"Question","name":"Does a clean report mean the apply is safe?","acceptedAnswer":{"@type":"Answer","text":"No. It means nothing in this plan matched the patterns this tool checks. It cannot know that a resource you consider disposable is actually load-bearing, it does not read your state file or your provider's source, and it makes no judgement about the change itself. Read the plan before you apply it — this is one gate, not a guarantee."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; background: #e3e9ef; color: #17324a; }
+    .pill.danger { background: #fde8e8; color: #7f1d1d; }
+    .pill.warn { background: #fdf2e0; color: #7a4a09; }
+    .risk { border: 2px solid #c23b3b; border-radius: 12px; padding: 16px; margin: 12px 0; background: #fff7f7; }
+    .risk h3 { margin-top: 0; color: #7f1d1d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .ok { color: #14532d; font-weight: 600; }
+    .bad { color: #7f1d1d; font-weight: 700; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TERRAFORM PLAN BLAST RADIUS CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Which of these resources is your <code>terraform apply</code> about to destroy?</h1>
+    <p>Paste or load a Terraform structured plan (<code>terraform show -json</code>) and get a deterministic blast-radius report: every destroy and replace called out individually with the attribute that forced it, grouped counts by resource type and by module, and a loud flag when a replace lands on something that holds data.</p>
+    <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device — which matters here, because a structured plan describes your whole infrastructure.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Load your plan</h2>
+    <p>
+      <label for="file-input">From a file (the JSON from <code>terraform show -json</code> — read locally, never uploaded)</label>
+      <input type="file" id="file-input" accept=".json,.txt">
+    </p>
+    <label for="plan-input">…or paste it directly</label>
+    <textarea id="plan-input" spellcheck="false" placeholder='{"format_version":"1.2","resource_changes":[...]}'></textarea>
+    <p>
+      <button type="button" id="check">Show blast radius</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What this apply takes away</h2>
+    <p id="summary"></p>
+
+    <div id="risk-block" hidden>
+      <div class="risk">
+        <h3 id="risk-heading"></h3>
+        <div id="risk-rows"></div>
+      </div>
+    </div>
+
+    <div id="destructive-block" hidden>
+      <h3>Every destroy and replace, most consequential first</h3>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Address</th><th>Action</th><th>Type</th><th>Module</th><th>Forced by</th><th>Reason</th></tr></thead>
+          <tbody id="destructive-rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3>By resource type</h3>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Type</th><th>Create</th><th>Update</th><th>Replace</th><th>Destroy</th><th>No-op</th></tr></thead>
+        <tbody id="type-rows"></tbody>
+      </table>
+    </div>
+
+    <h3>By module</h3>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Module</th><th>Create</th><th>Update</th><th>Replace</th><th>Destroy</th><th>No-op</th></tr></thead>
+        <tbody id="module-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a gate before you apply?</h2>
+    <p>Same logic, zero dependencies, one file — run it right after you generate the plan, before anything applies it:</p>
+    <pre class="cmd">terraform plan -out=tfplan &amp;&amp; terraform show -json tfplan &gt; plan.json
+node cli.mjs check plan.json                            # exit 1 if a replace hits something that holds data
+node cli.mjs check plan.json --fail-on=delete-stateful  # also fail on destroying stored data outright
+node cli.mjs check plan.json --fail-on=destructive      # fail on any destroy or replace at all
+node cli.mjs check plan.json --json</pre>
+    <p class="note">The default gate is <code>replace-stateful</code> rather than "any destroy" on purpose: a gate that fires on every plan in a repository that uses <code>count</code> is one somebody adds <code>continue-on-error</code> to within a week.</p>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only the local file you name: no network call, ever.</p>
+  </section>
+
+  <section class="card">
+    <h2>Which resource types count as holding data</h2>
+    <p>The heuristic is on the type name, split on underscores and matched against a token list per category. What each category stands to lose:</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Category</th><th>What a replace costs you</th><th>Example type tokens</th></tr></thead>
+        <tbody id="rules-rows"></tbody>
+      </table>
+    </div>
+    <p class="note">Configuration sub-resources are exempt by suffix — <code>aws_db_parameter_group</code> and <code>aws_s3_bucket_policy</code> carry a stateful token and hold no data of their own. The full reasoning, and the upstream issue that makes this worth a separate tool: <a href="why-terraform-replace-destroys-data.html">why a Terraform replace destroys data, and why the plan does not always tell you which attribute forced it</a>. Worried about the other thing a plan file exposes? <a href="../terraform-plan-secret-exposure-check/">Terraform Plan Secret Exposure Check</a> reads the same file for a different failure — attribute values that look like real secrets which the provider schema never marked <code>sensitive</code>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why can't I just read the Plan: N to add, N to change, N to destroy line?</h3>
+    <p>Because a replacement is counted in both the add column and the destroy column, so that line cannot tell you whether the 2 destroys are a pair of scratch resources going away or your production database being recreated empty. The detail that separates them is hundreds of lines further up, in a diff nobody scrolls back through. This tool reads the same plan and puts the replaces and destroys at the top, each with the attribute that forced it.</p>
+    <h3>How does it decide a resource type holds data?</h3>
+    <p>By the resource type name, split on underscores and matched against a token list per category — database, disk or volume, bucket, DNS, load balancer, secret, stateful Kubernetes object, queue or stream, and search cluster. Type names are the one part of a plan that is stable across providers and needs no schema lookup, so this works offline against a provider the tool has never seen. It is deliberately biased toward flagging, because an extra flag costs five seconds of reading and a missed one costs a database, and the report always names the token that matched so you can dismiss a false positive at a glance.</p>
+    <h3>Is my plan uploaded anywhere?</h3>
+    <p>No. The browser page parses a pasted or locally loaded file entirely in your own browser and never sends it anywhere. The CLI reads only a local file — no network call, ever. That matters more than usual here: a structured plan contains your whole infrastructure layout and often real attribute values.</p>
+    <h3>What file does it need?</h3>
+    <p>The structured plan JSON from <code>terraform show -json</code>, not the human-readable <code>terraform plan</code> output and not the line-by-line <code>terraform plan -json</code> stream. Run: <code>terraform plan -out=tfplan &amp;&amp; terraform show -json tfplan &gt; plan.json</code></p>
+    <h3>Why is a replace sometimes listed with no attribute that forced it?</h3>
+    <p>Because the plan did not carry one. <code>replace_paths</code> is populated when a provider marks the change as requiring replacement, but a resource replaced because it is tainted or because you passed <code>-replace=ADDRESS</code> has no forcing attribute at all. In those cases the tool shows the <code>action_reason</code> code instead, which is what the plan does say.</p>
+    <h3>Does a clean report mean the apply is safe?</h3>
+    <p>No. It means nothing in this plan matched the patterns this tool checks. It cannot know that a resource you consider disposable is actually load-bearing, it does not read your state file or your provider's source, and it makes no judgement about the change itself. Read the plan before you apply it — this is one gate, not a guarantee.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is informational only — it is not legal, financial, security, compliance, or other professional advice, and it does not replace a qualified professional, your provider's documentation, or your own review of the plan. It reports a deterministic reading of the plan file you supplied and a name-based heuristic for which resource types hold data; it cannot prove an apply is safe, only report what it matched. <strong>You are responsible for reviewing and verifying its output, and for reading the real plan, before you apply anything.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with HashiCorp, Terraform, OpenTofu, or any cloud provider.</strong> Terraform is a trademark of HashiCorp. This is an independent, unofficial tool that reads a file those programs produce; it is not endorsed by or connected with any of them.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The plan you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parsePlan, analyzePlan, summarize, STATEFUL_TYPE_RULES } from "./engine.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      fileInput: $("#file-input"), plan: $("#plan-input"), status: $("#status"),
+      reportCard: $("#report-card"), summary: $("#summary"),
+      riskBlock: $("#risk-block"), riskHeading: $("#risk-heading"), riskRows: $("#risk-rows"),
+      destructiveBlock: $("#destructive-block"), destructiveRows: $("#destructive-rows"),
+      typeRows: $("#type-rows"), moduleRows: $("#module-rows"), rulesRows: $("#rules-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    els.rulesRows.innerHTML = STATEFUL_TYPE_RULES.map((r) => `<tr>
+      <td>${escapeHtml(r.label)}</td>
+      <td>${escapeHtml(r.loss)}</td>
+      <td><code>${escapeHtml(r.tokens.slice(0, 6).join(", "))}…</code></td>
+    </tr>`).join("");
+
+    function actionPill(entry) {
+      if (entry.dataLossRisk) return '<span class="pill danger">Data loss risk</span>';
+      if (entry.trueDeletion && entry.stateful) return '<span class="pill danger">Destroying stored data</span>';
+      if (entry.trueDeletion) return '<span class="pill warn">Going away</span>';
+      if (entry.action === "replace") return '<span class="pill warn">Replace</span>';
+      return '<span class="pill">Destroy</span>';
+    }
+
+    function countRow(label, row) {
+      return `<tr><td><code>${escapeHtml(label)}</code></td>
+        <td class="num">${row.create}</td><td class="num">${row.update}</td>
+        <td class="num">${row.replace}</td><td class="num">${row.delete}</td>
+        <td class="num">${row["no-op"]}</td></tr>`;
+    }
+
+    function renderReport() {
+      let plan;
+      try {
+        plan = parsePlan(els.plan.value);
+      } catch (err) {
+        els.status.innerHTML = `<span class="bad">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      const report = analyzePlan(plan);
+      els.status.textContent = "";
+
+      const risky = [...report.dataLossRisks, ...report.statefulDeletions.filter((d) => !d.dataLossRisk)];
+      els.summary.innerHTML = risky.length
+        ? `<span class="bad">${escapeHtml(summarize(report))}</span>`
+        : `<span class="ok">${escapeHtml(summarize(report))}</span>`;
+
+      els.riskBlock.hidden = risky.length === 0;
+      els.riskHeading.textContent =
+        risky.length === 1
+          ? "1 resource that holds data is being destroyed or recreated"
+          : `${risky.length} resources that hold data are being destroyed or recreated`;
+      els.riskRows.innerHTML = risky
+        .map((d) => `<p><code>${escapeHtml(d.address)}</code> — ${escapeHtml(d.stateful.label)}.
+          <strong>${escapeHtml(d.stateful.loss)}</strong>
+          ${d.replacePaths.length ? `Forced by <code>${escapeHtml(d.replacePaths.join(", "))}</code>.` : ""}
+          ${d.actionReasonText ? escapeHtml(d.actionReasonText) + "." : ""}</p>`)
+        .join("");
+
+      els.destructiveBlock.hidden = report.destructive.length === 0;
+      els.destructiveRows.innerHTML = report.destructive
+        .map((d) => `<tr>
+          <td><code>${escapeHtml(d.address)}</code></td>
+          <td>${actionPill(d)}</td>
+          <td><code>${escapeHtml(d.type)}</code></td>
+          <td><code>${escapeHtml(d.module)}</code></td>
+          <td>${d.replacePaths.length ? `<code>${escapeHtml(d.replacePaths.join(", "))}</code>` : "—"}</td>
+          <td>${d.actionReasonText ? escapeHtml(d.actionReasonText) : "—"}</td>
+        </tr>`)
+        .join("");
+
+      els.typeRows.innerHTML = report.byType.map((row) => countRow(row.type, row)).join("");
+      els.moduleRows.innerHTML = report.byModule.map((row) => countRow(row.module, row)).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    els.fileInput.addEventListener("change", () => {
+      const file = els.fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        els.plan.value = String(reader.result || "");
+        record("file_loaded");
+        renderReport();
+      };
+      reader.readAsText(file);
+    });
+
+    const EXAMPLE_PLAN = JSON.stringify({
+      format_version: "1.2",
+      terraform_version: "1.9.5",
+      resource_changes: [
+        {
+          address: "module.data.aws_db_instance.primary",
+          module_address: "module.data",
+          mode: "managed",
+          type: "aws_db_instance",
+          name: "primary",
+          change: { actions: ["delete", "create"], replace_paths: [["engine_version"]] },
+          action_reason: "replace_because_cannot_update",
+        },
+        {
+          address: "aws_s3_bucket.build_artifacts",
+          mode: "managed",
+          type: "aws_s3_bucket",
+          name: "build_artifacts",
+          change: { actions: ["delete"] },
+          action_reason: "delete_because_no_resource_config",
+        },
+        {
+          address: "module.web.aws_instance.app[0]",
+          module_address: "module.web",
+          mode: "managed",
+          type: "aws_instance",
+          name: "app",
+          index: 0,
+          change: { actions: ["delete", "create"], replace_paths: [["ami"]] },
+          action_reason: "replace_because_cannot_update",
+        },
+        {
+          address: "module.web.aws_instance.app[1]",
+          module_address: "module.web",
+          mode: "managed",
+          type: "aws_instance",
+          name: "app",
+          index: 1,
+          change: { actions: ["update"] },
+        },
+        {
+          address: "aws_security_group_rule.legacy_ssh",
+          mode: "managed",
+          type: "aws_security_group_rule",
+          name: "legacy_ssh",
+          change: { actions: ["delete"] },
+          action_reason: "delete_because_count_index",
+        },
+        {
+          address: "aws_cloudwatch_log_group.app",
+          mode: "managed",
+          type: "aws_cloudwatch_log_group",
+          name: "app",
+          change: { actions: ["create"] },
+        },
+        {
+          address: "aws_iam_role.app",
+          mode: "managed",
+          type: "aws_iam_role",
+          name: "app",
+          change: { actions: ["no-op"] },
+        },
+      ],
+    }, null, 2);
+
+    $("#load-example").addEventListener("click", () => {
+      els.plan.value = EXAMPLE_PLAN;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.plan.value = "";
+      els.fileInput.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

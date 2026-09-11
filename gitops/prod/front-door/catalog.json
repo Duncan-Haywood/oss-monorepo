@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 266,
-  "collection_total": 266,
+  "served_here": 267,
+  "collection_total": 267,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 42
+      "tool_count": 43
     },
     {
       "id": "evidence",
@@ -2013,6 +2013,14 @@
       "category": "Trade & contractor bids",
       "description": "Filter a public tender CSV by trade, minimum value, and deadline. Free, private browser tool for small contractors. Nothing is uploaded.",
       "pages": 3
+    },
+    {
+      "slug": "terraform-plan-blast-radius-check",
+      "name": "Terraform Plan Blast Radius Check — What This Apply Actually Destroys",
+      "url": "https://marisstella.dev/tools/terraform-plan-blast-radius-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste or load a Terraform structured plan (terraform show -json) and see its blast radius before you apply: every destroy and replace called out individually with the attribute that forced it, a loud flag when a replace hits a database, disk, bucket, DNS record, load balancer or secret, and a true-deletion list. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "terraform-plan-secret-exposure-check",
