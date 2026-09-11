@@ -1530,7 +1530,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 250 since 2026-09-11, when `k8s-rollout-safety-check` also graduated the
     # same day — same shape again: a new venture with a static `index.html`
     # from its first commit, entering the mirror and the total together.
-    total = 250  # `infra/OWNER_CHECKLIST.md`'s own "N of the 250 tools" wording.
+    # 251 since 2026-09-11, when `app-store-screenshot-check` graduated too —
+    # the two landed within the same hour and each branch, correctly, moved the
+    # total from 249 to 250. Merging them makes it 251: the count is of the
+    # tree, not of either diff, which is exactly why this assertion is here.
+    total = 251  # `infra/OWNER_CHECKLIST.md`'s own "N of the 251 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

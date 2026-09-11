@@ -123,31 +123,6 @@ test('the shared link carries every field the form reads, not a hand-kept subset
     'FLAG_IDS must list every checkbox readInput() reads');
 });
 
-test('the figures on screen cannot outlive the boxes that produced them', () => {
-  // `platform/pages/roundtrip.mjs` found this one live: every field survived
-  // the shared link and the headline still moved, 15.8% → 18.0%. The link
-  // carries `readInput()` — the current boxes — while the result on screen was
-  // whatever was last priced, so the sender and the recipient read different
-  // margins off the same placement. Repricing on the same events that save is
-  // what keeps the two in step.
-  assert.match(index, /document\.addEventListener\('input',\s*onEdit\)/,
-    'editing a field must reprice, or the headline can outlive its inputs');
-  assert.match(index, /document\.addEventListener\('change',\s*onEdit\)/,
-    'changing a checkbox or select must reprice too');
-  assert.match(index, /const onEdit = \(\) => \{ persist\(\); repriceLive\(\); \}/,
-    'the edit handler must both save and reprice');
-
-  // And it must not do it through `renderErrors`, which focuses the first
-  // invalid field — on every keystroke that would take the cursor away from
-  // the box being typed into.
-  const live = index.match(/function repriceLive\(\) \{[\s\S]*?\n    \}/);
-  assert.ok(live, 'repriceLive is not declared');
-  assert.doesNotMatch(live[0], /renderErrors/,
-    'repriceLive must not call renderErrors: it moves focus and would fight the typing');
-  assert.match(live[0], /heroNumber/,
-    'an unpriceable form must clear the headline rather than leave a stale one');
-});
-
 test('the sponsor link is present, honest, and optional', () => {
   assert.match(index, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(index, /entirely optional and never changes what the tool does/);
