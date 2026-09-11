@@ -11633,3 +11633,66 @@ ventures:
       otherwise skip 508 documentation altogether. Nothing is uploaded, no
       personal data is collected, and no claim is made that improves this
       portfolio's position at a user's expense.
+  - slug: 1099k-reconciliation-worksheet
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the filer already has: one or
+      more 1099-K Box 1a totals, refunds, marketplace-remitted sales tax,
+      platform fees, COGS, and shipping paid. There is no inference step —
+      the output is a per-platform and combined subtraction, not a
+      judgment call about what is deductible or owed.
+    basis: >-
+      Graduated 2026-09-11 as a free worksheet reconciling one or more Form
+      1099-K Box 1a gross-payment totals down to an estimated net taxable
+      profit, per platform and combined across marketplaces. A different
+      shape from both saturated archetypes this fleet steers away from
+      (single-formula trade-bid calculators, single-request -check/-checker
+      classifiers): a multi-row worksheet + aggregation tool, closer in
+      kind to payment-reconciliation-workbench and
+      grant-reporting-tracker. `duplicate_check.py` scored nothing >= 0.45
+      against any existing venture, pipeline candidate, or screened-out row
+      (run 2026-09-11; top match vending-machine-route-margin at 0.09, an
+      unrelated route calculator matching only on generic "margin"
+      vocabulary).
+      Autonomous ops 10 / gross margin 10: entirely client-side, nothing is
+      uploaded, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: the arithmetic
+      itself is commodity — what is not commodity is combining multiple
+      platforms' 1099-K forms into one exportable reconciliation in one
+      free, no-signup tool.
+      Distribution 6: r/tax, r/Etsyseller, r/eBay, r/Flipping, r/reselling,
+      and r/Mercari all see recurring "why is my 1099-K higher than what I
+      actually made" and "how do I reconcile my 1099-K" threads every
+      filing season, driven by the structural fact that Box 1a is a gross
+      figure that can include marketplace-remitted sales tax and
+      unrefunded-looking refunds — a predictable, recurring seasonal search
+      pattern rather than a one-off.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass on both. The tool never invents a number — every input is a
+      figure the filer already has (a received 1099-K, their own
+      refund/fee/cost records) — and the arithmetic is pure addition and
+      subtraction with no hidden model. A "this is a worksheet, not a
+      filing" finding fires unconditionally on every non-empty worksheet,
+      so the output can never be mistaken for a completed tax
+      determination; a negative-adjustment finding fires rather than
+      silently flooring a bad number to zero. Ethically: deterministic
+      arithmetic over a publicly documented IRS instruction (what Box 1a
+      excludes/includes), no dark patterns, nothing collected
+      server-side, and no revenue model tied to the number shown beyond an
+      optional, unrelated donation link.
