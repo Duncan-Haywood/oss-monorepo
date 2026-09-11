@@ -277,3 +277,32 @@ test('generated fleet-table default quantities are on the qty field\'s own step 
     assert.ok(Number.isInteger(value) && value >= 0);
   }
 });
+
+// The listeners above are load-bearing and nothing asserted them until now.
+//
+// This form used to reprice only on submit. That was merely stale-looking
+// until the shareable link landed, at which point it became a correctness
+// problem: a sender who edits the fleet and copies the link without pressing
+// "Price this booking" reads the previous price off their own screen while the
+// link carries the edited figures and reprices on the recipient's. Two people,
+// one link, different numbers, nothing on either screen saying so.
+//
+// platform/pages/roundtrip.mjs caught it as `headline $1,574.46 →
+// $132,589.15` with *every field round-tripping perfectly* -- which is what
+// this defect looks like from outside, and why it reads as a link bug when the
+// link was never the problem. Fixed in #4606; this is the guard that stops a
+// later edit removing the listeners and quietly bringing it back, since a
+// removal would turn nothing else red.
+test('the displayed price tracks the form, so a copied link cannot carry a different number', () => {
+  assert.match(index, /addEventListener\('input', \(\) => submit\(\)\)/,
+    'the form must reprice on input, not only on submit');
+  // `change` as well, for the generator checkbox -- the one control here whose
+  // value a browser may settle on change alone.
+  assert.match(index, /addEventListener\('change', \(\) => submit\(\)\)/);
+  // Neither may count: a quote_priced per keystroke would turn this tool's
+  // only usage signal into a typing counter.
+  for (const event of ['input', 'change']) {
+    assert.doesNotMatch(index, new RegExp(`addEventListener\\('${event}', \\(\\) => \\{[^}]*count\\(`),
+      `repricing on ${event} must not record a usage event`);
+  }
+});
