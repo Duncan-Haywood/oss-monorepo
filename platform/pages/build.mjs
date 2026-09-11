@@ -1028,8 +1028,19 @@ const CATEGORY_RULES = [
     // several of its neighbours above are: one tool does not earn a whole
     // family pattern, and landing it here rather than the catch-all is also
     // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    //
+    // `ai-coding-plan-cost-calculator` joined 2026-09-11, the same day. Not
+    // a checker or a generator — a cost model, the same shape as
+    // `actions-minutes-estimator` right above this family — but it shares
+    // this family's exact audience: a developer deciding something about
+    // their own AI-assisted coding setup, not a trade bid, a marketplace
+    // fee, or a compliance evidence packet. It cross-links
+    // `mcp-supply-chain-watch` as Related. Listed by exact slug rather than
+    // a new prefix, the same way several of its neighbours above are, and
+    // landing it here rather than the catch-all is also what keeps that
+    // catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator)/.test(
         slug,
       ),
   },
@@ -1086,12 +1097,22 @@ const CATEGORY_RULES = [
     // quoting work for a customer, and a maker has no customer to quote —
     // they are deciding what their own hours are worth against a booth fee
     // nobody negotiated with them.
+    // `epk-generator` joined 2026-09-11: a musician or band assembling an
+    // electronic press kit is the same move as `ats-resume-checker`'s job
+    // seeker and `sponsor-ready`'s maintainer -- a self-presentation
+    // document or profile built to attract someone else's booking,
+    // employment, or funding decision, not a price and not a business
+    // check. It shipped with an inbound sibling link to ats-resume-checker
+    // from its first commit (see `siblings-budget.json`) rather than
+    // landing in the catch-all, which is also what keeps that catch-all
+    // inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
       [
         '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
         'craft-fair-booth-calculator',
+        'epk-generator',
         'gig-driver-net-pay-calculator',
         'newsletter-sponsorship-rate-calculator',
         'sponsor-ready',

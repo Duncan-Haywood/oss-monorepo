@@ -1,0 +1,128 @@
+name: ai-coding-plan-cost-calculator
+description: Free browser tool comparing a flat-rate AI coding assistant subscription (Claude Pro/Max, Cursor, GitHub Copilot, ChatGPT Plus, or a custom plan) against the same usage billed per token through the vendor's own API, modelling fresh input, output, cache write, and cache read tokens separately (cache reads dominate agentic-coding token counts and are billed far below fresh input), and reporting the usage level where the two cross. Runs entirely client-side; nothing uploaded, no account.
+stage: prototype
+
+owner: duncan
+
+# Shape and gates (run 2026-09-11)
+#
+# Neither of the two archetypes portfolio/pipeline/README.md has flagged as
+# saturated: not a <trade>-bid-calculator (141 tries, zero visitors) and not
+# a pass/fail *-check scanner (38 tries, zero visitors). It is the same
+# "forward-looking cost model" shape as actions-minutes-estimator
+# (graduated the same day) -- a comparison the vendor's own pricing pages
+# never compute for you, not a classification of one thing as safe/unsafe.
+# That README is explicit shape novelty is "necessary, not sufficient" on
+# its own; the channel evidence below is why this was built.
+#
+# duplicate_check.py (run 2026-09-11) scored every venture, screened-out
+# row, ai-first-markets idea and pipeline candidate against "AI coding
+# assistant subscription (Claude Pro/Max, Cursor, GitHub Copilot, ChatGPT
+# Plus) vs pay-per-token API cost calculator, modelling cache-read/
+# cache-write token pricing separately from fresh input/output". Top score
+# 0.10 (actions-permissions-check, actions-cache-poisoning-check), far
+# under the 0.45 review bar -- every hit scored on "actions"/"cache" alone,
+# not on the actual comparison. Read directly: this portfolio has no
+# venture that compares a subscription price to an API price for anything,
+# AI-coding or otherwise. screened-out.md's closest row, `token-margin-
+# analytics`, is a different business (thin wedge reselling observability
+# platforms' own token-spend reporting to a paying customer) and was
+# rejected on distribution/defensibility, not on the idea of costing tokens
+# -- this tool costs nothing to the visitor and needs no platform
+# integration.
+#
+# LIABILITY CONTAINMENT (gate, needs >=5): 9/10. Pure arithmetic over
+# user-supplied usage and user-editable rates against a vendor's own public,
+# non-personal pricing. No advice-of-record (it computes, the visitor
+# decides), no compliance claim, no PII, no payment code, no account. The
+# only failure mode is a stale default rate, which is why every rate ships
+# editable with a dated "as of" label and the no-warranty clause tells the
+# visitor to verify against the vendor's own pricing page before deciding
+# (`platform/pages/clauses.mjs` enforces the clause and the trademark
+# disclaimer; both pages pass it).
+#
+# ETHICAL ROBUSTNESS (gate, needs >=5): 8/10. Gets strictly better for the
+# visitor as it scales -- it exists only to help someone pay less for a tool
+# they already use or are deciding whether to buy, with no adverse
+# incentive on our side (no affiliate link, no referral fee, donations-only
+# same as the rest of the portfolio). The trademark disclaimer keeps four
+# named vendors (Anthropic, Cursor, GitHub/Microsoft, OpenAI) clear of any
+# implied endorsement.
+#
+# NAMED FIRST VISITOR AND CHANNEL, checked this session (WebSearch, since
+# the agent egress proxy 403s a direct fetch -- same limitation CLAUDE.md
+# already documents for the public-surface check):
+#
+# 1. The question is real, current, and unanswered by an interactive tool.
+#    Searching "Claude Max vs API cost calculator" and "self-hosted vs API
+#    LLM cost calculator" surfaced a cluster of 2026-dated blog posts doing
+#    this arithmetic by hand for their own numbers (SSD Nodes, ksred.com,
+#    RelayPlane, BSWEN, dev.to, laozhang.ai) and reporting real figures from
+#    real accounts -- e.g. "10 billion tokens across 8 months of Claude Code
+#    usage, API would have cost $15,000, Max billed $800", "over 90% of all
+#    tokens are cache reads". That is direct, dated evidence of the exact
+#    question this tool answers being asked and hand-computed repeatedly,
+#    with no calculator found doing it interactively from the asker's own
+#    numbers -- the general-purpose "self-hosted GPU vs API" calculators
+#    that do exist (BenchLM, Kenodo, Local AI Master) are a different
+#    comparison (buying/renting a GPU vs. an API) and do not model
+#    subscription coding-assistant plans or the cache-read split at all.
+# 2. Named channel: r/ClaudeAI and r/cursor, where "is Max/Pro actually
+#    worth it" threads are, per the search results above, common enough
+#    that a blog post exists specifically because "Reddit threads on
+#    r/LocalLLaMA about this topic often devolve into arguments, which is
+#    why detailed calculators are useful" -- i.e. the demand for a
+#    calculator, not just the question, is already documented in public
+#    writing about that exact community.
+# 3. Named search phrases with demonstrable content already ranking for
+#    them (evidence of real query volume, not assumed): "claude max vs api
+#    cost", "claude code pricing calculator", "self-hosted llm cost
+#    calculator", "is claude code worth it".
+# 4. In-portfolio complementary link, the same pattern actions-minutes-
+#    estimator and llms-txt-generator used on 2026-09-11: mcp-supply-chain-
+#    watch already serves developers building with AI agents and MCP
+#    tooling -- the same audience asking whether their AI coding plan is
+#    worth it. index.html links to it one hop away (page.test.mjs pins the
+#    link) so a crawler or a visitor following it reaches this tool.
+#
+# I could not verify live search-volume numbers from this session (the
+# agent egress proxy 403s CONNECT to arbitrary hosts, so no keyword-volume
+# tool is reachable) -- the WebSearch evidence above is real and dated but
+# is content-ranking evidence, not a volume reading, and is recorded as
+# such per this file's own honesty rule about not overclaiming a measurement
+# this session cannot take.
+hypotheses:
+  - claim: A developer who has just seen a "Claude Max vs API" or "is Cursor worth it" blog post, or hit their plan's usage limit, will search for a calculator to run the comparison with their own numbers rather than trust someone else's account-specific figures, because the two public pricing pages never do the multiplication for a specific usage pattern.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Modelling cache read/write tokens separately from fresh input/output — rather than one blended per-token rate — changes the answer enough for heavy agentic-coding users (publicly reported near 90%+ cache-read share) that a visitor who tries a naive calculator first and this one second will notice the difference and trust this one more.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The cross-link from mcp-supply-chain-watch (an existing venture serving the same AI-agent-building audience) sends this tool measurable referral traffic, the same complementary-pair pattern actions-minutes-estimator/actions-runner-starvation-check and llms-txt-generator/ai-crawler-access-check used the same day.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: all arithmetic is client-side, nothing is
+  # uploaded, and there is no server of ours in the loop. Serving one more
+  # visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - No referral traffic or engagement is ever observed from the mcp-supply-chain-watch cross-link within 90 days, and no other channel produces one either.
+  - A vendor ships its own interactive plan-vs-API calculator on its pricing page, removing the gap this exists to fill.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/ai-coding-plan-cost-calculator/
+  analytics: null

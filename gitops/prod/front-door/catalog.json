@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 255,
-  "collection_total": 255,
+  "served_here": 257,
+  "collection_total": 257,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 40
+      "tool_count": 41
     },
     {
       "id": "evidence",
@@ -59,15 +59,15 @@
       "tool_count": 15
     },
     {
-      "id": "logistics",
-      "name": "Logistics, freight & cloud cost",
-      "url": "https://marisstella.dev/c/logistics/",
-      "tool_count": 7
-    },
-    {
       "id": "solo-earner",
       "name": "Creator & solo earner income",
       "url": "https://marisstella.dev/c/solo-earner/",
+      "tool_count": 8
+    },
+    {
+      "id": "logistics",
+      "name": "Logistics, freight & cloud cost",
+      "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 7
     },
     {
@@ -583,6 +583,14 @@
       "pages": 3
     },
     {
+      "slug": "ai-coding-plan-cost-calculator",
+      "name": "AI Coding Plan Cost Calculator — Subscription vs. API",
+      "url": "https://marisstella.dev/tools/ai-coding-plan-cost-calculator/",
+      "category": "CI checks & developer gates",
+      "description": "Is your Claude Max, Cursor, GitHub Copilot, or ChatGPT Plus plan actually cheaper than paying per token through the API? Enter your own usage and rates and see the monthly cost both ways, plus the break-even point. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
+    },
+    {
       "slug": "ai-crawler-access-check",
       "name": "AI Crawler Access Check — Which AI Bots Does Your robots.txt Block?",
       "url": "https://marisstella.dev/tools/ai-crawler-access-check/",
@@ -1045,6 +1053,14 @@
       "category": "CI checks & developer gates",
       "description": "Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 3
+    },
+    {
+      "slug": "epk-generator",
+      "name": "EPK Generator — Free Electronic Press Kit Builder for Musicians",
+      "url": "https://marisstella.dev/tools/epk-generator/",
+      "category": "Creator & solo earner income",
+      "description": "Build a professional electronic press kit (EPK) for your band or artist project in minutes — bio, streaming links, tour dates, press quotes, and photo. Free, no signup, runs entirely in your browser. Download a shareable HTML one-sheet or copy a plain-text version for email.",
+      "pages": 2
     },
     {
       "slug": "epoxy-garage-floor-bid-calculator",

@@ -10540,6 +10540,80 @@ ventures:
       day-of-month/day-of-week OR rule, larger runners billing outside the
       allowance) and the refusal to guess, which is where a careless clone
       produces confidently wrong numbers.
+  - slug: ai-coding-plan-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: pure arithmetic over usage and rates the visitor enters
+      themselves, against a vendor's own public, non-personal pricing. No
+      advice-of-record (it computes, the visitor decides), no compliance
+      claim, no PII, no payment code, no account. The only failure mode is a
+      stale default rate, which is why every rate ships editable with a
+      dated "as of" label and the no-warranty clause tells the reader to
+      verify against the vendor's own pricing page before deciding; both
+      pages carry the clause and the four-vendor trademark disclaimer.
+      Ethics: gets strictly better for the visitor as it scales -- it exists
+      only to help someone pay less for a tool they already use or are
+      deciding whether to buy, with no adverse incentive on our side (no
+      affiliate link, no referral fee, donations-only same as the rest of
+      the portfolio). The trademark disclaimer keeps the four named vendors
+      clear of any implied endorsement.
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately, for the same reason as
+      actions-minutes-estimator right above this entry: every figure is
+      deterministic arithmetic over usage and rates the visitor supplies. A
+      language model would add nothing but a source of wrong numbers to a
+      tool whose entire value is that its numbers can be checked by hand.
+    basis: >-
+      Screened 2026-09-11 against the same saturation notes
+      actions-minutes-estimator was screened against: 141 tries at the
+      <trade>-bid-calculator shape and 38 at the *-check/*-checker shape,
+      both with zero recorded visitors, and the standing test that shape
+      novelty is "necessary, not sufficient" on its own. This venture is
+      neither saturated shape -- the same "forward-looking cost model" shape
+      as actions-minutes-estimator, comparing two prices rather than
+      classifying one misconfiguration as safe or unsafe.
+      duplicate_check.py scored every venture, screened-out row,
+      ai-first-markets idea and pipeline candidate against this niche's
+      description; top score 0.10, far under the 0.45 review bar, and every
+      hit scored on incidental words ("actions"/"cache") rather than the
+      actual comparison -- this portfolio has no venture that compares a
+      subscription price to an API price for anything, AI-coding or
+      otherwise.
+      Named channel, checked this session with WebSearch (the agent egress
+      proxy blocks a direct fetch): a cluster of 2026-dated blog posts
+      (SSD Nodes, ksred.com, RelayPlane, BSWEN, dev.to, laozhang.ai) doing
+      this exact "Claude Max vs API" / "self-hosted vs API" arithmetic by
+      hand for their own accounts, including one citing why "Reddit threads
+      on r/LocalLLaMA about this topic often devolve into arguments, which
+      is why detailed calculators are useful" -- documented demand for a
+      calculator, not just the question, in the community this targets
+      (r/ClaudeAI, r/cursor). No interactive tool modelling subscription
+      coding-assistant plans with the cache-read/cache-write split was
+      found; the general-purpose GPU-vs-API calculators that do exist
+      compare a different decision (buy/rent hardware vs. API) and do not
+      model this. Distribution 6, not higher, because this is
+      content-ranking evidence of the question being asked and hand-solved
+      repeatedly, not a measured search-volume or referral reading -- this
+      session could not take one, and the venture's kill criteria are
+      written against that honestly (90-day engagement and referral
+      thresholds, not an assumed volume). Composite 5.833 rather than
+      actions-minutes-estimator's 6.0 for the same reason: distribution here
+      is reasoned from ranking content rather than from this repository's
+      own dated, measured CI-starvation record, which is a stronger form of
+      evidence than either.
   - slug: llms-txt-generator
     scores:
       ai_leverage: 1
@@ -10672,6 +10746,88 @@ ventures:
       never a claim that a clean report means the file has no other issues.
       Makes no network call of any kind, and the page's own footer and FAQ
       state both limits plainly.
+
+  - slug: epk-generator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      Tied floor: defensibility and time_to_revenue both land at 3 (ai_leverage
+      is 4, just above), and both need naming. Defensibility 3: a form-to-
+      template document generator is publicly copyable, same as most of this
+      portfolio's calculators and generators -- what isn't trivially copied
+      is the free, account-less positioning against every commercial EPK
+      builder found at screening (see basis), not proprietary logic.
+      Time to revenue 3: this portfolio is donations-only by design, so
+      "first paid customer" reads as an early Sponsors click on nearly every
+      venture here, not a defect specific to this one -- scored against the
+      dimension's literal meaning rather than reinterpreted to look
+      stronger.
+    basis: >-
+      Screened 2026-09-11 against portfolio/pipeline/README.md's saturation
+      measurements (141 <trade>-bid-calculator ventures, 38 *-check/
+      *-checker ventures, zero recorded visitors between them) and its
+      instruction to weigh a different archetype by default. This venture is
+      neither saturated shape: like llms-txt-generator it is a generator
+      (PRODUCT_PLAYBOOK.md SS2's top-ranked shape alongside the static
+      browser app) -- it assembles an artifact (a press-kit page) from
+      content the user supplies, rather than pricing a job or grading one
+      that exists. duplicate_check.py scored two phrasings of this niche
+      against every venture, screened-out row, ai-first-markets idea, and
+      pipeline candidate; top score 0.12 (affiliate-disclosure-checker, on
+      generic word overlap), far under the 0.45 review bar. A direct text
+      search for "press kit", "musician", and "EPK" across every
+      VENTURE.yaml, README.md, and the pipeline candidate/screened-out files
+      found no hits; the nearest venture by name association, sponsor-ready,
+      scores a public GitHub repo's own GitHub Sponsors readiness and is
+      unrelated to an artist's promotional one-pager.
+      Distribution 6, reasoned rather than measured per this session's own
+      egress limit (the agent proxy 403s CONNECT to every host, the same
+      honesty limit llms-txt-generator's and ai-crawler-access-check's own
+      write-ups record): "electronic press kit" and "EPK" are established,
+      decades-old music-industry terms rather than an invented category, so
+      the search phrase itself ("free EPK template", "electronic press kit
+      generator free") is one musicians already type; multiple independently
+      built commercial competitors (Sonicbids-style tools, Presskit.to,
+      ReverbNation's press-kit feature, EPK templates sold on design
+      marketplaces) are evidence of real, sustained demand for this exact
+      job; and large, topically-exact communities exist for the audience
+      (r/WeAreTheMusicMakers, r/musicians, r/IndieMusicFeedback) where "how
+      do I make a press kit with no budget" is a recurring, on-topic
+      question. 6 rather than llms-txt-generator's 5 because every
+      commercial competitor found requires an account and gates the finished
+      file behind its own hosting or a paid tier, a wedge stateable without
+      embellishment; not higher because no search-volume figure was
+      confirmed by a live fetch.
+      Autonomous ops 10 / gross margin 10: the page builds entirely
+      client-side and uploads nothing -- no file upload, no server of ours
+      in the loop, so serving one more visitor costs a static file. AI
+      leverage 4: the core value is deterministic templating (form fields
+      into a document), not model work; PRODUCT_PLAYBOOK.md SS3's API-key
+      switch (an optional, bring-your-own-key AI bio-polish pass) is a
+      plausible later add if usage shows the bio field is where people
+      stall, not built speculatively now.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool renders content the artist supplies and fully controls
+      -- no financial figure, no compliance judgment, no advice-of-record.
+      The worst-case failure is a plain or incomplete press kit, not an
+      actionable claim; the footer states plainly that reviewing the output
+      (including rights to any photo link supplied) stays the artist's own
+      responsibility. Ethical robustness: helps under-resourced independent
+      artists present themselves professionally, with no adversarial
+      dynamic and no negative externality as usage scales.
+
   - slug: forestry-mulching-bid-calculator
     scores:
       ai_leverage: 1

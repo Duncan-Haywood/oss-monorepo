@@ -26998,6 +26998,54 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled brief: product-first autonomous mandate with an explicit
+        three-PR merge quota and an owner instruction to prioritize
+        deployment/CI-CD. Found 0 open PRs at session start; drained the
+        branch backlog instead (473 remote branches) using
+        `supersede_check.py` against all 92 non-auto-named "notable"
+        branches plus a random sample of the auto-named session branches.
+        Every single one checked (~100+) was already superseded by `main`
+        -- either byte-identical or shipped under different wording/paths
+        (confirmed by direct content diff, not just the line-scan, for the
+        highest-signal candidates: cross-venture SEO links, a shop-rate
+        field, a comparison page, a mirror-shard regen). No repairable
+        branch found, consistent with this file's own repeated findings on
+        2026-09-05 and 2026-09-07.
+      - >-
+        A concurrent session opened PR #4589 mid-run recording a fresh
+        7-check browser/accessibility sweep, but based it on `c96b757b0`
+        (main had already moved to `de7f1628` via #4587, then to
+        `46ed4992` via #4588's HETZNERSSHKEY smoke-test workflow, which
+        itself changed markup-adjacent surface via the unrelated
+        shop-rate/ifta merges folded in between). Re-ran the sweep fresh
+        against actual current `main` (`46ed4992f`) instead of merging a
+        reading already behind head. `npm install --no-save
+        playwright@1.56.0 axe-core` + `browser_checks.py --record` on all 7
+        checks: all clean, 981 pages / 2 viewports, 0 WCAG A/AA violations,
+        261/261 tools answer with no errors, all 979 sitemap URLs resolve,
+        full save/restore/backup journey passes end to end. No defects
+        found -- the fleet has not regressed.
+      - >-
+        Confirmed the owner's standing decision-queue item #1
+        (`hetzner-ssh-key-is-a-public-key`) is still the sole blocker on
+        everything this session's brief asked to prioritize: the Codex
+        host-mode worker (`gitops/agents/host/`), the self-hosted Actions
+        runner, and the k3s cluster serving the live product site are all
+        code-complete and blocked on nothing else, per
+        `infra_state.yaml`'s `codex-host-mode` row (verdict: up,
+        i.e. installable, last verified 2026-09-10). Did not add a
+        duplicate ask; notified the owner directly since this session's
+        brief asked about it by name. Confirmed GitHub Pages
+        (duncan-haywood.github.io/monorepo-projects/) is serving the
+        catalogue and its published snapshot is current with `main`
+        (`pages_state.py`) -- the one delivery route that needs neither a
+        runner nor the cluster.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Named task: run the fleet-wide 7-check whole-catalogue
         browser/accessibility sweep (`platform/ci/browser_checks.py`) since
         `browser_state.py` reported all 7 checks (sideways, presets,
@@ -27038,6 +27086,85 @@ entries:
         open PRs immediately before pushing per the duplicate-PR collision
         rule (still none).
     mrr_end: 0
+  - venture: ai-coding-plan-cost-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the session gate first (`session_gate.py`: PROCEED, 0% meta-work,
+        published snapshot current) and checked for fleet-wide guardrail
+        breakage and stale published snapshot per DIRECTION.md's fast-scan —
+        `check_no_payment_code.py`, `platform/pages/clauses.mjs` and
+        `pages_state.py` were all clean, and `usage_state.py` reported no
+        nonzero visitor signal to chase. No open PRs existed to duplicate.
+      - >-
+        Graduated a new venture: ai-coding-plan-cost-calculator, a free
+        browser tool comparing a flat-rate AI coding assistant subscription
+        (Claude Pro/Max, Cursor, GitHub Copilot, ChatGPT Plus) against the
+        same usage billed per token through the vendor's API, modelling
+        fresh input, output, cache write and cache read tokens separately —
+        cache reads dominate agentic-coding token counts and are billed far
+        below fresh input, which a blended-rate calculator misses. Neither
+        the saturated `<trade>-bid-calculator` shape (141 tries) nor the
+        `*-check`/`*-checker` shape (38 tries); the same "forward-looking
+        cost model" shape as actions-minutes-estimator.
+        `duplicate_check.py` scored the niche at 0.10 max (no internal
+        duplicate); named channel checked via WebSearch (egress proxy
+        blocks a direct fetch): a cluster of 2026-dated blog posts doing
+        this exact "Claude Max vs API" arithmetic by hand for their own
+        accounts, one explicitly citing r/LocalLLaMA demand for a
+        calculator rather than the question alone, and no interactive tool
+        modelling the cache-read/cache-write split was found. Scored
+        against `portfolio/pipeline/README.md`'s gates: liability_containment
+        9/10, ethical_robustness 8/10 (both pass; full reasoning in
+        `VENTURE.yaml` and `venture-scores.yaml`). Full product: LICENSE,
+        no-warranty + no-SLA + privacy disclaimers, four-vendor nominative
+        trademark disclaimer, GitHub Sponsors link, local opt-in usage
+        counters (DNT/GPC-honouring), SEO/AI-discovery checklist (title,
+        meta description, canonical, two JSON-LD FAQPage blocks with
+        visible matching Q&A, sitemap.xml, robots.txt, launch date via
+        `launched.mjs --write`), and a one-hop cross-link with
+        mcp-supply-chain-watch (same AI-agent-building audience).
+      - >-
+        Fixed forward three fleet-wide guards this venture's regen tripped:
+        filed the slug into the `ci` category instead of letting the
+        catch-all grow past its bound (`build.test.mjs`), added a
+        FAQPage block to the secondary explainer page
+        (`secondary-schema.test.mjs`), and closed the crawlable-orphan this
+        venture would otherwise have been by adding the reciprocal link
+        from mcp-supply-chain-watch (`siblings.test.mjs`). Also bumped the
+        mirrored-tool-count prose in four places (`infra/OWNER_CHECKLIST.md`
+        x3, `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        x2, and `gitops/tests/test_manifests.py`'s own comment) from 254 to
+        255, added `.github/workflows/ai-coding-plan-cost-calculator-ci.yml`
+        (`validate_workflows.py`'s per-venture-test-coverage guard), ran
+        `publish_surface.py --write`, and added the venture's score row to
+        `venture-scores.yaml` (`score_ventures.py --check`).
+      - >-
+        Ran the full starvation-window checklist: `checklist_coverage.py`,
+        `regen.mjs`, the venture's own + fleet-wide `node --test`
+        (platform/marketing, platform/pages, platform/proposal,
+        platform/privacy, platform/webcheck — 303+101+80/82(2 skip,
+        shallow-clone-documented) all clean), `pytest gitops/tests` (581
+        passed / 1 skipped-environmental after installing nginx-light +
+        openssh-client), all 15 `platform/ci` unittest modules, the
+        agent_review suite, `pytest portfolio/{ledger,scoring,router,usage,
+        pipeline} infra/tests` (520/520), `score_sensitivity.py`,
+        `validate_probe_index.py`, `front-door-tools.mjs --headroom`,
+        `guard_state.py --require-runnable` (clean — the one environmental
+        skip needs a GitHub-hosted runner), and
+        `run_workflow_locally.py --for-changes` twice (13/15 selected
+        workflows passed both times; the two held-and-two-genuinely-not-run
+        groups are secret/write-gated per CLAUDE.md, and the one remaining
+        red — `pages.yml`'s `check_pages_links.py` step — is a pre-existing
+        local-runner limitation: its preceding `Build the site` step
+        contains a `${{ vars.PAGES_BASE_URL || format(...) }}` expression
+        the local runner cannot evaluate and skips, unrelated to this
+        change; `portfolio-pages.yml`'s own real site build passed clean in
+        the same run). Also ran the full 7-check whole-catalogue browser/
+        accessibility sweep after `npm install --no-save playwright@1.56.0
+        axe-core` — all 7 passed (983 pages, 2 viewports, no WCAG A/AA
+        violations) and recorded fresh.
   - venture: forestry-mulching-bid-calculator
     agent_spend_usd: null
     human_hours: 0

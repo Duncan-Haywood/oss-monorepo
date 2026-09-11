@@ -9,7 +9,7 @@
   <meta property="og:description" content="A flat per-unit rate misses the truck's second trip, the crew's setup time, the generator, the attendant a water slide needs, and insurance sized to your fleet. See the real walk-away price before you quote.">
   <link rel="canonical" href="./">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bounce House Rental Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-unit fleet pricing from daily rate and event days; two-round-trip delivery mileage; setup and teardown crew labor; generator fee when the site has no outlet; wet-unit attendant labor billed only against water slides and dunk tanks; general-liability insurance costed against the deployed fleet's replacement value; overhead and target-margin pricing; proposed-price margin check; walk-away price and price per unit; missing-attendant flag for a quoted wet unit"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is delivery mileage charged twice?","acceptedAnswer":{"@type":"Answer","text":"Because the truck makes the drive twice regardless of how the booking is billed: once to deliver the units and once to pick them up, even on a same-day rental. That is four times the one-way distance, not two — a quote that prices the trip once misses the return drive on both legs, which is usually the largest line item on a short-mileage local booking."}},{"@type":"Question","name":"Does a water slide really need a paid attendant?","acceptedAnswer":{"@type":"Answer","text":"Many general-liability policies covering inflatable operators require a trained attendant on duty for the whole time a water slide or dunk tank is running, and some local ordinances do too — but this tool makes no determination about your policy or your jurisdiction. It flags a quoted wet unit with no attendant hours budgeted so the labor line is not silently missing from the quote; check your own policy and confirm the requirement before removing that cost."}},{"@type":"Question","name":"Do I really need to budget for a generator?","acceptedAnswer":{"@type":"Answer","text":"Whenever the site has no outlet within safe extension-cord reach of the blower, which describes most public parks, fields, and many backyards on an exterior circuit already loaded with other equipment. A generator is a real rental or fuel cost plus a delivery weight most trucks already carry, so it belongs in the quote whenever it is needed — this tool only charges it when you check the box."}},{"@type":"Question","name":"Why is insurance priced against the fleet, not against the quote?","acceptedAnswer":{"@type":"Answer","text":"Because the risk an inflatable-rental general-liability policy prices is the equipment on site and the chance it tips, deflates, or is misused — not the price charged for the afternoon. A $150 unit and a $350 obstacle course carry very different exposure at the same rental rate, so this tool costs insurance as a percentage of the deployed fleet's total replacement value rather than as a percentage of the price, which is what your carrier is actually pricing."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and the page makes no network requests — it runs entirely in your browser. Your fleet, your rates, your labor cost and the price worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control."}},{"@type":"Question","name":"Is this legal, tax, or insurance advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type. It makes no determination about what insurance coverage you need, whether an attendant is legally required for a given unit or municipality, or what to charge. Verify every figure against your own policy, your rate sheet, and a qualified professional before sending a quote."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is delivery mileage charged twice?","acceptedAnswer":{"@type":"Answer","text":"Because the truck makes the drive twice regardless of how the booking is billed: once to deliver the units and once to pick them up, even on a same-day rental. That is four times the one-way distance, not two — a quote that prices the trip once misses the return drive on both legs, which is usually the largest line item on a short-mileage local booking."}},{"@type":"Question","name":"Does a water slide really need a paid attendant?","acceptedAnswer":{"@type":"Answer","text":"Many general-liability policies covering inflatable operators require a trained attendant on duty for the whole time a water slide or dunk tank is running, and some local ordinances do too — but this tool makes no determination about your policy or your jurisdiction. It flags a quoted wet unit with no attendant hours budgeted so the labor line is not silently missing from the quote; check your own policy and confirm the requirement before removing that cost."}},{"@type":"Question","name":"Do I really need to budget for a generator?","acceptedAnswer":{"@type":"Answer","text":"Whenever the site has no outlet within safe extension-cord reach of the blower, which describes most public parks, fields, and many backyards on an exterior circuit already loaded with other equipment. A generator is a real rental or fuel cost plus a delivery weight most trucks already carry, so it belongs in the quote whenever it is needed — this tool only charges it when you check the box."}},{"@type":"Question","name":"Why is insurance priced against the fleet, not against the quote?","acceptedAnswer":{"@type":"Answer","text":"Because the risk an inflatable-rental general-liability policy prices is the equipment on site and the chance it tips, deflates, or is misused — not the price charged for the afternoon. A $150 unit and a $350 obstacle course carry very different exposure at the same rental rate, so this tool costs insurance as a percentage of the deployed fleet's total replacement value rather than as a percentage of the price, which is what your carrier is actually pricing."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and the page makes no network requests — it runs entirely in your browser. Your fleet, your rates, your labor cost and the price worked out from them are never sent anywhere and never appear in a usage count. The one exception is a link you ask for: pressing “Copy shareable link” does not upload the quote either, it carries them in the URL so whoever you send it to opens the same booking — send it to the customer, not to a public page. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control."}},{"@type":"Question","name":"Is this legal, tax, or insurance advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type. It makes no determination about what insurance coverage you need, whether an attendant is legally required for a given unit or municipality, or what to charge. Verify every figure against your own policy, your rate sheet, and a qualified professional before sending a quote."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2333; background: #eef1fa; }
     body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
@@ -128,6 +128,8 @@
         </div>
         <div class="actions">
           <button type="submit" class="primary">Price this booking</button>
+          <button type="button" id="copyLink">Copy shareable link</button>
+          <span id="copyStatus" class="note" role="status"></span>
         </div>
       </section>
     </form>
@@ -176,7 +178,7 @@
     <p>Because the risk an inflatable-rental general-liability policy prices is the equipment on site and the chance it tips, deflates, or is misused &mdash; not the price charged for the afternoon. A $150 unit and a $350 obstacle course carry very different exposure at the same rental rate, so this tool costs insurance as a percentage of the deployed fleet's total replacement value rather than as a percentage of the price, which is what your carrier is actually pricing.</p>
 
     <h3>Is any of this uploaded?</h3>
-    <p>No. There is no account and the page makes no network requests &mdash; it runs entirely in your browser. Your fleet, your rates, your labor cost and the price worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control.</p>
+    <p>No. There is no account and the page makes no network requests &mdash; it runs entirely in your browser. Your fleet, your rates, your labor cost and the price worked out from them are never sent anywhere and never appear in a usage count. The one exception is a link you ask for: pressing “Copy shareable link” does not upload the quote either, it carries them in the URL so whoever you send it to opens the same booking — send it to the customer, not to a public page. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control.</p>
 
     <h3>Is this legal, tax, or insurance advice?</h3>
     <p>No. It is arithmetic on the figures you type. It makes no determination about what insurance coverage you need, whether an attendant is legally required for a given unit or municipality, or what to charge. Verify every figure against your own policy, your rate sheet, and a qualified professional before sending a quote.</p>
@@ -186,13 +188,14 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or insurance advice, and it does not tell you what to charge, whether an attendant is legally required, or what insurance coverage to carry. It is arithmetic on the numbers you type, and the numbers it starts with are an illustrative example rather than market data. Verify every figure against your own rate sheet, your insurance policy, and a qualified professional before sending a quote. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your fleet, rates, labor cost and the price worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control.</p>
+    <p><strong>Nothing leaves your browser unless you ask it to.</strong> Every number stays on this device. Your fleet, rates, labor cost and the price worked out here are never uploaded and never appear in a usage count &mdash; and the &ldquo;Copy shareable link&rdquo; button does not upload them either, it carries them in the URL itself so the customer opens the same quote &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control.</p>
     <p>Quoting a different one-off event booking? The <a href="../portable-restroom-event-quote/">portable restroom event quote calculator</a> prices days on site and pump-outs the same way, and the <a href="../photo-booth-event-quote/">photo booth event quote calculator</a> prices a booth booking from travel and attendant hours. Already running a rental-business platform? See <a href="./vs-booqable.html">how this calculator compares to Booqable</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { calculateQuote, UNIT_PRESETS } from './calc.mjs';
+    import { calculateQuote, COST_IDS, UNIT_FIELDS, UNIT_PRESETS } from './calc.mjs';
+    import { encodeInputs, decodeInputs, formValues, carriesAnything } from './share.mjs';
     import { recordUsage } from './usage.mjs';
 
     const el = (id) => document.getElementById(id);
@@ -221,13 +224,6 @@
         <td><label class="cell-label" for="${valId}">Replacement value, ${preset.label}</label><input id="${valId}" type="number" min="0" max="50000" step="10" value="${preset.replacementValue}"></td>`;
       fleetBody.append(row);
     });
-
-    const COST_IDS = [
-      'eventDays', 'setupMinutesPerUnit', 'teardownMinutesPerUnit', 'crewSize', 'laborRate',
-      'deliveryFee', 'pickupFee', 'milesOneWay', 'ratePerMile', 'generatorFee',
-      'attendantHours', 'attendantRate', 'insuranceRatePct', 'consumablesPerUnit', 'otherCost',
-      'overheadRate', 'targetMargin', 'proposedPrice',
-    ];
 
     function readUnits() {
       return UNIT_PRESETS.map((preset) => ({
@@ -317,6 +313,54 @@
       const result = submit(event);
       if (result) count('quote_priced');
     });
+
+    // A rental quote is settled between two people -- the yard and whoever is
+    // booking the party. Until now the only way to hand one over was to read
+    // a price down the phone with none of the fleet, haul or attendant
+    // assumptions behind it, which is exactly where a "why is it more than
+    // the website said" argument starts. The link carries the whole form in
+    // the URL itself; nothing is uploaded.
+    //
+    // Read straight off the form rather than from `readInput()`, which drops
+    // every preset at quantity zero: the link has to be able to say "the dunk
+    // tank is not going out" so the recipient's fleet is the sender's fleet.
+    function shareState() {
+      const units = {};
+      for (const preset of UNIT_PRESETS) {
+        const boxes = { quantity: `qty-${preset.id}`, dailyRate: `rate-${preset.id}`, replacementValue: `val-${preset.id}` };
+        units[preset.id] = Object.fromEntries(UNIT_FIELDS.map(field => [field, el(boxes[field]).value]));
+      }
+      const state = { units, generatorNeeded: el('generatorNeeded').checked };
+      for (const id of COST_IDS) state[id] = el(id).value;
+      return state;
+    }
+
+    el('copyLink').addEventListener('click', async () => {
+      const url = `${location.origin}${location.pathname}#${encodeInputs(shareState())}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        el('copyStatus').textContent = 'Link copied.';
+      } catch {
+        // Clipboard access can be refused (insecure origin, declined
+        // permission). Showing the URL still lets them copy it by hand.
+        el('copyStatus').textContent = url;
+      }
+      count('link_copied');
+    });
+
+    // Applied through `formValues`, which writes every box the form owns --
+    // so a cost the sender cleared arrives cleared and a preset they are not
+    // deploying arrives at zero, instead of either keeping this page's own
+    // worked example. See platform/ci/check_shared_link_clears.py.
+    const fromLink = decodeInputs(location.hash || location.search);
+    if (carriesAnything(fromLink)) {
+      const values = formValues(fromLink);
+      for (const id of COST_IDS) el(id).value = values[id];
+      for (const preset of UNIT_PRESETS) {
+        for (const key of [`qty-${preset.id}`, `rate-${preset.id}`, `val-${preset.id}`]) el(key).value = values[key];
+      }
+      el('generatorNeeded').checked = values.generatorNeeded;
+    }
 
     // Open on the worked example rather than an em-dash: the defaults above
     // *are* an example booking, and the page's whole claim — that a flat
