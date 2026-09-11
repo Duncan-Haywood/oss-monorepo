@@ -26347,3 +26347,96 @@ entries:
         `check_pages_links.py` against it directly -- "OK: every local
         reference resolves" across 969 pages.
     mrr_end: 0
+  - venture: staffing-markup-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled product-first brief. Zero open PRs at session start
+        (`list_pull_requests` state=open, verified via the API), so the
+        three-PR merge quota was vacuously met; the "merged":false field on
+        that list endpoint turned out to be stale/incorrect for closed PRs
+        (individual `pull_request_read` calls on the same PR numbers showed
+        `merged: true` with a real `merged_by`/`merged_at`), so this was
+        double-checked rather than read as a backlog of lost work.
+      - >-
+        Followed up a finding recorded in the immediately prior ledger entry
+        (redirect-chain-check, this file): three ownerless, PR-less branches
+        (`agent/claude/issue-3738`, `agent/cursor/issue-3689`,
+        `atm-route-margin`) that `supersede_check.py` reported NOT SUPERSEDED,
+        naming 70/28/88 "unmatched" lines each. Investigated properly this
+        time: every one of those unmatched lines sits in auto-regenerated
+        `gitops/prod/front-door/*` mirror snapshots carrying stale tool
+        counts (181-197 vs. today's 249) — not real unshipped work.
+        `git diff <merge-base> <branch> -- . ':!gitops/prod'` shows each
+        branch's real payload is either already on `main`
+        (`ventures/atm-route-margin/` and the `whatnot` marketplace-category
+        fix in `agent/cursor/issue-3689` both already ship, confirmed by
+        `git ls-tree` / grep) or a large accidental deletion of
+        `ventures/pinned-actions-check/` with 4 net insertions
+        (`agent/claude/issue-3738` — merging this would remove a live
+        venture, so it is correctly left alone, not turned into a PR).
+        `supersede_check.py`'s line-scan does not know generated mirror
+        files are derived artifacts, which is why it flagged all three; no
+        code change made for this, since the tool's own exit code already
+        stays conservative (1) and nothing here should be closed or merged.
+        Recorded so a future session does not re-spend a cycle on the same
+        three names.
+      - >-
+        Confirmed rather than duplicated: the user's standing brief item
+        (prioritise Hetzner deployment/CI-CD, build and deploy marketing
+        materials on the Hetzner VMs, and get the Codex CLI running dev work
+        there against its own included quota) is already fully built
+        (`gitops/agents/host/`, `gitops/agents/workers/mandate.md`,
+        `bootstrap/restore-cluster.sh`'s `WITH_CODEX_HOST`/`CODEX_AUTH_JSON`
+        support) and blocked on exactly one owner-only action,
+        `hetzner-ssh-key-is-a-public-key` (#1 in `decision_queue.py`, 7 days
+        old at time of reading) — matching what PR #4543's own description
+        already recorded minutes before this session started. No duplicate
+        ask added; the queue item was read, not re-opened.
+      - >-
+        Product work: `ventures/staffing-markup-calculator` (a 21-field
+        recruiter/agency calculator, entirely browser-side) was one of the
+        22 shipped calculators with a `calc.mjs` but no `share.mjs` — the
+        fleet's save-to-browser / copy-a-shareable-link module, already
+        adopted by 161 of 259 ventures. A setter filling in 21 rate fields
+        (pay rate, markup, FICA/FUTA/SUTA, comp rate, PTO, benefits,
+        payment terms, cost of capital...) had no way to keep them between
+        visits or send a filled-in scenario to a colleague, which is exactly
+        the "used once and abandoned" failure `share.mjs`'s own header
+        documents. Copied the fleet's canonical, most-adopted `share.mjs`
+        implementation (identical across 37 ventures, the one with the most
+        battle-tested URL-fragment/localStorage/validation behaviour) and
+        its `share.test.mjs` verbatim, then wired it into `index.html`:
+        a `SHARE_SPEC` derived from `calc.mjs`'s own `ALL_INPUT_IDS` (never
+        a second hand-kept field list — the exact drift class
+        `check_shared_link_clears.py` exists to catch), a "Copy shareable
+        link" and "Start a fresh placement" button, restore-on-load from the
+        URL fragment or localStorage, and a save-on-every-input persist.
+        Updated the footer's existing privacy paragraph to disclose the new
+        behaviour (left the FAQPage JSON-LD block untouched to avoid the
+        JSON-LD/visible-text drift `faq-visible.test.mjs` polices). Added
+        wiring-regression tests to `page.test.mjs` mirroring the fleet's own
+        "a shared link must carry every field the form reads" convention,
+        and updated the usage-events assertion for the new `link_copied`
+        event. README's stated test count corrected 45 -> 98.
+      - >-
+        Verified: venture's own suite 98/98 `node --test` (was 45, template
+        share.mjs/share.test.mjs add the rest); `check_shared_link_clears.py`
+        clean; `node platform/pages/build.mjs` + `check.mjs` — 249 products,
+        968 pages, no dead links; `platform/pages/clauses.mjs
+        staffing-markup-calculator` clean (3 pages); `siblings.mjs --check`
+        0 orphans; `checklist_coverage.py` clean; ran
+        `platform/marketing/regen.mjs` (this venture's mirror shard was
+        stale after the edit, caught by `front-door-tools.test.mjs` before
+        push, not as a red PR check) and committed what it rewrote;
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        1231/1231 (full fleet suite, run twice — 3 failures before
+        `regen.mjs`, 0 after); `gitops/tests` 581 passed / 1 skipped
+        (environmental, confirmed by `guard_state.py --require-runnable`
+        after installing `python3-pytest`/`nginx-light`/`openssh-client`);
+        all `platform/ci` unittest modules green including
+        `agent_review/test_review` (21/21); `check_venture_regression.py`
+        clean (no live venture disappears); `portfolio/ledger` + `scoring`
+        + `router` + `usage` + `pipeline` + `infra/tests` 435 passed.
+    mrr_end: 0
