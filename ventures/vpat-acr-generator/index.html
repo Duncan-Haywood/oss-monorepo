@@ -133,8 +133,16 @@
       }
       const tr = document.createElement('tr');
       tr.dataset.criterionId = c.id;
+      // Both controls carry the criterion in their own accessible name. The
+      // visible `<td class="crit">` beside them says which row this is, but a
+      // table cell is not a label: a screen reader moving control-to-control
+      // through 50 rows otherwise announces "combo box" fifty times, and the
+      // remarks box announces its placeholder — identical on every row. That
+      // is unusable on a form whose whole point is per-criterion answers, and
+      // it is the defect this tool exists to help vendors document.
       const select = document.createElement('select');
       select.id = `level-${c.id}`;
+      select.setAttribute('aria-label', `Conformance level for ${c.id} ${c.name}`);
       for (const [id, label] of LEVEL_OPTIONS) {
         const opt = document.createElement('option');
         opt.value = id; opt.textContent = label;
@@ -143,6 +151,7 @@
       const textarea = document.createElement('textarea');
       textarea.id = `remarks-${c.id}`;
       textarea.placeholder = 'Remarks and explanations';
+      textarea.setAttribute('aria-label', `Remarks for ${c.id} ${c.name}`);
       const tdCrit = document.createElement('td');
       tdCrit.className = 'crit';
       tdCrit.innerHTML = `${c.id} ${c.name}<span class="wl">WCAG Level ${c.wcagLevel}</span>`;
@@ -154,12 +163,22 @@
       body.appendChild(tr);
     }
 
+    // Every per-criterion id embeds a WCAG criterion number -- `level-1.1.1`,
+    // `remarks-2.4.7`. Those dots are CSS class separators, so
+    // `querySelector('#level-1.1.1')` does not miss the element, it throws a
+    // SyntaxError: "not a valid selector". `getElementById` takes a literal id
+    // and parses nothing, which is the only safe way to address these rows.
+    // Do not "tidy" these back into querySelector -- that is the bug this
+    // comment exists to prevent, and it killed the whole page for its entire
+    // shipped life (see page.test.mjs).
+    const byId = (id) => document.getElementById(id);
+
     function currentInput() {
       const rows = {};
       for (const c of WCAG21_AA_CRITERIA) {
         rows[c.id] = {
-          level: document.querySelector(`#level-${c.id}`).value,
-          remarks: document.querySelector(`#remarks-${c.id}`).value,
+          level: byId(`level-${c.id}`).value,
+          remarks: byId(`remarks-${c.id}`).value,
         };
       }
       return {
@@ -181,14 +200,15 @@
         ['vendorCompany', 'vendorCompany'], ['vendorContact', 'vendorContact'],
         ['evaluationMethods', 'evaluationMethods'], ['notes', 'notes'],
       ]) {
-        const el = document.querySelector(`#${id}`);
+        const el = byId(id);
         if (el && typeof input[field] === 'string') el.value = input[field];
       }
       for (const c of WCAG21_AA_CRITERIA) {
         const row = input.rows && input.rows[c.id];
         if (!row) continue;
-        const levelEl = document.querySelector(`#level-${c.id}`);
-        const remarksEl = document.querySelector(`#remarks-${c.id}`);
+        const levelEl = byId(`level-${c.id}`);
+        const remarksEl = byId(`remarks-${c.id}`);
+        if (!levelEl || !remarksEl) continue;
         if (row.level) levelEl.value = row.level;
         if (typeof row.remarks === 'string') remarksEl.value = row.remarks;
       }
