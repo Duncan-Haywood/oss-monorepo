@@ -134,6 +134,19 @@ test('a dead relative link is caught', async () => {
   assert.equal(mentioning(problems, 'dead link -> missing.html').length, 1);
 });
 
+test('a JS template-literal href in a standalone .mjs is not a dead link', async () => {
+  // The epk-generator false positive: `generator.mjs` builds an href from
+  // user-supplied data at runtime with a template literal --
+  // `` `<a href="${escapeHtml(url)}">` `` -- and has no `<script>` wrapper
+  // for SCRIPT_OR_STYLE_RE to strip, unlike the tender-radar case this
+  // guards elsewhere. The literal `${escapeHtml(url)}` text is not a path.
+  const problems = await problemsFor({
+    'tool/index.html': '<script type="module" src="generator.mjs"></script>',
+    'tool/generator.mjs': 'const html = `<a href="${escapeHtml(url)}">go</a>`;',
+  });
+  assert.deepEqual(mentioning(problems, 'dead link'), []);
+});
+
 test('a link that climbs out of the site root is caught', async () => {
   const problems = await problemsFor({ 'tool/index.html': '<a href="../../etc/passwd">x</a>' });
   assert.equal(mentioning(problems, 'escapes the site root').length, 1);
