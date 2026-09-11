@@ -3910,5 +3910,53 @@
       "notes": "Traps are checked once every 24 hours while they are set. The seal is not complete until the one-way devices come off, which is the final visit."
     },
     "disclaimerTail": "Wildlife activity, weather and access can change what a job needs once it is open; it is not a guarantee that no animal will re-enter, a structural or mould inspection, or a health assessment of the affected area."
+  },
+  "forestry-mulching-bid-calculator": {
+    "jobTitle": "Forestry mulching — {acres~2} acres of {densityLabel}",
+    "calcFn": "priceJob",
+    "fields": {
+      "densityLabel": {
+        "select": "density",
+        "map": {
+          "light-brush": "light brush, grass and saplings under 2 in",
+          "medium-brush": "brush and small stems, 2 to 4 in with the occasional 6 in",
+          "heavy-brush": "heavy brush and small trees, stems 4 to 8 in",
+          "heavy-timber": "heavy understory, stems 8 to 12 in",
+          "custom": "standing brush and understory"
+        }
+      },
+      "headWidthFt": {
+        "number": "headWidthFt"
+      },
+      "headRatedStemInches": {
+        "number": "headRatedStemInches"
+      },
+      "mobilizationTrips": {
+        "number": "mobilizationTrips"
+      }
+    },
+    "scope": [
+      "Mulch {acres~2} acres of {densityLabel} in place with a {headWidthFt~1} ft forestry mulching head",
+      "Cut standing stems up to {headRatedStemInches~0} in, the rating of the head",
+      {
+        "line": "Allow about {machineHours~1} machine hours on site, roughly {daysOnSite~1} working day{daysOnSite+s}",
+        "when": "machineHours"
+      },
+      {
+        "line": "Mobilization: {mobilizationTrips~0} round trip{mobilizationTrips+s} with the machine on the trailer",
+        "when": "mobilizationTrips"
+      },
+      "Leave the cut material on site as a mulch mat; nothing is hauled away",
+      "Walk the finished area with you before leaving the site"
+    ],
+    "placeholders": {
+      "companyName": "Ridgeline Land Clearing LLC",
+      "clientName": "L. Bergstrom",
+      "clientAddress": "Parcel 14-22-031, County Road 8",
+      "scope": "Mulch the understory across the front 3 acres\nLeave the mat in place and walk the finished area together",
+      "exclusions": "Stump grinding or removal below grade\nStems larger than the mulching head is rated for\nPermits, burn authorisations, erosion control and utility locates\nSeeding, grading or hauling of the mulch mat",
+      "notes": "Access for a truck and trailer is needed at the parcel entrance. Property lines and any buried utilities are to be marked before work starts."
+    },
+    "disclaimerTail": "It is a work quote, not a land-clearing plan, a permit, or an environmental assessment, and it is not an opinion on whether mulching is a permitted or appropriate clearing method for this parcel."
   }
 }

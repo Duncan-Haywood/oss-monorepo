@@ -1543,10 +1543,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 254 since 2026-09-11, when `codeowners-shadow-check` also graduated the
     # same day — same shape again: a new venture with a static `index.html`
     # from its first commit, entering the mirror and the total together.
-    # 255 since 2026-09-11, when `epk-generator` also graduated the same
-    # day — same shape again: a new venture with a static `index.html` from
-    # its first commit, entering the mirror and the total together.
-    total = 255  # `infra/OWNER_CHECKLIST.md`'s own "N of the 255 tools" wording.
+    # 255 since 2026-09-11, when `forestry-mulching-bid-calculator` also
+    # graduated the same day — same shape again: a new venture with a static
+    # `index.html` from its first commit, entering the mirror and the total
+    # together.
+    # 256 since 2026-09-11, when `epk-generator` also graduated the same
+    # day and was merged on top of `forestry-mulching-bid-calculator` —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    total = 256  # `infra/OWNER_CHECKLIST.md`'s own "N of the 256 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
