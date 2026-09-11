@@ -33,8 +33,8 @@ readings:
 
   github-actions-runners:
     verdict: down
-    measured: "2026-09-10"
-    run: 34423728610
+    measured: "2026-09-11"
+    run: 34588034490
     how: >-
       Cheapest route, and it costs nothing at all: classify a check that
       already ran on any open PR, by its **job** id rather than a run id --
@@ -194,6 +194,26 @@ readings:
       validators, `build.mjs` + `check.mjs`), per this file's own standing
       guidance -- and re-confirmed `main` is green independent of that PR's
       own red checks by running the same suites again post-merge.
+      Re-measured 2026-09-11T09:45-10:12Z from a scheduled autonomous session,
+      prompted by an owner check-in asking whether deploy/CI/CD is being kept
+      a priority. Two readings 27 minutes apart disagree, which is the same
+      "flips inside a session" shape as 09-07: `portfolio-pages` run
+      34585762340 (09:45:25Z, the `gh-pages` publish of a42e8f2d) got three
+      real runner ids (`1000077799`/`1000077800`/`1000077801`), all
+      `success`. A fresh `Outage triage` dispatch at 10:12:04Z
+      (run 34588034490), and the prior scheduled dispatch of the same
+      workflow the day before (34475459008, 2026-09-10T12:12:53Z), both came
+      back `runner_id: 0` in 3-6s -- `ci_starvation.py --run 34588034490` and
+      `--run 34475459008` both exit 1. So today's evidence is one real run and
+      two starved ones, not a clean recovery; verdict stays `down` per the
+      06:33Z/09:15Z precedent above (classify the next push on its own
+      merits, do not infer from one green run). Net effect for the k3s-cluster
+      row below: the re-measurement this reading exists to unblock (dispatch
+      `Outage triage` once a runner is available) still did not land a runner,
+      so that row remains unmeasured since 2026-09-04 -- now 7 days past
+      `STALE_AFTER_DAYS` (3) -- and should be read as unknown, not as the
+      `down` verdict it still carries below, until a dispatch actually gets a
+      runner assigned.
 
   k3s-cluster:
     verdict: down
@@ -220,6 +240,12 @@ readings:
       distrust most: it would retire this row, drop
       `hetzner-ssh-key-is-a-public-key` down the queue, and send the next
       session to build on a cluster that is still dead.
+      Attempted 2026-09-11T10:12Z from a scheduled autonomous session: a
+      fresh dispatch (run 34588034490) came back `runner_id: 0` in 3s --
+      `github-actions-runners` was starved at that exact moment (see that
+      row's 09-11 note), so this row is still stuck at the 2026-09-04
+      reading, now 7 days stale. Re-measure on the next push or dispatch
+      that lands a real runner rather than trusting this verdict as current.
     note: >-
       `:6443` refused on both boxes, so the k3s API server is not listening —
       a dead or absent cluster rather than a crashed ingress. `:22` is open

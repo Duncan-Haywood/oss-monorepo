@@ -48,6 +48,8 @@
     .flags li { background: #63490f; border-radius: 9px; padding: 10px 12px; margin-top: 8px; }
     .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
     .errors li { color: #ffd0c6; padding: 2px 0; }
+    .note { font-size: .82rem; opacity: .84; }
+    .summary-status { font-size: .8rem; color: #b6e0c2; }
     .empty { font-size: .87rem; opacity: .84; }
     footer { margin-top: 25px; font-size: .82rem; color: #4b5a50; }
     footer a { color: #24603c; }
@@ -261,6 +263,13 @@
         </dl>
         <div id="verdict" class="verdict" hidden></div>
         <ul class="flags" id="flags"></ul>
+        <div class="actions">
+          <button type="button" id="copyLink">Copy bid link</button>
+          <button type="button" id="clearSaved">Start a fresh bid</button>
+          <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+        </div>
+        <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+        <p class="note">A bid link carries this whole job — species, height, trap and exclusion figures, your rates — so it reopens exactly as you left it. The numbers ride after the <code>#</code>, which is never sent to a server, so copying a link uploads nothing.</p>
       </div>
       <ul class="errors" id="errors"></ul>
     </section>
@@ -335,7 +344,7 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, wildlife-regulation, veterinary, tax, financial, or insurance advice, and it does not tell you what to charge, how often traps must be checked, whether a species may lawfully be excluded on a given date, or what licence, permit or coverage a job needs. It is arithmetic on the numbers you type, and the numbers it starts with are an illustrative example rather than market data. Verify every figure against your own costs, your state wildlife agency, and a qualified professional before sending a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. The address, species, rates, footage and the price worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control. The five events counted are <code>bid_calculated</code>, <code>flat_fee_compared</code>, <code>proposed_price_compared</code>, <code>proposal_printed</code> and <code>company_forgotten</code> &mdash; names and a date, never a figure.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. The address, species, rates, footage and the price worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control. The six events counted are <code>bid_calculated</code>, <code>flat_fee_compared</code>, <code>proposed_price_compared</code>, <code>proposal_printed</code>, <code>company_forgotten</code> and <code>link_copied</code> &mdash; names and a date, never a figure.</p>
     <p><strong>What the proposal saves, and what it never does.</strong> Your own business block &mdash; company name, phone, email, licence, address &mdash; is kept in this browser so you type it once. The customer&rsquo;s name and address are <em>not</em> saved: that is someone else&rsquo;s personal data, and it is re-typed per job on purpose. &ldquo;Forget my business details&rdquo; deletes the stored block. The proposal prints only your own words and numbers; it drafts no legal terms, warranty language or cancellation rights, and it is not a contract.</p>
     <p>Pricing a different kind of route or project? The <a href="../pest-control-bid-calculator/">pest control bid calculator</a> prices a recurring account per stop rather than a one-off project, and the <a href="../attic-insulation-bid-calculator/">attic insulation bid calculator</a> prices the R-value side of the same attic.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -349,6 +358,8 @@
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
     } from './proposal.mjs';
 // proposal:end
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
 
     const el = id => document.getElementById(id);
     const money = (value) => {
@@ -391,6 +402,28 @@
       'warrantyYears', 'warrantyReservePct', 'overheadRate', 'targetMargin', 'proposedPrice',
     ];
 
+    // Derived from the id lists already above and the options the selects
+    // actually offer, so a field added to the form is saved and shareable
+    // without a second hand-kept list here — the exact drift a shared link
+    // computing a different price than the sender saw would come from.
+    const FLAG_IDS = ['separateInspection', 'inspectionBillable', 'doorRemovalVisit'];
+    const CHOICE_IDS = ['species', 'heightTier'];
+    const BID_SPEC = {
+      key: 'wildlife-exclusion-bid',
+      numbers: [...COST_IDS, 'scheduledMonth', 'flatFee'],
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+      }
+    }
+
     function readInput() {
       const raw = {
         species: el('species').value,
@@ -401,6 +434,10 @@
         doorRemovalVisit: el('doorRemovalVisit').checked,
       };
       for (const id of COST_IDS) raw[id] = el(id).value;
+      // Not read by calculateBid() itself (flatFeeGap takes it separately in
+      // submit()), but it is still a figure the visitor typed and a bid link
+      // or saved bid that dropped it would reopen comparing against nothing.
+      raw.flatFee = el('flatFee').value;
       return raw;
     }
 
@@ -523,11 +560,79 @@
       if (outcome.result.proposed !== null) count('proposed_price_compared');
     });
 
+    function persist() {
+      try {
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Recompute and save on every keystroke, not only on the form's own submit
+    // button. Without this, a share link copied right after an edit carries the
+    // new figures while the hero on screen still shows the last submitted
+    // price — the sender and the page they are looking at would disagree about
+    // what was just sent. `staffing-markup-calculator` set this precedent.
+    document.addEventListener('input', () => { persist(); submit(); });
+    document.addEventListener('change', () => { persist(); submit(); });
+
     // Open on the worked example rather than an em-dash: the defaults above
     // *are* a real job, and the page's whole claim — that the flat removal fee
     // prices one visit out of eight — is invisible until something is on
     // screen. No count is recorded here: a page load is not a pricing.
     submit();
+    persist();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------
     //

@@ -299,6 +299,14 @@ async function perturb(limit = 4) {
  * `NOT_AN_ACTION` already skips "Copy link to this bid", but "Save this bid" is
  * an ordinary-looking verb on an ordinary-looking button and would simply
  * become the next wrong thing pressed.
+ *
+ * A tab switcher is excluded separately, in `pressPrimaryAction` itself via
+ * `isTabSwitch` rather than here: it is still one of the venture's own
+ * controls (it should count toward `interactive` below, and a page whose only
+ * form controls are its tabs is not `NO-CONTROLS`), just not a candidate for
+ * "the action to press". Container exclusion and role exclusion answer two
+ * different questions -- whose button is this, and what kind of button is it
+ * -- and collapsing them here would answer the second with the first's tool.
  */
 const OWN_BUTTONS = 'button:not([data-pf-jobs-root] button)'
   + ':not([data-pf-rates-root] button):not(.pf-chrome button)';

@@ -249,7 +249,7 @@ test('the privacy note names every usage event the page can record', () => {
   const unique = [...new Set(events)].sort();
   assert.deepEqual(unique, [
     'bid_calculated', 'company_forgotten', 'flat_fee_compared',
-    'proposal_printed', 'proposed_price_compared',
+    'link_copied', 'proposal_printed', 'proposed_price_compared',
   ]);
   // Each one named in the footer, not just tallied. Adopting the customer
   // proposal added two events to this page without touching the footer; a
@@ -309,4 +309,52 @@ test('every input the page reads is a field calculateBid accepts', () => {
     assert.ok(id in probe || id === 'proposedPrice', `calculateBid has no input named ${id}`);
   }
   assert.ok(baseline > 0);
+});
+
+// --- share.mjs wiring: a copied or saved bid must carry the whole job -------
+
+test('the page wires up share.mjs rather than reimplementing it', () => {
+  assert.match(index, /from '\.\/share\.mjs'/);
+  for (const name of ['encodeBid', 'saveBid', 'clearBid', 'restoreBid', 'withProposalTerms', 'readProposalTerms', 'overlongTermsNote']) {
+    assert.match(index, new RegExp(`\\b${name}\\b`), `${name} is imported but never used`);
+  }
+  for (const id of ['copyLink', 'clearSaved', 'restoreNote', 'summaryStatus']) {
+    assert.match(index, new RegExp(`id="${id}"`), `missing #${id}`);
+  }
+  assert.match(index, /A bid link carries this whole job/, 'the bid link does not say what it carries');
+  assert.match(index, /never sent to a server/, 'the on-page note does not say the link fragment stays client-side');
+});
+
+// Every id readInput() sets has to reach BID_SPEC, or a shared/saved link
+// reopens missing a field the sender priced the job with — the exact
+// silent-drop this module's own header warns about.
+test('every field readInput() sets is a field the bid link and saved bid carry', () => {
+  const readBlock = index.match(/function readInput\(\) \{([\s\S]*?)\n    \}/);
+  assert.ok(readBlock, 'readInput() should be present');
+  const literalIds = [...readBlock[1].matchAll(/^\s*(\w+):/gm)].map((m) => m[1]);
+  const costIdsUsed = /for \(const id of COST_IDS\) raw\[id\]/.test(readBlock[1]);
+  assert.ok(costIdsUsed, 'readInput() should still loop COST_IDS rather than listing each one by hand');
+  const readIds = new Set([...literalIds, 'flatFee']);
+
+  const specBlock = index.match(/const BID_SPEC = \{([\s\S]*?)\n    \};/);
+  assert.ok(specBlock, 'BID_SPEC should be present');
+  const numbersBlock = specBlock[1].match(/numbers: \[([\s\S]*?)\]/);
+  const flagsBlock = specBlock[1].match(/flags: (\w+)/);
+  assert.ok(numbersBlock && flagsBlock, 'BID_SPEC should declare numbers and flags');
+  const sharedNumberNames = new Set([...numbersBlock[1].matchAll(/(\w+)/g)].map((m) => m[1]));
+  assert.ok(sharedNumberNames.has('COST_IDS'), 'BID_SPEC.numbers should carry COST_IDS');
+
+  const flagListName = flagsBlock[1];
+  const flagListBlock = index.match(new RegExp(`const ${flagListName} = \\[([\\s\\S]*?)\\]`));
+  assert.ok(flagListBlock, `${flagListName} should be defined`);
+  const flagIds = [...flagListBlock[1].matchAll(/'([A-Za-z]+)'/g)].map((m) => m[1]);
+
+  const choicesBlock = specBlock[1].match(/choices: Object\.fromEntries\((\w+)/);
+  assert.ok(choicesBlock, 'BID_SPEC.choices should be built from a named id list');
+  const choiceListBlock = index.match(new RegExp(`const ${choicesBlock[1]} = \\[([\\s\\S]*?)\\]`));
+  const choiceIds = [...choiceListBlock[1].matchAll(/'([A-Za-z]+)'/g)].map((m) => m[1]);
+
+  const carried = new Set([...flagIds, ...choiceIds, ...sharedNumberNames]);
+  const dropped = [...readIds].filter((id) => !carried.has(id));
+  assert.deepEqual(dropped, [], `readInput() sets ${dropped.join(', ')} but BID_SPEC does not carry them`);
 });
