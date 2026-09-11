@@ -708,7 +708,7 @@
       "url": "https://marisstella.dev/tools/cache-control-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor's cookie to another), and lower-severity caching directive conflicts. Nothing uploaded.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "canonical-tag-check",
