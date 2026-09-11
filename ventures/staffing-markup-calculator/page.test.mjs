@@ -75,7 +75,52 @@ test('the usage counter is opt-out-able and never records a figure', () => {
   assert.match(index, /recordUsage\(localStorage, optedOut\(\)/);
   // The only events recorded are named literals, never a value from the form.
   const events = [...index.matchAll(/count\('([a-z_]+)'\)/g)].map((m) => m[1]);
-  assert.deepEqual([...new Set(events)].sort(), ['placement_priced']);
+  assert.deepEqual([...new Set(events)].sort(), ['link_copied', 'placement_priced']);
+});
+
+// The saved-and-shared placement is only trustworthy if it carries every field
+// the calculator reads. This repository has already shipped the opposite: a
+// `share.mjs` kept its own hand-written field list, the form grew past it, and
+// a shared link silently dropped the new fields — the recipient's page priced
+// a different job than the sender saw, with nothing on screen to say so. These
+// tests pin the derivation (SHARE_SPEC built from ALL_INPUT_IDS/FLAG_IDS)
+// rather than a restated list, so a field calc.mjs adds later is covered
+// without anyone remembering to.
+test('save-and-share is wired to the page', () => {
+  assert.match(index, /from '\.\/share\.mjs'/, 'share.mjs is not imported');
+  // The placement rides in the URL fragment, never the query string. A query
+  // string is sent in the request line a server logs and in the `Referer`
+  // header a later off-site click carries; a fragment is sent in neither. On a
+  // page that promises nothing you type is uploaded, that is the difference
+  // between the claim holding and not.
+  assert.match(index, /\$\{query \? `#\$\{query\}` : ''\}/,
+    'the shared link must be built as a URL fragment (#), not a query string (?)');
+  assert.ok(!/`\?\$\{query\}`/.test(index),
+    'the shared link must not be built with a query string');
+  assert.match(index, /search: location\.hash/,
+    'the placement must be restored from the fragment, matching how the link is built');
+  for (const name of ['encodeBid', 'saveBid', 'clearBid', 'restoreBid']) {
+    assert.match(index, new RegExp(`\\b${name}\\b`), `${name} is imported but never used`);
+  }
+  const declaredIds = new Set([...index.matchAll(/id="([^"]+)"/g)].map((m) => m[1]));
+  for (const id of ['copyLink', 'clearSaved', 'restoreNote', 'linkStatus']) {
+    assert.ok(declaredIds.has(id), `missing #${id}`);
+  }
+  assert.match(index, /carries your own pay rate, markup, burden rates and payment terms/,
+    'the link caution does not name what it carries');
+  assert.match(index, /never sent to a server/,
+    'the on-page note does not say the link fragment stays client-side');
+});
+
+test('the shared link carries every field the form reads, not a hand-kept subset', () => {
+  assert.match(index, /numbers:\s*ALL_INPUT_IDS/,
+    'SHARE_SPEC must derive its numeric fields from ALL_INPUT_IDS, not a second, hand-kept list');
+  assert.match(index, /flags:\s*FLAG_IDS/,
+    'SHARE_SPEC must derive its checkboxes from FLAG_IDS, not a second, hand-kept list');
+  const flagMatch = index.match(/const FLAG_IDS = (\[[^\]]*\])/);
+  assert.ok(flagMatch, 'FLAG_IDS is not declared');
+  assert.deepEqual(JSON.parse(flagMatch[1].replace(/'/g, '"')), ['compExcludesOtPremium'],
+    'FLAG_IDS must list every checkbox readInput() reads');
 });
 
 test('the sponsor link is present, honest, and optional', () => {

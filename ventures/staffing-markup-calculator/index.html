@@ -122,7 +122,12 @@
         </div>
         <div class="actions">
           <button type="submit" class="primary">Price this placement</button>
+          <button type="button" id="copyLink">Copy shareable link</button>
+          <button type="button" id="clearSaved">Start a fresh placement</button>
         </div>
+        <p class="hint" id="linkStatus" role="status"></p>
+        <p class="hint" id="restoreNote" hidden></p>
+        <p class="hint">A shareable link carries your own pay rate, markup, burden rates and payment terms &mdash; treat one like your rate sheet. It is built in your browser and never sent to a server; send it to a partner reviewing the same placement, not to the client. Your last placement is also saved in this browser so it is here next time you open the page; &ldquo;Start a fresh placement&rdquo; clears it.</p>
       </section>
 
       <section>
@@ -212,7 +217,7 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, or employment advice, and it does not tell you what to charge, which workers&rsquo; compensation class code applies to a job, whether anyone is an employee or a contractor, or what any state or federal law requires of you. It is arithmetic on the numbers you type, and the rates and wage bases it starts with are illustrative and change every year. Verify every figure against your own state rate notice, policy declarations, and payroll records, and against a qualified professional, before quoting a client from it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your pay rates, markups, comp rate and the margins worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your pay rates, markups, comp rate and the margins worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control. &ldquo;Copy shareable link&rdquo; puts the same numbers in the page&rsquo;s URL fragment instead of a server, and your last placement is saved to this browser&rsquo;s own local storage so it is here on your next visit &mdash; nothing about it leaves your device either way, but whoever holds a link you send can read it.</p>
     <p>Working out what an hour costs your own shop rather than a placement&rsquo;s? The <a href="../shop-rate-calculator/">shop rate calculator</a> does the same job for trade crews, and the <a href="../certified-payroll-calculator/">certified payroll calculator</a> covers prevailing-wage fringe. Paying yourself instead of a worker? Try the <a href="../freelance-retainer-calculator/">freelance retainer calculator</a>.</p>
     <p class="support">Free and open source. If it changes what you quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -220,6 +225,7 @@
   <script type="module">
     import { calculatePlacement, markupToMargin, ALL_INPUT_IDS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
     const el = (id) => document.getElementById(id);
     const money = (value) => {
@@ -239,6 +245,52 @@
       const raw = { compExcludesOtPremium: el('compExcludesOtPremium').checked };
       for (const id of ALL_INPUT_IDS) raw[id] = el(id).value;
       return raw;
+    }
+
+    // Derived from ALL_INPUT_IDS itself, so a field added to calc.mjs's own
+    // list is saved and shareable without a second, hand-kept copy here going
+    // stale — the exact drift that has silently dropped fields from a shared
+    // link on other calculators in this fleet.
+    const FLAG_IDS = ['compExcludesOtPremium'];
+    const SHARE_SPEC = { key: 'staffing-markup-placement', numbers: ALL_INPUT_IDS, flags: FLAG_IDS };
+
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, SHARE_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-placement is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(SHARE_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('linkStatus').textContent = 'Shareable link copied — it reopens this placement with your rates.';
+      setTimeout(() => { el('linkStatus').textContent = ''; }, 2500);
     }
 
     function clearInvalid() {
@@ -357,12 +409,39 @@
       count('placement_priced');
     });
 
-    // Open on the worked example rather than on an em-dash. The eighteen
-    // defaults above *are* an example placement, and the page's whole claim —
-    // that 45% earns 15.8% and not the 31% the trade quotes — is invisible
-    // until something is on screen. No `placement_priced` count is recorded
-    // here: a page load is not a pricing, and that event is the denominator of
-    // this venture's own usage question.
+    const restored = restoreBid(SHARE_SPEC, {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+    if (restored.source !== 'none') {
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a shared link — these are the sender’s rates, not yours.'
+        : 'Picked up your last placement from this browser. “Start a fresh placement” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('linkStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, SHARE_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+    // Every input already recalculates nothing on its own (the form submits
+    // to price), but saving on every keystroke means the placement survives a
+    // closed tab even if "Price this placement" was never pressed.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+    persist();
+
+    // Open on the restored placement if one exists, or the worked example
+    // otherwise — the eighteen defaults *are* an example placement, and the
+    // page's whole claim — that 45% earns 15.8% and not the 31% the trade
+    // quotes — is invisible until something is on screen. No
+    // `placement_priced` count is recorded here: a page load is not a
+    // pricing, and that event is the denominator of this venture's own usage
+    // question.
     (() => {
       const example = calculatePlacement(readInput());
       if (example.ok) render(example);
