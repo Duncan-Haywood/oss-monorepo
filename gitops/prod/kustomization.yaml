@@ -239,6 +239,7 @@ configMapGenerator:
       - vs__zizmor.html.gz=front-door/vs__zizmor.html.gz
       - vs__pestpac.html.gz=front-door/vs__pestpac.html.gz
       - vs__booqable.html.gz=front-door/vs__booqable.html.gz
+      - vs__screaming-frog-seo-spider.html.gz=front-door/vs__screaming-frog-seo-spider.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

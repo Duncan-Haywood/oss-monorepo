@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Social Preview Checker vs. Screaming Frog SEO Spider</title>
+<meta name="description" content="Screaming Frog SEO Spider is a paid, installable desktop crawler that audits an entire site -- broken links, titles, duplicate content, and social meta tags among hundreds of checks. This free tool answers one narrower question on one page at a time: is the Open Graph and Twitter Card markup actually going to render a working link preview. Not affiliated with Screaming Frog.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/social-preview-check/vs-screamingfrog.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Social Preview Checker vs. Screaming Frog SEO Spider">
+<meta property="og:description" content="Screaming Frog crawls a whole site as a paid desktop license. This free tool checks one page's Open Graph and Twitter Card tags -- including the image's real pixel dimensions -- in your browser, with nothing to install.">
+<meta property="og:url" content="https://example.invalid/social-preview-check/vs-screamingfrog.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or Screaming Frog SEO Spider?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They overlap on one narrow slice and differ everywhere else. Screaming Frog SEO Spider is a paid, installable desktop crawler (Windows, macOS, and Linux) that walks an entire site and reports on hundreds of things — broken links, response codes, titles and meta descriptions, duplicate content, hreflang, XML sitemaps, and, among its social-tag checks, Open Graph and Twitter Card extraction, per its own site. Its free tier is capped at 500 URLs per crawl and drops the advanced features (JavaScript rendering, custom extraction, saved crawl configs); a paid annual license removes that cap. This tool does one page at a time: paste the JSON from a small local CLI probe (or check a single image URL directly) and get a plain-English report on missing tags, a relative og:image URL, an image below a platform's documented minimum size, and the twitter:image to og:image fallback chain — free, in your browser, with nothing to install and no crawl limit because there is no crawl." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Screaming Frog already catch the problems this tool catches?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It extracts the same Open Graph and Twitter Card tags, per its own documented feature list, so a site-wide crawl will surface which pages have which tags set. What this tool adds is the specific classification: whether an og:image URL is relative (which the Open Graph protocol requires to be absolute), whether the image is actually large enough for Facebook's or Twitter's documented minimum — which needs reading the image file's own pixel dimensions, not just confirming a tag exists — and whether the twitter:image to og:image fallback chain leaves a page covered even without every tag set explicitly." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why use a narrower tool if Screaming Frog already crawls the whole site?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Two reasons this tool exists alongside it. First, Screaming Frog is a desktop application you install and configure to crawl a site; this tool is a page you open and paste a small probe's JSON into, which is faster when you only care about the one URL in front of you right now — a page about to be shared, say — rather than auditing the whole domain. Second, this tool reads the preview image's real pixel dimensions from the image file's own header and checks them against the platform-specific minimums Facebook and Twitter document, which is a narrower, more specific answer than confirming a tag is present." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with Screaming Frog?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by Screaming Frog Ltd. Screaming Frog is an independent company, named here only to describe what this checker is and is not, using facts drawn from its own public site at screamingfrog.co.uk." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  .cta { display: inline-block; margin: 0.4rem 0 0; background: #0a7c42; color: #fff; padding: 0.6rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 700; }
+  .eyebrow { font-size: .86rem; opacity: .8; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  .table-wrap { overflow-x: auto; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer a, main a { color: #0a7c42; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow"><a href="index.html">&larr; Social Preview Checker</a></p>
+  <h1>Social Preview Checker vs. Screaming Frog SEO Spider</h1>
+  <p>Different jobs: one checks one page's link-preview tags in your browser right now, for free; the other crawls a whole site as an installed, paid desktop application.</p>
+
+  <p><a class="cta" href="index.html">Check a page &rarr;</a></p>
+
+  <section class="card">
+    <p>
+      <strong>Screaming Frog SEO Spider</strong> is a well-known SEO crawler,
+      described on its own site
+      (<a href="https://www.screamingfrog.co.uk/seo-spider/" rel="nofollow noopener">screamingfrog.co.uk</a>)
+      as a desktop application for Windows, macOS, and Linux that crawls an
+      entire site and audits it against hundreds of checks -- broken links
+      and response codes, page titles and meta descriptions, duplicate
+      content, hreflang, XML sitemap generation, and extraction of social
+      meta tags including Open Graph and Twitter Cards, among others, per
+      its own documented feature list. Its free tier is capped at 500 URLs
+      per crawl and leaves out advanced features such as JavaScript
+      rendering, custom extraction, and saved crawl configurations; a paid
+      annual license removes the crawl cap and unlocks those features.
+    </p>
+    <p>
+      That is a different job from the one this page does. This tool has no
+      install, no crawl, and no per-site license. It exists for the
+      narrower question that comes up when one specific page -- often one
+      about to be shared or just published -- needs its link preview
+      checked right now: <strong>will this page's Open Graph and Twitter
+      Card tags actually produce a working preview, with a preview image
+      that meets the platform's own documented size minimum?</strong>
+    </p>
+    <div class="table-wrap">
+    <table>
+      <caption>What each tool answers.</caption>
+      <thead>
+        <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Does this one page's og:image use a relative URL, and is the image actually large enough for Facebook's or Twitter's documented minimum?</td>
+          <td>This checker &mdash; it reads the image file's own pixel dimensions and applies the platform-documented fallback chain, free, with nothing installed.</td>
+        </tr>
+        <tr>
+          <td>Crawl an entire site for broken links, duplicate titles, hreflang errors, and hundreds of other on-page SEO issues, with social tags as one part of that audit?</td>
+          <td>Screaming Frog SEO Spider or a comparable crawler &mdash; a whole-site audit is a job this page does not attempt.</td>
+        </tr>
+        <tr>
+          <td>Check one page's link preview right before sharing it, with no install and no per-site crawl limit?</td>
+          <td>This checker &mdash; paste the JSON from a small local CLI probe, or check just an image URL's real dimensions directly.</td>
+        </tr>
+        <tr>
+          <td>Keep a saved, repeatable crawl configuration across hundreds of pages and export the results?</td>
+          <td>Screaming Frog SEO Spider or a comparable crawler &mdash; this page remembers nothing between visits except an anonymous local count of which features were used, and makes no claim to be a crawl archive.</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p>
+      This checker is deliberately the opposite shape from a site-wide
+      crawler: nothing to install, nothing licensed per year, and nothing
+      you paste here ever leaves your browser. That makes it a fast, honest
+      answer for the one page in front of you &mdash; not a competitor to
+      the whole-site audit a tool like Screaming Frog is built for.
+    </p>
+
+    <h2>Common questions</h2>
+    <h3>Should I use this checker or Screaming Frog SEO Spider?</h3>
+    <p>They overlap on one narrow slice and differ everywhere else. Screaming Frog SEO Spider is a paid, installable desktop crawler (Windows, macOS, and Linux) that walks an entire site and reports on hundreds of things &mdash; broken links, response codes, titles and meta descriptions, duplicate content, hreflang, XML sitemaps, and, among its social-tag checks, Open Graph and Twitter Card extraction, per its own site. Its free tier is capped at 500 URLs per crawl and drops the advanced features (JavaScript rendering, custom extraction, saved crawl configs); a paid annual license removes that cap. This tool does one page at a time: paste the JSON from a small local CLI probe (or check a single image URL directly) and get a plain-English report on missing tags, a relative og:image URL, an image below a platform's documented minimum size, and the twitter:image to og:image fallback chain &mdash; free, in your browser, with nothing to install and no crawl limit because there is no crawl.</p>
+    <h3>Does Screaming Frog already catch the problems this tool catches?</h3>
+    <p>It extracts the same Open Graph and Twitter Card tags, per its own documented feature list, so a site-wide crawl will surface which pages have which tags set. What this tool adds is the specific classification: whether an og:image URL is relative (which the Open Graph protocol requires to be absolute), whether the image is actually large enough for Facebook's or Twitter's documented minimum &mdash; which needs reading the image file's own pixel dimensions, not just confirming a tag exists &mdash; and whether the twitter:image to og:image fallback chain leaves a page covered even without every tag set explicitly.</p>
+    <h3>Why use a narrower tool if Screaming Frog already crawls the whole site?</h3>
+    <p>Two reasons this tool exists alongside it. First, Screaming Frog is a desktop application you install and configure to crawl a site; this tool is a page you open and paste a small probe's JSON into, which is faster when you only care about the one URL in front of you right now &mdash; a page about to be shared, say &mdash; rather than auditing the whole domain. Second, this tool reads the preview image's real pixel dimensions from the image file's own header and checks them against the platform-specific minimums Facebook and Twitter document, which is a narrower, more specific answer than confirming a tag is present.</p>
+    <h3>Is this page affiliated with Screaming Frog?</h3>
+    <p>No. This site is not affiliated with, endorsed by, or sponsored by Screaming Frog Ltd. Screaming Frog is an independent company, named here only to describe what this checker is and is not, using facts drawn from its own public site at screamingfrog.co.uk.</p>
+    <p><a href="index.html">Open the social preview checker</a> to check your own page, or read <a href="social-preview-fallback-rules.html">the fallback-chain and size-rule reference</a>.</p>
+  </section>
+</main>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not marketing, SEO, or legal advice, and it does not replace checking each platform's own preview tool before you rely on a link. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page makes no live comparison against Screaming Frog and no network request of any kind &mdash; it is a static page describing publicly documented facts. Free and open source. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing never changes what the tool does.</p>
+</footer>
+</body>
+</html>
