@@ -108,6 +108,35 @@ from marginal cost alone). `ventures/actions-runner-starvation-check` is
 one such attempt — a developer-niche CLI/browser tool, not a trade
 calculator, built the same session this note was added.
 
+**The alternative shape this section pointed sessions toward has since
+become a second instance of the same pattern, and "CLI/checker, not a
+calculator" is not by itself the novelty test** (added 2026-09-11). Counted
+directly from `ventures/` this session: **38 venture slugs now end in
+`-check` or `-checker`** — a scanner or single-request classifier for one
+narrow misconfiguration, repeated (six alone for GitHub Actions workflow
+hardening: artifact-poisoning, cache-poisoning, injection, permissions,
+runner-starvation, self-hosted-exposure). Most graduated in the four days
+before this note, several with a ledger entry that names picking this
+archetype specifically *because* it is not the 237th, 239th, or 247th
+`<trade>-bid-calculator` — which is the same reasoning this section gave
+2026-09-07, applied correctly, to a shape that has now absorbed enough of
+it to need the same caveat back. `usage/usage.yaml` has not recorded a
+nonzero visitor on any of the 38 either (checked 2026-09-11; 24 of the 38
+did not even carry a baseline row, which is its own small gap, now filled).
+
+Nothing here says stop building checkers — cheap, zero-dependency, no
+per-user cost, exactly what `PRODUCT_PLAYBOOK.md` §2 ranks highest, and a
+specific one with a named channel (a documented CVE class, a framework's
+own hardening guide, a subreddit that already asks this) is still worth
+building regardless of shape. What changes: clearing `duplicate_check.py`
+and picking a shape this file once flagged as underused no longer counts,
+on its own, as the evidence of novelty it was when only one venture had
+tried it. The test this file has asked for since 2026-08-18 was never
+"which shape" — it was a named distribution channel and, per
+`DIRECTION.md` North star point 2, a named first visitor. Read "not
+another calculator" and "not another checker" the same way: necessary,
+not sufficient.
+
 ## Scoring
 
 Eight dimensions, 0–10. The first six are the same dimensions
