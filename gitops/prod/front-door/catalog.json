@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 249,
-  "collection_total": 249,
+  "served_here": 250,
+  "collection_total": 250,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 35
+      "tool_count": 36
     },
     {
       "id": "evidence",
@@ -589,6 +589,14 @@
       "category": "More free tools",
       "description": "A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.",
       "pages": 12
+    },
+    {
+      "slug": "app-store-screenshot-check",
+      "name": "App Store Screenshot Checker — Catch a Rejected Icon or Wrong-Size Screenshot Before Upload",
+      "url": "https://marisstella.dev/tools/app-store-screenshot-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic \"can't contain an alpha channel\" rejection), wrong pixel dimensions, a HEIC renamed to .png, and a screenshot set whose members disagree about their own size. Runs entirely in your browser; nothing is uploaded. A zero-dependency CLI does the same in CI.",
+      "pages": 3
     },
     {
       "slug": "apparel-decoration-price-calculator",

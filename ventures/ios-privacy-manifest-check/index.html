@@ -334,6 +334,10 @@ struct SettingsStore {
   <p>Also worth a pass over your dependency tree: <a href="../dependency-confusion-check/">Dependency Confusion Check</a>
   flags an internal package name that a public registry could serve instead -- the same "read a manifest you
   already have, name the exact undeclared risk" shape as this tool, for a different supply chain.</p>
+  <p>Preparing the store listing for the same release? <a href="../app-store-screenshot-check/">App Store Screenshot &amp; Icon Checker</a>
+  reads your listing images' own header bytes and flags what the upload will refuse -- an app icon declaring an
+  alpha channel, a HEIC wearing a .png extension, a screenshot set whose members disagree about their size. The
+  other half of "catch it before the store does", at the same point in the release as this tool.</p>
   <p>Shipping a browser extension too? <a href="../chrome-extension-permission-check/">Chrome Extension Permission Checker</a>
   cross-checks a manifest.json's declared permissions against detected chrome.* API usage -- the same
   "read a manifest you already have, name the exact undeclared or unused entry" shape as this tool, for Chrome.</p>

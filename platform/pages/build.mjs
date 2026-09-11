@@ -961,8 +961,33 @@ const CATEGORY_RULES = [
     // neighbors above are, and landing it here rather than the catch-all is
     // also what keeps that catch-all inside the bound `build.test.mjs` puts
     // on it.
+    //
+    // `app-store-screenshot-check` joined 2026-09-11: a zero-dependency CLI
+    // plus a matching browser page, run by an app developer against the
+    // images they are about to attach to an App Store Connect or Google Play
+    // listing -- just for those files' own container headers (an app icon
+    // declaring an alpha channel or a tRNS chunk, an icon or feature graphic
+    // at the wrong exact size, a HEIC or WebP wearing a .png extension, a
+    // screenshot set whose members disagree about their dimensions, a count
+    // past the store's per-set limit, Play's side-length and aspect-ratio
+    // bounds), rather than a URL's HTTP behaviour, a page's `<head>` tags or
+    // a response header. It is the first member of this family whose evidence
+    // is **binary rather than text** -- every sibling above parses a
+    // robots.txt, a sitemap, a header list or a JSON payload; this one reads
+    // PNG `IHDR`/`tRNS` and JPEG `SOFn` bytes -- and it inverts the split
+    // those siblings share: where `redirect-chain-check` and
+    // `cors-misconfig-check` fall back to pasted evidence because a browser
+    // tab is forbidden from doing the thing the check needs, a browser can
+    // read a local file completely through the File API, so the page here is
+    // the full check with nothing degraded and nothing uploaded. Cross-links
+    // `ios-privacy-manifest-check` as Related (the other "catch it before the
+    // store does, at the stage of the release where it is cheapest" check).
+    // Listed by exact slug rather than a new prefix, the same way its
+    // neighbors above are, and landing it here rather than the catch-all is
+    // also what keeps that catch-all inside the bound `build.test.mjs` puts
+    // on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|app-store-screenshot-check)/.test(
         slug,
       ),
   },
