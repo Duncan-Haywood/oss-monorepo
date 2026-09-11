@@ -1340,3 +1340,26 @@ candidates:
     mitigation: Keep the chain-walking and classification deterministic and conservative -- a hop whose URL cannot be parsed, or a request that fails outright, is named as such rather than guessed at, and nothing past a fetch failure is reported as confirmed-clean; the "temporary code for a permanent move" check only fires on an exact same-path scheme/host normalization, never a path change, so it cannot mistake an ordinary redirect for a misconfigured one; never claim a full technical-SEO audit or a ranking guarantee; measure real user reports before adding any AI-assisted feature or expanding into a whole-site crawl, which would raise both the liability and the implementation surface into territory an established crawler-based tool (Screaming Frog) already covers.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: cat-adjuster-fee-calculator
+    name: CAT adjuster fee schedule & deployment profit calculator
+    doc: candidates/cat-adjuster-fee-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-11
+    initiated_path: ventures/cat-adjuster-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 8
+    composite: 6.625
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; the tool does not determine adjuster licensing, appointment, or authority to handle a claim in any state, and does not evaluate an IA firm's reputation, payment timeliness, or claim-volume promises -- those disclaimers are explicit in the footer and FAQ; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

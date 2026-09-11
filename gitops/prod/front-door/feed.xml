@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 263 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 264 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -51,6 +51,15 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free influencer brand deal rate calculator. Enter your follower count, engagement rate, and platform to get a price range for a feed post, Story, Reel/short video, and dedicated video — based on commonly cited creator-economy CPM benchmarks. No sign-up, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>CAT Adjuster Fee Schedule &amp; Deployment Profit Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cat-adjuster-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/cat-adjuster-fee-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free calculator for independent catastrophe (CAT) claims adjusters: find real net profit for a storm deployment after estimating-software, lodging, per diem, vehicle, and unpaid travel-day cost, then compare IA firms&#39; fee schedules by what they actually pay per hour.</summary>
   </entry>
   <entry>
     <title>CODEOWNERS Shadow Checker — Find Rules GitHub Silently Overrides</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-09T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name: pin. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Affiliate Disclosure Checker — Is Your Amazon/FTC Disclosure Missing or Too Late?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/affiliate-disclosure-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/affiliate-disclosure-checker</id>
-    <published>2026-09-09T00:00:00Z</published>
-    <updated>2026-09-09T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Paste a blog post&#39;s HTML and see every affiliate link it recognises (Amazon Associates tag= links, amzn.to, rel=sponsored, ShareASale/CJ/Impact/Skimlinks/AWIN tracking links) and whether a disclosure appears before the first one — plus whether an Amazon link carries Amazon&#39;s own required exact statement. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

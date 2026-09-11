@@ -1160,12 +1160,24 @@ const CATEGORY_RULES = [
     // `newsletter-sponsorship-rate-calculator`'s first commit rather than
     // landing in the catch-all, which is also what keeps that catch-all
     // inside the bound `build.test.mjs` puts on it.
+    //
+    // `cat-adjuster-fee-calculator` joined 2026-09-11: a 1099 independent
+    // catastrophe claims adjuster deciding whether an IA firm's per-claim
+    // fee schedule is worth a storm deployment is the same move as
+    // `gig-driver-net-pay-calculator`'s gig driver -- an individual pricing
+    // their own labour against costs nobody else carries, not a business
+    // quoting a customer. It shipped with reciprocal inbound sibling links
+    // from `medical-courier-route-margin` and `translator-project-quote`'s
+    // first commits rather than landing in the catch-all, which is also
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on
+    // it.
     test: (slug) =>
       [
         '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
         'brand-deal-rate-calculator',
+        'cat-adjuster-fee-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
         'gig-driver-net-pay-calculator',
