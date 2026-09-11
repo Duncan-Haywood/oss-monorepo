@@ -269,3 +269,29 @@ items:
   assert.equal(parsed.verdict, 'drops-requests');
   assert.deepEqual(parsed.deployments, ['Deployment/web']);
 });
+
+test('a FIFO input is read as a file, so the documented helm pipeline works', async () => {
+  // `helm template ./chart | node check.mjs /dev/stdin` gives a FIFO while the
+  // pipe is open. `isFile()` is false for one, so this fell through to
+  // readdir and exited 1 with ENOTDIR -- the documented workflow never read
+  // the manifest at all.
+  const { spawn } = await import('node:child_process');
+  const dir = await fixtureDir({ 'deploy.yaml': RISKY });
+  const yamlPath = path.join(dir, 'deploy.yaml');
+  const result = await new Promise((resolve) => {
+    const child = spawn(
+      'sh',
+      ['-c', `cat ${JSON.stringify(yamlPath)} | node ${JSON.stringify(new URL('./check.mjs', import.meta.url).pathname)} /dev/stdin --format json`],
+      { stdio: ['pipe', 'pipe', 'pipe'] },
+    );
+    let out = '';
+    let err = '';
+    child.stdout.on('data', (d) => { out += d; });
+    child.stderr.on('data', (d) => { err += d; });
+    child.on('close', (code) => resolve({ code, out, err }));
+  });
+  assert.equal(result.code, 0, `stderr: ${result.err}`);
+  const parsed = JSON.parse(result.out);
+  assert.equal(parsed.verdict, 'drops-requests');
+  assert.deepEqual(parsed.deployments, ['Deployment/web']);
+});

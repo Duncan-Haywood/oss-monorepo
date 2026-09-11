@@ -38,7 +38,13 @@ Reads YAML only. Makes no network calls and needs no cluster access.`;
 
 async function collectFiles(target) {
   const info = await stat(target);
-  if (info.isFile()) return [target];
+  // Anything that is not a directory is read as one input. `isFile()` was too
+  // narrow: `helm template ./chart | node check.mjs /dev/stdin` -- the exact
+  // pipeline the README documents -- gives a FIFO while the pipe is open, so
+  // `isFile()` is false and this fell through to `readdir`, exiting 1 with
+  // ENOTDIR without ever reading the manifest. Character devices and sockets
+  // land here for the same reason: if the caller named it, read it.
+  if (!info.isDirectory()) return [target];
   const out = [];
   const walk = async (dir) => {
     for (const entry of await readdir(dir, { withFileTypes: true })) {
