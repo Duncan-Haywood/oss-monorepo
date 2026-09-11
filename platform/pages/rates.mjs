@@ -323,6 +323,8 @@ export const REVIEWED_NOT_CARRIED = {
     'the labour rate carries burden with it and there is no overhead percentage',
   'drone-mapping-job-calculator':
     'the field and processing rates are billed rates, not wages',
+  'home-inspection-fee-calculator':
+    'the hourly rate is a single billed rate rather than a wage plus burden, and overhead is a flat dollar allowance per job rather than a percentage of direct cost',
   'staffing-markup-calculator':
     'it derives a markup from burden rather than consuming one; its wage figures are unemployment-tax wage bases and its burden figures are outputs',
   // Reads as a rate tool and is not one in this sense: it measures a month

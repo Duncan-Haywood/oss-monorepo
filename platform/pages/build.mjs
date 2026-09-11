@@ -505,8 +505,17 @@ const CATEGORY_RULES = [
     // driven by sensor geometry and an overlap specification rather than by
     // materials and crew hours on the ground. Filed here rather than left
     // for a spell in the catch-all, which the bound below exists to prevent.
+    // `home-inspection-fee-calculator` joined 2026-09-11 on its first commit,
+    // filed here rather than left for a catch-all spell: an independent home
+    // inspector pricing one residential inspection from on-site time (driven
+    // by square footage, stories, foundation access, and home age), travel,
+    // and flat add-on fees (radon, sewer scope, termite/WDO, mold) is the same
+    // job as `notary-trip-quote` and `drone-mapping-job-calculator` — a solo
+    // professional turning time, travel, and materials/add-ons into a
+    // customer-facing price, not a trade bid (nothing priced by area of
+    // construction work done to the site) and not a marketplace fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee)/.test(
         slug,
       ),
   },
