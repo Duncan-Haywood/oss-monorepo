@@ -284,6 +284,20 @@ jobs:
         working-directory: portfolio/usage
         run: python3 -m unittest test_validate_usage
 
+      # `validate_usage.py` above checks the file's *shape*. This checks what
+      # the tree says the file *means*: `live_url_visitors` is null on all 399
+      # readings -- never measured -- and eleven places had turned that into
+      # "zero observed users", which is an absence rendered as a negative
+      # result. Measured-zero licenses retiring a product; never-measured
+      # licenses nothing. It passes the moment either the sentence or the data
+      # changes, so it is a gate that opens.
+      - name: No steering document reports the unmeasured usage rows as an observed zero
+        run: python3 platform/ci/usage_state.py --require-honest
+
+      - name: Usage-state unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_usage_state
+
       - name: Validate workflow files are parseable
         run: python3 platform/ci/validate_workflows.py
 

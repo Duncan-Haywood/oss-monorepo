@@ -189,9 +189,16 @@ fetches `robots.txt` from the **host root** — which belongs to the owner's
 separate user-level Pages site. So the `robots.txt` this build publishes is not
 the file any crawler reads, and the `Sitemap:` line inside it has never been
 seen, for any of the 881 pages here. Crawling is still allowed; what is lost is
-*enumeration*. That is the leading candidate for why
-`portfolio/usage/usage.yaml` records zero visitors across all 200 products
+*enumeration*. That is the leading candidate for why nothing has arrived yet,
 while every other SEO surface is in good order.
+
+**Do not restate that as "usage.yaml records zero users"** (corrected
+2026-09-11; the sentence here used to). It records no visitor measurement at
+all: `live_url_visitors` is `null` on all 399 readings, because GitHub Pages
+exposes no server-side analytics and the local counters are opt-in and off by
+default. Never-measured and measured-zero license opposite decisions — the
+second is evidence against a product, the first is evidence about nothing.
+Run `python3 platform/ci/usage_state.py` rather than quoting either.
 
 Two things follow, and the second is the one that changes what you do:
 
