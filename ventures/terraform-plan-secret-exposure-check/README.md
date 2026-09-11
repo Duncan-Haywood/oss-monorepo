@@ -34,6 +34,9 @@ reaching a much wider audience than the apply itself ever would.
 
 See [the docs page](why-terraform-plan-json-leaks-secrets.html) for how
 `sensitive` actually works and exactly which four value shapes this checks.
+Already run a general secret scanner like Gitleaks over your repo? See
+[how this checker differs from Gitleaks](vs-gitleaks.html) — short version,
+they catch different things and a CI pipeline commonly wants both.
 
 ## Try it without installing anything
 

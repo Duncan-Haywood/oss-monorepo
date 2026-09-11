@@ -631,8 +631,20 @@ const CATEGORY_RULES = [
     // already earned, the same "after the job is won" axis as
     // `invoice-payment-terms-calculator` right above it in this same rule,
     // just for a tax authority instead of a client.
+    // `1099k-reconciliation-worksheet` joined 2026-09-11, filed here on its
+    // first commit rather than after a spell in the catch-all -- which is
+    // what `build.test.mjs`'s catch-all bound is for. It is the same
+    // after-the-sale reconciliation job as `card-processing-fee-audit`
+    // (splitting a processor's statement) and `cam-reconciliation-check`
+    // (a landlord's statement), just for a marketplace's 1099-K instead of a
+    // bill -- and it cross-links `quarterly-estimated-tax-calendar` right
+    // above as a sibling, the two other ends of one tax year. The suffix
+    // rule below only catches `-reconciliation-check`/`-workbench`, not
+    // `-worksheet`, so it is added by name rather than widening the suffix
+    // to match a word ("worksheet") no other venture in this section uses.
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
+      || slug === '1099k-reconciliation-worksheet'
       // `dental-ppo-writeoff-calculator` measures what a signed contract
       // actually paid over a period already billed — the same after-the-sale
       // reconciliation job as `card-processing-fee-audit` (splitting a

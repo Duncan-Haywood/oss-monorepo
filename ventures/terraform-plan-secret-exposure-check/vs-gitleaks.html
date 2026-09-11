@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Terraform Plan Secret Exposure Check vs. Gitleaks</title>
+  <meta name="description" content="How a schema-aware Terraform plan checker differs from Gitleaks, a general-purpose secret scanner. What each catches, what each misses, and why a CI pipeline that applies Terraform plans often wants both. Not affiliated with Gitleaks.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-gitleaks.html">
+  <meta property="og:title" content="Terraform Plan Secret Exposure Check vs. Gitleaks">
+  <meta property="og:description" content="Gitleaks is a general-purpose secret scanner: regex and entropy over git history, files, and stdin. This tool reads one file — your terraform show -json plan — and flags only the attribute values Terraform's own sensitive flag missed. Different job, and often worth running both.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or Gitleaks?","acceptedAnswer":{"@type":"Answer","text":"They catch different things and are not a substitute for each other. Gitleaks is a general-purpose secret scanner: point it at a git repository, a directory, a file, or stdin, and it looks for secret-shaped strings using regex rules and entropy scoring, including inside git history and archives. It has no built-in awareness of Terraform's own before_sensitive/after_sensitive plan structure, so run against a plan file it treats the JSON as plain text like any other file. This tool reads exactly one file — the structured plan from terraform show -json — and checks only the attribute values Terraform's own schema did not already mark sensitive, against four fixed high-confidence secret shapes. A CI pipeline that applies Terraform plans commonly wants both: Gitleaks for the repository and its history in general, this tool as a narrow pre-apply gate for the one failure mode neither a generic scanner nor a code reviewer can see — a provider schema that quietly forgot to flag an attribute as sensitive."}},{"@type":"Question","name":"Does Gitleaks already catch a missing sensitive flag in a Terraform plan?","acceptedAnswer":{"@type":"Answer","text":"It can catch the resulting plaintext value if that value matches one of its configured detection rules or trips its entropy threshold — Gitleaks does not read or parse Terraform's plan format specially, so it is scanning the JSON as generic text, the same way it would scan any file. It has no concept of Terraform's own sensitive marking, so it cannot tell you specifically that the provider schema failed to flag an attribute — only that some string in the file looked secret-shaped (or, for a value that does not match its rules, nothing at all). This tool's whole job is that one narrower question: does the plan's own before_sensitive/after_sensitive map already exclude this value, and if not, does it match one of four fixed shapes."}},{"@type":"Question","name":"Is this page affiliated with Gitleaks?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Gitleaks or its maintainers. Gitleaks is a trademark of its owner, named here only to describe what this checker is and is not, based on Gitleaks' own public description of its scanning scope."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; }
+    h2 { color: #17324a; margin-top: 30px; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    p, li { line-height: 1.6; }
+    code { background: #f0f3f7; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #cbd4e0; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #4d5b6c; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Back to Terraform Plan Secret Exposure Check</a></p>
+  <h1>This checker vs. Gitleaks</h1>
+
+  <div class="card">
+    <p>
+      <strong>Gitleaks</strong> is a widely used, general-purpose secret
+      scanner: point it at a git repository (it can walk the full commit
+      history via <code>git log -p</code>), a directory, a single file, or
+      piped stdin, and it flags secret-shaped strings using configurable
+      regex rules and entropy scoring, including inside archives
+      (<code>zip</code>, <code>tar</code>, <code>gzip</code>) and encoded
+      content (base64, hex, percent-encoding). It has no built-in parser for
+      Terraform's plan format, so pointed at a <code>terraform show -json</code>
+      file it scans the JSON the same way it would scan any other text file
+      — by pattern and entropy, not by understanding the plan's own
+      <code>before_sensitive</code>/<code>after_sensitive</code> structure.
+    </p>
+    <p>
+      This tool does the opposite trade: it reads <em>only</em> one file —
+      your structured plan — and asks one narrow, schema-aware question per
+      attribute: <strong>did Terraform's own provider schema already mark
+      this sensitive, and if not, does the value match one of four
+      fixed, high-confidence secret shapes</strong> (an AWS access key, a
+      PEM private key, a JWT, or a URL with embedded credentials)? It is not
+      a general secret scanner, does not read git history, and will not
+      catch a secret committed in a variables file, a script, or a README —
+      that is exactly the job Gitleaks and similar repository scanners are
+      built for.
+    </p>
+  </div>
+
+  <div class="scroll">
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I want my whole repository, including git history, scanned for anything that looks like a hardcoded secret — API keys committed by accident, tokens left in old commits, credentials in config files.</td>
+        <td>Gitleaks — that is its core job, and it is built to run across a full checkout or history, not one plan file.</td>
+      </tr>
+      <tr>
+        <td>I want to know specifically whether Terraform's own <code>sensitive</code> flag missed an attribute on the plan about to be applied, without re-reading a config-wide scan's output to find the one relevant hit.</td>
+        <td>This checker — it reads the plan's own sensitivity map and reports only the attributes Terraform itself did not already mark, against four fixed secret shapes.</td>
+      </tr>
+      <tr>
+        <td>I want a pre-apply CI gate with zero dependencies to install or a config file (<code>.gitleaks.toml</code>) to maintain.</td>
+        <td>This checker — one Node file, no install, no rules to tune. (Gitleaks ships sensible defaults too; the difference here is there is nothing to configure at all.)</td>
+      </tr>
+      <tr>
+        <td>I want the report to redact the matched value so it is safe to paste into an issue or a CI annotation.</td>
+        <td>This checker — every finding shows only the first and last four characters. Check your Gitleaks configuration and output format if you rely on it for the same guarantee; its default reporting is not built around that specific use case.</td>
+      </tr>
+      <tr>
+        <td>I want broad, mature, actively maintained secret detection across many source types (files, archives, stdin, CI logs piped in) with a large, configurable rule set.</td>
+        <td>Gitleaks — it is the established, general-purpose tool for exactly that breadth.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="card">
+    <p>
+      The honest read is that these solve adjacent, not identical, problems,
+      and a pipeline that both generates and applies Terraform plans has
+      good reason to run both: Gitleaks over the repository in general, and
+      this checker as the one gate that understands Terraform's own
+      <code>sensitive</code> mechanism well enough to say precisely which
+      attribute the schema forgot to flag, right before the plaintext value
+      would otherwise print into the apply log. Neither replaces careful
+      review of what a provider schema actually marks sensitive in the
+      first place.
+    </p>
+  </div>
+
+  <h2>Common questions</h2>
+  <h3>Should I use this checker or Gitleaks?</h3>
+  <p>They catch different things and are not a substitute for each other. Gitleaks is a general-purpose secret scanner: point it at a git repository, a directory, a file, or stdin, and it looks for secret-shaped strings using regex rules and entropy scoring, including inside git history and archives. It has no built-in awareness of Terraform's own <code>before_sensitive</code>/<code>after_sensitive</code> plan structure, so run against a plan file it treats the JSON as plain text like any other file. This tool reads exactly one file — the structured plan from <code>terraform show -json</code> — and checks only the attribute values Terraform's own schema did not already mark sensitive, against four fixed high-confidence secret shapes. A CI pipeline that applies Terraform plans commonly wants both: Gitleaks for the repository and its history in general, this tool as a narrow pre-apply gate for the one failure mode neither a generic scanner nor a code reviewer can see — a provider schema that quietly forgot to flag an attribute as sensitive.</p>
+  <h3>Does Gitleaks already catch a missing sensitive flag in a Terraform plan?</h3>
+  <p>It can catch the resulting plaintext value if that value matches one of its configured detection rules or trips its entropy threshold — Gitleaks does not read or parse Terraform's plan format specially, so it is scanning the JSON as generic text, the same way it would scan any file. It has no concept of Terraform's own sensitive marking, so it cannot tell you specifically that the provider schema failed to flag an attribute — only that some string in the file looked secret-shaped (or, for a value that does not match its rules, nothing at all). This tool's whole job is that one narrower question: does the plan's own <code>before_sensitive</code>/<code>after_sensitive</code> map already exclude this value, and if not, does it match one of four fixed shapes.</p>
+  <h3>Is this page affiliated with Gitleaks?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Gitleaks or its maintainers. Gitleaks is a trademark of its owner, named here only to describe what this checker is and is not, based on Gitleaks' own public description of its scanning scope.</p>
+
+  <p class="note">
+    See also <a href="why-terraform-plan-json-leaks-secrets.html">why a Terraform plan can print a secret even though the schema has a <code>sensitive</code> flag</a>, or open <a href="./">the checker itself</a> to try it on a plan.
+  </p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This is not security or compliance advice, and this page's description of Gitleaks is based on its own public documentation rather than a determination about either tool's quality. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
+    <p>Everything here runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

@@ -8,6 +8,15 @@
   <updated>2026-09-11T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
+    <title>1099-K Reconciliation Worksheet — Etsy, eBay, Poshmark, Mercari Sellers</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/1099k-reconciliation-worksheet/"/>
+    <id>tag:marisstella.dev,2026:tool/1099k-reconciliation-worksheet</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free browser worksheet that reconciles one or more Form 1099-K Box 1a totals (Etsy, eBay, Poshmark, Mercari, Depop, Whatnot, StockX) down to an estimated net profit by backing out refunds, marketplace-remitted sales tax, fees, cost of goods, and shipping. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>GitHub Actions Minutes Estimator — What Will This Workflow Cost?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-minutes-estimator/"/>
     <id>tag:marisstella.dev,2026:tool/actions-minutes-estimator</id>
