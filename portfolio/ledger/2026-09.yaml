@@ -25955,3 +25955,66 @@ entries:
         and would have reported the timeout guard working without ever
         exercising it. shellcheck -S warning clean.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR queue first, per the standing brief. Two PRs were open at the start
+        of this run (#4534, #4536) -- fewer than the three-PR quota, so the
+        rule reduced to processing all of them. Both were "dirty" (conflicted
+        against a `main` that had moved), and their checks read `runner_id: 0`
+        -- confirmed starvation via `ci_starvation.py`, not a real failure.
+        Merged `main` into both branches and resolved every conflict
+        (generated `gitops/prod/front-door*` mirror files via `regen.mjs`
+        re-run rather than by hand; the two real conflicts -- a
+        `test_manifests.py` tool-count constant and the ledger/venture-scores
+        append-only lists -- resolved to keep both sides' entries). Before
+        pushing either fix, two concurrent sessions merged both PRs (plus a
+        third, #4538, fixing a bug in #4536's own IndexNow-timeout follow-up)
+        -- so the repair work was redundant but the verification was not
+        wasted: it confirmed both were sound merges independent of who
+        pushed the button. Queue was empty (0 open PRs) by the time this was
+        checked.
+      - >-
+        The account owner's turn asked specifically to prioritise Hetzner
+        deployment/CI-CD, marketing-material deployment, and standing up the
+        Codex CLI worker on the box against the ChatGPT plan's included
+        quota. Re-ran the recovery rehearsal
+        (`DRY_RUN=1 WITH_CODEX_HOST=1 WITH_GITHUB_RUNNER_HOST=1
+        WITH_PORTFOLIO_SITE_HOST=1 bootstrap/restore-cluster.sh`) to confirm
+        current state rather than trust a possibly-stale decision-queue row:
+        all three are still fully code-complete
+        (`gitops/agents/host/`, `gitops/ci/host/`, `gitops/prod/host/`,
+        reviewed `gitops/agents/host/README.md` line by line) and still
+        blocked on the same single credential, `HETZNERSSHKEY` holding a
+        public key rather than private -- confirmed by the dry run's own SSH
+        probe still refusing. This is an existing #1 decision-queue row
+        (#3184); no duplicate ask added. Sent the owner a push notification
+        with the exact recovery command, since this is squarely what they
+        asked this session to report on and it is a "pasting a secret they
+        hold" action no agent session can perform.
+      - >-
+        With the PR queue empty and new product work risking collision with
+        a highly concurrent fleet (`session_gate.py` measured 3.83 distinct
+        sessions/hour, 2 within one 15-minute window), spent the remainder on
+        verification that is valuable regardless of who else is building:
+        `pages_state.py` confirmed the gh-pages snapshot already current at
+        the new main tip (no republish needed); `run_workflow_locally.py
+        --tree` confirmed all 9 verification-only workflows pass clean on
+        `main` after today's merge flurry (#4534, #4535, #4536, #4537,
+        #4538) -- no regression from the concurrent activity.
+      - >-
+        `browser_state.py` reported all 7 full-catalogue browser/
+        accessibility checks stale (builder or front door changed today).
+        Installed `playwright@1.56.0` + `axe-core` in one command and ran
+        `browser_checks.py --record` for all 7 -- sideways, presets,
+        roundtrip, highlight, contrast, sweep, journey all passed clean, 0
+        WCAG/axe violations, 0 console/page errors, across 959/961 pages at
+        961 pages built, recorded at commit 87dbfc0e29ab (current main tip)
+        into `platform/ci/browser_state.json`. This is the same class of
+        check that found 48 critical axe violations across three live
+        products the first time it was ever run (2026-09-06) -- running it
+        after a graduation + host-mode change rather than assuming it still
+        held was the point.
+    mrr_end: 0
