@@ -47,3 +47,24 @@ test("index links one hop to the gig-driver-net-pay-calculator sibling", () => {
     'index must link ../gig-driver-net-pay-calculator/ so crawlers reach it in one hop',
   );
 });
+
+test("index links the Keeper incumbent-comparison page and the sitemap lists it too", () => {
+  const html = page("index.html");
+  const sitemap = page("sitemap.xml");
+  assert.match(html, /vs-keeper\.html/);
+  assert.match(sitemap, /vs-keeper\.html/);
+});
+
+test("the Keeper comparison page links back, names the incumbent honestly, and cites a checkable source instead of a number only Keeper could confirm", () => {
+  const vsKeeper = page("vs-keeper.html");
+  assert.match(vsKeeper, /<a href="\.\/">/);
+  // Names Keeper's own calculator page so a reader can check the source directly.
+  assert.match(vsKeeper, /keepertax\.com\/quarterly-tax-calculator/);
+  // This page has no legitimate reason to state a dollar figure for Keeper's
+  // pricing or estimate -- only Keeper's own current app could confirm one.
+  assert.doesNotMatch(vsKeeper, /\$\d/);
+  assert.match(vsKeeper, /not affiliated with, endorsed by, or sponsored by Keeper/i);
+  assert.match(vsKeeper, /No warranty/);
+  assert.match(vsKeeper, /Best-effort hosting, no SLA/);
+  assert.match(vsKeeper, /github\.com\/sponsors\/Duncan-Haywood/);
+});

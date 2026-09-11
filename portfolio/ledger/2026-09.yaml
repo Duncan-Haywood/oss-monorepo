@@ -27389,7 +27389,53 @@ entries:
         recorded the new workflow (classification `none`, publishes
         nothing).
     mrr_end: 0
-
+  - venture: quarterly-estimated-tax-calendar
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added `vs-keeper.html`, the venture's first competitor-comparison
+        page, six commits after graduation and while the tool still had a
+        single page. Names Keeper's own free quarterly-tax calculator
+        (`keepertax.com/quarterly-tax-calculator`, plus its help-center
+        description of in-app reminders) as the incumbent, states the real
+        distinction sourced from Keeper's own copy -- Keeper projects a
+        ballpark from expected income/deductions, this page applies the
+        published IRS 1040-ES safe-harbor formula to numbers a filer already
+        has and exports a portable, account-free `.ics` reminder -- and
+        carries no dollar figure for Keeper's product, since only Keeper's
+        own current app could confirm one (PRODUCT_PLAYBOOK.md 5f). Linked
+        from `index.html` and `sitemap.xml`; `page.test.mjs` gained four
+        assertions mirroring the repo's own `vs-<competitor>` convention
+        (back-link, sourced claim, no bare `$`, the not-affiliated clause).
+      - >-
+        Hit and fixed the exact bug CLAUDE.md's own 2026-09-11
+        `faq-visible.test.mjs` note describes: the FAQPage JSON-LD used a
+        literal `--` where the rendered copy used `&mdash;`, so
+        `platform/pages/faq-visible.test.mjs` failed on the punctuation
+        mismatch alone (text otherwise identical). Fixed by matching the
+        visible copy's em dash in the JSON-LD.
+      - >-
+        Verified locally, Actions still starved that morning
+        (`ci_starvation.py --run 34588034490`: `runner_id: 0`, no steps):
+        venture's own suite 33/33 (up from 26); `platform/marketing` 260/260;
+        `platform/pages` 995/995 (the one failure above, fixed, re-run
+        clean); `platform/pages/build.mjs` then `check.mjs --dist=` --
+        260 products, 995 pages, no dead links; `clauses.mjs` on the venture
+        clean; `gitops/tests` 557 passed / 25 skipped (documented
+        environmental skips, `nginx-light`/`ssh` binaries not installed in
+        this sandbox); `portfolio/ledger` + `scoring` + `router` + `usage`
+        + `pipeline` + `infra/tests` pytest 435/435; `checklist_coverage.py`
+        clean. `regen.mjs` re-ran and carried the new page into the
+        front-door mirror shard and sitemap.
+        Also swept the open-PR queue (0 open) and sampled ~15 of the
+        several hundred PR-less branches by name relevance to CI/CD,
+        deployment, and marketing work specifically -- every one checked
+        (`atm-route-margin`, `ci/hetzner-ssh-key-diagnostic`, four
+        `vs-<competitor>` comparison branches, the epk-generator graduation
+        branch, three browser-sweep-record branches) was already superseded
+        by a fuller or later version already on `main`; none needed a PR.
+    mrr_end: 0
   - venture: auto-repair-effective-labor-rate
     agent_spend_usd: null
     human_hours: 0
