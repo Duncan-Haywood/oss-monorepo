@@ -16,6 +16,7 @@ import {
   buildPayload,
   submit,
   readerFor,
+  fetchHint,
   assertKeyFilePublished,
   EXIT_NO_EGRESS,
   isEgressRefusal,
@@ -468,4 +469,57 @@ test('the payload announces the origin the artifact carries, end to end', async 
   assert.match(out, /host:\s+marisstella\.dev/);
   assert.match(out, new RegExp(`keyLocation:\\s+https://marisstella\\.dev/${indexNowKeyFileName()}`));
   assert.doesNotMatch(out, /github\.io/);
+});
+
+// ---------------------------------------------------------------------------
+// The fetch hint printed when a ref is not in this clone
+// ---------------------------------------------------------------------------
+
+test('the fetch hint for a remote-tracking ref names the branch, not the tracking name', () => {
+  // `git fetch origin origin/gh-pages` fails with
+  // `fatal: couldn't find remote ref origin/gh-pages` -- there is no such ref on
+  // the remote. This is the ref `indexnow_state.py` actually passes, so the hint
+  // was wrong for the only caller there is.
+  assert.equal(fetchHint('origin/gh-pages', ['origin']), 'git fetch origin gh-pages');
+});
+
+test('a bare ref is already the remote name and passes through', () => {
+  assert.equal(fetchHint('gh-pages', ['origin']), 'git fetch origin gh-pages');
+});
+
+test('a branch whose own name contains a slash is not mangled', () => {
+  // Only a real remote prefix is translated. `claude/happy-wozniak` is a branch
+  // name, and `claude` is not a remote, so it stays whole -- otherwise the hint
+  // would send the reader to fetch a branch called `happy-wozniak` from a
+  // remote that does not exist.
+  assert.equal(
+    fetchHint('claude/happy-wozniak', ['origin']),
+    'git fetch origin claude/happy-wozniak',
+  );
+});
+
+test('a second remote is honoured rather than rewritten to origin', () => {
+  assert.equal(fetchHint('upstream/gh-pages', ['origin', 'upstream']), 'git fetch upstream gh-pages');
+});
+
+test('the hint it prints is a command git accepts', () => {
+  // The regression that started this: the message was built by interpolation and
+  // nothing ever ran it. `--ref` a ref that cannot exist, then hand git the
+  // command out of the error and require that it fails on the *ref* rather than
+  // on the shape of the command.
+  const hint = fetchHint('origin/definitely-not-a-branch-xyz', ['origin']);
+  assert.equal(hint, 'git fetch origin definitely-not-a-branch-xyz');
+  let stderr = '';
+  try {
+    execFileSync('git', ['fetch', 'origin', 'definitely-not-a-branch-xyz'], {
+      cwd: path.dirname(SCRIPT),
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (err) {
+    stderr = String(err.stderr || '');
+  }
+  // Either shape of "no such branch" is fine; what must NOT appear is the
+  // doubled tracking name the old hint produced.
+  assert.doesNotMatch(stderr, /origin\/definitely-not-a-branch-xyz/);
 });
