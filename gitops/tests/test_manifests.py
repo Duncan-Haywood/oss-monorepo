@@ -1583,7 +1583,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the first venture here for a healthcare practice's own back office, and a
     # static `index.html` from its first commit, so it entered the mirror and
     # the total together like the three above it.
-    total = 263  # `infra/OWNER_CHECKLIST.md`'s own "N of the 263 tools" wording.
+    # 264 since 2026-09-11, when `cat-adjuster-fee-calculator` also graduated
+    # the same day, merging on top of the above — same shape again: a new
+    # venture with a static `index.html` from its first commit, entering the
+    # mirror and the total together.
+    total = 264  # `infra/OWNER_CHECKLIST.md`'s own "N of the 264 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
   <url><loc>./why-terraform-plan-json-leaks-secrets.html</loc></url>
+  <url><loc>./vs-gitleaks.html</loc></url>
 </urlset>

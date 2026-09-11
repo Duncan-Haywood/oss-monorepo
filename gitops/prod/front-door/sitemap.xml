@@ -2719,6 +2719,9 @@
     <loc>https://marisstella.dev/tools/terraform-plan-secret-exposure-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/terraform-plan-secret-exposure-check/vs-gitleaks.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/terraform-plan-secret-exposure-check/why-terraform-plan-json-leaks-secrets.html</loc>
   </url>
   <url>

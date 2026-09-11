@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 122 files, 554082 bytes
 #   portfolio-front-tools-11: 115 files, 555751 bytes
 #   portfolio-front-tools-12: 115 files, 554399 bytes
-#   portfolio-front-tools-13: 104 files, 509710 bytes
+#   portfolio-front-tools-13: 105 files, 514017 bytes
 #   portfolio-front-tools-14: 54 files, 263760 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1788,6 +1788,7 @@ configMapGenerator:
       - terraform-plan-secret-exposure-check__engine.mjs.gz=terraform-plan-secret-exposure-check__engine.mjs.gz
       - terraform-plan-secret-exposure-check__index.html.gz=terraform-plan-secret-exposure-check__index.html.gz
       - terraform-plan-secret-exposure-check__usage.mjs.gz=terraform-plan-secret-exposure-check__usage.mjs.gz
+      - terraform-plan-secret-exposure-check__vs-gitleaks.html.gz=terraform-plan-secret-exposure-check__vs-gitleaks.html.gz
       - terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz=terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz
       - toilet-replacement-bid-calculator__calc.mjs.gz=toilet-replacement-bid-calculator__calc.mjs.gz
       - toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz=toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz
