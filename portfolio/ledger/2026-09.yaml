@@ -26998,6 +26998,54 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled brief: product-first autonomous mandate with an explicit
+        three-PR merge quota and an owner instruction to prioritize
+        deployment/CI-CD. Found 0 open PRs at session start; drained the
+        branch backlog instead (473 remote branches) using
+        `supersede_check.py` against all 92 non-auto-named "notable"
+        branches plus a random sample of the auto-named session branches.
+        Every single one checked (~100+) was already superseded by `main`
+        -- either byte-identical or shipped under different wording/paths
+        (confirmed by direct content diff, not just the line-scan, for the
+        highest-signal candidates: cross-venture SEO links, a shop-rate
+        field, a comparison page, a mirror-shard regen). No repairable
+        branch found, consistent with this file's own repeated findings on
+        2026-09-05 and 2026-09-07.
+      - >-
+        A concurrent session opened PR #4589 mid-run recording a fresh
+        7-check browser/accessibility sweep, but based it on `c96b757b0`
+        (main had already moved to `de7f1628` via #4587, then to
+        `46ed4992` via #4588's HETZNERSSHKEY smoke-test workflow, which
+        itself changed markup-adjacent surface via the unrelated
+        shop-rate/ifta merges folded in between). Re-ran the sweep fresh
+        against actual current `main` (`46ed4992f`) instead of merging a
+        reading already behind head. `npm install --no-save
+        playwright@1.56.0 axe-core` + `browser_checks.py --record` on all 7
+        checks: all clean, 981 pages / 2 viewports, 0 WCAG A/AA violations,
+        261/261 tools answer with no errors, all 979 sitemap URLs resolve,
+        full save/restore/backup journey passes end to end. No defects
+        found -- the fleet has not regressed.
+      - >-
+        Confirmed the owner's standing decision-queue item #1
+        (`hetzner-ssh-key-is-a-public-key`) is still the sole blocker on
+        everything this session's brief asked to prioritize: the Codex
+        host-mode worker (`gitops/agents/host/`), the self-hosted Actions
+        runner, and the k3s cluster serving the live product site are all
+        code-complete and blocked on nothing else, per
+        `infra_state.yaml`'s `codex-host-mode` row (verdict: up,
+        i.e. installable, last verified 2026-09-10). Did not add a
+        duplicate ask; notified the owner directly since this session's
+        brief asked about it by name. Confirmed GitHub Pages
+        (duncan-haywood.github.io/monorepo-projects/) is serving the
+        catalogue and its published snapshot is current with `main`
+        (`pages_state.py`) -- the one delivery route that needs neither a
+        runner nor the cluster.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Named task: run the fleet-wide 7-check whole-catalogue
         browser/accessibility sweep (`platform/ci/browser_checks.py`) since
         `browser_state.py` reported all 7 checks (sideways, presets,

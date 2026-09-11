@@ -1034,6 +1034,14 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       ...[...text.matchAll(DYNAMIC_IMPORT_RE)].map((m) => m[1]),
     ];
     for (const target of targets) {
+      // SCRIPT_OR_STYLE_RE only strips `<script>` wrappers inside HTML; a
+      // `.mjs`/`.js` file has no such wrapper, so its raw source is scanned
+      // as-is. A generator that builds a document client-side from
+      // user-supplied data -- `` `<a href="${escapeHtml(url)}">` `` in
+      // epk-generator/generator.mjs, same shape as the tender-radar case
+      // above -- has a literal `${...}` between the quotes, which can never
+      // be a real static path: it is JS source, not the rendered page.
+      if (target.includes('${')) continue;
       if (isExternal(target)) continue;
       const cleaned = decodeURIComponent(target.split('#')[0].split('?')[0]);
       if (!cleaned) continue;

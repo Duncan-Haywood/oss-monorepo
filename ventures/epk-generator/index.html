@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EPK Generator — Free Electronic Press Kit Builder for Musicians</title>
+  <meta name="description" content="Build a professional electronic press kit (EPK) for your band or artist project in minutes — bio, streaming links, tour dates, press quotes, and photo. Free, no signup, runs entirely in your browser. Download a shareable HTML one-sheet or copy a plain-text version for email.">
+  <meta property="og:title" content="Build a free electronic press kit (EPK) in minutes">
+  <meta property="og:description" content="A no-signup EPK builder for independent musicians: bio, streaming and social links, tour dates, press quotes, and a photo — download a self-contained press kit page or copy a plain-text one-sheet.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"EPK Generator","applicationCategory":"MultimediaApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Builds an electronic press kit (EPK) one-sheet for musicians and bands from a short form: bio, streaming and social links, tour dates, press quotes, and a photo. Runs entirely client-side; outputs a self-contained downloadable HTML page and a plain-text version."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is an electronic press kit (EPK)?","acceptedAnswer":{"@type":"Answer","text":"A one-page summary a musician or band sends to venues, festivals, playlisters, and press — bio, photo, streaming/social links, upcoming shows, and any press coverage — so a booker or writer can evaluate the act without a back-and-forth email."}},{"@type":"Question","name":"Is this free, and do I need an account?","acceptedAnswer":{"@type":"Answer","text":"Yes, and no. Nothing is uploaded and nothing is stored anywhere but your own browser. Fill in the form and download the result — there is no account, no watermark, and no upsell."}},{"@type":"Question","name":"Where does my photo come from?","acceptedAnswer":{"@type":"Answer","text":"You paste a link to a photo you already host somewhere (your own site, an Instagram post, a public Google Drive/Dropbox link, an image host). This tool does not accept file uploads, so nothing you have not already made public ever leaves your device."}},{"@type":"Question","name":"What do I do with the generated file?","acceptedAnswer":{"@type":"Answer","text":"Download the HTML file and host it anywhere (your own site, GitHub Pages, or just attach it to an email), or copy the plain-text version straight into an email or a festival submission form."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea, input[type="text"], input[type="email"] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; margin-bottom: 4px; }
+    textarea { min-height: 84px; font: 13px ui-monospace, monospace; }
+    textarea#bio-input { min-height: 130px; font: inherit; }
+    textarea.output { min-height: 200px; background: #f7f9fb; font: 12px ui-monospace, monospace; }
+    label { display: block; font-weight: 600; margin: 14px 0 4px; }
+    label .opt { font-weight: 400; color: #7c8797; }
+    .hint { margin: 0 0 4px; font-size: .82rem; color: #55606f; }
+    .row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .row > div { flex: 1 1 220px; }
+    fieldset { border: 1px solid #d5dbe3; border-radius: 10px; padding: 4px 16px 14px; margin: 18px 0; }
+    legend { font-weight: 700; color: #17324a; padding: 0 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.tiny { padding: 5px 9px; font-size: .8rem; font-weight: 600; }
+    .error { color: #9a3412; font-weight: 600; }
+    .warn { color: #92400e; }
+    .ok { color: #14532d; font-weight: 600; }
+    ul.report { margin: 6px 0 0; padding-left: 20px; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    iframe#preview { width: 100%; height: 640px; border: 1px solid #d5dbe3; border-radius: 10px; background: #fff; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">EPK GENERATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Build a free electronic press kit</h1>
+    <p>Fill in the form once, and get a ready-to-send press kit for booking venues, festival submissions, blogs, and playlisters — a downloadable, self-contained page and a plain-text version for email. No account, no signup, nothing sent to a server.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your info</h2>
+
+    <div class="row">
+      <div>
+        <label for="artistName-input">Artist / band name</label>
+        <input type="text" id="artistName-input" placeholder="Nova &amp; The Static">
+      </div>
+      <div>
+        <label for="tagline-input">Tagline <span class="opt">(optional, one line)</span></label>
+        <input type="text" id="tagline-input" placeholder="Fuzzed-out indie rock from the desert">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="genre-input">Genre <span class="opt">(optional)</span></label>
+        <input type="text" id="genre-input" placeholder="Indie rock">
+      </div>
+      <div>
+        <label for="location-input">Based in <span class="opt">(optional)</span></label>
+        <input type="text" id="location-input" placeholder="Tucson, AZ">
+      </div>
+    </div>
+
+    <label for="bio-input">Bio</label>
+    <p class="hint">A few sentences to a couple of short paragraphs. Blank lines start a new paragraph in the output.</p>
+    <textarea id="bio-input" placeholder="Nova &amp; The Static formed in 2023 in Tucson, blending fuzzed-out guitars with..."></textarea>
+
+    <div class="row">
+      <div>
+        <label for="photoUrl-input">Press photo URL <span class="opt">(optional — a link, not an upload)</span></label>
+        <input type="text" id="photoUrl-input" placeholder="https://example.com/press-photo.jpg">
+      </div>
+      <div>
+        <label for="photoAlt-input">Photo alt text <span class="opt">(optional, defaults to the artist name)</span></label>
+        <input type="text" id="photoAlt-input" placeholder="Nova &amp; The Static performing live">
+      </div>
+    </div>
+    <p class="hint">Paste a link to a photo you already host somewhere (your site, an Instagram post, a public Drive/Dropbox link). This tool doesn't accept file uploads — nothing you haven't already made public leaves your device.</p>
+  </section>
+
+  <section class="card">
+    <fieldset>
+      <legend>Contact</legend>
+      <div class="row">
+        <div>
+          <label for="contactName-input">Contact name <span class="opt">(optional)</span></label>
+          <input type="text" id="contactName-input" placeholder="Jess Rivera, booking">
+        </div>
+        <div>
+          <label for="contactEmail-input">Booking / press email</label>
+          <input type="email" id="contactEmail-input" placeholder="booking@example.com">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="contactPhone-input">Phone <span class="opt">(optional)</span></label>
+          <input type="text" id="contactPhone-input" placeholder="555-0100">
+        </div>
+        <div>
+          <label for="websiteUrl-input">Website <span class="opt">(optional)</span></label>
+          <input type="text" id="websiteUrl-input" placeholder="https://novaandthestatic.example">
+        </div>
+      </div>
+      <label for="techRiderUrl-input">Tech rider / stage plot link <span class="opt">(optional)</span></label>
+      <input type="text" id="techRiderUrl-input" placeholder="https://example.com/rider.pdf">
+    </fieldset>
+
+    <fieldset>
+      <legend>Listen &amp; follow</legend>
+      <label for="streaming-input">Streaming links <span class="opt">(one per line: <code>Label | URL</code>)</span></label>
+      <textarea id="streaming-input" spellcheck="false" placeholder="Spotify | https://open.spotify.com/artist/...&#10;Bandcamp | https://novaandthestatic.bandcamp.com"></textarea>
+      <label for="social-input">Social links <span class="opt">(one per line: <code>Label | URL</code>)</span></label>
+      <textarea id="social-input" spellcheck="false" placeholder="Instagram | https://instagram.com/novaandthestatic"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Upcoming shows <span class="opt">(optional)</span></legend>
+      <label for="dates-input">One per line: <code>Date | Venue | City | Ticket URL</code> (URL optional)</label>
+      <textarea id="dates-input" spellcheck="false" placeholder="2026-10-04 | The Bell | Austin, TX | https://tix.example/1"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Press quotes <span class="opt">(optional)</span></legend>
+      <label for="quotes-input">One per line: <code>Quote | Source</code> (source optional)</label>
+      <textarea id="quotes-input" spellcheck="false" placeholder="A tight, urgent set that earns its noise. | Local Weekly"></textarea>
+    </fieldset>
+
+    <p>
+      <button type="button" id="build-btn">Build my press kit</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear-draft">Clear saved draft</button>
+    </p>
+    <p class="note" id="draft-status"></p>
+  </section>
+
+  <section class="card" id="output-card" hidden aria-live="polite">
+    <h2 id="output-heading">Your press kit</h2>
+    <div id="report"></div>
+    <div id="output-body" hidden>
+      <h3>Preview</h3>
+      <iframe id="preview" title="Press kit preview"></iframe>
+      <p>
+        <button type="button" id="download-html">Download HTML press kit</button>
+        <button type="button" class="secondary" id="copy-text">Copy plain-text one-sheet</button>
+      </p>
+      <label for="text-output">Plain-text one-sheet <span class="opt">(for pasting into an email or a submission form)</span></label>
+      <textarea class="output" id="text-output" readonly spellcheck="false"></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is an electronic press kit (EPK)?</h3>
+    <p>A one-page summary a musician or band sends to venues, festivals, playlisters, and press — bio, photo, streaming/social links, upcoming shows, and any press coverage — so a booker or writer can evaluate the act without a back-and-forth email. More background: <a href="what-is-an-epk.html">what belongs in an EPK, and what doesn't</a>.</p>
+    <h3>Is this free, and do I need an account?</h3>
+    <p>Yes, and no. Nothing is uploaded and nothing is stored anywhere but your own browser. Fill in the form and download the result — there is no account, no watermark, and no upsell.</p>
+    <h3>Where does my photo come from?</h3>
+    <p>You paste a link to a photo you already host somewhere (your own site, an Instagram post, a public Google Drive/Dropbox link, an image host). This tool does not accept file uploads, so nothing you have not already made public ever leaves your device.</p>
+    <h3>What do I do with the generated file?</h3>
+    <p>Download the HTML file and host it anywhere (your own site, GitHub Pages, or just attach it to an email), or copy the plain-text version straight into an email or a festival submission form.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not booking, publicity, legal, or career advice, and it does not replace a manager, publicist, or lawyer. <strong>You are responsible for reviewing and verifying everything in the generated press kit before sending it anywhere</strong> — including that any photo link you provide is one you have the right to use. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — download your generated press kit and keep your own copy.</p>
+    <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>kit_built</code>, <code>one_sheet_copied</code>, <code>download_clicked</code>, <code>example_loaded</code>, <code>draft_cleared</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Applying for a day job between shows? The <a href="../ats-resume-checker/">ATS resume checker</a> is the same job for a different gatekeeper — it checks a resume's format survives an applicant tracking system the way this builds the one-pager a venue or blog actually asks for.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { buildEpkHtml, buildOneSheetText, validateEpk } from "./generator.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+    import { saveDraft, loadDraft, clearDraft } from "./state.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    const FIELD_IDS = [
+      "artistName", "tagline", "location", "genre", "bio",
+      "photoUrl", "photoAlt",
+      "contactName", "contactEmail", "contactPhone", "websiteUrl", "techRiderUrl",
+    ];
+    const AREA_IDS = { streamingLinksRaw: "streaming", socialLinksRaw: "social", tourDatesRaw: "dates", pressQuotesRaw: "quotes" };
+
+    function readForm() {
+      const data = {};
+      for (const id of FIELD_IDS) data[id] = $(`#${id}-input`).value.trim();
+      for (const [field, inputId] of Object.entries(AREA_IDS)) data[field] = $(`#${inputId}-input`).value;
+      return data;
+    }
+
+    function writeForm(data) {
+      for (const id of FIELD_IDS) if (data[id] !== undefined) $(`#${id}-input`).value = data[id];
+      for (const [field, inputId] of Object.entries(AREA_IDS)) if (data[field] !== undefined) $(`#${inputId}-input`).value = data[field];
+    }
+
+    // --- autosave, debounced ------------------------------------------
+    let saveTimer = null;
+    function scheduleSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        try {
+          saveDraft(localStorage, readForm());
+          $("#draft-status").textContent = "Draft saved in this browser.";
+        } catch {
+          /* storage may be unavailable; the form still works */
+        }
+      }, 400);
+    }
+    document.querySelectorAll("input, textarea").forEach((el) => el.addEventListener("input", scheduleSave));
+
+    try {
+      const draft = loadDraft(localStorage);
+      if (Object.keys(draft).length) {
+        writeForm(draft);
+        $("#draft-status").textContent = "Restored your saved draft.";
+      }
+    } catch {
+      /* storage may be unavailable; start blank */
+    }
+
+    $("#clear-draft").addEventListener("click", () => {
+      clearDraft(localStorage);
+      document.querySelectorAll("input, textarea").forEach((el) => { el.value = ""; });
+      $("#draft-status").textContent = "Cleared the saved draft.";
+      record("draft_cleared");
+    });
+
+    // --- build -----------------------------------------------------------
+    const outputCard = $("#output-card"), outputHeading = $("#output-heading"), report = $("#report"), outputBody = $("#output-body");
+    let lastHtml = "";
+
+    function renderReport({ errors, warnings }) {
+      const items = [
+        ...errors.map((e) => `<li class="error">${escapeHtml(e)}</li>`),
+        ...warnings.map((w) => `<li class="warn">${escapeHtml(w)}</li>`),
+      ];
+      const status = errors.length
+        ? '<p class="error">Fix the items below to build.</p>'
+        : warnings.length
+          ? '<p class="warn">Built — worth a look before you send it:</p>'
+          : '<p class="ok">Built. Looks complete.</p>';
+      return status + (items.length ? `<ul class="report">${items.join("")}</ul>` : "");
+    }
+
+    $("#build-btn").addEventListener("click", () => {
+      const data = readForm();
+      const check = validateEpk(data);
+      report.innerHTML = renderReport(check);
+      if (!check.valid) {
+        outputBody.hidden = true;
+        outputCard.hidden = false;
+        outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      lastHtml = buildEpkHtml(data);
+      $("#preview").srcdoc = lastHtml;
+      $("#text-output").value = buildOneSheetText(data);
+      outputBody.hidden = false;
+      outputHeading.textContent = `${data.artistName}'s press kit`;
+      outputCard.hidden = false;
+      record("kit_built");
+      outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    const EXAMPLE = {
+      artistName: "Nova & The Static", tagline: "Fuzzed-out indie rock from the desert",
+      genre: "Indie rock", location: "Tucson, AZ",
+      bio: "Nova & The Static formed in 2023 in Tucson, blending fuzzed-out guitars with tight, driving rhythm section work. Their debut EP earned airplay on three regional college stations within a month of release.\n\nThe band has since played SXSW's unofficial showcase circuit and opened for two touring acts at the 191 Toole.",
+      photoUrl: "", photoAlt: "Nova & The Static performing live",
+      contactName: "Jess Rivera, booking", contactEmail: "booking@example.com", contactPhone: "", websiteUrl: "https://novaandthestatic.example",
+      techRiderUrl: "",
+      streamingLinksRaw: "Spotify | https://open.spotify.com/artist/example\nBandcamp | https://novaandthestatic.bandcamp.com",
+      socialLinksRaw: "Instagram | https://instagram.com/novaandthestatic",
+      tourDatesRaw: "2026-10-04 | The Bell | Austin, TX | https://tix.example/1\n2026-11-01 | The Loft | Denver, CO",
+      pressQuotesRaw: "A tight, urgent set that earns its noise. | Local Weekly",
+    };
+    $("#load-example").addEventListener("click", () => {
+      writeForm(EXAMPLE);
+      record("example_loaded");
+    });
+
+    // --- download / copy ---------------------------------------------
+    $("#download-html").addEventListener("click", () => {
+      const blob = new Blob([lastHtml], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const name = ($("#artistName-input").value.trim() || "press-kit").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      a.download = `${name || "press-kit"}-epk.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      record("download_clicked");
+    });
+
+    $("#copy-text").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText($("#text-output").value);
+        const btn = $("#copy-text");
+        const original = btn.textContent;
+        btn.textContent = "Copied!";
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      } catch {
+        $("#text-output").select();
+      }
+      record("one_sheet_copied");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>
