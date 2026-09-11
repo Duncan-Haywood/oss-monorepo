@@ -580,3 +580,50 @@ jobs:
   // 360x1 (Linux) + 360x10 (macOS) + 360x2 (Windows), not 3 x 360 x 1.
   assert.equal(finding.worstCaseMinutes, 360 * 1 + 360 * 10 + 360 * 2);
 });
+
+test('a job gated on a repository variable is reported as an upper bound', () => {
+  // Measured against this repository on 2026-09-11: `claude-routine-trigger.yml`
+  // fires `*/20` but its one job carries
+  // `if: github.event_name == 'workflow_dispatch' || vars.ROUTINE_TRIGGER_ENABLED == 'true'`,
+  // and the variable is unset -- so the job is skipped before a runner is
+  // assigned and bills nothing. Counting its minutes as live spend sends a
+  // reader chasing a cost that is not happening.
+  const workflow = readWorkflowSource(
+    `on:
+  schedule:
+    - cron: "*/20 * * * *"
+jobs:
+  fire:
+    if: \${{ github.event_name == 'workflow_dispatch' || vars.ROUTINE_TRIGGER_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+`,
+    'gated.yml',
+  );
+  const result = estimate([workflow], { minutesPerJob: 1 });
+  const finding = result.findings.find((f) => f.id === 'job-conditional');
+  assert.ok(finding, 'a conditional job must be reported');
+  assert.match(finding.title, /may bill nothing at all/);
+  assert.match(finding.detail, /switched off entirely/);
+  // Still counted -- but the totals say how much of the figure is conditional,
+  // so the reader can subtract it rather than having it silently dropped.
+  assert.ok(result.totals.includedMinutes > 0);
+  assert.equal(result.totals.conditionalMinutes, result.totals.includedMinutes);
+});
+
+test('an unconditional job contributes no conditional minutes', () => {
+  const workflow = readWorkflowSource(PUSH_PR, 'plain.yml');
+  const result = estimate([workflow], { minutesPerJob: 1 });
+  assert.equal(result.totals.conditionalMinutes, 0);
+  assert.ok(!result.findings.some((f) => f.id === 'job-conditional'));
+});
+
+test('a plain `if:` is flagged without claiming the job is switched off', () => {
+  const workflow = readWorkflowSource(
+    "on: [push]\njobs:\n  a:\n    if: success()\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n",
+    'plainif.yml',
+  );
+  const finding = estimate([workflow]).findings.find((f) => f.id === 'job-conditional');
+  assert.match(finding.title, /has an `if:` condition/);
+  assert.doesNotMatch(finding.detail, /switched off entirely/);
+});

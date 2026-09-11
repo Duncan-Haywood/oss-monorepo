@@ -87,14 +87,29 @@ against this repository's own `.github/workflows`.
 Run against this monorepo's own 218 workflows on 2026-09-11
 (`--plan free --minutes-per-job 3 --pushes 60 --prs 40`), the single largest
 line item was **`Claude routine trigger` at 2,194 runs a month — about 6,582
-allowance minutes**, from one `*/20 * * * *` schedule. That is roughly 3× the
-Free allowance and 2× Team's, from one cron, on a repository whose CI has been
-starved of runners since 2026-08-26.
+allowance minutes**, from one `*/20 * * * *` schedule: roughly 3× the Free
+allowance from one cron.
 
-This is the tool's estimate, not a billing reading — no session here can see
-the billing page, and the sub-cause of a starvation window is not knowable from
-a session (see `CLAUDE.md`). What it does establish is *attribution*, which the
-repository did not previously have from any source.
+**And that figure is an upper bound, not live spend — which is the more useful
+half of the story.** Checked against `portfolio/ledger/asks.yaml`, the job
+behind that schedule carries
+`if: github.event_name == 'workflow_dispatch' || vars.ROUTINE_TRIGGER_ENABLED == 'true'`,
+and the repository variable is unset. A skipped job is decided *before* a
+runner is assigned, so it bills nothing today.
+
+The first version of this tool did not model job-level `if:` and reported the
+6,582 as though it were being spent. That is the failure mode this whole
+repository keeps recording against itself — a correct reading of the files,
+restated as a claim about the world — and it is why the estimator now counts
+conditional jobs separately, reports `of which conditional` in the totals, and
+raises an `info` finding naming the condition and saying the job may be
+switched off entirely.
+
+So what the tool establishes here is *attribution and a ceiling*: if that
+variable is ever set to `true`, this one cron becomes 3× the Free allowance on
+its own. It does not establish current spend, and no session here can — the
+billing page is not reachable, and the sub-cause of a starvation window is not
+knowable from a session (see `CLAUDE.md`).
 
 ## Licence and support
 

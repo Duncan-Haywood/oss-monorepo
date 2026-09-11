@@ -144,6 +144,12 @@ function renderReport(result, skipped) {
       `    unclassified ${Math.round(totals.unknownMinutes).toLocaleString('en-US').padStart(7)} min          ->  not counted (see findings)`,
     );
   }
+  if (totals.conditionalMinutes > 0) {
+    out.push(
+      `    of which conditional  ${Math.round(totals.conditionalMinutes).toLocaleString('en-US')} min` +
+        '   (jobs behind an `if:` — an upper bound, see findings)',
+    );
+  }
   out.push('');
   out.push(`  Overage minutes         ${Math.round(totals.overageMinutes).toLocaleString('en-US')}`);
   out.push(`  Overage cost            ${formatUsd(totals.overageCostUsd)}`);

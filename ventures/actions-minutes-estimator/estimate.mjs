@@ -502,6 +502,7 @@ export function estimate(workflows, assumptions = {}) {
   let largerRunnerCostUsd = 0;
   let selfHostedMinutes = 0;
   let unknownMinutes = 0;
+  let conditionalMinutes = 0;
 
   for (const workflow of workflows) {
     const frequency = runsPerMonth(workflow, a);
@@ -535,12 +536,14 @@ export function estimate(workflows, assumptions = {}) {
           includedMinutes: 0,
           costUsd: 0,
           roundingWasteMinutes: jobRunsPerMonth * (billablePerJob - wallPerJob),
+          conditional: job.conditional ?? null,
         };
 
         if (leg.runner.kind === 'standard') {
           const cls = rates[leg.runner.class];
           row.includedMinutes = billedMinutes * cls.multiplier;
           includedMinutes += row.includedMinutes;
+          if (job.conditional) conditionalMinutes += row.includedMinutes;
         } else if (leg.runner.kind === 'larger') {
           const cost = costOfLargerRunner(leg.runner, billedMinutes);
           row.costUsd = cost ?? 0;
@@ -597,6 +600,7 @@ export function estimate(workflows, assumptions = {}) {
       totalCostUsd: overageCostUsd + largerRunnerCostUsd,
       selfHostedMinutes,
       unknownMinutes,
+      conditionalMinutes,
       byClass,
     },
     findings: findFindings(workflows, rows, a, rates),
@@ -763,6 +767,32 @@ function findFindings(workflows, rows, a, rates) {
         title: `\`fail-fast: false\` across ${job.matrixJobs} jobs`,
         detail:
           'When one matrix job fails the rest keep running to completion and bill in full. That is often what you want for a compatibility matrix; on a pre-merge check it buys nothing.',
+      });
+    }
+
+    if (firstLegOfJob && job.conditional) {
+      // A job-level `if:` decides at run time whether the job exists at all.
+      // A condition on a repository variable or a deployment gate can mean the
+      // job is switched off entirely and bills nothing, so counting its
+      // minutes as spend would overstate the bill -- the one direction this
+      // tool must not be wrong in is *understating*, but presenting a
+      // conditional upper bound as a live projection is its own error, and a
+      // reader acting on the wrong one wastes a day chasing spend that is not
+      // happening. Counted, and said out loud.
+      const gated = /\bvars\.|\bgithub\.event_name\b|\binputs\./.test(job.conditional);
+      add({
+        id: 'job-conditional',
+        severity: 'info',
+        workflow: row.workflow,
+        job: row.job,
+        title: gated
+          ? 'This job is gated — it may bill nothing at all'
+          : 'This job has an `if:` condition',
+        detail:
+          `The job runs only when \`${job.conditional}\` is true, so its minutes above are an upper bound rather than a projection.` +
+          (gated
+            ? ' The condition reads a repository variable, the event name, or a workflow input, so the job can be switched off entirely — a skipped job is decided before a runner is assigned and bills nothing. Check the current value before treating this line as spend.'
+            : ' How often the condition holds is not knowable from the file.'),
       });
     }
 
