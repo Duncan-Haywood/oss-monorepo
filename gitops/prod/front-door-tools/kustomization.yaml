@@ -33,21 +33,21 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556587 bytes
-#   portfolio-front-tools-1: 110 files, 555657 bytes
-#   portfolio-front-tools-2: 149 files, 548395 bytes
-#   portfolio-front-tools-3: 141 files, 555251 bytes
-#   portfolio-front-tools-4: 123 files, 551202 bytes
-#   portfolio-front-tools-5: 133 files, 551368 bytes
-#   portfolio-front-tools-6: 137 files, 555040 bytes
-#   portfolio-front-tools-7: 116 files, 552348 bytes
-#   portfolio-front-tools-8: 108 files, 555255 bytes
-#   portfolio-front-tools-9: 122 files, 556234 bytes
-#   portfolio-front-tools-10: 131 files, 548761 bytes
-#   portfolio-front-tools-11: 105 files, 552952 bytes
-#   portfolio-front-tools-12: 114 files, 554044 bytes
-#   portfolio-front-tools-13: 71 files, 352325 bytes
-#   portfolio-front-tools-14: 54 files, 263686 bytes
+#   portfolio-front-tools-0: 136 files, 556582 bytes
+#   portfolio-front-tools-1: 110 files, 555645 bytes
+#   portfolio-front-tools-2: 149 files, 548391 bytes
+#   portfolio-front-tools-3: 141 files, 555247 bytes
+#   portfolio-front-tools-4: 125 files, 554640 bytes
+#   portfolio-front-tools-5: 134 files, 556859 bytes
+#   portfolio-front-tools-6: 136 files, 556940 bytes
+#   portfolio-front-tools-7: 118 files, 553525 bytes
+#   portfolio-front-tools-8: 108 files, 555240 bytes
+#   portfolio-front-tools-9: 122 files, 556377 bytes
+#   portfolio-front-tools-10: 131 files, 548735 bytes
+#   portfolio-front-tools-11: 105 files, 552943 bytes
+#   portfolio-front-tools-12: 114 files, 553941 bytes
+#   portfolio-front-tools-13: 71 files, 352320 bytes
+#   portfolio-front-tools-14: 54 files, 263675 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -718,6 +718,10 @@ configMapGenerator:
       - bounce-house-rental-calculator__usage.mjs.gz=bounce-house-rental-calculator__usage.mjs.gz
       - bounce-house-rental-calculator__vs-booqable.html.gz=bounce-house-rental-calculator__vs-booqable.html.gz
       - bounce-house-rental-calculator__vs-inflatableoffice.html.gz=bounce-house-rental-calculator__vs-inflatableoffice.html.gz
+      - brand-deal-rate-calculator__brand-deal-rate-benchmarks.html.gz=brand-deal-rate-calculator__brand-deal-rate-benchmarks.html.gz
+      - brand-deal-rate-calculator__calculator.mjs.gz=brand-deal-rate-calculator__calculator.mjs.gz
+      - brand-deal-rate-calculator__index.html.gz=brand-deal-rate-calculator__index.html.gz
+      - brand-deal-rate-calculator__usage.mjs.gz=brand-deal-rate-calculator__usage.mjs.gz
       - cabinet-refinishing-bid-calculator__calc.mjs.gz=cabinet-refinishing-bid-calculator__calc.mjs.gz
       - cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz=cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz
       - cabinet-refinishing-bid-calculator__index.html.gz=cabinet-refinishing-bid-calculator__index.html.gz
@@ -747,13 +751,13 @@ configMapGenerator:
       - carpet-cleaning-bid-calculator__share.mjs.gz=carpet-cleaning-bid-calculator__share.mjs.gz
       - carpet-cleaning-bid-calculator__usage.mjs.gz=carpet-cleaning-bid-calculator__usage.mjs.gz
       - carpet-cleaning-bid-calculator__vs-servicemonster.html.gz=carpet-cleaning-bid-calculator__vs-servicemonster.html.gz
-      - carpet-install-bid-calculator__calc.mjs.gz=carpet-install-bid-calculator__calc.mjs.gz
-      - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - carpet-install-bid-calculator__calc.mjs.gz=carpet-install-bid-calculator__calc.mjs.gz
+      - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
       - carpet-install-bid-calculator__index.html.gz=carpet-install-bid-calculator__index.html.gz
       - carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz=carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz
       - carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz=carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz
@@ -886,12 +890,12 @@ configMapGenerator:
       - dependency-confusion-check__index.html.gz=dependency-confusion-check__index.html.gz
       - dependency-confusion-check__usage.mjs.gz=dependency-confusion-check__usage.mjs.gz
       - dependency-confusion-check__vs-socket.html.gz=dependency-confusion-check__vs-socket.html.gz
-      - dependency-confusion-check__what-is-dependency-confusion.html.gz=dependency-confusion-check__what-is-dependency-confusion.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - dependency-confusion-check__what-is-dependency-confusion.html.gz=dependency-confusion-check__what-is-dependency-confusion.html.gz
       - dns-configuration-evidence__dns-evidence.mjs.gz=dns-configuration-evidence__dns-evidence.mjs.gz
       - dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz=dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz
       - dns-configuration-evidence__index.html.gz=dns-configuration-evidence__index.html.gz
@@ -1027,13 +1031,13 @@ configMapGenerator:
       - ev-charger-bid-calculator__calc.mjs.gz=ev-charger-bid-calculator__calc.mjs.gz
       - ev-charger-bid-calculator__how-much-to-charge.html.gz=ev-charger-bid-calculator__how-much-to-charge.html.gz
       - ev-charger-bid-calculator__index.html.gz=ev-charger-bid-calculator__index.html.gz
-      - ev-charger-bid-calculator__share.mjs.gz=ev-charger-bid-calculator__share.mjs.gz
-      - ev-charger-bid-calculator__usage.mjs.gz=ev-charger-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ev-charger-bid-calculator__share.mjs.gz=ev-charger-bid-calculator__share.mjs.gz
+      - ev-charger-bid-calculator__usage.mjs.gz=ev-charger-bid-calculator__usage.mjs.gz
       - ev-charger-bid-calculator__vs-servicetitan.html.gz=ev-charger-bid-calculator__vs-servicetitan.html.gz
       - ev-charger-bid-calculator__vs-workiz.html.gz=ev-charger-bid-calculator__vs-workiz.html.gz
       - exterior-painting-bid-calculator__calc.mjs.gz=exterior-painting-bid-calculator__calc.mjs.gz

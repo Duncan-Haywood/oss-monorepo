@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 257,
-  "collection_total": 257,
+  "served_here": 258,
+  "collection_total": 258,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "solo-earner",
       "name": "Creator & solo earner income",
       "url": "https://marisstella.dev/c/solo-earner/",
-      "tool_count": 8
+      "tool_count": 9
     },
     {
       "id": "logistics",
@@ -717,6 +717,14 @@
       "category": "Service business pricing & quotes",
       "description": "Price a bounce house or inflatable rental booking from the truck's two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet's replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.",
       "pages": 4
+    },
+    {
+      "slug": "brand-deal-rate-calculator",
+      "name": "Brand Deal Rate Calculator — Free, No Sign-Up",
+      "url": "https://marisstella.dev/tools/brand-deal-rate-calculator/",
+      "category": "Creator & solo earner income",
+      "description": "Free influencer brand deal rate calculator. Enter your follower count, engagement rate, and platform to get a price range for a feed post, Story, Reel/short video, and dedicated video — based on commonly cited creator-economy CPM benchmarks. No sign-up, nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "cabinet-refinishing-bid-calculator",
