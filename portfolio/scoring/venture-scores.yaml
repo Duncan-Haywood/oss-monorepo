@@ -11360,6 +11360,59 @@ ventures:
       share the rest of the catalogue offers. The one direction it could err
       is arguing for higher prices on thin evidence, so the worked example
       is labelled an illustration rather than a benchmark, on both pages.
+  - slug: home-inspection-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The output is a fee an inspector
+      quotes and then has to stand behind, and every step of it -- the
+      square-footage/stories/foundation/age time estimate, the rush premium
+      applied to labor only, the flat add-on fees, cost-plus-margin -- is
+      closed-form arithmetic the inspector typed the inputs for and can
+      re-derive by hand. Inference would make the number less checkable
+      without making it more correct.
+    basis: >-
+      Screened and graduated 2026-09-11. `duplicate_check.py` scored the
+      closest match (`home-elevator-bid-calculator`) at 0.13 against the
+      final description, well under the 0.45 flag bar, with the rest of the
+      top ten at 0.11 or below. No home-inspection fee arithmetic exists
+      anywhere in `ventures/` and no row for it exists in
+      `screened-out.md`. A fresh niche rather than a queued pipeline
+      candidate, per `portfolio/DIRECTION.md`'s standing rule that a
+      genuinely new, gate-cleared niche competes on equal footing with the
+      `build-now` queue. Same per-job service-pricing shape as
+      `notary-trip-quote` and `drone-mapping-job-calculator`, scored the
+      same way. Defensibility 4: the foundation-type and home-age time
+      premiums, and the rush-premium-on-labor-only mechanic, are specific to
+      this trade and not modeled by a generic bid or service-call
+      calculator, but the underlying cost-plus-margin shape is common across
+      this portfolio, so it does not clear the 5 a locksmith-style
+      trade-specific surcharge earned. Distribution 6: "home inspector fee
+      calculator" and "how much should I charge for a home inspection" are
+      narrow, real search terms bought by an independent inspector pricing a
+      job, and InterNACHI's Inspector Forum and r/HomeInspector are named,
+      real communities of the exact buyer, but no direct evidence of channel
+      volume was gathered and no incumbent free interactive tool of this
+      exact shape was found either way.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the inspector's own figures, never a
+      recommended price, a determination about a home's condition, or a
+      substitute for what a state licence or InterNACHI/ASHI Standards of
+      Practice require the inspector to check. The tool never touches a live
+      transaction, a specific property, or anyone else's data. Nothing
+      entered leaves the browser.
   - slug: cat-adjuster-fee-calculator
     scores:
       ai_leverage: 1
