@@ -470,6 +470,9 @@ workflows:
 - workflow: ifta-quarterly-fuel-tax-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: influencer-media-kit-generator-ci.yml
+  classification: none
+  publishes: []
 - workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []

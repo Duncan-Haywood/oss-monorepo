@@ -62,7 +62,7 @@
       "id": "solo-earner",
       "name": "Creator & solo earner income",
       "url": "https://marisstella.dev/c/solo-earner/",
-      "tool_count": 9
+      "tool_count": 10
     },
     {
       "id": "logistics",
@@ -1317,6 +1317,14 @@
       "category": "Logistics, freight & cloud cost",
       "description": "Work your IFTA quarterly return from your own trip and fuel records: average fleet MPG, taxable gallons and net taxable gallons per jurisdiction, the Indiana/Kentucky/Virginia surcharge charged the way it is actually charged, and interest on a late return. Free, private, nothing leaves your browser.",
       "pages": 3
+    },
+    {
+      "slug": "influencer-media-kit-generator",
+      "name": "Media Kit Generator — Free Sponsorship One-Sheet for Content Creators",
+      "url": "https://marisstella.dev/tools/influencer-media-kit-generator/",
+      "category": "Creator & solo earner income",
+      "description": "Build a professional sponsorship media kit for your channel in minutes — bio, platform reach, audience breakdown, past brand partnerships, and your rate card. Free, no signup, runs entirely in your browser. Download a shareable HTML one-sheet or copy a plain-text version for email.",
+      "pages": 2
     },
     {
       "slug": "interior-door-bid-calculator",

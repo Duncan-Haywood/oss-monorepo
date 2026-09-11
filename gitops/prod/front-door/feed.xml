@@ -89,6 +89,15 @@
     <summary type="text">Free tool: paste a page&#39;s HTML (or try fetching its alternates) and check its hreflang tags for missing reciprocal links, invalid language/region codes (en-uk vs en-GB), a missing x-default, a missing self-reference, and conflicting hreflang values. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Media Kit Generator — Free Sponsorship One-Sheet for Content Creators</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/influencer-media-kit-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/influencer-media-kit-generator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Build a professional sponsorship media kit for your channel in minutes — bio, platform reach, audience breakdown, past brand partnerships, and your rate card. Free, no signup, runs entirely in your browser. Download a shareable HTML one-sheet or copy a plain-text version for email.</summary>
+  </entry>
+  <entry>
     <title>Kubernetes Rollout Safety Check — Will Your Deployment Drop Requests?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/k8s-rollout-safety-check/"/>
     <id>tag:marisstella.dev,2026:tool/k8s-rollout-safety-check</id>
