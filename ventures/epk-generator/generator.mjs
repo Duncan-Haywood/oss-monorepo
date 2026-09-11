@@ -180,8 +180,8 @@ export function buildEpkHtml(data) {
   blockquote { margin: 0 0 14px; padding-left: 14px; border-left: 3px solid #d5dbe3; font-style: italic; }
   blockquote cite { display: block; font-style: normal; font-size: .86rem; color: #55606f; margin-top: 4px; }
   .contact { display: flex; flex-wrap: wrap; gap: 4px 18px; }
-  footer { margin-top: 34px; padding-top: 14px; border-top: 1px solid #d5dbe3; font-size: .78rem; color: #7c8797; }
-  footer a { color: #7c8797; }
+  footer { margin-top: 34px; padding-top: 14px; border-top: 1px solid #d5dbe3; font-size: .78rem; color: #55606f; }
+  footer a { color: #55606f; }
   .note { color: #55606f; font-size: .9rem; }
   @media print {
     body { background: #fff; max-width: none; padding: 0 8mm; }
