@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 258,
-  "collection_total": 258,
+  "served_here": 259,
+  "collection_total": 259,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -50,7 +50,7 @@
       "id": "backoffice",
       "name": "Back-office money & contracts",
       "url": "https://marisstella.dev/c/backoffice/",
-      "tool_count": 16
+      "tool_count": 17
     },
     {
       "id": "marketplace",
@@ -1677,6 +1677,14 @@
       "category": "CI checks & developer gates",
       "description": "Free tool: run a CLI that fetches your page, its Web App Manifest, and every icon it lists, then paste the JSON here for a plain-English report against Chrome's installability criteria -- the same checks Lighthouse's installable-manifest audit runs, no Chrome required. Nothing uploaded.",
       "pages": 3
+    },
+    {
+      "slug": "quarterly-estimated-tax-calendar",
+      "name": "Quarterly Estimated Tax Calendar — Free, No Sign-Up",
+      "url": "https://marisstella.dev/tools/quarterly-estimated-tax-calendar/",
+      "category": "Back-office money & contracts",
+      "description": "Free calculator for US freelancers, 1099 contractors, and gig workers: computes the IRS safe-harbor quarterly estimated tax payment from your own numbers, gives the four real (weekend/holiday-adjusted) due dates, and exports a downloadable calendar file. Nothing uploaded.",
+      "pages": 1
     },
     {
       "slug": "quote-margin-check",

@@ -27302,3 +27302,90 @@ entries:
         `publish_surface.py --write` (classification `none`, publishes
         nothing).
     mrr_end: 0
+  - venture: quarterly-estimated-tax-calendar
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated `quarterly-estimated-tax-calendar`, a fresh niche screened
+        against `screened-out.md` and `duplicate_check.py` (nothing scored
+        >= 0.45; closest venture match ifta-quarterly-fuel-tax-calculator at
+        0.06, a different tax, filer, and input shape entirely) -- and,
+        per `portfolio/DIRECTION.md`'s and `portfolio/pipeline/README.md`'s
+        2026-09-11 archetype-saturation notes, a shape deliberately not the
+        141-strong `<trade>-bid-calculator` family or the 38-strong
+        `-check`/`-checker` family: a rules-engine-plus-calendar-file
+        generator, only the second venture in the fleet to export a
+        downloadable `.ics` file (after `grant-deadline-tracker`, whose
+        escaping/folding helpers this reuses). It applies the IRS Form
+        1040-ES safe-harbor rule (the smaller of 90% of this year's
+        estimated tax or 100%/110% of last year's tax) to a filer's own
+        numbers, splits the result across four quarters, and computes the
+        real due date for each -- adjusted for weekends and federal
+        holidays, not just "the 15th". The date-shift engine is regression-
+        tested against three real, published IRS deadline moves: April 18,
+        2022 (Emancipation Day observed the 15th, then a weekend), January
+        17, 2023 (the nominal date is a Sunday, and the Monday it lands on
+        is MLK Day -- a chained two-step shift), and January 16, 2024 (the
+        nominal date IS MLK Day that year).
+      - >-
+        Liability containment 6, ethical robustness 8 (both gates pass,
+        detail in `VENTURE.yaml`): being wrong here costs a computable,
+        curable IRS underpayment penalty, not a lawsuit or a third party's
+        money, and the tool discloses its own known gap unconditionally --
+        every schedule carries a finding that it uses the even-split method
+        rather than the Annualized Income Installment Method, so it can
+        never be mistaken for having modeled uneven income. No AI, nothing
+        uploaded ever, no revenue mechanism tied to the number shown.
+      - >-
+        Distribution channel named per `DIRECTION.md`'s North star point 2:
+        "quarterly estimated tax due dates", "1040-ES safe harbor
+        calculator", and "when are quarterly taxes due" are recurring
+        high-intent searches four times a year (not once), across every US
+        freelancer, 1099 contractor, and gig-economy worker with no
+        withholding -- a much larger buyer pool than a single-trade
+        calculator. r/freelance, r/selfemployed, r/doordash_drivers,
+        r/UberEATS, and r/tax all see the "how much do I actually owe this
+        quarter" question as each date approaches, and r/personalfinance
+        sees the safe-harbor question specifically from filers whose income
+        just changed.
+      - >-
+        Cross-linked with `gig-driver-net-pay-calculator` in both
+        directions with a `page.test.mjs` assertion on the href in each
+        venture, so the new tool ships with an inbound sibling link from
+        its first commit rather than landing as an orphan to close later --
+        `siblings.mjs --check` reports 0 orphans of 259, holding the budget
+        at 0. The pairing is real rather than manufactured: that venture's
+        own tax-reserve guide (`how-much-should-i-set-aside-for-gig-driving-taxes.html`)
+        already said, before this session, "it does not model quarterly due
+        dates or underpayment penalties ... not a filing calendar" -- this
+        is that filing calendar. Filed into the `backoffice` ("Back-office
+        money & contracts") category on its first commit rather than left
+        in the `more` catch-all, which was already at its 5-tool bound.
+      - >-
+        Verified locally while Actions runners are starved
+        (`ci_starvation.py --run 34619919141`: `runner_id: 0`, no steps):
+        venture's own suite 31/31; `platform/marketing` + `platform/pages`
+        1255/1255 (one round caught a JSON-LD/visible-copy punctuation
+        mismatch -- `--` in the FAQ JSON-LD vs an em dash in the rendered
+        prose -- fixed by matching the visible copy exactly, per
+        `faq-visible.test.mjs`); `gitops/tests` 581 passed, 1 skipped (the
+        documented shallow-clone `history-blob.mjs` skip, not a failure of
+        this change); all 15 `platform/ci` unittest modules OK plus
+        `agent_review` (21/21); `portfolio/ledger` + `portfolio/scoring` +
+        `portfolio/router` + `portfolio/usage` + `portfolio/pipeline` +
+        `infra/tests` pytest 435/435; `checklist_coverage.py` clean;
+        `validate_doc_consistency.py` clean (40/40); `score_ventures.py
+        --check` consistent across 268 ventures; `router/validate.py` valid
+        across 267 `VENTURE.yaml` files; `validate_usage.py` valid (244
+        products, 430 readings, baseline row added); `clauses.mjs` clean;
+        `front-door-tools.mjs --headroom` 62.3% used, room for ~156 more
+        tools; `probes/validate_probe_index.py` clean; `score_sensitivity.py`
+        ran with no new inconsistency. `regen.mjs` required the
+        mirrored-tool count 258 -> 259 in the same four places (plus
+        `gitops/tests/test_manifests.py`'s own pinned `total` constant and
+        running-history comment) and `gitops/ci/sync_readme_counts.py` for
+        the new workflow's README line; `publish_surface.py --write`
+        recorded the new workflow (classification `none`, publishes
+        nothing).
+    mrr_end: 0

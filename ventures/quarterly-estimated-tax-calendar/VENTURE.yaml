@@ -1,0 +1,118 @@
+name: quarterly-estimated-tax-calendar
+description: Free browser calculator for US freelancers, 1099 contractors, and gig workers that applies the IRS Form 1040-ES safe-harbor rule to a filer's own numbers (last year's tax, this year's own estimate, withholding, and payments already made) to produce a required quarterly payment, shows the real weekend/federal-holiday-adjusted due date for each quarter (not just "the 15th"), and exports a downloadable .ics reminder calendar. Entirely client-side.
+
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml: a
+# deterministic tax-deadline-and-safe-harbor tool for the freelancer/gig-
+# worker audience this portfolio already partly serves
+# (gig-driver-net-pay-calculator, ifta-quarterly-fuel-tax-calculator), but a
+# genuinely different mechanism from both saturated shapes this session was
+# steered away from -- the 141-strong <trade>-bid-calculator archetype
+# (portfolio/pipeline/README.md) and the 38-strong -check/-checker archetype
+# (same file, 2026-09-11 update). This is neither: it is a rules-engine +
+# calendar-file generator, the same mechanism family as
+# grant-deadline-tracker's .ics export (only the second venture in the fleet
+# to generate a calendar file) rather than a single-request classifier or a
+# per-trade pricing worksheet.
+#
+# duplicate_check.py against "Quarterly estimated tax calendar for US
+# freelancers, 1099 contractors, and gig workers: computes the IRS Form
+# 1040-ES safe-harbor required quarterly payment from last year's tax, this
+# year's own estimate, and withholding/payments so far, shows the real
+# weekend/federal-holiday-adjusted due dates (not just the 15th), and
+# exports a downloadable .ics reminder calendar" scored nothing >= 0.45 --
+# top match was 0.09 (sitemap-lastmod-freshness-check, an unrelated SEO
+# checker matching only on generic date/checker vocabulary).
+# ifta-quarterly-fuel-tax-calculator scored 0.06: also a "quarterly tax"
+# tool, but state motor-fuel excise tax for commercial carriers, computed
+# from miles/gallons per jurisdiction -- a completely different tax, filer,
+# and input shape from federal income-tax safe harbor. gig-driver-net-pay-
+# calculator scored 0.05: nets a gig driver's per-session pay after vehicle
+# cost and a flat self-employment tax reserve percentage the user supplies;
+# it explicitly declines to model due dates or the safe-harbor rule (see its
+# own how-much-should-i-set-aside-for-gig-driving-taxes.html: "It does not
+# model quarterly due dates or underpayment penalties -- it is a running
+# tally... not a filing calendar"), which is exactly the gap this venture
+# fills. No venture directory or screened-out.md row mentions "estimated
+# tax", "safe harbor", "1040-ES", or "quarterly tax calendar".
+#
+# Also checked directly against the ethics/liability standing constraints:
+# not "AI legal / medical / tax advice products" (screened-out.md) --this
+# ships zero AI, applies a published IRS formula to numbers the filer
+# already has from their own return, and every output is framed as a
+# planning target to verify, never a filed amount, an estimate of the
+# filer's actual final liability, or a determination made on their behalf.
+# The filer remains the one who computes their own return and decides what
+# to pay -- the same evidence/drafting positioning as this portfolio's other
+# tax-adjacent tools (ifta-quarterly-fuel-tax-calculator, einvoice-preflight).
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 6 -- being wrong here costs the user an
+#     underpayment penalty (a computable, curable IRS assessment) or a
+#     missed/late payment discovered via a bounced reminder, not a lawsuit,
+#     a contract obligation, or a third party's money. Two things keep this
+#     from scoring higher, both disclosed on every page rather than hidden:
+#     the annualized-income-method note fires unconditionally (this tool
+#     never claims to compute the one case where the even-split method
+#     overstates what's due early), and the AGI-not-entered finding fires
+#     rather than silently defaulting to the lower 100% safe harbor when a
+#     high earner leaves AGI blank. Every due date and every dollar amount
+#     is independently re-derivable by the filer from IRS Form 1040-ES's
+#     own published worksheet -- nothing here is a black-box estimate.
+#   ethical_robustness: 8 -- deterministic arithmetic and calendar-file
+#     generation over a published federal formula, no dark patterns, no
+#     data collected server-side (nothing is uploaded, ever), does not get
+#     worse for users as traffic grows. Every input is a number the filer
+#     already has from their own prior-year return or their own current-
+#     year bookkeeping; nothing is scraped or inferred about a third party.
+#     The direction this business would be tempted to bias in (paying less)
+#     doesn't exist as an incentive here -- there is no transaction, no
+#     take rate, and no revenue model tied to the number shown, only an
+#     optional, unrelated donation link.
+#
+# Distribution: "estimated tax due dates 2026", "quarterly estimated tax
+# calculator", "1040-ES safe harbor calculator", and "when are quarterly
+# taxes due" are recurring, high-intent search phrases every filing season
+# (four times a year, not once) -- freelancer- and gig-worker-facing
+# subreddits (r/freelance, r/selfemployed, r/doordash_drivers,
+# r/UberEATS, r/Rideshare) see "how much should I pay quarterly" and "when
+# is the next estimated tax deadline" threads every quarter as the date
+# approaches, and r/personalfinance and r/tax see the safe-harbor question
+# specifically from filers whose income just changed. Existing free
+# calculators from TurboTax/H&R Block/Keeper either gate the result behind
+# an account/product funnel or don't export a calendar file at all; the
+# .ics export with holiday-adjusted real dates is not something the
+# incumbent free calculators do, and no incumbent frames the 2022/2023/2024
+# date-shift pattern as a reason a fixed "the 15th" reminder is wrong three
+# years out of four.
+hypotheses:
+  - claim: A freelancer or gig worker who lands here from a "quarterly estimated tax due date" or "1040-ES safe harbor calculator" search will use the computed schedule to set aside and pay the right amount instead of guessing or over-paying out of caution.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The downloadable .ics calendar file with a 7-day reminder gets added to a real calendar and drives a repeat visit or a completed payment closer to the (correct, holiday-adjusted) due date, rather than the filer forgetting between quarters.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/quarterly-estimated-tax-calendar/
+  analytics: null
