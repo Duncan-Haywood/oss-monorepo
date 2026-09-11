@@ -174,6 +174,36 @@ def checklist_directories(block_text):
     return dirs
 
 
+def _in_nested_checkout(repo_root, rel, _cache={}):
+    """True if `rel` lives inside a git checkout nested under repo_root.
+
+    A `git worktree` added inside the repository -- which CLAUDE.md tells you
+    to use, for a supersession check and to read `main` without disturbing
+    your tree -- is a second complete copy of every file, untracked by the
+    outer repo. Without this, the scans below find all 65 test directories
+    twice and this checker fails with 65 findings that name paths like
+    `sweepwt/portfolio/ledger/`, instructing the reader to add them to
+    CLAUDE.md.
+
+    Measured 2026-09-11, on a session that had a sweep running in
+    `./sweepwt`. Everything about that report is wrong, and it is wrong in
+    the most expensive direction: a guard that cries wolf is one a reader
+    learns to wave through, and this guard's whole job is to be believed the
+    one time a genuinely uncovered directory appears.
+
+    Detected by the presence of a `.git` entry (a directory for a clone or
+    submodule, a file for a linked worktree) rather than by name, so it also
+    covers a stray clone someone left in the tree.
+    """
+    for i in range(1, len(rel.parts)):
+        ancestor = rel.parts[:i]
+        if ancestor not in _cache:
+            _cache[ancestor] = (repo_root.joinpath(*ancestor) / ".git").exists()
+        if _cache[ancestor]:
+            return True
+    return False
+
+
 def actual_test_mjs_dirs(repo_root):
     """Directories under repo_root holding a `*.test.mjs` file, as repo-root-relative
     POSIX paths, excluding ventures/*, node_modules, and dotdirs."""
@@ -184,6 +214,8 @@ def actual_test_mjs_dirs(repo_root):
         if parts[0] in ("node_modules", "ventures") or parts[0].startswith("."):
             continue
         if any(p.startswith(".") or p == "node_modules" for p in parts):
+            continue
+        if _in_nested_checkout(repo_root, rel):
             continue
         found.add(rel.parent.as_posix())
     return found
@@ -205,6 +237,8 @@ def actual_test_py_dirs(repo_root):
         rel = path.relative_to(repo_root)
         parts = rel.parts
         if any(p.startswith(".") or p in IGNORED_PARTS for p in parts):
+            continue
+        if _in_nested_checkout(repo_root, rel):
             continue
         found.add(rel.parent.as_posix())
     return found

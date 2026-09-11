@@ -41,6 +41,20 @@ def make_repo(tmp_path, test_dirs):
     return tmp_path
 
 
+def cc_make(root):
+    """A minimal repo whose disk state matches today's real, fully covered shape."""
+    return make_repo(
+        root,
+        [
+            "platform/marketing",
+            "platform/pages",
+            "platform/proposal",
+            "platform/privacy",
+            "platform/webcheck",
+        ],
+    )
+
+
 class ReadChecklistBlock(unittest.TestCase):
     def test_finds_the_fenced_block(self):
         block = cc.read_checklist_block(CHECKLIST_TEMPLATE)
@@ -328,6 +342,78 @@ class LivePythonCoverage(unittest.TestCase):
         # placeholder line should be replaced with a real one.
         self.assertIn(
             "portfolio/pipeline/probes", cc.root_ignored_trees(cc.REPO_ROOT)
+        )
+
+
+class NestedCheckout(unittest.TestCase):
+    """A git worktree inside the repo must not be scanned as repo content.
+
+    CLAUDE.md tells sessions to `git worktree add` -- for a supersession check,
+    and to read `main` without disturbing their own tree. A worktree is a
+    second complete copy of every file, untracked by the outer repo, so
+    without an exclusion this checker finds all 65 test directories twice and
+    fails with 65 findings naming paths like `sweepwt/portfolio/ledger/`,
+    each instructing the reader to add a line to CLAUDE.md.
+
+    Measured 2026-09-11 on a session that had a browser sweep running in
+    `./sweepwt`. It is wrong in the expensive direction: a guard that cries
+    wolf is one a reader learns to wave through, and being believed the one
+    time a genuinely uncovered directory appears is this guard's entire job.
+    """
+
+    def _repo_with_nested_checkout(self, dot_git_is_file):
+        import contextlib
+        import tempfile
+
+        @contextlib.contextmanager
+        def _ctx():
+            with tempfile.TemporaryDirectory() as td:
+                root = cc_make(Path(td))
+                nested = root / "sweepwt"
+                (nested / "platform" / "marketing").mkdir(parents=True)
+                (nested / "platform" / "marketing" / "a.test.mjs").write_text("")
+                (nested / "platform" / "newthing").mkdir(parents=True)
+                (nested / "platform" / "newthing" / "b.test.mjs").write_text("")
+                (nested / "portfolio" / "ledger").mkdir(parents=True)
+                (nested / "portfolio" / "ledger" / "test_x.py").write_text("")
+                if dot_git_is_file:
+                    # What `git worktree add` writes: a file pointing at the
+                    # parent's .git/worktrees/<name>.
+                    (nested / ".git").write_text("gitdir: /repo/.git/worktrees/sweepwt\n")
+                else:
+                    (nested / ".git").mkdir()
+                yield root
+
+        return _ctx()
+
+    def test_a_linked_worktree_is_not_scanned(self):
+        with self._repo_with_nested_checkout(dot_git_is_file=True) as repo_root:
+            gaps, _, disk_dirs = cc.find_gaps(CHECKLIST_TEMPLATE, repo_root)
+        self.assertEqual(gaps, [], "a nested worktree was scanned as repo content")
+        self.assertNotIn("sweepwt/platform/newthing", disk_dirs)
+
+    def test_a_nested_clone_or_submodule_is_not_scanned_either(self):
+        # Detected by the presence of `.git`, not by name, so a stray clone
+        # someone left in the tree is covered by the same rule.
+        with self._repo_with_nested_checkout(dot_git_is_file=False) as repo_root:
+            gaps, _, disk_dirs = cc.find_gaps(CHECKLIST_TEMPLATE, repo_root)
+        self.assertEqual(gaps, [])
+        self.assertNotIn("sweepwt/portfolio/ledger", disk_dirs)
+
+    def test_the_same_directory_outside_a_checkout_is_still_a_gap(self):
+        # The exclusion must be about the nested checkout, not about the name:
+        # an uncovered directory that merely sits deeper still has to report.
+        import contextlib
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            root = cc_make(Path(td))
+            (root / "platform" / "newthing").mkdir(parents=True)
+            (root / "platform" / "newthing" / "b.test.mjs").write_text("")
+            gaps, _, _ = cc.find_gaps(CHECKLIST_TEMPLATE, root)
+        self.assertTrue(
+            any("platform/newthing" in g for g in gaps),
+            "the exclusion swallowed a real gap",
         )
 
 
