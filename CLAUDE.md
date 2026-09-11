@@ -449,7 +449,33 @@ published snapshot** (added 2026-09-05):
 python3 platform/ci/pages_state.py --require-current   # exits 1 if it is stale
 CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
 python3 platform/ci/pages_state.py --require-current   # and 0 once you have
+python3 platform/ci/indexnow_state.py                  # and: was any of it announced?
 ```
+
+**That last line was added 2026-09-11, and the answer it returned on the day
+it was written was `never` — for all 964 published pages.** The publish script
+announces to IndexNow in `announce_to_indexnow`, right after the push above,
+and that call has never once reached the API. Both routes are individually
+correct and between them they cover every publish and announce none of it: the
+by-hand route (this block) pushes and so does reach the call, from a sandbox
+whose egress proxy 403s `api.indexnow.org`; the runner route has real egress
+but, with `vars.PAGES_BRANCH_PUBLISH` unset, takes its `PUSH=0` step and never
+reaches the call at all.
+
+It matters more here than it would on an ordinary site. `pages_state.py`'s
+`indexing` row measured that sitemap auto-discovery *cannot happen* from a
+project-Pages subpath — crawlers read `robots.txt` at the host root, which
+belongs to someone else's site — so IndexNow is the only page-enumeration
+route this catalogue has that does not need the owner's login. Zero observed
+visitors across 248 products is consistent with never having asked.
+
+`publish-pages-branch.yml` now carries an announce step gated on the exact
+complement of its publish gate, so precisely one of the two paths fires and
+the announcement happens the moment a runner is available again. Until then
+`indexnow_state.py` is how you tell "announced" from "nobody ever asked" —
+a distinction that leaves no trace in the tree, since a submission writes no
+artifact and IndexNow has no confirmation API. It reports `never` only with a
+named reason, and `unknown` rather than `never` when it cannot read.
 
 **If that middle line refuses with "publishing backwards", another session
 published while you were building** (added 2026-09-06). Do exactly what it
