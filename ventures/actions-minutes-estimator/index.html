@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GitHub Actions Minutes Estimator — What Will This Workflow Cost?</title>
+  <meta name="description" content="Paste your GitHub Actions workflow YAML and see projected monthly billable minutes and dollar cost before the allowance runs out. Names the expensive patterns: the macOS 10x multiplier, per-job rounding on wide matrices, missing timeout-minutes, PR commits built twice, over-frequent cron. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="What will this GitHub Actions workflow cost you a month?">
+  <meta property="og:description" content="GitHub's billing page shows minutes you already spent. This reads your workflow files and does the arithmetic forward — per workflow, per job, with the expensive patterns named. Free, no upload, no account.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"GitHub Actions Minutes Estimator","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimates monthly GitHub Actions billable minutes and cost from pasted workflow YAML, attributing spend per workflow and per job and identifying avoidable cost patterns. Runs entirely in the browser or as a zero-dependency Node CLI."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can't I just read my GitHub billing page?","acceptedAnswer":{"@type":"Answer","text":"Billing shows minutes you have already spent, aggregated across the account. It does not attribute them to a workflow or a job, and it cannot tell you what a workflow you are about to merge will cost. This reads the workflow files and does the arithmetic forward, so the answer arrives before the allowance does."}},{"@type":"Question","name":"How are GitHub Actions minutes billed?","acceptedAnswer":{"@type":"Answer","text":"On private repositories, each plan includes a monthly allowance of minutes. Standard runners consume that allowance at a multiplier by operating system: Linux 1x, Windows 2x, macOS 10x. Each job's duration is rounded up to the next whole minute independently, so a wide matrix of very short jobs bills far more than its wall-clock time. Public repositories run free on standard runners."}},{"@type":"Question","name":"What is the most common avoidable cost?","acceptedAnswer":{"@type":"Answer","text":"A workflow that triggers on both push and pull_request with no branches filter on push. A commit pushed to a branch with an open pull request fires both events, so the whole workflow runs twice on the same commit. Both runs are real, so nothing in the billing page marks one of them as waste."}},{"@type":"Question","name":"Is my workflow file uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The page parses and costs everything in your own browser and sends nothing anywhere. There is no account and no analytics vendor. The CLI reads local files and makes no network call at all."}},{"@type":"Question","name":"Are the dollar figures exact?","acceptedAnswer":{"@type":"Answer","text":"No, and they are not meant to be. They are an estimate built from your workflow files plus assumptions you set — how long a job takes, how often you push. Every assumption is shown on screen and is editable, and the published list rates being quoted are dated. Check the result against your own billing page before making a decision on it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 230px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; font-size: .9rem; }
+    input[type="number"], select { font: inherit; border: 1px solid #cdd5df; border-radius: 6px; padding: 7px 10px; width: 100%; box-sizing: border-box; }
+    .row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .row > div { flex: 1 1 150px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .headline { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; color: #17324a; margin: 4px 0; }
+    .meter { height: 16px; border-radius: 999px; background: #e3e9ef; overflow: hidden; margin: 10px 0 4px; }
+    .meter > span { display: block; height: 100%; background: #17604a; }
+    .meter.over > span { background: #9a3412; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+    th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid #e3e9ef; }
+    th { color: #55606f; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .finding { border-left: 4px solid #cdd5df; padding: 4px 0 4px 14px; margin: 14px 0; }
+    .finding.high { border-color: #9a3412; }
+    .finding.medium { border-color: #b45309; }
+    .finding.low { border-color: #0369a1; }
+    .finding.info { border-color: #64748b; }
+    .sev { font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #55606f; }
+    .finding.high .sev { color: #9a3412; }
+    .finding .where { font: 12px ui-monospace, monospace; color: #55606f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .empty { color: #55606f; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GITHUB ACTIONS MINUTES ESTIMATOR · RUNS IN YOUR BROWSER</p>
+    <h1>What will this workflow cost you a month?</h1>
+    <p>GitHub's billing page shows you minutes you have <em>already</em> spent, added up across the whole account. It will not tell you which workflow spent them, and it cannot tell you what the workflow in your open pull request is about to cost. Paste your workflow YAML below and this does the arithmetic forward — per workflow, per job, with the expensive patterns named.</p>
+    <p class="note">Nothing is uploaded. Parsing and costing happen in this browser and are never sent anywhere.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your workflow files</h2>
+    <p class="note">One file, or several separated by a line of <code>---</code>. Everything in <code>.github/workflows/</code> is the useful answer; a single file tells you about that file.</p>
+    <label for="source">Workflow YAML</label>
+    <textarea id="source" spellcheck="false" placeholder="name: CI&#10;on:&#10;  push:&#10;  pull_request:&#10;jobs:&#10;  test:&#10;    runs-on: ubuntu-latest&#10;    steps:&#10;      - run: npm test"></textarea>
+    <button type="button" id="load-example" class="secondary">Load an example</button>
+
+    <h2 style="margin-top:22px">2. Set your assumptions</h2>
+    <p class="note">These drive every number. Scheduled runs are counted exactly from each <code>cron</code> expression; everything else depends on how busy your repository is, which only you know.</p>
+    <div class="row">
+      <div>
+        <label for="plan">Plan</label>
+        <select id="plan">
+          <option value="free">Free — 2,000 min</option>
+          <option value="pro">Pro — 3,000 min</option>
+          <option value="team" selected>Team — 3,000 min</option>
+          <option value="enterprise">Enterprise — 50,000 min</option>
+          <option value="public">Public repo — free</option>
+        </select>
+      </div>
+      <div>
+        <label for="minutes">Minutes per job</label>
+        <input type="number" id="minutes" value="5" min="0.1" step="0.1">
+      </div>
+      <div>
+        <label for="pushes">Pushes / month</label>
+        <input type="number" id="pushes" value="120" min="0" step="1">
+      </div>
+      <div>
+        <label for="prs">PR runs / month</label>
+        <input type="number" id="prs" value="60" min="0" step="1">
+      </div>
+      <div>
+        <label for="pathshare">Path-filtered share</label>
+        <input type="number" id="pathshare" value="0.25" min="0" max="1" step="0.05">
+      </div>
+    </div>
+    <p style="margin-top:16px"><button type="button" id="run">Estimate the cost</button></p>
+    <p id="error" class="error" hidden></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Projected monthly cost</h2>
+    <p class="headline" id="headline"></p>
+    <div class="meter" id="meter"><span style="width:0%"></span></div>
+    <p class="note" id="allowance"></p>
+
+    <h3>Where it goes</h3>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Workflow</th><th>Job</th><th>Runner</th>
+            <th class="num">Runs/mo</th><th class="num">Jobs</th><th class="num">Allowance min</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top:24px">Findings</h3>
+    <div id="findings"></div>
+
+    <h3 style="margin-top:24px">Assumptions behind these numbers</h3>
+    <ul class="note" id="assumptions"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Run it in your own CI</h2>
+    <p>The same estimator is a zero-dependency Node CLI. Wired into a workflow with a budget, it fails the build when a change pushes projected usage past a share of your allowance — which is the only moment anyone finds out before the minutes are gone.</p>
+    <pre class="cmd">node cli.mjs .github/workflows
+node cli.mjs --plan free --minutes-per-job 8 .github/workflows
+node cli.mjs --json .github/workflows          <span class="note"># machine-readable</span>
+node cli.mjs --max-allowance-percent 80 .github/workflows   <span class="note"># exit 1 when over</span></pre>
+    <p class="note">Download <a href="cli.mjs" rel="noopener">cli.mjs</a>, <a href="estimate.mjs" rel="noopener">estimate.mjs</a> and <a href="workflow-yaml.mjs" rel="noopener">workflow-yaml.mjs</a> and keep them next to each other. Node 18+, nothing to install, no network access required or used.</p>
+  </section>
+
+  <section class="card">
+    <h2>How the billing actually works</h2>
+    <p>The multipliers and the per-job rounding are where most of the surprise lives. <a href="how-github-actions-minutes-are-billed.html">How GitHub Actions minutes are billed</a> explains the arithmetic this tool uses and why a wide matrix of short jobs can bill several times its wall-clock time.</p>
+    <p class="note">Already out of minutes and staring at a wall of red checks? <a href="../actions-runner-starvation-check/">actions-runner-starvation-check</a> tells you whether a red check is a real failure or a job GitHub never assigned a runner to — the thing that happens <em>after</em> the allowance is spent.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+
+    <h3>Why can't I just read my GitHub billing page?</h3>
+    <p>Billing shows minutes you have already spent, aggregated across the account. It does not attribute them to a workflow or a job, and it cannot tell you what a workflow you are about to merge will cost. This reads the workflow files and does the arithmetic forward, so the answer arrives before the allowance does.</p>
+
+    <h3>How are GitHub Actions minutes billed?</h3>
+    <p>On private repositories, each plan includes a monthly allowance of minutes. Standard runners consume that allowance at a multiplier by operating system: Linux 1x, Windows 2x, macOS 10x. Each job's duration is rounded up to the next whole minute independently, so a wide matrix of very short jobs bills far more than its wall-clock time. Public repositories run free on standard runners.</p>
+
+    <h3>What is the most common avoidable cost?</h3>
+    <p>A workflow that triggers on both push and pull_request with no branches filter on push. A commit pushed to a branch with an open pull request fires both events, so the whole workflow runs twice on the same commit. Both runs are real, so nothing in the billing page marks one of them as waste.</p>
+
+    <h3>Is my workflow file uploaded anywhere?</h3>
+    <p>No. The page parses and costs everything in your own browser and sends nothing anywhere. There is no account and no analytics vendor. The CLI reads local files and makes no network call at all.</p>
+
+    <h3>Are the dollar figures exact?</h3>
+    <p>No, and they are not meant to be. They are an estimate built from your workflow files plus assumptions you set — how long a job takes, how often you push. Every assumption is shown on screen and is editable, and the published list rates being quoted are dated. Check the result against your own billing page before making a decision on it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It produces an <em>estimate</em> from the workflow files you paste plus assumptions you set — it is not a billing statement, not a quote, and not financial, accounting, or tax advice. Published list rates are quoted as of a stated date and change without notice. <strong>You are responsible for checking any figure here against your own GitHub billing page before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_run</code>, <code>example_loaded</code>, <code>parse_error</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { estimate, formatUsd, readWorkflowSource, DEFAULT_ASSUMPTIONS } from "./estimate.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const num = (v) => Math.round(v).toLocaleString("en-US");
+
+    const errorBox = $("#error");
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.hidden = false;
+      $("#results").hidden = true;
+      record("parse_error");
+    }
+
+    /** Split a paste into documents on a `---` line, so several files can go in at once. */
+    function splitDocuments(text) {
+      return text
+        .split(/^---\s*$/m)
+        .map((chunk) => chunk.trim())
+        .filter(Boolean);
+    }
+
+    function renderRunner(runner) {
+      if (runner.kind === "self-hosted") return "self-hosted (free)";
+      if (runner.kind === "unknown") return "unclassified";
+      const suffix = runner.kind === "larger" ? ` (${runner.cores}-core)` : "";
+      const presumed = runner.presumed ? " *" : "";
+      return `${runner.class}${suffix}${presumed}`;
+    }
+
+    function render(result) {
+      const { totals, plan } = result;
+      $("#headline").textContent =
+        totals.totalCostUsd > 0
+          ? `${formatUsd(totals.totalCostUsd)} a month`
+          : `${num(totals.includedMinutes)} allowance minutes a month — within the plan`;
+
+      const pct = plan.includedMinutes === Infinity ? 0 : totals.allowanceUsedPercent;
+      const meter = $("#meter");
+      meter.classList.toggle("over", pct > 100);
+      meter.firstElementChild.style.width = `${Math.min(100, pct)}%`;
+      $("#allowance").textContent =
+        plan.includedMinutes === Infinity
+          ? "Public repositories run free on standard runners — there is no allowance to exhaust."
+          : `${num(totals.includedMinutes)} of ${num(plan.includedMinutes)} included minutes (${pct.toFixed(0)}%). ` +
+            (totals.overageMinutes > 0
+              ? `${num(totals.overageMinutes)} minutes over, charged at about ${formatUsd(totals.overageCostUsd)}.`
+              : "Inside the allowance.");
+
+      const rows = [...result.rows].sort((a, b) => b.includedMinutes - a.includedMinutes);
+      $("#rows").innerHTML = rows.length
+        ? rows
+            .map(
+              (r) => `<tr>
+                <td>${escapeHtml(r.workflow)}</td>
+                <td><code>${escapeHtml(r.job)}</code></td>
+                <td>${escapeHtml(renderRunner(r.runner))}</td>
+                <td class="num">${num(r.runsPerMonth)}</td>
+                <td class="num">${num(r.matrixJobs)}</td>
+                <td class="num">${r.runner.kind === "standard" ? num(r.includedMinutes) : "—"}</td>
+              </tr>`,
+            )
+            .join("")
+        : `<tr><td colspan="6" class="empty">No billable jobs found — every job either calls a reusable workflow or runs on a self-hosted runner.</td></tr>`;
+
+      $("#findings").innerHTML = result.findings.length
+        ? result.findings
+            .map((f) => {
+              const where = f.job ? `${f.workflow} / ${f.job}` : f.workflow;
+              const cost =
+                f.monthlyMinutes > 0
+                  ? `<p class="note">~${num(f.monthlyMinutes)} allowance minutes a month</p>`
+                  : "";
+              return `<div class="finding ${f.severity}">
+                <p class="sev">${f.severity}</p>
+                <p><strong>${escapeHtml(f.title)}</strong></p>
+                <p class="where">${escapeHtml(where)}</p>
+                <p>${escapeHtml(f.detail)}</p>${cost}
+              </div>`;
+            })
+            .join("")
+        : `<p class="empty">No cost findings. Nothing here looks avoidably expensive.</p>`;
+
+      const a = result.assumptions;
+      $("#assumptions").innerHTML = [
+        `${a.minutesPerJob} wall-clock minutes per job (every job, every matrix leg)`,
+        `${num(a.pushRunsPerMonth)} push runs and ${num(a.pullRequestRunsPerMonth)} pull_request runs a month`,
+        `workflows with a <code>paths:</code> filter run on ${(a.pathFilteredShare * 100).toFixed(0)}% of those`,
+        `scheduled runs are counted exactly from each cron expression — not assumed`,
+        `each job's time is rounded up to a whole minute, as GitHub bills it`,
+        `rates are GitHub's published list prices as of ${result.ratesAsOf}; check your billing page`,
+        `a runner marked <code>*</code> was read from a quoted fallback inside a <code>\${{ }}</code> expression`,
+      ]
+        .map((line) => `<li>${line}</li>`)
+        .join("");
+
+      $("#results").hidden = false;
+      errorBox.hidden = true;
+    }
+
+    $("#run").addEventListener("click", () => {
+      const text = $("#source").value;
+      if (!text.trim()) return showError("Paste at least one workflow file first.");
+
+      const workflows = [];
+      const problems = [];
+      splitDocuments(text).forEach((chunk, index) => {
+        try {
+          workflows.push(readWorkflowSource(chunk, `document ${index + 1}`));
+        } catch (error) {
+          problems.push(error.message);
+        }
+      });
+      if (workflows.length === 0) {
+        return showError(
+          problems.length ? problems.join(" · ") : "Nothing in that paste parsed as a workflow.",
+        );
+      }
+
+      const result = estimate(workflows, {
+        plan: $("#plan").value,
+        minutesPerJob: Number($("#minutes").value) || DEFAULT_ASSUMPTIONS.minutesPerJob,
+        pushRunsPerMonth: Number($("#pushes").value) || 0,
+        pullRequestRunsPerMonth: Number($("#prs").value) || 0,
+        pathFilteredShare: Number($("#pathshare").value),
+      });
+      render(result);
+      record("estimate_run");
+      if (problems.length) {
+        errorBox.textContent = `Skipped ${problems.length} document(s): ${problems.join(" · ")}`;
+        errorBox.hidden = false;
+      }
+      $("#results").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    const EXAMPLE = `name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: \${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci && npm test
+---
+name: Nightly
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+jobs:
+  sweep:
+    runs-on: macos-latest
+    steps:
+      - run: ./sweep.sh`;
+
+    $("#load-example").addEventListener("click", () => {
+      $("#source").value = EXAMPLE;
+      record("example_loaded");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How GitHub Actions Minutes Are Billed (And Where They Go)</title>
+  <meta name="description" content="The arithmetic behind a GitHub Actions bill: included-minute allowances by plan, the Linux 1x / Windows 2x / macOS 10x multipliers, per-job rounding on matrices, larger runners billing outside the allowance, and the default 360-minute job timeout. Plain explanation, no signup.">
+  <link rel="canonical" href="./how-github-actions-minutes-are-billed.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a macOS minute cost ten times a Linux minute?","acceptedAnswer":{"@type":"Answer","text":"GitHub applies a multiplier per runner image when drawing down your included allowance: Linux 1x, Windows 2x, macOS 10x. The wall-clock time is the same; what differs is how many allowance minutes it consumes. A ten-minute test suite on macOS spends a hundred allowance minutes, so twenty such runs consume the entire Free plan month."}},{"@type":"Question","name":"Does a job that takes twenty seconds cost twenty seconds?","acceptedAnswer":{"@type":"Answer","text":"No. Each job is rounded up to the next whole minute, and the rounding is per job rather than per workflow run. Thirty matrix jobs of twenty seconds each bill thirty minutes, not ten, so the rounding costs three times the work. Combining several matrix axis values into one job that loops over them removes it."}},{"@type":"Question","name":"How long can a job run if I do not set timeout-minutes?","acceptedAnswer":{"@type":"Answer","text":"360 minutes. GitHub kills it only at that point, so one hung job — a test waiting on a port that never opens, a command sitting at an interactive prompt — bills 360 minutes on Linux and 3,600 on macOS. That single wedged job exceeds the entire monthly allowance of every plan below Enterprise."}},{"@type":"Question","name":"Do larger runners use up my included minutes?","acceptedAnswer":{"@type":"Answer","text":"No. Larger GitHub-hosted runners are charged per minute from the first minute and do not draw on the included allowance, so they appear on the bill rather than making you run out of minutes. Self-hosted runners are free to Actions — you are paying for that hardware elsewhere."}},{"@type":"Question","name":"Why would the same commit be built twice?","acceptedAnswer":{"@type":"Answer","text":"A workflow that triggers on both push and pull_request, with no branches filter on push, runs twice for every commit pushed to a branch with an open pull request. Both runs are genuine, so nothing in the billing page marks either as waste. Restricting push to your default branch keeps the main-branch run and drops the duplicate."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.1; color: #17324a; margin: 0 0 16px; }
+    h2 { font-size: 1.18rem; margin: 30px 0 8px; color: #17324a; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; margin: 20px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3e9ef; }
+    th { color: #55606f; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    code { background: #eef1f5; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+    a.cta { display: inline-block; background: #17604a; color: #fff; font-weight: 700; padding: 11px 16px; border-radius: 8px; text-decoration: none; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>How GitHub Actions minutes are billed</h1>
+  <p class="note">The arithmetic a <a href="./">GitHub Actions cost estimate</a> is built from. No signup, nothing to install.</p>
+
+  <p>Most people meet Actions billing for the first time when something stops working — a wall of red checks, or a number on an invoice nobody expected. The rules are not complicated, but three of them are counter-intuitive enough that a workflow can cost five or ten times what its author assumed.</p>
+
+  <h2>1. Private repositories draw on a monthly allowance</h2>
+  <p>Each plan includes a number of minutes per month. Public repositories run free on standard runners and have no allowance to exhaust.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Plan</th><th class="num">Included minutes / month</th></tr></thead>
+      <tbody>
+        <tr><td>Free</td><td class="num">2,000</td></tr>
+        <tr><td>Pro</td><td class="num">3,000</td></tr>
+        <tr><td>Team</td><td class="num">3,000</td></tr>
+        <tr><td>Enterprise Cloud</td><td class="num">50,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Past the allowance you are billed per minute, if a spending limit allows it. If it does not, jobs simply stop being assigned runners — which is what the wall of red usually is.</p>
+
+  <h2>2. The operating system multiplies what you spend</h2>
+  <p>This is the first surprise. A minute is not a minute: what a standard runner draws from your allowance depends on the image.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Runner</th><th class="num">Allowance minutes per wall minute</th></tr></thead>
+      <tbody>
+        <tr><td>Linux (<code>ubuntu-*</code>)</td><td class="num">1×</td></tr>
+        <tr><td>Windows (<code>windows-*</code>)</td><td class="num">2×</td></tr>
+        <tr><td>macOS (<code>macos-*</code>)</td><td class="num">10×</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A ten-minute test suite on macOS spends a hundred allowance minutes. On the Free plan, twenty such runs consume the entire month. The common shape that triggers this is not a deliberate choice at all — it is <code>runs-on: ${{ matrix.os }}</code> over an OS matrix, where the macOS leg quietly outspends the other two put together.</p>
+
+  <h2>3. Every job is rounded up, separately</h2>
+  <p>The second surprise. Rounding is per job, not per workflow run. Thirty matrix jobs of twenty seconds each are billed as thirty minutes, not ten — the rounding costs three times the work.</p>
+  <p>This makes a wide matrix of very short jobs one of the worst value shapes available. Combining several axis values into a single job that loops over them removes the rounding entirely.</p>
+
+  <h2>4. Larger runners are billed differently</h2>
+  <p>Larger GitHub-hosted runners (<code>ubuntu-latest-8-cores</code> and similar) are charged per minute from the first minute and do <em>not</em> draw on the included allowance. They do not make you run out of minutes; they appear on the bill instead. Self-hosted runners are free to Actions — you are paying for the hardware somewhere else.</p>
+
+  <h2>5. A job with no timeout can run for six hours</h2>
+  <p>The third surprise, and the one that does the most damage in a single incident. If a job does not set <code>timeout-minutes</code>, GitHub lets it run for <strong>360 minutes</strong> before killing it. One hung job — a test waiting on a port that never opens, a command sitting at an interactive prompt — bills 360 minutes on Linux, and 3,600 on macOS. That single wedged job exceeds the entire monthly allowance of every plan below Enterprise.</p>
+  <p>Setting <code>timeout-minutes</code> a little above a job's normal runtime costs nothing and caps the worst case.</p>
+
+  <h2>6. Two events can build the same commit twice</h2>
+  <p>A workflow that triggers on both <code>push</code> and <code>pull_request</code>, with no <code>branches:</code> filter on <code>push</code>, runs twice for every commit pushed to a branch with an open pull request. Both runs are genuine, so nothing in the billing page marks either as waste. Restricting <code>push</code> to your default branch keeps the main-branch run and drops the duplicate.</p>
+  <p>Relatedly, without a <code>concurrency</code> group set to <code>cancel-in-progress: true</code>, pushing three times in a row leaves the first two runs going to completion and billing in full, even though nobody will look at their results.</p>
+
+  <h2>7. Scheduled workflows bill whether or not anything changed</h2>
+  <p>A <code>cron</code> of <code>*/20 * * * *</code> is about 2,190 runs a month. At three minutes a run that is 6,570 allowance minutes — more than twice the Team allowance — accruing on a repository nobody is touching. Scheduled spend is the easiest kind to forget, because no pull request is ever associated with it.</p>
+
+  <h2>Questions</h2>
+
+  <h3>Why does a macOS minute cost ten times a Linux minute?</h3>
+  <p>GitHub applies a multiplier per runner image when drawing down your included allowance: Linux 1x, Windows 2x, macOS 10x. The wall-clock time is the same; what differs is how many allowance minutes it consumes. A ten-minute test suite on macOS spends a hundred allowance minutes, so twenty such runs consume the entire Free plan month.</p>
+
+  <h3>Does a job that takes twenty seconds cost twenty seconds?</h3>
+  <p>No. Each job is rounded up to the next whole minute, and the rounding is per job rather than per workflow run. Thirty matrix jobs of twenty seconds each bill thirty minutes, not ten, so the rounding costs three times the work. Combining several matrix axis values into one job that loops over them removes it.</p>
+
+  <h3>How long can a job run if I do not set timeout-minutes?</h3>
+  <p>360 minutes. GitHub kills it only at that point, so one hung job — a test waiting on a port that never opens, a command sitting at an interactive prompt — bills 360 minutes on Linux and 3,600 on macOS. That single wedged job exceeds the entire monthly allowance of every plan below Enterprise.</p>
+
+  <h3>Do larger runners use up my included minutes?</h3>
+  <p>No. Larger GitHub-hosted runners are charged per minute from the first minute and do not draw on the included allowance, so they appear on the bill rather than making you run out of minutes. Self-hosted runners are free to Actions — you are paying for that hardware elsewhere.</p>
+
+  <h3>Why would the same commit be built twice?</h3>
+  <p>A workflow that triggers on both push and pull_request, with no branches filter on push, runs twice for every commit pushed to a branch with an open pull request. Both runs are genuine, so nothing in the billing page marks either as waste. Restricting push to your default branch keeps the main-branch run and drops the duplicate.</p>
+
+  <div class="card">
+    <p><strong>Want this arithmetic run against your own workflows?</strong></p>
+    <p>Paste your workflow YAML and get projected monthly minutes and cost, attributed per workflow and per job, with these patterns flagged where they appear.</p>
+    <p><a class="cta" href="./">Estimate your Actions cost</a></p>
+    <p class="note">Free, runs entirely in your browser, nothing is uploaded. There is a zero-dependency CLI for your own CI too.</p>
+  </div>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is, without warranty of any kind, express or implied. It describes published billing behaviour as of the date shown on the tool and is not financial, accounting, or tax advice; GitHub's rates and allowances change without notice. <strong>Verify anything here against your own GitHub billing page and GitHub's current documentation before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p>Not affiliated with GitHub, Inc. "GitHub" and "GitHub Actions" are trademarks of GitHub, Inc., used here only to describe the service this tool estimates costs for.</p>
+    <p class="note"><a href="./">Back to the estimator</a> · <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support this work</a> (entirely optional)</p>
+  </footer>
+</body>
+</html>
