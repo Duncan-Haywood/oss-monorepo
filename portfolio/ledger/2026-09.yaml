@@ -28488,4 +28488,73 @@ entries:
         the 2026-09-06 guidance); `python3 platform/ci/checklist_coverage.py`
         clean; `python3 portfolio/ledger/check_ledger_only.py` exit 0 (real
         code shipped in the same branch).
+
+  - venture: dental-ppo-writeoff-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second comparison page, `vs-ppo-fee-negotiators.html`,
+        ranking the free calculator against hiring a paid PPO fee-schedule
+        negotiation service. Found mid-session that a concurrent run had
+        just shipped and merged `vs-practice-management-report.html` on the
+        same venture (#4631) -- a different comparison (the practice's own
+        PMS reports) answering a different search query, not a duplicate.
+        Merged `origin/main` in, kept both new internal links and both
+        sitemap rows rather than picking one, and re-ran regen.
+      - >-
+        Compared against a generic industry role -- flat-fee-per-payer or
+        percentage-of-the-increase negotiation services -- rather than a
+        named vendor, so it carries no `COMPARISON_DISCLAIMER_EXEMPT`
+        loosening beyond being listed as a generic-role comparison, same
+        precedent as `seller-net-sheet/vs-title-company-net-sheet.html` and
+        `custom-farm-rate-calculator/vs-survey-rates.html`. Verified the
+        structural claim (flat-fee-per-payer or percentage-of-increase
+        pricing is how this service category actually charges) with
+        `WebSearch` before writing it; did not attempt to verify or cite any
+        single named competitor's current pricing, because `WebFetch` to
+        arbitrary sites is blocked by the session's own egress proxy and
+        PRODUCT_PLAYBOOK 5f requires a sourced claim, not a guessed one.
+      - >-
+        Caught and fixed a real defect before it reached `main`: the page's
+        FAQPage JSON-LD used literal `--` while the matching visible prose
+        used `&mdash;`, so `platform/pages/faq-visible.test.mjs` correctly
+        failed the exact-text match on all 4 answers. This is the class of
+        bug that check exists for -- caught here by actually running the
+        site-wide suite rather than only the venture's own tests, which
+        passed throughout because they check clause presence, not
+        JSON-LD/visible-text agreement.
+      - >-
+        Verified locally (`github-actions-runners` reads down today, run
+        34588034490, per `infra_state.yaml`): venture suite 59/59;
+        `platform/pages/*.test.mjs` 995/995; `platform/marketing/*.test.mjs`
+        260/260; `gitops/tests/test_manifests.py` 83/83; `clauses.mjs`
+        (venture-scoped) 4/4 pages carry required clauses;
+        `checklist_coverage.py` clean. `regen.mjs` rewrote the mirror,
+        `catalog.json` (page count 3 -> 4) and the front-door sitemap.
+      - >-
+        Spent the first part of this run on the mandate's open-PR/branch
+        drain: 0 open PRs at start (confirmed via both `list_pull_requests`
+        and `search_pull_requests`), so the 3-PR quota was vacuously met.
+        Spot-checked 30+ branches spanning the full commit-ahead-of-main
+        range with `supersede_check.py` and direct diff comparison against
+        `main` -- every one already shipped under a different PR/commit or
+        superseded, consistent with a prior session's exhaustive 232-branch
+        audit on 2026-09-05 reaching the same conclusion. No repairable PR
+        or branch found; did not spend further time re-triaging a backlog
+        `infra_state.yaml` already records as spent.
+      - >-
+        Confirmed rather than assumed, for the account owner's standing
+        request to prioritise Hetzner deployment/CI-CD and a Codex worker
+        there: `gitops/agents/host/` (Codex worker) and `gitops/ci/host/`
+        (self-hosted runner) are both fully built and tested
+        (`codex-host-mode` reads `up` in `infra_state.yaml`, measured
+        2026-09-10 -- 45/45 tests, clean `systemd-analyze verify`) but
+        genuinely not installed anywhere, blocked solely on
+        `hetzner-ssh-key-is-a-public-key` (#3184, 23+ days queued, an
+        owner-only credential action). Did not add a duplicate ask. The
+        `gh-pages` deploy route (the one live path, independent of the SSH
+        key) was confirmed `current` and `served` before and after this
+        change.
+    mrr_end: 0
     mrr_end: 0
