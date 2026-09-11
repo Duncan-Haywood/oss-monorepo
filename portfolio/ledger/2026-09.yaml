@@ -27302,3 +27302,126 @@ entries:
         `publish_surface.py --write` (classification `none`, publishes
         nothing).
     mrr_end: 0
+
+  - venture: auto-repair-effective-labor-rate
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the collaborative queue first, as the standing three-PR
+        floor requires: **zero open PRs existed** (`list_pull_requests` and a
+        `search_pull_requests` cross-check both returned empty), so the
+        quota was met vacuously rather than by merging. Spot-checked the two
+        most recent unmerged branches
+        (`ci/record-clean-browser-sweep-2026-09-11`,
+        `claude/browser-sweep-record-e7ac56f6`) against `main`: both are net
+        *deletions* — `main` carries a later draft of every file they touch
+        — which is the STALE DRAFT shape `supersede_check.py` documents, so
+        nothing was repairable. Consistent with the 2026-09-05 readings that
+        the branch backlog is spent; not re-derived across all ~200.
+      - >-
+        Read `main` itself with `run_workflow_locally.py --tree` rather than
+        `--for-changes`: green on every workflow before this session's work,
+        so the two failures the sweep reported were this branch's own new
+        venture missing a CI workflow, not a pre-existing red.
+      - >-
+        **Fixed a live user-facing defect on `bounce-house-rental-calculator`
+        that no test in the tree could see.** The first full browser sweep of
+        the session (`browser_checks.py`, all seven checks, whole catalogue)
+        came back 6/7 with `roundtrip` red: a share link round-tripped a
+        headline of **$1,574.46 → $132,589.15**. Every field round-tripped
+        correctly and `share.mjs` was sound — reproduced the encode/decode
+        path in node and it is exact. The defect was that this page repriced
+        on submit *only*, and it was the one tool of 185 with a share link
+        and no live recompute. Because `shareState()` reads the form
+        directly, a link copied after an edit carried the *new* booking while
+        the panel still showed the price from the last button press: the yard
+        reads one number down the phone and the customer opens another. Fixed
+        by delegating `input`/`change` on the form element (bubbling, so the
+        five script-created fleet rows are covered without a restated id list
+        — the staleness CLAUDE.md records twice), leaving `quote_priced`
+        counted on submit alone so a keystroke is not logged as a pricing.
+        Re-ran the check against a real browser: `1/1 share links round-trip`
+        at $132,589.15, which is the arithmetically correct answer for the
+        perturbed inputs. Two regression assertions added to that venture's
+        `page.test.mjs`.
+      - >-
+        Graduated a new venture: auto-repair-effective-labor-rate, a free
+        browser tool that divides an independent auto repair shop's labor
+        sales by the labor hours they were billed against — the effective
+        labor rate — and then splits the gap to the posted door rate into
+        customer-pay discounting and warranty shortfall, prices unbilled
+        comeback hours as forgone capacity, and reports technician efficiency
+        with cost per billed hour against cost per clock hour. Not the
+        saturated `<trade>-bid-calculator` shape and not a marketplace fee
+        tool: it measures a month already billed rather than pricing a job
+        not yet sold. The niche is absent from `screened-out.md` and from all
+        267 existing ventures — the portfolio had no automotive service
+        venture at all.
+      - >-
+        The output the venture exists for is the **required posted rate**.
+        A shop needing $175.34 an hour to reach 70% labor gross profit does
+        not need a $175 door rate: at the 84% of posted it currently
+        collects, it needs about $208.39, because the coupons, fleet
+        agreements and warranty mix do not go away when the sign changes.
+        That correction — grossing the required effective rate up for
+        realization — is the most common reason a rate rise lands short, and
+        no free tool computes it.
+      - >-
+        Distinguished from `shop-rate-calculator` deliberately rather than by
+        accident: that tool builds a required hourly rate up from payroll and
+        overhead before work is sold; this measures the hour that was
+        actually sold. Cross-linked in both directions with an href assertion
+        in each venture's tests, so it ships with an inbound sibling link
+        from its first commit — `siblings.mjs` reports 0 crawlable orphans of
+        258, holding the budget at 0. Filed into `trades` / `trades-paid`
+        beside `shop-rate` on its first commit rather than left in the
+        `more` catch-all, which `build.test.mjs` had already grown to its
+        6-tool bound.
+      - >-
+        Recorded in `REVIEWED_NOT_CARRIED` rather than aliased into the
+        shared shop-rate bar, with the quantity that differs named: technician
+        pay here is a period total in dollars with burden already inside it,
+        overhead is whole-shop dollars rather than a percentage of direct cost
+        (the page nets parts gross profit off overhead instead of allocating
+        by a percentage), and the target is labor gross profit rather than net
+        margin on a job — 70% is ordinary for the first and nonsense for the
+        second. Prefilling any of them would put a considered-looking wrong
+        number on the page, which is what that map exists to prevent.
+      - >-
+        Ships with no shareable link at all, which is a departure from the
+        rest of the catalogue and is deliberate: this page holds a month of a
+        business's labor sales, payroll and fixed expenses, which is more
+        than should ride in a URL a proxy might log. `page.test.mjs` asserts
+        the absence of `location.hash`, `URLSearchParams` and
+        `history.replaceState`. Local-storage save/restore covers the
+        retyping problem instead.
+      - >-
+        Verified locally while Actions runners are starved (`indexnow_state.py`
+        shows all ten most recent `publish-pages-branch.yml` runs `starved`;
+        this sandbox's egress proxy 403s `api.indexnow.org`, `github.io` and
+        `bing.com`, so no public fetch was possible from here): new venture
+        50/50; `bounce-house-rental-calculator` 75/75;
+        `shop-rate-calculator` 85/85; `platform/marketing` +
+        `platform/pages` 1255/1255; `platform/proposal` +
+        `platform/privacy` + `platform/webcheck` 183/183; `gitops/tests` 581
+        passed 1 skipped; all `platform/ci` unittest modules OK plus
+        `agent_review`; `portfolio/*` + `infra/tests` 435 passed;
+        `score_ventures.py --check` consistent across 267 ventures;
+        `validate_usage.py` valid; `checklist_coverage.py` clean;
+        `clauses.mjs` clean on both pages; `guard_state.py
+        --require-runnable` exit 0 with only the one ENVIRONMENTAL skip
+        remaining. `apt-get install python3-pytest` and `apt-get update &&
+        apt-get install nginx-light openssh-client` were both needed and
+        both worked, exactly as CLAUDE.md records.
+      - >-
+        `regen.mjs` again required the mirrored-tool count 257 -> 258 in the
+        four places `gitops/tests/test_manifests.py` pins
+        (`infra/OWNER_CHECKLIST.md` x3, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2), and the new workflow
+        required `gitops/ci/sync_readme_counts.py` and
+        `publish_surface.py --write`. Both FAQ surfaces needed a *visible*
+        FAQ section to satisfy `faq-visible.test.mjs` — the JSON-LD alone is
+        not enough, and the copy is generated from the JSON-LD strings so the
+        two cannot diverge.
+    mrr_end: 0

@@ -408,7 +408,13 @@ const CATEGORY_RULES = [
     // job-costing this section's bid calculators do, just for field work
     // instead of a construction trade, and it landed in the catch-all only
     // because its slug ends in `-rate-calculator`, not `-bid-calculator`.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate)/.test(slug),
+    // `auto-repair-effective-labor-rate` is the same reader as `shop-rate`
+    // above, arriving from the other end of the year: `shop-rate` computes the
+    // hour a shop must sell, this measures the hour it actually sold. Its slug
+    // names neither a trade nor a bid, so no keyword caught it and it fell to
+    // the catch-all — where the shop owner meeting the burden and overhead
+    // fields on every calculator in this section would never have seen it.
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate)/.test(slug),
   },
   {
     id: 'services',
@@ -1834,7 +1840,11 @@ const SUBCATEGORY_RULES = {
       // `trades` and stopped there, so it fell to the `trades-other`
       // fallback and `main` went red on "every published trade tool lands in
       // a named sub-group"; this is the missing half of that change.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate)/.test(slug),
+      // `auto-repair-effective-labor-rate` belongs beside `shop-rate` for the
+      // same reason `custom-farm-rate` does: it is not a takeoff for an
+      // installed product, it is a rate measured against the operator's own
+      // payroll and overhead — which is what this group is.
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate)/.test(slug),
     },
     {
       id: 'trades-cleaning',

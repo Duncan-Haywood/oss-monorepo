@@ -1556,7 +1556,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # day, merging on top of both of the above — same shape again: a new
     # venture with a static `index.html` from its first commit, entering
     # the mirror and the total together.
-    total = 257  # `infra/OWNER_CHECKLIST.md`'s own "N of the 257 tools" wording.
+    # 258 since 2026-09-11, when `auto-repair-effective-labor-rate` graduated,
+    # merging on top of all of the above — same shape again: a new venture with
+    # a static `index.html` from its first commit, entering the mirror and the
+    # total together.
+    total = 258  # `infra/OWNER_CHECKLIST.md`'s own "N of the 258 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

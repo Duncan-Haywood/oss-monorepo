@@ -325,6 +325,20 @@ export const REVIEWED_NOT_CARRIED = {
     'the field and processing rates are billed rates, not wages',
   'staffing-markup-calculator':
     'it derives a markup from burden rather than consuming one; its wage figures are unemployment-tax wage bases and its burden figures are outputs',
+  // Reads as a rate tool and is not one in this sense: it measures a month
+  // already billed rather than pricing an hour about to be sold, so all four
+  // of its rate-shaped fields have a different base from the spec's. Technician
+  // pay is a *period total* in dollars including burden, not a wage plus a
+  // burden percentage. `monthlyOverhead` is dollars for the whole shop, not a
+  // percentage of direct cost — the page deliberately derives no overhead rate,
+  // because it nets parts gross profit off overhead instead of allocating by a
+  // percentage. And `targetLaborGrossProfit` is gross profit on the labor line
+  // only, which is not the spec's net margin on a whole job: 70% here is
+  // ordinary and 70% there would be nonsense. Prefilling any of them would put
+  // a considered-looking wrong number on the page, which is what this map
+  // exists to prevent.
+  'auto-repair-effective-labor-rate':
+    'technician pay is a period total in dollars with burden already in it, overhead is whole-shop dollars rather than a percentage of direct cost, and the target is labor gross profit rather than net margin on a job',
   // The marketplace fee tools ask for seller time on one task — driving to a
   // pickup, uploading a label, restocking — not for a crew wage, and they price
   // a listing rather than a bid.

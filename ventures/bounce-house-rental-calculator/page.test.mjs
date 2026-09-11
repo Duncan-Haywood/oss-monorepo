@@ -277,3 +277,32 @@ test('generated fleet-table default quantities are on the qty field\'s own step 
     assert.ok(Number.isInteger(value) && value >= 0);
   }
 });
+
+test('the panel reprices as the form is edited, not only when the button is pressed', () => {
+  // Measured 2026-09-11 by `platform/pages/roundtrip.mjs`: this was the one
+  // tool of 185 with a share link and no live recompute, and the two together
+  // are what made it a real defect rather than a cosmetic one. `shareState()`
+  // reads the form directly, so a link copied after an edit carried the new
+  // booking while the panel still showed the price from the last press — the
+  // yard read $1,574.46 down the phone and the customer opened $132,589.15.
+  //
+  // Asserted on the form rather than on a list of field ids because the five
+  // fleet rows are created by script: bubbling covers rows added later, and a
+  // restated id list is exactly the staleness CLAUDE.md records twice.
+  const markup = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  const script = /<script type="module">([\s\S]*)<\/script>/.exec(markup)[1];
+  assert.match(script, /el\('quoteForm'\)\.addEventListener\('input', \(\) => submit\(\)\)/);
+  assert.match(script, /el\('quoteForm'\)\.addEventListener\('change', \(\) => submit\(\)\)/);
+});
+
+test('typing is not counted as a pricing', () => {
+  // The live listeners above call `submit()` directly rather than going through
+  // the submit handler, so `quote_priced` still counts a deliberate press. A
+  // count on every keystroke would turn an aggregate feature tally into a
+  // typing log, which is not what the footer promises.
+  const markup = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  const script = /<script type="module">([\s\S]*)<\/script>/.exec(markup)[1];
+  const live = /addEventListener\('(?:input|change)', \(\) => submit\(\)\)/g;
+  assert.equal([...script.matchAll(live)].length, 2);
+  assert.doesNotMatch(script, /addEventListener\('input',[^)]*count\('quote_priced'\)/);
+});
