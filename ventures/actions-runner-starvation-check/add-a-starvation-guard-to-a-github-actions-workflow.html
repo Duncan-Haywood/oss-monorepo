@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add a starvation guard step to a GitHub Actions workflow</title>
+  <meta name="description" content="A copy-paste GitHub Actions workflow that runs after your other jobs finish, classifies every red check by its own runner_id field, and tells you which failures are real — so a starved run never gets debugged as a code regression.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="add-a-starvation-guard-to-a-github-actions-workflow.html">
+  <meta property="og:title" content="Add a starvation guard step to a GitHub Actions workflow">
+  <meta property="og:description" content="A workflow_run job that classifies every job in a finished run by runner_id and writes a plain verdict to the job summary — real failure, or never scheduled.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why a separate workflow instead of a step inside the one that might be starved?","acceptedAnswer":{"@type":"Answer","text":"A job cannot reliably read its own sibling jobs' final status while they are still running, and a starved job never runs a step of its own at all -- there is nothing inside it to add a step to. A workflow_run job fires after the whole run finishes, so every sibling job (starved or not) already has a final conclusion the Actions API can report."}},{"@type":"Question","name":"Does the default GITHUB_TOKEN have enough access to read job data?","acceptedAnswer":{"@type":"Answer","text":"It needs the actions: read permission on the triggered job. Repositories with restrictive default token permissions will not grant that automatically, so the example workflow below requests it explicitly with a permissions: block rather than relying on the account-wide default."}},{"@type":"Question","name":"What does the guard job actually do with the verdict?","acceptedAnswer":{"@type":"Answer","text":"It writes one line per failed job into the run's job summary (GITHUB_STEP_SUMMARY): STARVED for a job whose runner_id came back 0, REAL for one that actually ran. The step as written always exits success, so a starved run does not itself show up as one more red check to triage -- add a grep on STARVED afterward if you want the guard job to fail loudly instead."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.02em; line-height: 1.12; color: #17324a; }
+    h2 { font-size: 1.1rem; margin: 26px 0 8px; color: #17324a; }
+    pre { background: #fff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 14px; overflow-x: auto; font-size: .85rem; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .note { font-size: .9rem; color: #55606f; }
+    footer { margin-top: 28px; font-size: .82rem; color: #55606f; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Actions runner starvation check</a></p>
+  <h1>Add a starvation guard step to a GitHub Actions workflow</h1>
+  <p>The <a href="why-is-my-github-actions-check-red-in-seconds.html">page-and-paste tool</a> and the <code>check.py</code> CLI both answer this for one run you already have the JSON for. This page is the other case: wiring the same check into your own repository so a starved run tells you so on its own, in its job summary, instead of showing up as one more red check to chase.</p>
+
+  <h2>Why a separate workflow, not a step in the job that might starve</h2>
+  <p>A job that never gets a runner never executes a single step of its own — there is nothing inside it to add a check to. And a job that <em>did</em> run cannot see its siblings' final status while the run is still in progress. The fix used here is a second workflow, triggered by <code>workflow_run</code>, that starts only after the run it is watching has completely finished. By then every sibling job — starved or not — has a final <code>conclusion</code> the Actions API can report.</p>
+
+  <h2>The workflow</h2>
+  <p>This version needs no external fetch at all — it asks the Actions API directly with the <code>gh</code> CLI that every <code>ubuntu-latest</code> runner already has installed, and classifies with <code>gh api</code>'s own <code>--jq</code> filter:</p>
+  <pre><code>name: starvation-guard
+on:
+  workflow_run:
+    workflows: ["*"]        # or name the specific workflow(s) to guard
+    types: [completed]
+
+jobs:
+  guard:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    steps:
+      - name: Classify the run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/jobs" \
+            --jq '[.jobs[] | select(.conclusion == "failure")] |
+              if length == 0 then "No failed jobs in this run."
+              else .[] | if .runner_id == 0
+                then "STARVED  \(.name) — no runner was ever assigned, not a real failure"
+                else "REAL     \(.name) — ran on runner \(.runner_id), worth debugging"
+                end
+              end' | tee -a "$GITHUB_STEP_SUMMARY"
+</code></pre>
+  <p class="note">This is the same field the <a href="./">browser tool</a> and the <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/actions-runner-starvation-check/check.py" rel="noopener">check.py</a> CLI decide on — <code>runner_id: 0</code> means no runner was ever assigned. Prefer <code>check.py</code> itself over reimplementing the filter above if your own repository can vendor it: it also separates a still-<code>pending</code> job from a starved one and carries the test suite that keeps the classification correct.</p>
+
+  <h2>Reading the result</h2>
+  <p>The job summary lists one line per failed job in the run: <code>STARVED</code> for a job whose <code>runner_id</code> came back <code>0</code> — not your code, nothing to debug — and <code>REAL</code> for one that actually ran and is worth triaging normally. The guard step above always exits success so it never becomes one more red check for a starved run to hide behind; add <code>| grep -q STARVED &amp;&amp; exit 1</code> after the pipe instead if you want the guard job itself to fail loudly the moment it finds a starved job.</p>
+
+  <h2>What this does not need</h2>
+  <p>No fine-grained personal access token, no organization setting, and no change to the workflow being guarded. The default <code>GITHUB_TOKEN</code> the guard job requests with <code>permissions: actions: read</code> is enough — the <code>gh</code> CLI already on the runner picks it up from the <code>GH_TOKEN</code> environment variable automatically, which is the same route <code>check.py</code>'s own credential resolution prefers.</p>
+
+  <h2>Common questions</h2>
+  <h3>Why a separate workflow instead of a step inside the one that might be starved?</h3>
+  <p>A job cannot reliably read its own sibling jobs' final status while they are still running, and a starved job never runs a step of its own at all -- there is nothing inside it to add a step to. A workflow_run job fires after the whole run finishes, so every sibling job (starved or not) already has a final conclusion the Actions API can report.</p>
+  <h3>Does the default GITHUB_TOKEN have enough access to read job data?</h3>
+  <p>It needs the actions: read permission on the triggered job. Repositories with restrictive default token permissions will not grant that automatically, so the example workflow below requests it explicitly with a permissions: block rather than relying on the account-wide default.</p>
+  <h3>What does the guard job actually do with the verdict?</h3>
+  <p>It writes one line per failed job into the run's job summary (GITHUB_STEP_SUMMARY): STARVED for a job whose runner_id came back 0, REAL for one that actually ran. The step as written always exits success, so a starved run does not itself show up as one more red check to triage -- add a grep on STARVED afterward if you want the guard job to fail loudly instead.</p>
+
+  <p><a href="./">&larr; Back to the checker</a> &middot; <a href="why-is-my-github-actions-check-red-in-seconds.html">Why is my check red in seconds with no output?</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind, express or implied. They are not a substitute for reading GitHub's own billing and Actions usage pages. Verify before relying on the output.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working. Pin your own copy of <code>check.py</code> if this guard needs to keep working regardless.</p>
+    <p>Everything the linked tool does runs in your browser; nothing you paste is uploaded. This workflow only ever talks to GitHub's own Actions API with GitHub's own token.</p>
+    <p>Free and open source. If this saved you a debugging session, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

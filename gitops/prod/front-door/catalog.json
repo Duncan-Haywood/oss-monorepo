@@ -556,7 +556,7 @@
       "url": "https://marisstella.dev/tools/actions-runner-starvation-check/",
       "category": "CI checks & developer gates",
       "description": "Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "actions-self-hosted-exposure-check",
