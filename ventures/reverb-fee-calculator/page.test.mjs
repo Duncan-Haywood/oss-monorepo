@@ -290,3 +290,56 @@ test('every worked-example page hands its numbers to the where-to-sell calculato
     );
   }
 });
+
+// ---------------------------------------------------------------------------
+// Invalid input has a visible error state, not a silent freeze
+// ---------------------------------------------------------------------------
+//
+// Every function in calc.mjs throws on an input it cannot price -- a blank
+// field mid-edit, a negative number, percentage fees that add to 100% or
+// more. Clearing a number input to retype it is an ordinary interaction, and
+// before this the page's own render function had no try/catch around any of
+// that arithmetic: the throw escaped the `input` listener uncaught and the
+// calculator froze at its last good render with nothing on screen to say why.
+// These checks are static (no DOM here, matching this file's existing
+// jsdom-free style), so they assert the markup and wiring a real browser
+// needs to show the error rather than executing the script.
+
+test('calc.mjs genuinely throws on a blank or invalid input, so the page must handle it', () => {
+  assert.throws(() => compareOfferToList({ ...REVERB_DEFAULTS, price: '' }));
+  assert.throws(() => compareOfferToList({ ...REVERB_DEFAULTS, offerPrice: '-5' }));
+  assert.throws(() => compareOfferToList({
+    ...REVERB_DEFAULTS,
+    marketplaceRate: 60,
+    paymentRate: 40,
+    givesRate: 5,
+  }));
+});
+
+test('the page has a dedicated error banner, hidden until an input fails to price', () => {
+  assert.match(html, /id="inputError"[^>]*hidden/, 'error banner missing or not hidden by default');
+  // Inside the same aria-live="polite" result panel as the hero number, so a
+  // screen reader announces it the same way it announces a normal update --
+  // no separate live region to keep in sync with the one that already exists.
+  const resultSection = html.match(/<section class="result"[^>]*aria-live="polite"[\s\S]*?<\/section>/);
+  assert.ok(resultSection, 'result panel with aria-live="polite" not found');
+  assert.match(resultSection[0], /id="inputError"/, 'error banner must sit inside the live result panel');
+});
+
+test('paint() wraps its arithmetic in try/catch and shows the caught message', () => {
+  assert.match(html, /function paint\(\)/);
+  assert.match(html, /try\s*\{\s*paintResults\(inputs\)/, 'paint() must try the rendering call');
+  assert.match(html, /catch \(error\)\s*\{\s*showInputError\(/, 'a thrown error must reach showInputError');
+  assert.match(html, /function showInputError\(message\)/);
+  assert.match(html, /function clearInputError\(\)/);
+});
+
+test('an invalid draft is still saved locally, so a mid-edit value survives a reload', () => {
+  // localStorage.setItem must happen before the try/catch, not inside
+  // paintResults -- otherwise a throw skips saving the very input the seller
+  // is in the middle of typing.
+  const paintBody = html.match(/function paint\(\)\s*\{([\s\S]*?)\n    \}/);
+  assert.ok(paintBody, 'paint() body not found');
+  assert.match(paintBody[1], /localStorage\.setItem\(INPUTS_KEY/);
+  assert.match(paintBody[1], /try\s*\{/);
+});

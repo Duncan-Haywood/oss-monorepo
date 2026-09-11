@@ -17,6 +17,15 @@
     section { background: #fffef8; border: 1px solid #d8d2c4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2c24140d; } h2 { margin-top: 0; font-size: 1.15rem; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #b7b09f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #24352d; color: #fffef8; border-color: #24352d; } .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.04em; margin: 8px 0; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 16px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .8; }
+    /* Shown when an input cannot be priced at all (blank while typing, a
+       negative number, fees adding to 100% or more) — every `calc.mjs`
+       function throws rather than returning a wrong number in that case, so
+       this is what stands between that throw and a calculator that freezes
+       silently mid-edit with no feedback. Sits on the same dark panel as the
+       hero number, so it uses the panel's own light-on-dark palette rather
+       than the page's error red, which is a light-background colour and
+       would be low-contrast on this dark fill. */
+    #inputError { background: #ffffff1a; border: 1px solid #ffb6a6; border-radius: 8px; padding: 8px 10px; margin: 0 0 12px; font-weight: 650; color: #ffe3db; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
     .result a { color: inherit; text-decoration: underline; }
     /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
@@ -72,6 +81,7 @@
     </section>
     <section class="result" aria-live="polite">
       <h2>If you take the offer</h2>
+      <p id="inputError" class="error" hidden></p>
       <div id="offerProfit" class="hero-number">$208.15</div>
       <div id="offerLabel">estimated net on Reverb at the offer</div>
       <dl>
@@ -323,8 +333,39 @@
         if (values[id] !== undefined) field(id).value = values[id];
       }
     }
+    // Every `calc.mjs` function throws on an input it cannot price — blank
+    // while a field is mid-edit, a negative number, or percentage fees that
+    // add to 100% or more. Before this, `paint()` had no catch: the throw
+    // escaped the `input` listener uncaught, and the calculator froze at
+    // its last good render with nothing on screen to say why. Clearing a
+    // field to retype it is an ordinary way to use a number input, so this
+    // was reachable on the very first field a seller edited.
+    function showInputError(message) {
+      const banner = field('inputError');
+      banner.textContent = message;
+      banner.hidden = false;
+    }
+    function clearInputError() {
+      const banner = field('inputError');
+      banner.hidden = true;
+      banner.textContent = '';
+    }
+
     function paint() {
       const inputs = currentInputs();
+      // Saved regardless of validity: a mid-edit value (a field cleared to
+      // retype it) is still what the seller currently has on screen, and
+      // losing it on reload would be worse than showing it back invalid.
+      safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
+      try {
+        paintResults(inputs);
+        clearInputError();
+      } catch (error) {
+        showInputError(error.message || 'Check the highlighted inputs — this combination cannot be priced.');
+      }
+    }
+
+    function paintResults(inputs) {
       const offer = compareOfferToList(inputs);
       const vsEbay = compareReverbToEbay(inputs, Number(inputs.price));
       const ebayAtOffer = calculateEbaySale(inputs, Number(inputs.offerPrice));
@@ -443,7 +484,6 @@
 
       field('whereToSellLink').href = whereToSellUrl(inputs);
 
-      safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
       const optedOut = field('usageOptOut').checked;
       recordUsage(undefined, optedOut, 'reverb_sale_calculated');
       recordUsage(undefined, optedOut, 'reverb_offer_compared');
