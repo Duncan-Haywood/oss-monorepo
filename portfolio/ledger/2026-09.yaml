@@ -27302,6 +27302,123 @@ entries:
         `publish_surface.py --write` (classification `none`, publishes
         nothing).
     mrr_end: 0
+  - venture: brand-deal-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous-development-mandate brief. First drained the
+        PR/branch queue per the mandate's three-PR quota: 0 open PRs existed,
+        and an exhaustive supersede_check.py sweep of all 198 unmerged remote
+        branches (30 checked directly, 168 more via a background agent) found
+        zero genuinely mergeable work -- every non-trivial candidate was
+        either an identical-merge no-op or a STALE DRAFT SUSPECTED /
+        RENAME SUSPECTED case main had already superseded. Queue confirmed
+        empty rather than assumed.
+      - >-
+        Graduated brand-deal-rate-calculator: a free, client-side calculator
+        turning a social media creator's follower count, engagement rate,
+        and platform into a brand-deal price range per deliverable (feed
+        post, Story, Reel/short video, dedicated video), modeled on the
+        already-graduated newsletter-sponsorship-rate-calculator for a
+        different creator-economy channel. duplicate_check.py scored nothing
+        >= 0.10 against any existing venture, pipeline candidate, or
+        screened-out row. Shipped with a reciprocal sibling link to
+        newsletter-sponsorship-rate-calculator (0 orphans per
+        siblings.mjs --check), filed under the solo-earner front-door
+        category rather than the catch-all, VENTURE.yaml with duplicate-check
+        evidence and passing liability/ethics gates, venture-scores.yaml
+        entry, launched.json entry, and CI workflow.
+      - >-
+        Also fixed, found while verifying: main's tool count moved 257 -> 258
+        with this graduation, requiring updates to
+        infra/OWNER_CHECKLIST.md, gitops/prod/front-door/default.conf,
+        gitops/prod/usage/aggregate.py, and
+        gitops/tests/test_manifests.py's own constant, plus
+        gitops/ci/sync_readme_counts.py for the runs-on-count drift the new
+        CI workflow caused -- the exact drift shape CLAUDE.md already
+        documents costing live product twice.
+      - >-
+        A concurrent session landed a share-link feature on
+        newsletter-sponsorship-rate-calculator while this branch was in
+        progress (git fetch --unshallow was needed after the working clone
+        re-shallowed mid-session). Merged origin/main, combined both sets of
+        page.test.mjs tests, and re-ran regen.mjs/build.mjs to resolve the
+        generated-artifact (gzip mirror shard) conflicts rather than
+        hand-merging binaries.
+      - >-
+        Verified locally while Actions runners were starved (confirmed via
+        ci_starvation.py on both `main` and the PR -- runner_id 0, 3-5s, no
+        steps): venture's own suite 16/16; newsletter sibling's suite 29/29
+        after the merge; node platform/marketing/regen.mjs +
+        node platform/pages/build.mjs -- 258 tools, 991 pages; check.mjs --
+        no dead links; siblings.mjs --check -- 0 orphans; node --test across
+        platform/marketing + platform/pages -- 1255/1255; platform/proposal
+        101/101; platform/privacy + platform/webcheck 82/82; all 15
+        platform/ci unittest modules including agent_review/test_review
+        21/21; portfolio/ledger + scoring + router + usage + pipeline +
+        infra/tests 435/435; gitops/tests 581 passed 1 environmental skip;
+        score_ventures.py --check, router/validate.py,
+        publish_surface.py --check, checklist_coverage.py all clean;
+        run_workflow_locally.py --for-changes 12/14 selected workflows
+        passed (2 need Hetzner cluster/bot-app credentials this sandbox
+        lacks). Merged as #4605.
+      - >-
+        Deployed: gh-pages was stale (built from 4413c482, main moved to
+        7080a5a9) -- CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh republished, pages_state.py
+        --require-current now reports current. indexnow_state.py confirms
+        the announce step is (as documented) blocked from this sandbox's
+        egress proxy, not skipped by oversight -- needs a runner or the
+        Hetzner host.
+      - >-
+        Also confirmed, per the session's other stated priority: the
+        Codex-CLI-on-Hetzner setup (gitops/agents/host/) is fully built and
+        tested (104/104 across test_host_governor.py,
+        test_install_codex_host.py, test_portfolio_site_host.py,
+        test_install_github_runner_host.py; systemd-analyze verify clean on
+        both units) and genuinely blocked on nothing but the owner rotating
+        HETZNERSSHKEY from a public to a private key -- already the #1 row
+        in decision_queue.py. Not re-adding that ask.
+    mrr_end: 0
+  - venture: bounce-house-rental-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session, after the brand-deal-rate-calculator graduation above:
+        ran the whole-catalogue browser/accessibility sweep (staled by that
+        graduation's build.mjs change) and roundtrip.mjs caught a real,
+        live defect -- the hero price only recomputed on an explicit "Price
+        this booking" submit, so editing a field and clicking "Copy
+        shareable link" without pressing Calculate first copied a link
+        encoding the new figures while the sender's own screen kept
+        showing the stale worked-example price ($1,574.46 vs the correct
+        $132,589.15 for the edited booking, zero fields dropped). Diagnosed
+        by hand with calculateQuote() against the exact captured field
+        values, confirming the link and the restored page both computed
+        correctly and only the sender's own screen was stale.
+      - >-
+        Fixed by adding the document/form-level input+change listener this
+        exact bug shape already has a fleet precedent for
+        (staffing-markup-calculator, wildlife-exclusion-bid-calculator). A
+        concurrent session found and fixed the identical bug independently
+        in the same window (#4606, functionally equivalent, scoped to
+        `el('quoteForm')`) and merged to main first; reconciled by keeping
+        #4606's fix on merge and carrying forward this session's own static
+        regression test (updated to match its actual selector), which #4606
+        did not add.
+      - >-
+        Verified: venture's own suite 74/74 (was 73, one regression test
+        added); a scoped roundtrip re-run against the fix -- 36 fields,
+        headline $132,589.15, ok; sideways/presets/contrast/sweep clean
+        against this venture in isolation; node --test across
+        platform/marketing + platform/pages -- 1255/1255 after
+        regen.mjs/build.mjs reconciled the mirror with both this fix and
+        the concurrently-graduated influencer-media-kit-generator (#4607);
+        check.mjs -- 259 products, 993 pages, no dead links; siblings.mjs
+        --check -- 0 orphans.
+    mrr_end: 0
   - venture: quarterly-estimated-tax-calendar
     agent_spend_usd: null
     human_hours: 0
