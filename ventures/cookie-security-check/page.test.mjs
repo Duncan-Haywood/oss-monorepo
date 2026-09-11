@@ -8,6 +8,7 @@ import { buildReport } from './analyze.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(HERE, 'index.html'), 'utf8');
 const docHtml = readFileSync(join(HERE, 'samesite-none-cookie-rejected.html'), 'utf8');
+const vsHtml = readFileSync(join(HERE, 'vs-cookiebot.html'), 'utf8');
 
 function jsonLdBlocks(source) {
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
@@ -101,6 +102,21 @@ test('the page explains the SameSite=None rejection rule, not just a weaker-prot
 test('the page explains the __Host-/__Secure- prefix contract', () => {
   assert.match(html, /__Host-/);
   assert.match(html, /__Secure-/);
+});
+
+test('index links to the Cookiebot comparison page, and it links back', () => {
+  assert.match(html, /href="vs-cookiebot\.html"/);
+  assert.match(vsHtml, /href="index\.html"/);
+});
+
+test('the comparison page carries valid FAQPage JSON-LD and the no-warranty disclaimer', () => {
+  const blocks = jsonLdBlocks(vsHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  assert.match(vsHtml, /No warranty/);
+  assert.match(vsHtml, /provided free and as-is, without warranty/);
+  assert.match(vsHtml, /not affiliated with, endorsed by, or sponsored by Cookiebot/i);
 });
 
 function extractConst(name) {

@@ -852,7 +852,7 @@
       "url": "https://marisstella.dev/tools/cookie-security-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on SameSite=None cookies missing Secure (which current browsers reject outright), broken __Host-/__Secure- prefix cookies, and missing Secure/HttpOnly/SameSite. Nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "cors-misconfig-check",
