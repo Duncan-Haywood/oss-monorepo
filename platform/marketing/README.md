@@ -183,7 +183,10 @@ this site's `robots.txt` — and the `Sitemap:` line naming 881 published pages
 — is unreachable to a crawler, because the site is served from a project-Pages
 *subpath* while `robots.txt` is only ever fetched at the *host* root. Sitemap
 auto-discovery has therefore never happened, and `portfolio/usage/usage.yaml`
-still records zero visitors across every product. The real fix is the owner's
+still carries no visitor reading for any product — `live_url_visitors` is
+`null` on all 399 of them, never measured rather than measured-as-zero, which
+is a different fact and licenses different decisions
+(`python3 platform/ci/usage_state.py`). The real fix is the owner's
 (submit `sitemap.xml` directly in Search Console, or set a custom domain — see
 the `indexing` row) — but IndexNow does not have that problem, because its key
 file's location is named explicitly in every submission rather than assumed at

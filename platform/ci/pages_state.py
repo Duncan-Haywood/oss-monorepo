@@ -795,8 +795,10 @@ def indexing_verdict(base_url):
     It matters more here than it would almost anywhere else. Nothing links to
     this catalogue from outside, so link-following gives a crawler very little
     to go on, and the sitemap is the whole discovery story for a portfolio
-    whose `portfolio/usage/usage.yaml` records zero observed users across 203
-    products. `portfolio/router/allocate.py` opens every venture's top task
+    whose `portfolio/usage/usage.yaml` has never taken a visitor reading at
+    all -- `live_url_visitors` is null on every row, never measured rather
+    than measured-as-zero (`usage_state.py`).
+    `portfolio/router/allocate.py` opens every venture's top task
     with "test the untested hypothesis", and every one of those needs traffic.
 
     Two things fix it and both are the owner's, which is why this reports
