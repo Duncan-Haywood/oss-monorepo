@@ -5822,6 +5822,26 @@ products:
           a flat local count here is weaker evidence than usual and should not
           on its own be read as no use; repository engagement is the other
           half of the signal.
+  - slug: actions-minutes-estimator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          estimate_run: 0
+          example_loaded: 0
+          parse_error: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          page on the gh-pages catalogue. `live_url_visitors` is null and not
+          zero, deliberately: GitHub Pages exposes no server-side analytics,
+          this portfolio adds no third-party one, and the local counters are
+          opt-in and off by default -- so nobody has measured, which is a
+          different claim from having measured nothing. The three event
+          counters are local-storage only, honour Do Not Track and Global
+          Privacy Control, and are readable only by the visitor whose browser
+          holds them; they are recorded here at zero as the starting point,
+          not as a reading of anyone's behaviour.
   - slug: llms-txt-generator
     surface: github-pages
     readings:

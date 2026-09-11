@@ -135,6 +135,24 @@ const NOT_AN_ACTION = /copy|download|print|clear|export|reset|share|^add another
 // untested.
 const LOADS_AN_EXAMPLE = /example|sample|fixture|demo|try it/i;
 
+/**
+ * A mode/tab switcher, excluded by role rather than by label because its
+ * label is whatever the venture calls its own modes ("1. Paste a page list")
+ * and no wording pattern generalizes across them the way it does for "copy"
+ * or "download".
+ *
+ * Found on `llms-txt-generator` (2026-09-11): its three tabs sit before its
+ * "Build llms.txt" button in document order, so `pressPrimaryAction` stopped
+ * on the already-active first tab -- a harmless re-select of the same mode --
+ * and never reached the button that actually runs the tool. The page was
+ * fine; the click landed on navigation instead of the action beside it. Same
+ * shape as `cash-runway-planner`'s "Add another row" above, just structural
+ * instead of lexical because a tab has no fixed wording to match on.
+ */
+async function isTabSwitch(button) {
+  return button.evaluate((node) => node.getAttribute('role') === 'tab' || node.classList.contains('tab'));
+}
+
 const browser = await chromium.launch(LAUNCH);
 // A phone viewport, because that is where this audience is: a van, a job site,
 // a warehouse aisle. A tool that only works at desktop width fails here.
@@ -314,6 +332,7 @@ async function pressPrimaryAction() {
   for (const button of await page.$$(OWN_BUTTONS)) {
     const label = (await button.textContent())?.trim() ?? '';
     if (!label || NOT_AN_ACTION.test(label)) continue;
+    if (await isTabSwitch(button)) continue;
     try {
       await button.click({ timeout: 2000 });
       return label;
