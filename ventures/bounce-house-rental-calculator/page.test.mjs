@@ -278,31 +278,37 @@ test('generated fleet-table default quantities are on the qty field\'s own step 
   }
 });
 
-test('the panel reprices as the form is edited, not only when the button is pressed', () => {
-  // Measured 2026-09-11 by `platform/pages/roundtrip.mjs`: this was the one
-  // tool of 185 with a share link and no live recompute, and the two together
-  // are what made it a real defect rather than a cosmetic one. `shareState()`
-  // reads the form directly, so a link copied after an edit carried the new
-  // booking while the panel still showed the price from the last press — the
-  // yard read $1,574.46 down the phone and the customer opened $132,589.15.
-  //
-  // Asserted on the form rather than on a list of field ids because the five
-  // fleet rows are created by script: bubbling covers rows added later, and a
-  // restated id list is exactly the staleness CLAUDE.md records twice.
-  const markup = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
-  const script = /<script type="module">([\s\S]*)<\/script>/.exec(markup)[1];
-  assert.match(script, /el\('quoteForm'\)\.addEventListener\('input', \(\) => submit\(\)\)/);
-  assert.match(script, /el\('quoteForm'\)\.addEventListener\('change', \(\) => submit\(\)\)/);
+// Static guard for the shape of bug platform/pages/roundtrip.mjs found live:
+// the hero price used to update only on an explicit form submit, so editing a
+// field and then immediately clicking "Copy link" -- never pressing "Price
+// this booking" first -- copied a link encoding the new numbers while the
+// sender's own screen kept showing the last-submitted price ($1,574.46 vs the
+// correct $132,589.15 for the edited figures, with zero fields dropped: the
+// link and the restored page both computed correctly, only the sender's
+// on-screen hero was stale). The authoritative regression check is the real
+// browser behaviour in roundtrip.mjs; this only pins that the wiring which
+// fixes it stays in the shipped page.
+test('every field recomputes the quote live, not only on an explicit submit', () => {
+  assert.match(
+    index,
+    /el\(['"]quoteForm['"]\)\.addEventListener\(['"]input['"],\s*\(\)\s*=>\s*submit\(\)\)/,
+    'the form must carry an "input" listener that calls submit() so editing a field updates the hero price immediately',
+  );
+  assert.match(
+    index,
+    /el\(['"]quoteForm['"]\)\.addEventListener\(['"]change['"],\s*\(\)\s*=>\s*submit\(\)\)/,
+    'the form must carry a "change" listener that calls submit() so a select or checkbox edit updates the hero price immediately',
+  );
 });
 
 test('typing is not counted as a pricing', () => {
-  // The live listeners above call `submit()` directly rather than going through
-  // the submit handler, so `quote_priced` still counts a deliberate press. A
-  // count on every keystroke would turn an aggregate feature tally into a
-  // typing log, which is not what the footer promises.
-  const markup = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
-  const script = /<script type="module">([\s\S]*)<\/script>/.exec(markup)[1];
-  const live = /addEventListener\('(?:input|change)', \(\) => submit\(\)\)/g;
-  assert.equal([...script.matchAll(live)].length, 2);
-  assert.doesNotMatch(script, /addEventListener\('input',[^)]*count\('quote_priced'\)/);
+  // The live listeners above call `submit()` directly rather than going
+  // through the submit handler, so `quote_priced` still counts a deliberate
+  // press. A count on every keystroke would turn an aggregate feature tally
+  // into a typing log, which is not what the footer promises. Kept from this
+  // branch when main landed its own version of the test above: main's guards
+  // that the wiring exists, this guards what the wiring must not do.
+  const live = /addEventListener\(['"](?:input|change)['"],\s*\(\)\s*=>\s*submit\(\)\)/g;
+  assert.equal([...index.matchAll(live)].length, 2);
+  assert.doesNotMatch(index, /addEventListener\(['"]input['"],[^)]*count\(['"]quote_priced['"]\)/);
 });
