@@ -183,9 +183,37 @@ function canonical(value) {
  * where they meet.
  *
  * Meaningful differences are preserved: HTTPS still differs from HTTP, and
- * distinct headers still differ. Headers are sorted because the kubelet sends
- * the same set either way, so header *order* is spelling, not behaviour.
+ * distinct headers still differ. See `normalizeHeaders` for exactly how far
+ * header ordering is normalized, which is less far than it first looks.
  */
+/**
+ * Header order, normalized exactly as far as HTTP says it may be and no
+ * further.
+ *
+ * RFC 9110 makes this asymmetric: the order of *different* field names carries
+ * no meaning, so two probes listing the same headers in a different order are
+ * the same request. But repeated lines sharing *one* name are combined in the
+ * order received, so `X-Probe: ready` then `X-Probe: live` is not the same
+ * request as the reverse, and an application can act on the difference.
+ *
+ * A flat sort by (name, value) collapsed both cases and made that second pair
+ * compare equal -- a false `liveness-equals-readiness` on two probes that
+ * genuinely differ. So: group by name, sort the groups, and leave each group's
+ * values in the order the manifest gave them.
+ */
+function normalizeHeaders(raw) {
+  const groups = new Map();
+  for (const entry of Array.isArray(raw) ? raw : []) {
+    const name = String(entry?.name ?? '');
+    const value = String(entry?.value ?? '');
+    if (!groups.has(name)) groups.set(name, []);
+    groups.get(name).push(value);
+  }
+  return [...groups.keys()]
+    .sort((a, b) => a.localeCompare(b))
+    .map((name) => ({ name, values: groups.get(name) }));
+}
+
 function normalizeHandler(kind, handler) {
   const h = handler && typeof handler === 'object' ? handler : {};
   if (kind === 'httpGet') {
@@ -196,9 +224,7 @@ function normalizeHandler(kind, handler) {
       scheme: String(h.scheme ?? 'HTTP').toUpperCase(),
       // Absent and empty both mean "the pod's own IP".
       host: h.host ? String(h.host) : null,
-      httpHeaders: (Array.isArray(h.httpHeaders) ? h.httpHeaders : [])
-        .map((x) => ({ name: String(x?.name ?? ''), value: String(x?.value ?? '') }))
-        .sort((a, b) => `${a.name} ${a.value}`.localeCompare(`${b.name} ${b.value}`)),
+      httpHeaders: normalizeHeaders(h.httpHeaders),
     };
   }
   if (kind === 'tcpSocket') return { port: h.port ?? null, host: h.host ? String(h.host) : null };
