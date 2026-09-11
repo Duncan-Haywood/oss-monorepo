@@ -28169,3 +28169,256 @@ entries:
         CLAUDE.md and in #4619's own report the same day — not a regression
         from this change.
     mrr_end: 0
+  - venture: cat-adjuster-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped ventures/cat-adjuster-fee-calculator: a
+        browser-local calculator for independent catastrophe (CAT) claims
+        adjusters, netting a blended per-claim fee (base plus a large-loss
+        bonus share) against estimating-software, lodging, per diem,
+        vehicle, and mileage cost, with unpaid travel days costed
+        separately from working days, plus a fee-schedule comparison table
+        ranking named IA firm offers by net profit. A genuinely new niche,
+        not a parity feature: screened against `screened-out.md`
+        (nothing filed), scored per `portfolio/pipeline/README.md`
+        (composite 6.625, floor 1 on ai_leverage, both liability/ethics
+        gates at 8), and `duplicate_check.py` found no existing venture or
+        candidate above 0.18 (closest: `notary-trip-quote`, a different
+        gig-work niche). Named recurring channels: r/Adjusters,
+        r/InsuranceAdjusters, and CatAdjuster.org's forums already discuss
+        this exact "is this fee schedule worth it" trade-off.
+      - >-
+        Shipped a second page,
+        `is-this-cat-adjuster-fee-schedule-worth-it.html`, working two fee
+        schedules side by side with numbers asserted against `calc.mjs` in
+        `page.test.mjs` so a future default change cannot leave a stale
+        figure on the page.
+      - >-
+        Added reciprocal one-hop sibling links to/from
+        `medical-courier-route-margin` and `translator-project-quote`
+        (closest existing gig-work/route-economics ventures), and placed
+        the new venture in the `solo-earner` front-door category rather
+        than the catch-all, keeping that bucket at its tested bound
+        (`platform/pages/build.mjs`, `build.test.mjs`'s
+        "the catch-all holds only what no section claims").
+      - >-
+        Verified locally (Actions runners not checked this session --
+        merging per CLAUDE.md's standing rule that agents merge product
+        PRs without waiting on CI, with local verification substituting
+        while the fleet's starvation status was not re-measured this
+        session): the venture's own suite 50/50;
+        `medical-courier-route-margin` 55/55 and
+        `translator-project-quote` 55/55 after adding the sibling links;
+        `platform/marketing` + `platform/pages` full suite 1255/1255 after
+        `regen.mjs` (a first pass caught 9 failures -- a stale mirror from
+        running `regen.mjs` before the sibling-footer edits, a missing
+        FAQPage block on the new guide page, an em-dash/`--` divergence
+        between two FAQ answers' JSON-LD and their visible copy on
+        `index.html`, and the new venture overflowing the front-door
+        catch-all past its tested bound -- each fixed and reverified
+        clean); `platform/proposal` + `platform/privacy` + `platform/webcheck`
+        181/183 (2 skipped: shallow-clone history-pinned tests, documented
+        benign); `clauses.mjs` clean on all three touched ventures;
+        `checklist_coverage.py` clean; `router/validate.py` valid (272
+        VENTURE.yaml); `score_ventures.py --check` consistent (273
+        ventures, new row added); `validate_usage.py` valid (248 products,
+        434 readings, new baseline row added with `live_url_visitors: null`
+        per usage/README.md); `validate_candidates.py` and
+        `validate_doc_consistency.py` both clean (41 candidates, README
+        table renumbered to keep composite-descending order); platform/ci's
+        24-module unittest suite 918/918 after adding
+        `cat-adjuster-fee-calculator-ci.yml` (the venture shipped
+        `*.test.mjs` files with no workflow running them, caught by
+        `test_validate_workflows.py`) and recording it via
+        `publish_surface.py --write`; `platform/ci/agent_review`
+        21/21; `portfolio/ledger` + `portfolio/scoring` + `portfolio/router`
+        + `portfolio/usage` + `portfolio/pipeline` + `infra/tests` pytest
+        435/435; scoped browser/a11y checks (Playwright 1.56.0 + axe-core,
+        `browser_checks.py --only cat-adjuster-fee-calculator`) all `ok`
+        (sideways, presets, roundtrip, contrast, sweep, journey; `highlight`
+        skipped -- this venture makes no highlight promise, not a failure).
+        `launched.mjs --write` recorded today's launch date.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a wrong reading in the deploy-state tooling (#4625).
+        `publish_surface.py`'s `pages_branch_survey()` resolved
+        `refs/heads/main` before `refs/remotes/origin/main`. In a web session
+        that is reliably the wrong ref: the clone arrives carrying a local
+        `main` at whatever commit the session branch was cut from, and
+        `git fetch origin main` -- the command CLAUDE.md tells every session
+        to run before reading anything -- updates only the remote-tracking
+        ref. Measured on this checkout: `gh-pages` was staged from the tip of
+        `origin/main` while the local `main` sat 6829 commits away on a
+        diverged branch, and the tool reported the live deploy route as
+        "6829 commit(s) behind `main`", telling the reader to restage an
+        artifact that was already current. `pages_state.py` read the same
+        branch as `current` in the same minute -- it asks the GitHub API for
+        the default branch, so it was never exposed, and the contradiction
+        between the two is what made this visible at all.
+      - >-
+        The direction that motivated the fix is the other one: when the stale
+        local ref is *behind* the snapshot's source commit,
+        `rev-list --count source..main` is 0 and the row renders `current` --
+        an artifact genuinely lagging `main` reading as fresh, with no error
+        anywhere to say so. That is the silent failure this part of the tool
+        exists to make visible.
+      - >-
+        Enumerated rather than recalled, per the rule this repo has learned
+        three times: `publish-branch.sh` already resolves `FETCH_HEAD` then
+        `origin/main` and never a local ref, and no other tool under
+        `platform/`, `portfolio/`, `gitops/` or `bootstrap/` compares against
+        `refs/heads/main`. The exposure was one function.
+      - >-
+        The existing `fake_git` answers local and remote refs with a single
+        value, which is exactly why the suite could not see this -- a survey
+        reading the wrong ref was indistinguishable from one reading the
+        right ref. Added `fake_git_by_ref` and four tests covering both
+        staleness directions, the local-ref fallback, and an unpushed local
+        `gh-pages` not masking the served one. Three of the four fail against
+        the previous ordering; the fallback test passes either way by design,
+        guarding the over-correction.
+      - >-
+        Recorded a clean full-catalogue browser/a11y sweep at 89b7dbe7:
+        all 7 checks (sideways, presets, roundtrip, highlight, contrast,
+        sweep, journey) `ok` over 1006 pages, Playwright 1.56.0 + axe-core --
+        0 failed checks, 0 page/console errors, 1004/1004 sitemap URLs
+        resolving, no off-origin request (the privacy promise every tool page
+        makes), no horizontal overflow at 375px. Appended to
+        `browser_state.json` alongside a concurrent session's 958-page
+        reading from #4626 rather than replacing it; the file is an
+        append-only list and both readings are valid measurements.
+      - >-
+        Measured two things that needed no change, recorded so the next
+        session does not re-derive them. Link-graph reachability from the
+        front door: 1004 of 1006 built pages reachable, the only two orphans
+        being `404.html` and `offline.html`, which are correctly unlinked.
+        That matters more than usual here because sitemap enumeration is
+        unavailable on a project-Pages subpath, so a page reachable only from
+        the sitemap is reachable from nothing -- the internal link graph is
+        currently the whole discovery path, and it is sound.
+      - >-
+        And the branch backlog: `git branch -r --no-merged origin/main`
+        reports 495 branches, which reads as a large pile of unshipped work
+        and is not one. 494 of them have an *empty* content diff against
+        `main` -- they are squash-merge artifacts, since squashing rewrites
+        the commit and leaves the original unreachable. The only branch with
+        a real difference was this session's own. There is no orphaned unique
+        work needing a PR, and `branch_cleanup.py` is keyed to pull requests
+        rather than to `--no-merged`, so it is immune to this false positive;
+        it is only waiting on a runner.
+      - >-
+        Verified locally (Actions starved this window -- all 5 checks on
+        #4625 classified `runner_id: 0`, 3s, no steps): `test_publish_surface`
+        81/81; all 25 `platform/ci` unittest modules; `agent_review` 21/21;
+        `gitops/tests` 581 passed 1 skipped; portfolio + `infra/tests` 435
+        passed; `checklist_coverage.py` clean; `guard_state.py
+        --require-runnable` clean after `apt-get install python3-pytest
+        nginx-light openssh-client` (1 environmental skip, only meaningful on
+        a GitHub-hosted runner); `run_workflow_locally.py --tree` on a clean
+        `main` 9/9 workflows; `--for-changes` 4/5, the non-pass being
+        `agent-cross-review.yml`, which needs reviewer GitHub App credentials
+        and cannot run locally.
+      - >-
+        Not shipped, and blocked on the same single owner action rather than
+        on anything in the tree: the Hetzner origin, host-mode site serving,
+        the self-hosted runner and the Codex worker all wait on
+        `hetzner-ssh-key-is-a-public-key`. Confirmed the recovery path is
+        sound rather than assuming it -- `DRY_RUN=1 WITH_CODEX_HOST=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1
+        bootstrap/restore-cluster.sh` prints the credential plan before the
+        SSH gate and names which credential stands behind each extra, and
+        `worker.sh` unsets `OPENAI_API_KEY` when `CODEX_AUTH_JSON` is present
+        so a tick cannot bill against the metered key. No new ask added; the
+        queued one already carries the exact commands.
+    mrr_end: 0
+  - venture: vpat-acr-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture rather than picking up the stale
+        `candidates.yaml` queue, per `DIRECTION.md`'s 2026-09-06 "screen a
+        fresh niche yourself" guidance: `portfolio/pipeline/duplicate_check.py`
+        confirmed no existing venture, screened-out row, ai-first-markets
+        idea, or pipeline candidate scores above 0.10 for this niche (closest
+        match `shopify-a11y-evidence` at 0.10). A free, browser-only VPAT 2.5
+        / Accessibility Conformance Report generator for software vendors
+        preparing a Section 508 or enterprise procurement RFP response: the
+        vendor enters every WCAG 2.1 Level A/AA conformance level and remark
+        themselves, from their own testing, and the tool only formats those
+        answers into the standard document shape and flags completeness
+        problems (a Partially/Does Not Support row with no remarks; a missing
+        required header field). It never scans, tests, or assesses the
+        vendor's product, and never selects a conformance level -- that
+        framing is the deliberate liability-containment choice, argued in
+        `VENTURE.yaml`.
+      - >-
+        Named distribution-channel evidence, gathered via WebSearch this
+        session rather than assumed: "VPAT template"/"VPAT generator" is a
+        real, demonstrable search term -- Level Access, ITIC's own site,
+        BarrierBreak, Accessibility.Works, and WCAG.com all publish
+        SEO-targeted pages for exactly this query. More specifically, the
+        WebAIM Discussion List (webaim.org/discussion) is a long-running,
+        high-traffic accessibility-professional mailing list with real,
+        findable threads about VPAT mechanics (thread 8773, "VPATs for Word,
+        PPT, Excel, etc"; thread 10051, "VPAT for U508"), and WebAIM's own
+        article "Making VPATs and ACRs More Effective in Procurement"
+        independently names the exact completeness failure (incomplete ACRs
+        across the vendor pool; remarks too generic on a partial-support row)
+        this tool's checker targets -- a sourced problem statement from the
+        audience's own reference source.
+      - >-
+        `node platform/marketing/regen.mjs` after adding the page -- the
+        first run caught two real failures this session then fixed: a
+        `faq-visible.test.mjs` mismatch between the FAQPage JSON-LD text and
+        the visible on-page prose (two answers had been paraphrased slightly
+        differently in each place), and `build.test.mjs`'s catch-all-category
+        bound (adding an unclassified venture pushed the catch-all to 6,
+        past its committed bound of 5) plus `siblings.test.mjs`'s
+        crawlable-orphan budget (the new page had no inbound link from any
+        other venture). Fixed by filing the venture under the existing
+        "Compliance checks & evidence records" category in `build.mjs`
+        (a named-slug rule, matching the pattern already used for
+        `real-estate-agent-photo-app`/`print-atelier`) and adding a
+        reciprocal cross-link from `ada-title-ii-evidence`'s intro paragraph
+        to the closest existing accessibility-evidence sibling. Reran the
+        full marketing+pages suite green (1255/1255) after each fix.
+      - >-
+        A concurrent session merged #4627/#4628 to `main` while this session
+        was building (measured via `mcp__github__actions_list` immediately
+        before pushing, per the standing duplicate-PR check) -- rebased this
+        branch onto the new `origin/main` tip (`e7f78b80`) with a clean,
+        conflict-free rebase (the mirror-regeneration commit was kept
+        separate from the source commit specifically so the binary
+        front-door-tools shards never had to be rebased themselves; they
+        were regenerated fresh from the rebased tree instead), then reran
+        `regen.mjs` and the full verification set again against the rebased
+        tree before pushing.
+      - >-
+        Verified locally: `node --test ventures/vpat-acr-generator/*.test.mjs`
+        18/18; `node --test ventures/ada-title-ii-evidence/*.test.mjs` 33/33
+        (unaffected by the added cross-link); `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1255/1255;
+        `node platform/pages/clauses.mjs vpat-acr-generator` and
+        `ada-title-ii-evidence` both clean; `python3
+        portfolio/router/validate.py` all VENTURE.yaml valid; `python3
+        platform/ci/check_no_payment_code.py` clean; `python3
+        portfolio/scoring/score_ventures.py --check` 273 ventures consistent
+        (added an honest six-dimension + two-gate score row, floored at
+        `ai_leverage: 1` -- deterministic formatting, no free-text
+        generation a model could plausibly help with); `python3
+        portfolio/usage/validate_usage.py` 248 products/434 readings (added
+        a null-visitors baseline row); `python3
+        portfolio/pipeline/validate_candidates.py` and
+        `validate_doc_consistency.py` clean (not added as a
+        `candidates.yaml` write-up -- screened and graduated directly, per
+        the 2026-09-06 guidance); `python3 platform/ci/checklist_coverage.py`
+        clean; `python3 portfolio/ledger/check_ledger_only.py` exit 0 (real
+        code shipped in the same branch).
+    mrr_end: 0

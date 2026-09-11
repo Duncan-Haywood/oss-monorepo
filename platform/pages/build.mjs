@@ -549,9 +549,19 @@ const CATEGORY_RULES = [
     // nor any prefix above catches them, and both landed in the catch-all
     // where the readers of "Compliance checks & evidence records" never saw
     // them.
+    // `vpat-acr-generator` joined 2026-09-11, filed here on its first commit
+    // rather than after a spell in the catch-all -- what `build.test.mjs`'s
+    // catch-all bound is for. It assembles a dated Accessibility Conformance
+    // Report from the vendor's own self-reported testing, this section's
+    // exact "produce a dated record of what you checked" job -- the same
+    // evidence-record shape as `shopify-a11y-evidence` and
+    // `real-estate-agent-photo-app` right above, just for a software
+    // vendor's procurement bid instead of a merchant's theme or a listing
+    // photo set. Slug ends in neither `-evidence` nor any suffix above, and
+    // starts with `vpat`, which none of the prefixes above would guess.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier)/.test(slug),
+      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator)/.test(slug),
   },
   {
     id: 'backoffice',
@@ -1166,12 +1176,24 @@ const CATEGORY_RULES = [
     // `newsletter-sponsorship-rate-calculator`'s first commit rather than
     // landing in the catch-all, which is also what keeps that catch-all
     // inside the bound `build.test.mjs` puts on it.
+    //
+    // `cat-adjuster-fee-calculator` joined 2026-09-11: a 1099 independent
+    // catastrophe claims adjuster deciding whether an IA firm's per-claim
+    // fee schedule is worth a storm deployment is the same move as
+    // `gig-driver-net-pay-calculator`'s gig driver -- an individual pricing
+    // their own labour against costs nobody else carries, not a business
+    // quoting a customer. It shipped with reciprocal inbound sibling links
+    // from `medical-courier-route-margin` and `translator-project-quote`'s
+    // first commits rather than landing in the catch-all, which is also
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on
+    // it.
     test: (slug) =>
       [
         '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
         'brand-deal-rate-calculator',
+        'cat-adjuster-fee-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
         'gig-driver-net-pay-calculator',

@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://example.invalid/cookie-security-check/</loc></url>
 <url><loc>https://example.invalid/cookie-security-check/samesite-none-cookie-rejected.html</loc></url>
+<url><loc>https://example.invalid/cookie-security-check/vs-cookiebot.html</loc></url>
 </urlset>

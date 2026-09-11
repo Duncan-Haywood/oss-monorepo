@@ -188,6 +188,9 @@ workflows:
 - workflow: cash-runway-planner-ci.yml
   classification: none
   publishes: []
+- workflow: cat-adjuster-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: certified-payroll-calculator-ci.yml
   classification: none
   publishes: []
@@ -939,6 +942,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: vinyl-liner-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: vpat-acr-generator-ci.yml
   classification: none
   publishes: []
 - workflow: vscode-extension-drift-check-ci.yml
