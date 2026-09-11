@@ -10965,6 +10965,89 @@ ventures:
       position to abuse, and the density presets are disclosed on both pages
       as starting points to overwrite rather than as survey data, which is
       the honest direction to err given the tool argues for higher quotes.
+  - slug: quarterly-estimated-tax-calendar
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI anywhere in the product. It applies a published IRS formula
+      (Form 1040-ES safe harbor) and a deterministic federal-holiday
+      calendar to numbers the filer already has from their own return.
+      Every due date and every dollar figure is independently re-derivable
+      by the filer from the IRS's own worksheet -- inference would make the
+      result less checkable without making it more correct, and the one
+      thing this tool cannot afford to be is a source of an incorrect due
+      date or amount presented with unearned confidence.
+    basis: >-
+      Graduated 2026-09-11: a rules-engine-plus-calendar-file generator for
+      US freelancers, 1099 contractors, and gig workers, a genuinely
+      different mechanism from both saturated shapes this session was
+      steered away from -- the 141-strong <trade>-bid-calculator archetype
+      and the 38-strong -check/-checker archetype (portfolio/pipeline/README.md,
+      2026-09-11 update) -- and only the second venture in the fleet to
+      generate a downloadable .ics calendar file (after
+      grant-deadline-tracker). duplicate_check.py scored nothing >= 0.45
+      against the final description; the closest venture match
+      (ifta-quarterly-fuel-tax-calculator, 0.06) is also a "quarterly tax"
+      tool but a completely different tax, filer, and input shape (state
+      motor-fuel excise tax for commercial carriers, computed from
+      miles/gallons per jurisdiction). gig-driver-net-pay-calculator scored
+      0.05 and is the real nearest neighbour by audience rather than by
+      lexical overlap: its own tax-reserve guide explicitly declines to
+      model due dates or the safe-harbor rule ("not a filing calendar"),
+      which is exactly the gap this venture fills -- the two now link each
+      other in both directions.
+      Defensibility 4: the safe-harbor formula itself is public IRS
+      information and trivial to restate. What is not commodity, and what
+      the existing free calculators from the major tax-software vendors do
+      not do, is correctly computing the *actual* due date rather than
+      assuming "the 15th" -- the real federal deadline has moved in three
+      of the last four tax years (April 18, 2022; January 17, 2023;
+      January 16, 2024, each a real, published IRS shift this tool's test
+      suite pins as a regression case) -- and exporting a reminder calendar
+      with no account, no product funnel, and no upsell.
+      Distribution 7: "estimated tax due dates", "quarterly estimated tax
+      calculator", and "1040-ES safe harbor calculator" are recurring,
+      high-intent searches four times a year rather than once, across a
+      much larger buyer pool than a single-trade calculator -- every US
+      freelancer, 1099 contractor, and gig-economy worker with no
+      withholding, with r/freelance, r/selfemployed, r/doordash_drivers,
+      r/UberEATS, and r/tax all seeing the "how much do I actually owe this
+      quarter" question as each date approaches.
+      Autonomous ops 10 / gross margin 10: a static page with no build
+      step, no dependencies, and no network requests -- one more user, or
+      one more calendar download, costs nothing.
+      Time to revenue 6: free by design in this phase (donations-only,
+      per portfolio/DIRECTION.md); the deadline recurring quarterly rather
+      than once a year is the same argument that scored
+      ifta-quarterly-fuel-tax-calculator's time-to-revenue a point above a
+      discretionary-decision tool.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Being wrong here costs the filer an underpayment penalty (a
+      computable, curable IRS assessment) or a late payment caught by the
+      reminder before the real due date, not a lawsuit, a contract
+      obligation, or a third party's money. The tool discloses rather than
+      hides its own known gap: the annualized-income-method note fires on
+      every schedule, unconditionally, so it can never be mistaken for
+      having modeled uneven income, and a high-AGI filer who leaves AGI
+      blank gets an explicit finding rather than a silently wrong 100%
+      assumption. Ethically: deterministic arithmetic and calendar
+      generation over a published federal formula, nothing uploaded ever,
+      no data collected server-side, and no revenue mechanism tied to the
+      number shown -- there is no incentive here to bias the result in
+      either direction, unlike the compliance-audit candidates this
+      pipeline has scored lower for exactly that reason.
 
   - slug: influencer-media-kit-generator
     scores:

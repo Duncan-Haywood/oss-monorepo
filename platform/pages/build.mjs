@@ -589,9 +589,18 @@ const CATEGORY_RULES = [
     // cross-link each other. Not `trades` (nothing is bid), not `services`
     // (the number is not quoted to a customer deciding whether to accept a
     // job), and not `marketplace` (no platform takes a cut).
+    // `quarterly-estimated-tax-calendar` joined 2026-09-11, filed here on its
+    // first commit for the same reason as `self-storage-rate-increase`
+    // above: it is this section's own blurb, "cash timing", almost literally
+    // -- when a filer needs cash on hand to send the IRS, and how much. Not
+    // `solo-earner`: that section groups people pricing their own labour or
+    // audience before a sale; this is a downstream obligation on income
+    // already earned, the same "after the job is won" axis as
+    // `invoice-payment-terms-calculator` right above it in this same rule,
+    // just for a tax authority instead of a client.
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax)/.test(slug),
   },
   {
     id: 'ci',

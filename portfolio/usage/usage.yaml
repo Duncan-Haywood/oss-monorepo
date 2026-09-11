@@ -5969,6 +5969,33 @@ products:
           built to meet are "forestry mulching price per acre", "how much to
           charge for forestry mulching", "land clearing cost per acre" and
           "forestry mulching production rate acres per hour".
+  - slug: quarterly-estimated-tax-calendar
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          calculate_run: 0
+          ics_downloaded: 0
+          example_loaded: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a free, no-signup calculator for US
+          freelancers, 1099 contractors, and gig workers that applies the
+          IRS Form 1040-ES safe-harbor rule to a filer's own numbers and
+          exports a downloadable .ics reminder calendar with the real
+          (weekend/federal-holiday-adjusted) due dates. `live_url_visitors`
+          is null and not zero, deliberately -- GitHub Pages exposes no
+          server-side analytics, and the local counters are opt-in and off
+          by default, so nobody has measured yet, which is a different claim
+          from having measured nothing. `ics_downloaded` against
+          `calculate_run` is the signal worth watching once there is
+          traffic: a visitor who calculates but never downloads the calendar
+          got an estimate, not the reminder this tool exists to deliver.
+          Search terms this is built to meet are "quarterly estimated tax
+          due dates", "1040-ES safe harbor calculator", and "when are
+          quarterly taxes due".
+
   - slug: influencer-media-kit-generator
     surface: github-pages
     readings:

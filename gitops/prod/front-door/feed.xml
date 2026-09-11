@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 259 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 260 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -114,6 +114,15 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your site&#39;s page list, a sitemap.xml, or a Markdown docs tree and get a valid llms.txt file — the emerging llmstxt.org convention that gives AI assistants a structured map of your site. Free, runs entirely in your browser, nothing is uploaded. Validate an existing llms.txt too.</summary>
+  </entry>
+  <entry>
+    <title>Quarterly Estimated Tax Calendar — Free, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/quarterly-estimated-tax-calendar/"/>
+    <id>tag:marisstella.dev,2026:tool/quarterly-estimated-tax-calendar</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for US freelancers, 1099 contractors, and gig workers: computes the IRS safe-harbor quarterly estimated tax payment from your own numbers, gives the four real (weekend/holiday-adjusted) due dates, and exports a downloadable calendar file. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Redirect Chain Checker — Find Redirect Loops, Long Chains &amp; Dead Ends</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-09T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your package.json and a listing of the files you actually publish and see every literal target in the &quot;exports&quot; map that points at a file that doesn&#39;t exist -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module right after npm install. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Structured Data Drift Check — Does Your JSON-LD Match the Page?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/structured-data-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/structured-data-drift-check</id>
-    <published>2026-09-09T00:00:00Z</published>
-    <updated>2026-09-09T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a page&#39;s HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page&#39;s own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

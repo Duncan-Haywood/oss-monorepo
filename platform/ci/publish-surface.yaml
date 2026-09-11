@@ -707,6 +707,9 @@ workflows:
 - workflow: pwa-installability-check-ci.yml
   classification: none
   publishes: []
+- workflow: quarterly-estimated-tax-calendar-ci.yml
+  classification: none
+  publishes: []
 - workflow: quick-pick-survey-ci.yml
   classification: none
   publishes: []
