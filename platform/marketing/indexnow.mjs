@@ -21,6 +21,16 @@
  * those; it is the piece of the same problem that does not need the
  * owner's login.
  *
+ * (Two corrections to the paragraph above, both 2026-09-11. The page count
+ * is now 973, counted from the published sitemaps rather than from
+ * `catalog.json` — see `urlsFromCatalog`, and note that this script was
+ * submitting only 261 of them until that was fixed. And
+ * `portfolio/usage/usage.yaml` does not record "zero visitors": it records
+ * `live_url_visitors: null`, which is "never measured". The distinction is
+ * the one `platform/ci/usage_state.py --require-honest` exists to keep — a
+ * zero would be evidence these pages are not worth having, and a null
+ * licenses exactly one thing, which is to go get a reading.)
+ *
  * IndexNow's key file does not have to sit at the host root the way
  * `robots.txt` does — the protocol lets a submitter name the key's location
  * explicitly in each request (`keyLocation`), and a participating engine
@@ -77,11 +87,13 @@ import { publishedBaseUrl, SERVING_BRANCH } from '../pages/published-base-url.mj
 export const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow';
 
 // The protocol's own ceiling (https://www.indexnow.org/documentation) — a
-// single request may name at most 10,000 URLs. This catalogue is well under
-// that (roughly one hub page, a dozen categories, and one URL per venture),
-// but the guard is here so a catalogue that grows past it fails loudly with
-// a name for the fix (batch the calls) rather than filing a request the API
-// silently truncates.
+// single request may name at most 10,000 URLs. This catalogue is under that
+// — 973 on the 2026-09-11 snapshot, counting every page the published
+// sitemaps enumerate and not just the one-per-venture catalogue entries — but
+// the margin is roughly 10x rather than the 40x it looked like when only
+// `catalog.json` was read, so the guard matters more than it did. It fails
+// loudly with a name for the fix (batch the calls) rather than filing a
+// request the API silently truncates.
 export const MAX_URLS_PER_REQUEST = 10000;
 
 // Exit code for "the request never left this machine". Distinct from 1 so a
@@ -123,12 +135,35 @@ export function isEgressRefusal({ status, body }) {
 }
 
 /**
- * Every URL this catalogue considers part of its public surface, read from
- * the artifact `catalog.json` itself rather than re-walked from `ventures/`
- * — the same "read what actually published" preference `--ref` follows
- * above, and it is comprehensive by construction: `check.mjs` already
- * refuses to publish a `catalog.json` missing a tool, so this list is never
- * behind what a visitor can reach.
+ * Every URL the *catalogue index* names: the hub, each category page, and one
+ * page per tool. Read from the artifact `catalog.json` itself rather than
+ * re-walked from `ventures/` — the same "read what actually published"
+ * preference `--ref` follows above.
+ *
+ * **This is a floor, not the published surface** (corrected 2026-09-11). The
+ * previous revision called it "comprehensive by construction", reasoning that
+ * `check.mjs` refuses to publish a `catalog.json` missing a tool. That
+ * guarantee is real and it is about the wrong set: `catalog.json` carries one
+ * entry per *tool*, so it cannot be missing a tool — and every page that is
+ * not a tool was never a candidate for it. Measured against the live
+ * `gh-pages` snapshot that day, the gap is most of the site:
+ *
+ *     urlsFromCatalog        261 URLs
+ *     the published sitemaps 973 URLs
+ *
+ * The 712 in the difference are the per-venture comparison pages (`vs-*`),
+ * guides and FAQ pages — which is to say the entire long-tail surface this
+ * catalogue builds *specifically* to be found by search. Announcing the 261
+ * and calling the site announced is the same absence-read-as-measurement
+ * error `CLAUDE.md` records against the 2026-09-05 Pages reading, and it
+ * lands where it is least recoverable: `pages_state.py`'s `indexing` row
+ * established that sitemap auto-discovery cannot happen from a project-Pages
+ * subpath, so IndexNow is the only page-enumeration route this catalogue has
+ * that does not need the owner's login. A page left out here is not
+ * announced late — it is not announced.
+ *
+ * Kept and still used, unioned with the sitemap walk below: it is the one
+ * source that cannot be behind on *tools*, and it costs nothing to include.
  */
 export function urlsFromCatalog(catalog) {
   const urls = new Set();
@@ -140,6 +175,74 @@ export function urlsFromCatalog(catalog) {
     if (typeof tool.url === 'string') urls.add(tool.url);
   }
   return [...urls].sort();
+}
+
+/** Every `<loc>` in a sitemap or sitemap index, in document order. */
+export function locsIn(xml) {
+  return [...String(xml).matchAll(/<loc>\s*([^<]+?)\s*<\/loc>/g)].map(([, loc]) =>
+    // `build.mjs` escapes `&` as `&amp;` when it writes a `<loc>`; nothing
+    // else in a URL needs escaping there, and no URL in this catalogue
+    // currently carries one. Undo it anyway rather than submitting a URL
+    // that differs by one character from the one that is served.
+    loc.replace(/&amp;/g, '&'),
+  );
+}
+
+/** Is this XML a `<sitemapindex>` (children are sitemaps) or a `<urlset>` (children are pages)? */
+export function isSitemapIndex(xml) {
+  return /<sitemapindex[\s>]/.test(String(xml));
+}
+
+/**
+ * Every URL the published sitemaps enumerate — the authoritative answer to
+ * "what pages does this site have?", because it is the same answer the site
+ * gives a crawler.
+ *
+ * `build.mjs` writes `sitemap.xml` as a **sitemap index**: 252 children on
+ * the 2026-09-11 snapshot, one per venture plus `sitemap-hub.xml`, each
+ * listing that venture's own pages. So reading only the root gets 252
+ * *sitemap* URLs and not one page. This follows the index one level down,
+ * which is as deep as the protocol allows a sitemap index to nest anyway.
+ *
+ * Child sitemaps are named by absolute URL, and this reads them out of the
+ * artifact rather than over the network (the artifact is a git ref or a
+ * directory; there is no host to fetch from, and on the runner that will
+ * eventually run this there is no reason to make 252 requests to learn what
+ * is already on disk). `baseUrl` is what turns one into the other.
+ *
+ * Degrades rather than refuses, deliberately. A child sitemap that is
+ * missing from the artifact, unreadable, or points outside `baseUrl` is
+ * reported on `warnings` and skipped — announcing 900 pages is strictly
+ * better than announcing none, and the caller prints the warnings so a
+ * systematic breakage is still visible. A root sitemap that is absent
+ * entirely *does* throw: that is not a partial result, it is the enumeration
+ * being gone, and the caller falls back to the catalogue floor for it.
+ */
+export async function urlsFromSitemaps(readFile, baseUrl) {
+  const warnings = [];
+  const root = await readFile('sitemap.xml');
+
+  // A root `<urlset>` (no index) is a legitimate small-site shape and needs
+  // no second pass — its locs are already pages.
+  if (!isSitemapIndex(root)) return { urls: locsIn(root).sort(), warnings, childCount: 0 };
+
+  const children = locsIn(root);
+  const urls = new Set();
+  for (const child of children) {
+    if (!child.startsWith(baseUrl)) {
+      warnings.push(`child sitemap ${child} is not under ${baseUrl} — skipped`);
+      continue;
+    }
+    let xml;
+    try {
+      xml = await readFile(child.slice(baseUrl.length));
+    } catch {
+      warnings.push(`child sitemap ${child} is named by sitemap.xml but absent from the artifact — skipped`);
+      continue;
+    }
+    for (const loc of locsIn(xml)) urls.add(loc);
+  }
+  return { urls: [...urls].sort(), warnings, childCount: children.length };
 }
 
 /**
@@ -379,7 +482,32 @@ if (isMain) {
     process.exit(1);
   }
   const { baseUrl } = resolved;
-  const urls = urlsFromCatalog(catalog);
+
+  // The catalogue floor (never behind on tools) unioned with the published
+  // sitemaps (the whole surface). See `urlsFromCatalog` for why neither alone
+  // is the right list.
+  const fromCatalog = urlsFromCatalog(catalog);
+  let fromSitemaps = [];
+  let sitemapNote = '';
+  try {
+    const walked = await urlsFromSitemaps(readFile, baseUrl);
+    fromSitemaps = walked.urls;
+    sitemapNote = `${fromSitemaps.length} from ${walked.childCount} published sitemap(s)`;
+    for (const warning of walked.warnings) console.error(`indexnow: warning — ${warning}`);
+  } catch (err) {
+    // Not fatal: the catalogue floor is still a correct, useful submission,
+    // and refusing to announce 261 real pages because the enumeration of the
+    // other 712 could not be read would be the worse trade. Loud, though —
+    // this is the difference between announcing the site and announcing a
+    // quarter of it.
+    sitemapNote = `sitemaps UNREAD (${err?.message || err})`;
+    console.error(
+      `indexnow: warning — could not read the published sitemaps, so only the ${fromCatalog.length} ` +
+        'catalogue URLs will be submitted, not the full published surface.\n' +
+        `  ${err?.message || err}`,
+    );
+  }
+  const urls = [...new Set([...fromCatalog, ...fromSitemaps])].sort();
 
   if (urls.length === 0) {
     console.error('indexnow: catalog.json named no URLs — refusing to submit an empty list.');
@@ -396,6 +524,7 @@ if (isMain) {
   const payload = buildPayload({ baseUrl, urls });
 
   console.log(`indexnow: ${urls.length} URL(s) from ${args.dir ? `dir ${args.dir}` : `ref ${args.ref}`}`);
+  console.log(`  sources:     ${fromCatalog.length} from catalog.json, ${sitemapNote}`);
   console.log(`  origin:      ${baseUrl} (from ${resolved.source})`);
   console.log(`  host:        ${payload.host}`);
   console.log(`  keyLocation: ${payload.keyLocation}`);
