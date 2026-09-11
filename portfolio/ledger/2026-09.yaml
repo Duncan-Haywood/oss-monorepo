@@ -28716,3 +28716,126 @@ entries:
         churn on every merge, not from anything in this diff) was not
         re-run for this change.
     mrr_end: 0
+  - venture: 1099k-reconciliation-worksheet
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and graduated a new venture per DIRECTION.md's standing
+        instruction (new-venture bar, North star point 2) and this session's
+        explicit brief: screen, build, and ship exactly one new venture,
+        favoring a shape other than the saturated <trade>-bid-calculator
+        (166 of 277 ventures) and -check/-checker (42 of 277) archetypes.
+        Niche: a free browser worksheet reconciling one or more Form 1099-K
+        Box 1a gross-payment totals (Etsy, eBay, Poshmark, Mercari, Depop,
+        Whatnot, StockX) down to an estimated net taxable profit, per
+        platform and combined -- a multi-row reconciliation/aggregation
+        tool (closest in shape to payment-reconciliation-workbench and
+        grant-reporting-tracker), not a single-formula calculator or a
+        single-request checker.
+      - >-
+        `duplicate_check.py` against the one-line niche description scored
+        nothing >= 0.45 (top match 0.09, an unrelated route calculator on
+        generic "margin" vocabulary; next closest, 0.08, was
+        whatnot-seller-payout, a per-sale payout calculator, and
+        marketplace-fee-compare, a forward-looking channel-selection tool --
+        neither reconciles an already-issued 1099-K). Not in
+        screened-out.md. Gate scores, both clearing the >= 5 bar in
+        pipeline/README.md: liability_containment 7 (every input is a
+        number the filer already has -- a 1099-K received, their own
+        records; the tool never invents a figure; an always-on
+        "not-a-filing" disclosure fires on every non-empty worksheet;
+        negative/large-adjustment findings actively push toward
+        double-checking a number that would understate income, never
+        toward accepting one uncritically; scores a point above
+        quarterly-estimated-tax-calendar's 6 because this tool only
+        reconciles a number a third party already reported, changing
+        nothing about what was already filed). ethical_robustness 8
+        (deterministic arithmetic over one publicly documented IRS
+        instruction -- what Box 1a legally represents -- no data leaves the
+        browser, no revenue model tied to the number shown). Full reasoning
+        in ventures/1099k-reconciliation-worksheet/VENTURE.yaml.
+      - >-
+        Named distribution channel for the first real visitor: r/tax,
+        r/Etsyseller, r/eBay, r/Flipping, r/reselling, r/Mercari, where "why
+        is my 1099-K higher than what I actually made" and "reconcile
+        1099-K multiple platforms" are recurring threads every filing
+        season (Jan-Apr), driven by the structural fact (IRS's own General
+        Instructions for Forms 1099-K) that Box 1a is a gross figure that
+        can include marketplace-remitted sales tax and unrefunded-looking
+        refunds. Also built an explainer page targeting that exact search
+        phrase (why-is-my-1099-k-higher-than-what-i-actually-made.html).
+      - >-
+        Built: VENTURE.yaml, calc.mjs (reconcileRow/reconcileAll/toCsv,
+        pure functions, no dependencies), index.html (dynamic add/remove
+        row worksheet, localStorage-persisted, CSV export), the explainer
+        page, usage.mjs (localStorage-only, DNT/GPC-respecting, off by
+        default), robots.txt, sitemap.xml, LICENSE (MIT), README.md -- all
+        five PRODUCT_PLAYBOOK.md 5b/5c/5d/5e items present: the exact
+        no-warranty/no-SLA disclaimer wording, a privacy line, opt-in local
+        usage counting, github.com/sponsors/Duncan-Haywood link, meta
+        description/OG tags/JSON-LD (SoftwareApplication + FAQPage on both
+        pages)/sitemap. No payment code of any kind.
+      - >-
+        Tests: calc.test.mjs (17 cases -- row/aggregate reconciliation
+        arithmetic, floor-at-zero on over-claimed adjustments, the
+        large-non-income-share and platform-loss findings, CSV
+        quoting/totals) and page.test.mjs (6 cases -- disclaimer/privacy/
+        sponsor-link/JSON-LD presence, every calc.mjs field wired, sibling
+        link) all pass (`node --test` in the venture, 23/23). Also added a
+        reciprocal one-hop sibling link with quarterly-estimated-tax-calendar
+        (the other end of the same tax year for a self-employed marketplace
+        seller) with a page.test.mjs assertion on the href in both
+        ventures, needed to clear platform/pages/siblings.test.mjs's
+        orphan-budget ratchet (budget 0) -- the venture would otherwise
+        have shipped as the first uncaught orphan since the ratchet
+        reached 0. Filed the venture under build.mjs's `backoffice`
+        category (same after-the-sale-reconciliation family as
+        quarterly-estimated-tax-calendar right above it) rather than
+        leaving it in the catch-all, which was about to exceed
+        build.test.mjs's own catch-all bound (6 tools) -- both were real
+        CI failures this session caused and fixed, not pre-existing.
+      - >-
+        Also fixed on the same two pages: FAQPage JSON-LD text used a
+        literal `--` where the visible "Common questions" prose used a real
+        em dash, and the explainer page's JSON-LD Q&A had no matching
+        visible section at all (only paraphrased narrative prose) --
+        `platform/pages/faq-visible.test.mjs` caught both (Google's
+        FAQPage policy requires the JSON-LD text to be visible on the
+        page verbatim). Added a literal "Common questions" H3/p section to
+        the explainer page matching its JSON-LD exactly, and aligned the
+        index page's JSON-LD punctuation to its existing visible copy.
+      - >-
+        CI/checks run and green: `node --test` in the venture (23/23);
+        `node platform/pages/clauses.mjs 1099k-reconciliation-worksheet`
+        (2/2 pages carry the no-warranty clause); `node
+        platform/marketing/regen.mjs` (mirror regenerated, committed --
+        1042 files, almost all fleet-wide related-tool-strip rotation and
+        the "All N free tools" count moving from 267 to 268, per
+        CLAUDE.md's incident history on skipping this step);
+        `python3 platform/ci/check_no_payment_code.py` (clean, fleet-wide);
+        `python3 portfolio/router/validate.py` (all VENTURE.yaml files
+        valid); `python3 portfolio/pipeline/validate_candidates.py` and
+        `validate_doc_consistency.py` (both clean, unaffected --
+        portfolio/pipeline/ was not touched); `python3
+        portfolio/usage/validate_usage.py` (valid, 252 products/438
+        readings, after adding this venture's null baseline row);
+        `python3 platform/ci/checklist_coverage.py` (clean); `node
+        platform/marketing/front-door-tools.mjs --headroom` (64.0% of
+        mirror capacity used, ~150 more tools of headroom); and the
+        fleet-wide `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1255/1255 passing after the two fixes
+        above -- 1252/1255 and then 1253/1255 on the first two runs before
+        each fix), `node --test platform/proposal/*.test.mjs` (101/101),
+        `node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs`
+        (80/82, 2 pre-existing environmental skips unrelated to this
+        change). `python3 portfolio/ledger/check_ledger_only.py` and
+        `check_direction_only.py` both pass (this PR carries real product
+        code, not just ledger prose; DIRECTION.md/AGENTS.md untouched).
+        Did not run `run_workflow_locally.py --tree` / the pytest-based
+        gitops/platform-ci suites (no gitops/, platform/ci/, or new-venture
+        Python surface touched by this change beyond the payment-code
+        checker already run above) or the Playwright/axe browser sweep (no
+        change to accessibility-relevant markup shape beyond the ordinary
+        form-input pattern every other venture in the fleet already uses).
+    mrr_end: 0

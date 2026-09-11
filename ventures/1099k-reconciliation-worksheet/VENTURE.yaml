@@ -1,0 +1,124 @@
+name: 1099k-reconciliation-worksheet
+description: Free browser worksheet for gig and marketplace sellers (Etsy, eBay, Poshmark, Mercari, Depop, Whatnot, StockX, and others) that reconciles one or more Form 1099-K Box 1a gross-payment totals down to an estimated net taxable profit, by backing out refunds, marketplace-remitted sales tax, platform fees, cost of goods sold, and shipping paid, per platform and combined across every marketplace at once. Entirely client-side; nothing is uploaded.
+
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml, following
+# the same precedent as quarterly-estimated-tax-calendar (see that
+# venture's own VENTURE.yaml comment). A genuinely different mechanism from
+# both saturated shapes DIRECTION.md/pipeline/README.md steer sessions away
+# from: the 166-strong <trade>-bid-calculator archetype (single-formula,
+# single-trade pricing) and the 42-strong -check/-checker archetype
+# (single-request classifier against a URL or file). This is neither: it is
+# a multi-row worksheet + aggregation tool, closest in shape within this
+# fleet to payment-reconciliation-workbench (CSV-vs-CSV matching) and
+# grant-reporting-tracker (multi-row add/remove/export queue), applied to a
+# problem neither of those touches.
+#
+# duplicate_check.py against "1099-K reconciliation worksheet for gig and
+# marketplace sellers (Etsy, eBay, Poshmark, Mercari, Depop, Whatnot,
+# StockX) who receive multiple platform 1099-K forms and need to reconcile
+# IRS-reported gross payment volume against actual net taxable income,
+# flagging common inflation causes like included sales tax, refunds, and
+# processing fees before filing" scored nothing >= 0.45 (run 2026-09-11).
+# Top matches: vending-machine-route-margin (0.09, an unrelated route
+# calculator matching only on generic "margin" vocabulary),
+# whatnot-seller-payout (0.08, prices a single Whatnot lot's payout at time
+# of sale -- a per-transaction calculator, not a year-end multi-platform
+# reconciliation against a tax form), marketplace-fee-compare (0.08,
+# compares which of several marketplaces nets the most on one item --
+# forward-looking channel selection, not reconciling a 1099-K already
+# issued), quarterly-estimated-tax-calendar (0.07, computes the federal
+# safe-harbor *payment schedule*, an entirely different IRS form and
+# question from reconciling what a *received* 1099-K's Box 1a means).
+# No venture directory or screened-out.md row mentions "1099-K",
+# "Box 1a", or "marketplace facilitator".
+#
+# Also checked directly against the ethics/liability standing constraints:
+# not "AI legal / medical / tax advice products" (screened-out.md) -- this
+# ships zero AI, applies one publicly documented IRS instruction (what
+# Box 1a legally represents, per the General Instructions for Forms
+# 1099-K) to numbers the filer already has from forms already issued to
+# them, and every output is framed as a worksheet to verify, never a filed
+# amount, a determination of actual tax liability, or advice about what to
+# report. The filer remains the one who files their own return -- the same
+# evidence/drafting positioning as this portfolio's other tax-adjacent
+# tools (quarterly-estimated-tax-calendar, ifta-quarterly-fuel-tax-calculator,
+# grant-reporting-tracker).
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 7 -- being wrong here costs the user a worksheet
+#     that needs a second look before they hand it to a preparer, not a
+#     lawsuit, a contract obligation, or a third party's money. The tool
+#     never invents a number: every input is a figure the filer already has
+#     (a 1099-K they received, their own refund/fee/cost records), the
+#     arithmetic is pure subtraction and addition with no hidden model, and
+#     the "not-a-filing" finding fires unconditionally on every non-empty
+#     worksheet (not just when something looks wrong) so the output can
+#     never be mistaken for a completed determination. A negative-adjustment
+#     finding fires rather than silently floors a bad number to zero and
+#     moving on. This scores a point higher than
+#     quarterly-estimated-tax-calendar's 6 because that tool computes a
+#     payment amount (getting it wrong risks an underpayment penalty on
+#     money not yet paid); this tool only reconciles a number already
+#     reported to the IRS by a third party, and changes nothing about what
+#     was already filed by the platform.
+#   ethical_robustness: 8 -- deterministic arithmetic over a publicly
+#     documented IRS instruction (what Box 1a excludes/includes), no dark
+#     patterns, no data collected server-side (nothing is ever uploaded),
+#     does not get worse for users as traffic grows. Every input is a
+#     number the filer already has from a form issued to them or their own
+#     bookkeeping; nothing is scraped or inferred about a third party. The
+#     direction this business would be tempted to bias in (understating
+#     income to lower a tax bill) doesn't exist as an incentive: there is no
+#     transaction, no take rate, and no revenue model tied to the number
+#     shown, only an optional, unrelated donation link. The worksheet is if
+#     anything biased toward caution -- the "adjustments-exceed-box1a" and
+#     "large-non-income-share" findings both fire toward getting a filer to
+#     double-check a number that would understate income, not toward
+#     accepting one uncritically.
+#
+# Distribution: r/tax, r/Etsyseller, r/eBay, r/Flipping, r/reselling, and
+# r/Mercari all see "why is my 1099-K so much higher than what I actually
+# made" and "how do I reconcile my 1099-K" threads every filing season
+# (January-April), driven by the structural fact that Box 1a is defined as
+# a gross figure that can include marketplace-remitted sales tax and
+# unrefunded-looking refunds -- a genuinely confusing, recurring, high-
+# volume search topic ("1099-K higher than income", "why is my 1099-K so
+# high", "reconcile 1099-K multiple platforms") distinct from the per-sale
+# fee questions the fleet's existing seller calculators
+# (whatnot-seller-payout, poshmark-fee-calculator, etsy-profit-calculator)
+# already answer. No incumbent free calculator reconciles *multiple*
+# platforms' 1099-K forms into one combined worksheet in one place; paid
+# tax-prep software (TurboTax, Keeper, TaxAct) handles this only as one
+# step deep inside a filing product, gated behind starting a return.
+hypotheses:
+  - claim: A gig/marketplace seller who lands here from a "1099-K higher than my income" or "reconcile 1099-K" search will use the per-platform and combined reconciliation to understand and document their actual net profit before filing, instead of either overpaying tax on the gross figure or guessing at what to back out.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A seller with more than one 1099-K (multiple marketplaces) will use the multi-row worksheet to produce one combined, exportable reconciliation rather than reconciling each platform separately by hand, and this is the feature that drives a return visit each filing season.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/1099k-reconciliation-worksheet/
+  analytics: null

@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 267,
-  "collection_total": 267,
+  "served_here": 268,
+  "collection_total": 268,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -50,7 +50,7 @@
       "id": "backoffice",
       "name": "Back-office money & contracts",
       "url": "https://marisstella.dev/c/backoffice/",
-      "tool_count": 18
+      "tool_count": 19
     },
     {
       "id": "marketplace",
@@ -501,6 +501,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a fence installation from posts, terminals, gates, tear-out, and digging conditions. See installed price per foot, effective hourly rate, and the walk-away number before you send the bid.",
       "pages": 3
+    },
+    {
+      "slug": "1099k-reconciliation-worksheet",
+      "name": "1099-K Reconciliation Worksheet — Etsy, eBay, Poshmark, Mercari Sellers",
+      "url": "https://marisstella.dev/tools/1099k-reconciliation-worksheet/",
+      "category": "Back-office money & contracts",
+      "description": "Free browser worksheet that reconciles one or more Form 1099-K Box 1a totals (Etsy, eBay, Poshmark, Mercari, Depop, Whatnot, StockX) down to an estimated net profit by backing out refunds, marketplace-remitted sales tax, fees, cost of goods, and shipping. Nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "3d-print-price-calculator",

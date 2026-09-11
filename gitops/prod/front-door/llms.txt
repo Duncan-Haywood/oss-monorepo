@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 267 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 268 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 267 of them — and
+Every tool in the collection is listed below — all 268 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -254,6 +254,7 @@ page that hosts it.
 - [Cash Runway Planner for Small Businesses](https://marisstella.dev/tools/cash-runway-planner/): Forecast when invoices and recurring bills could create a cash shortfall for your small business, including one-off payments like a quarterly tax bill or an insurance renewal, and see which payment to move.
 - [Supplier Rate Break-Even Calculator](https://marisstella.dev/tools/vendor-rate-break-even/): Free supplier, subcontractor, and equipment rate break-even calculator. Compare fixed fees, per-job costs, savings, and payback volume.
 - [Music Lesson Pricing Calculator](https://marisstella.dev/tools/music-lesson-break-even/): Free music lesson pricing calculator for independent teachers. Include cancellations, preparation, travel, studio costs, and target pay to find a sustainable lesson price.
+- [1099-K Reconciliation Worksheet — Etsy, eBay, Poshmark, Mercari Sellers](https://marisstella.dev/tools/1099k-reconciliation-worksheet/): Free browser worksheet that reconciles one or more Form 1099-K Box 1a totals (Etsy, eBay, Poshmark, Mercari, Depop, Whatnot, StockX) down to an estimated net profit by backing out refunds, marketplace-remitted sales tax, fees, cost of goods, and shipping. Nothing uploaded.
 - [Appointment Deposit Calculator for Service Businesses](https://marisstella.dev/tools/appointment-deposit-calculator/): Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.
 - [Card Processing Fee Audit — Split Your Statement Into Interchange and Markup](https://marisstella.dev/tools/card-processing-fee-audit/): Read five numbers off your merchant statement and see how much of your card processing bill is network interchange you cannot negotiate and how much is processor markup you can. Free, private, runs in your browser.
 - [Certified Payroll Calculator — Davis-Bacon Overtime & Fringe Compliance](https://marisstella.dev/tools/certified-payroll-calculator/): Free calculator for Davis-Bacon / prevailing-wage certified payroll: checks whether a worker's cash wages plus fringe meet the wage determination, and computes overtime correctly when part of the fringe is paid in cash instead of a bona fide plan.
