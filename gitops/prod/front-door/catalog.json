@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 252,
-  "collection_total": 252,
+  "served_here": 253,
+  "collection_total": 253,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 38
+      "tool_count": 39
     },
     {
       "id": "evidence",
@@ -533,6 +533,14 @@
       "category": "CI checks & developer gates",
       "description": "Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run 'pwn request' checkouts and shell script-injection from untrusted ${{ github.event }} expressions. Free, runs in your browser, nothing uploaded.",
       "pages": 3
+    },
+    {
+      "slug": "actions-minutes-estimator",
+      "name": "GitHub Actions Minutes Estimator — What Will This Workflow Cost?",
+      "url": "https://marisstella.dev/tools/actions-minutes-estimator/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your GitHub Actions workflow YAML and see projected monthly billable minutes and dollar cost before the allowance runs out. Names the expensive patterns: the macOS 10x multiplier, per-job rounding on wide matrices, missing timeout-minutes, PR commits built twice, over-frequent cron. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "actions-permissions-check",

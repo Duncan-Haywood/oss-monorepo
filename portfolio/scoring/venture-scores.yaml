@@ -10450,6 +10450,96 @@ ventures:
       Google, that each store's own current documentation is authoritative,
       and that passing every check means the images are well-formed enough to
       upload -- never that the app will be approved.
+  - slug: actions-minutes-estimator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: the output is an estimate built from the user's own files and
+      assumptions they set, not a billing statement, a quote, or financial,
+      accounting, or tax advice -- and both pages say exactly that, name the
+      date of the list rates they quote, and tell the reader to check any
+      figure against their own GitHub billing page before relying on it. The
+      tool holds no credential, reaches no account, and makes no network call,
+      so it cannot act on anyone's behalf or expose anything. Ethics: it
+      reports a file the user already owns back to them; nothing is uploaded,
+      there is no account, usage counting is local-only and honours Do Not
+      Track and Global Privacy Control. It names GitHub only to describe the
+      service it estimates, disclaims affiliation, and makes no claim of
+      endorsement. Where it cannot know something -- an unreadable cron, an
+      unresolved runner expression, a file it will not parse -- it says so and
+      excludes it rather than guessing, because a cost tool that quietly
+      understates is the one way this could cause real harm.
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Every figure is deterministic
+      arithmetic over the workflow files: matrix expansion follows GitHub's
+      documented include/exclude order, cron firings are counted over a
+      reference year, and the billing model is published multipliers and
+      per-job rounding. A language model would add nothing but a source of
+      wrong numbers to a tool whose entire value is that its numbers can be
+      checked by hand.
+    basis: >-
+      Screened 2026-09-11 against portfolio/pipeline/README.md's two
+      saturation notes, which measure that this fleet has tried the
+      <trade>-bid-calculator shape 141 times and the *-check/*-checker shape
+      38 times with no recorded visitor on any of them, and which state
+      explicitly that shape novelty is "necessary, not sufficient" -- the
+      test being a named distribution channel and a named first visitor.
+      This venture is neither saturated shape: it is a forward-looking cost
+      model that projects a quantity and attributes it, not a pass/fail
+      classifier for one misconfiguration. More to the point, both halves of
+      the actual test are answerable here rather than reasoned.
+      Named first visitor: this repository's own account owner. Actions
+      runners here have been starved since 2026-08-26, which CLAUDE.md
+      records as the portfolio's single largest blocker (it takes down CI,
+      the IndexNow announcement route and the Pages publish workflow at
+      once), and CLAUDE.md further records that no session can attribute the
+      burn -- /actions/runs/<id>/timing reports a billable total_ms of 0 even
+      on a run that genuinely held a runner for 99 seconds. Run against this
+      repo's own 218 workflows on 2026-09-11, this tool's largest single line
+      item is `Claude routine trigger` at ~2,194 runs and ~6,582 allowance
+      minutes a month from one `*/20 * * * *` schedule -- roughly 3x the Free
+      allowance from one cron. That is the tool's estimate, not a billing
+      reading, but it is attribution the repository had from no source
+      before.
+      Named channel, and in-portfolio rather than a search-volume claim this
+      session cannot verify: actions-runner-starvation-check already targets
+      the exact moment this audience appears ("a maintainer whose CI just
+      went red across every check within seconds will search for why"), and
+      the answer it gives -- you are out of minutes -- leaves an immediate
+      unanswered next question that is this tool. The two pages link each
+      other one hop. Distribution 6 rather than llms-txt-generator's 5 on
+      that in-portfolio referral being a product that already exists and is
+      already published, not a channel to be found later; not higher, because
+      per this session's egress limit (the agent proxy 403s CONNECT to every
+      host) no search-volume figure was confirmed by a live fetch.
+      duplicate_check.py scored every existing venture, screened-out row,
+      ai-first-markets idea and pipeline candidate against the final
+      description at 0.13 or below (closest: actions-cache-poisoning-check,
+      on the word "actions"), far under the 0.45 review bar. Read directly
+      rather than from the score: all seven existing GitHub Actions ventures
+      here are security checkers and not one models cost, and screened-out.md
+      mentions no CI-cost or build-spend venture.
+      Autonomous ops 10 / gross margin 10: the browser tool parses and costs
+      entirely client-side and uploads nothing, and the CLI reads local files
+      with no network call at all -- no server of ours in the loop either
+      way, so serving one more user costs a static file. Defensibility 3: the
+      arithmetic is public and copyable; what is not trivially copied is the
+      accumulated correctness (per-leg matrix runner resolution, the
+      day-of-month/day-of-week OR rule, larger runners billing outside the
+      allowance) and the refusal to guess, which is where a careless clone
+      produces confidently wrong numbers.
   - slug: llms-txt-generator
     scores:
       ai_leverage: 1
