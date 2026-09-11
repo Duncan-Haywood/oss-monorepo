@@ -6066,6 +6066,28 @@ products:
           kill_criteria: an external repo wiring cli.mjs into its own
           pipeline) is the signal that actually matters for this shape --
           the CLI is the primary distribution surface, not the browser page.
+  - slug: home-inspection-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          quote-priced: 0
+          weekly-goal-check: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a free, browser-local calculator for
+          independent home inspectors pricing one residential inspection from
+          square footage, stories, foundation type, and home age, plus
+          radon/sewer-scope/termite-WDO/mold add-ons and a same-day rush
+          premium, then checking a week of bookings against an income goal.
+          `live_url_visitors` is null and not zero, deliberately -- GitHub
+          Pages exposes no server-side analytics, this portfolio adds no
+          third-party one, and the local counter is opt-in and off by
+          default, so nobody has measured yet. `quote-priced` is the
+          activation signal (an inspector priced a job); `weekly-goal-check`
+          is the deeper-engagement signal, since it means the inspector came
+          back to the second section rather than pricing one job and leaving.
   - slug: cat-adjuster-fee-calculator
     surface: github-pages
     readings:
@@ -6105,3 +6127,26 @@ products:
           procurement RFP response. Counts are local, opt-in, off by
           default, and honor DNT/GPC, so zero is the expected reading for a
           tool nobody has visited or switched the counter on for yet.
+  - slug: terraform-plan-blast-radius-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          file_loaded: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a free, zero-network CLI + browser
+          tool that reports the blast radius of a Terraform structured plan
+          before apply -- every destroy and replace with the replace_paths
+          attribute that forced it, and a flag when a replace lands on a
+          resource type that holds data. `live_url_visitors` is null and not
+          zero, deliberately -- GitHub Pages exposes no server-side
+          analytics and the local counter is opt-in and off by default, so
+          nobody has measured yet. As with its sibling, `check_run` against
+          external CI adoption (see VENTURE.yaml's kill_criteria: an
+          external repo wiring cli.mjs in between plan and apply) is the
+          signal that actually matters for this shape -- the CLI is the
+          primary distribution surface, not the browser page.

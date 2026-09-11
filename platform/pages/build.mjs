@@ -505,8 +505,17 @@ const CATEGORY_RULES = [
     // driven by sensor geometry and an overlap specification rather than by
     // materials and crew hours on the ground. Filed here rather than left
     // for a spell in the catch-all, which the bound below exists to prevent.
+    // `home-inspection-fee-calculator` joined 2026-09-11 on its first commit,
+    // filed here rather than left for a catch-all spell: an independent home
+    // inspector pricing one residential inspection from on-site time (driven
+    // by square footage, stories, foundation access, and home age), travel,
+    // and flat add-on fees (radon, sewer scope, termite/WDO, mold) is the same
+    // job as `notary-trip-quote` and `drone-mapping-job-calculator` — a solo
+    // professional turning time, travel, and materials/add-ons into a
+    // customer-facing price, not a trade bid (nothing priced by area of
+    // construction work done to the site) and not a marketplace fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee)/.test(
         slug,
       ),
   },
@@ -1082,12 +1091,18 @@ const CATEGORY_RULES = [
     // marketplace fee, or a compliance evidence packet. It cross-links
     // `env-example-drift-check` as Related (both catch a config/secrets
     // hygiene gap before it reaches production, on different artifacts).
-    // Listed by exact slug rather than a new prefix, the same way several of
-    // its neighbours above are, and landing it here rather than the
-    // catch-all is also what keeps that catch-all inside the bound
-    // `build.test.mjs` puts on it.
+    //
+    // `terraform-plan-blast-radius-check` joined it 2026-09-11, and the two
+    // together are why this one *is* listed as a prefix (`terraform-plan-`)
+    // rather than by exact slug: they read the same input file — the
+    // structured plan from `terraform show -json` — and answer two
+    // unrelated questions about it (what it would print in plaintext, and
+    // what the apply would take away), so a third tool over that same file
+    // is a family rather than a coincidence. Same audience as the rest of
+    // this category: a platform engineer hardening their own pipeline. They
+    // cross-link each other as Related.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-secret-exposure-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
         slug,
       ),
   },

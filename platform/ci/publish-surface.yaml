@@ -458,6 +458,9 @@ workflows:
 - workflow: home-elevator-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: home-inspection-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: home-staging-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -897,6 +900,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: tender-radar-ci.yml
+  classification: none
+  publishes: []
+- workflow: terraform-plan-blast-radius-check-ci.yml
   classification: none
   publishes: []
 - workflow: terraform-plan-secret-exposure-check-ci.yml

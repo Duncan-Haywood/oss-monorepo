@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 265 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 267 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -107,6 +107,15 @@
     <summary type="text">Price a forestry mulching or land clearing job from acres per machine-hour instead of a flat per-acre guess: head width, advance speed, passes, terrain, fuel, carbide tooth wear, machine ownership and mobilization. Free, private, nothing leaves your browser.</summary>
   </entry>
   <entry>
+    <title>Home Inspection Fee Calculator — Price a Residential Inspection</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-inspection-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/home-inspection-fee-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for independent home inspectors: price a residential inspection by square footage, stories, foundation type, and home age, add radon, sewer scope, termite/WDO, and mold testing at their own fee, then check whether a week of inspections hits your income goal.</summary>
+  </entry>
+  <entry>
     <title>hreflang Reciprocity Check — Are Your Alternate-Language Links Actually Reciprocal?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hreflang-reciprocity-check/"/>
     <id>tag:marisstella.dev,2026:tool/hreflang-reciprocity-check</id>
@@ -168,6 +177,15 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste a sitemap.xml and check its &lt;lastmod&gt; dates for the freshness-faking anti-pattern Google&#39;s own sitemap documentation warns about -- invalid/malformed W3C-Datetime format, a future-dated lastmod, duplicate URLs with conflicting dates, and a suspiciously uniform date across nearly every URL. The Node CLI also cross-checks each URL&#39;s live HTTP Last-Modified header. Runs in your browser or as a zero-dependency CLI. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Terraform Plan Blast Radius Check — What This Apply Actually Destroys</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/terraform-plan-blast-radius-check/"/>
+    <id>tag:marisstella.dev,2026:tool/terraform-plan-blast-radius-check</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste or load a Terraform structured plan (terraform show -json) and see its blast radius before you apply: every destroy and replace called out individually with the attribute that forced it, a loud flag when a replace hits a database, disk, bucket, DNS record, load balancer or secret, and a true-deletion list. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Terraform Plan Secret Exposure Check — Find Secrets the `sensitive` Flag Missed</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Price a staffing placement properly: employer burden per hour, the real gross margin behind your markup, the break-even markup, and the markup a target margin needs. Free, private, nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Wash and Fold Price Per Pound Calculator — Cost, Break-Even &amp; Margin</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wash-and-fold-price-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/wash-and-fold-price-calculator</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Free wash and fold pricing calculator for laundromats and laundry pickup-and-delivery routes: work out your real cost per pound from labour minutes, wash and dry cycles, supplies, delivery stops and overhead, then see the break-even price per pound and the margin at what you charge today. Runs entirely in your browser.</summary>
-  </entry>
-  <entry>
-    <title>Wildlife Exclusion Bid Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wildlife-exclusion-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/wildlife-exclusion-bid-calculator</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price a bat, raccoon, squirrel or bird exclusion job from the visits it really takes — daily trap checks, the height the seal is at, attic decontamination, and a reserve against the warranty you sold — instead of the flat removal fee your customer is shopping. Free, private, nothing leaves your browser.</summary>
   </entry>
 </feed>
