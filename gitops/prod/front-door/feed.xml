@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 248 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 249 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste a page&#39;s HTML (or try fetching its alternates) and check its hreflang tags for missing reciprocal links, invalid language/region codes (en-uk vs en-GB), a missing x-default, a missing self-reference, and conflicting hreflang values. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Redirect Chain Checker — Find Redirect Loops, Long Chains &amp; Dead Ends</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/redirect-chain-check/"/>
+    <id>tag:marisstella.dev,2026:tool/redirect-chain-check</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste the hops a URL&#39;s redirects actually took (from your browser&#39;s Network tab, or a curl -sI trace) and check for a redirect loop, a chain longer than the recommended single hop, an HTTPS-to-HTTP downgrade, a permanent site move using a temporary status code, and a chain that dead-ends in a 404 or 500. A zero-dependency CLI follows the real chain over HTTP for you. Runs in your browser or as a CI check. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Sitemap lastmod Freshness Check — Is Your Sitemap Faking Freshness?</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Actions Self-Hosted Exposure Check — Is Your Self-Hosted Runner Exposed to Forks?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-self-hosted-exposure-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-self-hosted-exposure-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub&#39;s own docs warn against on public repos. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

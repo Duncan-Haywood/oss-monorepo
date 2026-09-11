@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Redirect Chains Matter for SEO and Site Speed</title>
+  <meta name="description" content="Why a redirect chain longer than one hop, an HTTPS-to-HTTP downgrade, a temporary status code used for a permanent move, and a redirect loop each cost real ranking signal and real page-load latency -- and how to find them with Redirect Chain Checker.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./why-redirect-chains-matter.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Why Redirect Chains Matter">
+  <meta property="og:description" content="A redirect loop never terminates. An over-long chain slows every visitor and may not get fully crawled. A temporary code on a permanent move delays ranking consolidation. Here is why each one happens and how to catch it.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does a redirect chain usually grow this long by accident?","acceptedAnswer":{"@type":"Answer","text":"One site migration at a time. A site moves from http to https (hop 1), then from www to non-www a year later (hop 2), then a URL structure change moves /old-path to /new-path (hop 3) — each individually reasonable, and each one left in place rather than updated to point straight at the current URL. Nobody adds three hops on purpose; it accumulates because updating every old redirect target every time something moves again is easy to forget."}},{"@type":"Question","name":"What is the actual cost of a long redirect chain, beyond \"it looks messy\"?","acceptedAnswer":{"@type":"Answer","text":"Two costs, and they are different. First, latency: every hop is a full network round trip before the browser even starts loading the real page, and that delay applies to every single visitor, not just a search engine crawling it once. Second, crawl behavior: Google's own Search Central documentation on redirects advises keeping a chain as short as possible because search engines may not follow a very long one at all — so pages several hops deep in an old migration may simply stop being indexed under their current URL."}},{"@type":"Question","name":"Why does a redirect loop happen at all — wouldn't someone notice?","acceptedAnswer":{"@type":"Answer","text":"The most common cause is two independent redirect rules that each assume the other has already run — an HTTPS-enforcement rule and a www-normalization rule configured in the wrong order, or on two different systems (a CDN and the origin server) that each redirect the case the other one just produced. It is easy to miss because a person testing in a browser that has cached an earlier successful load, or that stops following redirects after its own internal limit, may never see the loop that a fresh crawler or a strict HTTP client hits immediately."}},{"@type":"Question","name":"Is a 302 redirect ever the right choice for a permanent move?","acceptedAnswer":{"@type":"Answer","text":"No — if the move really is permanent, 301 (or 308, which preserves the request method) is the correct code by definition, and using 302 for it is the mistake this tool flags. A 302 is correct for something genuinely temporary: an A/B test, a maintenance page, a seasonal redirect that will be reverted. The distinction search engines actually act on is exactly the one in the status code's own name, and using the wrong one for a permanent change is what delays ranking signal moving to the new URL."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.6; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    h2 { color: #17324a; margin-top: 1.8rem; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Redirect Chain Checker</a></p>
+  <h1>Why redirect chains matter</h1>
+  <p>
+    A redirect chain is what happens between the URL someone typed, clicked, or a search engine
+    indexed, and the page that finally loads. When that path is one hop — a single 301 straight to
+    the current URL — it is invisible and free. Every hop past the first one is a cost somebody is
+    paying without necessarily knowing it.
+  </p>
+
+  <h2>How a chain grows without anyone deciding it should</h2>
+  <p>
+    Nobody sits down and designs a four-hop redirect chain. It accumulates one migration at a time:
+    a site moves from <code>http</code> to <code>https</code>, then a year later from
+    <code>www</code> to the bare domain, then a URL structure change moves an old path to a new one
+    — each change reasonable on its own, and each old redirect left pointing at the <em>previous</em>
+    target instead of updated to point straight at the current one. The fix each time is simple —
+    point every existing redirect at the final destination, not the last one — but it requires
+    remembering every old redirect exists, which is exactly what nobody does three migrations later.
+  </p>
+
+  <h2>The two costs of a long chain</h2>
+  <p>
+    <strong>Latency</strong>, first: each hop is a full network round trip before the browser even
+    starts loading the real page, and that tax applies to every visitor who follows an old link or
+    bookmark, not just a one-time crawl. <strong>Crawl behavior</strong>, second: Google's own
+    Search Central documentation on redirects advises keeping a chain as short as possible — ideally
+    a single hop — because search engines may not follow a very long one at all the way a browser
+    will. A page several hops deep in an old migration can simply stop being indexed under its
+    current URL, with nothing in your analytics obviously pointing at "the redirect chain" as the
+    cause.
+  </p>
+
+  <h2>Why a redirect loop happens at all</h2>
+  <p>
+    The most common cause is two independent redirect rules that each assume the other has already
+    run — an HTTPS-enforcement rule and a www-normalization rule configured in the wrong order, or
+    split across two systems (a CDN in front of an origin server) that each redirect the exact case
+    the other one just produced. It is easy to miss in ordinary browsing: a browser that has cached
+    an earlier successful load, or that gives up and shows its own "too many redirects" error after
+    an internal limit, may never show you the loop the way a fresh crawler or a strict HTTP client
+    hits it immediately.
+  </p>
+
+  <h2>301 vs. 302, and why the difference is not cosmetic</h2>
+  <p>
+    A 301 (or 308, which additionally preserves the original request method) tells a search engine
+    the move is <em>permanent</em> — consolidate ranking signal onto the new URL and stop treating
+    the old one as canonical. A 302, 303, or 307 says the opposite: this is temporary, keep checking
+    the old URL. Using a temporary code for what is actually a permanent scheme or host
+    normalization — the single most common shape this produces — delays exactly the ranking
+    consolidation the move was meant to achieve, sometimes for months.
+  </p>
+
+  <h2>Finding these mechanically rather than by inspection</h2>
+  <p>
+    All four of the above — chain length, protocol downgrade, wrong status code for a permanent
+    move, and an outright loop — are mechanically checkable from the chain itself, with no judgment
+    call. <a href="./">Redirect Chain Checker</a> runs those checks: paste a hop list you captured
+    from your browser's Network panel, or run the CLI to walk the real chain over HTTP and get the
+    same report automatically, wireable into CI as a regression gate.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>How does a redirect chain usually grow this long by accident?</h3>
+  <p>One site migration at a time. A site moves from http to https (hop 1), then from www to non-www a year later (hop 2), then a URL structure change moves /old-path to /new-path (hop 3) — each individually reasonable, and each one left in place rather than updated to point straight at the current URL. Nobody adds three hops on purpose; it accumulates because updating every old redirect target every time something moves again is easy to forget.</p>
+  <h3>What is the actual cost of a long redirect chain, beyond "it looks messy"?</h3>
+  <p>Two costs, and they are different. First, latency: every hop is a full network round trip before the browser even starts loading the real page, and that delay applies to every single visitor, not just a search engine crawling it once. Second, crawl behavior: Google's own Search Central documentation on redirects advises keeping a chain as short as possible because search engines may not follow a very long one at all — so pages several hops deep in an old migration may simply stop being indexed under their current URL.</p>
+  <h3>Why does a redirect loop happen at all — wouldn't someone notice?</h3>
+  <p>The most common cause is two independent redirect rules that each assume the other has already run — an HTTPS-enforcement rule and a www-normalization rule configured in the wrong order, or on two different systems (a CDN and the origin server) that each redirect the case the other one just produced. It is easy to miss because a person testing in a browser that has cached an earlier successful load, or that stops following redirects after its own internal limit, may never see the loop that a fresh crawler or a strict HTTP client hits immediately.</p>
+  <h3>Is a 302 redirect ever the right choice for a permanent move?</h3>
+  <p>No — if the move really is permanent, 301 (or 308, which preserves the request method) is the correct code by definition, and using 302 for it is the mistake this tool flags. A 302 is correct for something genuinely temporary: an A/B test, a maintenance page, a seasonal redirect that will be reverted. The distinction search engines actually act on is exactly the one in the status code's own name, and using the wrong one for a permanent change is what delays ranking signal moving to the new URL.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents are provided free and as-is, without warranty of any kind, express or implied. Nothing here is SEO, legal, or marketing advice. <a href="./">Redirect Chain Checker</a> reports whether the chain you provided satisfies specific, mechanically checkable rules — nothing more. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. If this caught a redirect loop before your visitors did, the code is under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

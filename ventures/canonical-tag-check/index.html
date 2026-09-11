@@ -291,9 +291,12 @@
   unrelated response-header evidence class: clickjacking protection and Content-Security-Policy
   strength — <a href="../hreflang-reciprocity-check/">hreflang Reciprocity Check</a> covers a
   fourth: whether a page's alternate-language links actually link back to it, rather than which URL
-  is canonical — and <a href="../sitemap-lastmod-freshness-check/">Sitemap lastmod Freshness Check</a>
+  is canonical — <a href="../sitemap-lastmod-freshness-check/">Sitemap lastmod Freshness Check</a>
   covers a fifth: whether a sitemap's own &lt;lastmod&gt; dates are valid, plausible, and confirmed
-  by each page's live HTTP headers, rather than anything in a page's own &lt;head&gt;.</p>
+  by each page's live HTTP headers, rather than anything in a page's own &lt;head&gt; — and
+  <a href="../redirect-chain-check/">Redirect Chain Checker</a> covers a sixth: whether a URL's own
+  HTTP redirects loop, run too long, downgrade HTTPS back to HTTP, or dead-end in an error, rather
+  than which URL a live page claims is canonical.</p>
 </footer>
 </body>
 </html>
