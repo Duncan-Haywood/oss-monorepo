@@ -201,6 +201,40 @@ def parse_dry_run_output(stdout):
     return {"count": count, "sources": sources_match.group(1).strip() if sources_match else None}
 
 
+# Node's uncaught-exception dump ends with a stack, a blank line and the
+# runtime version — so the *last* line of stderr is `Node.js v22.22.2` every
+# time the script throws, which is the one line that says nothing about what
+# went wrong. `indexnow.mjs` writes a genuinely actionable message ("could not
+# read 'catalog.json' from ref 'origin/gh-pages' ... Is it fetched in this
+# clone? (git fetch origin gh-pages)") and it was being discarded in favour of
+# the version footer. That is this repo's recurring defect in miniature: the
+# guard fired correctly and the reason it printed taught the reader nothing,
+# so the row read `unknown` for a cause one command fixes.
+_STACK_FRAME = re.compile(r"^\s*at\s")
+_NODE_FOOTER = re.compile(r"^Node\.js v\d")
+
+
+def most_informative_line(text):
+    """The line of a failed subprocess's output that explains the failure.
+
+    Prefers the first `Error: ...` / `fatal: ...` line, since that is where
+    both Node and git put the message. Falls back to the last line that is
+    neither a stack frame nor Node's version footer, and finally to the last
+    non-empty line, so an unrecognised failure shape still names something.
+    """
+    lines = [line.rstrip() for line in (text or "").strip().splitlines() if line.strip()]
+    if not lines:
+        return None
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith(("Error:", "TypeError:", "fatal:")):
+            return stripped
+    for line in reversed(lines):
+        if not _STACK_FRAME.match(line) and not _NODE_FOOTER.match(line.strip()):
+            return line.strip()
+    return lines[-1].strip()
+
+
 def run_indexnow_dry(ref=LIVE_REF, timeout=60):
     """Shell out to the real `indexnow.mjs`, dry (no `--submit`, no network).
 
@@ -224,8 +258,7 @@ def run_indexnow_dry(ref=LIVE_REF, timeout=60):
     except subprocess.TimeoutExpired as exc:
         raise RuntimeError(f"indexnow.mjs did not finish within {timeout}s") from exc
     if proc.returncode != 0:
-        tail = (proc.stderr or proc.stdout or "").strip().splitlines()
-        detail = tail[-1] if tail else f"exit {proc.returncode}"
+        detail = most_informative_line(proc.stderr or proc.stdout or "") or f"exit {proc.returncode}"
         raise RuntimeError(f"indexnow.mjs --ref {ref} exited {proc.returncode}: {detail}")
     parsed = parse_dry_run_output(proc.stdout)
     if parsed is None:

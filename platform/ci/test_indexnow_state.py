@@ -346,6 +346,48 @@ class LiveCoverage(unittest.TestCase):
                 state.run_indexnow_dry(ref="origin/gh-pages")
         self.assertIn("fatal: bad ref", str(ctx.exception))
 
+    def test_a_node_stack_trace_names_the_error_not_the_version_footer(self) -> None:
+        """The shape measured on 2026-09-11, verbatim.
+
+        A shallow web-session clone has no `origin/gh-pages`, so `indexnow.mjs`
+        throws and Node prints a stack whose LAST line is its own version. The
+        row read `would announce unknown -- exited 1: Node.js v22.22.2`, which
+        names neither the cause nor the one-command fix that was sitting three
+        lines up in the same stderr.
+        """
+        stderr = (
+            "file:///repo/platform/marketing/indexnow.mjs:266\n"
+            "      throw new Error(\n"
+            "            ^\n"
+            "\n"
+            "Error: could not read 'catalog.json' from ref 'origin/gh-pages': "
+            "Command failed: git -C /repo show origin/gh-pages:catalog.json\n"
+            "fatal: invalid object name 'origin/gh-pages'.. Is 'origin/gh-pages' "
+            "fetched in this clone? (git fetch origin origin/gh-pages)\n"
+            "    at file:///repo/platform/marketing/indexnow.mjs:266:13\n"
+            "    at readCatalog (file:///repo/platform/marketing/indexnow.mjs:275:27)\n"
+            "\n"
+            "Node.js v22.22.2\n"
+        )
+        failed = subprocess.CompletedProcess(args=[], returncode=1, stdout="", stderr=stderr)
+        with unittest.mock.patch.object(state.subprocess, "run", return_value=failed):
+            with self.assertRaises(RuntimeError) as ctx:
+                state.run_indexnow_dry(ref="origin/gh-pages")
+        message = str(ctx.exception)
+        self.assertIn("could not read 'catalog.json'", message)
+        self.assertNotIn("Node.js v", message)
+
+    def test_most_informative_line_skips_frames_and_footers(self) -> None:
+        self.assertEqual(state.most_informative_line(""), None)
+        self.assertEqual(state.most_informative_line("   \n\n"), None)
+        # No Error: line — fall back past the footer and the frames.
+        self.assertEqual(
+            state.most_informative_line("something broke\n    at foo (x.mjs:1:1)\nNode.js v22.22.2\n"),
+            "something broke",
+        )
+        # Nothing but a footer still names something rather than returning None.
+        self.assertEqual(state.most_informative_line("Node.js v22.22.2\n"), "Node.js v22.22.2")
+
     def test_run_indexnow_dry_names_unparseable_output(self) -> None:
         odd = subprocess.CompletedProcess(args=[], returncode=0, stdout="not the expected shape\n", stderr="")
         with unittest.mock.patch.object(state.subprocess, "run", return_value=odd):
