@@ -1027,7 +1027,17 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
     if (!LINKED_EXTENSIONS.has(extension)) continue;
 
-    const markupOnly = text.replace(SCRIPT_OR_STYLE_RE, '');
+    // REFERENCE_RE only makes sense against real markup: an `.html` file with
+    // its <script>/<style> bodies stripped. A `.mjs`/`.js` file has no such
+    // wrapper to strip -- its entire content is script, the same content
+    // SCRIPT_OR_STYLE_RE exists to exclude -- so scanning it for href/src finds
+    // whatever `href="${...}"` template-literal markup the module builds at
+    // runtime and misreads the unevaluated placeholder as a dead link. Several
+    // ventures build result rows this way (epk-generator's generator.mjs among
+    // them); IMPORT_RE/DYNAMIC_IMPORT_RE below are what actually matter for a
+    // script file, and they already scan the unstripped text on every
+    // extension in LINKED_EXTENSIONS.
+    const markupOnly = extension === '.html' ? text.replace(SCRIPT_OR_STYLE_RE, '') : '';
     const targets = [
       ...[...markupOnly.matchAll(REFERENCE_RE)].map((m) => m[1]),
       ...[...text.matchAll(IMPORT_RE)].map((m) => m[1]),
