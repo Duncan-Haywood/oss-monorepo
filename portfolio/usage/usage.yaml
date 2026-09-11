@@ -6066,3 +6066,23 @@ products:
           kill_criteria: an external repo wiring cli.mjs into its own
           pipeline) is the signal that actually matters for this shape --
           the CLI is the primary distribution surface, not the browser page.
+  - slug: cat-adjuster-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          deployment-priced: 0
+          offers-compared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/cat-adjuster-fee-calculator/`) from its first commit, so
+          unlike most rows here it has never been an instrumented-but-
+          unreachable product. `live_url_visitors` is null and not zero,
+          deliberately -- GitHub Pages exposes no server-side analytics and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet. Counts honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on
+          for yet.
