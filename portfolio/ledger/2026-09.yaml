@@ -26065,6 +26065,124 @@ entries:
         re-checked this session given the scope already covered above; ran
         every guard the task's own minimum checklist named.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Measured, not inferred: this catalogue's 964 published pages have never
+        been announced to IndexNow, and nothing in the tree said so.
+        `indexnow_state.py` (new) reports `never`, reason "every one of the 10
+        completed run(s) was starved". IndexNow is not one discovery channel
+        among several here -- `pages_state.py`'s `indexing` row already
+        measured that sitemap auto-discovery *cannot* happen from a
+        project-Pages subpath, because crawlers read `robots.txt` at the host
+        root, which belongs to the owner's separate user-level Pages site. So
+        it is the only page-enumeration route the catalogue has that does not
+        need the owner's login, and it has never once fired. Zero observed
+        visitors across 248 products is consistent with never having asked.
+      - >-
+        The mechanism, and it is a two-route blind spot rather than a bug in
+        either route. `publish-branch.sh` announces in `announce_to_indexnow`,
+        inside its PUSH=1 branch (#4379 put it there, correctly, to
+        de-duplicate against the workflow's own step). Every publish takes that
+        branch -- and every publish is a by-hand agent-session run, whose
+        egress proxy answers `403 to CONNECT` for `api.indexnow.org`; it exits
+        `EXIT_NO_EGRESS` each time, correctly, having announced nothing.
+        `publish-pages-branch.yml` runs on a runner *with* real egress, but
+        with `vars.PAGES_BRANCH_PUBLISH` unset it takes its `PUSH=0` step and
+        never reaches the call at all. Between them the two routes cover every
+        publish and announce none of it: the one with egress never reached the
+        call, the one that reached the call had no egress.
+      - >-
+        Read the gate from evidence rather than from the variable, which a
+        workflow cannot print: every commit on `gh-pages` is authored
+        `CI <ci@example.com>`, an agent session's identity, and none by
+        `github-actions[bot]`. Cross-checked against run history -- every
+        `Publish Pages branch` run since IndexNow landed in #4366 came back
+        `runner_id: 0` in 3-5s (`ci_starvation.py --run 34561539154`: exit 0,
+        starved), so the runner route has not executed a step of any kind.
+      - >-
+        Fix: `publish-pages-branch.yml` now carries an announce step gated on
+        the exact *complement* of its publish gate
+        (`vars.PAGES_BRANCH_PUBLISH != 'true'`), announcing the live `gh-pages`
+        snapshot -- which is the correct subject either way and the only
+        available one on a run that did not push. Precisely one of the two
+        paths fires, so #4379's de-duplication is preserved rather than
+        reversed and neither a double-submit nor a silent miss is reachable.
+        It fetches `gh-pages:gh-pages` as a local ref first, because both
+        `indexnow.mjs --ref` and `published-base-url.mjs` read it by name and
+        `actions/checkout` fetches only the pushed ref; without it the origin
+        degrades to `assumed-default`, which `publishedBaseUrl` itself flags as
+        "NOT a reading". Tolerates `EXIT_NO_EGRESS` and fails loudly on a
+        genuine refusal, since an invalid key file would silently cost every
+        future submission. Not gated on owner approval: CLAUDE.md's
+        "Automation" rule covers workflows that push commits or spend paid API
+        budget, and this pushes nothing and IndexNow is free.
+      - >-
+        `platform/ci/indexnow_state.py` is the reading that makes the gap
+        visible at all, and it exists because a submission leaves no trace --
+        no artifact, no commit, and IndexNow has no confirmation API -- so
+        "never announced" and "announced fine" were indistinguishable from
+        inside the repo. Deliberately reads something *present* (a run id, a
+        conclusion, a date, jobs classified by `ci_starvation`) rather than
+        reasoning from an absence, which is the error `pages_state.py`'s header
+        records from the 2026-09-05 Pages reading. Reports `never` only with a
+        named reason, and `unknown` rather than `never` when it cannot read --
+        an absent measurement must not read as a measured absence.
+        `--require-announced` exits 1 while the live snapshot is unannounced,
+        for the same reason `pages_state.py --require-current` and
+        `guard_state.py --require-runnable` do. Not wired into CI as a gate on
+        purpose: it would be red until a runner returns, and a red meaning
+        "nothing ran" wearing the costume of a red meaning "your code is
+        broken" is the exact anti-pattern `run_workflow_locally.py` added
+        `UNRUN` to avoid.
+      - >-
+        One real defect in this session's own new code, caught by running it
+        against the live API rather than by inspection:
+        `ci_starvation.classify` returns a `(verdict, detail)` pair, so
+        comparing it to the bare string `STARVED` never matched and every
+        starved run -- which has no steps at all -- fell through to `absent`,
+        whose reason reads "the workflow carried no announce step". Both
+        readings say "not announced", which is why it looked right; they
+        prescribe different actions (wait for a runner vs. fix the workflow),
+        which is why it was not. Fixed and pinned by
+        `StarvedRunsAreNotMissingSteps`.
+      - >-
+        Corrected the two places that asserted the fix worked:
+        `platform/marketing/README.md` and the removed-step comment in
+        `publish-pages-branch.yml` both said the script's own announce meant
+        the workflow no longer needed one. True of double-submission, false of
+        coverage. Updated `test_publish_pages_branch.py`'s
+        `test_the_workflow_does_not_also_submit` accordingly -- the invariant
+        is not "the workflow never submits" but that the two paths are exact
+        complements: never both, and never neither.
+      - >-
+        Verified: all 24 `platform/ci` unittest modules OK (including the new
+        `test_indexnow_state`, 17 cases, and `test_publish_pages_branch` 28/28
+        with the three new workflow cases); `agent_review` 21/21;
+        `validate_workflows.py` all 303 workflow files valid;
+        `publish_surface.py` unchanged by the new step (it derives publishing
+        from job- and step-level `if:`, and an announce publishes nothing);
+        `checklist_coverage.py` clean; `indexnow_state.py` run against the real
+        API (verdict `never`, `--require-announced` exit 1).
+        `run_workflow_locally.py --tree` on a clean checkout of `main` before
+        this branch: 9/9 selected workflows passed, no FAILED and no UNRUN --
+        so `main` was green going in, measured rather than assumed, while
+        Actions itself is starved.
+      - >-
+        Owner-blocked and deliberately not re-queued: the three asks this
+        session's brief named -- deployment/CI-CD, marketing materials on the
+        Hetzner VMs, and the Codex CLI running dev work on the box against the
+        built-in quota -- are all built and all downstream of the single
+        `hetzner-ssh-key-is-a-public-key` row, already #1 in
+        `decision_queue.py` and 7 days old. `gitops/agents/host/` (governor,
+        systemd units, installer), `gitops/agents/workers/mandate.md`, the
+        seven-item queue including `deploy-cicd-readiness` at priority 7, and
+        `bootstrap/restore-cluster.sh`'s three extras are complete and tested;
+        no session credential exists for any of it (checked: no HCLOUD, SSH,
+        Argo or Codex value in the environment). Added no duplicate ask.
+    mrr_end: 0
   - venture: redirect-chain-check
     agent_spend_usd: null
     human_hours: 0
