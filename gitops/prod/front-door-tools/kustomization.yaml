@@ -46,8 +46,8 @@
 #   portfolio-front-tools-10: 122 files, 553729 bytes
 #   portfolio-front-tools-11: 116 files, 554218 bytes
 #   portfolio-front-tools-12: 114 files, 552685 bytes
-#   portfolio-front-tools-13: 115 files, 554263 bytes
-#   portfolio-front-tools-14: 56 files, 281969 bytes
+#   portfolio-front-tools-13: 115 files, 553795 bytes
+#   portfolio-front-tools-14: 57 files, 286709 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1800,6 +1800,7 @@ configMapGenerator:
       - terraform-plan-secret-exposure-check__index.html.gz=terraform-plan-secret-exposure-check__index.html.gz
       - terraform-plan-secret-exposure-check__usage.mjs.gz=terraform-plan-secret-exposure-check__usage.mjs.gz
       - terraform-plan-secret-exposure-check__vs-checkov.html.gz=terraform-plan-secret-exposure-check__vs-checkov.html.gz
+      - terraform-plan-secret-exposure-check__vs-gitleaks.html.gz=terraform-plan-secret-exposure-check__vs-gitleaks.html.gz
       - terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz=terraform-plan-secret-exposure-check__why-terraform-plan-json-leaks-secrets.html.gz
       - toilet-replacement-bid-calculator__calc.mjs.gz=toilet-replacement-bid-calculator__calc.mjs.gz
       - toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz=toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz
@@ -1883,12 +1884,12 @@ configMapGenerator:
       - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
       - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
-      - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
       - well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz=well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
       - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
