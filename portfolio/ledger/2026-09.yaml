@@ -28265,3 +28265,84 @@ entries:
         so a tick cannot bill against the metered key. No new ask added; the
         queued one already carries the exact commands.
     mrr_end: 0
+  - venture: home-inspection-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a free browser calculator for independent
+        residential home inspectors (not on a franchise fee schedule) to
+        price one inspection from square footage, stories, foundation type,
+        and home age -- the specifics a flat per-square-foot fee schedule
+        quietly folds away -- plus radon, sewer scope, termite/WDO, and mold
+        add-ons at their own flat fee and a same-day rush premium applied to
+        labor time only, then check a week of bookings against a target
+        weekly income. Screened against `screened-out.md` (no row exists)
+        and `duplicate_check.py` (top match 0.13, well under the 0.45 bar);
+        scored in `venture-scores.yaml` (composite 6.333, gates pass) and
+        `portfolio/router/validate.py`.
+      - >-
+        A fresh niche, not a queued pipeline candidate, chosen to avoid both
+        saturated archetypes `pipeline/README.md` already flags: not the
+        142nd `<trade>-bid-calculator` and not the 39th `-check`/`-checker`.
+        Home inspectors are a real, organised buyer with money at stake (a
+        home purchase) and a named channel this session did not verify
+        traffic for but did name: InterNACHI's Inspector Forum and
+        r/HomeInspector.
+      - >-
+        Shipped: `calc.mjs` (pure arithmetic, 8 unit tests), `index.html`
+        (calculator + weekly income check + FAQ, JSON-LD SoftwareApplication
+        and FAQPage), a worked-example guide page
+        (`how-to-price-a-home-inspection.html`), `usage.mjs`
+        (localStorage-only, DNT/GPC-respecting, opt-out), LICENSE (MIT),
+        README with the disclaimer and privacy sections, robots.txt,
+        sitemap.xml, `VENTURE.yaml`, and
+        `.github/workflows/home-inspection-fee-calculator-ci.yml` (required
+        by `validate_workflows.py` invariant 7 once the venture ships
+        `*.test.mjs`).
+      - >-
+        Ran the product itself, not just its tests: a real Chromium pass via
+        `browser_checks.py` (Playwright 1.56.0 + axe-core) found 0 a11y
+        violations, 0 console/page errors, and a 23-field draft that
+        round-trips through the page -- and it caught two real defects this
+        session then fixed: `squareFootage`'s `min="1" step="50"` excluded
+        every whole number from the accepted grid
+        (`test_check_step_grid.py`), and two JSON-LD `FAQPage` answers
+        diverged from their visible prose by punctuation/wording
+        (`faq-visible.test.mjs`).
+      - >-
+        Ran the full starvation-window checklist rather than a subset:
+        `node platform/marketing/regen.mjs` (mirror count 263 -> 264,
+        propagated across every mirrored page); `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1255/1255
+        (after filing `home-inspection-fee-calculator` into the `services`
+        front-door category to close a catch-all-size regression, adding a
+        `rates.mjs` `REVIEWED_NOT_CARRIED` entry for the billed-rate-not-a-wage
+        distinction, and closing a link-graph orphan by adding a reciprocal
+        link from `real-estate-agent-photo-app`); `python3 -m pytest
+        gitops/tests` 581 passed/1 skipped (after updating the four
+        hand-typed mirrored-tool-count locations `CLAUDE.md` names:
+        `OWNER_CHECKLIST.md` x3, `aggregate.py`, `default.conf` x2, and the
+        test's own running count); all `platform/ci` unittest modules (25,
+        run per-module per the documented working-directory trap) and
+        `agent_review` 21/21; portfolio + `infra/tests` 435 passed (after
+        adding the new venture's row to `venture-scores.yaml`, which
+        `score_ventures.py --check` and `test_allocate.py` both require);
+        `checklist_coverage.py` clean; `guard_state.py --require-runnable`
+        clean, 0 fixable skips; `gitops/ci/sync_readme_counts.py` (the new
+        workflow moved the `runs-on` count); `python3 platform/router/validate.py`
+        (273 VENTURE.yaml files valid); `node platform/pages/clauses.mjs
+        home-inspection-fee-calculator` (both pages carry the no-warranty
+        clause); `publish_surface.py --write` (new test-only workflow,
+        classified `none`).
+      - >-
+        Merged self after local verification, per CLAUDE.md's "Ship without
+        review ceremony" -- Actions is starved this window
+        (`indexnow_state.py`/recent `publish-pages-branch.yml` runs read
+        `starved`). Not yet on the live GitHub Pages snapshot:
+        `pages_state.py` will read `stale` after this merge until
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+        runs, which is the next session's (or this one's, before it ends)
+        job. No Hetzner/k3s action attempted or needed -- that route stays
+        the owner-blocked one already queued.
+    mrr_end: 0

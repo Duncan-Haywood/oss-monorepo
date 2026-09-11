@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 263 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 264 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -96,6 +96,15 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price a forestry mulching or land clearing job from acres per machine-hour instead of a flat per-acre guess: head width, advance speed, passes, terrain, fuel, carbide tooth wear, machine ownership and mobilization. Free, private, nothing leaves your browser.</summary>
+  </entry>
+  <entry>
+    <title>Home Inspection Fee Calculator — Price a Residential Inspection</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/home-inspection-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/home-inspection-fee-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for independent home inspectors: price a residential inspection by square footage, stories, foundation type, and home age, add radon, sewer scope, termite/WDO, and mold testing at their own fee, then check whether a week of inspections hits your income goal.</summary>
   </entry>
   <entry>
     <title>hreflang Reciprocity Check — Are Your Alternate-Language Links Actually Reciprocal?</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-09T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find a workflow_run job that downloads an artifact and later executes something from it, plus a download-artifact step with no name: pin. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Affiliate Disclosure Checker — Is Your Amazon/FTC Disclosure Missing or Too Late?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/affiliate-disclosure-checker/"/>
-    <id>tag:marisstella.dev,2026:tool/affiliate-disclosure-checker</id>
-    <published>2026-09-09T00:00:00Z</published>
-    <updated>2026-09-09T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Paste a blog post&#39;s HTML and see every affiliate link it recognises (Amazon Associates tag= links, amzn.to, rel=sponsored, ShareASale/CJ/Impact/Skimlinks/AWIN tracking links) and whether a disclosure appears before the first one — plus whether an Amazon link carries Amazon&#39;s own required exact statement. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

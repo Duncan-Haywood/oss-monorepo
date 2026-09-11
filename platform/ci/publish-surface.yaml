@@ -455,6 +455,9 @@ workflows:
 - workflow: home-elevator-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: home-inspection-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: home-staging-bid-calculator-ci.yml
   classification: none
   publishes: []

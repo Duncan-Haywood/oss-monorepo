@@ -33,21 +33,21 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556521 bytes
-#   portfolio-front-tools-1: 110 files, 555650 bytes
-#   portfolio-front-tools-2: 149 files, 548488 bytes
-#   portfolio-front-tools-3: 141 files, 555215 bytes
+#   portfolio-front-tools-0: 136 files, 556532 bytes
+#   portfolio-front-tools-1: 110 files, 555656 bytes
+#   portfolio-front-tools-2: 149 files, 548502 bytes
+#   portfolio-front-tools-3: 141 files, 555266 bytes
 #   portfolio-front-tools-4: 125 files, 556583 bytes
-#   portfolio-front-tools-5: 132 files, 555406 bytes
-#   portfolio-front-tools-6: 135 files, 552109 bytes
-#   portfolio-front-tools-7: 118 files, 541241 bytes
-#   portfolio-front-tools-8: 109 files, 549828 bytes
-#   portfolio-front-tools-9: 121 files, 552010 bytes
-#   portfolio-front-tools-10: 122 files, 553793 bytes
-#   portfolio-front-tools-11: 114 files, 552113 bytes
-#   portfolio-front-tools-12: 115 files, 554396 bytes
-#   portfolio-front-tools-13: 104 files, 509658 bytes
-#   portfolio-front-tools-14: 54 files, 263717 bytes
+#   portfolio-front-tools-5: 132 files, 555404 bytes
+#   portfolio-front-tools-6: 135 files, 552138 bytes
+#   portfolio-front-tools-7: 118 files, 541276 bytes
+#   portfolio-front-tools-8: 110 files, 553196 bytes
+#   portfolio-front-tools-9: 122 files, 554232 bytes
+#   portfolio-front-tools-10: 121 files, 550505 bytes
+#   portfolio-front-tools-11: 115 files, 550703 bytes
+#   portfolio-front-tools-12: 113 files, 546294 bytes
+#   portfolio-front-tools-13: 108 files, 531491 bytes
+#   portfolio-front-tools-14: 54 files, 263760 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1185,6 +1185,10 @@ configMapGenerator:
       - home-elevator-bid-calculator__should-i-install-a-customer-supplied-home-elevator.html.gz=home-elevator-bid-calculator__should-i-install-a-customer-supplied-home-elevator.html.gz
       - home-elevator-bid-calculator__usage.mjs.gz=home-elevator-bid-calculator__usage.mjs.gz
       - home-elevator-bid-calculator__vs-jobber.html.gz=home-elevator-bid-calculator__vs-jobber.html.gz
+      - home-inspection-fee-calculator__calc.mjs.gz=home-inspection-fee-calculator__calc.mjs.gz
+      - home-inspection-fee-calculator__how-to-price-a-home-inspection.html.gz=home-inspection-fee-calculator__how-to-price-a-home-inspection.html.gz
+      - home-inspection-fee-calculator__index.html.gz=home-inspection-fee-calculator__index.html.gz
+      - home-inspection-fee-calculator__usage.mjs.gz=home-inspection-fee-calculator__usage.mjs.gz
       - home-staging-bid-calculator__calc.mjs.gz=home-staging-bid-calculator__calc.mjs.gz
       - home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz=home-staging-bid-calculator__how-much-to-charge-for-home-staging.html.gz
       - home-staging-bid-calculator__index.html.gz=home-staging-bid-calculator__index.html.gz
@@ -1262,14 +1266,14 @@ configMapGenerator:
       - janitorial-bid-calculator__should-i-let-them-buy-the-paper.html.gz=janitorial-bid-calculator__should-i-let-them-buy-the-paper.html.gz
       - janitorial-bid-calculator__should-i-throw-in-the-initial-clean.html.gz=janitorial-bid-calculator__should-i-throw-in-the-initial-clean.html.gz
       - janitorial-bid-calculator__usage.mjs.gz=janitorial-bid-calculator__usage.mjs.gz
-      - janitorial-bid-calculator__vs-cleanguru.html.gz=janitorial-bid-calculator__vs-cleanguru.html.gz
-      - junk-removal-bid-calculator__calc.mjs.gz=junk-removal-bid-calculator__calc.mjs.gz
-      - junk-removal-bid-calculator__how-to-price-junk-removal.html.gz=junk-removal-bid-calculator__how-to-price-junk-removal.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - janitorial-bid-calculator__vs-cleanguru.html.gz=janitorial-bid-calculator__vs-cleanguru.html.gz
+      - junk-removal-bid-calculator__calc.mjs.gz=junk-removal-bid-calculator__calc.mjs.gz
+      - junk-removal-bid-calculator__how-to-price-junk-removal.html.gz=junk-removal-bid-calculator__how-to-price-junk-removal.html.gz
       - junk-removal-bid-calculator__index.html.gz=junk-removal-bid-calculator__index.html.gz
       - junk-removal-bid-calculator__share.mjs.gz=junk-removal-bid-calculator__share.mjs.gz
       - junk-removal-bid-calculator__usage.mjs.gz=junk-removal-bid-calculator__usage.mjs.gz
@@ -1389,13 +1393,13 @@ configMapGenerator:
       - npm-lifecycle-script-check__engine.mjs.gz=npm-lifecycle-script-check__engine.mjs.gz
       - npm-lifecycle-script-check__index.html.gz=npm-lifecycle-script-check__index.html.gz
       - npm-lifecycle-script-check__usage.mjs.gz=npm-lifecycle-script-check__usage.mjs.gz
-      - npm-lifecycle-script-check__vs-socket.html.gz=npm-lifecycle-script-check__vs-socket.html.gz
-      - npm-lifecycle-script-check__why-npm-audit-does-not-catch-a-malicious-install-script.html.gz=npm-lifecycle-script-check__why-npm-audit-does-not-catch-a-malicious-install-script.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - npm-lifecycle-script-check__vs-socket.html.gz=npm-lifecycle-script-check__vs-socket.html.gz
+      - npm-lifecycle-script-check__why-npm-audit-does-not-catch-a-malicious-install-script.html.gz=npm-lifecycle-script-check__why-npm-audit-does-not-catch-a-malicious-install-script.html.gz
       - oidc-trust-policy-check__analyze.mjs.gz=oidc-trust-policy-check__analyze.mjs.gz
       - oidc-trust-policy-check__check.mjs.gz=oidc-trust-policy-check__check.mjs.gz
       - oidc-trust-policy-check__index.html.gz=oidc-trust-policy-check__index.html.gz
@@ -1515,14 +1519,14 @@ configMapGenerator:
       - pwa-installability-check__usage.mjs.gz=pwa-installability-check__usage.mjs.gz
       - pwa-installability-check__vs-lighthouse.html.gz=pwa-installability-check__vs-lighthouse.html.gz
       - quarterly-estimated-tax-calendar__calc.mjs.gz=quarterly-estimated-tax-calendar__calc.mjs.gz
-      - quarterly-estimated-tax-calendar__index.html.gz=quarterly-estimated-tax-calendar__index.html.gz
-      - quarterly-estimated-tax-calendar__usage.mjs.gz=quarterly-estimated-tax-calendar__usage.mjs.gz
-      - quarterly-estimated-tax-calendar__vs-keeper.html.gz=quarterly-estimated-tax-calendar__vs-keeper.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - quarterly-estimated-tax-calendar__index.html.gz=quarterly-estimated-tax-calendar__index.html.gz
+      - quarterly-estimated-tax-calendar__usage.mjs.gz=quarterly-estimated-tax-calendar__usage.mjs.gz
+      - quarterly-estimated-tax-calendar__vs-keeper.html.gz=quarterly-estimated-tax-calendar__vs-keeper.html.gz
       - quote-margin-check__calc.mjs.gz=quote-margin-check__calc.mjs.gz
       - quote-margin-check__draft.mjs.gz=quote-margin-check__draft.mjs.gz
       - quote-margin-check__drafts.mjs.gz=quote-margin-check__drafts.mjs.gz
@@ -1635,13 +1639,13 @@ configMapGenerator:
       - shopify-fee-calculator__refunds.html.gz=shopify-fee-calculator__refunds.html.gz
       - shopify-fee-calculator__share.mjs.gz=shopify-fee-calculator__share.mjs.gz
       - shopify-fee-calculator__shopify-pos-vs-online-fees.html.gz=shopify-fee-calculator__shopify-pos-vs-online-fees.html.gz
-      - shopify-fee-calculator__should-i-add-a-shopify-upsell.html.gz=shopify-fee-calculator__should-i-add-a-shopify-upsell.html.gz
-      - shopify-fee-calculator__should-i-buy-shopify-shipping-labels.html.gz=shopify-fee-calculator__should-i-buy-shopify-shipping-labels.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__should-i-add-a-shopify-upsell.html.gz=shopify-fee-calculator__should-i-add-a-shopify-upsell.html.gz
+      - shopify-fee-calculator__should-i-buy-shopify-shipping-labels.html.gz=shopify-fee-calculator__should-i-buy-shopify-shipping-labels.html.gz
       - shopify-fee-calculator__should-i-collect-duties-on-shopify.html.gz=shopify-fee-calculator__should-i-collect-duties-on-shopify.html.gz
       - shopify-fee-calculator__should-i-fight-a-shopify-chargeback.html.gz=shopify-fee-calculator__should-i-fight-a-shopify-chargeback.html.gz
       - shopify-fee-calculator__should-i-offer-local-delivery-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-local-delivery-on-shopify.html.gz
@@ -1753,15 +1757,15 @@ configMapGenerator:
       - structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz=structured-data-drift-check__why-google-requires-structured-data-to-match-visible-text.html.gz
       - stucco-repair-bid-calculator__calc.mjs.gz=stucco-repair-bid-calculator__calc.mjs.gz
       - stucco-repair-bid-calculator__how-much-to-charge-for-stucco-repair.html.gz=stucco-repair-bid-calculator__how-much-to-charge-for-stucco-repair.html.gz
-      - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
-      - stucco-repair-bid-calculator__share.mjs.gz=stucco-repair-bid-calculator__share.mjs.gz
-      - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
-      - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
+      - stucco-repair-bid-calculator__share.mjs.gz=stucco-repair-bid-calculator__share.mjs.gz
+      - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
+      - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
       - sump-pump-bid-calculator__calc.mjs.gz=sump-pump-bid-calculator__calc.mjs.gz
       - sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz=sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz
       - sump-pump-bid-calculator__index.html.gz=sump-pump-bid-calculator__index.html.gz
