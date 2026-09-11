@@ -1593,7 +1593,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the secret-exposure one further up, and a static `index.html` from its
     # first commit, so it entered the mirror and the total together like the
     # five above it.
-    total = 266  # `infra/OWNER_CHECKLIST.md`'s own "N of the 266 tools" wording.
+    # 267 since 2026-09-11, when `home-inspection-fee-calculator` also
+    # graduated the same day, merging on top of the above — the count is of
+    # the tree, not of any one session's diff, so concurrent ventures
+    # graduating in parallel each correctly claimed their own base and
+    # merging all of them advances the total by one per venture.
+    total = 267  # `infra/OWNER_CHECKLIST.md`'s own "N of the 267 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
