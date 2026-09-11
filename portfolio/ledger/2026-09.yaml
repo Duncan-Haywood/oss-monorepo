@@ -28642,3 +28642,77 @@ entries:
         change.
     mrr_end: 0
     mrr_end: 0
+  - venture: terraform-plan-secret-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a comparison page: `vs-checkov.html`, the venture's first
+        `vs-*.html` page. Checkov (Bridgecrew/Palo Alto Networks) is a real,
+        well-known open-source IaC static analysis tool whose bundled
+        secrets scanner is the closest adjacent product; the page states the
+        scope difference factually (Checkov's hundreds of misconfiguration
+        policies across many IaC frameworks vs. this tool's one narrow
+        check -- a Terraform structured plan's own `sensitive` flag misses,
+        respecting `before_sensitive`/`after_sensitive` first) and carries
+        the required no-warranty and not-affiliated (nominative fair use)
+        clauses per PRODUCT_PLAYBOOK.md 5f. Linked from `index.html`, added
+        to `sitemap.xml`, and `page.test.mjs` extended with coverage for the
+        link, back-link, disclaimer, and sitemap entry.
+      - >-
+        `node platform/marketing/regen.mjs` after adding the page caught one
+        real defect: the new page's FAQPage JSON-LD answer for "why not just
+        run Checkov" quoted a command in backticks that the visible `<code>`
+        prose did not carry, so `faq-visible.test.mjs` correctly failed on
+        the JSON-LD/visible-text divergence. Fixed by matching the JSON-LD
+        text to the rendered prose exactly, then reran the full
+        marketing+pages suite green.
+      - >-
+        Rebased twice onto a moving `origin/main` during this session as two
+        concurrent sessions merged `vpat-acr-generator` (#4632) and
+        `dental-ppo-writeoff-calculator`'s own new `vs-*.html` pages (#4633)
+        -- confirmed via `mcp__github__list_pull_requests` (0 open PRs) before
+        pushing, per the standing duplicate-PR check. Both merges were
+        clean, conflict-free except in the generated binary front-door-tools
+        shards, which were resolved by taking `origin/main`'s copy and
+        regenerating fresh from the rebased tree rather than replaying the
+        binaries themselves.
+      - >-
+        Verified locally: `node --test
+        ventures/terraform-plan-secret-exposure-check/*.test.mjs` 37/37;
+        `node platform/pages/clauses.mjs terraform-plan-secret-exposure-check`
+        and `faq-coverage.mjs`/`guide-coverage.mjs` for the slug all clean;
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        1255/1255 (run twice, once after each rebase); `python3 -m pytest
+        gitops/tests -q` 581 passed / 1 skipped (ENVIRONMENTAL per
+        `guard_state.py --require-runnable`, which also named a FIXABLE
+        `ssh-keygen` skip closed by installing `openssh-client`); all 25
+        `platform/ci` unittest modules and `agent_review`'s 21 pass; `python3
+        -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q` 435 passed;
+        `python3 platform/ci/checklist_coverage.py`,
+        `platform/router/validate.py` (273 VENTURE.yaml valid),
+        `platform/ci/publish_surface.py --check`,
+        `platform/ci/validate_workflows.py` (321 valid),
+        `platform/ci/check_no_payment_code.py`,
+        `portfolio/scoring/score_ventures.py --check` (274 consistent),
+        `portfolio/usage/validate_usage.py` (249 products/435 readings),
+        `portfolio/pipeline/validate_candidates.py` and
+        `validate_doc_consistency.py`, `platform/marketing/front-door-tools.mjs
+        --headroom`, `portfolio/pipeline/probes/validate_probe_index.py`, and
+        `portfolio/pipeline/score_sensitivity.py` all clean; `python3
+        platform/ci/run_workflow_locally.py --for-changes` selected 12
+        workflow files against the diff and exited 0 with zero real
+        failures -- only secret-/write-gated jobs (agent-cross-review's four
+        reviewers, hetzner-gitops-ci's hcloud-scope/preflight/restore,
+        portfolio-pages.yml's deploy, publish-pages-branch.yml's publish)
+        were held, all unrelated to this change. Runners were flapping
+        during this session (`ci_starvation.py` not run against a specific
+        PR check since none was opened before merge, but the starvation
+        checklist itself was followed in full as the substitute per
+        CLAUDE.md). Browser/a11y note: the new page adds no form inputs
+        (links and prose only), so the whole-catalogue Playwright/axe sweep
+        (`browser_state.py` reports it STALE purely from ordinary fleet
+        churn on every merge, not from anything in this diff) was not
+        re-run for this change.
+    mrr_end: 0
