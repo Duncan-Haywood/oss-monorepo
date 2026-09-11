@@ -1072,12 +1072,18 @@ const CATEGORY_RULES = [
     // marketplace fee, or a compliance evidence packet. It cross-links
     // `env-example-drift-check` as Related (both catch a config/secrets
     // hygiene gap before it reaches production, on different artifacts).
-    // Listed by exact slug rather than a new prefix, the same way several of
-    // its neighbours above are, and landing it here rather than the
-    // catch-all is also what keeps that catch-all inside the bound
-    // `build.test.mjs` puts on it.
+    //
+    // `terraform-plan-blast-radius-check` joined it 2026-09-11, and the two
+    // together are why this one *is* listed as a prefix (`terraform-plan-`)
+    // rather than by exact slug: they read the same input file — the
+    // structured plan from `terraform show -json` — and answer two
+    // unrelated questions about it (what it would print in plaintext, and
+    // what the apply would take away), so a third tool over that same file
+    // is a family rather than a coincidence. Same audience as the rest of
+    // this category: a platform engineer hardening their own pipeline. They
+    // cross-link each other as Related.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-secret-exposure-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
         slug,
       ),
   },

@@ -33,21 +33,21 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556521 bytes
-#   portfolio-front-tools-1: 110 files, 555650 bytes
-#   portfolio-front-tools-2: 149 files, 548488 bytes
-#   portfolio-front-tools-3: 141 files, 555215 bytes
-#   portfolio-front-tools-4: 125 files, 556583 bytes
-#   portfolio-front-tools-5: 132 files, 553575 bytes
-#   portfolio-front-tools-6: 135 files, 556393 bytes
-#   portfolio-front-tools-7: 120 files, 554831 bytes
-#   portfolio-front-tools-8: 111 files, 554619 bytes
-#   portfolio-front-tools-9: 123 files, 555413 bytes
-#   portfolio-front-tools-10: 124 files, 544713 bytes
-#   portfolio-front-tools-11: 108 files, 552526 bytes
-#   portfolio-front-tools-12: 115 files, 556217 bytes
-#   portfolio-front-tools-13: 101 files, 487365 bytes
-#   portfolio-front-tools-14: 54 files, 263717 bytes
+#   portfolio-front-tools-0: 136 files, 556528 bytes
+#   portfolio-front-tools-1: 110 files, 555656 bytes
+#   portfolio-front-tools-2: 149 files, 548490 bytes
+#   portfolio-front-tools-3: 141 files, 555180 bytes
+#   portfolio-front-tools-4: 125 files, 556555 bytes
+#   portfolio-front-tools-5: 132 files, 553598 bytes
+#   portfolio-front-tools-6: 135 files, 556490 bytes
+#   portfolio-front-tools-7: 120 files, 554865 bytes
+#   portfolio-front-tools-8: 111 files, 554602 bytes
+#   portfolio-front-tools-9: 123 files, 555455 bytes
+#   portfolio-front-tools-10: 124 files, 544718 bytes
+#   portfolio-front-tools-11: 108 files, 552597 bytes
+#   portfolio-front-tools-12: 115 files, 556176 bytes
+#   portfolio-front-tools-13: 106 files, 511716 bytes
+#   portfolio-front-tools-14: 54 files, 263721 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1778,6 +1778,11 @@ configMapGenerator:
       - tender-radar__usage.mjs.gz=tender-radar__usage.mjs.gz
       - tender-radar__vs-govwin.html.gz=tender-radar__vs-govwin.html.gz
       - tender-radar__which-tenders-are-worth-bidding-on.html.gz=tender-radar__which-tenders-are-worth-bidding-on.html.gz
+      - terraform-plan-blast-radius-check__cli.mjs.gz=terraform-plan-blast-radius-check__cli.mjs.gz
+      - terraform-plan-blast-radius-check__engine.mjs.gz=terraform-plan-blast-radius-check__engine.mjs.gz
+      - terraform-plan-blast-radius-check__index.html.gz=terraform-plan-blast-radius-check__index.html.gz
+      - terraform-plan-blast-radius-check__usage.mjs.gz=terraform-plan-blast-radius-check__usage.mjs.gz
+      - terraform-plan-blast-radius-check__why-terraform-replace-destroys-data.html.gz=terraform-plan-blast-radius-check__why-terraform-replace-destroys-data.html.gz
       - terraform-plan-secret-exposure-check__cli.mjs.gz=terraform-plan-secret-exposure-check__cli.mjs.gz
       - terraform-plan-secret-exposure-check__engine.mjs.gz=terraform-plan-secret-exposure-check__engine.mjs.gz
       - terraform-plan-secret-exposure-check__index.html.gz=terraform-plan-secret-exposure-check__index.html.gz

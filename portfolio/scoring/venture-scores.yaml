@@ -11188,6 +11188,90 @@ ventures:
       scales -- more leaks caught, free, with no paid tier gating accuracy
       and no adversarial dynamic.
 
+  - slug: terraform-plan-blast-radius-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a change is a replace is
+      set arithmetic over change.actions (delete and create together, in
+      either order); which attribute forced it is read straight out of
+      change.replace_paths; whether the type holds data is a curated token
+      list matched against the underscore-separated segments of the type
+      name. All three have to answer identically on every run for a CI gate
+      to be worth wiring in between plan and apply, which a model would not.
+      Defensibility 3 is the other sub-5 dimension and its named mitigation
+      is in `basis` below.
+    basis: >-
+      Screened 2026-09-11 per portfolio/pipeline/README.md's "archetype
+      itself" section, which says as of the same day that picking the
+      `-check` shape is necessary but no longer sufficient novelty evidence
+      (38 slugs already end in -check). So the argument is not the shape.
+      duplicate_check.py on this description scored 0.26 against
+      terraform-plan-secret-exposure-check and nothing else above 0.13, well
+      under the 0.45 bar; that top hit reads the same input file and answers
+      an unrelated question about it (what the plan would print in plaintext
+      vs what the apply would take away), shares no code, and each page
+      links the other. Distribution 6, from four named venues verified this
+      session rather than asserted: hashicorp/terraform#36097
+      ("terraform plan hides unchanged forces replacement attributes") is
+      closed as working-as-designed, which is the strongest single piece of
+      evidence here -- upstream has confirmed the gap exists and that the
+      text output will not close it, while change.replace_paths in the JSON
+      format (hashicorp/terraform#28608, backported #28622) is the supported
+      way a third party answers it; hashicorp/terraform#16724 and the
+      azurerm siblings #22363/#22407/#13443 are a recurring "why is it
+      replacing my database" class; GitLab's public post-incident corrective
+      action gitlab-com/gl-infra/production-engineering#24078 asks in so
+      many words for this tool's default gate ("An apply should fail if
+      multiple critical resources containing data (disks) are being
+      deleted") after roughly 30 minutes of data loss on each of three
+      Gitaly nodes; and an AWS re:Post thread on destroying a production RDS
+      via Terraform names "nothing blocked the destroy plan" as a cause.
+      r/Terraform is a real venue but third-party trackers disagreed on its
+      size this session (83k and 44.5k), so no membership figure is claimed.
+      Not higher than 6 because none of these is an audience this portfolio
+      owns or can post to on a schedule. Time to revenue 5, one below the
+      secret-exposure sibling and for a stated reason: its best referral
+      surface is a *closed* issue, which is read far less than an open one,
+      and revenue is donation-only across this fleet. Autonomous ops 10 /
+      gross margin 10: the browser page parses a locally loaded file and the
+      CLI reads a local path, with no network call in either, so one more
+      user costs a static file. Defensibility 3, one below the sibling and
+      honestly so -- a few hundred lines over a publicly documented JSON
+      schema, with real adjacent prior art (tf-summarize, Spacelift and
+      Atlantis plan renderers, hand-written OPA/Conftest policies). Named
+      mitigation per the rubric's rule 2: the defensible part is not the
+      parser but the curated stateful-type token list, its
+      false-positive-biased design, and the exemption suffixes that keep it
+      from crying wolf -- the part that takes iterations against real plans
+      and that a jq one-liner never accumulates.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability containment 8: the tool reports a deterministic
+      reading of a plan file the user supplies and fully controls, with no
+      filing, signature, or determination made on anyone's behalf, and the
+      worst case of a wrong answer is a missed or extra flag. The one real
+      exposure is over-reliance -- a user treating a clean report as
+      permission to apply -- which is why both the page and the CLI state
+      that it cannot prove an apply is safe, only report what it matched,
+      and why the README says the stateful heuristic has been tested against
+      fixtures and not against a real-world plan corpus. Ethical robustness
+      9: free, no paid tier gating accuracy, no adversarial dynamic, and it
+      gets strictly better for users as it scales -- there is no version of
+      "help people not destroy their database by accident" that gets worse
+      for the user at volume.
+
   - slug: dental-ppo-writeoff-calculator
     scores:
       ai_leverage: 1
