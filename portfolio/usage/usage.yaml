@@ -5868,3 +5868,26 @@ products:
           nothing at all, so a flat local count here is weaker evidence than
           usual and should not on its own be read as no use; repository
           engagement is the other half of the signal.
+
+  - slug: codeowners-shadow-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a browser tool and zero-dependency CLI
+          that resolves a CODEOWNERS file the way GitHub actually resolves
+          it -- last matching pattern wins -- against a real file list, and
+          names every rule that never wins ownership of anything because a
+          broader rule listed later always overrides it. Counts are local,
+          opt-in, off by default, and honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on
+          for yet. This tool's other audience reaches it through the CLI
+          (`node check.mjs`), which records nothing at all, so a flat local
+          count here is weaker evidence than usual and should not on its own
+          be read as no use; repository engagement is the other half of the
+          signal.

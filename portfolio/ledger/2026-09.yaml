@@ -88,6 +88,102 @@ entries:
         sessions (232 branches checked with `supersede_check.py`); no new
         unique work has appeared since.
     mrr_end: 0
+  - venture: codeowners-shadow-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a free browser tool + zero-dependency Node
+        CLI that resolves a CODEOWNERS file the way GitHub actually resolves
+        it -- last matching pattern wins, the same rule .gitignore uses --
+        against a real file list, and names exactly which rules never win
+        ownership of anything because a broader rule listed later always
+        overrides them. GitHub's own CODEOWNERS syntax highlighting checks
+        for well-formed patterns and owners; it does not resolve every
+        pattern against every file and compare winners, which is the one
+        thing this tool does. Separately flags rules that matched nothing in
+        the given file list (a typo, or just a sample that didn't include a
+        matching file) rather than conflating that with genuine shadowing,
+        and lists files covered by no rule at all. No network call anywhere
+        -- both the CLI and the browser page work entirely from files/text
+        already local to the repository being checked.
+      - >-
+        Screened per `pipeline/README.md`'s gates before building:
+        `duplicate_check.py` scored every existing venture, screened-out
+        row, ai-first-markets idea, and pipeline candidate at 0.12 or below
+        against the final description (closest: oidc-trust-policy-check,
+        email-auth-check, generic word overlap only), well under the 0.45
+        read-this-first bar. Also checked the fleet's ~40 `*-check`/
+        `*-checker` ventures by name -- none cover CODEOWNERS resolution or
+        code-review routing; distinct from `repository-branch-hygiene`
+        (stale branch inventory, not review routing) and
+        `actions-permissions-check` (workflow token scope, not review
+        routing). Picked the CLI/checker shape per
+        `portfolio/pipeline/README.md`'s "archetype itself" section, which
+        found the `<trade>-bid-calculator` archetype saturated at 141/200
+        with zero recorded visitors and told sessions to weigh this shape
+        instead -- though the `*-check` family itself is now ~40 ventures,
+        so this leans on a genuinely uncovered niche (review-routing
+        correctness) rather than the shape alone. Scored honestly in
+        `portfolio/scoring/venture-scores.yaml`: composite 5.833, floor 1 on
+        `ai_leverage` (no AI, deliberately -- deterministic text parsing and
+        pattern matching), both liability/ethics gates pass (read-only,
+        makes no claim about collaborator identity or overall repo
+        security).
+      - >-
+        Session context: `session_gate.py` read PROCEED (fleet not
+        over-indexed on meta-work); `router/allocate.py`'s top two
+        dispatchable candidates (`reverb-fee-calculator`,
+        `where-to-sell-calculator`) were already fully built and tested
+        (99/99 and 177/177 `node --test`, both deployed and reachable on
+        `gh-pages`, disclaimers/sponsor links/SEO metadata already present)
+        with nothing concrete to fix; `pages_state.py` reported the
+        published snapshot current; `check_no_payment_code.py` and
+        `clauses.mjs` (940+ pages) were clean; `usage_state.py` confirmed no
+        product has ever recorded a real visitor signal (all-`null`, not
+        measured-as-zero) so there was no "go fix this product's actual
+        friction" candidate either. A fleet-wide `node --test` sweep across
+        every venture's own suite (~260 ventures) found zero failures, so no
+        existing-product defect to fix. Per `DIRECTION.md`'s "Fast scan"
+        priority order, with items 1-3 all clear, item 4 (screen and
+        graduate a new venture) was the highest-value use of the session.
+      - >-
+        Verified: venture's own suite 51/51 `node --test`
+        (`codeowners.test.mjs` 23, `check.test.mjs` 9, `page.test.mjs` 11,
+        `usage.test.mjs` 8); manually ran the CLI (`node check.mjs`) against
+        a throwaway git repo and confirmed correct JSON output;
+        `platform/router/validate.py` all VENTURE.yaml valid;
+        `check_no_payment_code.py` clean; `node platform/pages/build.mjs` +
+        `check.mjs` -- 254 products, no dead links;
+        `platform/pages/clauses.mjs codeowners-shadow-check` clean (1 page);
+        `faq-coverage.mjs codeowners-shadow-check` -- 1/1 entry page ships
+        derived FAQ schema; ran `platform/marketing/regen.mjs` (gitops
+        mirror was stale after the venture and its category-list/
+        cross-link edits) and committed what it rewrote;
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        full fleet suite clean; `siblings.mjs --check` 0 orphans;
+        `gitops/tests` clean (mirrored-tool-count assertions bumped in
+        `infra/OWNER_CHECKLIST.md`, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf`, and
+        `gitops/tests/test_manifests.py` itself; `sync_readme_counts.py`
+        also needed a run for `gitops/ci/README.md`'s `runs-on` count after
+        the new venture's own CI workflow landed); all 15 `platform/ci`
+        unittest modules green, including `test_validate_workflows`
+        (needed a new `.github/workflows/codeowners-shadow-check-ci.yml`,
+        copied from `canonical-tag-check-ci.yml`'s shape) and
+        `test_publish_surface` (needed the new workflow added to
+        `platform/ci/publish-surface.yaml` with `classification: none`);
+        `agent_review/test_review` clean; `portfolio/ledger` + `scoring` +
+        `router` + `usage` + `pipeline` + `infra/tests` clean (needed a
+        `venture-scores.yaml` row for the new venture, scored honestly per
+        the gates above); `ci_starvation.py` confirmed Actions starved at
+        session start, so this full local checklist stood in for CI per
+        `CLAUDE.md`. Rebased onto `origin/main` mid-session after another
+        session's merges landed (actions-minutes-estimator graduation, an
+        indexnow_state.py fix, a recorded browser sweep); re-verified every
+        step above against the rebased tree rather than trusting the
+        pre-rebase run.
+    mrr_end: 0
   - venture: actions-minutes-estimator
     agent_spend_usd: null
     human_hours: 0
@@ -26697,4 +26793,73 @@ entries:
         `agent_review/test_review` (21/21); `check_venture_regression.py`
         clean (no live venture disappears); `portfolio/ledger` + `scoring`
         + `router` + `usage` + `pipeline` + `infra/tests` 435 passed.
+    mrr_end: 0
+  - venture: wildlife-exclusion-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled owner check-in asked that CI/CD, Hetzner marketing
+        deployment, and the Codex-on-Hetzner dev capacity stay prioritized.
+        Investigation found all three already fully built and correctly
+        ordered (PR #4577, merged earlier the same day, covers this in
+        detail) — the sole remaining blocker is the owner-only
+        `hetzner-ssh-key-is-a-public-key` action, already queued. Rather than
+        re-run that investigation, refreshed the stale GitHub Pages snapshot
+        (`platform/pages/publish-branch.sh`, confirmed current with
+        `pages_state.py --require-current`) and moved to product work.
+      - >-
+        Added `share.mjs` (the fleet's canonical save-to-browser /
+        copy-a-shareable-link module, byte-identical across the ventures that
+        carry it) to `wildlife-exclusion-bid-calculator`, one of 21 shipped
+        calculators found with a `calc.mjs` but no persistence. A pest
+        operator re-entering crew wage, burden, drive time, trap-check
+        cadence and 25+ other job figures on every bid had no way to keep
+        them between visits or hand a filled-in bid to a colleague — the
+        "used once and abandoned" gap `share.mjs`'s own header documents.
+        `BID_SPEC` is derived from the page's own `COST_IDS`/`FLAG_IDS`/
+        `CHOICE_IDS` rather than a second hand-kept field list. Wired
+        "Copy bid link" / "Start a fresh bid" controls, restore-on-load from
+        the URL fragment or localStorage, and save-on-every-input persist,
+        matching `withProposalTerms` so a link also carries the deposit,
+        hold-days and prose terms the customer proposal panel adds.
+      - >-
+        Found and fixed a real wiring bug during browser verification: this
+        venture (unlike the live-recalculating ventures the pattern was
+        copied from) only recomputes its hero price on explicit form submit,
+        so a link copied right after an edit encoded the new figures while
+        the on-screen price still showed the last submitted one —
+        `roundtrip.mjs` caught it as a $3,712.91 vs $25,541.29 headline
+        mismatch with zero dropped fields. Fixed by also recomputing on every
+        input/change, the same precedent `staffing-markup-calculator`
+        already set for this exact shape.
+      - >-
+        Also fixed, found via the same verification pass: `main` was red on
+        `platform/ci/test_publish_surface.py`'s snapshot-consistency check,
+        unrelated to this venture — PR #4573 (earlier the same day) added
+        `.github/workflows/actions-minutes-estimator-ci.yml` (a
+        venture-unit-test-only workflow, no deploy step) without a matching
+        entry in `platform/ci/publish-surface.yaml`. Added the
+        `classification: none` row.
+      - >-
+        Verified: venture's own suite 160/160 `node --test` (was 158; two new
+        wiring-regression tests added, mirroring the fleet's "a shared link
+        must carry every field the form reads" convention); headless-browser
+        round trip (Playwright/Chromium) — `sideways`, `presets`, `roundtrip`,
+        `contrast`, `sweep` all `ok` against this venture, 58 fields and the
+        headline both round-tripping through a real copied link;
+        `platform/ci/checklist_coverage.py` clean; `node platform/pages/build.mjs`
+        + `check.mjs` — 253 products, 980 pages, no dead links; `siblings.mjs
+        --check` 0 orphans; `platform/pages/clauses.mjs
+        wildlife-exclusion-bid-calculator` clean (3 pages); ran
+        `platform/marketing/regen.mjs` (mirror shard was stale after the
+        edit) and committed what it rewrote; `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`: 1238/1238;
+        `node --test platform/proposal/*.test.mjs`: 101/101; `gitops/tests`
+        557 passed / 25 skipped (environmental, matches the documented
+        baseline); all 15 `platform/ci` unittest modules green after the
+        publish-surface fix, including `agent_review/test_review` (21/21);
+        all 8 `portfolio-validate.yml` validators clean; `portfolio/ledger` +
+        `scoring` + `router` + `usage` + `pipeline` + `infra/tests`: 435
+        passed.
     mrr_end: 0

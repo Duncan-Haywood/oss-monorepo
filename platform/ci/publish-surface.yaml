@@ -209,6 +209,9 @@ workflows:
 - workflow: cloud-egress-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: codeowners-shadow-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: commercial-photo-license-calculator-ci.yml
   classification: none
   publishes: []

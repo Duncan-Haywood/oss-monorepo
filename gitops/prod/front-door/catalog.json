@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 253,
-  "collection_total": 253,
+  "served_here": 254,
+  "collection_total": 254,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 39
+      "tool_count": 40
     },
     {
       "id": "evidence",
@@ -789,6 +789,14 @@
       "category": "CI checks & developer gates",
       "description": "Free, browser-local checker: scans your extension's JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json's declared permissions, so an unused or missing permission doesn't cost you a Chrome Web Store rejection ('Purple Potassium'). Nothing is uploaded.",
       "pages": 3
+    },
+    {
+      "slug": "codeowners-shadow-check",
+      "name": "CODEOWNERS Shadow Checker — Find Rules GitHub Silently Overrides",
+      "url": "https://marisstella.dev/tools/codeowners-shadow-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: paste your CODEOWNERS file and your repo's file list to see exactly which earlier, more specific rules a later, broader rule silently overrides -- GitHub's own last-match-wins resolution, the most common way a CODEOWNERS file quietly stops reviewing what you think it reviews. Nothing uploaded.",
+      "pages": 1
     },
     {
       "slug": "concrete-lifting-bid-calculator",
