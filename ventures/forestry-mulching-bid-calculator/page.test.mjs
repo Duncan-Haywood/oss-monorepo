@@ -480,3 +480,34 @@ test('every message calc.mjs can throw names a field label the page actually ren
     );
   }
 });
+
+test('index links the Aspire incumbent-comparison page and the sitemap lists it too', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(html, /vs-aspire\.html/);
+  assert.match(sitemap, /vs-aspire\.html/);
+});
+
+test('the Aspire comparison page links back, names the incumbent honestly, and states no unverifiable price', () => {
+  const vsAspire = readFileSync(join(HERE, 'vs-aspire.html'), 'utf8');
+  assert.match(vsAspire, /<a href="index\.html">/);
+  assert.match(vsAspire, /not affiliated with, endorsed by, or sponsored by Aspire Software or ServiceTitan, Inc\./);
+  // Aspire's own pricing page is not reachable from this session (see the
+  // other vs-aspire.html pages in this repo for the same discipline), so no
+  // dollar figure for it may appear on the page.
+  assert.doesNotMatch(vsAspire, /\$\d/);
+  assert.match(vsAspire, /No warranty/);
+  assert.match(vsAspire, /Best-effort hosting, no SLA/);
+  assert.match(vsAspire, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('the Aspire comparison page FAQPage JSON-LD matches the visible copy verbatim', () => {
+  const vsAspire = readFileSync(join(HERE, 'vs-aspire.html'), 'utf8');
+  const match = vsAspire.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
+  assert.ok(match, 'no FAQPage schema found on vs-aspire.html');
+  const schema = JSON.parse(match[1]);
+  assert.ok(schema.mainEntity.length > 0);
+  for (const { name, acceptedAnswer } of schema.mainEntity) {
+    assert.ok(vsAspire.includes(`<h3>${name}</h3>`), `FAQ question "${name}" has no matching <h3>`);
+    assert.ok(vsAspire.includes(acceptedAnswer.text), `answer not found verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
+  }
+});

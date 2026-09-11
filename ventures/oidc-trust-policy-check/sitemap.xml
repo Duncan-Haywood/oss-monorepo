@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://example.invalid/oidc-trust-policy-check/</loc></url>
 <url><loc>https://example.invalid/oidc-trust-policy-check/sub-claim-and-wildcard-traps.html</loc></url>
+<url><loc>https://example.invalid/oidc-trust-policy-check/vs-wiz.html</loc></url>
 </urlset>

@@ -134,3 +134,33 @@ test('the worked example pins aud, so it cannot be dismissed as an obviously emp
   const report = analyzeTrustPolicy(example);
   assert.ok(!report.findings.some((f) => f.id === 'aud-missing'));
 });
+
+test('index links the Wiz incumbent-comparison page and the sitemap lists it too', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(html, /vs-wiz\.html/);
+  assert.match(sitemap, /vs-wiz\.html/);
+});
+
+test('the Wiz comparison page links back, names the incumbent honestly, and states no unverifiable price', () => {
+  const vsWiz = readFileSync(join(HERE, 'vs-wiz.html'), 'utf8');
+  assert.match(vsWiz, /<a href="\.\/">/);
+  assert.match(vsWiz, /not affiliated with, endorsed by, or sponsored by Wiz, Inc\./);
+  // Wiz publishes no public price list, so no dollar figure for it may
+  // appear on the page.
+  assert.doesNotMatch(vsWiz, /\$\d/);
+  assert.match(vsWiz, /No warranty/);
+  assert.match(vsWiz, /Best-effort hosting, no SLA/);
+  assert.match(vsWiz, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('the Wiz comparison page FAQPage JSON-LD matches the visible copy verbatim', () => {
+  const vsWiz = readFileSync(join(HERE, 'vs-wiz.html'), 'utf8');
+  const match = vsWiz.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
+  assert.ok(match, 'no FAQPage schema found on vs-wiz.html');
+  const schema = JSON.parse(match[1]);
+  assert.ok(schema.mainEntity.length > 0);
+  for (const { name, acceptedAnswer } of schema.mainEntity) {
+    assert.ok(vsWiz.includes(`<h3>${name}</h3>`), `FAQ question "${name}" has no matching <h3>`);
+    assert.ok(vsWiz.includes(acceptedAnswer.text), `answer not found verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
+  }
+});
