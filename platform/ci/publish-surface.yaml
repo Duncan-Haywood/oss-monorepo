@@ -188,6 +188,9 @@ workflows:
 - workflow: cash-runway-planner-ci.yml
   classification: none
   publishes: []
+- workflow: cat-adjuster-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: certified-payroll-calculator-ci.yml
   classification: none
   publishes: []
