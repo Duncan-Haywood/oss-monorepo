@@ -8,7 +8,7 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 267,
+  "served_here": 268,
   "collection_total": 267,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
@@ -74,7 +74,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
+      "tool_count": 6
     }
   ],
   "tools": [
@@ -1709,6 +1709,14 @@
       "category": "Compliance checks & evidence records",
       "description": "Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before you pay for a proof. Runs entirely in your browser — artwork is never uploaded.",
       "pages": 3
+    },
+    {
+      "slug": "process-server-fee-calculator",
+      "name": "Process Server Fee & Route Profit Calculator",
+      "url": "https://marisstella.dev/tools/process-server-fee-calculator/",
+      "category": "More free tools",
+      "description": "Free calculator for independent process servers: find real net profit for one service-of-process job after extra attempts, rush and skip-trace fees, mileage, and your own drive time and vehicle cost, then compare what two or three client law firms actually pay per hour.",
+      "pages": 2
     },
     {
       "slug": "pwa-installability-check",
