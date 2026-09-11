@@ -10753,3 +10753,93 @@ ventures:
       responsibility. Ethical robustness: helps under-resourced independent
       artists present themselves professionally, with no adversarial
       dynamic and no negative externality as usage scales.
+  - slug: forestry-mulching-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The output is a price an operator
+      puts in front of a landowner and then has to clear the ground for, and
+      every step of it -- acres per hour from swath geometry, machine hours
+      from acres per hour, five cost lines to an hourly rate, margin on price
+      -- is closed-form arithmetic the operator can re-derive on paper and a
+      customer can query line by line. Inference would make the quote less
+      checkable without making it more correct, and the failure mode of a
+      wrong number here is a week of machine time given away.
+    basis: >-
+      Screened 2026-09-11. `duplicate_check.py` scored the closest match
+      (`custom-farm-rate-calculator`) at 0.25 against the final description,
+      under the 0.45 flag bar, and the next nine sat at 0.13 or below. No
+      mulching, land-clearing, brush-density or acres-per-machine-hour
+      arithmetic exists anywhere in `ventures/`, and no land-clearing row
+      exists in `screened-out.md`. The two nearest real neighbours are
+      complementary rather than overlapping: `tree-service-bid-calculator`
+      (0.11) prices standing stems per tree from DBH, which is precisely the
+      material a mulching head is not rated for -- the two are linked from
+      each other's pages for that reason -- and `custom-farm-rate-calculator`
+      prices a farm implement's field job for another farmer, an ag operation
+      rather than vegetation removal, with no density or pass-count term at
+      all.
+      Defensibility 3, stated plainly because it is the weakest dimension:
+      a cost-per-hour calculator is easy to reimplement once the shape is
+      known, and generic markup calculators are everywhere. What is not
+      commodity is the production-rate half -- deriving acres per machine
+      hour from head width, advance speed, pass count and a terrain factor,
+      and then re-pricing the identical acreage across four density classes
+      against one flat quoted price per acre. An operator can find a
+      dollars-per-acre figure on a forum in ten seconds; what they cannot
+      easily find is what that figure does to them on the heavy lot.
+      Distribution 7: the search terminology is unusually concrete and
+      transactional ("forestry mulching price per acre", "how much to charge
+      for forestry mulching", "land clearing cost per acre", "forestry
+      mulching production rate acres per hour"), the question is asked
+      continuously in a self-organising trade community (r/Skidsteer,
+      r/Forestry, Heavy Equipment Forums and the Forestry Forum's equipment
+      boards), and a second population asks it before buying a head at all
+      -- "can I make money mulching" is a pre-purchase question with the same
+      arithmetic behind it. The guide page is written to answer the pricing
+      query directly rather than to rank for the calculator query alone.
+      Autonomous ops 10 / gross margin 10: a static page with no build step,
+      no dependencies and no network requests, so one more user costs nothing
+      and there is nothing to operate.
+      Time to revenue 6: free by design in this phase, and the route to any
+      revenue is the same sponsorship link every tool here carries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass on both, and liability containment needed the closer look because
+      the customer operates heavy equipment on land that frequently carries
+      environmental restrictions. The containment is structural rather than a
+      matter of wording: this makes no determination about any parcel. It
+      ships no regulatory data, no soil or wetland layer, no species list and
+      no parcel lookup, and it says on every page that permits, burn rules,
+      stream and wetland buffers, erosion control, protected species,
+      property lines and buried or overhead utilities are outside it and
+      remain the operator's. The artifact it produces is a price, not a
+      clearing plan and not a finding that the work may be done. The one
+      place it touches operational safety is defensive: it flags a largest
+      stem above what the head is rated for as a felling job to price
+      separately or exclude in writing, rather than silently folding
+      oversized material into a production rate. That is the opposite posture
+      from a tool claiming to discharge an obligation, which is the shape
+      `screened-out.md` rejects.
+      Ethical robustness: the tool's whole argument is that operators are
+      under-charging because a per-acre quote hides the term that moves the
+      cost most, and that some of what looks like a pricing problem is an
+      idle-machine problem they should see before raising a price. It gets
+      better for its users as it scales and takes nothing from anybody else
+      -- a landowner who pays a correctly-priced quote for correctly-scoped
+      work is not worse off than one paying a guess that the operator will
+      have to recover somewhere. Nothing is uploaded, so there is no data
+      position to abuse, and the density presets are disclosed on both pages
+      as starting points to overwrite rather than as survey data, which is
+      the honest direction to err given the tool argues for higher quotes.
