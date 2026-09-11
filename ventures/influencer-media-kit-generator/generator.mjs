@@ -53,6 +53,23 @@ export function parsePipeList(text, fields) {
   return rows;
 }
 
+/**
+ * How an engagement figure reads in the kit.
+ *
+ * The templates used to append " engagement" unconditionally, which is right
+ * for the bare number the placeholder shows ("4.2%" -> "4.2% engagement") and
+ * wrong the moment a creator names the metric themselves. A newsletter
+ * operator typing "42% open", or anyone typing "3.2% CTR", got "42% open
+ * engagement" in the file they send to a brand. So the word is added only when
+ * the value is a bare number or percentage and says nothing about what it
+ * measures.
+ */
+export function engagementLabel(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return "";
+  return /^[\d.,]+\s*%?$/.test(text) ? `${text} engagement` : text;
+}
+
 export const parsePlatforms = (text) => parsePipeList(text, ["platform", "followers", "engagement", "url"]);
 export const parseAudience = (text) => parsePipeList(text, ["label", "value"]);
 export const parseCollabs = (text) => parsePipeList(text, ["brand", "campaign", "url"]);
@@ -136,7 +153,7 @@ export function buildMediaKitHtml(data) {
         ${platforms.map((p) => `<tr>
           <td class="k">${p.url ? `<a href="${escapeHtml(p.url)}" rel="noopener">${escapeHtml(p.platform || "")}</a>` : escapeHtml(p.platform || "")}</td>
           <td>${escapeHtml(p.followers || "")}</td>
-          <td>${p.engagement ? `${escapeHtml(p.engagement)} engagement` : ""}</td>
+          <td>${escapeHtml(engagementLabel(p.engagement))}</td>
         </tr>`).join("")}
       </tbody>
     </table>
@@ -295,7 +312,7 @@ export function buildOneSheetText(data) {
   if (platforms.length) {
     lines.push("REACH");
     for (const p of platforms) {
-      const bits = [p.followers, p.engagement ? `${p.engagement} engagement` : ""].filter(Boolean).join(", ");
+      const bits = [p.followers, engagementLabel(p.engagement)].filter(Boolean).join(", ");
       lines.push(`- ${p.platform || ""}${bits ? `: ${bits}` : ""}${p.url ? ` (${p.url})` : ""}`);
     }
     lines.push("");

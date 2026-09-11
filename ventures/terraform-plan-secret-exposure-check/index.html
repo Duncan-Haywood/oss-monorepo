@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Terraform Plan Secret Exposure Check — Find Secrets the `sensitive` Flag Missed</title>
+  <meta name="description" content="Paste or load a Terraform structured plan (terraform show -json) and get a deterministic report of every attribute value that looks like a real secret -- an AWS access key, a PEM private key, a JWT, or a URL with embedded credentials -- which the provider schema did not mark sensitive. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Did your Terraform plan just print a secret in plaintext?">
+  <meta property="og:description" content="Check a Terraform structured plan for secret-shaped values the sensitive flag missed -- deterministic, no account, no upload, with a matching CLI you can run as a CI gate before every apply.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Terraform Plan Secret Exposure Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks a Terraform structured plan (terraform show -json) for attribute values that look like a real secret -- an AWS access key, a PEM private key, a JWT, or a URL with embedded credentials -- which the provider schema did not mark sensitive. Runs entirely in the browser or as a zero-dependency Node CLI usable as a CI gate before apply."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this catch every possible secret leak in my Terraform plan?","acceptedAnswer":{"@type":"Answer","text":"No. It matches a fixed set of high-confidence secret shapes — AWS access keys, PEM private keys, JWTs, and URLs with embedded credentials — against every attribute value the provider schema did not already mark sensitive. It will not catch a secret in a shape it doesn't recognise, and it cannot see your provider's source to know whether a field should have been marked sensitive in the first place. Treat a clean report as one more gate passed, not a guarantee."}},{"@type":"Question","name":"Is my plan uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses a pasted or locally loaded file entirely in your own browser and never sends it anywhere. The CLI reads only a local file — no network call, ever."}},{"@type":"Question","name":"What file does it need?","acceptedAnswer":{"@type":"Answer","text":"The structured plan JSON from terraform show -json, not the human-readable terraform plan output and not the line-by-line terraform plan -json stream. Run: terraform plan -out=tfplan && terraform show -json tfplan > plan.json"}},{"@type":"Question","name":"Why doesn't the report show the actual secret value?","acceptedAnswer":{"@type":"Answer","text":"Because the report itself is meant to be pasted into an issue, a Slack message, or a CI log — doing that with the real value would recreate the exact leak this tool exists to catch. It shows the first and last four characters and which pattern matched, enough to find and rotate the value without re-exposing it."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 200px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; background: #fde8e8; color: #7f1d1d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .ok { color: #14532d; font-weight: 600; }
+    .bad { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">TERRAFORM PLAN SECRET EXPOSURE CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Did your Terraform plan just print a secret in plaintext?</h1>
+    <p>Paste or load a Terraform structured plan (<code>terraform show -json</code>) and get a deterministic report of every attribute value that looks like a real secret -- an AWS access key, a PEM private key, a JWT, or a URL with embedded credentials -- which the provider schema did not mark <code>sensitive</code>.</p>
+    <p class="note">Nothing is uploaded. The file you load is read in this browser and never leaves your device.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Load your plan</h2>
+    <p>
+      <label for="file-input">From a file (the JSON from <code>terraform show -json</code> -- read locally, never uploaded)</label>
+      <input type="file" id="file-input" accept=".json,.txt">
+    </p>
+    <label for="plan-input">…or paste it directly</label>
+    <textarea id="plan-input" spellcheck="false" placeholder='{"format_version":"1.2","resource_changes":[...]}'></textarea>
+    <p>
+      <button type="button" id="check">Check plan</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What this plan would fail on</h2>
+    <p id="summary"></p>
+    <div id="findings-block" hidden>
+      <table>
+        <thead><tr><th>Resource / output</th><th>Side</th><th>Path</th><th>Pattern</th><th>Value (redacted)</th></tr></thead>
+        <tbody id="finding-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate before you apply?</h2>
+    <p>Same logic, zero dependencies, one file — run it right after you generate the plan, before anything applies:</p>
+    <pre class="cmd">terraform plan -out=tfplan && terraform show -json tfplan > plan.json
+node cli.mjs check plan.json                    # human-readable, exit 1 if anything unmarked is found
+node cli.mjs check plan.json --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only the local file you name: no network call, ever.</p>
+  </section>
+
+  <section class="card">
+    <h2>What this checks — and what it cannot</h2>
+    <table>
+      <thead><tr><th>Failure this is checked against</th><th>Checked here as</th></tr></thead>
+      <tbody id="cases-rows"></tbody>
+    </table>
+    <p class="note">Sources and the exact scope: <a href="why-terraform-plan-json-leaks-secrets.html">why a Terraform plan can print a secret even though the schema has a `sensitive` flag</a>. Config drifting from what a codebase actually reads is a related, separate failure — see <a href="../env-example-drift-check/">Env Example Drift Check</a> for `.env.example` rather than a Terraform plan.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does this catch every possible secret leak in my Terraform plan?</h3>
+    <p>No. It matches a fixed set of high-confidence secret shapes — AWS access keys, PEM private keys, JWTs, and URLs with embedded credentials — against every attribute value the provider schema did not already mark sensitive. It will not catch a secret in a shape it doesn't recognise, and it cannot see your provider's source to know whether a field should have been marked sensitive in the first place. Treat a clean report as one more gate passed, not a guarantee.</p>
+    <h3>Is my plan uploaded anywhere?</h3>
+    <p>No. The browser page parses a pasted or locally loaded file entirely in your own browser and never sends it anywhere. The CLI reads only a local file — no network call, ever.</p>
+    <h3>What file does it need?</h3>
+    <p>The structured plan JSON from <code>terraform show -json</code>, not the human-readable <code>terraform plan</code> output and not the line-by-line <code>terraform plan -json</code> stream. Run: <code>terraform plan -out=tfplan &amp;&amp; terraform show -json tfplan &gt; plan.json</code></p>
+    <h3>Why doesn't the report show the actual secret value?</h3>
+    <p>Because the report itself is meant to be pasted into an issue, a Slack message, or a CI log — doing that with the real value would recreate the exact leak this tool exists to catch. It shows the first and last four characters and which pattern matched, enough to find and rotate the value without re-exposing it.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security, legal, or compliance advice, and it does not replace a qualified professional or your own provider's documentation. It matches a fixed set of known secret shapes against unmarked attribute values in the plan you supplied — it cannot prove the absence of a leak, only report the patterns it found. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for rotating any credential it flags. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The plan you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parsePlan, checkPlan, KNOWN_LEAK_CASES } from "./engine.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      fileInput: $("#file-input"), plan: $("#plan-input"),
+      status: $("#status"), reportCard: $("#report-card"), summary: $("#summary"),
+      findingsBlock: $("#findings-block"), findingRows: $("#finding-rows"),
+      casesRows: $("#cases-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    els.casesRows.innerHTML = KNOWN_LEAK_CASES.map((c) => `<tr>
+      <td>${escapeHtml(c.case)}</td>
+      <td><code>${escapeHtml(c.checkedBy)}</code></td>
+    </tr>`).join("");
+
+    function renderReport() {
+      let plan;
+      try {
+        plan = parsePlan(els.plan.value);
+      } catch (err) {
+        els.status.innerHTML = `<span class="bad">${escapeHtml(err.message)}</span>`;
+        return;
+      }
+      const result = checkPlan(plan);
+      els.status.textContent = "";
+
+      els.summary.innerHTML = result.findings.length
+        ? `<span class="bad">${result.resourcesChecked} resource change(s) and ${result.outputsChecked} output(s) checked: ${result.findings.length} unmarked secret-shaped value(s) found. This plan would fail a CI gate.</span>`
+        : `<span class="ok">${result.resourcesChecked} resource change(s) and ${result.outputsChecked} output(s) checked: no unmarked secret-shaped values found.</span>`;
+
+      els.findingsBlock.hidden = result.findings.length === 0;
+      els.findingRows.innerHTML = result.findings.map((f) => `<tr>
+        <td>${escapeHtml(f.resourceAddress)}</td>
+        <td><span class="pill">${escapeHtml(f.side)}</span></td>
+        <td><code>${escapeHtml(f.path)}</code></td>
+        <td>${escapeHtml(f.label)}</td>
+        <td><code>${escapeHtml(f.redacted)}</code></td>
+      </tr>`).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    els.fileInput.addEventListener("change", () => {
+      const file = els.fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        els.plan.value = String(reader.result || "");
+        record("file_loaded");
+        renderReport();
+      };
+      reader.readAsText(file);
+    });
+
+    const EXAMPLE_PLAN = JSON.stringify({
+      format_version: "1.2",
+      resource_changes: [
+        {
+          address: "aws_ssm_parameter.db_password",
+          change: {
+            after: { name: "/app/db-password", type: "String", value: "AKIAABCDEFGHIJKLMNOP" },
+            after_sensitive: {},
+          },
+        },
+        {
+          address: "aws_instance.web",
+          change: {
+            after: { instance_type: "t3.micro", ami: "ami-0abcd1234efgh5678" },
+            after_sensitive: {},
+          },
+        },
+      ],
+      output_changes: {
+        connection_url: { after: "postgres://app:hunter2@db.internal.example:5432/main", sensitive: false },
+      },
+    }, null, 2);
+
+    $("#load-example").addEventListener("click", () => {
+      els.plan.value = EXAMPLE_PLAN;
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.plan.value = "";
+      els.fileInput.value = "";
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

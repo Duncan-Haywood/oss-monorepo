@@ -86,3 +86,39 @@ test("every field id referenced by the script exists in the form", async () => {
     assert.match(page, new RegExp(`id="${id}-input"`), `missing textarea#${id}-input`);
   }
 });
+
+test("accepting a handoff saves the draft immediately, not on the autosave debounce", async () => {
+  // Found 2026-09-11 by driving the real journey in Chromium: a creator who
+  // pressed "Add these to my media kit" and went straight back to the other
+  // rate calculator to add their second platform lost everything just
+  // inserted, because `scheduleSave()` waits 400ms and the navigation
+  // happened first. Nothing errored; the rows were simply gone on return.
+  //
+  // Asserted on the shipped markup rather than in a DOM harness because this
+  // page has no module boundary for the click path — the guard that matters
+  // is that the handoff branch writes through `saveDraft` rather than only
+  // queueing. Typing may still debounce: there is nothing to lose between two
+  // keystrokes.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  const handler = /#handoff-add"\)\.addEventListener\("click"[\s\S]*?\n    \}\);/.exec(page);
+  assert.ok(handler, "the handoff-add click handler should be present");
+  assert.match(handler[0], /saveDraft\(localStorage, values\)/);
+  assert.doesNotMatch(handler[0], /scheduleSave\(\)/);
+});
+
+test("the page's privacy note names every event it counts", async () => {
+  // The footer promises a specific list. An event counted but not listed is a
+  // small dishonesty in the one paragraph a privacy-conscious reader checks.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  const script = /<script type="module">([\s\S]*)<\/script>/.exec(page)[1];
+  const counted = new Set([...script.matchAll(/record\("([a-z_]+)"\)/g)].map((m) => m[1]));
+  assert.ok(counted.size >= 5, `expected several events, found ${[...counted].join(", ")}`);
+  // The footer ELEMENT, not everything after the opening tag: this page puts
+  // its <script> after </footer>, so slicing to the end of the file made the
+  // assertion trivially true against the very code it is checking. It was,
+  // for one commit, and it passed while three events genuinely went unlisted.
+  const footer = /<footer[\s\S]*?<\/footer>/.exec(page)[0];
+  for (const event of counted) {
+    assert.ok(footer.includes(event), `the footer does not name the '${event}' event it counts`);
+  }
+});

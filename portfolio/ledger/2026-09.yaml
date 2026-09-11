@@ -27675,6 +27675,156 @@ entries:
         not enough, and the copy is generated from the JSON-LD strings so the
         two cannot diverge.
     mrr_end: 0
+
+  - venture: influencer-media-kit-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the collaborative queue first, as the standing three-PR floor
+        requires. Zero open PRs existed at the start of the run
+        (`list_pull_requests` returned `[]`), so the quota was met vacuously;
+        one appeared mid-run (#4610, a sibling session's effective-labor-rate
+        calculator) and was reviewed, repaired and **merged** rather than left
+        — main moved three times during that and every conflict was resolved
+        by keeping both sides: both ledger entries reconstructed, both
+        generated surfaces re-derived with `regen.mjs`, and where #4615 had
+        landed its own version of #4610's bounce-house guard, main's test was
+        kept alongside this branch's second, distinct assertion.
+      - >-
+        Shipped the **rate-card handoff**, in two PRs (#4613, and this one).
+        `brand-deal-rate-calculator` and
+        `newsletter-sponsorship-rate-calculator` each compute exactly the two
+        things `influencer-media-kit-generator`'s own `validateMediaKit` warns
+        about when missing — "No platforms listed" and "No rate card" — and
+        until now the only route between them was retyping four price ranges
+        by hand. Each report now offers a "Put these rates in a media kit"
+        link carrying both. Picked from `portfolio/router/allocate.py`, whose
+        #2 candidate names this exact hypothesis: "the handoff, not the depth
+        of the second tool, is what decides whether the portfolio's deeper
+        scenarios ever get used."
+      - >-
+        Follows `where-to-sell-calculator/handoff.mjs` rather than inventing
+        rules: values ride in the URL fragment (browsers never send it to a
+        server), the link is relative, and a handoff that would arrive empty
+        is not offered at all. The **range** travels rather than a point
+        estimate, because both calculators are explicit that their output
+        starts a negotiation and is never a quote.
+      - >-
+        The receiver never overwrites. It shows what a link carries, inserts
+        nothing until a button is pressed, then *appends* only lines the form
+        lacks — which is what lets the two senders **compose**: an operator
+        with a list and a social audience follows both links and gets one kit
+        with two reach rows and eight rate rows. A link may fill only
+        `platformsRaw` and `ratesRaw`, checked against `state.mjs`'s own
+        exported `STRING_FIELDS`, so it cannot write a bio or a partnerships
+        email; control and Unicode bidi characters are stripped and sizes
+        capped.
+      - >-
+        **Three defects were found by driving the real journey in Chromium,
+        and none of them by unit tests.** (1) A fragment-only URL change does
+        not reload the page, so a pasted handoff link left the form silently
+        unchanged — fixed with a `hashchange` listener. (2) Accepting a
+        handoff saved through the 400ms autosave debounce, so a creator who
+        pressed "Add" and went straight back to the other calculator lost
+        everything just inserted, with no error — now saved immediately.
+        (3) The kit appended the word "engagement" to any reach figure, so a
+        newsletter's "42% open" rendered as "42% open engagement" in the file
+        a sponsor reads; `engagementLabel` now leaves a value that names its
+        own metric alone, which also fixes it for anyone hand-typing "3.2%
+        CTR".
+      - >-
+        A fourth was found by a guard already in the tree and a fifth by
+        re-reading a test that had just passed. `check_money_sign` caught a
+        `money()` helper that would have signed a negative "$-9". And a new
+        "the footer names every event it counts" test passed vacuously,
+        because it sliced from `<footer` to end-of-file and so matched against
+        the very script it was checking — it was green while three handoff
+        events genuinely went unlisted. Both fixed, and the corrected test was
+        verified to fail when an event is removed from the footer.
+      - >-
+        Verified locally (Actions starved all day: 10 consecutive
+        `publish-pages-branch.yml` runs classified `starved`). 128 node --test
+        assertions across the three ventures, 1255 in platform/marketing and
+        platform/pages, 183 in proposal/privacy/webcheck, 581 passed + 1
+        skipped in gitops/tests after `regen.mjs`, 435 in the portfolio pytest
+        suites, all 25 platform/ci unittest modules, agent_review,
+        `checklist_coverage`, `guard_state --require-runnable` (no fixable
+        skips), and build.mjs + check.mjs at 261 products / 997 pages with no
+        dead links. `browser_checks.py --only` passes 6/7 on all three slugs,
+        contrast included.
+      - >-
+        Deployed: after #4613 merged, `publish-branch.sh` refreshed the
+        `gh-pages` snapshot and `pages_state.py --require-current` exits 0
+        against the new tip. IndexNow submission failed as it always does from
+        a sandbox (the egress proxy 403s `api.indexnow.org`) — still never
+        announced for any of the 995 published URLs, and still the only
+        page-enumeration route this origin has, since sitemap auto-discovery
+        cannot work from a project-Pages subpath.
+      - >-
+        Not measured, and not claimed: `usage.yaml` carries
+        `live_url_visitors: null` — never measured, not a zero. The four new
+        events (`handoff_followed` on each sender, `handoff_offered` /
+        `handoff_accepted` / `handoff_dismissed` on the receiver) are the
+        instrument for the router's hypothesis, not evidence for it.
+    mrr_end: 0
+  - venture: auto-repair-effective-labor-rate
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Gave the effective-labor-rate calculator (graduated earlier this
+        session) a comparison/marketing page: `vs-tekmetric.html`, matching
+        the pattern 246 of 271 ventures already carry and that #4612's
+        `vs-keeper.html` on `quarterly-estimated-tax-calendar` demonstrated
+        most recently. Tekmetric is a well-known paid shop management
+        system for independent auto repair shops whose KPI dashboard
+        reports an effective labor rate once a shop's whole workflow runs
+        through the platform. The page names that distinction honestly —
+        a single free calculator needing no account or migration versus an
+        ongoing paid operating system — rather than claiming Tekmetric
+        lacks a feature it may have, and carries the required no-warranty
+        and not-affiliated clauses (`PRODUCT_PLAYBOOK.md` 5b/5f), verified
+        against `platform/pages/clauses.mjs`'s patterns directly.
+      - >-
+        Chose this over a sibling `vs-` page on an already-covered venture
+        or a fresh candidate because the venture shipped this session with
+        zero inbound distribution surface beyond its own two pages, and the
+        pipeline (`session_gate.py`) reported the `build-now` queue empty
+        with no in-progress venture of my own to continue.
+      - >-
+        Full starvation-window checklist run locally (CLAUDE.md): venture
+        suite 52/52 (5 new assertions); `platform/marketing` +
+        `platform/pages` 1255/1255; `platform/proposal` 101/101;
+        `platform/privacy` + `platform/webcheck` 82/82; all 15
+        `platform/ci` unittest modules (915 tests) plus `agent_review` (21)
+        OK; `gitops/tests` 581 passed / 1 skipped (ENVIRONMENTAL —
+        GitHub-hosted-runner-only, confirmed by `guard_state.py
+        --require-runnable` exiting 0 with no fixable skips); `portfolio/*`
+        + `infra/tests` 435 passed; `score_ventures.py --check` consistent
+        across 270 ventures; `validate_usage.py` valid (245 products, 431
+        readings); `router/validate.py` valid (269 VENTURE.yaml); pipeline
+        doc-consistency, candidate-consistency, probe-index and
+        score-sensitivity validators all clean; `front-door-tools.mjs
+        --headroom` reports 62.7% mirror capacity used, no ceiling issue.
+        `checklist_coverage.py` confirmed this checklist itself is current.
+        `apt-get update && apt-get install python3-pytest nginx-light
+        openssh-client` was needed and worked, exactly as CLAUDE.md
+        records.
+      - >-
+        Browser/a11y pass scoped to this venture (`browser_checks.py --only
+        auto-repair-effective-labor-rate`, Playwright 1.56.0 + axe-core, the
+        whole-catalogue reading was already `STALE` from a same-day builder
+        change unrelated to this PR): sideways, presets, roundtrip,
+        contrast (0 WCAG A/AA violations across 3 pages, 2 viewports),
+        sweep and journey all `ok`; `highlight` skipped for a missing
+        dependency, not a failure.
+      - >-
+        No public-URL verification possible from this sandbox (the egress
+        proxy 403s `github.io`); `pages_state.py` and the publish-branch
+        script are the route, run after merge per CLAUDE.md.
+    mrr_end: 0
+
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
