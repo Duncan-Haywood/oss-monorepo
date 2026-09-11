@@ -1,5 +1,90 @@
 period: 2026-09
 entries:
+  - venture: llms-txt-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a free browser tool + zero-dependency Node
+        CLI that builds a spec-compliant `llms.txt` file (the llmstxt.org
+        convention giving AI assistants a curated map of a site) from a
+        pasted page list, a pasted sitemap.xml, or a local Markdown docs
+        tree, plus a validator for an existing llms.txt. Picked deliberately
+        as a *generator*, not a 142nd `<trade>-bid-calculator` or a 39th
+        `*-check` shape -- `portfolio/pipeline/README.md`'s "archetype
+        itself" section measured both of those shapes saturated with zero
+        recorded visitors between 179 ventures, and `PRODUCT_PLAYBOOK.md`
+        SS2 ranks the generator/static-app family above a browser calculator
+        on cost grounds.
+      - >-
+        Screened per `pipeline/README.md`'s gates before building:
+        `duplicate_check.py` scored every existing venture, screened-out
+        row, ai-first-markets idea, and pipeline candidate against this
+        niche -- top non-self match 0.13 (`wordpress-plugin-review-check`,
+        `ai-crawler-access-check`, generic "checker"/"AI crawler" word
+        overlap), far under the 0.45 review bar. `screened-out.md` has no
+        llms.txt or AI-discoverability-file entry.
+        `liability_containment`/`ethical_robustness` both clear 5:
+        deterministic text transformation and structural spec comparison,
+        no judgment calls about which pages *should* be published, no AI in
+        the product.
+      - >-
+        Distribution channel named honestly, without live search access:
+        llmstxt.org itself is a citable, independent origin for the
+        convention (linked from the tool's own pages); other independently
+        built "llms.txt generator" tools already exist, which is builder-
+        interest evidence rather than a verified traffic number; the
+        audience overlaps `ai-crawler-access-check`'s (already-shipped
+        sibling, cross-linked one hop away) but the job is complementary
+        (produce a file) rather than parity (check one that exists). Recorded
+        as an explicit limitation in `VENTURE.yaml`: the next session that
+        can browse should confirm search volume directly before this channel
+        claim is leaned on further.
+      - >-
+        Built the full vertical slice: `generator.mjs` (core builder +
+        validator, pure functions), `cli.mjs` (zero-dependency Node CLI --
+        `--dir`, `--sitemap` with a live fetch, `--validate`), a
+        client-side-only browser page (`index.html`) with worked examples,
+        disclaimers, a usage opt-out control, and a companion
+        "what-is-llms-txt" explainer page linked from the index and cross-
+        linked to `ai-crawler-access-check`. `usage.mjs` follows the fleet's
+        existing opt-in, localStorage-only pattern -- zero server involved
+        either interface, so marginal cost per additional user is a static
+        file.
+      - >-
+        Updated the four places the mirrored-tool-count is typed out by hand
+        (the exact trap `CLAUDE.md`'s "Ship without review ceremony" section
+        already records costing live product twice): `infra/OWNER_CHECKLIST.md`
+        (251 -> 252, both occurrences), `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf`, and
+        `gitops/tests/test_manifests.py`'s pinned total. Ran
+        `platform/marketing/regen.mjs` and committed the mirror shard it
+        wrote.
+      - >-
+        Verified: venture's own suite 43/43 `node --test`
+        (`cli.test.mjs`, `generator.test.mjs`, `page.test.mjs`);
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        1231/1231 (full fleet suite, no regressions); `checklist_coverage.py`
+        clean; `score_ventures.py --check` -- all 261 venture scores
+        internally consistent, covers every `VENTURE.yaml`;
+        `validate_doc_consistency.py` clean; `duplicate_check.py` re-run
+        against the final niche description, confirmed no duplicate (top
+        non-self score 0.13); `check_ledger_only.py` confirms this PR carries
+        real product code, not ledger prose alone. Actions runners starved
+        this session (`ci_starvation.py` confirmed `runner_id: 0` on
+        concurrent PRs) -- verified locally per `CLAUDE.md`'s starvation
+        checklist rather than waiting on CI.
+      - >-
+        Deployed: merged to `main`, then refreshed the GitHub Pages
+        `gh-pages` snapshot (`publish-branch.sh`) and confirmed
+        `pages_state.py --require-current` reports current. Live at
+        `https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/`.
+        The separate Hetzner/k3s route (`marisstella.dev`) remains down,
+        blocked on the single owner action already queued as decision #1
+        (`hetzner-ssh-key-is-a-public-key`) -- not a blocker specific to
+        this venture.
+    mrr_end: 0
+
   - venture: platform
     agent_spend_usd: null
     human_hours: 0

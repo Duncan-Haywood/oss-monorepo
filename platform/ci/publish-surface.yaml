@@ -497,6 +497,9 @@ workflows:
 - workflow: link-contrast-ci.yml
   classification: none
   publishes: []
+- workflow: llms-txt-generator-ci.yml
+  classification: none
+  publishes: []
 - workflow: local-site-studio-ci.yml
   classification: none
   publishes: []

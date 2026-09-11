@@ -10450,3 +10450,70 @@ ventures:
       Google, that each store's own current documentation is authoritative,
       and that passing every check means the images are well-formed enough to
       upload -- never that the app will be approved.
+  - slug: llms-txt-generator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Building the file is pure text
+      transformation (Markdown extraction, sitemap <loc> parsing, template
+      assembly) and validating it is exact structural comparison against the
+      llmstxt.org convention's own shape -- deterministic both ways, and
+      never a judgment about which pages a site *should* publish.
+    basis: >-
+      Screened 2026-09-11 per portfolio/pipeline/README.md's "archetype
+      itself" section, which measured that this fleet's other underused-shape
+      pivot (the *-check/*-checker family, 38 ventures) has itself absorbed
+      enough tries to need the same caveat back. This venture is neither a
+      248th <trade>-bid-calculator nor another *-checker: it is a generator
+      (PRODUCT_PLAYBOOK.md SS2's top-ranked shape alongside the static browser
+      app), producing an artifact a site owner publishes rather than a
+      pass/fail report on one that already exists. ai-crawler-access-check
+      ships a structural llms.txt *validator* as one small part of a
+      robots.txt-focused checker; this venture's whole job is the
+      complementary, harder half that one deliberately left alone -- actually
+      constructing a correct file from a docs tree, a sitemap, or a
+      hand-picked page list. duplicate_check.py scored every existing
+      venture, screened-out row, ai-first-markets idea, and pipeline
+      candidate against the final description at 0.13 or below (closest:
+      wordpress-plugin-review-check and ai-crawler-access-check, both generic
+      word overlap) -- far under the 0.45 review bar. Autonomous ops 10 /
+      gross margin 10: the browser tool builds and validates entirely
+      client-side and uploads nothing, the CLI reads local files and, in
+      --sitemap mode, fetches only a URL the user explicitly names -- no
+      server of ours in the loop either way, so serving one more user costs a
+      static file. Distribution 5, matching sitemap-lastmod-freshness-check's
+      reasoning rather than hreflang-reciprocity-check's: llmstxt.org itself
+      is a named, citable origin for the convention and the existence of
+      other independently built "llms.txt generator" tools is evidence of
+      real builder interest, but (per this session's own egress limit,
+      unverified against a live fetch) no search-volume figure or named
+      by-name competitor was confirmed at screening time, so the channel
+      claim is reasoned rather than measured -- the same honesty limit
+      ai-crawler-access-check's own write-up records for the same reason.
+      Time to revenue 6, defensibility 3: donations-only; a template-and-parse
+      generator over a public, simple convention is easy to reimplement once
+      the shape is known, same as this portfolio's other deterministic
+      generators/checkers, so defensibility rests only on the CI-usable CLI,
+      the paired validator, and this portfolio's disclaimer/usage
+      conventions.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the browser page builds and validates entirely client-side and
+      transmits nothing; the CLI reads only local files the user names and,
+      in --sitemap mode, fetches only a URL the user explicitly names, making
+      no other network call. The tool never claims the generated file will be
+      read or honored by any AI assistant, and every page states plainly that
+      picking which pages belong in the file is the publisher's judgment, not
+      something the tool can verify -- the same evidence-not-determination
+      framing this portfolio's other tools use.
