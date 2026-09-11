@@ -773,7 +773,26 @@ test('the call to action carries its own colour pair in both schemes', () => {
   const html = renderFrontDoor({ slugs: SAMPLE });
   assert.match(html, /background: var\(--cta-bg\)/);
   assert.match(html, /color: var\(--cta-fg\)/);
-  const dark = html.match(/@media \(prefers-color-scheme: dark\) \{[\s\S]*?\n  \}/)[0];
+  // Finds the *outer* closing brace by counting, rather than assuming a
+  // particular indentation (e.g. a bare `\n  }`): `minifyCss` in
+  // front-door.mjs collapses the CSS onto far fewer lines, which is
+  // whitespace this assertion never meant to pin, and brace counting reads
+  // the same nested `@media { :root { ... } }` shape either way.
+  const start = html.indexOf('@media (prefers-color-scheme: dark) {');
+  assert.ok(start !== -1, 'dark-mode media query not found');
+  let depth = 0;
+  let end = start;
+  for (let i = start; i < html.length; i += 1) {
+    if (html[i] === '{') depth += 1;
+    else if (html[i] === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        end = i + 1;
+        break;
+      }
+    }
+  }
+  const dark = html.slice(start, end);
   for (const token of ['--cta-bg', '--cta-fg', '--ink', '--paper', '--card', '--link']) {
     assert.ok(dark.includes(token), `${token} keeps its light value in dark mode`);
   }
