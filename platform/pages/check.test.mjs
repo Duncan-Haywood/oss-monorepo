@@ -330,6 +330,29 @@ test('a dynamic import specifier is resolved', async () => {
   assert.equal(mentioning(problems, 'dead link -> ./share.mjs').length, 1);
 });
 
+test('an href template placeholder inside a raw .mjs file is not a dead link', async () => {
+  // Regression: epk-generator's generator.mjs builds result markup with
+  // `` `<a href="${escapeHtml(url)}">` `` at runtime. REFERENCE_RE strips
+  // <script>/<style> bodies before scanning HTML for href/src, but a raw
+  // .mjs file has no such wrapper -- its whole content is script -- so
+  // without the same exclusion the unevaluated `${...}` placeholder read as
+  // a literal href and failed a correct page's build.
+  const problems = await problemsFor({
+    'tool/generator.mjs': 'export const row = (u) => `<a href="${escapeHtml(u)}">x</a>`;',
+  });
+  assert.deepEqual(mentioning(problems, 'dead link'), []);
+});
+
+test('a genuinely missing import in a raw .mjs file is still caught', async () => {
+  // The fix above must not blind the checker to a real dead module: a raw
+  // .mjs/.js file's import specifiers are still worth resolving, only its
+  // href/src-shaped string literals are not.
+  const problems = await problemsFor({
+    'tool/generator.mjs': "import { escapeHtml } from './missing-helper.mjs';",
+  });
+  assert.equal(mentioning(problems, 'dead link -> ./missing-helper.mjs').length, 1);
+});
+
 test('a data-tool literal inside a script is not read as a hub link', async () => {
   // Regression: the offline widget builds hub markup by concatenation, so the
   // hub's own script contains `data-tool="' + slug + '"`. Scraped raw that
