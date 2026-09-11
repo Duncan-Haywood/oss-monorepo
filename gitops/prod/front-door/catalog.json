@@ -2012,7 +2012,7 @@
       "url": "https://marisstella.dev/tools/terraform-plan-secret-exposure-check/",
       "category": "CI checks & developer gates",
       "description": "Paste or load a Terraform structured plan (terraform show -json) and get a deterministic report of every attribute value that looks like a real secret -- an AWS access key, a PEM private key, a JWT, or a URL with embedded credentials -- which the provider schema did not mark sensitive. Free, runs entirely in your browser, nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "toilet-replacement-bid-calculator",
