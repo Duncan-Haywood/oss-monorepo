@@ -221,7 +221,6 @@
       renderHandoff({ subscribers, openRate, niche }, result);
       els.reportCard.hidden = false;
       els.status.textContent = "";
-      record("calculate_run");
       if (scroll) els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
@@ -231,7 +230,31 @@
         return;
       }
       runCalculate();
+      record("calculate_run");
     });
+
+    // "Copy shareable link" (below) reads these three fields directly off the
+    // form, not off whatever was last rendered -- so without this, editing a
+    // field after pressing "Calculate my rates" left the on-screen ranges
+    // showing the *old* numbers while a link copied a moment later carried
+    // the *new* ones. That is the exact divergence
+    // platform/pages/roundtrip.mjs found live in bounce-house-rental-
+    // calculator (#4606): the sender's own screen kept showing a stale
+    // figure the recipient's page never saw, because only an explicit submit
+    // recomputed it. This does not call record("calculate_run") itself --
+    // see bounce-house-rental-calculator's #4616 fix -- so repricing on every
+    // keystroke cannot inflate that counter into a typing counter.
+    function syncFromInputs() {
+      if (els.subscribers.value && els.openRate.value) {
+        runCalculate({ scroll: false });
+      } else {
+        els.reportCard.hidden = true;
+      }
+    }
+    for (const el of [els.subscribers, els.openRate, els.niche]) {
+      el.addEventListener("input", syncFromInputs);
+      el.addEventListener("change", syncFromInputs);
+    }
 
     $("#load-example").addEventListener("click", () => {
       els.subscribers.value = "12000";

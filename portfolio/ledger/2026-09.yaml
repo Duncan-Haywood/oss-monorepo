@@ -27893,3 +27893,61 @@ entries:
         hypotheses worth building evidence-gathering content against, or
         screen a fresh niche per `portfolio/DIRECTION.md`.
     mrr_end: 0
+  - venture: newsletter-sponsorship-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found and fixed the same stale-headline/share-link divergence
+        `platform/pages/roundtrip.mjs` caught live in
+        `bounce-house-rental-calculator` (#4606, #4616), by static reading
+        rather than a fresh browser run: "Calculate my rates" only
+        recomputed the on-screen rate card on an explicit click, while
+        "Copy shareable link" read subscribers/open-rate/niche straight off
+        the form. Editing a field after calculating, then copying the link
+        without recalculating, copied a link encoding the *new* numbers
+        while the sender's own screen kept showing the *old* rate card --
+        the operator and the sponsor they send it to would see two
+        different rate cards for the same link.
+      - >-
+        Fixed the same way as #4606/#4616: every input/change on the three
+        fields now recomputes the rate card live via a `syncFromInputs`
+        helper, and `record("calculate_run")` was moved off the render path
+        onto the explicit "Calculate my rates" click handler alone, so
+        repricing on every keystroke cannot inflate that counter into a
+        typing counter. Two regression tests added mirroring
+        bounce-house-rental-calculator's page.test.mjs pattern.
+      - >-
+        Landed on top of #4618 (merged mid-session), which added a
+        media-kit handoff link to this same file's `runCalculate` --
+        rebased by hand twice as `main` moved twice more during
+        verification (`git fetch origin main`, reapplying the same patch
+        against the new file content each time; `git fetch --unshallow`
+        was needed the second time after a shallow-clone false positive in
+        `check_venture_regression.py`) rather than pushing a stale diff.
+        One side benefit: the handoff link is rendered inside
+        `runCalculate` too, so it now also stays in sync with live edits
+        instead of only the last explicit calculate.
+      - >-
+        Verified: venture's own suite 46/46 (was 44, two new regression
+        tests), `platform/marketing` + `platform/pages` 1255/1255 after
+        `regen.mjs`, `checklist_coverage.py` clean, `clauses.mjs` clean,
+        all 15 `platform/ci` unittest modules + `agent_review` OK,
+        `gitops/tests` 557 passed / 25 skipped (documented
+        nginx-light/openssh-client skips, unrelated to this change),
+        `portfolio/ledger` + `scoring` + `router` + `usage` + `pipeline` +
+        `infra/tests` 435 passed, `run_workflow_locally.py --for-changes`
+        clean on every selected workflow once rebased onto the current
+        `origin/main` tip (`newsletter-sponsorship-rate-calculator-ci.yml`
+        2/2 run steps; `portfolio-pages.yml` 3/3;
+        `check_venture_regression.py` clean after the rebase). One
+        `pages.yml` step ("Check every hub link resolves") reported FAIL
+        only because its prerequisite build step is skipped by the local
+        runner (unresolvable `${{ }}` expression) -- ran the same two
+        commands (`build_pages_site.py`, `check_pages_links.py`) by hand:
+        261 products / 3069 files built, 960 pages checked, all links
+        resolve. Not a correctness change to `calculator.mjs`/`share.mjs`,
+        so no usage-signal claim: `usage.yaml`'s `live_url_visitors` stays
+        `null` (never measured), this only closes a real divergence a
+        visitor could have hit before any visitor was ever counted.
+    mrr_end: 0
