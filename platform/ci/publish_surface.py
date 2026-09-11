@@ -826,9 +826,38 @@ def _resolve(*refs: str) -> tuple[str, str] | None:
     return None
 
 
+# The remote-tracking ref comes FIRST in both lookups below, and the order is
+# the whole correctness of this reading (measured 2026-09-11).
+#
+# It used to prefer `refs/heads/`, and in a web session that is reliably the
+# wrong ref. The clone arrives carrying a local `main` at whatever commit the
+# session branch was cut from, and `git fetch origin main` -- the command
+# CLAUDE.md tells every session to run before reading anything -- updates only
+# `refs/remotes/origin/main`. So the local ref goes stale on the *default* path
+# here, not in some corner case.
+#
+# Measured on this checkout: `gh-pages` was staged from ff63c5d55, which was
+# the tip of `origin/main`, and the local `main` sat 6829 commits away on a
+# diverged branch. The tool reported the live deploy route as "6829 commit(s)
+# behind `main`" and told the reader to restage an artifact that was already
+# current.
+#
+# That direction merely wastes a publish. The other direction is the one worth
+# the comment: when the stale local ref is BEHIND the snapshot's source commit,
+# `rev-list --count source..main` is 0 and the row renders `current` -- an
+# artifact that really is lagging `main` reading as fresh, which is precisely
+# the silent failure ("the live site silently lagging `main`, with no error
+# anywhere to say so") that this whole section exists to make visible.
+#
+# `refs/heads/` stays as the fallback rather than being dropped: a CI clone
+# that fetched only the branch under test may have no remote-tracking ref at
+# all, and a local ref is a better answer there than `unfetched`. For the
+# artifact the same order is right for a second reason -- serving reads the
+# *pushed* branch, so a local `gh-pages` that was built and never pushed is not
+# what a visitor receives.
 def pages_branch_survey() -> dict:
     """What the `gh-pages` branch has staged, and how far behind `main` it is."""
-    found = _resolve(f"refs/heads/{PAGES_BRANCH}", f"refs/remotes/origin/{PAGES_BRANCH}")
+    found = _resolve(f"refs/remotes/origin/{PAGES_BRANCH}", f"refs/heads/{PAGES_BRANCH}")
     if not found:
         # Not "there is no artifact". A shallow CI clone fetches one branch, so
         # this is the expected reading there and it must not be reported as an
@@ -842,7 +871,7 @@ def pages_branch_survey() -> dict:
         return {"branch": PAGES_BRANCH, "state": "unknown", "source": None, "behind": None, "ref": ref, "tip": tip}
 
     source = match.group(1)
-    main = _resolve(f"refs/heads/{DEFAULT_BRANCH}", f"refs/remotes/origin/{DEFAULT_BRANCH}")
+    main = _resolve(f"refs/remotes/origin/{DEFAULT_BRANCH}", f"refs/heads/{DEFAULT_BRANCH}")
     row = {"branch": PAGES_BRANCH, "source": source, "ref": ref, "tip": tip, "behind": None}
     if not main:
         row["state"] = "unknown"
