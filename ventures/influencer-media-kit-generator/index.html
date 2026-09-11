@@ -39,6 +39,11 @@
     .warn { color: #92400e; }
     .ok { color: #14532d; font-weight: 600; }
     ul.report { margin: 6px 0 0; padding-left: 20px; }
+    /* The handoff banner. Same card, marked with the button green so it reads
+       as an offer rather than as a warning — nothing has gone wrong, and it is
+       hidden entirely unless a link actually carried something. */
+    .card.handoff { border-left: 5px solid #17604a; }
+    pre.handoff-preview { margin: 8px 0 12px; padding: 10px 12px; background: #f7f9fb; border: 1px solid #d5dbe3; border-radius: 8px; font: 12px ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
     footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
     iframe#preview { width: 100%; height: 640px; border: 1px solid #d5dbe3; border-radius: 10px; background: #fff; }
   </style>
@@ -49,6 +54,23 @@
     <h1>Build a free creator media kit</h1>
     <p>Fill in the form once, and get a ready-to-send sponsorship one-sheet — a downloadable, self-contained page and a plain-text version for email or a brand's intake form. No account, no signup, nothing sent to a server.</p>
   </header>
+
+  <!-- Shown only when a link actually carried a platform line or a rate card
+       (see prefill.mjs). Nothing is inserted until the button below is
+       pressed, and nothing already in the form is ever replaced. -->
+  <section class="card handoff" id="handoff-card" hidden aria-live="polite">
+    <h2>Numbers from the brand deal rate calculator</h2>
+    <p id="handoff-summary"></p>
+    <pre class="handoff-preview" id="handoff-preview"></pre>
+    <p>
+      <button type="button" id="handoff-add">Add these to my media kit</button>
+      <button type="button" class="secondary" id="handoff-dismiss">No thanks</button>
+    </p>
+    <p class="note">These came from the link you followed, not from a server —
+    nothing was uploaded and nothing here is stored outside your own browser.
+    Adding them appends to the platform and rate-card boxes below; anything you
+    have already typed is kept.</p>
+  </section>
 
   <section class="card">
     <h2>Your info</h2>
@@ -195,6 +217,7 @@
     import { buildMediaKitHtml, buildOneSheetText, validateMediaKit } from "./generator.mjs";
     import { record, setUsageOptOut } from "./usage.mjs";
     import { saveDraft, loadDraft, clearDraft } from "./state.mjs";
+    import { applyHandoff, describeHandoff, readHandoff } from "./prefill.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -245,6 +268,67 @@
     } catch {
       /* storage may be unavailable; start blank */
     }
+
+    // --- handoff from the brand deal rate calculator ---------------------
+    // Deliberately after the draft restore above, so the offer is measured
+    // against what the creator already has rather than against a blank form.
+    // Nothing is inserted without the button: a saved draft is work that a
+    // silent prefill could destroy with no error and no undo.
+    const handoffCard = $("#handoff-card");
+    let pendingHandoff = null;
+
+    function closeHandoff() {
+      pendingHandoff = null;
+      handoffCard.hidden = true;
+      // Clear the fragment so a reload, or a link the creator later shares,
+      // does not re-offer numbers they have already dealt with. `replaceState`
+      // rather than `location.hash = ""` to avoid a history entry and a jump.
+      try {
+        history.replaceState(null, "", location.pathname + location.search);
+      } catch {
+        /* file:// and some embedded views disallow this; harmless either way */
+      }
+    }
+
+    function offerHandoff() {
+      const handoff = readHandoff(location.hash || location.search);
+      if (!handoff) return;
+      pendingHandoff = handoff;
+      $("#handoff-summary").textContent =
+        `This link is carrying ${describeHandoff(handoff)} from the brand deal rate calculator.`;
+      // Shown verbatim, so what lands in the form is what was read here.
+      // `textContent`, never innerHTML -- this text came from a URL.
+      $("#handoff-preview").textContent =
+        [handoff.platformsRaw, handoff.ratesRaw].filter(Boolean).join("\n");
+      handoffCard.hidden = false;
+      record("handoff_offered");
+    }
+
+    $("#handoff-add").addEventListener("click", () => {
+      if (!pendingHandoff) return;
+      const { values, total } = applyHandoff(readForm(), pendingHandoff);
+      writeForm(values);
+      scheduleSave();
+      closeHandoff();
+      $("#draft-status").textContent = total
+        ? `Added ${total} ${total === 1 ? "row" : "rows"} from the rate calculator. Edit them below like anything else.`
+        : "Those rows were already in your media kit, so nothing changed.";
+      record("handoff_accepted");
+      $("#platforms-input").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    $("#handoff-dismiss").addEventListener("click", () => {
+      closeHandoff();
+      record("handoff_dismissed");
+    });
+
+    // A fragment-only change does not reload the page, so a creator who
+    // pastes a handoff URL while already here -- or follows one from an open
+    // tab of this same page -- would otherwise land on an unchanged form with
+    // nothing to say why. The listeners above are attached once, outside
+    // this, so re-offering cannot stack duplicates.
+    window.addEventListener("hashchange", offerHandoff);
+    offerHandoff();
 
     $("#clear-draft").addEventListener("click", () => {
       clearDraft(localStorage);

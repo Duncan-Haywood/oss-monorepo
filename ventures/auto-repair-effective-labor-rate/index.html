@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Effective Labor Rate Calculator | What Your Shop Actually Collects an Hour</title>
+  <meta name="description" content="Your posted door rate is not the rate you collect. Enter one month of customer-pay, warranty and internal hours and see your real effective labor rate, exactly where the rest of it went, and what the posted rate would have to be to hit your labor gross profit. Free, private, nothing uploaded.">
+  <meta property="og:title" content="Effective Labor Rate Calculator for Auto Repair Shops">
+  <meta property="og:description" content="Most shops collect 15–30% less than the rate on the wall and never see it. One month of numbers shows the gap, splits it into discounting, warranty and comebacks, and says what the door rate would need to be.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Effective Labor Rate Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Effective labor rate over sold hours and over all hours turned, the gap to the posted door rate split into customer-pay discounting and warranty shortfall, internal and comeback hours priced as forgone capacity, technician efficiency and cost per billed hour against cost per clock hour, labor gross profit against target, a break-even labor rate that carries only the overhead parts gross profit does not cover, and the posted rate a target labor gross profit would actually require once realization is accounted for"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is an effective labor rate?","acceptedAnswer":{"@type":"Answer","text":"Labor dollars divided by the labor hours those dollars were billed against. If you sold 365 hours last month and collected $50,675 of labor, your effective labor rate was $138.84 — whatever the sign on the wall says. It is the only number that tells you what an hour of your shop's time is actually worth, and no report on an estimate performs the division."}},{"@type":"Question","name":"Why is my effective labor rate so much lower than my posted rate?","acceptedAnswer":{"@type":"Answer","text":"Because the shortfall arrives in pieces that never look like a discount at the time. A coupon, a fleet or wholesale account, a diagnostic hour waived to win the job, book time trimmed to close a sale, and warranty claims paid at a rate somebody else sets. Each one is small and defensible on its own, and none of them shows up as a line called discount. This page adds them back up and splits the total between customer-pay work, which the shop controls, and warranty, which it does not."}},{"@type":"Question","name":"Should comeback and internal hours be in the effective labor rate?","acceptedAnswer":{"@type":"Answer","text":"Not in the headline figure, and this page keeps them out of it. The industry measures the effective rate over hours that were sold, which is what your management system reports and what you can check in a minute. Comebacks, policy work and shop vehicles were never sold at all, so they are shown separately two ways: as an effective rate over every hour your technicians turned, and priced at your door rate as the revenue those bays could have produced. Their cost is already inside your cost per billed hour, because payroll paid for them."}},{"@type":"Question","name":"Why does raising my door rate not fix the gap?","acceptedAnswer":{"@type":"Answer","text":"Because you collect a new rate in roughly the same proportion as you collected the old one. A shop realizing 84% of a $165 rate and needing $175 an hour to reach its target gross profit does not need a $175 door rate — it needs about $208, because the coupons, the fleet accounts and the warranty mix are still there. This page computes both numbers and shows them together. It is the single most common way a rate rise lands short of what it was meant to fix."}},{"@type":"Question","name":"What is the difference between cost per clock hour and cost per billed hour?","acceptedAnswer":{"@type":"Answer","text":"Cost per clock hour is what you pay a technician for an hour they are at the shop. Cost per billed hour is that same payroll spread over only the hours you sold. If you pay for 480 hours and sell 365, a technician costing $40 a clock hour costs $52.60 inside every hour that reaches an invoice. The gap is technician efficiency, and it is why two shops with identical pay scales can have very different labor gross profit."}},{"@type":"Question","name":"How do you decide how much overhead labor has to carry?","acceptedAnswer":{"@type":"Answer","text":"Parts gross profit pays what it pays, and labor carries the rest. The break-even labor rate here uses your monthly overhead minus your parts gross profit, floored at zero. That avoids inventing an allocation percentage between the parts and labor departments, which is always a guess, and both inputs are lines you can read straight off a profit-and-loss statement."}},{"@type":"Question","name":"Is my shop's data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. There is deliberately no shareable link: what your shop bills, what it pays technicians, and what its fixed expenses are should not ride in a URL. Saving a scenario writes the figures to this browser's own storage so you are not retyping them next month; clearing your browser data clears them. The optional usage counter records only which features were used and the day, never a number from your month."}},{"@type":"Question","name":"Is this an accounting opinion?","acceptedAnswer":{"@type":"Answer","text":"No. It is your own numbers, divided. It makes no determination about tax treatment, technician pay classification, warranty contract terms, or how any figure should be recorded, and it does not tell you what to charge or what work to accept — your market, your contracts and your judgement do that. Check every figure against your management system and your accounts, and against a qualified professional, before pricing work with it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2f5d50; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
+    section { background: #f8fafc; border: 1px solid #cbd4e0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4d5b6c; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a8b7c8; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #9b2c1f; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a8b7c8; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e2eaf2; }
+    .primary { background: #2f5d50; border-color: #2f5d50; color: #f4f8f6; }
+    .primary:hover { background: #26493f; }
+    .result { position: sticky; top: 15px; background: #172b26; color: #eef5f2; border-color: #172b26; }
+    /* The panel paints its own dark fill but never a link colour, so a link inside it
+       would fall back to the browser default blue — 1.1:1 here, invisible. Inheriting
+       the panel ink cannot drift from the background the panel actually paints, and the
+       underline carries the affordance. Same fix as the sibling rate calculators. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .hero-sub { font-size: .95rem; font-weight: 700; margin: 10px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-sub.short { color: #ffb0a2; }
+    .hero-sub.ahead { color: #bfe3d4; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .panel { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .panel h3 { margin: 0 0 8px; font-size: .95rem; }
+    .panel p { font-size: .83rem; margin: 0; opacity: .9; }
+    .panel dl { margin-top: 12px; }
+    .bar { display: grid; grid-template-columns: 1fr auto; gap: 8px; font-size: .86rem; padding: 3px 0; font-variant-numeric: tabular-nums; }
+    .track { grid-column: 1 / -1; height: 7px; border-radius: 4px; background: #ffffff26; overflow: hidden; margin-bottom: 9px; }
+    .track span { display: block; height: 100%; background: #bfe3d4; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .84rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd2c8; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4d5b6c; }
+    footer a { color: #2f5d50; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT AUTO REPAIR SHOP OWNERS</p>
+    <h1>Your door rate is not the rate you collect.</h1>
+    <p>The number on the wall is $165. The number that reached the bank last month was $138.84, and nothing on any estimate said so. It went out as a coupon, a fleet account, a diagnostic hour thrown in to win the job, and a warranty claim paid at a rate somebody else set &mdash; none of which looked like a discount at the time. Put one month in below and see the real rate, exactly where the rest of it went, and what the posted rate would have to be to fix it.</p>
+    <p class="seo-link"><a href="./what-is-my-effective-labor-rate.html">What is my effective labor rate, and why is it lower than my door rate?</a></p>
+  </header>
+
+  <main class="layout">
+    <form id="elrForm">
+      <section>
+        <h2>The month you billed</h2>
+        <p class="hint">One month, straight off your management system&rsquo;s labor sales report. Hours are book hours billed, not clock hours.</p>
+        <div class="fields">
+          <label>Posted labor rate ($/h) <input id="postedLaborRate" type="number" min="0.01" max="10000" step="0.01" value="165"></label>
+          <label>Customer-pay hours billed <input id="customerPayHours" type="number" min="0" max="100000" step="0.1" value="320"></label>
+          <label>Customer-pay labor sales ($) <input id="customerPayLaborSales" type="number" min="0" step="1" value="46400"></label>
+          <label>Warranty hours billed <input id="warrantyHours" type="number" min="0" max="100000" step="0.1" value="45"></label>
+          <label>Warranty labor reimbursed ($) <input id="warrantyLaborSales" type="number" min="0" step="1" value="4275"></label>
+          <label>Internal, comeback and policy hours <input id="internalHours" type="number" min="0" max="100000" step="0.1" value="28"></label>
+        </div>
+        <p class="hint" style="margin:14px 0 0">Labor sales only &mdash; leave parts, sublet, shop supplies and fees out of these two dollar figures, or the rate comes out too high. Internal hours are the ones a technician turned and nobody was invoiced for: comebacks, policy adjustments, your own shop vehicles, and the courtesy check that found nothing.</p>
+      </section>
+
+      <section>
+        <h2>The technicians</h2>
+        <p class="hint">The same month, all technicians together. This is what turns a rate into a margin.</p>
+        <div class="fields">
+          <label>Technicians <input id="technicianCount" type="number" min="1" max="500" step="1" value="3"></label>
+          <label>Clock hours paid <input id="totalClockHours" type="number" min="1" max="1000000" step="1" value="480"></label>
+          <label>Technician pay incl. burden ($) <input id="totalTechnicianPay" type="number" min="0" step="1" value="19200"></label>
+        </div>
+        <p class="hint" style="margin:14px 0 0">Clock hours are the hours you paid for, however your technicians are paid &mdash; hourly, flat rate, or a guarantee. Pay includes payroll taxes, workers&rsquo; comp and benefits, because those are the cost of the hour too. Service advisors and the parts counter are overhead below, not technicians here.</p>
+      </section>
+
+      <section>
+        <h2>What the shop costs</h2>
+        <p class="hint">The same month, from your profit-and-loss statement.</p>
+        <div class="fields">
+          <label>Shop overhead for the month ($) <input id="monthlyOverhead" type="number" min="0" step="1" value="34000"></label>
+          <label>Parts gross profit for the month ($) <input id="partsGrossProfit" type="number" min="0" step="1" value="21000"></label>
+          <label>Target labor gross profit (%) <input id="targetLaborGrossProfit" type="number" min="0" max="99.9" step="0.1" value="70"></label>
+        </div>
+        <p class="hint" style="margin:14px 0 0">Overhead is everything that is not technician pay or the cost of parts: rent, utilities, advisors and office staff, insurance, software, marketing, and owner pay for the hours spent running the business. Parts gross profit is parts sales minus what the parts cost &mdash; it pays some of that overhead, and labor has to carry whatever is left.</p>
+        <div class="actions">
+          <button type="submit" class="primary" id="calculate">Work out my effective labor rate</button>
+          <button type="button" id="saveScenario">Save this month on this device</button>
+          <button type="button" id="forgetScenario" hidden>Forget saved month</button>
+        </div>
+        <p class="hint" id="scenarioStatus" role="status" style="margin:8px 0 0"></p>
+      </section>
+    </form>
+
+    <div>
+      <section class="result" id="result" aria-live="polite">
+        <h2>What you actually collect</h2>
+        <p class="empty" id="exampleNote">This is the worked example the form opens on &mdash; a three-technician shop, not yours yet. Change the figures and press the button.</p>
+        <div id="resultBody">
+          <p class="empty">Fill in a month and the rate appears here.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Questions shop owners ask</h2>
+        <p class="hint">The same answers the page publishes as structured data, so a search result and a visitor read the same words.</p>
+      <h3>What is an effective labor rate?</h3>
+      <p>Labor dollars divided by the labor hours those dollars were billed against. If you sold 365 hours last month and collected $50,675 of labor, your effective labor rate was $138.84 — whatever the sign on the wall says. It is the only number that tells you what an hour of your shop's time is actually worth, and no report on an estimate performs the division.</p>
+      <h3>Why is my effective labor rate so much lower than my posted rate?</h3>
+      <p>Because the shortfall arrives in pieces that never look like a discount at the time. A coupon, a fleet or wholesale account, a diagnostic hour waived to win the job, book time trimmed to close a sale, and warranty claims paid at a rate somebody else sets. Each one is small and defensible on its own, and none of them shows up as a line called discount. This page adds them back up and splits the total between customer-pay work, which the shop controls, and warranty, which it does not.</p>
+      <h3>Should comeback and internal hours be in the effective labor rate?</h3>
+      <p>Not in the headline figure, and this page keeps them out of it. The industry measures the effective rate over hours that were sold, which is what your management system reports and what you can check in a minute. Comebacks, policy work and shop vehicles were never sold at all, so they are shown separately two ways: as an effective rate over every hour your technicians turned, and priced at your door rate as the revenue those bays could have produced. Their cost is already inside your cost per billed hour, because payroll paid for them.</p>
+      <h3>Why does raising my door rate not fix the gap?</h3>
+      <p>Because you collect a new rate in roughly the same proportion as you collected the old one. A shop realizing 84% of a $165 rate and needing $175 an hour to reach its target gross profit does not need a $175 door rate — it needs about $208, because the coupons, the fleet accounts and the warranty mix are still there. This page computes both numbers and shows them together. It is the single most common way a rate rise lands short of what it was meant to fix.</p>
+      <h3>What is the difference between cost per clock hour and cost per billed hour?</h3>
+      <p>Cost per clock hour is what you pay a technician for an hour they are at the shop. Cost per billed hour is that same payroll spread over only the hours you sold. If you pay for 480 hours and sell 365, a technician costing $40 a clock hour costs $52.60 inside every hour that reaches an invoice. The gap is technician efficiency, and it is why two shops with identical pay scales can have very different labor gross profit.</p>
+      <h3>How do you decide how much overhead labor has to carry?</h3>
+      <p>Parts gross profit pays what it pays, and labor carries the rest. The break-even labor rate here uses your monthly overhead minus your parts gross profit, floored at zero. That avoids inventing an allocation percentage between the parts and labor departments, which is always a guess, and both inputs are lines you can read straight off a profit-and-loss statement.</p>
+      <h3>Is my shop's data uploaded anywhere?</h3>
+      <p>No account and no network requests — the calculator runs entirely in your browser. There is deliberately no shareable link: what your shop bills, what it pays technicians, and what its fixed expenses are should not ride in a URL. Saving a scenario writes the figures to this browser's own storage so you are not retyping them next month; clearing your browser data clears them. The optional usage counter records only which features were used and the day, never a number from your month.</p>
+      <h3>Is this an accounting opinion?</h3>
+      <p>No. It is your own numbers, divided. It makes no determination about tax treatment, technician pay classification, warranty contract terms, or how any figure should be recorded, and it does not tell you what to charge or what work to accept — your market, your contracts and your judgement do that. Check every figure against your management system and your accounts, and against a qualified professional, before pricing work with it.</p>
+      </section>
+
+      <section>
+        <h2>What this is, and what it is not</h2>
+        <p class="hint" style="margin-bottom:10px">This page divides the numbers you typed. It has no way to know your market, your competition, your warranty contracts or your customers, so it does not tell you what to charge, what work to take, or what to pay anybody &mdash; it says what the month you entered actually did.</p>
+        <p class="hint" style="margin:0">It is not an accounting, tax, legal or employment opinion, and it makes no determination about how any figure should be recorded or how any technician should be paid or classified. Check every number against your management system and your accounts, and against a qualified professional, before pricing work with it.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, employment or financial advice, and it does not tell you what to charge, what warranty work to accept, or how any technician should be paid or classified. It is arithmetic on the numbers you type. Verify every figure against your own management system, payroll records and accounts, and against a qualified professional, before relying on it or pricing work with it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your labor sales, payroll, overhead and the rates worked out from them are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally. &ldquo;Save this month on this device&rdquo; writes the twelve figures to this site&rsquo;s own browser storage so you are not retyping your month next time; clearing your browser data clears them. There is deliberately no shareable link: what a shop bills, pays and spends is more than should ever ride in a URL you might paste into a chat app.</p>
+    <p>Pricing a crew hour from the cost side instead, before any work is sold? The <a href="../shop-rate-calculator/">shop rate calculator</a> works out the burden, overhead rate and hourly rate a trade job has to be sold at from payroll, vehicles and office costs &mdash; the forward-looking half of this question.</p>
+    <p>Running a maintenance or inspection contract rather than repair orders? The <a href="../hvac-maintenance-contract-calculator/">maintenance contract calculator</a> prices recurring visits against the labor and parts they consume across a year.</p>
+    <p class="support">Free and open source. If it changes what you charge, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateEffectiveLaborRate, ALL_INPUT_IDS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    // All twelve figures, on this device only. Deliberately no URL encoding and
+    // no shareable link: a shop's labor sales, payroll and fixed expenses are
+    // more than should ever ride in a link that could end up logged or pasted
+    // into a chat app. See the "writes no shared link" test in page.test.mjs,
+    // which this save/restore pair is written to keep true.
+    const SCENARIO_KEY = 'auto-repair-elr-scenario';
+    const OPT_OUT_KEY = 'auto-repair-elr-opt-out';
+
+    const el = (id) => document.getElementById(id);
+    const money2 = (value) => {
+      const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const money = (value) => {
+      const text = `$${Math.round(Math.abs(value)).toLocaleString('en-US')}`;
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const hours = (value) => value.toLocaleString('en-US', { maximumFractionDigits: 1 });
+    const percent = (value) => `${value.toFixed(1)}%`;
+    const escapeHtml = (value) =>
+      String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    function readForm() {
+      const input = {};
+      for (const id of ALL_INPUT_IDS) input[id] = el(id).value;
+      return input;
+    }
+
+    function clearInvalid() {
+      for (const id of ALL_INPUT_IDS) el(id).removeAttribute('aria-invalid');
+    }
+
+    /**
+     * Point at the field that was rejected, not just at the message.
+     *
+     * A list of errors above the fold leaves the visitor hunting for which of
+     * twelve boxes it means. Marking the input and moving focus to the first one
+     * is what `platform/pages/highlight.mjs` checks for across the catalogue.
+     */
+    function markInvalid(errors) {
+      clearInvalid();
+      for (const error of errors) {
+        const field = el(error.id);
+        if (field) field.setAttribute('aria-invalid', 'true');
+      }
+      const first = errors.length > 0 ? el(errors[0].id) : null;
+      if (first) first.focus({ preventScroll: false });
+    }
+
+    function renderErrors(errors) {
+      return `<ul class="errors">${errors
+        .map((e) => `<li>${escapeHtml(e.message)}</li>`)
+        .join('')}</ul>`;
+    }
+
+    function renderGap(r) {
+      if (r.totalBillingGap <= 0) {
+        return `<div class="panel">
+          <h3>Where the gap went</h3>
+          <p>You billed ${escapeHtml(money(-r.totalBillingGap))} above what your posted rate would have produced this month, so there is no shortfall to split. The mix is doing that, not the rate.</p>
+        </div>`;
+      }
+      const shares = r.gapShares;
+      const row = (label, amount, share) => `
+        <div class="bar"><span>${escapeHtml(label)}</span><span>${escapeHtml(money(amount))}</span></div>
+        <div class="track"><span style="width:${Math.max(0, Math.min(100, share)).toFixed(1)}%"></span></div>`;
+      return `<div class="panel">
+        <h3>Where the gap went</h3>
+        <p>${escapeHtml(money(r.totalBillingGap))} this month, ${escapeHtml(money(r.annualBillingGap))} a year at this mix.</p>
+        <div style="margin-top:12px">
+          ${row('Customer-pay discounting', r.customerPayGap, shares ? shares.customerPay : 0)}
+          ${row('Warranty rate shortfall', r.warrantyGap, shares ? shares.warranty : 0)}
+        </div>
+        <p style="margin-top:4px">Comebacks and internal work are not in that total &mdash; they were never billed at all. At your posted rate those ${escapeHtml(hours(r.internalHours))} hours are ${escapeHtml(money(r.internalOpportunity))} of capacity this month.</p>
+      </div>`;
+    }
+
+    function render(r) {
+      if (!r.ok) {
+        markInvalid(r.errors);
+        return `<p class="empty">That month cannot be measured yet:</p>${renderErrors(r.errors)}`;
+      }
+      clearInvalid();
+
+      const gapPerHour = r.effectiveLaborRate - r.postedLaborRate;
+      const heroClass = gapPerHour < 0 ? 'short' : 'ahead';
+      const heroSub =
+        gapPerHour < 0
+          ? `${money2(gapPerHour)} an hour below your posted ${money2(r.postedLaborRate)}`
+          : `${money2(gapPerHour)} an hour above your posted ${money2(r.postedLaborRate)}`;
+
+      const required =
+        r.requiredPostedRate === null
+          ? ''
+          : `<div class="panel">
+              <h3>To reach ${escapeHtml(percent(r.targetLaborGrossProfit))} labor gross profit</h3>
+              <dl>
+                <dt>Effective rate needed</dt><dd>${escapeHtml(money2(r.requiredEffectiveRate))}</dd>
+                <dt>Posted rate that would take</dt><dd>${escapeHtml(money2(r.requiredPostedRate))}</dd>
+              </dl>
+              <p style="margin-top:10px">You collect ${escapeHtml((r.realizationRatio * 100).toFixed(0))}% of what you post, so the posted rate has to clear the effective one by that much.</p>
+            </div>`;
+
+      return `
+        <p class="hero-label">Effective labor rate, over the ${escapeHtml(hours(r.soldHours))} hours you sold</p>
+        <p class="hero-number">${escapeHtml(money2(r.effectiveLaborRate))}</p>
+        <p class="hero-sub ${heroClass}">${escapeHtml(heroSub)}</p>
+        ${renderGap(r)}
+        <dl>
+          <dt class="group">The hours</dt>
+          <dt>Sold (customer pay + warranty)</dt><dd>${escapeHtml(hours(r.soldHours))}</dd>
+          <dt>Internal, comeback and policy</dt><dd>${escapeHtml(hours(r.internalHours))}</dd>
+          <dt>Rate over every hour turned</dt><dd>${escapeHtml(money2(r.effectiveRateOnAllHours))}</dd>
+
+          <dt class="group">The technicians</dt>
+          <dt>Clock hours paid</dt><dd>${escapeHtml(hours(r.totalClockHours))}</dd>
+          <dt>Efficiency</dt><dd>${escapeHtml(percent(r.technicianEfficiency))}</dd>
+          <dt>Cost per clock hour</dt><dd>${escapeHtml(money2(r.costPerClockHour))}</dd>
+          <dt>Cost per billed hour</dt><dd>${escapeHtml(money2(r.costPerBilledHour))}</dd>
+
+          <dt class="group">The month</dt>
+          <dt>Labor sales</dt><dd>${escapeHtml(money(r.laborSales))}</dd>
+          <dt>Labor gross profit</dt><dd>${escapeHtml(money(r.laborGrossProfitDollars))} (${escapeHtml(percent(r.laborGrossProfitPercent))})</dd>
+          <dt>Overhead labor must carry</dt><dd>${escapeHtml(money(r.overheadCarriedByLabor))}</dd>
+          <dt>Break-even labor rate</dt><dd>${escapeHtml(money2(r.breakEvenLaborRate))}</dd>
+          <dt>Net before tax</dt><dd>${escapeHtml(money(r.netBeforeTax))}</dd>
+        </dl>
+        ${required}
+        <ul class="note-list">${r.notes.map((n) => `<li>${escapeHtml(n)}</li>`).join('')}</ul>`;
+    }
+
+    function optedOut() {
+      try {
+        return globalThis.localStorage?.getItem(OPT_OUT_KEY) === '1';
+      } catch {
+        return false;
+      }
+    }
+
+    // True until the visitor presses the button or restores their own saved
+    // month. While it holds, the panel is showing the shipped example and the
+    // note above it says so — a first visit that opened on an em-dash would
+    // hide the one thing that makes the page explain itself.
+    let showingExample = true;
+
+    function paint(result) {
+      el('resultBody').innerHTML = render(result);
+      el('exampleNote').hidden = !showingExample;
+    }
+
+    el('elrForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const result = calculateEffectiveLaborRate(readForm());
+      showingExample = false;
+      paint(result);
+      if (result.ok) recordUsage(globalThis.localStorage, optedOut(), 'rate_calculated');
+    });
+
+    el('saveScenario').addEventListener('click', () => {
+      try {
+        globalThis.localStorage.setItem(SCENARIO_KEY, JSON.stringify(readForm()));
+        el('scenarioStatus').textContent = 'Saved on this device. It will be here next time.';
+        el('forgetScenario').hidden = false;
+        recordUsage(globalThis.localStorage, optedOut(), 'scenario_saved');
+      } catch {
+        el('scenarioStatus').textContent = 'This browser is not allowing site storage, so nothing was saved.';
+      }
+    });
+
+    el('forgetScenario').addEventListener('click', () => {
+      try {
+        globalThis.localStorage.removeItem(SCENARIO_KEY);
+      } catch {
+        // Nothing to remove if storage was never available.
+      }
+      el('scenarioStatus').textContent = 'Forgotten. The form keeps what is on screen until you reload.';
+      el('forgetScenario').hidden = true;
+    });
+
+    el('usageOptOut').addEventListener('change', (event) => {
+      try {
+        if (event.target.checked) globalThis.localStorage.setItem(OPT_OUT_KEY, '1');
+        else globalThis.localStorage.removeItem(OPT_OUT_KEY);
+      } catch {
+        // A browser refusing site data is already not being counted.
+      }
+    });
+
+    // Restore before the first paint of the result so a returning visitor sees
+    // their own month rather than the worked example.
+    try {
+      const saved = JSON.parse(globalThis.localStorage?.getItem(SCENARIO_KEY) || 'null');
+      if (saved && typeof saved === 'object') {
+        for (const id of ALL_INPUT_IDS) {
+          if (typeof saved[id] === 'string' || typeof saved[id] === 'number') el(id).value = saved[id];
+        }
+        el('forgetScenario').hidden = false;
+        el('scenarioStatus').textContent = 'Restored the month saved on this device.';
+        // A returning visitor's own figures are not the shipped example, and
+        // labelling them as one would be simply wrong.
+        showingExample = false;
+      }
+      el('usageOptOut').checked = optedOut();
+    } catch {
+      // A browser refusing site data still gets a working calculator.
+    }
+
+    // Paint before the visitor touches anything: land, read a real number, then
+    // replace the figures with your own. Every sibling calculator here opens on
+    // its own worked result for the same reason.
+    paint(calculateEffectiveLaborRate(readForm()));
+  </script>
+</body>
+</html>

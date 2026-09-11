@@ -19,7 +19,11 @@
 const KEY = "influencer-media-kit-generator-draft";
 const VERSION = 1;
 
-const STRING_FIELDS = Object.freeze([
+// Exported so `prefill.mjs` can check an incoming link's field names against
+// the form's real ones rather than restating the list. A field renamed here
+// then fails that module's test instead of silently accepting a link that
+// fills nothing.
+export const STRING_FIELDS = Object.freeze([
   "creatorName", "tagline", "niche", "location", "bio",
   "photoUrl", "photoAlt",
   "contactName", "contactEmail", "contactPhone", "websiteUrl",

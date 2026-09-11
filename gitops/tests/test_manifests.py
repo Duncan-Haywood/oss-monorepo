@@ -1573,7 +1573,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # graduated the same day: a zero-dependency CLI + browser tool with a
     # static `index.html` from its first commit, entering the mirror and the
     # total together, same shape as the rest of this running count.
-    total = 261  # `infra/OWNER_CHECKLIST.md`'s own "N of the 261 tools" wording.
+    # 262 since 2026-09-11, when `auto-repair-effective-labor-rate` graduated
+    # in parallel, merging on top of the above — same shape again, and the
+    # same reason the count keeps moving several times a day: it is of the
+    # tree, not of any one session's diff, so two sibling ventures graduating
+    # in parallel each correctly claimed 261 from their own base and merging
+    # both makes it 262.
+    total = 262  # `infra/OWNER_CHECKLIST.md`'s own "N of the 262 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
