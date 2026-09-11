@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 250,
-  "collection_total": 250,
+  "served_here": 251,
+  "collection_total": 251,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 36
+      "tool_count": 37
     },
     {
       "id": "evidence",
@@ -1317,6 +1317,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a junk removal job from material weight and the landfill ticket: cubic yards, pounds per yard, dump fee per ton, special item fees, labor, travel, and the walk-away number.",
       "pages": 4
+    },
+    {
+      "slug": "k8s-rollout-safety-check",
+      "name": "Kubernetes Rollout Safety Check — Will Your Deployment Drop Requests?",
+      "url": "https://marisstella.dev/tools/k8s-rollout-safety-check/",
+      "category": "CI checks & developer gates",
+      "description": "Paste a Kubernetes Deployment YAML and find every reason a rolling update can drop live requests: no readinessProbe, no preStop hook, a grace period shorter than the drain, maxUnavailable covering every replica, a PodDisruptionBudget that blocks a node drain. Free, runs in your browser, nothing uploaded.",
+      "pages": 3
     },
     {
       "slug": "kdp-royalty-calculator",

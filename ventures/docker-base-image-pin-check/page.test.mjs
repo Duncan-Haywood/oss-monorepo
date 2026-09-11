@@ -117,3 +117,17 @@ test('index links one hop to the pinned-actions-check sibling', () => {
     'index must link ../pinned-actions-check/ so crawlers reach the sibling checker in one hop',
   );
 });
+
+// The reciprocal half of the pair closed on 2026-09-11 when
+// k8s-rollout-safety-check graduated. That tool links here; without this link
+// back it would ship as a crawlable orphan, which siblings-budget.json is a
+// ratchet against. Same delivery pipeline, one stage apart: this page asks
+// whether the image you build is immutable, that one asks whether deploying
+// it drops live requests.
+test('index links one hop to the k8s-rollout-safety-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/k8s-rollout-safety-check\/"/,
+    'index must link ../k8s-rollout-safety-check/ so the pair is reciprocal and neither is an orphan',
+  );
+});
