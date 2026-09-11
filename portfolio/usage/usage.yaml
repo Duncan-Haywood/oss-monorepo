@@ -5249,3 +5249,26 @@ products:
           worth watching is `check_run` against `example_loaded` -- a visitor
           who only ever loads the example has not brought their own page to
           it, which is the difference between a demo and a tool.
+  - slug: k8s-rollout-safety-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a zero-dependency CLI and browser tool
+          that reads a Kubernetes Deployment manifest and reports every way a
+          rolling update or a node drain is permitted to drop a live request.
+          Counts are local, opt-in, off by default, and honor DNT/GPC, so zero
+          is the expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the worked example
+          has not brought their own manifest to it, which is the difference
+          between reading a demo and auditing a real rollout. This tool's
+          audience reaches it through a CLI at least as often as a browser, so
+          a flat local count here is weaker evidence than usual and should not
+          on its own be read as no use; repository engagement is the other
+          half of the signal.
