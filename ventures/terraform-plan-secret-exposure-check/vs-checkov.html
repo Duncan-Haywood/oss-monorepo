@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This checker vs. Checkov | Terraform Plan Secret Exposure Check</title>
+<meta name="description" content="Checkov is a broad, open-source static analysis engine with hundreds of built-in policies for Terraform, CloudFormation, Kubernetes and more, plus a general-purpose secrets scanner as one feature among many -- it needs a Python install. This is a free, zero-dependency, zero-install checker that does one narrow thing: read a Terraform structured plan and flag exactly the attribute values Terraform's own sensitive flag missed. Different job, different scope. Not affiliated with Checkov, Bridgecrew, or Palo Alto Networks.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-checkov.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This checker vs. Checkov">
+<meta property="og:description" content="Checkov is a full policy-as-code scanner covering hundreds of misconfiguration checks across many IaC formats. This checker does one thing: find secret-shaped values a Terraform plan's own sensitive flag missed, with no install and no policy database.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this checker or Checkov?",
+      "acceptedAnswer": { "@type": "Answer", "text": "They overlap on one narrow point and differ everywhere else. Checkov is a general-purpose static analysis engine: it ships hundreds of built-in policies covering misconfigurations across Terraform, CloudFormation, Kubernetes, Dockerfiles, and more -- public buckets, open security groups, missing encryption -- and a general-purpose secrets scanner is one feature bundled inside that much larger policy set. This tool checks exactly one thing: does this Terraform structured plan contain a value that looks like a real secret (an AWS key, a PEM private key, a JWT, or a credential-embedded URL) which the provider schema did not already mark sensitive. If you want broad IaC policy coverage across multiple frameworks, reach for Checkov. If you want a zero-install, zero-dependency gate for one specific, narrow, high-confidence failure right before an apply, this is built for exactly that and nothing else." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Checkov already cover what this checks?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Checkov's secrets scanning is general-purpose pattern and entropy detection aimed at source files broadly, run as one module inside a much larger policy engine. This tool is narrower and more specific on purpose: it reads the structured plan's before_sensitive/after_sensitive markers first, so it only flags a value Terraform's own schema left unmarked -- a value Terraform already redacts is correctly ignored rather than re-flagged. That distinction is the whole point of this tool and is not what a general secrets scanner is built to reason about." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why not just run Checkov instead of adding another tool?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Because they cost different amounts to adopt for this one job. Checkov is a Python package with its own install, update cadence, and hundreds of policies to configure or suppress if you only want the secrets angle. This tool is one dependency-free JavaScript file: `node cli.mjs check plan.json`, nothing to install, nothing to configure, exits non-zero on a finding. If a team already runs Checkov for its broader policy coverage, this does not replace it -- it is a much smaller, more specific gate for the one failure it was built to catch, worth adding regardless of what else runs in CI." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with Checkov, Bridgecrew, or Palo Alto Networks?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. This site is not affiliated with, endorsed by, or sponsored by Checkov, Bridgecrew, or their parent company Palo Alto Networks, named here only to describe what this checker is and is not. What Checkov currently scans and how it is licensed are described on its own project page and repository -- check there for what it covers today." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; line-height: 1.6; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); color: #17324a; overflow-wrap: anywhere; }
+  h2 { color: #17324a; margin-top: 30px; }
+  code { background: #f0f3f7; padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #d5dbe3; padding: 0.5rem 0.7rem; text-align: left; font-size: 0.92rem; vertical-align: top; }
+  th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+  a { color: #17604a; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p><a href="./">&larr; Back to Terraform Plan Secret Exposure Check</a></p>
+
+<h1>This checker vs. Checkov</h1>
+
+<div class="card">
+<p>
+  <strong>Checkov</strong>, an open-source project originally from Bridgecrew and now maintained
+  under Palo Alto Networks' Prisma Cloud, is a broad static analysis engine for infrastructure as
+  code. Out of the box it ships hundreds of built-in policies spanning Terraform, CloudFormation,
+  Kubernetes manifests, Dockerfiles, Helm charts, and more -- public storage buckets, open security
+  groups, missing encryption at rest, weak IAM policies, and dozens of other misconfiguration
+  classes. A general-purpose secrets scanner is bundled in as one module among that much larger
+  policy set. It is a Python package, installed with <code>pip install checkov</code>, and it can
+  scan a Terraform structured plan JSON in addition to raw source.
+</p>
+<p>
+  This checker does one narrow thing and nothing else. It is a zero-dependency, zero-install
+  browser page and a single Node file: it reads a Terraform structured plan
+  (<code>terraform show -json</code>), reads the plan's own
+  <code>before_sensitive</code>/<code>after_sensitive</code> markers first, and flags only the
+  attribute values that look like a real secret -- an AWS access key, a PEM private key, a JWT, or
+  a URL with an embedded username and password -- <em>and</em> which Terraform's own provider
+  schema did not already mark sensitive. It has no policy database, no misconfiguration rules, no
+  other IaC frameworks, and nothing to install: <code>node cli.mjs check plan.json</code>.
+</p>
+</div>
+
+<h2>Which one answers your question</h2>
+<div class="card">
+<table>
+  <thead><tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Catch misconfigurations across Terraform, CloudFormation, Kubernetes, or Dockerfiles -- public buckets, open security groups, missing encryption, weak IAM.</td>
+      <td>Checkov -- that breadth is its core product.</td>
+    </tr>
+    <tr>
+      <td>Run one broad policy-as-code gate across an entire multi-framework IaC repository, with hundreds of rules to enable, suppress, or customise.</td>
+      <td>Checkov.</td>
+    </tr>
+    <tr>
+      <td>Know specifically whether a Terraform plan's provider schema missed marking an attribute <code>sensitive</code>, so a real secret would print in plaintext into a CI log.</td>
+      <td>This checker -- that is the one thing it checks, respecting Terraform's own sensitivity markers first so it does not re-flag a value Terraform already redacts.</td>
+    </tr>
+    <tr>
+      <td>Gate a deploy in CI on that one specific failure with zero installs, zero dependencies, and zero configuration.</td>
+      <td>This checker -- <code>node cli.mjs check plan.json</code> exits non-zero on a finding, no <code>pip install</code> required.</td>
+    </tr>
+    <tr>
+      <td>Get broad, continuously updated policy coverage maintained by a vendor with a dedicated security research team.</td>
+      <td>Checkov -- this checker maintains four fixed secret-shape patterns and nothing else.</td>
+    </tr>
+    <tr>
+      <td>Check a single plan file with no install, no Python environment, and nothing uploaded anywhere.</td>
+      <td>This checker -- open the page, paste or load the file, done.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="card">
+<p>
+  These compose rather than compete. A team already running Checkov for broad IaC policy coverage
+  loses nothing by also wiring this narrower checker into the same pre-apply step -- it costs one
+  dependency-free file and checks a distinction (respecting Terraform's own sensitivity markers)
+  that a general-purpose secrets scanner is not built to reason about. And a team that finds
+  Checkov's hundreds of policies more than it wants to configure just for the secrets question can
+  reach for this instead, with no install at all. Neither replaces the other; they answer different
+  questions at very different scopes.
+</p>
+</div>
+
+<h2>Common questions</h2>
+<div class="card">
+<h3>Should I use this checker or Checkov?</h3>
+<p>They overlap on one narrow point and differ everywhere else. Checkov is a general-purpose static analysis engine: it ships hundreds of built-in policies covering misconfigurations across Terraform, CloudFormation, Kubernetes, Dockerfiles, and more -- public buckets, open security groups, missing encryption -- and a general-purpose secrets scanner is one feature bundled inside that much larger policy set. This tool checks exactly one thing: does this Terraform structured plan contain a value that looks like a real secret (an AWS key, a PEM private key, a JWT, or a credential-embedded URL) which the provider schema did not already mark sensitive. If you want broad IaC policy coverage across multiple frameworks, reach for Checkov. If you want a zero-install, zero-dependency gate for one specific, narrow, high-confidence failure right before an apply, this is built for exactly that and nothing else.</p>
+<h3>Does Checkov already cover what this checks?</h3>
+<p>Checkov's secrets scanning is general-purpose pattern and entropy detection aimed at source files broadly, run as one module inside a much larger policy engine. This tool is narrower and more specific on purpose: it reads the structured plan's <code>before_sensitive</code>/<code>after_sensitive</code> markers first, so it only flags a value Terraform's own schema left unmarked -- a value Terraform already redacts is correctly ignored rather than re-flagged. That distinction is the whole point of this tool and is not what a general secrets scanner is built to reason about.</p>
+<h3>Why not just run Checkov instead of adding another tool?</h3>
+<p>Because they cost different amounts to adopt for this one job. Checkov is a Python package with its own install, update cadence, and hundreds of policies to configure or suppress if you only want the secrets angle. This tool is one dependency-free JavaScript file: <code>node cli.mjs check plan.json</code>, nothing to install, nothing to configure, exits non-zero on a finding. If a team already runs Checkov for its broader policy coverage, this does not replace it -- it is a much smaller, more specific gate for the one failure it was built to catch, worth adding regardless of what else runs in CI.</p>
+<h3>Is this page affiliated with Checkov, Bridgecrew, or Palo Alto Networks?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Checkov, Bridgecrew, or their parent company Palo Alto Networks, named here only to describe what this checker is and is not. What Checkov currently scans and how it is licensed are described on its own project page and repository -- check there for what it covers today.</p>
+</div>
+
+<p><strong>Only point either tool at a plan or repository you own or are authorised to test.</strong> That rule is unchanged by which one you pick.</p>
+
+<p><a href="./">&larr; Back to the checker</a></p>
+
+<footer>
+  <p><strong>No warranty.</strong> This is not security or compliance advice. It matches a fixed set of known secret shapes against unmarked attribute values in the plan you supplied -- it cannot prove the absence of a leak, only report the patterns it found. You are responsible for reviewing and verifying its output before relying on it. See the disclaimer on <a href="./">the checker itself</a> for the full text.</p>
+  <p>Everything on the checker runs client-side; nothing is uploaded. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
