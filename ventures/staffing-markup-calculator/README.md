@@ -12,9 +12,10 @@ build step, no dependencies.
 - [`markup-vs-margin.html`](markup-vs-margin.html) — the question people search
 - [`calc.mjs`](calc.mjs) — every figure, as pure functions
 - [`usage.mjs`](usage.mjs) — an anonymous, opt-out, local-only counter
+- [`share.mjs`](share.mjs) — saves a placement to this browser and encodes it into a shareable link, never a server
 
 ```
-node --test          # 45 assertions across calc, page and usage
+node --test          # 98 assertions across calc, page, usage and share
 ```
 
 ## The mistake it exists to catch
