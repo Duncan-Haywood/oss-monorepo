@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
   <url><loc>./why-is-my-github-actions-check-red-in-seconds.html</loc></url>
+  <url><loc>./add-a-starvation-guard-to-a-github-actions-workflow.html</loc></url>
 </urlset>

@@ -193,6 +193,9 @@
     <loc>https://marisstella.dev/tools/actions-runner-starvation-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-runner-starvation-check/add-a-starvation-guard-to-a-github-actions-workflow.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-runner-starvation-check/why-is-my-github-actions-check-red-in-seconds.html</loc>
   </url>
   <url>
