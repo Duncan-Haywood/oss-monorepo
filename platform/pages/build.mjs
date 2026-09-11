@@ -1106,6 +1106,13 @@ const CATEGORY_RULES = [
     // from its first commit (see `siblings-budget.json`) rather than
     // landing in the catch-all, which is also what keeps that catch-all
     // inside the bound `build.test.mjs` puts on it.
+    // `influencer-media-kit-generator` joined the same day: the same move
+    // as `epk-generator` again, one step further along the same axis -- a
+    // content creator's self-presentation document built to attract a
+    // brand's sponsorship decision rather than a venue's booking decision.
+    // Cross-linked with `epk-generator` in the same commit (each footer
+    // names the other, with a page.test.mjs assertion on the href in both
+    // ventures) rather than shipping as an orphan to close later.
     test: (slug) =>
       [
         '3d-print-price-calculator',
@@ -1114,6 +1121,7 @@ const CATEGORY_RULES = [
         'craft-fair-booth-calculator',
         'epk-generator',
         'gig-driver-net-pay-calculator',
+        'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
         'sponsor-ready',
       ].includes(slug),

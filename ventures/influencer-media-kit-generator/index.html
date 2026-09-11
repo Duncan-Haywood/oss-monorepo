@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Media Kit Generator — Free Sponsorship One-Sheet for Content Creators</title>
+  <meta name="description" content="Build a professional sponsorship media kit for your channel in minutes — bio, platform reach, audience breakdown, past brand partnerships, and your rate card. Free, no signup, runs entirely in your browser. Download a shareable HTML one-sheet or copy a plain-text version for email.">
+  <meta property="og:title" content="Build a free creator media kit in minutes">
+  <meta property="og:description" content="A no-signup media kit builder for content creators: bio, platform reach and engagement, audience breakdown, past brand collaborations, and a rate card — download a self-contained sponsorship one-sheet or copy a plain-text version.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Media Kit Generator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Builds a sponsorship media kit one-sheet for content creators from a short form: bio, platform reach and engagement, audience breakdown, past brand partnerships, testimonials, and a rate card. Runs entirely client-side; outputs a self-contained downloadable HTML page and a plain-text version."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a creator media kit?","acceptedAnswer":{"@type":"Answer","text":"A one-page summary a content creator sends to a brand considering a sponsorship — bio, platform reach and engagement, audience demographics, past partnerships, and a rate card — so a brand can evaluate the fit and know what to offer without a back-and-forth email."}},{"@type":"Question","name":"Is this free, and do I need an account?","acceptedAnswer":{"@type":"Answer","text":"Yes, and no. Nothing is uploaded and nothing is stored anywhere but your own browser. Fill in the form and download the result — there is no account, no watermark, and no upsell."}},{"@type":"Question","name":"Where does my photo come from?","acceptedAnswer":{"@type":"Answer","text":"You paste a link to a photo you already host somewhere (your own site, an Instagram post, a public Google Drive/Dropbox link, an image host). This tool does not accept file uploads, so nothing you have not already made public ever leaves your device."}},{"@type":"Question","name":"Should I include a rate card if I've never charged for a post before?","acceptedAnswer":{"@type":"Answer","text":"Yes, even a first guess. A brand reading a media kit with no rates still has to ask what you charge, which is exactly the back-and-forth this tool exists to skip — and a stated starting rate is easy to revise upward once you have a few paid partnerships to compare against."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea, input[type="text"], input[type="email"] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: inherit; margin-bottom: 4px; }
+    textarea { min-height: 84px; font: 13px ui-monospace, monospace; }
+    textarea#bio-input { min-height: 130px; font: inherit; }
+    textarea.output { min-height: 200px; background: #f7f9fb; font: 12px ui-monospace, monospace; }
+    label { display: block; font-weight: 600; margin: 14px 0 4px; }
+    label .opt { font-weight: 400; color: #4c5a68; }
+    .hint { margin: 0 0 4px; font-size: .82rem; color: #4c5a68; }
+    .row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .row > div { flex: 1 1 220px; }
+    fieldset { border: 1px solid #d5dbe3; border-radius: 10px; padding: 4px 16px 14px; margin: 18px 0; }
+    legend { font-weight: 700; color: #17324a; padding: 0 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.tiny { padding: 5px 9px; font-size: .8rem; font-weight: 600; }
+    .error { color: #9a3412; font-weight: 600; }
+    .warn { color: #92400e; }
+    .ok { color: #14532d; font-weight: 600; }
+    ul.report { margin: 6px 0 0; padding-left: 20px; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    iframe#preview { width: 100%; height: 640px; border: 1px solid #d5dbe3; border-radius: 10px; background: #fff; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MEDIA KIT GENERATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Build a free creator media kit</h1>
+    <p>Fill in the form once, and get a ready-to-send sponsorship one-sheet — a downloadable, self-contained page and a plain-text version for email or a brand's intake form. No account, no signup, nothing sent to a server.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your info</h2>
+
+    <div class="row">
+      <div>
+        <label for="creatorName-input">Creator / channel name</label>
+        <input type="text" id="creatorName-input" placeholder="Jamie Rivers">
+      </div>
+      <div>
+        <label for="tagline-input">Tagline <span class="opt">(optional, one line)</span></label>
+        <input type="text" id="tagline-input" placeholder="Budget travel and street food, one city at a time">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="niche-input">Niche <span class="opt">(optional)</span></label>
+        <input type="text" id="niche-input" placeholder="Travel, Food">
+      </div>
+      <div>
+        <label for="location-input">Based in <span class="opt">(optional)</span></label>
+        <input type="text" id="location-input" placeholder="Portland, OR">
+      </div>
+    </div>
+
+    <label for="bio-input">Bio</label>
+    <p class="hint">A few sentences to a couple of short paragraphs. Blank lines start a new paragraph in the output.</p>
+    <textarea id="bio-input" placeholder="Jamie Rivers has covered budget travel and street food since 2021..."></textarea>
+
+    <div class="row">
+      <div>
+        <label for="photoUrl-input">Photo URL <span class="opt">(optional — a link, not an upload)</span></label>
+        <input type="text" id="photoUrl-input" placeholder="https://example.com/photo.jpg">
+      </div>
+      <div>
+        <label for="photoAlt-input">Photo alt text <span class="opt">(optional, defaults to the creator name)</span></label>
+        <input type="text" id="photoAlt-input" placeholder="Jamie Rivers on location">
+      </div>
+    </div>
+    <p class="hint">Paste a link to a photo you already host somewhere (your site, an Instagram post, a public Drive/Dropbox link). This tool doesn't accept file uploads — nothing you haven't already made public leaves your device.</p>
+  </section>
+
+  <section class="card">
+    <fieldset>
+      <legend>Contact</legend>
+      <div class="row">
+        <div>
+          <label for="contactName-input">Contact name <span class="opt">(optional)</span></label>
+          <input type="text" id="contactName-input" placeholder="Jamie Rivers">
+        </div>
+        <div>
+          <label for="contactEmail-input">Partnerships email</label>
+          <input type="email" id="contactEmail-input" placeholder="partnerships@example.com">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="contactPhone-input">Phone <span class="opt">(optional)</span></label>
+          <input type="text" id="contactPhone-input" placeholder="555-0100">
+        </div>
+        <div>
+          <label for="websiteUrl-input">Website <span class="opt">(optional)</span></label>
+          <input type="text" id="websiteUrl-input" placeholder="https://jamierivers.example">
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Platforms &amp; reach</legend>
+      <label for="platforms-input">One per line: <code>Platform | Followers | Engagement rate | URL</code> (URL and engagement optional)</label>
+      <textarea id="platforms-input" spellcheck="false" placeholder="Instagram | 42000 | 4.2% | https://instagram.com/jamierivers&#10;TikTok | 118000 | 6.1% | https://tiktok.com/@jamierivers"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Audience <span class="opt">(optional)</span></legend>
+      <label for="audience-input">One per line: <code>Label | Value</code></label>
+      <textarea id="audience-input" spellcheck="false" placeholder="Age 18-24 | 41%&#10;Women | 68%&#10;United States | 57%"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Past brand partnerships <span class="opt">(optional)</span></legend>
+      <label for="collabs-input">One per line: <code>Brand | Campaign | URL</code> (URL optional)</label>
+      <textarea id="collabs-input" spellcheck="false" placeholder="Acme Outdoors | Spring gear haul | https://example.com/post"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>What brands say <span class="opt">(optional)</span></legend>
+      <label for="testimonials-input">One per line: <code>Quote | Source</code> (source optional)</label>
+      <textarea id="testimonials-input" spellcheck="false" placeholder="Easiest creator we've worked with, and the content converted. | Acme Outdoors"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Rate card <span class="opt">(optional, but a brand will ask if you leave it blank)</span></legend>
+      <label for="rates-input">One per line: <code>Service | Price</code></label>
+      <textarea id="rates-input" spellcheck="false" placeholder="Instagram feed post | $450&#10;Instagram Story (3-frame) | $150&#10;TikTok video | $600"></textarea>
+    </fieldset>
+
+    <p>
+      <button type="button" id="build-btn">Build my media kit</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear-draft">Clear saved draft</button>
+    </p>
+    <p class="note" id="draft-status"></p>
+  </section>
+
+  <section class="card" id="output-card" hidden aria-live="polite">
+    <h2 id="output-heading">Your media kit</h2>
+    <div id="report"></div>
+    <div id="output-body" hidden>
+      <h3>Preview</h3>
+      <iframe id="preview" title="Media kit preview"></iframe>
+      <p>
+        <button type="button" id="download-html">Download HTML media kit</button>
+        <button type="button" class="secondary" id="copy-text">Copy plain-text one-sheet</button>
+      </p>
+      <label for="text-output">Plain-text one-sheet <span class="opt">(for pasting into an email or a brand's intake form)</span></label>
+      <textarea class="output" id="text-output" readonly spellcheck="false"></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is a creator media kit?</h3>
+    <p>A one-page summary a content creator sends to a brand considering a sponsorship — bio, platform reach and engagement, audience demographics, past partnerships, and a rate card — so a brand can evaluate the fit and know what to offer without a back-and-forth email. More background: <a href="what-is-a-media-kit.html">what belongs in a media kit, and what doesn't</a>.</p>
+    <h3>Is this free, and do I need an account?</h3>
+    <p>Yes, and no. Nothing is uploaded and nothing is stored anywhere but your own browser. Fill in the form and download the result — there is no account, no watermark, and no upsell.</p>
+    <h3>Where does my photo come from?</h3>
+    <p>You paste a link to a photo you already host somewhere (your own site, an Instagram post, a public Google Drive/Dropbox link, an image host). This tool does not accept file uploads, so nothing you have not already made public ever leaves your device.</p>
+    <h3>Should I include a rate card if I've never charged for a post before?</h3>
+    <p>Yes, even a first guess. A brand reading a media kit with no rates still has to ask what you charge, which is exactly the back-and-forth this tool exists to skip — and a stated starting rate is easy to revise upward once you have a few paid partnerships to compare against.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or business advice, and it does not replace an agent, manager, or lawyer. <strong>You are responsible for reviewing and verifying everything in the generated media kit before sending it anywhere</strong> — including that any stats you enter are accurate and that any photo link you provide is one you have the right to use. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — download your generated media kit and keep your own copy.</p>
+    <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>kit_built</code>, <code>one_sheet_copied</code>, <code>download_clicked</code>, <code>example_loaded</code>, <code>draft_cleared</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pitching venues instead of brands? The <a href="../epk-generator/">EPK generator</a> is the same job for a different gatekeeper — it builds the one-pager a musician sends a venue or festival, the way this builds the one-pager a creator sends a brand.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { buildMediaKitHtml, buildOneSheetText, validateMediaKit } from "./generator.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+    import { saveDraft, loadDraft, clearDraft } from "./state.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    const FIELD_IDS = [
+      "creatorName", "tagline", "niche", "location", "bio",
+      "photoUrl", "photoAlt",
+      "contactName", "contactEmail", "contactPhone", "websiteUrl",
+    ];
+    const AREA_IDS = {
+      platformsRaw: "platforms", audienceRaw: "audience", collabsRaw: "collabs",
+      testimonialsRaw: "testimonials", ratesRaw: "rates",
+    };
+
+    function readForm() {
+      const data = {};
+      for (const id of FIELD_IDS) data[id] = $(`#${id}-input`).value.trim();
+      for (const [field, inputId] of Object.entries(AREA_IDS)) data[field] = $(`#${inputId}-input`).value;
+      return data;
+    }
+
+    function writeForm(data) {
+      for (const id of FIELD_IDS) if (data[id] !== undefined) $(`#${id}-input`).value = data[id];
+      for (const [field, inputId] of Object.entries(AREA_IDS)) if (data[field] !== undefined) $(`#${inputId}-input`).value = data[field];
+    }
+
+    // --- autosave, debounced ------------------------------------------
+    let saveTimer = null;
+    function scheduleSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        try {
+          saveDraft(localStorage, readForm());
+          $("#draft-status").textContent = "Draft saved in this browser.";
+        } catch {
+          /* storage may be unavailable; the form still works */
+        }
+      }, 400);
+    }
+    document.querySelectorAll("input, textarea").forEach((el) => el.addEventListener("input", scheduleSave));
+
+    try {
+      const draft = loadDraft(localStorage);
+      if (Object.keys(draft).length) {
+        writeForm(draft);
+        $("#draft-status").textContent = "Restored your saved draft.";
+      }
+    } catch {
+      /* storage may be unavailable; start blank */
+    }
+
+    $("#clear-draft").addEventListener("click", () => {
+      clearDraft(localStorage);
+      document.querySelectorAll("input, textarea").forEach((el) => { el.value = ""; });
+      $("#draft-status").textContent = "Cleared the saved draft.";
+      record("draft_cleared");
+    });
+
+    // --- build -----------------------------------------------------------
+    const outputCard = $("#output-card"), outputHeading = $("#output-heading"), report = $("#report"), outputBody = $("#output-body");
+    let lastHtml = "";
+
+    function renderReport({ errors, warnings }) {
+      const items = [
+        ...errors.map((e) => `<li class="error">${escapeHtml(e)}</li>`),
+        ...warnings.map((w) => `<li class="warn">${escapeHtml(w)}</li>`),
+      ];
+      const status = errors.length
+        ? '<p class="error">Fix the items below to build.</p>'
+        : warnings.length
+          ? '<p class="warn">Built — worth a look before you send it:</p>'
+          : '<p class="ok">Built. Looks complete.</p>';
+      return status + (items.length ? `<ul class="report">${items.join("")}</ul>` : "");
+    }
+
+    $("#build-btn").addEventListener("click", () => {
+      const data = readForm();
+      const check = validateMediaKit(data);
+      report.innerHTML = renderReport(check);
+      if (!check.valid) {
+        outputBody.hidden = true;
+        outputCard.hidden = false;
+        outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      lastHtml = buildMediaKitHtml(data);
+      $("#preview").srcdoc = lastHtml;
+      $("#text-output").value = buildOneSheetText(data);
+      outputBody.hidden = false;
+      outputHeading.textContent = `${data.creatorName}'s media kit`;
+      outputCard.hidden = false;
+      record("kit_built");
+      outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    const EXAMPLE = {
+      creatorName: "Jamie Rivers", tagline: "Budget travel and street food, one city at a time",
+      niche: "Travel, Food", location: "Portland, OR",
+      bio: "Jamie Rivers has covered budget travel and street food since 2021, focused on real costs rather than sponsored fluff.\n\nFeatured in two regional travel newsletters and one city-guide podcast.",
+      photoUrl: "", photoAlt: "Jamie Rivers on location",
+      contactName: "Jamie Rivers", contactEmail: "partnerships@example.com", contactPhone: "", websiteUrl: "https://jamierivers.example",
+      platformsRaw: "Instagram | 42000 | 4.2% | https://instagram.com/jamierivers\nTikTok | 118000 | 6.1% | https://tiktok.com/@jamierivers",
+      audienceRaw: "Age 18-24 | 41%\nWomen | 68%\nUnited States | 57%",
+      collabsRaw: "Acme Outdoors | Spring gear haul | https://example.com/post\nTrailhead Foods | Trail snack review",
+      testimonialsRaw: "Easiest creator we've worked with, and the content converted. | Acme Outdoors",
+      ratesRaw: "Instagram feed post | $450\nInstagram Story (3-frame) | $150\nTikTok video | $600",
+    };
+    $("#load-example").addEventListener("click", () => {
+      writeForm(EXAMPLE);
+      record("example_loaded");
+    });
+
+    // --- download / copy ---------------------------------------------
+    $("#download-html").addEventListener("click", () => {
+      const blob = new Blob([lastHtml], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const name = ($("#creatorName-input").value.trim() || "media-kit").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      a.download = `${name || "media-kit"}-media-kit.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      record("download_clicked");
+    });
+
+    $("#copy-text").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText($("#text-output").value);
+        const btn = $("#copy-text");
+        const original = btn.textContent;
+        btn.textContent = "Copied!";
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      } catch {
+        $("#text-output").select();
+      }
+      record("one_sheet_copied");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

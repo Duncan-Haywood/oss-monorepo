@@ -40,6 +40,19 @@ test("index links one hop to the ats-resume-checker sibling", async () => {
   );
 });
 
+// Reciprocal of the link in influencer-media-kit-generator's footer. Both
+// tools are a self-presentation document sent to a gatekeeper to get chosen
+// -- an electronic press kit to a venue/festival/blog, a sponsorship media
+// kit to a brand -- one step further along the same axis.
+test("index links one hop to the influencer-media-kit-generator sibling", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    /href="\.\.\/influencer-media-kit-generator\/"/,
+    "index must link ../influencer-media-kit-generator/ so a reader weighing both reaches it in one hop",
+  );
+});
+
 test("index carries the sponsor link", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /github\.com\/sponsors\/Duncan-Haywood/);
