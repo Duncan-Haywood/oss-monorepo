@@ -147,6 +147,59 @@ test('a JS template-literal href in a standalone .mjs is not a dead link', async
   assert.deepEqual(mentioning(problems, 'dead link'), []);
 });
 
+test('a page no path from the hub reaches is caught', async () => {
+  // The case the orphan check cannot see. Both pages below have an inbound
+  // link, so `inboundLinks` is satisfied -- but they link only to each other,
+  // and nothing on the site leads in. On this origin the sitemap is never read
+  // (project-Pages subpath), so a page off the hub's link graph is discoverable
+  // by nobody.
+  const problems = await problemsFor({
+    'tool/island-a.html': '<a href="island-b.html">B</a><footer>No warranty.</footer>',
+    'tool/island-b.html': '<a href="island-a.html">A</a><footer>No warranty.</footer>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/vs-widget.html', 'tool/how-much.html',
+      'tool/island-a.html', 'tool/island-b.html'),
+  });
+  assert.equal(mentioning(problems, 'island-a.html: no path of links').length, 1);
+  assert.equal(mentioning(problems, 'island-b.html: no path of links').length, 1);
+  // The orphan check stays quiet on exactly these two, which is the point:
+  // without the walk they ship looking correct.
+  assert.deepEqual(mentioning(problems, 'no page on the site links to it'), []);
+});
+
+test('a page reached only through another page is not reported unreachable', async () => {
+  // Reachability is transitive: depth 2 is a route, not an orphan. Guards the
+  // walk against collapsing to "linked from the hub directly".
+  const problems = await problemsFor({
+    'tool/how-much.html': '<a href="deeper.html">Deeper</a><footer>No warranty.</footer>',
+    'tool/deeper.html': '<p>Deeper</p><footer>No warranty.</footer>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/vs-widget.html', 'tool/how-much.html', 'tool/deeper.html'),
+  });
+  assert.deepEqual(mentioning(problems, 'no path of links'), []);
+});
+
+test('an unreachable page that declared noindex is allowed', async () => {
+  // The offline shell is the real instance: a fallback with no route to it is
+  // correct, and indexing it would put a non-computing page in search results.
+  const problems = await problemsFor({
+    'offline.html': '<meta name="robots" content="noindex"><p>Offline</p><footer>No warranty.</footer>',
+  });
+  assert.deepEqual(mentioning(problems, 'no path of links'), []);
+});
+
+test('a module import does not count as a route to a page', async () => {
+  // A crawler navigates markup; an `import` is a module fetch, not a document
+  // anyone lands on. Counting it as a hop would report an undiscoverable page
+  // as reachable -- the exact false negative this walk exists to avoid.
+  const problems = await problemsFor({
+    'tool/index.html':
+      '<script type="module">import "./widget.mjs";</script><footer>No warranty.</footer>',
+    'tool/widget.mjs': 'export const x = 1;',
+    'tool/stranded.html': '<p>Stranded</p><footer>No warranty.</footer>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/vs-widget.html', 'tool/how-much.html', 'tool/stranded.html'),
+  });
+  assert.equal(mentioning(problems, 'stranded.html: no path of links').length, 1);
+});
+
 test('a link that climbs out of the site root is caught', async () => {
   const problems = await problemsFor({ 'tool/index.html': '<a href="../../etc/passwd">x</a>' });
   assert.equal(mentioning(problems, 'escapes the site root').length, 1);
