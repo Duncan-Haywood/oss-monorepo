@@ -277,3 +277,26 @@ test('generated fleet-table default quantities are on the qty field\'s own step 
     assert.ok(Number.isInteger(value) && value >= 0);
   }
 });
+
+// Static guard for the shape of bug platform/pages/roundtrip.mjs found live:
+// the hero price used to update only on an explicit form submit, so editing a
+// field and then immediately clicking "Copy link" -- never pressing "Price
+// this booking" first -- copied a link encoding the new numbers while the
+// sender's own screen kept showing the last-submitted price ($1,574.46 vs the
+// correct $132,589.15 for the edited figures, with zero fields dropped: the
+// link and the restored page both computed correctly, only the sender's
+// on-screen hero was stale). The authoritative regression check is the real
+// browser behaviour in roundtrip.mjs; this only pins that the wiring which
+// fixes it stays in the shipped page.
+test('every field recomputes the quote live, not only on an explicit submit', () => {
+  assert.match(
+    index,
+    /document\.addEventListener\(['"]input['"],\s*\(\)\s*=>\s*submit\(\)\)/,
+    'a document-level "input" listener must call submit() so editing a field updates the hero price immediately',
+  );
+  assert.match(
+    index,
+    /document\.addEventListener\(['"]change['"],\s*\(\)\s*=>\s*submit\(\)\)/,
+    'a document-level "change" listener must call submit() so a select or checkbox edit updates the hero price immediately',
+  );
+});

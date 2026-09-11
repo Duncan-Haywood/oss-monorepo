@@ -314,6 +314,19 @@
       if (result) count('quote_priced');
     });
 
+    // Recompute on every edit, not only on an explicit submit -- the same
+    // fix `staffing-markup-calculator` and `wildlife-exclusion-bid-calculator`
+    // already carry for this exact shape. Without this, editing a field and
+    // then immediately clicking "Copy link" (never pressing "Price this
+    // booking" first) copies a link encoding the new numbers while the
+    // on-screen hero price still shows the last-submitted figure --
+    // `platform/pages/roundtrip.mjs` caught it as a $1,574.46 vs $132,589.15
+    // headline mismatch with zero dropped fields, because the link and the
+    // restored page both compute correctly; only the sender's own screen was
+    // stale.
+    document.addEventListener('input', () => submit());
+    document.addEventListener('change', () => submit());
+
     // A rental quote is settled between two people -- the yard and whoever is
     // booking the party. Until now the only way to hand one over was to read
     // a price down the phone with none of the fleet, haul or attendant
