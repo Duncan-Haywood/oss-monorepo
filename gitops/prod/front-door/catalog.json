@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 245,
-  "collection_total": 245,
+  "served_here": 246,
+  "collection_total": 246,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -44,7 +44,7 @@
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
-      "tool_count": 17
+      "tool_count": 18
     },
     {
       "id": "backoffice",
@@ -925,6 +925,14 @@
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.",
       "pages": 3
+    },
+    {
+      "slug": "drone-mapping-job-calculator",
+      "name": "Drone Mapping Job Calculator",
+      "url": "https://marisstella.dev/tools/drone-mapping-job-calculator/",
+      "category": "Service business pricing & quotes",
+      "description": "Plan and price an aerial mapping sortie: ground sample distance from your sensor and altitude, flight line spacing, image count, airtime, battery swaps, processing hours and the price that clears your margin. Free, private, nothing leaves your browser.",
+      "pages": 2
     },
     {
       "slug": "dryer-vent-bid-calculator",

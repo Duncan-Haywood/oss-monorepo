@@ -10043,3 +10043,85 @@ ventures:
       mileage schedule is both tax data and a map of the business's lanes.
       No account, no upload, no data retained anywhere but an anonymous
       local event count.
+  - slug: drone-mapping-job-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The output is a number a pilot puts
+      in front of a client and then has to deliver against, and every step of
+      it -- GSD from the sensor geometry, footprint from GSD, lines from
+      overlap, airtime from path length -- is closed-form optics and
+      kinematics that the pilot can re-derive on paper and a client can check
+      against a published spec sheet. Inference would make the quote less
+      checkable without making it more correct, and the failure mode of a
+      wrong number here is a job flown at a loss or a resolution dispute
+      settled by a reflight.
+    basis: >-
+      Screened 2026-09-11. `duplicate_check.py` scored the closest match
+      (`wildlife-exclusion-bid-calculator`) at 0.08 against the final
+      description, far under the 0.45 flag bar, and the whole top ten sat at
+      0.08 or below. No aerial, drone, photogrammetry or survey-flight
+      arithmetic exists anywhere in `ventures/`, and no drone row exists in
+      `screened-out.md`. `commercial-photo-license-calculator` (0.05) is the
+      nearest real neighbour and is complementary rather than overlapping:
+      it prices the licensing of imagery once captured, this prices the
+      flight that captures it -- the two are linked from each other's
+      footers for that reason.
+      Defensibility 3 rather than the 4 this shape usually carries, stated
+      plainly because it is the weakest dimension: free GSD calculators are
+      widely available, including from Pix4D and other photogrammetry
+      vendors, so the optics half is commodity. What is not commodity is the
+      half that follows it -- turning the same geometry into image count,
+      field hours, processing hours and a price at a target margin, and
+      showing the overlap sensitivity side by side. A pilot can find their
+      GSD in ten seconds elsewhere; what they cannot easily find is what
+      conceding 80/80 does to the invoice.
+      Distribution 7: long-tail search terminology is unusually concrete
+      here ("drone mapping GSD calculator", "how much to charge for drone
+      mapping", "flight time calculator photogrammetry", "front vs side
+      overlap"), the Part 107 population is large and self-organising in
+      forums and subreddits, and the guide page is written to answer the
+      pricing query directly rather than to rank for the calculator query
+      alone.
+      Autonomous ops 10 / gross margin 10: a static page with no build step,
+      no dependencies and no network requests, so one more user costs
+      nothing and there is nothing to operate.
+      Time to revenue 6: free by design in this phase, and the route to any
+      revenue is the same sponsorship link every tool here carries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass on both, and liability containment needed the closer look because
+      the customer is an aircraft operator and the wrong kind of tool here
+      would sit in the causal chain of a flight. The containment is
+      structural rather than a matter of wording: this makes no
+      determination, ships no airspace data, integrates with no LAANC
+      service, produces no mission file, and nothing it outputs is flown.
+      It is a quoting worksheet -- arithmetic on figures the pilot types --
+      and the artifact it produces is a price, not a flight. The one place
+      it touches regulation at all is defensive: it flags a target GSD that
+      would need more than the 400 ft ceiling in 14 CFR 107.51(b) rather
+      than silently reporting an altitude that cannot legally be flown, and
+      it says on both pages that airspace, authorisation, currency and the
+      safety of the actual mission remain entirely the pilot's. That is the
+      opposite posture from an overlay that claims to discharge an
+      obligation, which is the shape `screened-out.md` rejects.
+      Ethical robustness: the tool's whole argument is that pilots are
+      under-charging because a per-acre quote hides the term that moves the
+      cost. It gets better for its users as it scales and it takes nothing
+      from anybody else -- a client who pays a correctly-priced quote for a
+      correctly-specified deliverable is not worse off than one paying a
+      guess. Nothing is uploaded, so there is no data position to abuse, and
+      the square-site model is disclosed as optimistic on both pages rather
+      than presented as exact, which is the honest direction to err given
+      the tool argues for higher quotes.
