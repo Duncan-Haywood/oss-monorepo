@@ -5249,6 +5249,556 @@ products:
           worth watching is `check_run` against `example_loaded` -- a visitor
           who only ever loads the example has not brought their own page to
           it, which is the difference between a demo and a tool.
+  - slug: actions-artifact-poisoning-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-09 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a zero-dependency scanner for GitHub Actions workflow
+          files that flags the two documented artifact-poisoning patterns: an
+          artifact executed after download in a `workflow_run` job, and an
+          artifact download with no integrity check before use. Counts are
+          local, opt-in, off by default, and honor DNT/GPC, so zero is the
+          expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: actions-cache-poisoning-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-07 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a zero-dependency scanner for GitHub Actions workflow
+          files that flags cache writes reachable from an untrusted trigger and
+          cache keys built from attacker-controlled input. Counts are local,
+          opt-in, off by default, and honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on for
+          yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: actions-injection-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-07 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a zero-dependency scanner for GitHub Actions workflow
+          files that flags pwn-request checkouts of an untrusted head and
+          script injection via unsanitized `${{ }}` expansion in a `run:` step.
+          Counts are local, opt-in, off by default, and honor DNT/GPC, so zero
+          is the expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: actions-permissions-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-07 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a zero-dependency scanner for GitHub Actions workflow
+          files that flags every workflow or job with no explicit
+          `permissions:` block or with `permissions: write-all`. Counts are
+          local, opt-in, off by default, and honor DNT/GPC, so zero is the
+          expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: actions-runner-starvation-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-07 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a zero-dependency tool that tells you whether a red
+          GitHub Actions check is a real failure or a job GitHub never assigned
+          a runner to, from the run's own `runner_id` field. Counts are local,
+          opt-in, off by default, and honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on for
+          yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: actions-self-hosted-exposure-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-07 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a zero-dependency scanner for GitHub Actions workflow
+          files that flags every job on a `self-hosted` runner label inside a
+          workflow triggered by a fork-writable event. Counts are local, opt-
+          in, off by default, and honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on for
+          yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: affiliate-disclosure-checker
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-09 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a zero-network, zero-dependency CLI and browser tool
+          that scans a blog post's HTML for recognised affiliate-link signals
+          and reports whether a disclosure phrase appears before the first one.
+          Counts are local, opt-in, off by default, and honor DNT/GPC, so zero
+          is the expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: ats-resume-checker
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-07 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that runs the copy-paste test career coaches
+          already recommend by hand: paste a resume's text and see the specific
+          formatting problems that break applicant-tracking-system parsing.
+          Counts are local, opt-in, off by default, and honor DNT/GPC, so zero
+          is the expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: cache-control-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-10 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that sends one real HTTP GET request to a URL
+          and classifies its caching headers into the misconfiguration patterns
+          that actually break things. Counts are local, opt-in, off by default,
+          and honor DNT/GPC, so zero is the expected reading for a tool nobody
+          has visited or switched the counter on for yet. The reading worth
+          watching is `check_run` against `example_loaded` -- a visitor who
+          only ever loads the example has not brought their own input to it,
+          which is the difference between a demo and a tool.
+  - slug: cookie-security-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-10 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that sends one real HTTP GET request to a URL
+          and classifies the response's `Set-Cookie` headers into the
+          misconfiguration patterns that actually break things. Counts are
+          local, opt-in, off by default, and honor DNT/GPC, so zero is the
+          expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: cors-misconfig-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-09 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that sends six real HTTP GET requests, each with
+          a different `Origin` header, and classifies the responses into the
+          CORS misconfiguration patterns that actually get exploited. Counts
+          are local, opt-in, off by default, and honor DNT/GPC, so zero is the
+          expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: env-example-drift-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-09 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that diffs an `.env.example` file's declared
+          variable names against the environment variables actually read by a
+          repo's own source code, in both directions. Counts are local, opt-in,
+          off by default, and honor DNT/GPC, so zero is the expected reading
+          for a tool nobody has visited or switched the counter on for yet. The
+          reading worth watching is `check_run` against `example_loaded` -- a
+          visitor who only ever loads the example has not brought their own
+          input to it, which is the difference between a demo and a tool.
+  - slug: ios-privacy-manifest-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          scan_run: 0
+          report_downloaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-07 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool for iOS/macOS developers that scans Swift and
+          Objective-C source for Apple's Required Reason API usage and cross-
+          checks it against a `PrivacyInfo.xcprivacy` manifest. Counts are
+          local, opt-in, off by default, and honor DNT/GPC, so zero is the
+          expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `scan_run` against
+          `report_downloaded` -- a visitor who only ever loads the example has
+          not brought their own input to it, which is the difference between a
+          demo and a tool.
+  - slug: merchant-feed-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          file_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-10 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that checks a Google Merchant Center / Meta
+          Catalog product feed against the published product-data specification
+          and reports exactly which items would be flagged and why. Counts are
+          local, opt-in, off by default, and honor DNT/GPC, so zero is the
+          expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: npm-lifecycle-script-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-07 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that lists every package in a `package-
+          lock.json` that runs an install-time lifecycle script, and, given an
+          older lockfile, which packages gained one since then. Counts are
+          local, opt-in, off by default, and honor DNT/GPC, so zero is the
+          expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: oidc-trust-policy-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-10 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that reads an AWS IAM role trust policy
+          federating GitHub Actions over OIDC and reports whether its
+          conditions actually restrict which repository, branch, or environment
+          can assume the role. Counts are local, opt-in, off by default, and
+          honor DNT/GPC, so zero is the expected reading for a tool nobody has
+          visited or switched the counter on for yet. The reading worth
+          watching is `check_run` against `example_loaded` -- a visitor who
+          only ever loads the example has not brought their own input to it,
+          which is the difference between a demo and a tool.
+  - slug: pinned-actions-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-07 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a zero-dependency scanner for GitHub Actions workflow
+          files that flags every third-party action referenced by a mutable tag
+          or branch instead of a pinned commit SHA. Counts are local, opt-in,
+          off by default, and honor DNT/GPC, so zero is the expected reading
+          for a tool nobody has visited or switched the counter on for yet. The
+          reading worth watching is `check_run` against `example_loaded` -- a
+          visitor who only ever loads the example has not brought their own
+          input to it, which is the difference between a demo and a tool.
+  - slug: redirect-chain-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-10 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that walks a URL's real HTTP redirect chain and
+          checks for loops, chains longer than recommended, HTTPS-to-HTTP
+          downgrades, and temporary redirects used where a permanent one
+          belongs. Counts are local, opt-in, off by default, and honor DNT/GPC,
+          so zero is the expected reading for a tool nobody has visited or
+          switched the counter on for yet. The reading worth watching is
+          `check_run` against `example_loaded` -- a visitor who only ever loads
+          the example has not brought their own input to it, which is the
+          difference between a demo and a tool.
+  - slug: security-headers-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-10 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that sends one real HTTP GET request to a URL
+          and classifies the response's frame-protection and Content-Security-
+          Policy headers into the misconfiguration patterns that actually get
+          exploited. Counts are local, opt-in, off by default, and honor
+          DNT/GPC, so zero is the expected reading for a tool nobody has
+          visited or switched the counter on for yet. The reading worth
+          watching is `check_run` against `example_loaded` -- a visitor who
+          only ever loads the example has not brought their own input to it,
+          which is the difference between a demo and a tool.
+  - slug: sitemap-lastmod-freshness-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-10 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that checks a sitemap.xml's `<lastmod>` dates
+          for the "freshness faking" anti-pattern Google's own sitemap
+          documentation names directly, plus a live HTTP `Last-Modified` cross-
+          check. Counts are local, opt-in, off by default, and honor DNT/GPC,
+          so zero is the expected reading for a tool nobody has visited or
+          switched the counter on for yet. The reading worth watching is
+          `check_run` against `example_loaded` -- a visitor who only ever loads
+          the example has not brought their own input to it, which is the
+          difference between a demo and a tool.
+  - slug: social-preview-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-10 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that fetches a page's Open Graph and Twitter
+          Card tags plus its preview image's real pixel dimensions from the
+          file's own byte header, and classifies the result against platform
+          minimums. Counts are local, opt-in, off by default, and honor
+          DNT/GPC, so zero is the expected reading for a tool nobody has
+          visited or switched the counter on for yet. The reading worth
+          watching is `check_run` against `example_loaded` -- a visitor who
+          only ever loads the example has not brought their own input to it,
+          which is the difference between a demo and a tool.
+  - slug: sri-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          hash_generated: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-10 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is two tools sharing one classification engine: a
+          Subresource Integrity hash generator and a checker for
+          script/stylesheet tags missing an `integrity` attribute. Counts are
+          local, opt-in, off by default, and honor DNT/GPC, so zero is the
+          expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `hash_generated` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: structured-data-drift-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-09 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that checks whether a page's JSON-LD structured
+          data actually appears, word for word, in that same page's own visible
+          rendered text, and names exactly where the two texts part ways.
+          Counts are local, opt-in, off by default, and honor DNT/GPC, so zero
+          is the expected reading for a tool nobody has visited or switched the
+          counter on for yet. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the example has not
+          brought their own input to it, which is the difference between a demo
+          and a tool.
+  - slug: vscode-extension-drift-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded retroactively on 2026-09-11; the venture
+          shipped 2026-09-07 with a public front-door route and its own
+          `usage.mjs` from the first commit, but carried no row in this file
+          until now, so nothing here would have recorded that the instrument
+          exists. It is a tool that snapshots installed VS Code/Cursor/Windsurf
+          extensions and reports exactly which ones changed their activation
+          surface since an earlier snapshot. Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for a
+          tool nobody has visited or switched the counter on for yet. The
+          reading worth watching is `check_run` against `example_loaded` -- a
+          visitor who only ever loads the example has not brought their own
+          input to it, which is the difference between a demo and a tool.
   - slug: k8s-rollout-safety-check
     surface: github-pages
     readings:

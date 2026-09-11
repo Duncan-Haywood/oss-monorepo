@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://example.invalid/sri-check/</loc></url>
 <url><loc>https://example.invalid/sri-check/why-does-sri-need-the-crossorigin-attribute.html</loc></url>
+<url><loc>https://example.invalid/sri-check/vs-srihash.html</loc></url>
 </urlset>

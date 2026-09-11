@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SRI Checker &amp; Hash Generator vs. srihash.org</title>
+<meta name="description" content="srihash.org is a well-known single-purpose tool: paste a script or stylesheet URL, get back its integrity=&quot;sha384-...&quot; hash and a ready-to-paste tag. This free tool does that too, entirely in your browser from pasted content, plus a CLI that checks an existing page for cross-origin tags with no integrity attribute, an integrity attribute with no crossorigin attribute, or a declared hash that no longer matches what the CDN serves right now. Not affiliated with srihash.org.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/sri-check/vs-srihash.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SRI Checker &amp; Hash Generator vs. srihash.org">
+<meta property="og:description" content="srihash.org generates one hash for one URL you already chose. This tool generates hashes locally from pasted content and, via a CLI, checks an existing page for missing integrity, missing crossorigin, and hash drift against what the CDN serves now.">
+<meta property="og:url" content="https://example.invalid/sri-check/vs-srihash.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or srihash.org?","acceptedAnswer":{"@type":"Answer","text":"They overlap on one thing -- turning a script or stylesheet into an integrity hash -- and differ in what happens before and after that step. srihash.org is a single-purpose generator: you paste the URL of a resource you have already decided to hash, it fetches that one resource, and it hands back the integrity value and a ready-to-paste tag. This tool's hash generator does the same job from pasted file contents rather than a URL, entirely in your browser, and it also ships a CLI that checks a page you did not write the tags for -- finding every cross-origin script and stylesheet tag, and flagging one with no integrity attribute at all, one with integrity but no crossorigin attribute, or one whose declared hash no longer matches what the CDN currently serves. Use srihash.org when you already know exactly which URL you want hashed. Use this tool's checker when you have inherited a page and need to know which of its cross-origin tags are missing that protection or have drifted out of date."}},{"@type":"Question","name":"srihash.org is free too -- what does this add?","acceptedAnswer":{"@type":"Answer","text":"Being free is not the difference. srihash.org solves one step well: hand it a URL, get a hash. It has no mode for auditing an existing page's tags, so it cannot tell you that a tag is missing integrity entirely, that an integrity attribute is paired with no crossorigin attribute (which most browsers silently fail to enforce, so the tag looks protected and is not), or that a hash written months ago no longer matches what the CDN serves today. This tool's CLI does all three from one page fetch, exits non-zero on a finding so it can gate a CI run, and its hash generator works from pasted content -- useful for a file that has not been deployed to a public URL yet, which srihash.org's URL-based flow cannot hash at all."}},{"@type":"Question","name":"Can srihash.org check an existing page for missing SRI protection?","acceptedAnswer":{"@type":"Answer","text":"No -- that is not what it does. srihash.org's job starts after you have already picked one script or stylesheet URL to hash; it has no crawl step and no report format for a whole page's tags. If you inherited a page with a third-party CDN tag and do not know whether it is protected at all, srihash.org gives you no way to find that out -- you would need to already know which tags to look at and hash each one by hand. This tool's CLI does that discovery step first: it fetches the page, finds every cross-origin script and stylesheet tag itself, and reports which ones are missing integrity, missing crossorigin, or hashed against a stale version of the file."}},{"@type":"Question","name":"Is this page affiliated with srihash.org?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by srihash.org or its operator. srihash.org is named here only to describe what it is and is not, as a well-known free SRI hash generator. What srihash.org currently does and how it works are described on its own site -- check there for what it covers today."}}]}</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .eyebrow { font-size: 0.85rem; }
+  .cta { display: inline-block; margin: 1rem 0; padding: 0.6rem 1rem; border-radius: 8px; background: #0a7c42; color: #fff; text-decoration: none; font-weight: 650; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: rgba(127,127,127,0.12); }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow"><a href="./">&larr; SRI Checker &amp; Hash Generator</a></p>
+  <h1>SRI Checker &amp; Hash Generator vs. srihash.org</h1>
+  <p>Different shapes: srihash.org generates one integrity hash from one URL you already chose. This tool generates hashes locally from pasted content -- no URL or fetch required -- and its CLI additionally checks an existing page's cross-origin tags for missing integrity, missing crossorigin, or a hash that has drifted from what the CDN serves now.</p>
+
+  <p><a class="cta" href="./">Generate a hash or check a page &rarr;</a></p>
+
+  <section>
+    <p>
+      <strong>srihash.org</strong> is a well-known, free, single-purpose SRI
+      hash generator: paste the URL of a script or stylesheet, and it fetches
+      that one resource and returns an <code>integrity="sha384-..."</code>
+      value plus a ready-to-paste tag. It solves exactly the step its name
+      describes -- turning one already-chosen URL into a hash -- and nothing
+      before or after that step.
+    </p>
+    <p>
+      This tool's hash generator does the same conversion, but from pasted
+      file contents rather than a URL, entirely in your browser with the Web
+      Crypto API and no fetch at all -- which also means it can hash a file
+      that has not been deployed to a public URL yet. Its companion CLI
+      (<code>node check.mjs &lt;url&gt; --json</code>) does a different job
+      srihash.org has no mode for: it fetches a page itself, finds every
+      script and stylesheet tag loaded from a different origin, and reports a
+      tag with <strong>no integrity attribute at all</strong>, an
+      <strong>integrity attribute with no crossorigin attribute</strong>, or a
+      <strong>declared hash that no longer matches</strong> what the CDN
+      currently serves.
+    </p>
+    <div class="table-wrap">
+    <table>
+      <caption>What each tool answers.</caption>
+      <thead>
+        <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Get the hash for one script or stylesheet URL you already know you want to hash.</td>
+          <td>Either &mdash; srihash.org fetches it by URL; this tool's generator hashes pasted content, useful when the file is not yet public.</td>
+        </tr>
+        <tr>
+          <td>Find out which cross-origin tags on a page you inherited are missing an integrity attribute entirely.</td>
+          <td>This checker's CLI &mdash; srihash.org has no page-crawling mode; you would need to already know which tags to look at.</td>
+        </tr>
+        <tr>
+          <td>Catch an integrity attribute that most browsers silently skip enforcing because it has no matching crossorigin attribute.</td>
+          <td>This checker's CLI &mdash; srihash.org's output is a single tag you paste in yourself, so it cannot audit one already on the page.</td>
+        </tr>
+        <tr>
+          <td>Know whether a hash written months ago still matches what the CDN serves today.</td>
+          <td>This checker's CLI &mdash; it re-fetches the asset and compares; srihash.org computes a hash once, for the URL you give it, with no notion of an existing declared value to compare against.</td>
+        </tr>
+        <tr>
+          <td>Run the same check unattended in your own CI before a page ships.</td>
+          <td>This checker's CLI, exit-code gateable &mdash; srihash.org is an interactive, one-URL-at-a-time web form.</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p>
+      These compose rather than compete. A reasonable habit is this checker's
+      CLI first, to find every cross-origin tag on a page and see which ones
+      lack protection or have drifted, then either tool to (re)generate the
+      hash for the specific file you are fixing.
+    </p>
+
+    <h2>Common questions</h2>
+    <h3>Should I use this tool or srihash.org?</h3>
+    <p>They overlap on one thing -- turning a script or stylesheet into an integrity hash -- and differ in what happens before and after that step. srihash.org is a single-purpose generator: you paste the URL of a resource you have already decided to hash, it fetches that one resource, and it hands back the integrity value and a ready-to-paste tag. This tool's hash generator does the same job from pasted file contents rather than a URL, entirely in your browser, and it also ships a CLI that checks a page you did not write the tags for -- finding every cross-origin script and stylesheet tag, and flagging one with no integrity attribute at all, one with integrity but no crossorigin attribute, or one whose declared hash no longer matches what the CDN currently serves. Use srihash.org when you already know exactly which URL you want hashed. Use this tool's checker when you have inherited a page and need to know which of its cross-origin tags are missing that protection or have drifted out of date.</p>
+    <h3>srihash.org is free too -- what does this add?</h3>
+    <p>Being free is not the difference. srihash.org solves one step well: hand it a URL, get a hash. It has no mode for auditing an existing page's tags, so it cannot tell you that a tag is missing integrity entirely, that an integrity attribute is paired with no crossorigin attribute (which most browsers silently fail to enforce, so the tag looks protected and is not), or that a hash written months ago no longer matches what the CDN serves today. This tool's CLI does all three from one page fetch, exits non-zero on a finding so it can gate a CI run, and its hash generator works from pasted content -- useful for a file that has not been deployed to a public URL yet, which srihash.org's URL-based flow cannot hash at all.</p>
+    <h3>Can srihash.org check an existing page for missing SRI protection?</h3>
+    <p>No -- that is not what it does. srihash.org's job starts after you have already picked one script or stylesheet URL to hash; it has no crawl step and no report format for a whole page's tags. If you inherited a page with a third-party CDN tag and do not know whether it is protected at all, srihash.org gives you no way to find that out -- you would need to already know which tags to look at and hash each one by hand. This tool's CLI does that discovery step first: it fetches the page, finds every cross-origin script and stylesheet tag itself, and reports which ones are missing integrity, missing crossorigin, or hashed against a stale version of the file.</p>
+    <h3>Is this page affiliated with srihash.org?</h3>
+    <p>No. This site is not affiliated with, endorsed by, or sponsored by srihash.org or its operator. srihash.org is named here only to describe what it is and is not, as a well-known free SRI hash generator. What srihash.org currently does and how it works are described on its own site -- check there for what it covers today.</p>
+    <p><a href="./">Open the SRI Checker &amp; Hash Generator</a> to hash your own file or check a page, or read <a href="./why-does-sri-need-the-crossorigin-attribute.html">why an integrity attribute with no crossorigin attribute leaves a page unprotected</a>.</p>
+  </section>
+</main>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific, documented protection --
+  integrity hashes on cross-origin script and stylesheet tags -- from one page fetch. It is not a full
+  security assessment and does not evaluate inline scripts, iframes, images, fonts, or same-origin code.
+  A clean report describes what this one fetch found, not a guarantee the page has no supply-chain risk.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express
+  or implied. It is not security advice, and it does not replace a qualified security review. <strong>You
+  are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum
+  extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken,
+  moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page makes no live comparison against srihash.org
+  and no network request of any kind -- it is a static page describing publicly documented facts. The
+  checker's own CLI requests go straight from your machine to the page URL you name and the assets it
+  references, never through this site.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>, and optional
+  support via <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>
+  never changes what the tool does.</p>
+</footer>
+</body>
+</html>
