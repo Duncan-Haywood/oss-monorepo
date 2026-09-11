@@ -201,6 +201,58 @@ def parse_dry_run_output(stdout):
     return {"count": count, "sources": sources_match.group(1).strip() if sources_match else None}
 
 
+# Node's uncaught-exception dump ends with a stack, a blank line and the
+# runtime version — so the *last* line of stderr is `Node.js v22.22.2` every
+# time the script throws, which is the one line that says nothing about what
+# went wrong. `indexnow.mjs` writes a genuinely actionable message ("could not
+# read 'catalog.json' from ref 'origin/gh-pages' ... Is it fetched in this
+# clone? (git fetch origin gh-pages)") and it was being discarded in favour of
+# the version footer. That is this repo's recurring defect in miniature: the
+# guard fired correctly and the reason it printed taught the reader nothing,
+# so the row read `unknown` for a cause one command fixes.
+_STACK_FRAME = re.compile(r"^\s*at\s")
+_NODE_FOOTER = re.compile(r"^Node\.js v\d")
+
+
+def most_informative_line(text, limit=400):
+    """The part of a failed subprocess's output that explains the failure.
+
+    Prefers the `Error: ...` / `fatal: ...` block, since that is where both
+    Node and git put the message — and takes the *whole* block, not just its
+    first line. That matters here: `indexnow.mjs` wraps a nested git failure,
+    so the message runs onto a second line and the actionable half ("Is
+    'origin/gh-pages' fetched in this clone? (git fetch ...)") is the part
+    that would otherwise be dropped. The block ends at the first stack frame,
+    which is where Node stops explaining and starts locating.
+
+    Falls back to the last line that is neither a stack frame nor Node's
+    version footer, and finally to the last non-empty line, so an
+    unrecognised failure shape still names something rather than nothing.
+    """
+    lines = [line.rstrip() for line in (text or "").strip().splitlines() if line.strip()]
+    if not lines:
+        return None
+    for index, line in enumerate(lines):
+        if not line.strip().startswith(("Error:", "TypeError:", "fatal:")):
+            continue
+        block = []
+        for candidate in lines[index:]:
+            if _STACK_FRAME.match(candidate) or _NODE_FOOTER.match(candidate.strip()):
+                break
+            block.append(candidate.strip())
+        return _clip(" ".join(block), limit)
+    for line in reversed(lines):
+        if not _STACK_FRAME.match(line) and not _NODE_FOOTER.match(line.strip()):
+            return _clip(line.strip(), limit)
+    return _clip(lines[-1].strip(), limit)
+
+
+def _clip(text, limit):
+    """Keep the row renderable. A stack-free message is short; a pathological
+    one must not turn the report into a wall."""
+    return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
+
+
 def run_indexnow_dry(ref=LIVE_REF, timeout=60):
     """Shell out to the real `indexnow.mjs`, dry (no `--submit`, no network).
 
@@ -224,8 +276,7 @@ def run_indexnow_dry(ref=LIVE_REF, timeout=60):
     except subprocess.TimeoutExpired as exc:
         raise RuntimeError(f"indexnow.mjs did not finish within {timeout}s") from exc
     if proc.returncode != 0:
-        tail = (proc.stderr or proc.stdout or "").strip().splitlines()
-        detail = tail[-1] if tail else f"exit {proc.returncode}"
+        detail = most_informative_line(proc.stderr or proc.stdout or "") or f"exit {proc.returncode}"
         raise RuntimeError(f"indexnow.mjs --ref {ref} exited {proc.returncode}: {detail}")
     parsed = parse_dry_run_output(proc.stdout)
     if parsed is None:
