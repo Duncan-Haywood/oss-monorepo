@@ -880,6 +880,82 @@ class AnnouncingThePublishedSnapshot(unittest.TestCase):
             "catalog read and the origin reading fall back to a guess",
         )
 
+    def _run_announce_step(self, node_exit: int, fetch_exit: int = 0):
+        """Execute the workflow step's own shell, with stub `node` and `git`.
+
+        Asserting on the text of a `run:` block only proves it mentions the
+        right words. This runs it, under the same `bash -e` GitHub Actions uses
+        for a `run:` step, so a `case` pattern that never matches or an `exit`
+        that fires on the wrong branch fails here rather than on a merge.
+        """
+        import subprocess
+        import tempfile
+
+        doc = load()
+        step = next(
+            s
+            for s in doc["jobs"]["publish"]["steps"]
+            if "indexnow" in str(s.get("run", "")) and "--submit" in str(s.get("run", ""))
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            bin_dir = tmp_path / "bin"
+            bin_dir.mkdir()
+            (bin_dir / "node").write_text(f"#!/bin/sh\nexit {node_exit}\n")
+            (bin_dir / "node").chmod(0o755)
+            (bin_dir / "git").write_text(f"#!/bin/sh\nexit {fetch_exit}\n")
+            (bin_dir / "git").chmod(0o755)
+
+            summary = tmp_path / "summary.md"
+            summary.touch()
+
+            run_env = {
+                "PATH": f"{bin_dir}:/usr/bin:/bin",
+                "GITHUB_STEP_SUMMARY": str(summary),
+                **{k: str(v) for k, v in (step.get("env") or {}).items()},
+            }
+            result = subprocess.run(
+                ["bash", "-e", "-c", str(step["run"])],
+                capture_output=True,
+                text=True,
+                env=run_env,
+            )
+            return result, summary.read_text()
+
+    def test_a_successful_announce_exits_zero_and_records_it(self) -> None:
+        result, summary = self._run_announce_step(node_exit=0)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("IndexNow notified", summary)
+
+    def test_no_egress_does_not_fail_the_workflow(self) -> None:
+        """Exit 3 broke nothing: the site is published either way."""
+        result, summary = self._run_announce_step(node_exit=3)
+        self.assertEqual(
+            result.returncode,
+            0,
+            "EXIT_NO_EGRESS must not fail a merge -- nothing was submitted and "
+            f"nothing broke.\n{result.stdout}\n{result.stderr}",
+        )
+        self.assertIn("IndexNow not reached", summary)
+
+    def test_a_genuine_refusal_fails_the_step(self) -> None:
+        """An invalid key file would silently cost every future submission."""
+        result, _ = self._run_announce_step(node_exit=1)
+        self.assertEqual(
+            result.returncode,
+            1,
+            "a refusal from IndexNow itself must stay loud rather than be "
+            f"reported and passed over.\n{result.stdout}\n{result.stderr}",
+        )
+        self.assertIn("::error::", result.stdout + result.stderr)
+
+    def test_an_unpublished_serving_branch_is_not_an_error(self) -> None:
+        """Before the first publish there is simply nothing to announce."""
+        result, _ = self._run_announce_step(node_exit=0, fetch_exit=1)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("not published yet", result.stdout)
+
     def test_the_direct_announce_tolerates_no_egress_but_not_a_refusal(self) -> None:
         """The same distinction the script makes, for the same reason.
 
