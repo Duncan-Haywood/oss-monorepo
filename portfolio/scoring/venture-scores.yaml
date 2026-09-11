@@ -10315,3 +10315,62 @@ ventures:
       page states plainly that a clean result is evidence from the chain
       actually fetched or pasted, not a full technical-SEO audit or a
       ranking guarantee.
+  - slug: k8s-rollout-safety-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a container declares a
+      readinessProbe, whether a preStop hook exists, whether
+      terminationGracePeriodSeconds exceeds the preStop wait it is paired
+      with, whether maxUnavailable resolves -- after Kubernetes' documented
+      round-down rule -- to the full replica count, and whether a
+      PodDisruptionBudget is satisfiable at that replica count are all
+      decided by exact comparison against fields the manifest itself
+      carries. Each is a factual, deterministic reading of a documented
+      Kubernetes mechanism, not a model judgment, and a field the tool
+      cannot read (a preStop sleep whose duration is a shell variable)
+      makes the check abstain rather than guess.
+    basis: >-
+      Autonomous ops 10, gross margin 10: the CLI reads files on the user's
+      own disk and the browser tool parses only pasted text, so there is no
+      server of ours in the loop and no network call anywhere in the
+      codebase to add one accidentally -- serving one more user costs a
+      static file. Distribution 5: every finding cites a mechanism
+      Kubernetes' own documentation states explicitly (concurrent SIGTERM
+      and EndpointSlice removal during pod termination; the
+      readiness/liveness/startup probe distinction; the round-down and
+      round-up resolution of maxUnavailable and maxSurge), and established
+      general manifest linters are evidence of sustained demand for the
+      query category -- but the audience is narrower than a consumer or
+      seller tool, and it was not reachable for a live check at screening
+      time. Time to revenue 6, defensibility 3: donations-only; a
+      transparent rule-based checker over documented behaviour is easy to
+      reimplement once the rules are known, same as this portfolio's other
+      deterministic checkers, so defensibility rests only on the relational
+      checks (grace period against preStop, maxUnavailable against replicas
+      after rounding, PDB satisfiability against replicas) that per-field
+      linters do not make, the CI-usable CLI, and this portfolio's
+      disclaimer/usage conventions.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool makes no network request of any kind and holds no
+      credential -- it reads YAML text from the user's own disk or from a
+      textarea, so it cannot reach a cluster, an API server or a registry
+      even in principle, which is what makes it safe to run against
+      production manifests without granting it access. It analyses only
+      Deployments and PodDisruptionBudgets and lists every other kind as
+      skipped rather than judging it by rules that do not apply, and every
+      page states plainly that a clean result means these named checks
+      found nothing -- not a production-readiness audit, and not a
+      guarantee of a zero-downtime deploy.

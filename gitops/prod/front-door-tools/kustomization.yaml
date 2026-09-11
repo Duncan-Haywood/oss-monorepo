@@ -33,20 +33,20 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556594 bytes
-#   portfolio-front-tools-1: 110 files, 555670 bytes
-#   portfolio-front-tools-2: 149 files, 548399 bytes
-#   portfolio-front-tools-3: 144 files, 555002 bytes
-#   portfolio-front-tools-4: 122 files, 557056 bytes
-#   portfolio-front-tools-5: 128 files, 545585 bytes
-#   portfolio-front-tools-6: 136 files, 549425 bytes
-#   portfolio-front-tools-7: 113 files, 548008 bytes
-#   portfolio-front-tools-8: 114 files, 552855 bytes
-#   portfolio-front-tools-9: 118 files, 540177 bytes
-#   portfolio-front-tools-10: 128 files, 547570 bytes
-#   portfolio-front-tools-11: 102 files, 545741 bytes
-#   portfolio-front-tools-12: 112 files, 542010 bytes
-#   portfolio-front-tools-13: 88 files, 443485 bytes
+#   portfolio-front-tools-0: 136 files, 556564 bytes
+#   portfolio-front-tools-1: 110 files, 555634 bytes
+#   portfolio-front-tools-2: 149 files, 548377 bytes
+#   portfolio-front-tools-3: 144 files, 555090 bytes
+#   portfolio-front-tools-4: 122 files, 556967 bytes
+#   portfolio-front-tools-5: 128 files, 545785 bytes
+#   portfolio-front-tools-6: 136 files, 549416 bytes
+#   portfolio-front-tools-7: 113 files, 547980 bytes
+#   portfolio-front-tools-8: 115 files, 555588 bytes
+#   portfolio-front-tools-9: 121 files, 554453 bytes
+#   portfolio-front-tools-10: 129 files, 553885 bytes
+#   portfolio-front-tools-11: 104 files, 553139 bytes
+#   portfolio-front-tools-12: 112 files, 541947 bytes
+#   portfolio-front-tools-13: 88 files, 443571 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1209,6 +1209,13 @@ configMapGenerator:
       - junk-removal-bid-calculator__usage.mjs.gz=junk-removal-bid-calculator__usage.mjs.gz
       - junk-removal-bid-calculator__vs-jobber.html.gz=junk-removal-bid-calculator__vs-jobber.html.gz
       - junk-removal-bid-calculator__vs-workiz.html.gz=junk-removal-bid-calculator__vs-workiz.html.gz
+      - k8s-rollout-safety-check__check.mjs.gz=k8s-rollout-safety-check__check.mjs.gz
+      - k8s-rollout-safety-check__engine.mjs.gz=k8s-rollout-safety-check__engine.mjs.gz
+      - k8s-rollout-safety-check__index.html.gz=k8s-rollout-safety-check__index.html.gz
+      - k8s-rollout-safety-check__usage.mjs.gz=k8s-rollout-safety-check__usage.mjs.gz
+      - k8s-rollout-safety-check__vs-kube-score.html.gz=k8s-rollout-safety-check__vs-kube-score.html.gz
+      - k8s-rollout-safety-check__why-your-kubernetes-rollout-drops-requests.html.gz=k8s-rollout-safety-check__why-your-kubernetes-rollout-drops-requests.html.gz
+      - k8s-rollout-safety-check__yaml.mjs.gz=k8s-rollout-safety-check__yaml.mjs.gz
       - kdp-royalty-calculator__calc.mjs.gz=kdp-royalty-calculator__calc.mjs.gz
       - kdp-royalty-calculator__index.html.gz=kdp-royalty-calculator__index.html.gz
       - kdp-royalty-calculator__share.mjs.gz=kdp-royalty-calculator__share.mjs.gz
@@ -1255,17 +1262,17 @@ configMapGenerator:
       - mcp-supply-chain-watch__vs-snyk.html.gz=mcp-supply-chain-watch__vs-snyk.html.gz
       - mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz=mcp-supply-chain-watch__what-is-mcp-tool-poisoning.html.gz
       - menu-engineering-calculator__calc.mjs.gz=menu-engineering-calculator__calc.mjs.gz
+  - name: portfolio-front-tools-9
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - menu-engineering-calculator__how-menu-engineering-works.html.gz=menu-engineering-calculator__how-menu-engineering-works.html.gz
       - menu-engineering-calculator__index.html.gz=menu-engineering-calculator__index.html.gz
       - menu-engineering-calculator__usage.mjs.gz=menu-engineering-calculator__usage.mjs.gz
       - menu-engineering-calculator__vs-marginedge.html.gz=menu-engineering-calculator__vs-marginedge.html.gz
       - merchant-feed-check__cli.mjs.gz=merchant-feed-check__cli.mjs.gz
       - merchant-feed-check__engine.mjs.gz=merchant-feed-check__engine.mjs.gz
-  - name: portfolio-front-tools-9
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - merchant-feed-check__index.html.gz=merchant-feed-check__index.html.gz
       - merchant-feed-check__usage.mjs.gz=merchant-feed-check__usage.mjs.gz
       - merchant-feed-check__vs-datafeedwatch.html.gz=merchant-feed-check__vs-datafeedwatch.html.gz
@@ -1381,14 +1388,14 @@ configMapGenerator:
       - plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz=plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz
       - plantation-shutter-bid-calculator__index.html.gz=plantation-shutter-bid-calculator__index.html.gz
       - plantation-shutter-bid-calculator__usage.mjs.gz=plantation-shutter-bid-calculator__usage.mjs.gz
-      - plantation-shutter-bid-calculator__vs-jobber.html.gz=plantation-shutter-bid-calculator__vs-jobber.html.gz
-      - pole-barn-bid-calculator__calc.mjs.gz=pole-barn-bid-calculator__calc.mjs.gz
-      - pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz=pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - plantation-shutter-bid-calculator__vs-jobber.html.gz=plantation-shutter-bid-calculator__vs-jobber.html.gz
+      - pole-barn-bid-calculator__calc.mjs.gz=pole-barn-bid-calculator__calc.mjs.gz
+      - pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz=pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz
       - pole-barn-bid-calculator__index.html.gz=pole-barn-bid-calculator__index.html.gz
       - pole-barn-bid-calculator__usage.mjs.gz=pole-barn-bid-calculator__usage.mjs.gz
       - pole-barn-bid-calculator__vs-jobtread.html.gz=pole-barn-bid-calculator__vs-jobtread.html.gz
@@ -1515,13 +1522,13 @@ configMapGenerator:
       - self-storage-rate-increase-calculator__index.html.gz=self-storage-rate-increase-calculator__index.html.gz
       - self-storage-rate-increase-calculator__usage.mjs.gz=self-storage-rate-increase-calculator__usage.mjs.gz
       - self-storage-rate-increase-calculator__vs-sitelink.html.gz=self-storage-rate-increase-calculator__vs-sitelink.html.gz
-      - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
-      - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
+      - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
       - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
       - septic-pumping-bid-calculator__share.mjs.gz=septic-pumping-bid-calculator__share.mjs.gz
       - septic-pumping-bid-calculator__usage.mjs.gz=septic-pumping-bid-calculator__usage.mjs.gz

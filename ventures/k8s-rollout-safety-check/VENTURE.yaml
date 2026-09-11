@@ -1,0 +1,124 @@
+name: k8s-rollout-safety-check
+description: >-
+  A free, zero-dependency CLI (+ a browser tool) for platform and SRE
+  engineers: reads a Kubernetes Deployment manifest and reports every way a
+  rolling update or a node drain is permitted to drop a live request. Ten
+  named checks across two sides of a pod's life -- traffic arriving before the
+  pod can serve it (no readinessProbe; a livenessProbe that starts at container
+  start with no startupProbe; a livenessProbe that merely duplicates the
+  readinessProbe, so a slow dependency restarts the container instead of
+  removing it from rotation) and traffic still arriving after it has been told
+  to stop (no preStop delay, so container shutdown races EndpointSlice
+  propagation to every kube-proxy and ingress controller; a
+  terminationGracePeriodSeconds at or below the preStop wait, so SIGKILL lands
+  before the app drains) -- plus the rollout and disruption arithmetic
+  (Recreate; a maxUnavailable that resolves, after Kubernetes' round-down
+  rule, to the full replica count; a single replica; a PodDisruptionBudget
+  that can never be satisfied, which makes `kubectl drain` block rather than
+  fail; no PDB selecting the pods at all). It reads YAML and nothing else: no
+  kubeconfig, no API server, no network call of any kind, which is what makes
+  it safe to run against production manifests in CI without granting it
+  cluster access, because there is none to grant.
+stage: prototype
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section argues explicitly for this shape over
+# another <trade>-bid-calculator. It follows the same "read what is actually
+# there, report the exact evidence, never fetch" shape as
+# docker-base-image-pin-check (parses a Dockerfile locally, prints the lookup
+# command rather than running it) and pinned-actions-check -- and extends that
+# family one stage further down the delivery pipeline, from "is the image you
+# build immutable?" to "does shipping it drop requests?".
+#
+# duplicate_check.py (run 2026-09-11) scored every existing venture,
+# screened-out row and pipeline candidate at 0.11 or below against this
+# idea's description -- far under the 0.45 review bar. Closest matches by eye:
+# oidc-trust-policy-check (0.11) reads a different YAML surface (an OIDC trust
+# policy's subject claims) for a different failure class entirely;
+# env-example-drift-check (0.07) and package-exports-drift-check (0.07) are
+# structural siblings (a local-file checker with a shared pure engine) over
+# unrelated evidence. No venture in the tree parses Kubernetes manifests at
+# all, and nothing in screened-out.md mentions Kubernetes, rollouts, probes
+# or cluster operations.
+#
+# Distribution channel: Kubernetes' own documentation states each mechanism
+# this tool checks -- "Pod termination" documents that SIGTERM and
+# EndpointSlice removal begin concurrently and that the pod may still receive
+# traffic during shutdown; "Configure Liveness, Readiness and Startup Probes"
+# documents the readiness/liveness distinction and the startupProbe; the
+# Deployment page documents the round-down/round-up resolution of
+# maxUnavailable/maxSurge. So every finding cites a written, sourced rule
+# rather than an inferred preference, which is the same channel argument
+# redirect-chain-check used against Google's Search Central docs. Established
+# general linters exist (kube-score, Polaris, kubeaudit) as broad per-field
+# manifest scorers, which is evidence of sustained demand for "check my
+# manifest" as a query category -- but based on general knowledge at screening
+# time (unverified against a live fetch this session; egress to arbitrary
+# hosts is proxy-denied here, per this repo's standing convention), none of
+# them reports the *relational* checks that carry this tool's wedge: grace
+# period against the preStop hook it is paired with, maxUnavailable against
+# the replica count after rounding, and a PodDisruptionBudget against the
+# Deployment's replicas. A manifest with a 30s preStop and the default 30s
+# grace period passes every per-field rule and never drains at all.
+#
+# Dogfooded on the day it graduated: run against this repository's own
+# `gitops/prod` it read 10 files, found 3 Deployments, and reported 3
+# risk-level and 7 review-level findings -- including a missing preStop hook
+# on both public-facing nginx Deployments. That run also found a real defect
+# in this tool's first draft (see README, "what dogfooding caught"), which is
+# the argument for shipping a checker against manifests you actually operate.
+hypotheses:
+  - claim: >-
+      A platform or SRE engineer investigating an error spike that recurs only
+      on deploy days will search terms like "kubernetes rolling update drops
+      connections", "preStop sleep endpoint propagation", or "502 during
+      rollout" and find this tool -- then wire the CLI into their own CI as a
+      gate once the manifest is fixed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Kubernetes' own documentation stating each checked mechanism explicitly,
+      plus the existence of established general manifest linters, show this is
+      a real, recurring operational concern with proven adjacent-category
+      demand, under-served by a zero-install tool that reports the *relation*
+      between fields rather than a per-field score.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      An engineer who fixes a flagged rollout returns with the next service,
+      or wires `--fail-on-risk` into CI, without any action from this
+      portfolio -- the same repeat-usage pattern hypothesized for
+      docker-base-image-pin-check and pinned-actions-check.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the CLI reads files on the user's own disk and
+  # the browser tool parses only text pasted into it. There is no server of
+  # ours in the loop either way, and no network call exists in the codebase to
+  # add one accidentally. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, CLI/repo engagement, or paste-in check after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's "fair
+    run" definition).
+  - A general manifest linter adds the relational checks that carry this
+    tool's differentiation (grace period vs. preStop duration, maxUnavailable
+    vs. replicas after rounding, PDB satisfiability vs. replicas) at the same
+    zero-install, CI-usable bar, such that the wedge no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/k8s-rollout-safety-check/
+  analytics: null
