@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Brand Deal Rate Calculator — Free, No Sign-Up</title>
+  <meta name="description" content="Free influencer brand deal rate calculator. Enter your follower count, engagement rate, and platform to get a price range for a feed post, Story, Reel/short video, and dedicated video — based on commonly cited creator-economy CPM benchmarks. No sign-up, nothing uploaded.">
+  <meta property="og:title" content="Brand Deal Rate Calculator — free, no sign-up">
+  <meta property="og:description" content="Turn your follower count, engagement rate, and platform into a defensible sponsorship price range for each common deliverable. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Brand Deal Rate Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a sponsorship price range for four common brand-deal deliverables (feed post, Story, Reel/short-form video, dedicated long-form video) from a creator's own follower count, engagement rate, and platform, using commonly cited creator-economy CPM-per-1000-engaged-followers benchmarks. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for a brand deal?","acceptedAnswer":{"@type":"Answer","text":"It depends on your follower count, engagement rate, platform, and which deliverable you're selling. This calculator applies commonly cited market CPM-per-1000-engaged-followers ranges to your own numbers to give a starting price range for a feed post, a Story, a Reel or short-form video, or a dedicated long-form video."}},{"@type":"Question","name":"Why does this calculate price from engaged followers instead of raw follower count?","acceptedAnswer":{"@type":"Answer","text":"Brands are paying for people who actually see and react to the post, not for a number on a profile. A 100,000-follower account with 1% engagement reaches fewer real, active people than a 10,000-follower account with 8% engagement — pricing against engaged followers rewards the account brands actually want."}},{"@type":"Question","name":"Is this price a guarantee of what a brand will pay?","acceptedAnswer":{"@type":"Answer","text":"No. It is a starting point for negotiation based on general market ranges, not a quote, valuation, or offer performed on your behalf. Actual rates vary by audience quality, past brand-deal history, niche demand, and how much a specific brand wants your specific audience that week."}},{"@type":"Question","name":"What counts as a Story versus a Reel or a dedicated video?","acceptedAnswer":{"@type":"Answer","text":"A feed post is a single photo or carousel in your main feed. A Story is a single ephemeral frame, usually gone after about 24 hours — it commands the lowest price of the visible-content deliverables. A Reel or short-form video (Reels, TikTok, Shorts) sits in between. A dedicated long-form video — mainly a YouTube deliverable — is an entire video about the brand, which commands the highest price because it has no competing content."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #7a2a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #7a2a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #e0d6df; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #7a2a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #ccadc2; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #8e2a6b; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #f1e4ec; color: #7a2a5d; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #f2e7ec; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #f2e7ec; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #efe3ec; color: #7a2a5d; }
+    .stats { font-size: .85rem; color: #4c5a68; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #e0d6df; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BRAND DEAL RATE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What should you charge for a brand deal?</h1>
+    <p>Enter your follower count, average engagement rate, and platform
+    below. This turns those numbers into a price range for each common
+    deliverable — a feed post, a Story, a Reel or short-form video, and a
+    dedicated long-form video — using the same engaged-audience CPM logic
+    influencer marketing rate cards use, applied to your own account instead
+    of a marketplace's cut-taking listing.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+    <p class="note">Also monetizing an email list from the same audience? See
+    the <a href="../newsletter-sponsorship-rate-calculator/">newsletter sponsorship rate calculator</a>
+    for pricing that channel too.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your account's numbers</h2>
+    <div class="grid">
+      <div>
+        <label for="followers">Follower count</label>
+        <input type="number" id="followers" min="0" step="1" placeholder="e.g. 45000">
+      </div>
+      <div>
+        <label for="engagement-rate">Average engagement rate (%)</label>
+        <input type="number" id="engagement-rate" min="0" max="100" step="0.1" placeholder="e.g. 4.5">
+      </div>
+      <div>
+        <label for="platform">Platform</label>
+        <select id="platform">
+          <option value="instagram">Instagram</option>
+          <option value="tiktok">TikTok</option>
+          <option value="youtube">YouTube</option>
+          <option value="general">Other / multiple platforms</option>
+        </select>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="calculate">Calculate my rates</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter your numbers above and click Calculate my rates.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Suggested price range by deliverable</h2>
+    <p class="stats" id="stats"></p>
+    <table>
+      <thead><tr><th>Deliverable</th><th>Suggested range</th></tr></thead>
+      <tbody id="rates-body"></tbody>
+    </table>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This applies commonly cited creator-economy CPM-per-1000-engaged-followers
+    benchmark ranges — wide ranges, by design — to the follower count,
+    engagement rate, and platform you enter. It does <strong>not</strong>
+    know your specific niche's current market, your account's past brand-deal
+    history, or what a specific brand is willing to pay this week. Treat the
+    output as a starting point for a negotiation, not a quote. See
+    <a href="brand-deal-rate-benchmarks.html">where these benchmark ranges
+    come from and how to use them</a> for more.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much should I charge for a brand deal?</h3>
+    <p>It depends on your follower count, engagement rate, platform, and which deliverable you're selling. This calculator applies commonly cited market CPM-per-1000-engaged-followers ranges to your own numbers to give a starting price range for a feed post, a Story, a Reel or short-form video, or a dedicated long-form video.</p>
+    <h3>Why does this calculate price from engaged followers instead of raw follower count?</h3>
+    <p>Brands are paying for people who actually see and react to the post, not for a number on a profile. A 100,000-follower account with 1% engagement reaches fewer real, active people than a 10,000-follower account with 8% engagement — pricing against engaged followers rewards the account brands actually want.</p>
+    <h3>Is this price a guarantee of what a brand will pay?</h3>
+    <p>No. It is a starting point for negotiation based on general market ranges, not a quote, valuation, or offer performed on your behalf. Actual rates vary by audience quality, past brand-deal history, niche demand, and how much a specific brand wants your specific audience that week.</p>
+    <h3>What counts as a Story versus a Reel or a dedicated video?</h3>
+    <p>A feed post is a single photo or carousel in your main feed. A Story is a single ephemeral frame, usually gone after about 24 hours — it commands the lowest price of the visible-content deliverables. A Reel or short-form video (Reels, TikTok, Shorts) sits in between. A dedicated long-form video — mainly a YouTube deliverable — is an entire video about the brand, which commands the highest price because it has no competing content.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for negotiating your own brand deal terms. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Got a rate — now need the one-pager to send it in? The <a href="../influencer-media-kit-generator/">media kit generator</a> turns your reach, audience, and this rate into a downloadable sponsorship one-sheet, no account needed.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeRates, DELIVERABLES, DELIVERABLE_LABELS } from "./calculator.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      followers: $("#followers"), engagementRate: $("#engagement-rate"), platform: $("#platform"),
+      status: $("#status"), reportCard: $("#report-card"),
+      stats: $("#stats"), ratesBody: $("#rates-body"), findings: $("#findings"),
+    };
+
+    function money(n) {
+      const format = (n) => `$${n.toLocaleString()}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function renderFindings(findings) {
+      if (findings.length === 0) {
+        els.findings.innerHTML = "";
+        return;
+      }
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function runCalculate() {
+      const followers = Number(els.followers.value);
+      const engagementRate = Number(els.engagementRate.value);
+      const platform = els.platform.value;
+
+      const result = computeRates({ followers, engagementRate, platform });
+
+      els.stats.textContent = `${Math.round(result.engagedFollowers).toLocaleString()} estimated engaged followers per post, at the numbers entered above.`;
+      els.ratesBody.innerHTML = DELIVERABLES.map((deliverable) => {
+        const r = result.rates[deliverable];
+        return `<tr><td>${DELIVERABLE_LABELS[deliverable]}</td><td class="price">${money(r.low)} – ${money(r.high)}</td></tr>`;
+      }).join("");
+      renderFindings(result.findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("calculate_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", () => {
+      if (!els.followers.value || !els.engagementRate.value) {
+        els.status.innerHTML = `<span class="error">Enter your follower count and engagement rate above first.</span>`;
+        return;
+      }
+      runCalculate();
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      els.followers.value = "45000";
+      els.engagementRate.value = "4.5";
+      els.platform.value = "instagram";
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a 45,000-follower Instagram account with 4.5% engagement.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.followers.value = "";
+      els.engagementRate.value = "";
+      els.platform.value = "instagram";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Enter your numbers above and click Calculate my rates.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

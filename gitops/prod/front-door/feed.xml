@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 258 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 261 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Your posted door rate is not the rate you collect. Enter one month of customer-pay, warranty and internal hours and see your real effective labor rate, exactly where the rest of it went, and what the posted rate would have to be to hit your labor gross profit. Free, private, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Brand Deal Rate Calculator — Free, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/brand-deal-rate-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/brand-deal-rate-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Free influencer brand deal rate calculator. Enter your follower count, engagement rate, and platform to get a price range for a feed post, Story, Reel/short video, and dedicated video — based on commonly cited creator-economy CPM benchmarks. No sign-up, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>CODEOWNERS Shadow Checker — Find Rules GitHub Silently Overrides</title>
@@ -89,6 +98,15 @@
     <summary type="text">Free tool: paste a page&#39;s HTML (or try fetching its alternates) and check its hreflang tags for missing reciprocal links, invalid language/region codes (en-uk vs en-GB), a missing x-default, a missing self-reference, and conflicting hreflang values. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Media Kit Generator — Free Sponsorship One-Sheet for Content Creators</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/influencer-media-kit-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/influencer-media-kit-generator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Creator &amp; solo earner income"/>
+    <summary type="text">Build a professional sponsorship media kit for your channel in minutes — bio, platform reach, audience breakdown, past brand partnerships, and your rate card. Free, no signup, runs entirely in your browser. Download a shareable HTML one-sheet or copy a plain-text version for email.</summary>
+  </entry>
+  <entry>
     <title>Kubernetes Rollout Safety Check — Will Your Deployment Drop Requests?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/k8s-rollout-safety-check/"/>
     <id>tag:marisstella.dev,2026:tool/k8s-rollout-safety-check</id>
@@ -105,6 +123,15 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your site&#39;s page list, a sitemap.xml, or a Markdown docs tree and get a valid llms.txt file — the emerging llmstxt.org convention that gives AI assistants a structured map of your site. Free, runs entirely in your browser, nothing is uploaded. Validate an existing llms.txt too.</summary>
+  </entry>
+  <entry>
+    <title>Quarterly Estimated Tax Calendar — Free, No Sign-Up</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/quarterly-estimated-tax-calendar/"/>
+    <id>tag:marisstella.dev,2026:tool/quarterly-estimated-tax-calendar</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for US freelancers, 1099 contractors, and gig workers: computes the IRS safe-harbor quarterly estimated tax payment from your own numbers, gives the four real (weekend/holiday-adjusted) due dates, and exports a downloadable calendar file. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Redirect Chain Checker — Find Redirect Loops, Long Chains &amp; Dead Ends</title>
@@ -339,32 +366,5 @@
     <updated>2026-09-09T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>package.json Exports Drift Check — Does &quot;exports&quot; Point at Files That Exist?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/package-exports-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/package-exports-drift-check</id>
-    <published>2026-09-09T00:00:00Z</published>
-    <updated>2026-09-09T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your package.json and a listing of the files you actually publish and see every literal target in the &quot;exports&quot; map that points at a file that doesn&#39;t exist -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module right after npm install. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Structured Data Drift Check — Does Your JSON-LD Match the Page?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/structured-data-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/structured-data-drift-check</id>
-    <published>2026-09-09T00:00:00Z</published>
-    <updated>2026-09-09T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a page&#39;s HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page&#39;s own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>WordPress Plugin Review Checker — Stable Tag, Escaping &amp; Nonce Issues</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/wordpress-plugin-review-check/"/>
-    <id>tag:marisstella.dev,2026:tool/wordpress-plugin-review-check</id>
-    <published>2026-09-09T00:00:00Z</published>
-    <updated>2026-09-09T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free, browser-local checker for WordPress plugin developers: catches a readme.txt Stable tag that doesn&#39;t match your plugin&#39;s Version header, missing required readme/header fields, unescaped $_GET/$_POST output, and $_POST handling with no nonce check -- before wordpress.org Plugin Review does. Nothing is uploaded.</summary>
   </entry>
 </feed>

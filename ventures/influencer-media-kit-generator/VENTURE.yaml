@@ -1,0 +1,160 @@
+name: influencer-media-kit-generator
+description: >-
+  Free, no-signup browser tool that builds a creator sponsorship media kit --
+  the one-page bio/platform-reach/audience/past-partnerships/rate-card
+  summary content creators send to brands considering a sponsorship -- from
+  a short form. Runs entirely client-side: downloads a self-contained,
+  print-friendly HTML one-sheet and a plain-text version for email or a
+  brand's intake form that doesn't accept HTML. No file upload -- a photo is
+  a link the creator already hosts, so nothing not already public ever
+  leaves the browser.
+
+stage: prototype
+owner: duncan
+
+# Generator archetype (PRODUCT_PLAYBOOK.md SS2's #1-ranked shape, static
+# browser app, done as a document generator rather than a calculator or a
+# checker), picked deliberately against the 2026-09-07/09-11 pipeline
+# measurements that the fleet's two dominant shapes -- 141+
+# <trade>-bid-calculator directories and 38+ *-check/*-checker directories --
+# have zero recorded visitors between them. This is neither: like
+# epk-generator (its closest sibling -- same "self-presentation document
+# sent to get chosen" family, for a brand rather than a venue) its whole job
+# is producing an artifact from real content the user supplies, not pricing
+# a job or grading an existing page.
+#
+# duplicate_check.py (run 2026-09-11) scored every venture, screened-out row,
+# ai-first-markets idea, and pipeline candidate against: "Influencer/creator
+# media kit generator: free browser tool that turns platform follower
+# counts, engagement rate, audience demographics, past brand collaborations,
+# and a sponsorship rate card into a downloadable one-sheet for pitching
+# brand partnerships." Top score 0.13 (epk-generator, on structural word
+# overlap -- "generator", "one-sheet" -- not subject overlap; a direct text
+# search for "influencer", "media kit", and "media-kit" across every
+# VENTURE.yaml, README.md, and the pipeline candidate/screened-out files
+# found no hits). Genuinely distinct from epk-generator's field set and
+# audience: no platform-reach table, no engagement-rate figure, no audience
+# demographic breakdown, and no rate card belongs in a musician's EPK, and
+# none of epk-generator's bio/streaming-links/tour-dates/press-quotes shape
+# fits a creator pitching a brand.
+#
+# Distribution channel this was picked for, and the same honesty limit
+# epk-generator's and llms-txt-generator's write-ups both name: this session
+# has no live internet access (the agent egress proxy 403s CONNECT to
+# arbitrary hosts), so no search-volume number here is a verified reading --
+# it is reasoned from known, stable evidence and general knowledge as of the
+# model's training, not a live fetch.
+# 1. "Media kit" (and "influencer media kit") is an established marketing
+#    term with a real, concrete search phrase ("free media kit template",
+#    "influencer media kit generator free", "how to make a media kit for
+#    brand deals") that a creator already types when a brand's intake form
+#    first asks for one -- not a phrase this tool would have to create
+#    demand for.
+# 2. The existence of multiple independently built commercial competitors
+#    (Presence, Aspire/AspireIQ's creator profile exports, Later's Linkin.bio
+#    media-kit add-on, and Canva/Notion template marketplaces selling
+#    "influencer media kit" templates specifically) is evidence of real,
+#    sustained demand for exactly this job -- the same "other tools exist
+#    for this job" signal epk-generator's and llms-txt-generator's write-ups
+#    used, not a direct traffic figure this session could pull.
+# 3. Large, active, topically-exact communities exist for the audience --
+#    r/InstagramMarketing, r/NewTubers, r/Twitch, r/socialmedia, and
+#    creator-economy Discord/forum communities -- where "how do I make a
+#    media kit with no budget" or "what should my rate card look like" is a
+#    recurring, on-topic question, the same class of evidence
+#    epk-generator's write-up relied on for its own audience.
+# 4. The wedge against the existing commercial tools is real and stateable
+#    without embellishment: every incumbent found above requires an account,
+#    and several gate the finished export or a clean/branded output behind a
+#    paid tier; this one requires neither -- fill in a form, download a
+#    file, done.
+# The next session that can browse should confirm search volume directly
+# before this channel claim is over-relied on -- the same caveat
+# epk-generator's own write-up carries for the same reason.
+#
+# Scored 2026-09-11 against portfolio/pipeline/README.md's eight dimensions.
+# Both gates clear comfortably: liability_containment 9 (the tool renders
+# numbers and content the creator supplies and fully controls -- no advice,
+# no financial claim of ours, no compliance judgment; worst case is a plain
+# or incomplete media kit, not an actionable claim) and ethical_robustness 9
+# (helps under-resourced independent creators present professionally and
+# price their own work with no adversarial dynamic and no negative
+# externality as usage scales).
+# Composite 6.0, floor 3 (defensibility and time_to_revenue tied). Per rule
+# 2, every dimension at or below 4 gets a named mitigation:
+#   - ai_leverage (4): the core value is deterministic templating, not model
+#     work. Mitigation: none planned for v0 -- PRODUCT_PLAYBOOK.md SS3's
+#     API-key switch (an optional, BYO-key AI bio polish/tightening pass) is
+#     a plausible later add if usage shows the blank-page bio field is where
+#     people stall, not built speculatively now.
+#   - time_to_revenue (3): this portfolio is donation-only by design (no
+#     product here has a paid tier), so "first paid customer" reads as "an
+#     early Sponsors click" rather than a sale -- true of nearly every
+#     venture in this catalog, not a defect specific to this one. Mitigation:
+#     none needed; scored honestly against the dimension's literal meaning
+#     rather than reinterpreted to look stronger.
+#   - defensibility (3): a form-to-template generator is copyable, same as
+#     most of this portfolio's calculators and generators. Mitigation: the
+#     wedge is being free-and-account-less against paid, account-gated
+#     incumbents (point 4 above), not proprietary logic -- consistent with
+#     how the rest of the fleet is positioned.
+# distribution scored 6 (a real, named, pre-existing search phrase and
+# community, evidenced rather than verified live -- see the channel note
+# above), gross_margin 10 (static output, zero marginal cost), autonomous_ops
+# 10 (no human in the loop, ever).
+hypotheses:
+  - claim: A content creator who is asked for "a media kit" by a brand or an
+      influencer-marketing platform, and has no media kit yet, will use a
+      free, no-signup generator over a subscription creator-marketing tool
+      or hand-assembling one in a slide deck, because the content they need
+      to supply is identical either way and this is the only free,
+      account-less option among them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A creator who builds one media kit will return within a quarter to
+      update follower counts or a rate before pitching a new brand, rather
+      than starting over, because the autosaved draft in their own browser
+      (state.mjs) means the form is still filled in when they come back.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Creators searching "free media kit template" or "how to make an
+      influencer media kit" are underserved by generic design-template
+      downloads (a static Canva/Notion template with no logic) because those
+      still require manually laying out sections and remembering what a
+      brand's intake actually expects, where this tool's form-to-page
+      assembly and validation (are there any platforms listed at all? is
+      there a rate card?) removes that step entirely.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the page builds entirely client-side and
+  # uploads nothing. Serving one more visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagement signals (a GitHub star/fork/issue,
+    unsolicited feedback, or a referral) within 90 days of it being reachable
+    from the published site.
+  - No evidence of anyone completing a full build-and-download within 90 days
+    of a public URL (the only local signal available on a static host --
+    the `kit_built` and `download_clicked` counters staying at their
+    baseline across a visited session, per usage/README.md's reading rules).
+  - The media-kit format itself is superseded by a materially different
+    standard brand-intake mechanism (e.g. every major influencer-marketing
+    platform building its own structured creator-profile intake that brands
+    exclusively use) before either of the above can be measured.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/influencer-media-kit-generator/
+  analytics: null

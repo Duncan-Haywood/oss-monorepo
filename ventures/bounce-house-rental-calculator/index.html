@@ -314,26 +314,14 @@
       if (result) count('quote_priced');
     });
 
-    // Reprice as the yard types, not only when the button is pressed.
-    //
-    // Until 2026-09-11 this page priced on submit alone, and the cost was not
-    // the stale panel — it was the share link. `shareState()` reads the form
-    // directly, so a link copied after an edit carried the *new* booking while
-    // the panel still showed the price from the *last* press: measured, the
-    // yard was looking at $1,574.46 while the link it had just copied opened
-    // at $132,589.15 for the customer. That is the divergence
-    // `platform/pages/roundtrip.mjs` exists to catch, and it caught it — this
-    // was the one tool of 185 with a share link and no live recompute.
-    //
-    // Delegated on the form rather than bound per field, because the five
-    // fleet rows are created by script above: a list of ids here would have to
-    // be kept in step with them, and the mirrored-count lesson in CLAUDE.md is
-    // that a restated list goes stale rather than failing loudly. Bubbling
-    // covers every control the form owns, including rows added later.
-    //
-    // `quote_priced` stays on submit only. A keystroke is not a pricing, and
-    // counting one would turn an aggregate feature tally into a typing log,
-    // which is not what the footer promises.
+    // Every other bid calculator in this fleet recomputes on every keystroke,
+    // so its own screen never disagrees with a link copied a moment later.
+    // This page only recomputed on the explicit "Price this booking" submit,
+    // so editing a field and clicking "Copy shareable link" without pressing
+    // that button first copied a link encoding the new figures while the
+    // sender's own screen kept showing the stale price for the old ones --
+    // caught by platform/pages/roundtrip.mjs as a headline that moved between
+    // a page and the link it had just copied.
     el('quoteForm').addEventListener('input', () => submit());
     el('quoteForm').addEventListener('change', () => submit());
 

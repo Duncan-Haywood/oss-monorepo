@@ -158,6 +158,9 @@ workflows:
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
+- workflow: brand-deal-rate-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: browser-checks-ci.yml
   classification: none
   publishes: []
@@ -470,6 +473,9 @@ workflows:
 - workflow: ifta-quarterly-fuel-tax-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: influencer-media-kit-generator-ci.yml
+  classification: none
+  publishes: []
 - workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -702,6 +708,9 @@ workflows:
     gates:
     - vars.PAGES_BRANCH_PUBLISH == 'true'
 - workflow: pwa-installability-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: quarterly-estimated-tax-calendar-ci.yml
   classification: none
   publishes: []
 - workflow: quick-pick-survey-ci.yml

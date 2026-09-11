@@ -595,9 +595,18 @@ const CATEGORY_RULES = [
     // cross-link each other. Not `trades` (nothing is bid), not `services`
     // (the number is not quoted to a customer deciding whether to accept a
     // job), and not `marketplace` (no platform takes a cut).
+    // `quarterly-estimated-tax-calendar` joined 2026-09-11, filed here on its
+    // first commit for the same reason as `self-storage-rate-increase`
+    // above: it is this section's own blurb, "cash timing", almost literally
+    // -- when a filer needs cash on hand to send the IRS, and how much. Not
+    // `solo-earner`: that section groups people pricing their own labour or
+    // audience before a sale; this is a downstream obligation on income
+    // already earned, the same "after the job is won" axis as
+    // `invoice-payment-terms-calculator` right above it in this same rule,
+    // just for a tax authority instead of a client.
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax)/.test(slug),
   },
   {
     id: 'ci',
@@ -1112,14 +1121,33 @@ const CATEGORY_RULES = [
     // from its first commit (see `siblings-budget.json`) rather than
     // landing in the catch-all, which is also what keeps that catch-all
     // inside the bound `build.test.mjs` puts on it.
+    // `influencer-media-kit-generator` joined the same day: the same move
+    // as `epk-generator` again, one step further along the same axis -- a
+    // content creator's self-presentation document built to attract a
+    // brand's sponsorship decision rather than a venue's booking decision.
+    // Cross-linked with `epk-generator` in the same commit (each footer
+    // names the other, with a page.test.mjs assertion on the href in both
+    // ventures) rather than shipping as an orphan to close later.
+    //
+    // `brand-deal-rate-calculator` joined 2026-09-11, the same day: a social
+    // media creator pricing a sponsored post from their own follower count
+    // and engagement rate is the same move as `newsletter-sponsorship-rate-calculator`'s
+    // newsletter operator pricing an ad slot -- an individual working out
+    // what their own audience is worth, on a different channel. It shipped
+    // with a reciprocal inbound sibling link from
+    // `newsletter-sponsorship-rate-calculator`'s first commit rather than
+    // landing in the catch-all, which is also what keeps that catch-all
+    // inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
       [
         '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
+        'brand-deal-rate-calculator',
         'craft-fair-booth-calculator',
         'epk-generator',
         'gig-driver-net-pay-calculator',
+        'influencer-media-kit-generator',
         'newsletter-sponsorship-rate-calculator',
         'sponsor-ready',
       ].includes(slug),
