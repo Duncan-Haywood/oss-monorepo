@@ -87,6 +87,7 @@
     <p>
       <button type="button" id="calculate">Calculate my rates</button>
       <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="copy-link">Copy shareable link</button>
       <button type="button" class="secondary" id="clear">Clear</button>
     </p>
     <p class="note" id="status">Enter your numbers above and click Calculate my rates.</p>
@@ -130,13 +131,14 @@
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for negotiating your own sponsorship terms. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
-    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. The shareable link is the one thing that travels, and only when you press the button for it: it carries your subscriber count, open rate, and niche inside the URL itself rather than sending them to a server, so send it to the sponsor you are quoting rather than posting it publicly. Anonymous feature events (<code>calculate_run</code>, <code>example_loaded</code>, <code>link_copied</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { computeRates, PLACEMENTS, PLACEMENT_LABELS } from "./calculator.mjs";
+    import { SHARE_FIELDS, encodeInputs, decodeInputs, formValues } from "./share.mjs";
     import { record, setUsageOptOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -164,7 +166,10 @@
         </div>`).join("");
     }
 
-    function runCalculate() {
+    // `scroll` is false when the rates are drawn from a shared link on load:
+    // the visitor did not press anything, and yanking the viewport on arrival
+    // is motion nobody asked for. The card is rendered either way.
+    function runCalculate({ scroll = true } = {}) {
       const subscribers = Number(els.subscribers.value);
       const openRate = Number(els.openRate.value);
       const niche = els.niche.value;
@@ -180,7 +185,7 @@
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("calculate_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", () => {
@@ -213,6 +218,40 @@
       event.target.textContent = "Usage counting is off";
       event.target.disabled = true;
     });
+
+    // A rate card exists to be sent to a sponsor. Until now the operator had
+    // to screenshot the table or retype four price ranges into an email, and
+    // the sponsor had no way to see which subscriber count and open rate the
+    // ranges were built from -- which is the first thing they push back on.
+    // The link carries the three inputs in the URL; nothing is uploaded.
+    const FIELD_ELEMENTS = { subscribers: els.subscribers, openRate: els.openRate, niche: els.niche };
+
+    $("#copy-link").addEventListener("click", async () => {
+      const values = Object.fromEntries(SHARE_FIELDS.map(id => [id, FIELD_ELEMENTS[id].value]));
+      const url = `${location.origin}${location.pathname}#${encodeInputs(values)}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        els.status.textContent = "Link copied. Whoever opens it sees these same numbers and ranges.";
+      } catch {
+        // Clipboard access can be refused (insecure origin, declined
+        // permission). Showing the URL still lets them copy it by hand.
+        els.status.textContent = url;
+      }
+      record("link_copied");
+    });
+
+    // Applied through formValues so every field is written: a box the sender
+    // cleared arrives cleared rather than keeping this page's placeholder
+    // state. See platform/ci/check_shared_link_clears.py.
+    const fromLink = decodeInputs(location.hash || location.search);
+    if (Object.keys(fromLink).length > 0) {
+      const values = formValues(fromLink, els.niche.value);
+      for (const id of SHARE_FIELDS) FIELD_ELEMENTS[id].value = values[id];
+      if (els.subscribers.value && els.openRate.value) {
+        runCalculate({ scroll: false });
+        els.status.textContent = "These numbers came in from a shared link. Change anything to price your own list.";
+      }
+    }
   </script>
 </body>
 </html>

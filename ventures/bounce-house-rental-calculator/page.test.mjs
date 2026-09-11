@@ -127,7 +127,30 @@ test('the usage counter is opt-out-able and never records a figure', () => {
   assert.match(index, /id="usageOptOut"/);
   assert.match(index, /recordUsage\(localStorage, optedOut\(\)/);
   const events = [...index.matchAll(/count\('([a-z_]+)'\)/g)].map((m) => m[1]);
-  assert.deepEqual([...new Set(events)].sort(), ['quote_priced']);
+  assert.deepEqual([...new Set(events)].sort(), ['link_copied', 'quote_priced']);
+});
+
+// The shareable link is the only thing on this page that carries the yard's
+// figures anywhere, so three claims move together: the button exists, a
+// decoded link is applied through `formValues` (a cost the sender cleared
+// arrives cleared, a preset they are not deploying arrives at zero), and the
+// page's privacy copy stops saying flatly that nothing ever leaves.
+test('the shareable link is wired, restored through formValues, and disclosed', () => {
+  assert.match(index, /id="copyLink"/);
+  assert.match(index, /import \{ encodeInputs, decodeInputs, formValues, carriesAnything \} from '\.\/share\.mjs'/);
+  assert.match(index, /formValues\(fromLink\)/, 'a decoded link must be applied through formValues');
+  // Visible FAQ, FAQPage JSON-LD, and the privacy panel all have to say it.
+  // CLAUDE.md records a merge where the structured data and the visible copy
+  // drifted apart and described a page that no longer existed.
+  const disclosures = index.match(/carries them in the URL|carry them in the URL/g) || [];
+  assert.ok(disclosures.length >= 3, `expected the link disclosed in FAQ, JSON-LD and privacy copy, saw ${disclosures.length}`);
+});
+
+test('the field list the link shares is imported from calc.mjs, never restated', () => {
+  // A second copy is how a field gets added to the form and left out of the
+  // link, and the recipient then prices a different booking from the same URL.
+  assert.match(index, /import \{ calculateQuote, COST_IDS, UNIT_FIELDS, UNIT_PRESETS \} from '\.\/calc\.mjs'/);
+  assert.doesNotMatch(index, /const COST_IDS = \[/, 'COST_IDS must live in calc.mjs, not be re-declared here');
 });
 
 test('the sponsor link is present, honest, and optional', () => {
