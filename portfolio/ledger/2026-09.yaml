@@ -27768,3 +27768,59 @@ entries:
         `handoff_accepted` / `handoff_dismissed` on the receiver) are the
         instrument for the router's hypothesis, not evidence for it.
     mrr_end: 0
+  - venture: auto-repair-effective-labor-rate
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Gave the effective-labor-rate calculator (graduated earlier this
+        session) a comparison/marketing page: `vs-tekmetric.html`, matching
+        the pattern 246 of 271 ventures already carry and that #4612's
+        `vs-keeper.html` on `quarterly-estimated-tax-calendar` demonstrated
+        most recently. Tekmetric is a well-known paid shop management
+        system for independent auto repair shops whose KPI dashboard
+        reports an effective labor rate once a shop's whole workflow runs
+        through the platform. The page names that distinction honestly —
+        a single free calculator needing no account or migration versus an
+        ongoing paid operating system — rather than claiming Tekmetric
+        lacks a feature it may have, and carries the required no-warranty
+        and not-affiliated clauses (`PRODUCT_PLAYBOOK.md` 5b/5f), verified
+        against `platform/pages/clauses.mjs`'s patterns directly.
+      - >-
+        Chose this over a sibling `vs-` page on an already-covered venture
+        or a fresh candidate because the venture shipped this session with
+        zero inbound distribution surface beyond its own two pages, and the
+        pipeline (`session_gate.py`) reported the `build-now` queue empty
+        with no in-progress venture of my own to continue.
+      - >-
+        Full starvation-window checklist run locally (CLAUDE.md): venture
+        suite 52/52 (5 new assertions); `platform/marketing` +
+        `platform/pages` 1255/1255; `platform/proposal` 101/101;
+        `platform/privacy` + `platform/webcheck` 82/82; all 15
+        `platform/ci` unittest modules (915 tests) plus `agent_review` (21)
+        OK; `gitops/tests` 581 passed / 1 skipped (ENVIRONMENTAL —
+        GitHub-hosted-runner-only, confirmed by `guard_state.py
+        --require-runnable` exiting 0 with no fixable skips); `portfolio/*`
+        + `infra/tests` 435 passed; `score_ventures.py --check` consistent
+        across 270 ventures; `validate_usage.py` valid (245 products, 431
+        readings); `router/validate.py` valid (269 VENTURE.yaml); pipeline
+        doc-consistency, candidate-consistency, probe-index and
+        score-sensitivity validators all clean; `front-door-tools.mjs
+        --headroom` reports 62.7% mirror capacity used, no ceiling issue.
+        `checklist_coverage.py` confirmed this checklist itself is current.
+        `apt-get update && apt-get install python3-pytest nginx-light
+        openssh-client` was needed and worked, exactly as CLAUDE.md
+        records.
+      - >-
+        Browser/a11y pass scoped to this venture (`browser_checks.py --only
+        auto-repair-effective-labor-rate`, Playwright 1.56.0 + axe-core, the
+        whole-catalogue reading was already `STALE` from a same-day builder
+        change unrelated to this PR): sideways, presets, roundtrip,
+        contrast (0 WCAG A/AA violations across 3 pages, 2 viewports),
+        sweep and journey all `ok`; `highlight` skipped for a missing
+        dependency, not a failure.
+      - >-
+        No public-URL verification possible from this sandbox (the egress
+        proxy 403s `github.io`); `pages_state.py` and the publish-branch
+        script are the route, run after merge per CLAUDE.md.
+    mrr_end: 0
