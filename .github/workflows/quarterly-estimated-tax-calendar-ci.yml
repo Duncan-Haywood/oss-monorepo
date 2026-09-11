@@ -1,0 +1,46 @@
+name: quarterly-estimated-tax-calendar CI
+
+# The venture is a static, browser-local calculator and calendar-file
+# generator: plain ES modules run with node's built-in test runner, no
+# package.json, no dependencies, no network. calc.mjs is the safe-harbor
+# arithmetic, the holiday-adjusted due-date engine, and the .ics export;
+# usage.mjs is the anonymous local counter. Without this runner they could
+# rot while the page still ships them.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/quarterly-estimated-tax-calendar/**"
+      - ".github/workflows/quarterly-estimated-tax-calendar-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/quarterly-estimated-tax-calendar/**"
+      - ".github/workflows/quarterly-estimated-tax-calendar-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quarterly-estimated-tax-calendar-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/quarterly-estimated-tax-calendar
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run module tests
+        run: node --test
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs quarterly-estimated-tax-calendar

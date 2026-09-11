@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Quarterly Estimated Tax Calendar — Free, No Sign-Up</title>
+  <meta name="description" content="Free calculator for US freelancers, 1099 contractors, and gig workers: computes the IRS safe-harbor quarterly estimated tax payment from your own numbers, gives the four real (weekend/holiday-adjusted) due dates, and exports a downloadable calendar file. Nothing uploaded.">
+  <meta property="og:title" content="Quarterly Estimated Tax Calendar — free, no sign-up">
+  <meta property="og:description" content="Turn last year's tax, this year's estimate, and what you've already paid into a safe-harbor quarterly payment plan with the real, holiday-adjusted IRS due dates — plus a downloadable calendar file. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Quarterly Estimated Tax Calendar","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the IRS Form 1040-ES safe-harbor quarterly estimated tax payment (the smaller of 90% of this year's estimated tax or 100%/110% of last year's tax) from a filer's own numbers, shows the four actual due dates adjusted for weekends and federal holidays, and exports a downloadable .ics calendar with a 7-day reminder on each unpaid quarter. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much estimated tax do I actually have to pay each quarter?","acceptedAnswer":{"@type":"Answer","text":"The IRS safe harbor is the smaller of 90% of this year's estimated tax or 100% of last year's total tax (110% if last year's adjusted gross income was over $150,000, or $75,000 if married filing separately). Paying that amount avoids an underpayment penalty even if your actual final tax bill is higher. This calculator applies that rule to your own numbers and splits the result evenly across the four quarters."}},{"@type":"Question","name":"Are the quarterly due dates always April 15, June 15, September 15, and January 15?","acceptedAnswer":{"@type":"Answer","text":"Those are the nominal dates, but each one shifts to the next business day when it falls on a weekend or a federal holiday, and the shift can chain through more than one day. Recent real examples: the Q1 2022 deadline moved to April 18 (Emancipation Day observed the 15th, then a weekend), and the Q4 2023 deadline moved to January 16, 2024 because January 15 was Martin Luther King Jr. Day that year. This tool computes the adjusted date for the tax year you enter rather than assuming the 15th."}},{"@type":"Question","name":"What if my income is uneven across the year?","acceptedAnswer":{"@type":"Answer","text":"This tool splits the annual requirement into four equal quarters, which is the IRS's own default (regular) method under Form 2210. If your income arrives unevenly — a seasonal business, one large late-year payment — the Annualized Income Installment Method (Form 2210 Schedule AI) can lower or eliminate a penalty on the earlier, lower-income quarters. This tool does not compute that method; a tax professional or the IRS instructions for Form 2210 can."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It applies a published IRS safe-harbor formula to numbers you already have from your own return, as a planning worksheet — not a filed amount, not a penalty determination, and not a substitute for a tax professional or the current-year IRS instructions."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2129; background: #f2f4f1; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.06; margin: 0 0 14px; color: #1f5c35; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f5c35; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a58; }
+    .card { background: #fff; border: 1px solid #d9e0d6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f5c3510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b7c4b3; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; }
+    .checkbox-row input { width: auto; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5c35; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e5ede2; color: #1f5c35; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #eef2ec; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a58; }
+    .amount { font-weight: 800; font-size: 1.02rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #eef2ec; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e5ede2; color: #1f5c35; }
+    .status { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; padding: 2px 8px; border-radius: 999px; }
+    .status.paid { background: #dcf3e2; color: #14532d; }
+    .status.upcoming { background: #e5ede2; color: #1f5c35; }
+    .status.due-soon { background: #fdf0d5; color: #7c5e10; }
+    .status.overdue { background: #fde8e8; color: #9a3412; }
+    .stats { font-size: .9rem; color: #333; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d9e0d6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">QUARTERLY ESTIMATED TAX CALENDAR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What do you actually owe the IRS this quarter — and when?</h1>
+    <p>Enter last year's total tax, this year's own estimate (if you have
+    one), and what you've already paid. This applies the IRS's own
+    safe-harbor rule to get a required annual payment, splits it across the
+    four quarters, and shows the <strong>real</strong> due date for each —
+    adjusted for weekends and federal holidays, not just "the 15th." Then
+    download a calendar file with a reminder before each one.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+    <p class="note">Already know your gig-driving net pay and just need to
+    know what to set aside for taxes as you go? See the
+    <a href="../gig-driver-net-pay-calculator/">gig driver net pay
+    calculator</a>'s <a href="../gig-driver-net-pay-calculator/how-much-should-i-set-aside-for-gig-driving-taxes.html">per-session
+    tax reserve</a> — this page is the filing calendar for the quarterly
+    payment itself.</p>
+  </header>
+
+  <section class="card">
+    <h2>Your numbers</h2>
+    <div class="grid">
+      <div>
+        <label for="tax-year">Tax year</label>
+        <select id="tax-year"></select>
+      </div>
+      <div>
+        <label for="prior-year-tax">Last year's total tax ($)</label>
+        <input type="number" id="prior-year-tax" min="0" step="1" placeholder="e.g. 9500">
+      </div>
+      <div>
+        <label for="prior-year-agi">Last year's AGI ($, optional)</label>
+        <input type="number" id="prior-year-agi" min="0" step="1" placeholder="e.g. 85000">
+      </div>
+      <div>
+        <label for="current-year-estimate">This year's estimated total tax ($, optional)</label>
+        <input type="number" id="current-year-estimate" min="0" step="1" placeholder="Leave blank to use last year's safe harbor only">
+      </div>
+      <div>
+        <label for="withholding">Tax already being withheld this year ($)</label>
+        <input type="number" id="withholding" min="0" step="1" placeholder="e.g. from a W-2 job">
+      </div>
+      <div>
+        <label for="as-of-date">As of date</label>
+        <input type="date" id="as-of-date">
+      </div>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="mfs">
+      <label for="mfs" style="margin:0;">Married filing separately (changes the high-income threshold to $75,000)</label>
+    </div>
+    <h3>Already paid toward estimated tax this year, per quarter ($)</h3>
+    <div class="grid">
+      <div><label for="paid-q1">Q1</label><input type="number" id="paid-q1" min="0" step="1" value="0"></div>
+      <div><label for="paid-q2">Q2</label><input type="number" id="paid-q2" min="0" step="1" value="0"></div>
+      <div><label for="paid-q3">Q3</label><input type="number" id="paid-q3" min="0" step="1" value="0"></div>
+      <div><label for="paid-q4">Q4</label><input type="number" id="paid-q4" min="0" step="1" value="0"></div>
+    </div>
+    <p>
+      <button type="button" id="calculate">Calculate my schedule</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Enter at least last year's total tax or this year's estimate above, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Your schedule</h2>
+    <p class="stats" id="stats"></p>
+    <table>
+      <thead><tr><th>Quarter</th><th>Due date</th><th>Suggested payment</th><th>Paid</th><th>Still owed</th><th>Status</th></tr></thead>
+      <tbody id="schedule-body"></tbody>
+    </table>
+    <p><button type="button" id="download-ics">Download calendar file (.ics)</button></p>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>This computes the IRS <strong>safe harbor</strong> — the smaller of
+    90% of this year's estimated tax or 100% (110% if last year's AGI was
+    over $150,000, or $75,000 married filing separately) of last year's tax
+    — and splits it evenly across four quarters, the same default method
+    IRS Form 2210 uses. It does <strong>not</strong> file anything, does
+    <strong>not</strong> know your actual final tax bill, and does
+    <strong>not</strong> model the Annualized Income Installment Method for
+    income that arrived unevenly across the year. Treat every number here as
+    a planning target to verify against the current year's official IRS
+    instructions or a tax professional before paying, never as a filed
+    amount or a determination made on your behalf.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much estimated tax do I actually have to pay each quarter?</h3>
+    <p>The IRS safe harbor is the smaller of 90% of this year's estimated tax or 100% of last year's total tax (110% if last year's adjusted gross income was over $150,000, or $75,000 if married filing separately). Paying that amount avoids an underpayment penalty even if your actual final tax bill is higher. This calculator applies that rule to your own numbers and splits the result evenly across the four quarters.</p>
+    <h3>Are the quarterly due dates always April 15, June 15, September 15, and January 15?</h3>
+    <p>Those are the nominal dates, but each one shifts to the next business day when it falls on a weekend or a federal holiday, and the shift can chain through more than one day. Recent real examples: the Q1 2022 deadline moved to April 18 (Emancipation Day observed the 15th, then a weekend), and the Q4 2023 deadline moved to January 16, 2024 because January 15 was Martin Luther King Jr. Day that year. This tool computes the adjusted date for the tax year you enter rather than assuming the 15th.</p>
+    <h3>What if my income is uneven across the year?</h3>
+    <p>This tool splits the annual requirement into four equal quarters, which is the IRS's own default (regular) method under Form 2210. If your income arrives unevenly — a seasonal business, one large late-year payment — the Annualized Income Installment Method (Form 2210 Schedule AI) can lower or eliminate a penalty on the earlier, lower-income quarters. This tool does not compute that method; a tax professional or the IRS instructions for Form 2210 can.</p>
+    <h3>Is this tax advice?</h3>
+    <p>No. It applies a published IRS safe-harbor formula to numbers you already have from your own return, as a planning worksheet — not a filed amount, not a penalty determination, and not a substitute for a tax professional or the current-year IRS instructions.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting your actual filing and payment obligations. To the maximum extent permitted by law, the authors accept no liability for any loss or damage, including an underpayment penalty, arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool except in your own browser's local storage.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>calculate_run</code>, <code>ics_downloaded</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeSchedule, icsCalendar } from "./calc.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      taxYear: $("#tax-year"), priorYearTax: $("#prior-year-tax"), priorYearAGI: $("#prior-year-agi"),
+      currentYearEstimate: $("#current-year-estimate"), withholding: $("#withholding"), asOfDate: $("#as-of-date"),
+      mfs: $("#mfs"),
+      paidQ1: $("#paid-q1"), paidQ2: $("#paid-q2"), paidQ3: $("#paid-q3"), paidQ4: $("#paid-q4"),
+      status: $("#status"), reportCard: $("#report-card"),
+      stats: $("#stats"), scheduleBody: $("#schedule-body"), findings: $("#findings"),
+    };
+
+    const todayIso = new Date().toISOString().slice(0, 10);
+    const currentYear = new Date().getFullYear();
+    for (const year of [currentYear - 1, currentYear, currentYear + 1]) {
+      const opt = document.createElement("option");
+      opt.value = String(year);
+      opt.textContent = String(year);
+      if (year === currentYear) opt.selected = true;
+      els.taxYear.appendChild(opt);
+    }
+    els.asOfDate.value = todayIso;
+
+    let lastSchedule = null;
+
+    function money(n) {
+      if (n == null) return "—";
+      const format = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function renderFindings(findings) {
+      els.findings.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    function readInput() {
+      return {
+        taxYear: Number(els.taxYear.value),
+        priorYearTax: els.priorYearTax.value,
+        priorYearAGI: els.priorYearAGI.value,
+        currentYearEstimate: els.currentYearEstimate.value,
+        withholding: els.withholding.value,
+        asOfDate: els.asOfDate.value || todayIso,
+        marriedFilingSeparately: els.mfs.checked,
+        paidByQuarter: {
+          q1: els.paidQ1.value, q2: els.paidQ2.value, q3: els.paidQ3.value, q4: els.paidQ4.value,
+        },
+      };
+    }
+
+    function runCalculate() {
+      const schedule = computeSchedule(readInput());
+      lastSchedule = schedule;
+
+      els.stats.textContent = schedule.required == null
+        ? "Nothing to schedule yet — enter last year's total tax, this year's estimate, or both."
+        : `Required annual payment: ${money(schedule.required)} (${schedule.basis}). After withholding of ${money(schedule.withholding)}: ${money(schedule.netRequired)}, or ${money(schedule.perQuarter)} per quarter.`;
+
+      els.scheduleBody.innerHTML = schedule.rows.map((row) => `
+        <tr>
+          <td>${row.label}</td>
+          <td>${row.dueDate}${row.daysUntilDue >= 0 ? ` (${row.daysUntilDue} day${row.daysUntilDue === 1 ? "" : "s"} away)` : ` (${Math.abs(row.daysUntilDue)} day${Math.abs(row.daysUntilDue) === 1 ? "" : "s"} overdue)`}</td>
+          <td class="amount">${money(row.suggested)}</td>
+          <td>${money(row.paid)}</td>
+          <td class="amount">${money(row.shortfall)}</td>
+          <td><span class="status ${row.status}">${row.status.replace("-", " ")}</span></td>
+        </tr>`).join("");
+
+      renderFindings(schedule.findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("calculate_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate").addEventListener("click", runCalculate);
+
+    $("#load-example").addEventListener("click", () => {
+      els.priorYearTax.value = "9500";
+      els.priorYearAGI.value = "85000";
+      els.currentYearEstimate.value = "";
+      els.withholding.value = "0";
+      els.paidQ1.value = "0"; els.paidQ2.value = "0"; els.paidQ3.value = "0"; els.paidQ4.value = "0";
+      els.mfs.checked = false;
+      runCalculate();
+      record("example_loaded");
+      els.status.textContent = "Worked example: a freelancer who owed $9,500 last year on an $85,000 AGI, with nothing withheld or paid yet.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.priorYearTax.value = ""; els.priorYearAGI.value = ""; els.currentYearEstimate.value = ""; els.withholding.value = "";
+      els.paidQ1.value = "0"; els.paidQ2.value = "0"; els.paidQ3.value = "0"; els.paidQ4.value = "0";
+      els.mfs.checked = false;
+      els.asOfDate.value = todayIso;
+      els.reportCard.hidden = true;
+      lastSchedule = null;
+      els.status.textContent = "Enter at least last year's total tax or this year's estimate above, then click Calculate.";
+    });
+
+    $("#download-ics").addEventListener("click", () => {
+      if (!lastSchedule) return;
+      const blob = new Blob([icsCalendar(lastSchedule)], { type: "text/calendar;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `estimated-tax-${lastSchedule.taxYear}.ics`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      record("ics_downloaded");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>
