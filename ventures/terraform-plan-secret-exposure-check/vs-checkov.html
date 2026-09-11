@@ -28,7 +28,7 @@
     {
       "@type": "Question",
       "name": "Why not just run Checkov instead of adding another tool?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Because they cost different amounts to adopt for this one job. Checkov is a Python package with its own install, update cadence, and hundreds of policies to configure or suppress if you only want the secrets angle. This tool is one dependency-free JavaScript file: `node cli.mjs check plan.json`, nothing to install, nothing to configure, exits non-zero on a finding. If a team already runs Checkov for its broader policy coverage, this does not replace it -- it is a much smaller, more specific gate for the one failure it was built to catch, worth adding regardless of what else runs in CI." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Because they cost different amounts to adopt for this one job. Checkov is a Python package with its own install, update cadence, and hundreds of policies to configure or suppress if you only want the secrets angle. This tool is one dependency-free JavaScript file: node cli.mjs check plan.json, nothing to install, nothing to configure, exits non-zero on a finding. If a team already runs Checkov for its broader policy coverage, this does not replace it -- it is a much smaller, more specific gate for the one failure it was built to catch, worth adding regardless of what else runs in CI." }
     },
     {
       "@type": "Question",
