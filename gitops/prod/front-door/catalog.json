@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 244,
-  "collection_total": 244,
+  "served_here": 245,
+  "collection_total": 245,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -59,16 +59,16 @@
       "tool_count": 15
     },
     {
+      "id": "logistics",
+      "name": "Logistics, freight & cloud cost",
+      "url": "https://marisstella.dev/c/logistics/",
+      "tool_count": 7
+    },
+    {
       "id": "solo-earner",
       "name": "Creator & solo earner income",
       "url": "https://marisstella.dev/c/solo-earner/",
       "tool_count": 7
-    },
-    {
-      "id": "logistics",
-      "name": "Logistics, freight & cloud cost",
-      "url": "https://marisstella.dev/c/logistics/",
-      "tool_count": 6
     },
     {
       "id": "more",
@@ -692,7 +692,7 @@
       "url": "https://marisstella.dev/tools/bounce-house-rental-calculator/",
       "category": "Service business pricing & quotes",
       "description": "Price a bounce house or inflatable rental booking from the truck's two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet's replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "cabinet-refinishing-bid-calculator",
@@ -1237,6 +1237,14 @@
       "category": "Trade & contractor bids",
       "description": "Free calculator for independent ice dam removal contractors: price a job from linear feet of roof edge, crew size, an emergency/storm premium, and a minimum service charge, then check whether your per-foot rate card actually covers this job's largely fixed cost before a short call quietly loses money.",
       "pages": 3
+    },
+    {
+      "slug": "ifta-quarterly-fuel-tax-calculator",
+      "name": "IFTA Quarterly Fuel Tax Calculator",
+      "url": "https://marisstella.dev/tools/ifta-quarterly-fuel-tax-calculator/",
+      "category": "Logistics, freight & cloud cost",
+      "description": "Work your IFTA quarterly return from your own trip and fuel records: average fleet MPG, taxable gallons and net taxable gallons per jurisdiction, the Indiana/Kentucky/Virginia surcharge charged the way it is actually charged, and interest on a late return. Free, private, nothing leaves your browser.",
+      "pages": 2
     },
     {
       "slug": "interior-door-bid-calculator",
