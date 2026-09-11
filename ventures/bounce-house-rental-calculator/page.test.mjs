@@ -301,6 +301,22 @@ test('every field recomputes the quote live, not only on an explicit submit', ()
   );
 });
 
+// A distinct property from the test above: repricing live must not turn
+// this tool's only usage signal into a typing counter. `quote_priced` has to
+// stay tied to the explicit "Price this booking" submit alone -- ported from
+// #4614, whose own text-identical addition to this same file conflicted with
+// the test above (both landed in the same spot the same day) but which
+// checked this separately real property that test does not.
+test('repricing on input or change never records a usage event', () => {
+  for (const event of ['input', 'change']) {
+    assert.doesNotMatch(
+      index,
+      new RegExp(`addEventListener\\('${event}', \\(\\) => \\{[^}]*count\\(`),
+      `repricing on ${event} must not record a usage event`,
+    );
+  }
+});
+
 test('typing is not counted as a pricing', () => {
   // The live listeners above call `submit()` directly rather than going
   // through the submit handler, so `quote_priced` still counts a deliberate
