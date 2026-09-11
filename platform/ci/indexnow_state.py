@@ -214,25 +214,43 @@ _STACK_FRAME = re.compile(r"^\s*at\s")
 _NODE_FOOTER = re.compile(r"^Node\.js v\d")
 
 
-def most_informative_line(text):
-    """The line of a failed subprocess's output that explains the failure.
+def most_informative_line(text, limit=400):
+    """The part of a failed subprocess's output that explains the failure.
 
-    Prefers the first `Error: ...` / `fatal: ...` line, since that is where
-    both Node and git put the message. Falls back to the last line that is
-    neither a stack frame nor Node's version footer, and finally to the last
-    non-empty line, so an unrecognised failure shape still names something.
+    Prefers the `Error: ...` / `fatal: ...` block, since that is where both
+    Node and git put the message — and takes the *whole* block, not just its
+    first line. That matters here: `indexnow.mjs` wraps a nested git failure,
+    so the message runs onto a second line and the actionable half ("Is
+    'origin/gh-pages' fetched in this clone? (git fetch ...)") is the part
+    that would otherwise be dropped. The block ends at the first stack frame,
+    which is where Node stops explaining and starts locating.
+
+    Falls back to the last line that is neither a stack frame nor Node's
+    version footer, and finally to the last non-empty line, so an
+    unrecognised failure shape still names something rather than nothing.
     """
     lines = [line.rstrip() for line in (text or "").strip().splitlines() if line.strip()]
     if not lines:
         return None
-    for line in lines:
-        stripped = line.strip()
-        if stripped.startswith(("Error:", "TypeError:", "fatal:")):
-            return stripped
+    for index, line in enumerate(lines):
+        if not line.strip().startswith(("Error:", "TypeError:", "fatal:")):
+            continue
+        block = []
+        for candidate in lines[index:]:
+            if _STACK_FRAME.match(candidate) or _NODE_FOOTER.match(candidate.strip()):
+                break
+            block.append(candidate.strip())
+        return _clip(" ".join(block), limit)
     for line in reversed(lines):
         if not _STACK_FRAME.match(line) and not _NODE_FOOTER.match(line.strip()):
-            return line.strip()
-    return lines[-1].strip()
+            return _clip(line.strip(), limit)
+    return _clip(lines[-1].strip(), limit)
+
+
+def _clip(text, limit):
+    """Keep the row renderable. A stack-free message is short; a pathological
+    one must not turn the report into a wall."""
+    return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
 
 
 def run_indexnow_dry(ref=LIVE_REF, timeout=60):

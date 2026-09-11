@@ -376,6 +376,12 @@ class LiveCoverage(unittest.TestCase):
         message = str(ctx.exception)
         self.assertIn("could not read 'catalog.json'", message)
         self.assertNotIn("Node.js v", message)
+        self.assertNotIn("    at file://", message)
+        # The whole reason for preferring this line over the footer: the half
+        # that tells the reader what to DO is on the message's SECOND line,
+        # because indexnow.mjs wraps a nested git failure. Taking only the
+        # first `Error:` line would drop exactly the actionable part.
+        self.assertIn("git fetch origin", message)
 
     def test_most_informative_line_skips_frames_and_footers(self) -> None:
         self.assertEqual(state.most_informative_line(""), None)
@@ -387,6 +393,12 @@ class LiveCoverage(unittest.TestCase):
         )
         # Nothing but a footer still names something rather than returning None.
         self.assertEqual(state.most_informative_line("Node.js v22.22.2\n"), "Node.js v22.22.2")
+
+    def test_most_informative_line_clips_a_pathological_message(self) -> None:
+        """A report row must stay renderable even if the tool vomits."""
+        clipped = state.most_informative_line("Error: " + ("x" * 5000), limit=120)
+        self.assertEqual(len(clipped), 120)
+        self.assertTrue(clipped.endswith("…"))
 
     def test_run_indexnow_dry_names_unparseable_output(self) -> None:
         odd = subprocess.CompletedProcess(args=[], returncode=0, stdout="not the expected shape\n", stderr="")
