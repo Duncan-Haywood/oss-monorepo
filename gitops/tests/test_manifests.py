@@ -1583,9 +1583,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the first venture here for a healthcare practice's own back office, and a
     # static `index.html` from its first commit, so it entered the mirror and
     # the total together like the three above it.
-    # 264 since 2026-09-11, when `vpat-acr-generator` graduated — a static
+    # 264 since 2026-09-11, when `cat-adjuster-fee-calculator` graduated (its
+    # own PR #4629 did not update this count) — a static `index.html` from
+    # its first commit, same shape as the venture above it.
+    # 265 since 2026-09-11, when `vpat-acr-generator` graduated — a static
     # `index.html` from its first commit, same shape as the venture above it.
-    total = 264  # `infra/OWNER_CHECKLIST.md`'s own "N of the 264 tools" wording.
+    total = 265  # `infra/OWNER_CHECKLIST.md`'s own "N of the 265 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
