@@ -39,9 +39,9 @@
 #   portfolio-front-tools-3: 141 files, 555393 bytes
 #   portfolio-front-tools-4: 125 files, 556576 bytes
 #   portfolio-front-tools-5: 132 files, 547900 bytes
-#   portfolio-front-tools-6: 135 files, 552457 bytes
-#   portfolio-front-tools-7: 120 files, 553287 bytes
-#   portfolio-front-tools-8: 109 files, 552119 bytes
+#   portfolio-front-tools-6: 134 files, 553724 bytes
+#   portfolio-front-tools-7: 120 files, 556694 bytes
+#   portfolio-front-tools-8: 112 files, 556404 bytes
 #   portfolio-front-tools-9: 123 files, 553934 bytes
 #   portfolio-front-tools-10: 122 files, 553666 bytes
 #   portfolio-front-tools-11: 116 files, 554201 bytes
@@ -907,6 +907,8 @@ configMapGenerator:
       - dental-ppo-writeoff-calculator__calc.mjs.gz=dental-ppo-writeoff-calculator__calc.mjs.gz
       - dental-ppo-writeoff-calculator__index.html.gz=dental-ppo-writeoff-calculator__index.html.gz
       - dental-ppo-writeoff-calculator__usage.mjs.gz=dental-ppo-writeoff-calculator__usage.mjs.gz
+      - dental-ppo-writeoff-calculator__vs-ppo-fee-negotiators.html.gz=dental-ppo-writeoff-calculator__vs-ppo-fee-negotiators.html.gz
+      - dental-ppo-writeoff-calculator__vs-practice-management-report.html.gz=dental-ppo-writeoff-calculator__vs-practice-management-report.html.gz
       - dental-ppo-writeoff-calculator__what-is-my-effective-reimbursement-rate.html.gz=dental-ppo-writeoff-calculator__what-is-my-effective-reimbursement-rate.html.gz
       - dependency-confusion-check__classify.mjs.gz=dependency-confusion-check__classify.mjs.gz
       - dependency-confusion-check__index.html.gz=dependency-confusion-check__index.html.gz
@@ -1025,14 +1027,14 @@ configMapGenerator:
       - epk-generator__usage.mjs.gz=epk-generator__usage.mjs.gz
       - epk-generator__vs-presskit.html.gz=epk-generator__vs-presskit.html.gz
       - epk-generator__what-is-an-epk.html.gz=epk-generator__what-is-an-epk.html.gz
-      - epoxy-garage-floor-bid-calculator__calc.mjs.gz=epoxy-garage-floor-bid-calculator__calc.mjs.gz
-      - epoxy-garage-floor-bid-calculator__how-much-to-charge-for-an-epoxy-garage-floor.html.gz=epoxy-garage-floor-bid-calculator__how-much-to-charge-for-an-epoxy-garage-floor.html.gz
-      - epoxy-garage-floor-bid-calculator__how-much-to-charge-for-polyaspartic-garage-floor.html.gz=epoxy-garage-floor-bid-calculator__how-much-to-charge-for-polyaspartic-garage-floor.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - epoxy-garage-floor-bid-calculator__calc.mjs.gz=epoxy-garage-floor-bid-calculator__calc.mjs.gz
+      - epoxy-garage-floor-bid-calculator__how-much-to-charge-for-an-epoxy-garage-floor.html.gz=epoxy-garage-floor-bid-calculator__how-much-to-charge-for-an-epoxy-garage-floor.html.gz
+      - epoxy-garage-floor-bid-calculator__how-much-to-charge-for-polyaspartic-garage-floor.html.gz=epoxy-garage-floor-bid-calculator__how-much-to-charge-for-polyaspartic-garage-floor.html.gz
       - epoxy-garage-floor-bid-calculator__index.html.gz=epoxy-garage-floor-bid-calculator__index.html.gz
       - epoxy-garage-floor-bid-calculator__share.mjs.gz=epoxy-garage-floor-bid-calculator__share.mjs.gz
       - epoxy-garage-floor-bid-calculator__usage.mjs.gz=epoxy-garage-floor-bid-calculator__usage.mjs.gz
@@ -1150,14 +1152,14 @@ configMapGenerator:
       - gravel-driveway-bid-calculator__vs-jobber.html.gz=gravel-driveway-bid-calculator__vs-jobber.html.gz
       - gutter-cleaning-bid-calculator__calc.mjs.gz=gutter-cleaning-bid-calculator__calc.mjs.gz
       - gutter-cleaning-bid-calculator__index.html.gz=gutter-cleaning-bid-calculator__index.html.gz
-      - gutter-cleaning-bid-calculator__share.mjs.gz=gutter-cleaning-bid-calculator__share.mjs.gz
-      - gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz=gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz
-      - gutter-cleaning-bid-calculator__usage.mjs.gz=gutter-cleaning-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - gutter-cleaning-bid-calculator__share.mjs.gz=gutter-cleaning-bid-calculator__share.mjs.gz
+      - gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz=gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz
+      - gutter-cleaning-bid-calculator__usage.mjs.gz=gutter-cleaning-bid-calculator__usage.mjs.gz
       - gutter-cleaning-bid-calculator__vs-jobber.html.gz=gutter-cleaning-bid-calculator__vs-jobber.html.gz
       - gutter-guard-bid-calculator__calc.mjs.gz=gutter-guard-bid-calculator__calc.mjs.gz
       - gutter-guard-bid-calculator__how-much-to-charge-to-install-gutter-guards.html.gz=gutter-guard-bid-calculator__how-much-to-charge-to-install-gutter-guards.html.gz
