@@ -941,6 +941,9 @@ workflows:
 - workflow: vinyl-liner-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: vpat-acr-generator-ci.yml
+  classification: none
+  publishes: []
 - workflow: vscode-extension-drift-check-ci.yml
   classification: none
   publishes: []

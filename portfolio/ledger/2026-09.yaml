@@ -28337,6 +28337,91 @@ entries:
         so a tick cannot bill against the metered key. No new ask added; the
         queued one already carries the exact commands.
     mrr_end: 0
+  - venture: vpat-acr-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture rather than picking up the stale
+        `candidates.yaml` queue, per `DIRECTION.md`'s 2026-09-06 "screen a
+        fresh niche yourself" guidance: `portfolio/pipeline/duplicate_check.py`
+        confirmed no existing venture, screened-out row, ai-first-markets
+        idea, or pipeline candidate scores above 0.10 for this niche (closest
+        match `shopify-a11y-evidence` at 0.10). A free, browser-only VPAT 2.5
+        / Accessibility Conformance Report generator for software vendors
+        preparing a Section 508 or enterprise procurement RFP response: the
+        vendor enters every WCAG 2.1 Level A/AA conformance level and remark
+        themselves, from their own testing, and the tool only formats those
+        answers into the standard document shape and flags completeness
+        problems (a Partially/Does Not Support row with no remarks; a missing
+        required header field). It never scans, tests, or assesses the
+        vendor's product, and never selects a conformance level -- that
+        framing is the deliberate liability-containment choice, argued in
+        `VENTURE.yaml`.
+      - >-
+        Named distribution-channel evidence, gathered via WebSearch this
+        session rather than assumed: "VPAT template"/"VPAT generator" is a
+        real, demonstrable search term -- Level Access, ITIC's own site,
+        BarrierBreak, Accessibility.Works, and WCAG.com all publish
+        SEO-targeted pages for exactly this query. More specifically, the
+        WebAIM Discussion List (webaim.org/discussion) is a long-running,
+        high-traffic accessibility-professional mailing list with real,
+        findable threads about VPAT mechanics (thread 8773, "VPATs for Word,
+        PPT, Excel, etc"; thread 10051, "VPAT for U508"), and WebAIM's own
+        article "Making VPATs and ACRs More Effective in Procurement"
+        independently names the exact completeness failure (incomplete ACRs
+        across the vendor pool; remarks too generic on a partial-support row)
+        this tool's checker targets -- a sourced problem statement from the
+        audience's own reference source.
+      - >-
+        `node platform/marketing/regen.mjs` after adding the page -- the
+        first run caught two real failures this session then fixed: a
+        `faq-visible.test.mjs` mismatch between the FAQPage JSON-LD text and
+        the visible on-page prose (two answers had been paraphrased slightly
+        differently in each place), and `build.test.mjs`'s catch-all-category
+        bound (adding an unclassified venture pushed the catch-all to 6,
+        past its committed bound of 5) plus `siblings.test.mjs`'s
+        crawlable-orphan budget (the new page had no inbound link from any
+        other venture). Fixed by filing the venture under the existing
+        "Compliance checks & evidence records" category in `build.mjs`
+        (a named-slug rule, matching the pattern already used for
+        `real-estate-agent-photo-app`/`print-atelier`) and adding a
+        reciprocal cross-link from `ada-title-ii-evidence`'s intro paragraph
+        to the closest existing accessibility-evidence sibling. Reran the
+        full marketing+pages suite green (1255/1255) after each fix.
+      - >-
+        A concurrent session merged #4627/#4628 to `main` while this session
+        was building (measured via `mcp__github__actions_list` immediately
+        before pushing, per the standing duplicate-PR check) -- rebased this
+        branch onto the new `origin/main` tip (`e7f78b80`) with a clean,
+        conflict-free rebase (the mirror-regeneration commit was kept
+        separate from the source commit specifically so the binary
+        front-door-tools shards never had to be rebased themselves; they
+        were regenerated fresh from the rebased tree instead), then reran
+        `regen.mjs` and the full verification set again against the rebased
+        tree before pushing.
+      - >-
+        Verified locally: `node --test ventures/vpat-acr-generator/*.test.mjs`
+        18/18; `node --test ventures/ada-title-ii-evidence/*.test.mjs` 33/33
+        (unaffected by the added cross-link); `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1255/1255;
+        `node platform/pages/clauses.mjs vpat-acr-generator` and
+        `ada-title-ii-evidence` both clean; `python3
+        portfolio/router/validate.py` all VENTURE.yaml valid; `python3
+        platform/ci/check_no_payment_code.py` clean; `python3
+        portfolio/scoring/score_ventures.py --check` 273 ventures consistent
+        (added an honest six-dimension + two-gate score row, floored at
+        `ai_leverage: 1` -- deterministic formatting, no free-text
+        generation a model could plausibly help with); `python3
+        portfolio/usage/validate_usage.py` 248 products/434 readings (added
+        a null-visitors baseline row); `python3
+        portfolio/pipeline/validate_candidates.py` and
+        `validate_doc_consistency.py` clean (not added as a
+        `candidates.yaml` write-up -- screened and graduated directly, per
+        the 2026-09-06 guidance); `python3 platform/ci/checklist_coverage.py`
+        clean; `python3 portfolio/ledger/check_ledger_only.py` exit 0 (real
+        code shipped in the same branch).
+    mrr_end: 0
 
   - venture: dental-ppo-writeoff-calculator
     agent_spend_usd: null
