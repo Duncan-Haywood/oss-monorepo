@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://example.invalid/social-preview-check/</loc></url>
 <url><loc>https://example.invalid/social-preview-check/social-preview-fallback-rules.html</loc></url>
+<url><loc>https://example.invalid/social-preview-check/vs-facebook-sharing-debugger.html</loc></url>
 </urlset>
