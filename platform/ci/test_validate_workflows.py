@@ -383,6 +383,19 @@ class VentureTestsRunTest(unittest.TestCase):
             # The message has to name the fix, not just the fault.
             self.assertIn("widget-calculator-ci.yml", errors[0])
 
+    def test_the_remedy_also_names_the_publish_surface_step(self):
+        # Following this message adds a workflow, and a workflow absent from
+        # `publish-surface.yaml` fails `publish_surface.py --check`. #4573 did
+        # exactly that and left `main` red all day behind starved checks, so
+        # the instruction has to carry both halves of its own remedy.
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            vdir, paths = self._tree(
+                tmp, {"widget-calculator": ["calc.test.mjs"]}, {}
+            )
+            errors = check_venture_tests_run(paths, vdir)
+            self.assertEqual(len(errors), 1, errors)
+            self.assertIn("publish_surface.py --write", errors[0])
+
     def test_a_slug_filtered_workflow_that_runs_no_js_tests_is_not_coverage(self):
         # The other five: a Python venture that later gained a browser page,
         # whose workflow still ran only pytest. Filtering on the venture is
