@@ -78,9 +78,22 @@ test('every pricing field the calculator reads is carried by the bid spec', () =
   assert.ok(defaultsBlock, 'could not find DEFAULTS in calc.mjs');
   const fieldIds = [...defaultsBlock[1].matchAll(/^\s*(\w+):/gm)].map(m => m[1]);
   assert.ok(fieldIds.length > 0);
-  assert.match(scriptSource, /numbers: FIELD_IDS/,
+  assert.match(scriptSource, /numbers:\s*\[\.\.\.FIELD_IDS,\s*\.\.\.ACTUAL_FIELD_IDS\]/,
     'BID_SPEC does not carry FIELD_IDS directly, so the two can drift');
   for (const id of fieldIds) {
+    assert.ok(declaredIds.has(id), `calc.mjs reads ${id} but no input on the page declares it`);
+  }
+});
+
+test('the optional actual-usage fields ride in the bid spec too, not just the required pricing fields', () => {
+  // actualVinylSqFtUsed/actualInstallHours are deliberately outside DEFAULTS
+  // (calculateQuote treats them as optional, not required pricing inputs), so
+  // the FIELD_IDS-drift guard above cannot see them. A bid link that dropped
+  // them once already (the field existed on the page and in calc.mjs, but
+  // BID_SPEC's `numbers` was FIELD_IDS alone) is exactly the failure this
+  // guards against recurring.
+  assert.match(scriptSource, /const ACTUAL_FIELD_IDS = \[('|")actualVinylSqFtUsed\1,\s*('|")actualInstallHours\2\]/);
+  for (const id of ['actualVinylSqFtUsed', 'actualInstallHours']) {
     assert.ok(declaredIds.has(id), `calc.mjs reads ${id} but no input on the page declares it`);
   }
 });
