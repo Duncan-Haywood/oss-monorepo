@@ -28169,3 +28169,99 @@ entries:
         CLAUDE.md and in #4619's own report the same day — not a regression
         from this change.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a wrong reading in the deploy-state tooling (#4625).
+        `publish_surface.py`'s `pages_branch_survey()` resolved
+        `refs/heads/main` before `refs/remotes/origin/main`. In a web session
+        that is reliably the wrong ref: the clone arrives carrying a local
+        `main` at whatever commit the session branch was cut from, and
+        `git fetch origin main` -- the command CLAUDE.md tells every session
+        to run before reading anything -- updates only the remote-tracking
+        ref. Measured on this checkout: `gh-pages` was staged from the tip of
+        `origin/main` while the local `main` sat 6829 commits away on a
+        diverged branch, and the tool reported the live deploy route as
+        "6829 commit(s) behind `main`", telling the reader to restage an
+        artifact that was already current. `pages_state.py` read the same
+        branch as `current` in the same minute -- it asks the GitHub API for
+        the default branch, so it was never exposed, and the contradiction
+        between the two is what made this visible at all.
+      - >-
+        The direction that motivated the fix is the other one: when the stale
+        local ref is *behind* the snapshot's source commit,
+        `rev-list --count source..main` is 0 and the row renders `current` --
+        an artifact genuinely lagging `main` reading as fresh, with no error
+        anywhere to say so. That is the silent failure this part of the tool
+        exists to make visible.
+      - >-
+        Enumerated rather than recalled, per the rule this repo has learned
+        three times: `publish-branch.sh` already resolves `FETCH_HEAD` then
+        `origin/main` and never a local ref, and no other tool under
+        `platform/`, `portfolio/`, `gitops/` or `bootstrap/` compares against
+        `refs/heads/main`. The exposure was one function.
+      - >-
+        The existing `fake_git` answers local and remote refs with a single
+        value, which is exactly why the suite could not see this -- a survey
+        reading the wrong ref was indistinguishable from one reading the
+        right ref. Added `fake_git_by_ref` and four tests covering both
+        staleness directions, the local-ref fallback, and an unpushed local
+        `gh-pages` not masking the served one. Three of the four fail against
+        the previous ordering; the fallback test passes either way by design,
+        guarding the over-correction.
+      - >-
+        Recorded a clean full-catalogue browser/a11y sweep at 89b7dbe7:
+        all 7 checks (sideways, presets, roundtrip, highlight, contrast,
+        sweep, journey) `ok` over 1006 pages, Playwright 1.56.0 + axe-core --
+        0 failed checks, 0 page/console errors, 1004/1004 sitemap URLs
+        resolving, no off-origin request (the privacy promise every tool page
+        makes), no horizontal overflow at 375px. Appended to
+        `browser_state.json` alongside a concurrent session's 958-page
+        reading from #4626 rather than replacing it; the file is an
+        append-only list and both readings are valid measurements.
+      - >-
+        Measured two things that needed no change, recorded so the next
+        session does not re-derive them. Link-graph reachability from the
+        front door: 1004 of 1006 built pages reachable, the only two orphans
+        being `404.html` and `offline.html`, which are correctly unlinked.
+        That matters more than usual here because sitemap enumeration is
+        unavailable on a project-Pages subpath, so a page reachable only from
+        the sitemap is reachable from nothing -- the internal link graph is
+        currently the whole discovery path, and it is sound.
+      - >-
+        And the branch backlog: `git branch -r --no-merged origin/main`
+        reports 495 branches, which reads as a large pile of unshipped work
+        and is not one. 494 of them have an *empty* content diff against
+        `main` -- they are squash-merge artifacts, since squashing rewrites
+        the commit and leaves the original unreachable. The only branch with
+        a real difference was this session's own. There is no orphaned unique
+        work needing a PR, and `branch_cleanup.py` is keyed to pull requests
+        rather than to `--no-merged`, so it is immune to this false positive;
+        it is only waiting on a runner.
+      - >-
+        Verified locally (Actions starved this window -- all 5 checks on
+        #4625 classified `runner_id: 0`, 3s, no steps): `test_publish_surface`
+        81/81; all 25 `platform/ci` unittest modules; `agent_review` 21/21;
+        `gitops/tests` 581 passed 1 skipped; portfolio + `infra/tests` 435
+        passed; `checklist_coverage.py` clean; `guard_state.py
+        --require-runnable` clean after `apt-get install python3-pytest
+        nginx-light openssh-client` (1 environmental skip, only meaningful on
+        a GitHub-hosted runner); `run_workflow_locally.py --tree` on a clean
+        `main` 9/9 workflows; `--for-changes` 4/5, the non-pass being
+        `agent-cross-review.yml`, which needs reviewer GitHub App credentials
+        and cannot run locally.
+      - >-
+        Not shipped, and blocked on the same single owner action rather than
+        on anything in the tree: the Hetzner origin, host-mode site serving,
+        the self-hosted runner and the Codex worker all wait on
+        `hetzner-ssh-key-is-a-public-key`. Confirmed the recovery path is
+        sound rather than assuming it -- `DRY_RUN=1 WITH_CODEX_HOST=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1
+        bootstrap/restore-cluster.sh` prints the credential plan before the
+        SSH gate and names which credential stands behind each extra, and
+        `worker.sh` unsets `OPENAI_API_KEY` when `CODEX_AUTH_JSON` is present
+        so a tick cannot bill against the metered key. No new ask added; the
+        queued one already carries the exact commands.
+    mrr_end: 0
