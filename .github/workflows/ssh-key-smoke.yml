@@ -13,6 +13,7 @@ permissions:
 jobs:
   ssh:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Probe HETZNERSSHKEY against both Hetzner boxes
         env:
