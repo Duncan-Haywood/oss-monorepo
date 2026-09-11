@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 245 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 246 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 245 of them — and
+Every tool in the collection is listed below — all 246 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -220,6 +220,7 @@ page that hosts it.
 - [ATM Route Margin Calculator — Price Each Placement](https://marisstella.dev/tools/atm-route-margin/): Free calculator for independent ATM route operators: find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.
 - [Bounce House Rental Calculator](https://marisstella.dev/tools/bounce-house-rental-calculator/): Price a bounce house or inflatable rental booking from the truck's two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet's replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.
 - [Dog Walking & Pet Sitting Rate Calculator — Price Your Route](https://marisstella.dev/tools/dog-walking-route-pricing/): Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.
+- [Drone Mapping Job Calculator](https://marisstella.dev/tools/drone-mapping-job-calculator/): Plan and price an aerial mapping sortie: ground sample distance from your sensor and altitude, flight line spacing, image count, airtime, battery swaps, processing hours and the price that clears your margin. Free, private, nothing leaves your browser.
 - [Dumpster Rental Margin Calculator — Price a Roll-Off Job](https://marisstella.dev/tools/dumpster-rental-margin-calculator/): Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.
 - [Fire Extinguisher Inspection Route Margin Calculator](https://marisstella.dev/tools/fire-extinguisher-inspection-route-margin/): Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.
 - [Photo Booth Event Quote Calculator — Price a Booking](https://marisstella.dev/tools/photo-booth-event-quote/): Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.

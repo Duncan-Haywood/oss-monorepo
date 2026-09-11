@@ -5199,3 +5199,28 @@ products:
           either lands or does not. Counts are local, opt-in, off by
           default, and honor DNT/GPC, so zero is the expected reading for
           a tool nobody has visited or switched the counter on for yet.
+  - slug: drone-mapping-job-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          job_priced: 0
+          overlap_compared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a flight-planning and job-pricing
+          worksheet for Part 107 pilots quoting aerial mapping, computing
+          ground sample distance from sensor geometry, flight lines and image
+          count from overlap, airtime and sorties from path length, and the
+          price that clears a target margin. Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for a
+          tool nobody has visited or switched the counter on for yet. The
+          reading worth watching is `overlap_compared` against `job_priced`:
+          the comparison table renders on every successful price, so a
+          divergence between the two would mean the page is throwing after
+          the first render rather than that pilots are ignoring it. Search
+          terms this is built to meet are "drone mapping GSD calculator",
+          "how much to charge for drone mapping", "photogrammetry flight
+          time calculator" and "front vs side overlap".
