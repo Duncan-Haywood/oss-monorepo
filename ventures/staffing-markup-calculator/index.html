@@ -297,6 +297,43 @@
       for (const id of ALL_INPUT_IDS) el(id).removeAttribute('aria-invalid');
     }
 
+    // Keep the figures honest about the boxes above them.
+    //
+    // The form prices on submit, and the result used to stay on screen
+    // untouched while the inputs moved underneath it. That is a stale answer
+    // presented as a current one: a setter changes the pay rate, the headline
+    // still reads the margin of the placement they priced a minute ago, and
+    // nothing says which numbers produced it. "Copy link" then made it
+    // expensive rather than merely untidy — the link carries `readInput()`,
+    // the *current* boxes, so the sender reads one margin on their own screen
+    // and the recipient opens the link on another. `platform/pages/roundtrip.mjs`
+    // caught exactly that here: every field round-tripped and the headline
+    // moved 15.8% → 18.0%, which is the shape of the `share.mjs` defect
+    // CLAUDE.md already records costing live product once.
+    //
+    // Deliberately not `renderErrors`: that marks fields, lists messages and
+    // *moves focus to the first bad one*, which mid-keystroke would fight the
+    // typing. A form being edited is momentarily unpriceable all the time — a
+    // cleared box on its way to a new value — so the honest live answer is to
+    // say the placement cannot be priced yet and leave the diagnosis to the
+    // explicit submit.
+    function repriceLive() {
+      const result = calculatePlacement(readInput());
+      if (result.ok) {
+        render(result);
+        return;
+      }
+      clearInvalid();
+      el('errors').innerHTML = '';
+      el('resultBody').hidden = true;
+      el('emptyState').hidden = false;
+      el('emptyState').textContent = 'Some figures need fixing before this can be priced.';
+      el('heroNumber').textContent = '—';
+      el('heroNumber').classList.remove('negative');
+      el('ladderBody').innerHTML = '';
+      el('ladderEmpty').hidden = false;
+    }
+
     function renderErrors(errors) {
       clearInvalid();
       el('resultBody').hidden = true;
@@ -428,11 +465,14 @@
       try { clearBid(localStorage, SHARE_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
       location.href = location.pathname;
     });
-    // Every input already recalculates nothing on its own (the form submits
-    // to price), but saving on every keystroke means the placement survives a
-    // closed tab even if "Price this placement" was never pressed.
-    document.addEventListener('input', persist);
-    document.addEventListener('change', persist);
+    // Saving on every keystroke means the placement survives a closed tab even
+    // if "Price this placement" was never pressed — and repricing on the same
+    // events means the figures on screen are always the figures these boxes
+    // produce, so the link the setter copies can never disagree with what they
+    // are looking at. See `repriceLive`.
+    const onEdit = () => { persist(); repriceLive(); };
+    document.addEventListener('input', onEdit);
+    document.addEventListener('change', onEdit);
     persist();
 
     // Open on the restored placement if one exists, or the worked example
