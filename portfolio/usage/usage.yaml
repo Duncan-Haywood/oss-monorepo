@@ -5892,6 +5892,29 @@ products:
           be read as no use; repository engagement is the other half of the
           signal.
 
+  - slug: ai-coding-plan-cost-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          compare_run: 0
+          tier_selected: 0
+          model_selected: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          page on the gh-pages catalogue: compares a flat-rate AI coding
+          subscription (Claude Pro/Max, Cursor, GitHub Copilot, ChatGPT
+          Plus) against the same usage billed per token through the vendor's
+          API, modelling cache-read/cache-write tokens separately from fresh
+          input/output. `live_url_visitors` is null and not zero,
+          deliberately, per the standing rule recorded elsewhere in this
+          file: GitHub Pages exposes no server-side analytics and the local
+          counters are opt-in and off by default, so nobody has measured,
+          which is a different claim from having measured nothing. The three
+          event counters are local-storage only, honour Do Not Track and
+          Global Privacy Control, and are recorded here at zero as the
+          starting point, not as a reading of anyone's behaviour.
   - slug: epk-generator
     surface: github-pages
     readings:

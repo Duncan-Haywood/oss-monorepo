@@ -2,27 +2,6 @@
   "readings": [
     {
       "checks": [
-        "contrast",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "b35327f9d142e7d40223a727bb5180152816b215",
-      "measured": "2026-09-10",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "wildlife-exclusion-bid-calculator"
-      ],
-      "surface": {
-        "platform/marketing": "40c8e66eca01f2d545ca23f25cf1bddbbb2a74bc",
-        "platform/pages": "21aad94d3f28b93850d327196ffa405ad79cdaf4",
-        "ventures": "2abbad9dac45ec530e7e047bc312b924443f0614"
-      }
-    },
-    {
-      "checks": [
         "journey"
       ],
       "commit": "b35327f9d142e7d40223a727bb5180152816b215",
@@ -389,6 +368,27 @@
         "platform/marketing": "29caadb9e1d49d3d0f8f8581211a10554f9fd06d",
         "platform/pages": "32bde1a32c943ed47ba2fe24afc78500b2bc9233",
         "ventures": "838a795c0bb30d042680b52fae0b5378292eadb5"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "96efa57368938da60e435ac66d89bfccd5c63788",
+      "measured": "2026-09-11",
+      "pages": 984,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "29caadb9e1d49d3d0f8f8581211a10554f9fd06d",
+        "platform/pages": "4073d33c0bf520b5d9fa5c13716e68fdbe744b85",
+        "ventures": "cc858476754d6270e4c34daaa656d2fe949552f3"
       }
     }
   ]

@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Coding Plan Cost Calculator — Subscription vs. API</title>
+  <meta name="description" content="Is your Claude Max, Cursor, GitHub Copilot, or ChatGPT Plus plan actually cheaper than paying per token through the API? Enter your own usage and rates and see the monthly cost both ways, plus the break-even point. Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Is your AI coding plan actually cheaper than the API?">
+  <meta property="og:description" content="Flat-rate subscription vs. pay-per-token API, worked out with your own usage numbers and editable rates — not someone else's assumptions. Free, no upload, no account.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"AI Coding Plan Cost Calculator","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares the monthly cost of a flat-rate AI coding assistant subscription (Claude Pro/Max, Cursor, GitHub Copilot, ChatGPT Plus) against paying per token through the vendor's API, using editable usage and rate inputs, and reports the break-even usage level. Runs entirely in the browser."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Claude Max actually worth it over the API?","acceptedAnswer":{"@type":"Answer","text":"It depends entirely on how much you use it and how much of that usage is cache reads, which are billed far below fresh input on providers that support prompt caching. This calculator takes your own token estimates (or a light/typical/heavy starting point you edit) and the plan's price, and reports which is cheaper this month and at what usage level the other one would catch up."}},{"@type":"Question","name":"Why does this ask for cache read and cache write tokens separately?","acceptedAnswer":{"@type":"Answer","text":"Agentic coding tools resend most of the conversation and file context on nearly every turn. Providers that support prompt caching bill a repeated, unchanged prefix at a small fraction of the fresh-input rate, and publicly reported usage breakdowns for heavy coding-agent use put cache reads above 90% of total tokens. A calculator that only multiplies input and output tokens by a blended rate significantly overstates the API-equivalent cost for exactly the heavy users asking this question."}},{"@type":"Question","name":"Where do the default prices and rates come from?","acceptedAnswer":{"@type":"Answer","text":"They are list prices and published API rates as of the date shown on the page, recorded here because this tool makes no network call. Vendors change pricing without notice and this calculator cannot know when that happens — every field is a plain number you can edit, and the result is only as current as what you put in. Check the vendor's own pricing page before deciding."}},{"@type":"Question","name":"Is anything I type here uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. All arithmetic happens in your own browser. There is no account, no server call, and no analytics vendor."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; font-size: .9rem; }
+    input[type="number"], select { font: inherit; border: 1px solid #cdd5df; border-radius: 6px; padding: 7px 10px; width: 100%; box-sizing: border-box; }
+    .row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .row > div { flex: 1 1 150px; }
+    fieldset { border: 1px solid #d5dbe3; border-radius: 10px; padding: 14px 16px; margin: 14px 0 0; }
+    legend { font-weight: 700; color: #17324a; padding: 0 6px; font-size: .92rem; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .headline { font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 800; color: #17324a; margin: 4px 0; }
+    .sub-cheaper { color: #17604a; }
+    .api-cheaper { color: #9a3412; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid #e3e9ef; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AI CODING PLAN COST CALCULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Is your AI coding plan cheaper than the API — or is the API cheaper than your plan?</h1>
+    <p>Vendor pricing pages quote a flat monthly price on one page and a per-token API rate on another, and never do the multiplication for how <em>you</em> actually use the tool. This does — enter your plan, your usage, and the model's rates (or start from a preset and edit it), and it works out both monthly costs and the usage level where they cross.</p>
+    <p class="note">Nothing is uploaded. Every number here stays in this browser.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Your subscription</h2>
+    <div class="row">
+      <div>
+        <label for="plan">Plan</label>
+        <select id="plan"></select>
+      </div>
+      <div>
+        <label for="plan-price">Monthly price (USD)</label>
+        <input type="number" id="plan-price" min="0" step="0.01">
+      </div>
+      <div>
+        <label for="seats">Seats</label>
+        <input type="number" id="seats" min="1" step="1" value="1">
+      </div>
+    </div>
+
+    <fieldset>
+      <legend>2. Your usage (per active day)</legend>
+      <div class="row">
+        <div>
+          <label for="usage-tier">Starting point</label>
+          <select id="usage-tier"></select>
+        </div>
+        <div>
+          <label for="active-days">Active days / month</label>
+          <input type="number" id="active-days" min="0" step="1" value="21">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="input-tokens">Fresh input tokens</label>
+          <input type="number" id="input-tokens" min="0" step="1000">
+        </div>
+        <div>
+          <label for="output-tokens">Output tokens</label>
+          <input type="number" id="output-tokens" min="0" step="1000">
+        </div>
+        <div>
+          <label for="cache-write-tokens">Cache write tokens</label>
+          <input type="number" id="cache-write-tokens" min="0" step="1000">
+        </div>
+        <div>
+          <label for="cache-read-tokens">Cache read tokens</label>
+          <input type="number" id="cache-read-tokens" min="0" step="1000">
+        </div>
+      </div>
+      <p class="note">Cache reads usually dwarf everything else in an agentic coding session — most of the context is the same files and history sent again, billed at a fraction of the fresh-input rate. If you don't know your numbers, pick a starting point above and adjust it.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>3. API rates it would cost to run that usage yourself</legend>
+      <div class="row">
+        <div>
+          <label for="model">Model rate preset</label>
+          <select id="model"></select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="rate-input">Input $/M tokens</label>
+          <input type="number" id="rate-input" min="0" step="0.01">
+        </div>
+        <div>
+          <label for="rate-output">Output $/M tokens</label>
+          <input type="number" id="rate-output" min="0" step="0.01">
+        </div>
+        <div>
+          <label for="rate-cache-write">Cache write $/M</label>
+          <input type="number" id="rate-cache-write" min="0" step="0.01">
+        </div>
+        <div>
+          <label for="rate-cache-read">Cache read $/M</label>
+          <input type="number" id="rate-cache-read" min="0" step="0.01">
+        </div>
+      </div>
+      <p class="note" id="rates-note"></p>
+    </fieldset>
+
+    <p style="margin-top:16px"><button type="button" id="run">Compare</button></p>
+    <p id="error" class="error" hidden></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="headline" id="headline"></p>
+    <p id="detail"></p>
+
+    <div class="scroll">
+      <table>
+        <thead><tr><th></th><th class="num">Monthly cost</th></tr></thead>
+        <tbody>
+          <tr><td>Your subscription</td><td class="num" id="row-sub"></td></tr>
+          <tr><td>Same usage, paid per token</td><td class="num" id="row-api"></td></tr>
+          <tr><td>Difference</td><td class="num" id="row-delta"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note" id="breakeven"></p>
+  </section>
+
+  <section class="card">
+    <h2>Why this differs from a simple "tokens × price" calculator</h2>
+    <p>Most cost calculators multiply input and output tokens by a blended rate and stop. That understates the case for a subscription for exactly the users asking this question: agentic coding tools resend most of the file and conversation context on almost every turn, and providers that support prompt caching bill that repeated, unchanged prefix at a small fraction of the fresh-input rate. See <a href="how-ai-coding-plan-pricing-works.html">how AI coding plan pricing actually works</a> for the full breakdown, sourced examples, and the vendor pricing pages to check before you decide.</p>
+    <p class="note">Building or watching MCP servers and AI-agent supply chains too? <a href="../mcp-supply-chain-watch/">mcp-supply-chain-watch</a> monitors the servers your agent is already connected to for a change in what they can do.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+
+    <h3>Is Claude Max actually worth it over the API?</h3>
+    <p>It depends entirely on how much you use it and how much of that usage is cache reads, which are billed far below fresh input on providers that support prompt caching. This calculator takes your own token estimates (or a light/typical/heavy starting point you edit) and the plan's price, and reports which is cheaper this month and at what usage level the other one would catch up.</p>
+
+    <h3>Why does this ask for cache read and cache write tokens separately?</h3>
+    <p>Agentic coding tools resend most of the conversation and file context on nearly every turn. Providers that support prompt caching bill a repeated, unchanged prefix at a small fraction of the fresh-input rate, and publicly reported usage breakdowns for heavy coding-agent use put cache reads above 90% of total tokens. A calculator that only multiplies input and output tokens by a blended rate significantly overstates the API-equivalent cost for exactly the heavy users asking this question.</p>
+
+    <h3>Where do the default prices and rates come from?</h3>
+    <p>They are list prices and published API rates as of the date shown on the page, recorded here because this tool makes no network call. Vendors change pricing without notice and this calculator cannot know when that happens — every field is a plain number you can edit, and the result is only as current as what you put in. Check the vendor's own pricing page before deciding.</p>
+
+    <h3>Is anything I type here uploaded?</h3>
+    <p>No. All arithmetic happens in your own browser. There is no account, no server call, and no analytics vendor.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It produces an <em>estimate</em> from the plan, usage, and rates you enter — it is not a billing statement, a quote, or financial advice. Published prices and API rates are quoted as of a stated date and change without notice. <strong>You are responsible for checking any figure here against the vendor's own current pricing page before relying on it.</strong> Not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, GitHub, Microsoft, or OpenAI — each is a trademark of its respective owner, named here only to describe what this tool compares. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. What you enter is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>compare_run</code>, <code>tier_selected</code>, <code>model_selected</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { compare, formatUsd, MODEL_PRESETS, PLAN_PRESETS, USAGE_TIERS, RATES_AS_OF } from './calc.mjs';
+    import { record, setUsageOptOut } from './usage.mjs';
+
+    const $ = (sel) => document.querySelector(sel);
+
+    function fillSelect(select, presets, defaultKey) {
+      select.innerHTML = Object.entries(presets)
+        .map(([key, p]) => `<option value="${key}" ${key === defaultKey ? 'selected' : ''}>${p.label}</option>`)
+        .join('');
+    }
+
+    fillSelect($('#plan'), PLAN_PRESETS, 'claude-max-5x');
+    fillSelect($('#usage-tier'), USAGE_TIERS, 'typical');
+    fillSelect($('#model'), MODEL_PRESETS, 'claude-sonnet');
+    $('#rates-note').textContent = `Rates as of ${RATES_AS_OF}. Pick a preset to fill in, then edit anything — it's your number that matters, not the default.`;
+
+    function applyPlanPreset(key) {
+      const preset = PLAN_PRESETS[key];
+      if (preset) $('#plan-price').value = preset.monthlyUsd;
+    }
+    function applyUsagePreset(key) {
+      const preset = USAGE_TIERS[key];
+      if (!preset) return;
+      $('#input-tokens').value = preset.inputTokens;
+      $('#output-tokens').value = preset.outputTokens;
+      $('#cache-write-tokens').value = preset.cacheWriteTokens;
+      $('#cache-read-tokens').value = preset.cacheReadTokens;
+    }
+    function applyModelPreset(key) {
+      const preset = MODEL_PRESETS[key];
+      if (!preset) return;
+      $('#rate-input').value = preset.input;
+      $('#rate-output').value = preset.output;
+      $('#rate-cache-write').value = preset.cacheWrite;
+      $('#rate-cache-read').value = preset.cacheRead;
+    }
+
+    applyPlanPreset('claude-max-5x');
+    applyUsagePreset('typical');
+    applyModelPreset('claude-sonnet');
+
+    $('#plan').addEventListener('change', (e) => applyPlanPreset(e.target.value));
+    $('#usage-tier').addEventListener('change', (e) => {
+      applyUsagePreset(e.target.value);
+      record('tier_selected');
+    });
+    $('#model').addEventListener('change', (e) => {
+      applyModelPreset(e.target.value);
+      record('model_selected');
+    });
+
+    const errorBox = $('#error');
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.hidden = false;
+      $('#results').hidden = true;
+    }
+
+    $('#run').addEventListener('click', () => {
+      errorBox.hidden = true;
+      let result;
+      try {
+        result = compare({
+          planMonthlyUsd: Number($('#plan-price').value),
+          seats: Number($('#seats').value) || 1,
+          activeDaysPerMonth: Number($('#active-days').value),
+          usage: {
+            inputTokens: Number($('#input-tokens').value) || 0,
+            outputTokens: Number($('#output-tokens').value) || 0,
+            cacheWriteTokens: Number($('#cache-write-tokens').value) || 0,
+            cacheReadTokens: Number($('#cache-read-tokens').value) || 0,
+          },
+          rates: {
+            input: Number($('#rate-input').value) || 0,
+            output: Number($('#rate-output').value) || 0,
+            cacheWrite: Number($('#rate-cache-write').value) || 0,
+            cacheRead: Number($('#rate-cache-read').value) || 0,
+          },
+        });
+      } catch (error) {
+        return showError(error.message);
+      }
+
+      const cheaperLabel = result.cheaper === 'tie' ? 'The same' : result.cheaper === 'subscription' ? 'Your subscription' : 'The API';
+      $('#headline').className = 'headline ' + (result.cheaper === 'api' ? 'api-cheaper' : result.cheaper === 'subscription' ? 'sub-cheaper' : '');
+      $('#headline').textContent =
+        result.cheaper === 'tie'
+          ? `Dead even at ${formatUsd(result.subscriptionMonthlyUsd)}/mo either way.`
+          : `${cheaperLabel} is cheaper, by ${formatUsd(Math.abs(result.deltaUsd))}/mo.`;
+
+      $('#row-sub').textContent = `${formatUsd(result.subscriptionMonthlyUsd)}/mo`;
+      $('#row-api').textContent = `${formatUsd(result.apiMonthlyUsd)}/mo`;
+      $('#row-delta').textContent = `${result.deltaUsd >= 0 ? '+' : ''}${formatUsd(result.deltaUsd)}/mo (API minus subscription)`;
+
+      if (result.breakEvenUsageScale === null) {
+        $('#breakeven').textContent = 'At zero API cost there is no break-even to report — the subscription is the only cost either way.';
+      } else if (result.breakEvenUsageScale >= 1) {
+        const pct = ((result.breakEvenUsageScale - 1) * 100).toFixed(0);
+        $('#breakeven').textContent = `Your usage would need to grow about ${pct}% for the API to stop being cheaper than the subscription.`;
+      } else {
+        const pct = ((1 - result.breakEvenUsageScale) * 100).toFixed(0);
+        $('#breakeven').textContent = `Your usage would need to drop about ${pct}% before the API would beat the subscription.`;
+      }
+
+      $('#results').hidden = false;
+      record('compare_run');
+      $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    $('#optout').addEventListener('click', (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = 'Usage counting is off';
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>
