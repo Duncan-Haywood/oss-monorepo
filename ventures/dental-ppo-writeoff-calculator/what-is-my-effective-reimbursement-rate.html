@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What Is My Effective Reimbursement Rate? | Dental PPO Write-Offs Explained</title>
+  <meta name="description" content="Your effective reimbursement rate is net production over gross production, per carrier. Here is why a practice management system never prints it, why the plan with the worst rate is usually not the plan costing you most, and why raising your fee schedule collects almost nothing.">
+  <link rel="canonical" href="./what-is-my-effective-reimbursement-rate.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"What is an effective reimbursement rate?","acceptedAnswer":{"@type":"Answer","text":"Net production divided by gross production, for one carrier, over one period. If you billed $62,000 at your own fee schedule and wrote off $24,800 as a contractual adjustment, that plan reimbursed you at 60%. It is the only form in which two plans can be compared, and a practice management system reports the adjustment as a dollar column beside production rather than as a rate."}},
+    {"@type":"Question","name":"Why rank plans by write-off dollars instead of by reimbursement rate?","acceptedAnswer":{"@type":"Answer","text":"Because the worst rate is often not the biggest problem. A plan reimbursing 55% on $31,000 of production takes less out of the practice than one reimbursing 60% on $62,000. Ranking by rate points at the first; ranking by dollars points at the second. This page ranks by dollars and prints the rate beside it, so both readings are available and neither is hidden."}},
+    {"@type":"Question","name":"How can a plan pay less than an hour of chair time costs?","acceptedAnswer":{"@type":"Answer","text":"Your break-even reimbursement rate is what the chair costs to keep open divided by what you produce per hour at your own fees. Any plan reimbursing below that rate is buying chair time for less than the chair costs. This page states the break-even as a rate rather than as dollars so it lines up directly with the per-plan rates above it and the comparison is made by eye."}},
+    {"@type":"Question","name":"Why does raising my fee schedule not increase collections?","acceptedAnswer":{"@type":"Answer","text":"Because a PPO allowed fee is a contracted dollar amount, not a percentage of whatever the office charges. Raising your fees raises the gross production you bill and raises the contractual write-off by exactly the same amount on every contracted procedure. It collects more only on production that is not contracted. A practice where 80% of production runs through plans collects 20 cents of each added dollar and writes off the other 80."}},
+    {"@type":"Question","name":"How does the calculator work out chair hours per plan?","acceptedAnswer":{"@type":"Answer","text":"It allocates them in proportion to gross production at your own fee schedule, because no practice tracks chair hours by carrier and a tool that demanded them could not be filled in from any report that exists. Your fee schedule is your own pricing of chair time, so an hour billed at $600 of your fees is an hour of chair whatever a carrier later allows. The assumption is stated rather than hidden, and everything downstream follows from it."}},
+    {"@type":"Question","name":"Does dropping a plan recover the write-off?","acceptedAnswer":{"@type":"Answer","text":"No, and this page does not suggest it. Terminating a participating-provider agreement removes the write-off and the production together; whether the practice is better off depends on how much of that schedule refills at your own fees, which is a question about your market and your patients that no calculator can answer. The figures here say what each contract costs. What to do about a contract is a decision for you and your advisors."}},
+    {"@type":"Question","name":"Do I enter any patient information?","acceptedAnswer":{"@type":"Answer","text":"No. Every input is a period total for a carrier \u2014 production, write-off, chair hours, payroll, overhead \u2014 which is what a production-by-carrier report already gives you and which contains no protected health information. There is deliberately no shareable link and no upload: the calculator runs entirely in your browser, and saving a scenario writes the figures to this browser's own storage only."}},
+    {"@type":"Question","name":"Is this accounting, legal or contract advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is your own numbers, divided. It makes no determination about how an adjustment should be recorded, about the terms of any participating-provider agreement, about tax treatment, or about whether to join or leave a network. Check every figure against your practice management system and your accounts, and against a qualified professional, before acting on it."}}
+  ]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; margin: 0 0 14px; }
+    h2 { font-size: 1.15rem; margin: 30px 0 8px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f5c35; margin: 0 0 6px; }
+    .cta { display: inline-block; margin: 18px 0; background: #1f5c35; color: #f4f8f6; padding: 11px 16px; border-radius: 8px; text-decoration: none; font-weight: 650; }
+    .worked { background: #f8fafc; border: 1px solid #cbd4e0; border-radius: 12px; padding: 16px 18px; margin: 18px 0; }
+    .worked dl { display: grid; grid-template-columns: 1fr auto; gap: 7px; margin: 0; font-size: .92rem; }
+    .worked dt, .worked dd { margin: 0; }
+    .worked dd { font-variant-numeric: tabular-nums; }
+    .caption { font-size: .82rem; color: #4d5b6c; margin: 10px 0 0; }
+    footer { margin-top: 34px; font-size: .82rem; color: #4d5b6c; border-top: 1px solid #cbd4e0; padding-top: 16px; }
+    footer a, main a { color: #1f5c35; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">DENTAL PRACTICE ECONOMICS</p>
+    <h1>What is my effective reimbursement rate, and why is it lower than I think?</h1>
+
+    <p>It is one division: net production over gross production, for one carrier, over one period. If you billed $62,000 at your own fee schedule last month under a single PPO and $24,800 came off as a contractual adjustment, that plan reimbursed you at 60%. Everything else on this page follows from that number being computed per plan rather than in total.</p>
+
+    <a class="cta" href="./">Open the free calculator</a>
+
+    <h2>Why no report shows it</h2>
+    <p>A practice management system reports production, and it reports adjustments, and both are dollar columns. Nothing divides one by the other, because the division only means something once you fix a period and a carrier &mdash; and the report is organised by provider, by procedure, or by day. So the practice ends up knowing one figure, the total write-off, which is the one figure that cannot be acted on: it names no contract.</p>
+    <p>The adjustment is also posted at the same moment as the claim. It never ages, nobody chases it, and it appears in no collections report. It is the only money a practice loses that never looks like a loss.</p>
+
+    <h2>The plan with the worst rate is usually not the plan costing you most</h2>
+    <p>Rate and dollars rank differently, and a practice reading only one of them will work on the wrong contract. A plan reimbursing 55% on $31,000 of production takes $13,950. A plan reimbursing 60% on $62,000 takes $24,800. The second has the better rate and costs nearly twice as much.</p>
+    <div class="worked">
+      <dl>
+        <dt>Delta PPO &mdash; 60% of $62,000</dt><dd>$24,800</dd>
+        <dt>Cigna &mdash; 55% of $31,000</dt><dd>$13,950</dd>
+        <dt>Delta Premier &mdash; 80% of $48,000</dt><dd>$9,600</dd>
+        <dt>MetLife &mdash; 65% of $19,000</dt><dd>$6,650</dd>
+      </dl>
+      <p class="caption">An illustration, not a benchmark. These are the figures the calculator opens on so you can see the shape before entering your own; they are not a survey of what carriers pay and nothing should be inferred about any named plan from them.</p>
+    </div>
+
+    <h2>The number that decides whether a contract is worth having</h2>
+    <p>Work out what an hour of chair costs: provider compensation plus practice overhead, over clinical chair hours. Then work out what you produce in that hour at your own fees. The ratio of the two is a <strong>break-even reimbursement rate</strong> &mdash; and because it is a rate, it sits directly alongside the per-plan rates and the comparison takes no arithmetic at all.</p>
+    <p>A practice costing $176.56 an hour to run and producing $312.50 an hour at its own fees breaks even at 56.5%. Every plan above that rate contributes something to the practice; every plan below it is selling chair time for less than the chair costs to keep open.</p>
+    <p>That is a fact about the contract, not a recommendation about it. Terminating an agreement removes the write-off and the production together, and whether the practice is better off depends entirely on how much of that schedule refills at your own fees &mdash; a question about your market and your patients that no calculator can answer.</p>
+
+    <h2>Why raising your fee schedule collects almost nothing</h2>
+    <p>This is the one most practices get wrong, and it is worth being exact about. A PPO allowed fee is a <em>contracted dollar amount</em>. It does not move when your posted fee moves. So on every contracted procedure, raising your fee raises the gross production you bill and raises the write-off by precisely the same amount. The collection is unchanged.</p>
+    <p>A fee increase collects more only on production that is not contracted. In a practice where 80% of production runs through plans, an 8% rise across the schedule bills $16,000 more, writes off $12,800 of it, and collects $3,200. The write-off percentage &mdash; the figure that gets watched &mdash; gets <em>worse</em>, while the practice is slightly better off. Both halves of that are worth knowing before the decision, and the calculator prints them together.</p>
+
+    <h2>How the per-hour figures are worked out</h2>
+    <p>No practice tracks chair hours by carrier, and a tool demanding them could not be filled in from any report that exists. So hours are allocated between plans <strong>in proportion to gross production at your own fee schedule</strong> &mdash; your fee schedule is, by construction, your own pricing of chair time, so an hour billed at $600 of your fees is an hour of chair whatever a carrier later allows.</p>
+    <p>That assumption is worth stating plainly because everything per-hour rests on it, and it collapses to something simple: a plan's dollars per chair hour is just its reimbursement rate multiplied by what the practice produces per hour at its own fees. If your case mix under one carrier is unusually heavy or unusually quick relative to the rest of the practice, that plan's per-hour figure will be correspondingly off, and the reimbursement rate beside it &mdash; which needs no allocation at all &mdash; is the figure to trust.</p>
+
+    <h2>What you need to fill it in</h2>
+    <p>One production-by-carrier report for one month, your clinical chair hours, provider compensation and overhead for the same month. No patient-level information is needed or wanted: every input is a period total, which is what the report already gives you.</p>
+
+    <h2>Common questions</h2>
+    <h3>What is an effective reimbursement rate?</h3>
+    <p>Net production divided by gross production, for one carrier, over one period. If you billed $62,000 at your own fee schedule and wrote off $24,800 as a contractual adjustment, that plan reimbursed you at 60%. It is the only form in which two plans can be compared, and a practice management system reports the adjustment as a dollar column beside production rather than as a rate.</p>
+    <h3>Why rank plans by write-off dollars instead of by reimbursement rate?</h3>
+    <p>Because the worst rate is often not the biggest problem. A plan reimbursing 55% on $31,000 of production takes less out of the practice than one reimbursing 60% on $62,000. Ranking by rate points at the first; ranking by dollars points at the second. This page ranks by dollars and prints the rate beside it, so both readings are available and neither is hidden.</p>
+    <h3>How can a plan pay less than an hour of chair time costs?</h3>
+    <p>Your break-even reimbursement rate is what the chair costs to keep open divided by what you produce per hour at your own fees. Any plan reimbursing below that rate is buying chair time for less than the chair costs. This page states the break-even as a rate rather than as dollars so it lines up directly with the per-plan rates above it and the comparison is made by eye.</p>
+    <h3>Why does raising my fee schedule not increase collections?</h3>
+    <p>Because a PPO allowed fee is a contracted dollar amount, not a percentage of whatever the office charges. Raising your fees raises the gross production you bill and raises the contractual write-off by exactly the same amount on every contracted procedure. It collects more only on production that is not contracted. A practice where 80% of production runs through plans collects 20 cents of each added dollar and writes off the other 80.</p>
+    <h3>How does the calculator work out chair hours per plan?</h3>
+    <p>It allocates them in proportion to gross production at your own fee schedule, because no practice tracks chair hours by carrier and a tool that demanded them could not be filled in from any report that exists. Your fee schedule is your own pricing of chair time, so an hour billed at $600 of your fees is an hour of chair whatever a carrier later allows. The assumption is stated rather than hidden, and everything downstream follows from it.</p>
+    <h3>Does dropping a plan recover the write-off?</h3>
+    <p>No, and this page does not suggest it. Terminating a participating-provider agreement removes the write-off and the production together; whether the practice is better off depends on how much of that schedule refills at your own fees, which is a question about your market and your patients that no calculator can answer. The figures here say what each contract costs. What to do about a contract is a decision for you and your advisors.</p>
+    <h3>Do I enter any patient information?</h3>
+    <p>No. Every input is a period total for a carrier — production, write-off, chair hours, payroll, overhead — which is what a production-by-carrier report already gives you and which contains no protected health information. There is deliberately no shareable link and no upload: the calculator runs entirely in your browser, and saving a scenario writes the figures to this browser&#x27;s own storage only.</p>
+    <h3>Is this accounting, legal or contract advice?</h3>
+    <p>No. It is your own numbers, divided. It makes no determination about how an adjustment should be recorded, about the terms of any participating-provider agreement, about tax treatment, or about whether to join or leave a network. Check every figure against your practice management system and your accounts, and against a qualified professional, before acting on it.</p>
+
+    <a class="cta" href="./">Work out your own rates</a>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, employment or contract advice, and it does not tell you what to charge, which networks to join or leave, how to code or record any adjustment, or how any agreement should be read. It is arithmetic on the numbers you type. Verify every figure against your own practice management system, payroll records and accounts, and against a qualified professional, before relying on it or acting on a contract with it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p>Carrier names above are used only to describe what the tool computes. No affiliation with, endorsement by, or sponsorship from any named company is implied.</p>
+    <p><a href="./">Dental PPO write-off calculator</a> &mdash; free, private, and open source.</p>
+  </footer>
+</body>
+</html>

@@ -1579,7 +1579,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # tree, not of any one session's diff, so two sibling ventures graduating
     # in parallel each correctly claimed 261 from their own base and merging
     # both makes it 262.
-    total = 262  # `infra/OWNER_CHECKLIST.md`'s own "N of the 262 tools" wording.
+    # 263 since 2026-09-11, when `dental-ppo-writeoff-calculator` graduated —
+    # the first venture here for a healthcare practice's own back office, and a
+    # static `index.html` from its first commit, so it entered the mirror and
+    # the total together like the three above it.
+    total = 263  # `infra/OWNER_CHECKLIST.md`'s own "N of the 263 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 262 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 263 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 262 of them — and
+Every tool in the collection is listed below — all 263 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -254,6 +254,7 @@ page that hosts it.
 - [Appointment Deposit Calculator for Service Businesses](https://marisstella.dev/tools/appointment-deposit-calculator/): Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.
 - [Card Processing Fee Audit — Split Your Statement Into Interchange and Markup](https://marisstella.dev/tools/card-processing-fee-audit/): Read five numbers off your merchant statement and see how much of your card processing bill is network interchange you cannot negotiate and how much is processor markup you can. Free, private, runs in your browser.
 - [Certified Payroll Calculator — Davis-Bacon Overtime & Fringe Compliance](https://marisstella.dev/tools/certified-payroll-calculator/): Free calculator for Davis-Bacon / prevailing-wage certified payroll: checks whether a worker's cash wages plus fringe meet the wage determination, and computes overtime correctly when part of the fringe is paid in cash instead of a bona fide plan.
+- [Dental PPO Write-Off Calculator](https://marisstella.dev/tools/dental-ppo-writeoff-calculator/): Your fee schedule is not what you collect. Enter one month of production and contractual write-offs by carrier and see the effective reimbursement rate for every plan, which plans pay less than an hour of chair time costs you, and exactly what a fee increase would and would not collect. Free, private, nothing uploaded.
 - [Duplicate Payment Audit — Find Double Vendor Payments in Your AP Ledger](https://marisstella.dev/tools/duplicate-payment-audit/): Free private CSV tool for small businesses and bookkeepers to find duplicate or double vendor payments in an accounts-payable export before requesting a refund.
 - [Equipment Lease Buyout Calculator — Buy Out vs. Return and Replace](https://marisstella.dev/tools/equipment-lease-buyout-calculator/): Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.
 - [Equipment Rental Break-Even Calculator](https://marisstella.dev/tools/equipment-rental-break-even/): Free private equipment rental break-even calculator. Include ownership, delivery, cleaning, damage reserve, and utilization costs before quoting a booking.

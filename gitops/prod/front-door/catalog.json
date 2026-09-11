@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 262,
-  "collection_total": 262,
+  "served_here": 263,
+  "collection_total": 263,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -50,7 +50,7 @@
       "id": "backoffice",
       "name": "Back-office money & contracts",
       "url": "https://marisstella.dev/c/backoffice/",
-      "tool_count": 17
+      "tool_count": 18
     },
     {
       "id": "marketplace",
@@ -941,6 +941,14 @@
       "category": "Marketplace seller tools",
       "description": "Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub. See net after commission, packaging, and extra labor — plus the menu price each app needs to match dine-in.",
       "pages": 4
+    },
+    {
+      "slug": "dental-ppo-writeoff-calculator",
+      "name": "Dental PPO Write-Off Calculator",
+      "url": "https://marisstella.dev/tools/dental-ppo-writeoff-calculator/",
+      "category": "Back-office money & contracts",
+      "description": "Your fee schedule is not what you collect. Enter one month of production and contractual write-offs by carrier and see the effective reimbursement rate for every plan, which plans pay less than an hour of chair time costs you, and exactly what a fee increase would and would not collect. Free, private, nothing uploaded.",
+      "pages": 2
     },
     {
       "slug": "dependency-confusion-check",

@@ -1,0 +1,37 @@
+name: dental-ppo-writeoff-calculator
+description: A private browser calculator that shows a dental practice what each insurance plan actually pays — the effective reimbursement rate per carrier and blended — then ranks every plan by the write-off dollars it takes rather than by its rate, sets a break-even reimbursement rate from cost per chair hour against production per chair hour so a contract paying less than the chair costs is visible by eye, reports how concentrated the write-off is across carriers, and separates what a fee schedule increase would actually collect from what it would merely add to the write-off.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Practice owners will use a per-plan reimbursement calculator because their management system reports production and contractual adjustments as separate dollar columns and never divides them per carrier, so the only figure they hold is a total that names no contract and cannot be acted on.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Ranking plans by write-off dollars rather than by reimbursement rate is what makes the output actionable, because the plan with the worst rate is routinely not the plan costing the practice most and a practice reading only the rate works on the wrong contract.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The fee-increase model is the output practices return for, because raising the fee schedule is the universal first instinct about write-offs and on contracted production it collects nothing at all — a result no free tool states and every practice discovers after the fact.
+    status: untested
+    checked: null
+    # Settled by someone outside this repository using a published page, which
+    # is what `customer-contact` encodes. `links.production` exists but no
+    # visitor signal is measurable on this origin (see portfolio/usage/), so
+    # the router ranks this undispatchable rather than parking it at the top
+    # of a queue no session can clear.
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified practice owners or office managers complete a month and read a result within 90 days.
+  - Practices report that their management system will not produce production and contractual adjustments split by carrier for a single period, so the plan table cannot be filled in from a report they already run.
+  - The reimbursement rates it produces prove so far from what practices recognise in their own numbers that the arithmetic is rejected rather than acted on.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/dental-ppo-writeoff-calculator/
+  analytics: null
