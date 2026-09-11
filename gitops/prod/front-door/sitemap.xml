@@ -55,6 +55,9 @@
     <loc>https://marisstella.dev/compare/buildxact/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/compare/cookiebot/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/compare/crest-capital-s-lease-calculator/</loc>
   </url>
   <url>
@@ -764,6 +767,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/cookie-security-check/samesite-none-cookie-rejected.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cookie-security-check/vs-cookiebot.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/cors-misconfig-check/</loc>
