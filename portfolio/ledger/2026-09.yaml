@@ -26303,3 +26303,47 @@ entries:
         `portfolio/ledger` + `scoring` + `router` + `usage` + `pipeline` +
         `infra/tests` 435 passed.
     mrr_end: 0
+  - venture: sri-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a vs-srihash.html comparison page: sri-check (composite 6.167,
+        one of the highest-scoring ventures still lacking a vs-* page --
+        232/259 ventures already had one) now has the same competitor-page
+        pattern most recent merges in this repo have shipped (#4549, #4527,
+        #4523, others). Compares honestly against srihash.org, a well-known
+        free, single-purpose SRI hash generator with no page-crawling or
+        drift-check mode -- no fabricated pricing or benchmarks, both pages'
+        discipline of never stating a competitor's dollar figure on a static
+        page enforced by test. Linked from index.html and sitemap.xml; ran
+        `platform/marketing/regen.mjs` and committed the regenerated mirror
+        (page count 2->3, catalogue comparisons 264->265).
+      - >-
+        Verified during a confirmed CI-starvation window (runners starved,
+        Hetzner/k3s down, per session context): venture's own 64 `node --test`
+        assertions incl. the 9 new vs-srihash tests; `platform/marketing/*.test.mjs`
+        + `platform/pages/*.test.mjs` 1231/1231 passed; `checklist_coverage.py`
+        clean; `gitops/tests` 557 passed / 25 skipped (environmental --
+        nginx/ssh binaries, same pattern prior sessions recorded); all 15
+        `platform/ci` unittest modules green plus `agent_review/test_review`
+        (21 tests); `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+
+        `infra/tests` 435 passed; all 8 portfolio-validate.yml validators run
+        directly (router/validate.py, front-door-tools.mjs --headroom,
+        validate_doc_consistency.py, validate_candidates.py,
+        validate_probe_index.py, score_sensitivity.py, score_ventures.py
+        --check, validate_usage.py) all clean; `platform/proposal` (101) and
+        `platform/privacy`+`platform/webcheck` (82) test suites green.
+        `run_workflow_locally.py --for-changes` was started but killed
+        mid-run after ~7 minutes rebuilding the full 259-venture site (not
+        hung -- confirmed 100% CPU on `build.mjs` -- just too slow to block
+        on); the steps it had already completed passed clean, including
+        `portfolio-pages.yml`'s full build+link-check (3/3). Its one visible
+        failure before being killed (`pages.yml`'s hub-link check, because
+        that workflow's build step has a `${{ }}` conditional the local
+        runner cannot evaluate and so skips) was independently confirmed to
+        be a tool limitation rather than a regression: built the real site
+        with `platform/pages/build.mjs --out=<dir>` and ran
+        `check_pages_links.py` against it directly -- "OK: every local
+        reference resolves" across 969 pages.
+    mrr_end: 0
