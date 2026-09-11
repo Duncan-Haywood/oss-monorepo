@@ -724,3 +724,34 @@ def test_a_no_op_refresh_does_not_re_announce(tmp_path):
     assert second.returncode == 0, second.stderr
     assert "nothing to do" in second.stdout
     assert not log.exists(), "an unchanged commit must not re-announce"
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="needs node")
+@pytest.mark.skipif(shutil.which("timeout") is None, reason="needs coreutils timeout")
+def test_a_hanging_announcement_is_bounded_rather_than_wedging_the_unit(tmp_path):
+    """"Never fails the refresh" does not survive a hang unless it is bounded.
+
+    Node's fetch has no default timeout, so an endpoint that accepts the
+    connection and then goes quiet would hold the script open until the unit's
+    own TimeoutStartSec=600 killed it -- and systemd marks the unit FAILED,
+    which is the "a box serving correct content looks broken" outcome the
+    non-fatal handling exists to prevent.
+    """
+    repo = _fake_repo(tmp_path)
+    marketing = repo / "platform" / "marketing"
+    marketing.mkdir(parents=True, exist_ok=True)
+    # Never exits -- the shape of a blackholed endpoint. A bare unresolved
+    # top-level await would NOT do: node detects the drained event loop and
+    # exits 13 straight away, which tests the generic branch rather than the
+    # hang. A live timer is what keeps the process actually running.
+    (marketing / "indexnow.mjs").write_text("setInterval(() => {}, 1000);\n")
+    _commit(repo, "add hanging indexnow stub")
+    state = tmp_path / "state"
+
+    result = _run_refresh(repo, state, SITE_INDEXNOW_TIMEOUT="1")
+
+    assert result.returncode == 0, result.stderr
+    assert "timed out after 1s" in result.stdout
+    # The deploy itself completed and the site is live.
+    assert (state / "current" / "index.html").read_text() == "built"
+    assert "done." in result.stdout
