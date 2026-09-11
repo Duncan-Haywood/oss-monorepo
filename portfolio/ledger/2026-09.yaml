@@ -28839,3 +28839,98 @@ entries:
         change to accessibility-relevant markup shape beyond the ordinary
         form-input pattern every other venture in the fleet already uses).
     mrr_end: 0
+  - venture: terraform-plan-secret-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second comparison page on the same venture, in the same
+        session-overlap window as the `vs-checkov.html` entry above:
+        `vs-gitleaks.html` (#4637). Gitleaks is a real, widely used
+        open-source secret scanner; facts about its scope were fetched from
+        its own GitHub repo description this session (via WebFetch, not
+        recalled) rather than asserted from memory. States the honest
+        difference plainly -- Gitleaks is a general-purpose regex/entropy
+        scanner over git history, files, stdin and archives with no built-in
+        parser for Terraform's plan format or its
+        `before_sensitive`/`after_sensitive` structure, while this tool
+        reads exactly one file and flags only the attribute values
+        Terraform's own schema did not already mark sensitive -- framed per
+        PRODUCT_PLAYBOOK.md 5f as "different job, often worth running both,"
+        never a claim either tool is worse. Carries the FAQPage JSON-LD,
+        no-warranty and not-affiliated (nominative fair use) disclaimers.
+        Linked from `index.html` and `README.md`, added to `sitemap.xml`.
+      - >-
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        caught a real defect before merge: the JSON-LD FAQ answers used
+        literal `--` where the matching visible `<p>`/`<h3>` prose used the
+        em dash `—`, so `faq-visible.test.mjs` correctly failed the
+        exact-text match (twice -- the first fix missed two more `--`
+        instances further into the same two answers). Fixed by replacing
+        every ` -- ` with ` — ` in the page, confirmed with a clean
+        1255/1255 rerun.
+      - >-
+        Heavy concurrent-session overlap on this exact venture: `main` moved
+        four times while this branch was in flight, including two sibling
+        sessions' work on the same venture (`vs-checkov.html` above, and a
+        reciprocal sibling link added by the new
+        `terraform-plan-blast-radius-check` venture). Per CLAUDE.md's
+        duplicate-PR guidance (overlap on the same venture/file is the
+        normal case, not evidence of redundancy), merged `origin/main` twice
+        and combined the competing `index.html`/`sitemap.xml` link additions
+        rather than dropping either, regenerating derived surfaces fresh
+        after each merge. Also hit and fixed a local tooling artifact
+        unrelated to any venture: a `.git/shallow` file survived an earlier
+        `git fetch --unshallow` and caused a later plain `git fetch origin
+        main` to silently re-shallow the clone to a single orphan commit,
+        which then made `check_venture_regression.py` misreport `main`'s
+        newest venture as "removed" and made a plain `git merge` fail with
+        "refusing to merge unrelated histories." Cross-verified against the
+        GitHub API directly (`list_commits`) before concluding this was a
+        local fetch artifact rather than a real history-rewrite on `main`;
+        resolved with a second, explicit `git fetch --unshallow origin`.
+      - >-
+        Also found and fixed forward, independently of the venture work: a
+        pre-existing mirrored-tool-count drift in `gitops/tests` (`263` vs
+        actual `264`, from `cat-adjuster-fee-calculator` graduating without
+        updating the four documented count locations CLAUDE.md names). That
+        fix was superseded by a concurrent session's own fix landing on
+        `main` first (ultimately to `265`, after `vpat-acr-generator` also
+        graduated) -- resolved via merge rather than re-applied.
+      - >-
+        Verified locally (Actions runners starved this window --
+        `ci_starvation.py`-documented signature, ran the full starvation
+        checklist per CLAUDE.md rather than trusting a red check): `node
+        --test ventures/terraform-plan-secret-exposure-check/*.test.mjs`
+        37/37; `node platform/pages/clauses.mjs
+        terraform-plan-secret-exposure-check` (4 pages, all clauses present);
+        `python3 platform/ci/checklist_coverage.py` clean; `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1255/1255
+        (run three times across the two merges); `python3 -m pytest
+        gitops/tests -q` 581 passed / 1 skipped (after `apt-get install
+        python3-pytest nginx-light openssh-client`, run twice); all 25
+        `platform/ci` unittest modules and `agent_review`'s 21 pass; `python3
+        -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q` 435 passed;
+        `python3 platform/ci/check_venture_regression.py --base origin/main`
+        clean after the second merge; scoped Playwright/axe
+        `browser_checks.py --only terraform-plan-secret-exposure-check`:
+        contrast (0 WCAG violations), sweep, journey all pass, sitemap check
+        confirmed all 1009+ published sitemap URLs resolve, no console/network
+        errors; `python3 platform/ci/run_workflow_locally.py --for-changes`
+        selected 12-13 workflow files against the diff across two runs and
+        exited 0 both times with zero real failures beyond the transient
+        venture-regression false positive (explained above, re-verified
+        directly afterward) and `pages.yml`'s hub-link check (a known tool
+        limitation: its `Build the site` step contains a `${{ }}` expression
+        the local runner cannot evaluate, so `_site` never exists for the
+        next step to check; `portfolio-pages.yml`'s real build-and-check
+        steps ran and passed). Only secret-/write-gated jobs were held, as
+        designed. Merged as #4637 (squash). Published the `gh-pages`
+        snapshot with `publish-branch.sh` and confirmed `pages_state.py
+        --require-current` exits 0 (built from `f96d37b4`, the merge tip).
+        IndexNow submission did not reach the API (this sandbox's egress
+        proxy 403s `api.indexnow.org`, a known, documented, non-fatal
+        limitation) -- the runner route or the Hetzner box under host mode
+        is the route with real egress for that step.
+    mrr_end: 0
