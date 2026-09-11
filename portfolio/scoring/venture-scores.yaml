@@ -10672,6 +10672,88 @@ ventures:
       never a claim that a clean report means the file has no other issues.
       Makes no network call of any kind, and the page's own footer and FAQ
       state both limits plainly.
+
+  - slug: epk-generator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      Tied floor: defensibility and time_to_revenue both land at 3 (ai_leverage
+      is 4, just above), and both need naming. Defensibility 3: a form-to-
+      template document generator is publicly copyable, same as most of this
+      portfolio's calculators and generators -- what isn't trivially copied
+      is the free, account-less positioning against every commercial EPK
+      builder found at screening (see basis), not proprietary logic.
+      Time to revenue 3: this portfolio is donations-only by design, so
+      "first paid customer" reads as an early Sponsors click on nearly every
+      venture here, not a defect specific to this one -- scored against the
+      dimension's literal meaning rather than reinterpreted to look
+      stronger.
+    basis: >-
+      Screened 2026-09-11 against portfolio/pipeline/README.md's saturation
+      measurements (141 <trade>-bid-calculator ventures, 38 *-check/
+      *-checker ventures, zero recorded visitors between them) and its
+      instruction to weigh a different archetype by default. This venture is
+      neither saturated shape: like llms-txt-generator it is a generator
+      (PRODUCT_PLAYBOOK.md SS2's top-ranked shape alongside the static
+      browser app) -- it assembles an artifact (a press-kit page) from
+      content the user supplies, rather than pricing a job or grading one
+      that exists. duplicate_check.py scored two phrasings of this niche
+      against every venture, screened-out row, ai-first-markets idea, and
+      pipeline candidate; top score 0.12 (affiliate-disclosure-checker, on
+      generic word overlap), far under the 0.45 review bar. A direct text
+      search for "press kit", "musician", and "EPK" across every
+      VENTURE.yaml, README.md, and the pipeline candidate/screened-out files
+      found no hits; the nearest venture by name association, sponsor-ready,
+      scores a public GitHub repo's own GitHub Sponsors readiness and is
+      unrelated to an artist's promotional one-pager.
+      Distribution 6, reasoned rather than measured per this session's own
+      egress limit (the agent proxy 403s CONNECT to every host, the same
+      honesty limit llms-txt-generator's and ai-crawler-access-check's own
+      write-ups record): "electronic press kit" and "EPK" are established,
+      decades-old music-industry terms rather than an invented category, so
+      the search phrase itself ("free EPK template", "electronic press kit
+      generator free") is one musicians already type; multiple independently
+      built commercial competitors (Sonicbids-style tools, Presskit.to,
+      ReverbNation's press-kit feature, EPK templates sold on design
+      marketplaces) are evidence of real, sustained demand for this exact
+      job; and large, topically-exact communities exist for the audience
+      (r/WeAreTheMusicMakers, r/musicians, r/IndieMusicFeedback) where "how
+      do I make a press kit with no budget" is a recurring, on-topic
+      question. 6 rather than llms-txt-generator's 5 because every
+      commercial competitor found requires an account and gates the finished
+      file behind its own hosting or a paid tier, a wedge stateable without
+      embellishment; not higher because no search-volume figure was
+      confirmed by a live fetch.
+      Autonomous ops 10 / gross margin 10: the page builds entirely
+      client-side and uploads nothing -- no file upload, no server of ours
+      in the loop, so serving one more visitor costs a static file. AI
+      leverage 4: the core value is deterministic templating (form fields
+      into a document), not model work; PRODUCT_PLAYBOOK.md SS3's API-key
+      switch (an optional, bring-your-own-key AI bio-polish pass) is a
+      plausible later add if usage shows the bio field is where people
+      stall, not built speculatively now.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool renders content the artist supplies and fully controls
+      -- no financial figure, no compliance judgment, no advice-of-record.
+      The worst-case failure is a plain or incomplete press kit, not an
+      actionable claim; the footer states plainly that reviewing the output
+      (including rights to any photo link supplied) stays the artist's own
+      responsibility. Ethical robustness: helps under-resourced independent
+      artists present themselves professionally, with no adversarial
+      dynamic and no negative externality as usage scales.
+
   - slug: forestry-mulching-bid-calculator
     scores:
       ai_leverage: 1

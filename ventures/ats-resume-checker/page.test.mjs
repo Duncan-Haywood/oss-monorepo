@@ -19,6 +19,18 @@ test("index links one hop to the freelance-retainer-calculator sibling", () => {
   );
 });
 
+// Reciprocal of the link in epk-generator's footer. Both tools are a
+// self-presentation document sent to a gatekeeper to get chosen -- a resume
+// to an ATS/recruiter, an electronic press kit to a venue/festival/blog --
+// for a different kind of applicant.
+test("index links one hop to the epk-generator sibling", () => {
+  assert.match(
+    html,
+    /href="\.\.\/epk-generator\/"/,
+    "index must link ../epk-generator/ so a musician looking for the ATS-equivalent check reaches it in one hop",
+  );
+});
+
 // The two surfaces every user-facing page here carries. Asserted rather than
 // assumed: CLAUDE.md's definition of done requires both, and a footer edit is
 // exactly the kind of change that quietly drops one.
