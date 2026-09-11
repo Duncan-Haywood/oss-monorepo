@@ -123,6 +123,41 @@ test('the shared link carries every field the form reads, not a hand-kept subset
     'FLAG_IDS must list every checkbox readInput() reads');
 });
 
+test('the figures on screen cannot outlive the boxes that produced them', () => {
+  // Found live by `platform/pages/roundtrip.mjs`, and fixed in #4562: all 24
+  // fields survived the shared link and the headline still moved, 15.8% →
+  // 18.0%. The link was never wrong. `copyLink()` encodes `readInput()` — the
+  // boxes as they stand — while this page priced on *submit*, so the result on
+  // screen was whatever was last priced and stayed there while the inputs moved
+  // underneath it. The sender read one gross margin and the recipient opened
+  // the link on another: the same shape as the `share.mjs` field-allowlist
+  // defect this file's header already records, reached from the other end.
+  //
+  // The fix is one line of wiring, which is exactly the kind that a later edit
+  // removes without noticing. Nothing pinned it, so this does.
+  assert.match(index, /addEventListener\('input',\s*\(\)\s*=>\s*\{\s*persist\(\);\s*priceIt\(\);\s*\}\)/,
+    'editing a field must reprice as well as save, or the headline can outlive its inputs');
+  assert.match(index, /addEventListener\('change',\s*\(\)\s*=>\s*\{\s*persist\(\);\s*priceIt\(\);\s*\}\)/,
+    'changing the checkbox must reprice too');
+
+  // And it must stay silent while doing it. `renderErrors` marks fields, lists
+  // messages and moves focus to the first bad one; on every keystroke that
+  // would take the cursor out of the box being typed into, and a form mid-edit
+  // is momentarily unpriceable all the time (a cleared field on its way to a
+  // new value). Validation belongs to the explicit submit.
+  const live = index.match(/function priceIt\(\) \{[\s\S]*?\n    \}/);
+  assert.ok(live, 'priceIt is not declared');
+  assert.doesNotMatch(live[0], /renderErrors/,
+    'priceIt must not call renderErrors: it moves focus and would fight the typing');
+  assert.match(live[0], /if \(result\.ok\) render\(result\)/,
+    'priceIt must repaint only on a valid form, leaving a mid-edit page alone');
+
+  // `placement_priced` is this venture's usage denominator — a keystroke is not
+  // a pricing, so the live path must not count one.
+  assert.doesNotMatch(live[0], /count\(/,
+    'repricing on every keystroke must not inflate the placement_priced count');
+});
+
 test('the sponsor link is present, honest, and optional', () => {
   assert.match(index, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(index, /entirely optional and never changes what the tool does/);
