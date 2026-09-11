@@ -53,6 +53,9 @@ workflows:
 - workflow: actions-injection-check-ci.yml
   classification: none
   publishes: []
+- workflow: actions-minutes-estimator-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-permissions-check-ci.yml
   classification: none
   publishes: []
