@@ -25648,6 +25648,34 @@ entries:
         validate_usage.py valid at 211 products / 397 readings; siblings.mjs
         0 orphans of 246.
       - >-
+        Ran the browser/accessibility pass rather than skipping it, and it
+        changed the product. Prompted by #4533, which landed mid-session
+        fixing a WCAG AA contrast failure on the vs-screamingfrog page this
+        run had merged in #4525 -- a defect no `node --test` assertion can
+        see, which is the gap CLAUDE.md records against the 48 axe `label`
+        violations found in the first full contrast run. `browser_checks.py
+        --only drone-mapping-job-calculator` reported contrast clean (2 pages,
+        2 viewports, no WCAG A/AA violations), sideways, presets, roundtrip,
+        sweep and journey ok -- and `highlight` SKIPPED, with the reason that
+        this venture "does not print the promise sentence".
+      - >-
+        That skip was the real finding. The page had hand-rolled its own
+        invalid-input marking and worded the label "fix the highlighted
+        input", one word off the literal string
+        `platform/pages/invalid.mjs` matches (`check the highlighted input`).
+        The build injects the real highlighter -- the one that reads the
+        thrown message, finds the field it names and marks it -- into any page
+        printing that sentence exactly, and silently skips any page that does
+        not. So the page promised a highlight, got no injection, and shipped a
+        weaker hand-rolled substitute: the precise defect invalid.mjs was
+        written to remove from 103 tools, recreated on day one by a near-miss
+        spelling. Rewired to the family pattern (message in the hero, promise
+        sentence in the label), which is import-don't-restate applied to the
+        recovery path rather than to a constant. `highlight` now runs and
+        passes instead of skipping, and two assertions pin the literal string
+        and the label names calc.mjs throws about, because a near-miss is
+        silent.
+      - >-
         main was green before this change: `run_workflow_locally.py --tree` on
         a clean checkout reported 9/9 verification-only workflows passing,
         portfolio-validate 66/66 steps, no UNRUN and no FAILED, with only

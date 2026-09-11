@@ -328,3 +328,29 @@ test('the calculator links one hop to its commercial-photo-license sibling', () 
     'index must link ../commercial-photo-license-calculator/ so crawlers reach it in one hop',
   );
 });
+
+// platform/pages/invalid.mjs injects the real highlighter into any page that
+// prints this sentence verbatim, and skips any page that does not. Spelling it
+// differently ("fix the highlighted input", as this page first did) means the
+// page promises a highlight, no injection happens, and nothing is marked —
+// which is precisely the defect that module was written to remove from 103
+// tools. Asserted literally, because a near-miss is silent.
+test('the page prints the family promise sentence exactly, so the highlighter is injected', () => {
+  assert.ok(
+    html.includes('check the highlighted input'),
+    'the error label must be the literal string platform/pages/invalid.mjs looks for',
+  );
+});
+
+test('every message calc.mjs can throw names a field label the page actually renders', () => {
+  // The injected highlighter matches the thrown message against the page's own
+  // labels. A bound whose label text drifted from its <label> would leave the
+  // message unmatchable and the promise unkept.
+  const labels = [...html.matchAll(/<label>([^<]+)</g)].map(([, t]) => t.trim());
+  for (const name of ['Site area', 'Front overlap', 'Side overlap', 'Field rate', 'Target margin']) {
+    assert.ok(
+      labels.some((l) => l.startsWith(name)),
+      `calc.mjs throws about "${name}" but no <label> on the page starts with it`,
+    );
+  }
+});

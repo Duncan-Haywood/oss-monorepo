@@ -302,6 +302,14 @@
     return values;
   }
 
+  // The browser's own constraint check, which runs before calc.mjs ever sees a
+  // value: a number outside an input's min/max never reaches the arithmetic, so
+  // there is no thrown message for the build-injected highlighter to match a
+  // field against. This marks the field and returns the label text that names
+  // it, so the message the page prints says *which box* rather than "some
+  // figures". Past that point the thrown message names its own field and
+  // `platform/pages/invalid.mjs` -- injected at build time into any page
+  // printing the promise sentence below -- does the marking.
   function markInvalid() {
     let first = null;
     for (const id of NUMERIC) {
@@ -311,6 +319,15 @@
       if (!ok && !first) first = field;
     }
     return first;
+  }
+
+  /** The visible label of a field, without its unit hint. */
+  function labelFor(field) {
+    const label = field.closest('label');
+    if (!label) return field.id;
+    const clone = label.cloneNode(true);
+    for (const part of clone.querySelectorAll('input, select, .unit')) part.remove();
+    return clone.textContent.trim();
   }
 
   function minutes(value) {
@@ -425,11 +442,26 @@
     const errors = $('errors');
     errors.textContent = '';
 
+    // The label under the hero is the family's promise sentence, spelled
+    // exactly as platform/pages/invalid.mjs looks for it. Printing it is what
+    // makes the build inject the highlighter, which reads the message in the
+    // hero, finds the field it names and marks it — the half a message cannot
+    // express and every page here used to claim without doing.
+    const fail = (message) => {
+      $('heroPrice').textContent = message;
+      $('heroSub').textContent = 'check the highlighted input';
+      const li = document.createElement('li');
+      li.textContent = message;
+      errors.append(li);
+      $('belief').hidden = true;
+      $('comparison').hidden = true;
+      $('figures').textContent = '';
+      $('notes').textContent = '';
+    };
+
     const invalid = markInvalid();
     if (invalid) {
-      const li = document.createElement('li');
-      li.textContent = 'Some figures are outside the range this worksheet accepts — fix the highlighted input.';
-      errors.append(li);
+      fail(`${labelFor(invalid)} is outside the range this worksheet accepts`);
       invalid.focus();
       return;
     }
@@ -437,11 +469,7 @@
     try {
       render(readInputs());
     } catch (error) {
-      const li = document.createElement('li');
-      li.textContent = `${error.message} — fix the highlighted input.`;
-      errors.append(li);
-      $('heroPrice').textContent = '—';
-      $('heroSub').textContent = 'No price yet.';
+      fail(error.message);
     }
   });
 
