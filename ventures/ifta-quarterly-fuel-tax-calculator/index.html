@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IFTA Quarterly Fuel Tax Calculator | Fleet MPG, Net Taxable Gallons and Surcharge</title>
+  <meta name="description" content="Work your IFTA quarterly return from your own trip and fuel records: average fleet MPG, taxable gallons and net taxable gallons per jurisdiction, the Indiana/Kentucky/Virginia surcharge charged the way it is actually charged, and interest on a late return. Free, private, nothing leaves your browser.">
+  <meta property="og:title" content="IFTA Quarterly Fuel Tax Calculator">
+  <meta property="og:description" content="The surcharge is charged on all taxable gallons and never credited. Model it as another tax rate and a quarter that looks like a refund is really a bill. Enter your miles, gallons and this quarter's rates and see the whole return.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"IFTA Quarterly Fuel Tax Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Average fleet MPG computed fleet-wide and carried to two decimals the way the return carries it; taxable gallons, tax-paid gallons and net taxable gallons for up to twelve jurisdictions; the Indiana, Kentucky and Virginia surcharge charged on taxable gallons rather than net taxable gallons, with no credit, which is the line hand-built worksheets under-report; tax due or credit per jurisdiction and the netted total remitted to the base jurisdiction; interest on a late return accrued per jurisdiction owed, so a credit elsewhere does not offset it; and checks for the data-entry errors an IFTA audit looks for -- an implausible fleet MPG, fuel bought in a jurisdiction with no recorded miles, and taxable miles at a zero rate"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you calculate IFTA taxable gallons?","acceptedAnswer":{"@type":"Answer","text":"Taxable gallons in a jurisdiction are that jurisdiction’s taxable miles divided by the average MPG of your whole fleet across the whole quarter — not the gallons you bought there. On the worked example this page opens with, the fleet ran 29,320 miles on 3,890 gallons, so its average is 7.54 MPG, and Indiana’s 6,150 miles become 815.65 taxable gallons whether the truck fuelled there or not. Computing a separate MPG per jurisdiction is the most common way a hand-built worksheet produces figures that look reasonable and reconcile to nothing."}},{"@type":"Question","name":"Why does my IFTA return say I owe money when I have a fuel credit?","acceptedAnswer":{"@type":"Answer","text":"Almost always the surcharge. Indiana, Kentucky and Virginia collect part of their diesel tax as a surcharge on the return rather than at the pump, and it is charged on all your taxable gallons in that state with no credit for fuel you bought there. On the worked example the tax line across five jurisdictions nets to a credit of $91.53 — and the return still owes $479.37, because the surcharge adds $570.90 that no amount of fuel buying reduces. A worksheet that treats the surcharge as another tax rate, netted against the credit, reports $242.48 instead: a $328.42 understatement in a single quarter."}},{"@type":"Question","name":"Does buying more fuel in Kentucky reduce my surcharge?","acceptedAnswer":{"@type":"Answer","text":"No, and this is the part that costs carriers money in both directions. Buying fuel in a surcharge state reduces the tax line, because tax-paid gallons are credited against taxable gallons. It does nothing whatever to the surcharge line, which is charged on taxable gallons — the fuel you burned there — regardless of where you bought it. So fuel-buying strategy moves one of the two lines and not the other, and any plan built on the assumption that it moves both will be wrong by the whole surcharge."}},{"@type":"Question","name":"What tax rates should I use?","acceptedAnswer":{"@type":"Answer","text":"The ones on the official IFTA rate table for the specific quarter you are filing, which is published by the International Fuel Tax Association and republished by every base jurisdiction. This calculator deliberately ships no rate table. Rates change every quarter across 58 jurisdictions and some change mid-quarter, so a table baked into a tool would be stale within weeks and stale in the worst possible place — a filed tax return. Enter the rate and, where one applies, the surcharge rate for your fuel type, and the arithmetic is yours to check."}},{"@type":"Question","name":"What counts as taxable miles versus total miles?","acceptedAnswer":{"@type":"Answer","text":"Total miles is every mile the qualified vehicle ran in that jurisdiction. Taxable miles is that figure less any miles the jurisdiction exempts — the exemptions vary by jurisdiction and typically cover things like some toll miles, fuel-trip-permit miles, and certain off-highway use. Most carriers have no exempt miles at all, so leaving the taxable column blank here means all the miles are taxable. Exempt miles come off the taxable line but stay in the fleet MPG, because the fleet really did drive them on the fuel it really did burn. What each jurisdiction exempts is its determination, not this tool’s."}},{"@type":"Question","name":"Do I still owe interest if my return nets to a refund?","acceptedAnswer":{"@type":"Answer","text":"Yes, if you filed late. IFTA interest accrues to each jurisdiction you owe tax to, at one twelfth of the annual rate for each month or part of a month, and a credit due back from another jurisdiction does not offset it. That is why this calculator computes interest on the jurisdictions in debit alone rather than on the netted total, and flags the case where a return in overall credit still carries interest. The annual rate is set for the calendar year and published by the International Fuel Tax Association — enter it rather than reading one from this page, for the same reason the tax rates are inputs."}},{"@type":"Question","name":"Do I need to file IFTA if I only ran in one state?","acceptedAnswer":{"@type":"Answer","text":"IFTA covers qualified vehicles operating in two or more member jurisdictions, so a quarter run entirely inside your base jurisdiction may not need a return — but most base jurisdictions require licensees to file every quarter regardless, including a zero return. This calculator flags a return with a single jurisdiction rather than assuming either way, because what your licence obliges you to file is a question for your base jurisdiction and not one arithmetic can answer."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and the page makes no network requests — it runs entirely in your browser. Your mileage, your fuel purchases, the jurisdictions you run and the figures worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control."}},{"@type":"Question","name":"Is this tax advice, and can I file from it?","acceptedAnswer":{"@type":"Answer","text":"No to both. It is a worksheet: arithmetic on figures you type, using rates you supply. It is not tax advice and it is not a filing — it files nothing, transmits nothing, and makes no determination about what your base jurisdiction requires, which miles a jurisdiction exempts, whether your vehicle is qualified, or what you owe. Your base jurisdiction assesses the return. Check every figure against your own trip and fuel records and the official rate table, and ask a qualified tax professional before you file from it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eef0f2; }
+    body { max-width: 1180px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 820px; margin-bottom: 26px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3.1rem); line-height: 1.03; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #143a5e; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .68fr); gap: 18px; align-items: start; }
+    section { background: #fbfcfd; border: 1px solid #ccd4da; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #12283310; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #47535e; margin: -6px 0 14px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #9fabb4; border-radius: 7px; padding: 9px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #8c2318; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9fabb4; background: #e9edf0; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dbe2e7; }
+    .primary { background: #143a5e; border-color: #143a5e; color: #f2f6f9; }
+    .primary:hover { background: #0f2c48; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+    .grid-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .87rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 6px 7px; border-bottom: 1px solid #d5dce1; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .74rem; letter-spacing: .03em; text-transform: uppercase; color: #47535e; font-weight: 700; vertical-align: bottom; }
+    #entry input { padding: 7px; min-width: 84px; }
+    #entry td:first-child input { min-width: 66px; text-transform: uppercase; }
+    .result { position: sticky; top: 15px; background: #10222f; color: #eef2f5; border-color: #10222f; }
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .hero-sub { font-size: .85rem; opacity: .85; margin: 4px 0 0; }
+    .credit { color: #8fe0b8; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .belief { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .belief h3 { margin: 0 0 8px; font-size: .95rem; }
+    .belief p { font-size: .85rem; margin: 0; }
+    .belief .gap { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .83rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd0c6; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    #breakdown tr.owe td.rowtotal { color: #7a1d12; font-weight: 700; }
+    #breakdown tr.cred td.rowtotal { color: #14603f; font-weight: 700; }
+    #breakdown tfoot td { font-weight: 700; border-top: 2px solid #9fabb4; }
+    footer { margin-top: 25px; font-size: .82rem; color: #47535e; }
+    footer a { color: #143a5e; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .seo-link a { color: #143a5e; }
+    #faq h3 { margin-bottom: 4px; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .grid-two { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SMALL CARRIERS AND OWNER-OPERATORS FILING THEIR OWN IFTA</p>
+    <h1>The surcharge is not another tax rate.</h1>
+    <p>Indiana, Kentucky and Virginia collect part of their diesel tax on the return instead of at the pump, and that part is charged on every taxable gallon you burned there &mdash; with <em>no</em> credit for fuel you bought there. On the quarter loaded below, the tax line across five jurisdictions nets to a credit of <strong>$91.53</strong>. The return owes <strong>$479.37</strong>. Model the surcharge as one more rate to be netted and you file <strong>$328.42</strong> short, on a quarter you thought was a refund.</p>
+    <p>Put your own quarter in. Everything runs in this browser; nothing is uploaded and nothing is filed.</p>
+    <p class="seo-link"><a href="./how-to-calculate-ifta-quarterly-tax.html">How is IFTA quarterly tax actually calculated? &mdash; the worked example, line by line</a></p>
+  </header>
+
+  <main class="layout">
+    <form id="returnForm">
+      <section>
+        <h2>Your quarter, jurisdiction by jurisdiction</h2>
+        <p class="hint">One row per jurisdiction you ran in. <strong>Rates come from the official IFTA rate table for the quarter you are filing</strong> &mdash; this tool ships none, because they change quarterly in 58 jurisdictions and a stale rate in a filed return is the worst place to be wrong. Leave <em>taxable miles</em> blank unless the jurisdiction exempts some of them; blank means all miles are taxable. Leave <em>surcharge</em> blank unless the jurisdiction levies one.</p>
+        <div class="table-wrap">
+          <table id="entry">
+            <thead>
+              <tr>
+                <th scope="col">Jurisdiction</th>
+                <th scope="col">Total miles</th>
+                <th scope="col">Taxable miles</th>
+                <th scope="col">Tax-paid gallons</th>
+                <th scope="col">Tax rate $/gal</th>
+                <th scope="col">Surcharge $/gal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input class="jurisdiction" data-row="1" aria-label="Row 1 jurisdiction" type="text" maxlength="24" value="IL"></td>
+                <td><input class="totalMiles" data-row="1" aria-label="Row 1 total miles" type="number" min="0" step="1" value="8400"></td>
+                <td><input class="taxableMiles" data-row="1" aria-label="Row 1 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="1" aria-label="Row 1 tax-paid gallons purchased" type="number" min="0" step="0.01" value="1420"></td>
+                <td><input class="taxRate" data-row="1" aria-label="Row 1 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value="0.627"></td>
+                <td><input class="surchargeRate" data-row="1" aria-label="Row 1 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+              </tr>
+              <tr>
+                <td><input class="jurisdiction" data-row="2" aria-label="Row 2 jurisdiction" type="text" maxlength="24" value="IN"></td>
+                <td><input class="totalMiles" data-row="2" aria-label="Row 2 total miles" type="number" min="0" step="1" value="6150"></td>
+                <td><input class="taxableMiles" data-row="2" aria-label="Row 2 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="2" aria-label="Row 2 tax-paid gallons purchased" type="number" min="0" step="0.01" value="380"></td>
+                <td><input class="taxRate" data-row="2" aria-label="Row 2 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value="0.34"></td>
+                <td><input class="surchargeRate" data-row="2" aria-label="Row 2 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value="0.62"></td>
+              </tr>
+              <tr>
+                <td><input class="jurisdiction" data-row="3" aria-label="Row 3 jurisdiction" type="text" maxlength="24" value="KY"></td>
+                <td><input class="totalMiles" data-row="3" aria-label="Row 3 total miles" type="number" min="0" step="1" value="4820"></td>
+                <td><input class="taxableMiles" data-row="3" aria-label="Row 3 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="3" aria-label="Row 3 tax-paid gallons purchased" type="number" min="0" step="0.01" value="910"></td>
+                <td><input class="taxRate" data-row="3" aria-label="Row 3 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value="0.216"></td>
+                <td><input class="surchargeRate" data-row="3" aria-label="Row 3 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value="0.102"></td>
+              </tr>
+              <tr>
+                <td><input class="jurisdiction" data-row="4" aria-label="Row 4 jurisdiction" type="text" maxlength="24" value="OH"></td>
+                <td><input class="totalMiles" data-row="4" aria-label="Row 4 total miles" type="number" min="0" step="1" value="7310"></td>
+                <td><input class="taxableMiles" data-row="4" aria-label="Row 4 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="4" aria-label="Row 4 tax-paid gallons purchased" type="number" min="0" step="0.01" value="1180"></td>
+                <td><input class="taxRate" data-row="4" aria-label="Row 4 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value="0.47"></td>
+                <td><input class="surchargeRate" data-row="4" aria-label="Row 4 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+              </tr>
+              <tr>
+                <td><input class="jurisdiction" data-row="5" aria-label="Row 5 jurisdiction" type="text" maxlength="24" value="MI"></td>
+                <td><input class="totalMiles" data-row="5" aria-label="Row 5 total miles" type="number" min="0" step="1" value="2640"></td>
+                <td><input class="taxableMiles" data-row="5" aria-label="Row 5 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="5" aria-label="Row 5 tax-paid gallons purchased" type="number" min="0" step="0.01" value="0"></td>
+                <td><input class="taxRate" data-row="5" aria-label="Row 5 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value="0.313"></td>
+                <td><input class="surchargeRate" data-row="5" aria-label="Row 5 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+              </tr>
+              <tr>
+                <td><input class="jurisdiction" data-row="6" aria-label="Row 6 jurisdiction" type="text" maxlength="24" value=""></td>
+                <td><input class="totalMiles" data-row="6" aria-label="Row 6 total miles" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxableMiles" data-row="6" aria-label="Row 6 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="6" aria-label="Row 6 tax-paid gallons purchased" type="number" min="0" step="0.01" value=""></td>
+                <td><input class="taxRate" data-row="6" aria-label="Row 6 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+                <td><input class="surchargeRate" data-row="6" aria-label="Row 6 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+              </tr>
+              <tr>
+                <td><input class="jurisdiction" data-row="7" aria-label="Row 7 jurisdiction" type="text" maxlength="24" value=""></td>
+                <td><input class="totalMiles" data-row="7" aria-label="Row 7 total miles" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxableMiles" data-row="7" aria-label="Row 7 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="7" aria-label="Row 7 tax-paid gallons purchased" type="number" min="0" step="0.01" value=""></td>
+                <td><input class="taxRate" data-row="7" aria-label="Row 7 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+                <td><input class="surchargeRate" data-row="7" aria-label="Row 7 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+              </tr>
+              <tr>
+                <td><input class="jurisdiction" data-row="8" aria-label="Row 8 jurisdiction" type="text" maxlength="24" value=""></td>
+                <td><input class="totalMiles" data-row="8" aria-label="Row 8 total miles" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxableMiles" data-row="8" aria-label="Row 8 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="8" aria-label="Row 8 tax-paid gallons purchased" type="number" min="0" step="0.01" value=""></td>
+                <td><input class="taxRate" data-row="8" aria-label="Row 8 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+                <td><input class="surchargeRate" data-row="8" aria-label="Row 8 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+              </tr>
+              <tr>
+                <td><input class="jurisdiction" data-row="9" aria-label="Row 9 jurisdiction" type="text" maxlength="24" value=""></td>
+                <td><input class="totalMiles" data-row="9" aria-label="Row 9 total miles" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxableMiles" data-row="9" aria-label="Row 9 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="9" aria-label="Row 9 tax-paid gallons purchased" type="number" min="0" step="0.01" value=""></td>
+                <td><input class="taxRate" data-row="9" aria-label="Row 9 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+                <td><input class="surchargeRate" data-row="9" aria-label="Row 9 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+              </tr>
+              <tr>
+                <td><input class="jurisdiction" data-row="10" aria-label="Row 10 jurisdiction" type="text" maxlength="24" value=""></td>
+                <td><input class="totalMiles" data-row="10" aria-label="Row 10 total miles" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxableMiles" data-row="10" aria-label="Row 10 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="10" aria-label="Row 10 tax-paid gallons purchased" type="number" min="0" step="0.01" value=""></td>
+                <td><input class="taxRate" data-row="10" aria-label="Row 10 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+                <td><input class="surchargeRate" data-row="10" aria-label="Row 10 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+              </tr>
+              <tr>
+                <td><input class="jurisdiction" data-row="11" aria-label="Row 11 jurisdiction" type="text" maxlength="24" value=""></td>
+                <td><input class="totalMiles" data-row="11" aria-label="Row 11 total miles" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxableMiles" data-row="11" aria-label="Row 11 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="11" aria-label="Row 11 tax-paid gallons purchased" type="number" min="0" step="0.01" value=""></td>
+                <td><input class="taxRate" data-row="11" aria-label="Row 11 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+                <td><input class="surchargeRate" data-row="11" aria-label="Row 11 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+              </tr>
+              <tr>
+                <td><input class="jurisdiction" data-row="12" aria-label="Row 12 jurisdiction" type="text" maxlength="24" value=""></td>
+                <td><input class="totalMiles" data-row="12" aria-label="Row 12 total miles" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxableMiles" data-row="12" aria-label="Row 12 taxable miles, blank means all miles are taxable" type="number" min="0" step="1" value=""></td>
+                <td><input class="taxPaidGallons" data-row="12" aria-label="Row 12 tax-paid gallons purchased" type="number" min="0" step="0.01" value=""></td>
+                <td><input class="taxRate" data-row="12" aria-label="Row 12 tax rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+                <td><input class="surchargeRate" data-row="12" aria-label="Row 12 surcharge rate in dollars per gallon" type="number" min="0" step="0.0001" value=""></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary">Work the return</button>
+          <button type="button" id="clearRows">Clear the example</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>If the return is late</h2>
+        <p class="hint">Leave both at zero for an on-time return. Interest accrues to each jurisdiction you owe, at one twelfth of the annual rate per month or part month &mdash; a credit somewhere else does not offset it, which is why a return that nets to a refund can still carry interest. The annual rate is set for the calendar year by the International Fuel Tax Association; take it from there rather than from here.</p>
+        <div class="grid-two">
+          <label>Annual interest rate (%) <input id="interestAnnualPercent" type="number" min="0" max="50" step="0.01" value="0"></label>
+          <label>Months late (part months count whole) <input id="monthsLate" type="number" min="0" max="60" step="1" value="0"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>The return, line by line</h2>
+        <p class="hint">This is the shape of the jurisdiction schedule on an IFTA return. Taxable gallons come from your fleet MPG, not from what you bought in the state; the surcharge column is charged on taxable gallons with nothing credited against it.</p>
+        <div class="table-wrap">
+          <table id="breakdown">
+            <thead>
+              <tr>
+                <th scope="col">Jurisdiction</th>
+                <th scope="col">Taxable gallons</th>
+                <th scope="col">Tax-paid</th>
+                <th scope="col">Net taxable</th>
+                <th scope="col">Tax</th>
+                <th scope="col">Surcharge</th>
+                <th scope="col">Interest</th>
+                <th scope="col">Row total</th>
+              </tr>
+            </thead>
+            <tbody id="breakdownBody"></tbody>
+            <tfoot id="breakdownFoot"></tfoot>
+          </table>
+        </div>
+        <p class="hint" id="breakdownEmpty">Press &ldquo;Work the return&rdquo; and the schedule fills in.</p>
+      </section>
+    </form>
+
+    <section class="result" id="result" aria-live="polite">
+      <p class="hero-label">Net due to your base jurisdiction</p>
+      <p class="hero-number" id="heroNumber">&mdash;</p>
+      <p class="hero-sub" id="heroSub"></p>
+      <p class="empty" id="emptyState">Press &ldquo;Work the return&rdquo; to see the quarter.</p>
+      <div id="resultBody" hidden>
+        <div class="belief">
+          <h3>What the surcharge costs you</h3>
+          <p class="gap" id="surchargeGap">&mdash;</p>
+          <p id="surchargeText"></p>
+        </div>
+        <dl>
+          <dt class="group">The fleet</dt>
+          <dt>Total miles, everywhere</dt><dd id="outTotalMiles">&mdash;</dd>
+          <dt>Total gallons, everywhere</dt><dd id="outTotalGallons">&mdash;</dd>
+          <dt>Average fleet MPG</dt><dd id="outMpg">&mdash;</dd>
+          <dt>Jurisdictions on this return</dt><dd id="outJurisdictions">&mdash;</dd>
+
+          <dt class="group">The return</dt>
+          <dt>Fuel tax, netted</dt><dd id="outTaxDue">&mdash;</dd>
+          <dt>Surcharge</dt><dd id="outSurcharge">&mdash;</dd>
+          <dt>Subtotal</dt><dd id="outSubtotal">&mdash;</dd>
+          <dt>Interest</dt><dd id="outInterest">&mdash;</dd>
+          <dt>Total</dt><dd id="outGrandTotal">&mdash;</dd>
+
+          <dt class="group">Both sides of the net</dt>
+          <dt>Owed to jurisdictions</dt><dd id="outOwed">&mdash;</dd>
+          <dt>Credited back</dt><dd id="outCredit">&mdash;</dd>
+        </dl>
+        <ul class="note-list" id="notes"></ul>
+      </div>
+      <ul class="errors" id="errors"></ul>
+    </section>
+  </main>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>How do you calculate IFTA taxable gallons?</h3>
+    <p>Taxable gallons in a jurisdiction are that jurisdiction&rsquo;s taxable miles divided by the average MPG of your whole fleet across the whole quarter &mdash; not the gallons you bought there. On the worked example this page opens with, the fleet ran 29,320 miles on 3,890 gallons, so its average is 7.54 MPG, and Indiana&rsquo;s 6,150 miles become 815.65 taxable gallons whether the truck fuelled there or not. Computing a separate MPG per jurisdiction is the most common way a hand-built worksheet produces figures that look reasonable and reconcile to nothing.</p>
+
+    <h3>Why does my IFTA return say I owe money when I have a fuel credit?</h3>
+    <p>Almost always the surcharge. Indiana, Kentucky and Virginia collect part of their diesel tax as a surcharge on the return rather than at the pump, and it is charged on all your taxable gallons in that state with no credit for fuel you bought there. On the worked example the tax line across five jurisdictions nets to a credit of $91.53 &mdash; and the return still owes $479.37, because the surcharge adds $570.90 that no amount of fuel buying reduces. A worksheet that treats the surcharge as another tax rate, netted against the credit, reports $242.48 instead: a $328.42 understatement in a single quarter.</p>
+
+    <h3>Does buying more fuel in Kentucky reduce my surcharge?</h3>
+    <p>No, and this is the part that costs carriers money in both directions. Buying fuel in a surcharge state reduces the tax line, because tax-paid gallons are credited against taxable gallons. It does nothing whatever to the surcharge line, which is charged on taxable gallons &mdash; the fuel you burned there &mdash; regardless of where you bought it. So fuel-buying strategy moves one of the two lines and not the other, and any plan built on the assumption that it moves both will be wrong by the whole surcharge.</p>
+
+    <h3>What tax rates should I use?</h3>
+    <p>The ones on the official IFTA rate table for the specific quarter you are filing, which is published by the International Fuel Tax Association and republished by every base jurisdiction. This calculator deliberately ships no rate table. Rates change every quarter across 58 jurisdictions and some change mid-quarter, so a table baked into a tool would be stale within weeks and stale in the worst possible place &mdash; a filed tax return. Enter the rate and, where one applies, the surcharge rate for your fuel type, and the arithmetic is yours to check.</p>
+
+    <h3>What counts as taxable miles versus total miles?</h3>
+    <p>Total miles is every mile the qualified vehicle ran in that jurisdiction. Taxable miles is that figure less any miles the jurisdiction exempts &mdash; the exemptions vary by jurisdiction and typically cover things like some toll miles, fuel-trip-permit miles, and certain off-highway use. Most carriers have no exempt miles at all, so leaving the taxable column blank here means all the miles are taxable. Exempt miles come off the taxable line but stay in the fleet MPG, because the fleet really did drive them on the fuel it really did burn. What each jurisdiction exempts is its determination, not this tool&rsquo;s.</p>
+
+    <h3>Do I still owe interest if my return nets to a refund?</h3>
+    <p>Yes, if you filed late. IFTA interest accrues to each jurisdiction you owe tax to, at one twelfth of the annual rate for each month or part of a month, and a credit due back from another jurisdiction does not offset it. That is why this calculator computes interest on the jurisdictions in debit alone rather than on the netted total, and flags the case where a return in overall credit still carries interest. The annual rate is set for the calendar year and published by the International Fuel Tax Association &mdash; enter it rather than reading one from this page, for the same reason the tax rates are inputs.</p>
+
+    <h3>Do I need to file IFTA if I only ran in one state?</h3>
+    <p>IFTA covers qualified vehicles operating in two or more member jurisdictions, so a quarter run entirely inside your base jurisdiction may not need a return &mdash; but most base jurisdictions require licensees to file every quarter regardless, including a zero return. This calculator flags a return with a single jurisdiction rather than assuming either way, because what your licence obliges you to file is a question for your base jurisdiction and not one arithmetic can answer.</p>
+
+    <h3>Is any of this uploaded?</h3>
+    <p>No. There is no account and the page makes no network requests &mdash; it runs entirely in your browser. Your mileage, your fuel purchases, the jurisdictions you run and the figures worked out from them are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control.</p>
+
+    <h3>Is this tax advice, and can I file from it?</h3>
+    <p>No to both. It is a worksheet: arithmetic on figures you type, using rates you supply. It is not tax advice and it is not a filing &mdash; it files nothing, transmits nothing, and makes no determination about what your base jurisdiction requires, which miles a jurisdiction exempts, whether your vehicle is qualified, or what you owe. Your base jurisdiction assesses the return. Check every figure against your own trip and fuel records and the official rate table, and ask a qualified tax professional before you file from it.</p>
+
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, or financial advice, and it is not a filing. It makes no determination about what your base jurisdiction requires, which miles any jurisdiction exempts, whether your vehicle is qualified, what rate applies to your fuel type, or what you owe &mdash; and the rates it opens with are an illustrative example rather than a rate table. It is arithmetic on the numbers you type. Verify every figure against your own trip and fuel records, the official IFTA rate table for the quarter you are filing, and a qualified tax professional before you file from it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your mileage, fuel purchases, jurisdictions and the figures worked out here are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally, and switched off automatically for browsers sending Do Not Track or Global Privacy Control.</p>
+    <p>Working out what a mile actually costs you before you quote it? The <a href="../owner-operator-cpm-calculator/">owner-operator cost-per-mile calculator</a> prices the truck. Checking whether an accessorial on a freight invoice was billed correctly? Try the <a href="../freight-accessorial-auditor/">freight accessorial auditor</a>. Driving for an app rather than under your own authority? The <a href="../gig-driver-net-pay-calculator/">gig driver net pay calculator</a> is the one for that.</p>
+    <p class="support">Free and open source. If it saves you a quarter&rsquo;s worth of arguing with a spreadsheet, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateReturn, round2, ROW_COUNT, ROW_FIELDS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const el = (id) => document.getElementById(id);
+    const money = (value) => {
+      const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return value < 0 ? `-${text}` : text;
+    };
+    const num = (value, dp = 2) => value.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+    const whole = (value) => Math.round(value).toLocaleString('en-US');
+
+    const optedOut = () => el('usageOptOut').checked;
+    const count = (event) => recordUsage(localStorage, optedOut(), event);
+
+    const cell = (row, field) => document.querySelector(`.${field}[data-row="${row}"]`);
+
+    function readRows() {
+      const rows = [];
+      for (let r = 1; r <= ROW_COUNT; r += 1) {
+        const row = {};
+        for (const field of ROW_FIELDS) row[field] = cell(r, field).value;
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function clearInvalid() {
+      for (const input of document.querySelectorAll('#entry input, #interestAnnualPercent, #monthsLate')) {
+        input.removeAttribute('aria-invalid');
+      }
+    }
+
+    function renderErrors(errors) {
+      clearInvalid();
+      el('resultBody').hidden = true;
+      el('emptyState').hidden = false;
+      el('emptyState').textContent = 'Some figures need fixing before the return can be worked.';
+      el('heroNumber').textContent = '—';
+      el('heroSub').textContent = '';
+      el('breakdownBody').replaceChildren();
+      el('breakdownFoot').replaceChildren();
+      el('breakdownEmpty').hidden = false;
+      el('errors').replaceChildren(...errors.map(({ message }) => {
+        const li = document.createElement('li');
+        li.textContent = message;
+        return li;
+      }));
+    }
+
+    function td(text, className) {
+      const cellEl = document.createElement('td');
+      cellEl.textContent = text;
+      if (className) cellEl.className = className;
+      return cellEl;
+    }
+
+    function renderBreakdown(result) {
+      const body = el('breakdownBody');
+      body.replaceChildren(...result.lines.map((line) => {
+        const tr = document.createElement('tr');
+        tr.className = line.rowTotal > 0 ? 'owe' : (line.rowTotal < 0 ? 'cred' : '');
+        tr.append(
+          td(line.label),
+          td(num(line.taxableGallons)),
+          td(num(line.taxPaidGallons)),
+          td(num(line.netTaxableGallons)),
+          td(money(line.taxDue)),
+          td(line.surchargeRate > 0 ? money(line.surchargeDue) : '—'),
+          td(line.interest > 0 ? money(line.interest) : '—'),
+          td(money(round2(line.rowTotal + line.interest)), 'rowtotal'),
+        );
+        return tr;
+      }));
+      const foot = document.createElement('tr');
+      foot.append(
+        td('Total'), td(''), td(''), td(''),
+        td(money(result.taxDue)),
+        td(money(result.surchargeDue)),
+        td(money(result.interest)),
+        td(money(result.grandTotal), 'rowtotal'),
+      );
+      el('breakdownFoot').replaceChildren(foot);
+      el('breakdownEmpty').hidden = true;
+    }
+
+    function render(result) {
+      clearInvalid();
+      el('errors').replaceChildren();
+      el('emptyState').hidden = true;
+      el('resultBody').hidden = false;
+
+      const owing = result.grandTotal >= 0;
+      el('heroNumber').textContent = money(result.grandTotal);
+      el('heroNumber').className = owing ? 'hero-number' : 'hero-number credit';
+      el('heroSub').textContent = owing
+        ? `Payable with the return. ${result.lines.length} jurisdiction${result.lines.length === 1 ? '' : 's'}, ${result.mpg.toFixed(2)} MPG fleet average.`
+        : `Due back to you. ${result.lines.length} jurisdiction${result.lines.length === 1 ? '' : 's'}, ${result.mpg.toFixed(2)} MPG fleet average.`;
+
+      // What the return would have said had the surcharge been netted against
+      // the fuel credit like an ordinary rate. This is the whole point of the
+      // tool, so it leads the panel rather than sitting in a footnote.
+      const nettedSurcharge = round2(result.lines.reduce(
+        (n, l) => n + round2(l.netTaxableGallons * l.surchargeRate), 0,
+      ));
+      const understated = round2(result.surchargeDue - nettedSurcharge);
+      if (understated > 0) {
+        el('surchargeGap').textContent = `${money(understated)} under-reported`;
+        el('surchargeText').textContent = `The surcharge on this return is ${money(result.surchargeDue)}. A worksheet that netted it against the fuel credit the way an ordinary tax rate is netted would report ${money(nettedSurcharge)} — short by ${money(understated)} this quarter, because a surcharge is charged on every taxable gallon burned there and nothing is credited against it.`;
+      } else if (result.surchargeDue > 0) {
+        el('surchargeGap').textContent = `${money(result.surchargeDue)} of surcharge`;
+        el('surchargeText').textContent = 'Every jurisdiction with a surcharge here is already in debit on its tax line, so netting it would not have changed the figure this quarter. It would the moment one of them runs a fuel credit — the surcharge is charged on taxable gallons regardless of what was bought there.';
+      } else {
+        el('surchargeGap').textContent = 'No surcharge on this return';
+        el('surchargeText').textContent = 'No jurisdiction here has a surcharge rate entered. Indiana, Kentucky and Virginia levy one on diesel; if you ran in any of them, check the rate table for the quarter and add it — it is charged on all your taxable gallons there with nothing credited against it.';
+      }
+
+      el('outTotalMiles').textContent = whole(result.totalMiles);
+      el('outTotalGallons').textContent = num(result.totalGallons);
+      el('outMpg').textContent = result.mpg.toFixed(2);
+      el('outJurisdictions').textContent = String(result.lines.length);
+      el('outTaxDue').textContent = money(result.taxDue);
+      el('outSurcharge').textContent = money(result.surchargeDue);
+      el('outSubtotal').textContent = money(result.subtotal);
+      el('outInterest').textContent = money(result.interest);
+      el('outGrandTotal').textContent = money(result.grandTotal);
+      el('outOwed').textContent = money(result.owedTotal);
+      el('outCredit').textContent = money(result.creditTotal);
+
+      el('notes').replaceChildren(...result.warnings.map(({ message }) => {
+        const li = document.createElement('li');
+        li.textContent = message;
+        return li;
+      }));
+
+      renderBreakdown(result);
+    }
+
+    el('returnForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const result = calculateReturn({
+        rows: readRows(),
+        interestAnnualPercent: el('interestAnnualPercent').value,
+        monthsLate: el('monthsLate').value,
+      });
+      if (!result.ok) {
+        renderErrors(result.errors);
+        count('return_rejected');
+        return;
+      }
+      render(result);
+      count('return_worked');
+    });
+
+    el('clearRows').addEventListener('click', () => {
+      for (let r = 1; r <= ROW_COUNT; r += 1) {
+        for (const field of ROW_FIELDS) cell(r, field).value = '';
+      }
+      el('interestAnnualPercent').value = '0';
+      el('monthsLate').value = '0';
+      el('resultBody').hidden = true;
+      el('emptyState').hidden = false;
+      el('emptyState').textContent = 'Enter your own quarter and press “Work the return”.';
+      el('heroNumber').textContent = '—';
+      el('heroSub').textContent = '';
+      el('errors').replaceChildren();
+      el('breakdownBody').replaceChildren();
+      el('breakdownFoot').replaceChildren();
+      el('breakdownEmpty').hidden = false;
+      cell(1, 'jurisdiction').focus();
+      count('example_cleared');
+    });
+  </script>
+</body>
+</html>

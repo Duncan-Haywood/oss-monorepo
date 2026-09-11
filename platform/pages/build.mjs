@@ -511,7 +511,12 @@ const CATEGORY_RULES = [
     // It now sits in `trades` / `trades-interior`, beside the countertop,
     // cabinet-refinishing, crown-molding and flooring bids sold by the same
     // people who cut sheet goods.
-    test: (slug) => /^(3pl|freight|cloud-egress|ltl-|owner-operator|medical-courier)/.test(slug),
+    // `ifta-` is the quarterly fuel tax return the carriers behind
+    // `owner-operator-cpm-calculator` and `freight-accessorial-auditor` file
+    // four times a year — same desk, same audience, and the three tools link
+    // to each other. Named explicitly rather than folded into a wider pattern
+    // because the slug starts with an acronym no other rule here would guess.
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier)/.test(slug),
   },
   {
     id: 'evidence',
