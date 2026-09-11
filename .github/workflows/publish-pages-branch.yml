@@ -122,26 +122,94 @@ jobs:
           PUSH: "1"
         run: ./platform/pages/publish-branch.sh
 
-      # There is deliberately no `Notify IndexNow` step here any more, and its
-      # absence is the fix rather than an omission.
-      #
-      # It used to sit right here, gated on the same variable as the publish
-      # above, and it was the *only* place the announcement happened. That was
-      # fine on paper and wrong in practice: this workflow needs an Actions
-      # runner, runners have been starved since 2026-09-04, and so every
-      # publish that actually reached the live site in that window was a
-      # by-hand `publish-branch.sh` run -- which had no such step, and
-      # announced nothing, silently. `platform/marketing/README.md` covered the
-      # gap with "Run it after any publish-branch.sh that actually pushes", and
-      # a prose reminder is exactly what this repository has three times
-      # recorded as insufficient.
-      #
-      # `publish-branch.sh` now announces the snapshot itself, in
+      # `publish-branch.sh` announces the snapshot itself, in
       # `announce_to_indexnow`, immediately after the push it just made. Both
-      # steps above invoke that script, so this workflow still announces on a
-      # real publish -- through the one definition of "publishing includes
-      # announcing" instead of a second copy that only the runner-borne route
-      # would ever execute. Re-adding a step here would double-submit.
+      # steps above invoke that script, so this workflow announces on a real
+      # publish -- through the one definition of "publishing includes
+      # announcing" instead of a second copy. That de-duplication (#4379) was
+      # right, and the step below is its exact complement rather than a
+      # reversal of it.
+      #
+      # **Why a step is needed here anyway, measured 2026-09-11.** Folding the
+      # announcement into the push path made it reachable only on a run that
+      # *pushes*, and on this repository's actual configuration no such run
+      # exists:
+      #
+      #   - `vars.PAGES_BRANCH_PUBLISH` is not `true`, so the two steps above
+      #     resolve to the PUSH=0 one and this workflow never reaches
+      #     `announce_to_indexnow`. Read from evidence rather than from the
+      #     variable, which a workflow cannot print: every commit on `gh-pages`
+      #     is authored `CI <ci@example.com>`, an agent session's identity, and
+      #     none by `github-actions[bot]`. The branch is kept current by hand.
+      #   - the by-hand route pushes, so it *does* call the script's announce --
+      #     from an agent sandbox, whose egress proxy answers `403 to CONNECT`
+      #     for `api.indexnow.org`. It exits `EXIT_NO_EGRESS` every time,
+      #     correctly and without announcing anything.
+      #
+      # So between them the two routes cover every publish and announce none of
+      # them: the route with egress never reaches the call, and the route that
+      # reaches the call has no egress. Verified against run history -- every
+      # `Publish Pages branch` run since IndexNow landed in #4366 came back
+      # `runner_id: 0` in 3-5s, so the runner route has not executed a step at
+      # all, let alone this one.
+      #
+      # This step closes that by announcing what is *live* rather than what
+      # this run built, which is the correct subject either way and the only
+      # available one when the run did not push. It is gated on the exact
+      # complement of the publish above, so precisely one of the two announces
+      # and re-introducing a double-submit is not possible: with the variable
+      # `true` the script announces what it pushed and this is skipped; with it
+      # unset this announces the snapshot a session pushed and the script is
+      # never reached.
+      #
+      # Not gated on owner approval, deliberately. CLAUDE.md's "Automation"
+      # rule covers unattended workflows that *push commits* or *spend paid API
+      # budget*; this pushes nothing and IndexNow is free. It tells search
+      # engines that already-public URLs exist -- the ordinary SEO act this
+      # catalogue has been unable to perform since it shipped.
+      - name: Announce the live snapshot to IndexNow
+        if: vars.PAGES_BRANCH_PUBLISH != 'true'
+        env:
+          # Fail the step on a genuine refusal (an invalid or unpublished key
+          # file is a real defect that would silently cost every submission),
+          # but not on `EXIT_NO_EGRESS` -- a host that cannot reach IndexNow
+          # has broken nothing, and the site is published either way.
+          EXIT_NO_EGRESS: "3"
+        run: |
+          # `actions/checkout` fetches only the pushed ref, and both
+          # `indexnow.mjs --ref gh-pages` and `published-base-url.mjs` read the
+          # *local* ref by name (`git show gh-pages:...`). Fetch it as a local
+          # branch so they see the real serving snapshot rather than reporting
+          # `assumed-default`.
+          if ! git fetch --depth=1 origin gh-pages:gh-pages; then
+            echo "::notice::gh-pages is not published yet; nothing to announce."
+            exit 0
+          fi
+
+          status=0
+          node platform/marketing/indexnow.mjs --submit --ref gh-pages || status=$?
+
+          case "${status}" in
+            0)
+              echo "### IndexNow notified" >> "${GITHUB_STEP_SUMMARY}"
+              echo "" >> "${GITHUB_STEP_SUMMARY}"
+              echo "The live \`gh-pages\` snapshot was announced to IndexNow-participating" >> "${GITHUB_STEP_SUMMARY}"
+              echo "engines. Accepted means *asked*, not indexed -- there is no confirmation" >> "${GITHUB_STEP_SUMMARY}"
+              echo "API, and Google does not participate (Search Console is still the owner's)." >> "${GITHUB_STEP_SUMMARY}"
+              ;;
+            "${EXIT_NO_EGRESS}")
+              echo "::notice::This runner has no egress to api.indexnow.org; nothing was submitted and nothing broke."
+              echo "### IndexNow not reached" >> "${GITHUB_STEP_SUMMARY}"
+              echo "" >> "${GITHUB_STEP_SUMMARY}"
+              echo "The request never left the runner, so nothing was submitted. The site is" >> "${GITHUB_STEP_SUMMARY}"
+              echo "published regardless." >> "${GITHUB_STEP_SUMMARY}"
+              ;;
+            *)
+              echo "::error::IndexNow refused the submission -- see the log above. This is a real" \
+                   "defect in the payload or the published key file, not an environment limit."
+              exit "${status}"
+              ;;
+          esac
       - name: Say what happened
         if: always()
         env:
