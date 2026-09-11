@@ -25307,3 +25307,86 @@ entries:
         re-ran every check against the fresh base before committing, per
         this repo's high-concurrency expectations.
     mrr_end: 0
+  - venture: ifta-quarterly-fuel-tax-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and shipped a new venture: an IFTA quarterly fuel tax
+        worksheet for small motor carriers and owner-operators who file their
+        own return. Twelve jurisdiction rows, average fleet MPG computed
+        fleet-wide and rounded to two decimals before use (the way the return
+        derives every downstream gallon figure), taxable and net taxable
+        gallons per jurisdiction, the Indiana/Kentucky/Virginia surcharge
+        charged on taxable gallons with no credit, interest on a late return
+        accrued per jurisdiction owed, and six audit-shaped checks on the
+        entered data. Static ES modules, no build step, no dependencies, no
+        network requests.
+      - >-
+        The work-selection path, recorded because the gate is what chose it.
+        `session_gate.py` returned PROCEED with an empty `build-now` pipeline
+        and named a fresh niche as outranking a parity feature; the open-PR
+        queue was empty (0 open PRs, verified against the API), so the
+        three-PR drain was vacuously clear rather than skipped.
+        `duplicate_check.py` scored the closest existing match
+        (`owner-operator-cpm-calculator`) at 0.11 against the final
+        description, with the whole top ten at or below that. Read rather
+        than trusted: that tool mentions IFTA only as a fixed monthly line
+        item in a cost-per-mile build-up. No IFTA arithmetic existed anywhere
+        in `ventures/`, and no fuel-tax row exists in `screened-out.md`.
+      - >-
+        The liability gate needed a real decision rather than a rubber stamp,
+        since `screened-out.md` rejects "AI legal / medical / tax advice
+        products" outright. This is not that category: it makes no
+        determination, chooses no rate, and files nothing -- rates are the
+        carrier's own input from the official quarterly sheet, miles and
+        gallons are their own records, and the output is the return's own
+        arithmetic. Same class as `certified-payroll-calculator` and
+        `einvoice-preflight`, both already shipped here. Both pages say "it
+        is not a filing" in those words and name the five determinations only
+        a base jurisdiction makes.
+      - >-
+        Shipping no rate table is a design decision, not an omission. IFTA
+        rates change quarterly across 58 jurisdictions and some change
+        mid-quarter, so a bundled table would be stale within weeks and stale
+        inside a filed tax return. Making rates inputs also removes the only
+        recurring human maintenance step the venture would otherwise have
+        carried, four times a year.
+      - >-
+        Five platform integration guards fired on the new venture and each
+        was a real gap, not noise: the catch-all category overflowed (fixed
+        by claiming `ifta-` into `logistics` in build.mjs, beside the three
+        trucking tools it links to); the FAQPage JSON-LD diverged from the
+        visible copy by straight-vs-curly apostrophes; the guide page shipped
+        no structured data; `launched.json` had no launch date; and the tool
+        was a crawlable orphan until `owner-operator-cpm-calculator` linked
+        to it. `validate_workflows.py` then required the venture's own CI
+        workflow, which now exists from the first commit.
+      - >-
+        The documented four-place mirrored-tool count trap was hit exactly as
+        CLAUDE.md records it: `regen.mjs` rewrote several hundred gz shards
+        and `test_manifests.py` went red on a count typed out in
+        `infra/OWNER_CHECKLIST.md` (three places),
+        `gitops/prod/usage/aggregate.py` and
+        `gitops/prod/front-door/default.conf` (two places). 244 -> 245 in all
+        of them, in this commit rather than a follow-up.
+      - >-
+        Verified locally, because CI is starved: the venture's own suite
+        49/49; platform/marketing/*.test.mjs + platform/pages/*.test.mjs
+        1219/1219; platform/proposal + privacy + webcheck + both touched
+        ventures 289/289; gitops/tests 573 passed / 1 skipped;
+        all 23 platform/ci unittest modules OK plus agent_review;
+        portfolio ledger/scoring/router/usage/pipeline + infra/tests 435
+        passed; `score_ventures.py --check` clean at 254 ventures;
+        `validate_usage.py` clean; `clauses.mjs` clean.
+        `browser_checks.py --only ifta-quarterly-fuel-tax-calculator` ran
+        contrast (axe), presets, roundtrip, sideways and sweep -- all pass,
+        which is the check worth naming here: the entry table carries 72
+        inputs, the exact shape that shipped 48 critical axe `label`
+        violations across three products on 2026-09-06, and every one of them
+        has an explicit aria-label asserted by `page.test.mjs`.
+      - >-
+        `main` was measured green before the work started, not assumed:
+        `run_workflow_locally.py --tree` returned 9/9 workflows and 66/66
+        `portfolio-validate.yml` run steps against the tip.
+    mrr_end: 0
