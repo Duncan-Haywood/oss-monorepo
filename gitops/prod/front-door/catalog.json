@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 254,
-  "collection_total": 254,
+  "served_here": 256,
+  "collection_total": 256,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -26,7 +26,7 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 126
+      "tool_count": 127
     },
     {
       "id": "ci",
@@ -59,15 +59,15 @@
       "tool_count": 15
     },
     {
-      "id": "logistics",
-      "name": "Logistics, freight & cloud cost",
-      "url": "https://marisstella.dev/c/logistics/",
-      "tool_count": 7
-    },
-    {
       "id": "solo-earner",
       "name": "Creator & solo earner income",
       "url": "https://marisstella.dev/c/solo-earner/",
+      "tool_count": 8
+    },
+    {
+      "id": "logistics",
+      "name": "Logistics, freight & cloud cost",
+      "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 7
     },
     {
@@ -1047,6 +1047,14 @@
       "pages": 3
     },
     {
+      "slug": "epk-generator",
+      "name": "EPK Generator — Free Electronic Press Kit Builder for Musicians",
+      "url": "https://marisstella.dev/tools/epk-generator/",
+      "category": "Creator & solo earner income",
+      "description": "Build a professional electronic press kit (EPK) for your band or artist project in minutes — bio, streaming links, tour dates, press quotes, and photo. Free, no signup, runs entirely in your browser. Download a shareable HTML one-sheet or copy a plain-text version for email.",
+      "pages": 2
+    },
+    {
       "slug": "epoxy-garage-floor-bid-calculator",
       "name": "Epoxy Garage Floor Bid Calculator — Flake and Polyaspartic",
       "url": "https://marisstella.dev/tools/epoxy-garage-floor-bid-calculator/",
@@ -1133,6 +1141,14 @@
       "category": "More free tools",
       "description": "Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you're already considering against the breakeven.",
       "pages": 3
+    },
+    {
+      "slug": "forestry-mulching-bid-calculator",
+      "name": "Forestry Mulching Bid Calculator",
+      "url": "https://marisstella.dev/tools/forestry-mulching-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a forestry mulching or land clearing job from acres per machine-hour instead of a flat per-acre guess: head width, advance speed, passes, terrain, fuel, carbide tooth wear, machine ownership and mobilization. Free, private, nothing leaves your browser.",
+      "pages": 2
     },
     {
       "slug": "foundation-repair-bid-calculator",

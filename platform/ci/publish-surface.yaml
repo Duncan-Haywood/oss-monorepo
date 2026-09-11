@@ -332,6 +332,9 @@ workflows:
 - workflow: env-example-drift-check-ci.yml
   classification: none
   publishes: []
+- workflow: epk-generator-ci.yml
+  classification: none
+  publishes: []
 - workflow: epoxy-garage-floor-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -378,6 +381,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: food-truck-event-margin-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: forestry-mulching-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: forge-surface-reachability-ci.yml

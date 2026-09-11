@@ -1027,13 +1027,31 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
     if (!LINKED_EXTENSIONS.has(extension)) continue;
 
-    const markupOnly = text.replace(SCRIPT_OR_STYLE_RE, '');
+    // REFERENCE_RE only makes sense against real markup: an `.html` file with
+    // its <script>/<style> bodies stripped. A `.mjs`/`.js` file has no such
+    // wrapper to strip -- its entire content is script, the same content
+    // SCRIPT_OR_STYLE_RE exists to exclude -- so scanning it for href/src finds
+    // whatever `href="${...}"` template-literal markup the module builds at
+    // runtime and misreads the unevaluated placeholder as a dead link. Several
+    // ventures build result rows this way (epk-generator's generator.mjs among
+    // them); IMPORT_RE/DYNAMIC_IMPORT_RE below are what actually matter for a
+    // script file, and they already scan the unstripped text on every
+    // extension in LINKED_EXTENSIONS.
+    const markupOnly = extension === '.html' ? text.replace(SCRIPT_OR_STYLE_RE, '') : '';
     const targets = [
       ...[...markupOnly.matchAll(REFERENCE_RE)].map((m) => m[1]),
       ...[...text.matchAll(IMPORT_RE)].map((m) => m[1]),
       ...[...text.matchAll(DYNAMIC_IMPORT_RE)].map((m) => m[1]),
     ];
     for (const target of targets) {
+      // SCRIPT_OR_STYLE_RE only strips `<script>` wrappers inside HTML; a
+      // `.mjs`/`.js` file has no such wrapper, so its raw source is scanned
+      // as-is. A generator that builds a document client-side from
+      // user-supplied data -- `` `<a href="${escapeHtml(url)}">` `` in
+      // epk-generator/generator.mjs, same shape as the tender-radar case
+      // above -- has a literal `${...}` between the quotes, which can never
+      // be a real static path: it is JS source, not the rendered page.
+      if (target.includes('${')) continue;
       if (isExternal(target)) continue;
       const cleaned = decodeURIComponent(target.split('#')[0].split('?')[0]);
       if (!cleaned) continue;

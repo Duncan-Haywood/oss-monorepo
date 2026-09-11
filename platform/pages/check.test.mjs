@@ -134,6 +134,19 @@ test('a dead relative link is caught', async () => {
   assert.equal(mentioning(problems, 'dead link -> missing.html').length, 1);
 });
 
+test('a JS template-literal href in a standalone .mjs is not a dead link', async () => {
+  // The epk-generator false positive: `generator.mjs` builds an href from
+  // user-supplied data at runtime with a template literal --
+  // `` `<a href="${escapeHtml(url)}">` `` -- and has no `<script>` wrapper
+  // for SCRIPT_OR_STYLE_RE to strip, unlike the tender-radar case this
+  // guards elsewhere. The literal `${escapeHtml(url)}` text is not a path.
+  const problems = await problemsFor({
+    'tool/index.html': '<script type="module" src="generator.mjs"></script>',
+    'tool/generator.mjs': 'const html = `<a href="${escapeHtml(url)}">go</a>`;',
+  });
+  assert.deepEqual(mentioning(problems, 'dead link'), []);
+});
+
 test('a link that climbs out of the site root is caught', async () => {
   const problems = await problemsFor({ 'tool/index.html': '<a href="../../etc/passwd">x</a>' });
   assert.equal(mentioning(problems, 'escapes the site root').length, 1);
@@ -328,6 +341,29 @@ test('a dynamic import specifier is resolved', async () => {
     'tool/index.html': '<script type="module">const m = await import("./share.mjs");</script><footer>No warranty.</footer>',
   });
   assert.equal(mentioning(problems, 'dead link -> ./share.mjs').length, 1);
+});
+
+test('an href template placeholder inside a raw .mjs file is not a dead link', async () => {
+  // Regression: epk-generator's generator.mjs builds result markup with
+  // `` `<a href="${escapeHtml(url)}">` `` at runtime. REFERENCE_RE strips
+  // <script>/<style> bodies before scanning HTML for href/src, but a raw
+  // .mjs file has no such wrapper -- its whole content is script -- so
+  // without the same exclusion the unevaluated `${...}` placeholder read as
+  // a literal href and failed a correct page's build.
+  const problems = await problemsFor({
+    'tool/generator.mjs': 'export const row = (u) => `<a href="${escapeHtml(u)}">x</a>`;',
+  });
+  assert.deepEqual(mentioning(problems, 'dead link'), []);
+});
+
+test('a genuinely missing import in a raw .mjs file is still caught', async () => {
+  // The fix above must not blind the checker to a real dead module: a raw
+  // .mjs/.js file's import specifiers are still worth resolving, only its
+  // href/src-shaped string literals are not.
+  const problems = await problemsFor({
+    'tool/generator.mjs': "import { escapeHtml } from './missing-helper.mjs';",
+  });
+  assert.equal(mentioning(problems, 'dead link -> ./missing-helper.mjs').length, 1);
 });
 
 test('a data-tool literal inside a script is not read as a hub link', async () => {

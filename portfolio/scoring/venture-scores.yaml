@@ -10672,3 +10672,175 @@ ventures:
       never a claim that a clean report means the file has no other issues.
       Makes no network call of any kind, and the page's own footer and FAQ
       state both limits plainly.
+
+  - slug: epk-generator
+    scores:
+      ai_leverage: 4
+      autonomous_ops: 10
+      time_to_revenue: 3
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 3
+    floor_dimension: defensibility
+    floor_note: >-
+      Tied floor: defensibility and time_to_revenue both land at 3 (ai_leverage
+      is 4, just above), and both need naming. Defensibility 3: a form-to-
+      template document generator is publicly copyable, same as most of this
+      portfolio's calculators and generators -- what isn't trivially copied
+      is the free, account-less positioning against every commercial EPK
+      builder found at screening (see basis), not proprietary logic.
+      Time to revenue 3: this portfolio is donations-only by design, so
+      "first paid customer" reads as an early Sponsors click on nearly every
+      venture here, not a defect specific to this one -- scored against the
+      dimension's literal meaning rather than reinterpreted to look
+      stronger.
+    basis: >-
+      Screened 2026-09-11 against portfolio/pipeline/README.md's saturation
+      measurements (141 <trade>-bid-calculator ventures, 38 *-check/
+      *-checker ventures, zero recorded visitors between them) and its
+      instruction to weigh a different archetype by default. This venture is
+      neither saturated shape: like llms-txt-generator it is a generator
+      (PRODUCT_PLAYBOOK.md SS2's top-ranked shape alongside the static
+      browser app) -- it assembles an artifact (a press-kit page) from
+      content the user supplies, rather than pricing a job or grading one
+      that exists. duplicate_check.py scored two phrasings of this niche
+      against every venture, screened-out row, ai-first-markets idea, and
+      pipeline candidate; top score 0.12 (affiliate-disclosure-checker, on
+      generic word overlap), far under the 0.45 review bar. A direct text
+      search for "press kit", "musician", and "EPK" across every
+      VENTURE.yaml, README.md, and the pipeline candidate/screened-out files
+      found no hits; the nearest venture by name association, sponsor-ready,
+      scores a public GitHub repo's own GitHub Sponsors readiness and is
+      unrelated to an artist's promotional one-pager.
+      Distribution 6, reasoned rather than measured per this session's own
+      egress limit (the agent proxy 403s CONNECT to every host, the same
+      honesty limit llms-txt-generator's and ai-crawler-access-check's own
+      write-ups record): "electronic press kit" and "EPK" are established,
+      decades-old music-industry terms rather than an invented category, so
+      the search phrase itself ("free EPK template", "electronic press kit
+      generator free") is one musicians already type; multiple independently
+      built commercial competitors (Sonicbids-style tools, Presskit.to,
+      ReverbNation's press-kit feature, EPK templates sold on design
+      marketplaces) are evidence of real, sustained demand for this exact
+      job; and large, topically-exact communities exist for the audience
+      (r/WeAreTheMusicMakers, r/musicians, r/IndieMusicFeedback) where "how
+      do I make a press kit with no budget" is a recurring, on-topic
+      question. 6 rather than llms-txt-generator's 5 because every
+      commercial competitor found requires an account and gates the finished
+      file behind its own hosting or a paid tier, a wedge stateable without
+      embellishment; not higher because no search-volume figure was
+      confirmed by a live fetch.
+      Autonomous ops 10 / gross margin 10: the page builds entirely
+      client-side and uploads nothing -- no file upload, no server of ours
+      in the loop, so serving one more visitor costs a static file. AI
+      leverage 4: the core value is deterministic templating (form fields
+      into a document), not model work; PRODUCT_PLAYBOOK.md SS3's API-key
+      switch (an optional, bring-your-own-key AI bio-polish pass) is a
+      plausible later add if usage shows the bio field is where people
+      stall, not built speculatively now.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool renders content the artist supplies and fully controls
+      -- no financial figure, no compliance judgment, no advice-of-record.
+      The worst-case failure is a plain or incomplete press kit, not an
+      actionable claim; the footer states plainly that reviewing the output
+      (including rights to any photo link supplied) stays the artist's own
+      responsibility. Ethical robustness: helps under-resourced independent
+      artists present themselves professionally, with no adversarial
+      dynamic and no negative externality as usage scales.
+
+  - slug: forestry-mulching-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The output is a price an operator
+      puts in front of a landowner and then has to clear the ground for, and
+      every step of it -- acres per hour from swath geometry, machine hours
+      from acres per hour, five cost lines to an hourly rate, margin on price
+      -- is closed-form arithmetic the operator can re-derive on paper and a
+      customer can query line by line. Inference would make the quote less
+      checkable without making it more correct, and the failure mode of a
+      wrong number here is a week of machine time given away.
+    basis: >-
+      Screened 2026-09-11. `duplicate_check.py` scored the closest match
+      (`custom-farm-rate-calculator`) at 0.25 against the final description,
+      under the 0.45 flag bar, and the next nine sat at 0.13 or below. No
+      mulching, land-clearing, brush-density or acres-per-machine-hour
+      arithmetic exists anywhere in `ventures/`, and no land-clearing row
+      exists in `screened-out.md`. The two nearest real neighbours are
+      complementary rather than overlapping: `tree-service-bid-calculator`
+      (0.11) prices standing stems per tree from DBH, which is precisely the
+      material a mulching head is not rated for -- the two are linked from
+      each other's pages for that reason -- and `custom-farm-rate-calculator`
+      prices a farm implement's field job for another farmer, an ag operation
+      rather than vegetation removal, with no density or pass-count term at
+      all.
+      Defensibility 3, stated plainly because it is the weakest dimension:
+      a cost-per-hour calculator is easy to reimplement once the shape is
+      known, and generic markup calculators are everywhere. What is not
+      commodity is the production-rate half -- deriving acres per machine
+      hour from head width, advance speed, pass count and a terrain factor,
+      and then re-pricing the identical acreage across four density classes
+      against one flat quoted price per acre. An operator can find a
+      dollars-per-acre figure on a forum in ten seconds; what they cannot
+      easily find is what that figure does to them on the heavy lot.
+      Distribution 7: the search terminology is unusually concrete and
+      transactional ("forestry mulching price per acre", "how much to charge
+      for forestry mulching", "land clearing cost per acre", "forestry
+      mulching production rate acres per hour"), the question is asked
+      continuously in a self-organising trade community (r/Skidsteer,
+      r/Forestry, Heavy Equipment Forums and the Forestry Forum's equipment
+      boards), and a second population asks it before buying a head at all
+      -- "can I make money mulching" is a pre-purchase question with the same
+      arithmetic behind it. The guide page is written to answer the pricing
+      query directly rather than to rank for the calculator query alone.
+      Autonomous ops 10 / gross margin 10: a static page with no build step,
+      no dependencies and no network requests, so one more user costs nothing
+      and there is nothing to operate.
+      Time to revenue 6: free by design in this phase, and the route to any
+      revenue is the same sponsorship link every tool here carries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass on both, and liability containment needed the closer look because
+      the customer operates heavy equipment on land that frequently carries
+      environmental restrictions. The containment is structural rather than a
+      matter of wording: this makes no determination about any parcel. It
+      ships no regulatory data, no soil or wetland layer, no species list and
+      no parcel lookup, and it says on every page that permits, burn rules,
+      stream and wetland buffers, erosion control, protected species,
+      property lines and buried or overhead utilities are outside it and
+      remain the operator's. The artifact it produces is a price, not a
+      clearing plan and not a finding that the work may be done. The one
+      place it touches operational safety is defensive: it flags a largest
+      stem above what the head is rated for as a felling job to price
+      separately or exclude in writing, rather than silently folding
+      oversized material into a production rate. That is the opposite posture
+      from a tool claiming to discharge an obligation, which is the shape
+      `screened-out.md` rejects.
+      Ethical robustness: the tool's whole argument is that operators are
+      under-charging because a per-acre quote hides the term that moves the
+      cost most, and that some of what looks like a pricing problem is an
+      idle-machine problem they should see before raising a price. It gets
+      better for its users as it scales and takes nothing from anybody else
+      -- a landowner who pays a correctly-priced quote for correctly-scoped
+      work is not worse off than one paying a guess that the operator will
+      have to recover somewhere. Nothing is uploaded, so there is no data
+      position to abuse, and the density presets are disclosed on both pages
+      as starting points to overwrite rather than as survey data, which is
+      the honest direction to err given the tool argues for higher quotes.

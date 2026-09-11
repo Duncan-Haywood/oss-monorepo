@@ -1086,12 +1086,22 @@ const CATEGORY_RULES = [
     // quoting work for a customer, and a maker has no customer to quote —
     // they are deciding what their own hours are worth against a booth fee
     // nobody negotiated with them.
+    // `epk-generator` joined 2026-09-11: a musician or band assembling an
+    // electronic press kit is the same move as `ats-resume-checker`'s job
+    // seeker and `sponsor-ready`'s maintainer -- a self-presentation
+    // document or profile built to attract someone else's booking,
+    // employment, or funding decision, not a price and not a business
+    // check. It shipped with an inbound sibling link to ats-resume-checker
+    // from its first commit (see `siblings-budget.json`) rather than
+    // landing in the catch-all, which is also what keeps that catch-all
+    // inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
       [
         '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
         'craft-fair-booth-calculator',
+        'epk-generator',
         'gig-driver-net-pay-calculator',
         'newsletter-sponsorship-rate-calculator',
         'sponsor-ready',
@@ -1860,7 +1870,18 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-outdoor',
       title: 'Landscape, deck & pool',
-      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|landscape-lighting|holiday-light|snow-removal|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
+      // `forestry-mulching` joins this group beside `tree-service`, and the
+      // two link to each other: one lot commonly carries both standing stems
+      // a mulching head is not rated for and understory a chainsaw crew has
+      // no business on, so the operator quoting either is regularly asked
+      // about the other. Filed here on its first commit rather than left for
+      // a spell in `trades-other`, which `build.test.mjs`'s "every published
+      // trade tool lands in a named sub-group" assertion exists to prevent.
+      // `trades-site` was the near miss -- land clearing does precede site
+      // work -- but this tool prices vegetation removal by acres per
+      // machine-hour, not excavation, grading or a poured product, and its
+      // nearest neighbour by both buyer and job is the tree service beside it.
+      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|forestry-mulching|landscape-lighting|holiday-light|snow-removal|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
     },
   ],
 };

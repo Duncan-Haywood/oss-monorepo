@@ -12,24 +12,22 @@ permissions:
 
 jobs:
   ssh:
-    # Every workflow here reads this switch so one repository variable moves
-    # all of them onto self-hosted runners at once -- which is the whole
-    # insurance against the metered-Actions starvation this repo keeps hitting.
-    # A workflow that hardcodes `ubuntu-latest` opts itself out silently, and
-    # `gitops/tests/test_ci_runner.py` fails until it reads the switch.
+    # Same switch every other workflow here reads, so one repository variable
+    # still moves all of them at once -- `gitops/tests/test_ci_runner.py`
+    # asserts it, and this workflow was the one exception.
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
-    # Two SSH attempts at ConnectTimeout=20 plus the key checks. Ten minutes is
-    # slack, not a budget: without a cap a wedged connection rides the
-    # 360-minute default, which on a starved allowance is the whole point.
+    # Two SSH attempts at a 20-second connect timeout each, plus checkout and
+    # setup: well under a minute in the ordinary case. Ten is headroom, and it
+    # matters more here than on most jobs -- a hung `ssh` against an
+    # unreachable box would otherwise ride GitHub's 360-minute default and
+    # spend hours of a metered allowance this repository is already rationing.
     timeout-minutes: 10
     steps:
-      # The probe below runs `python3`. A GitHub-hosted image happens to ship
-      # one; a self-hosted runner (which `CI_RUNNER` exists to select) need
-      # not, so the interpreter is requested rather than assumed.
+      # The probe below shells out to `python3`, so the interpreter is pinned
+      # rather than inherited from whatever the runner image happens to ship.
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Probe HETZNERSSHKEY against both Hetzner boxes
         env:
           HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
