@@ -997,8 +997,24 @@ const CATEGORY_RULES = [
     // exact slug rather than a new prefix, the same way its neighbours are,
     // and landing it here rather than the catch-all is also what keeps that
     // catch-all inside the bound `build.test.mjs` puts on it.
+    //
+    // `llms-txt-generator` joined 2026-09-11, and it is the first member here
+    // that is not a checker at all — it is a *generator*, producing the file
+    // rather than grading one that already exists. `ai-crawler-access-check`
+    // already carries a structural llms.txt *validator* as one small part of
+    // a robots.txt-focused checker; this venture is the complementary half
+    // that one deliberately left alone — building a correct llms.txt from a
+    // Markdown docs tree, a sitemap.xml, or a hand-picked page list, then
+    // validating its own output against the same shape. It cross-links
+    // `ai-crawler-access-check` as Related (same convention, opposite job:
+    // check one vs. build one) and shares this family's audience exactly —
+    // the developer/site-owner deciding what a crawler or assistant should
+    // read. Listed by exact slug rather than a new prefix, the same way its
+    // neighbours above are, and landing it here rather than the catch-all is
+    // also what keeps that catch-all inside the bound `build.test.mjs` puts
+    // on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator)/.test(
         slug,
       ),
   },
