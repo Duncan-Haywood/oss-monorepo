@@ -36,16 +36,16 @@
 #   portfolio-front-tools-0: 136 files, 556571 bytes
 #   portfolio-front-tools-1: 110 files, 555638 bytes
 #   portfolio-front-tools-2: 149 files, 548509 bytes
-#   portfolio-front-tools-3: 141 files, 555224 bytes
+#   portfolio-front-tools-3: 141 files, 555228 bytes
 #   portfolio-front-tools-4: 125 files, 554843 bytes
 #   portfolio-front-tools-5: 134 files, 556892 bytes
 #   portfolio-front-tools-6: 135 files, 541677 bytes
 #   portfolio-front-tools-7: 115 files, 547363 bytes
 #   portfolio-front-tools-8: 112 files, 555767 bytes
 #   portfolio-front-tools-9: 121 files, 552712 bytes
-#   portfolio-front-tools-10: 127 files, 555969 bytes
-#   portfolio-front-tools-11: 107 files, 556162 bytes
-#   portfolio-front-tools-12: 116 files, 546060 bytes
+#   portfolio-front-tools-10: 127 files, 549758 bytes
+#   portfolio-front-tools-11: 106 files, 556934 bytes
+#   portfolio-front-tools-12: 118 files, 555239 bytes
 #   portfolio-front-tools-13: 80 files, 406406 bytes
 #   portfolio-front-tools-14: 54 files, 263605 bytes
 #
@@ -1500,6 +1500,7 @@ configMapGenerator:
       - quarterly-estimated-tax-calendar__calc.mjs.gz=quarterly-estimated-tax-calendar__calc.mjs.gz
       - quarterly-estimated-tax-calendar__index.html.gz=quarterly-estimated-tax-calendar__index.html.gz
       - quarterly-estimated-tax-calendar__usage.mjs.gz=quarterly-estimated-tax-calendar__usage.mjs.gz
+      - quarterly-estimated-tax-calendar__vs-keeper.html.gz=quarterly-estimated-tax-calendar__vs-keeper.html.gz
       - quote-margin-check__calc.mjs.gz=quote-margin-check__calc.mjs.gz
       - quote-margin-check__draft.mjs.gz=quote-margin-check__draft.mjs.gz
       - quote-margin-check__drafts.mjs.gz=quote-margin-check__drafts.mjs.gz
@@ -1524,12 +1525,12 @@ configMapGenerator:
       - radon-mitigation-bid-calculator__share.mjs.gz=radon-mitigation-bid-calculator__share.mjs.gz
       - radon-mitigation-bid-calculator__usage.mjs.gz=radon-mitigation-bid-calculator__usage.mjs.gz
       - radon-mitigation-bid-calculator__vs-oneradon.html.gz=radon-mitigation-bid-calculator__vs-oneradon.html.gz
-      - real-estate-agent-photo-app__index.html.gz=real-estate-agent-photo-app__index.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - real-estate-agent-photo-app__index.html.gz=real-estate-agent-photo-app__index.html.gz
       - real-estate-agent-photo-app__photo-spec.mjs.gz=real-estate-agent-photo-app__photo-spec.mjs.gz
       - real-estate-agent-photo-app__report.mjs.gz=real-estate-agent-photo-app__report.mjs.gz
       - real-estate-agent-photo-app__usage.mjs.gz=real-estate-agent-photo-app__usage.mjs.gz
@@ -1635,13 +1636,13 @@ configMapGenerator:
       - shopify-fee-calculator__vs-beprofit.html.gz=shopify-fee-calculator__vs-beprofit.html.gz
       - shopify-fee-calculator__which-shopify-promo-costs-less.html.gz=shopify-fee-calculator__which-shopify-promo-costs-less.html.gz
       - shopify-fee-calculator__why-paypal-costs-more.html.gz=shopify-fee-calculator__why-paypal-costs-more.html.gz
-      - shopify-permission-drift__capture.html.gz=shopify-permission-drift__capture.html.gz
-      - shopify-permission-drift__capture.mjs.gz=shopify-permission-drift__capture.mjs.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-permission-drift__capture.html.gz=shopify-permission-drift__capture.html.gz
+      - shopify-permission-drift__capture.mjs.gz=shopify-permission-drift__capture.mjs.gz
       - shopify-permission-drift__compare.mjs.gz=shopify-permission-drift__compare.mjs.gz
       - shopify-permission-drift__index.html.gz=shopify-permission-drift__index.html.gz
       - shopify-permission-drift__usage.mjs.gz=shopify-permission-drift__usage.mjs.gz
