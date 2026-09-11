@@ -9951,3 +9951,95 @@ ventures:
       specific request against a specific set of named patterns, not a
       full caching or performance audit, or a determination that the
       target's caching strategy is optimal.
+  - slug: ifta-quarterly-fuel-tax-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately, and here the reason is sharper
+      than usual: the output is transcribed onto a tax return that a base
+      jurisdiction assesses and can audit. Every figure has to be one the
+      carrier can re-derive on paper from their own trip sheets and fuel
+      receipts, because that is exactly what an audit asks them to do.
+      Inference would make the schedule less checkable without making it
+      more correct, and a model's guess at a gallon figure is the one kind
+      of error that costs a penalty rather than a re-run.
+    basis: >-
+      Screened 2026-09-10. `duplicate_check.py` scored the closest match
+      (`owner-operator-cpm-calculator`) at 0.11 against the final
+      description, far under the 0.45 flag bar, and the whole top ten sat
+      at 0.11 or below. Read rather than trusted, because that top match
+      is the one that had to be checked by hand: it mentions IFTA, but
+      only as a fixed monthly line item ("Permits, plates, IFTA, ELD") in
+      a cost-per-mile build-up. It prices a truck; this works a tax
+      return. No IFTA arithmetic -- fleet MPG, taxable gallons, net
+      taxable gallons, surcharge -- exists anywhere in `ventures/`, and
+      no fuel-tax row exists in `screened-out.md`.
+      `freight-accessorial-auditor` (0.09) audits carrier invoices for
+      accessorial charges billed to a shipper, which shares the trucking
+      back office and none of the formula.
+      Autonomous ops 10 / gross margin 10: a static page with no build
+      step, no dependencies and no network requests, so one more user
+      costs a static file and needs no human in any loop. It ships no rate
+      table by design, which also means there is no quarterly maintenance
+      obligation -- the alternative design, a bundled rate table, would
+      have put a recurring human step in the loop four times a year and
+      dropped this dimension by several points.
+      Distribution 7: a deadline-driven, monied, well-defined audience --
+      roughly 100,000 US IFTA licensees, heavily weighted to fleets small
+      enough to file by hand -- with a filing deadline four times a year
+      (end of April, July, October, January) that produces a predictable
+      search spike, and specific phrases ("how to calculate IFTA",
+      "IFTA surcharge Indiana Kentucky", "IFTA quarterly return
+      calculator", "why do I owe IFTA when I have a fuel credit"), plus
+      r/Truckers, r/FreightBrokers and the owner-operator forums where
+      surcharge confusion is a recurring thread. A point above the
+      self-storage row because the deadline recurs quarterly for every
+      licensee rather than being a discretionary decision, and because
+      the portfolio already carries three adjacent trucking tools to link
+      from. Not higher: the paid IFTA products bundled with ELD and
+      fuel-card software reach this audience through a channel this has
+      no equivalent of.
+      Time to revenue 6, defensibility 4: donations-only, and the
+      arithmetic is public -- it is the return's own. Defensibility rests
+      on getting the four rules right (fleet-wide MPG, two-decimal
+      rounding before use, surcharge on taxable rather than net gallons
+      with no credit, per-jurisdiction interest that a credit does not
+      offset) and on the audit-shaped checks, not on any moat. The paid
+      vendors in this niche sell to fleets large enough to buy fleet
+      software, which is the half of the market this does not serve.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, and this one needed the closer look, because
+      `screened-out.md` rejects "AI legal / medical / tax advice
+      products" outright as advice-of-record with no professional behind
+      it. This is not in that category and the distinction is structural
+      rather than a matter of wording: it makes no determination, applies
+      no rate it chose, and files nothing. Every rate is the carrier's own
+      input from the official quarterly table, every mile and gallon is
+      the carrier's own record, and the output is the return's own
+      arithmetic on those figures -- the same class as
+      `certified-payroll-calculator` and `einvoice-preflight`, both
+      already shipped here. What it must never be read as deciding is
+      named explicitly on both pages, in the README and in the FAQ: what
+      the base jurisdiction requires, which miles a jurisdiction exempts,
+      whether a vehicle is qualified, what rate applies to a fuel type,
+      and what is owed. The pages say "it is not a filing" in those
+      words, and send the reader to the official rate table and to a
+      qualified tax professional.
+      Everything runs in the visitor's browser on figures they type,
+      nothing is uploaded, and no third party's data is touched -- which
+      matters more than usual here, because a jurisdiction-by-jurisdiction
+      mileage schedule is both tax data and a map of the business's lanes.
+      No account, no upload, no data retained anywhere but an anonymous
+      local event count.

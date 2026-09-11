@@ -5003,6 +5003,42 @@ products:
           default, and honor DNT/GPC, so zero is the expected reading
           for a tool nobody has visited or switched the counter on for
           yet.
+  - slug: ifta-quarterly-fuel-tax-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          return_worked: 0
+          return_rejected: 0
+          example_cleared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a
+          public route from its first commit: an IFTA quarterly fuel tax
+          worksheet for small carriers and owner-operators who file their
+          own return, computing fleet MPG, taxable and net taxable
+          gallons per jurisdiction, and the Indiana/Kentucky/Virginia
+          surcharge on taxable gallons with no credit -- the line
+          hand-built worksheets under-report, by $328.42 on the shipped
+          example. The signal worth watching is `return_worked` against
+          repeat visits at a one-quarter interval: IFTA is due four times
+          a year, so a carrier who works one return and does not come
+          back the following quarter is the clearest evidence the tool
+          did not earn its place in their filing routine. `example_cleared`
+          against `return_worked` is the second: a visitor who clears the
+          worked example is entering their own quarter, which separates
+          real use from reading. `return_rejected` counts validation
+          failures rather than errors -- a high ratio would say the input
+          shape is wrong, most likely the six-column table. First-visitor
+          channel is r/Truckers and the owner-operator forums where
+          surcharge confusion is a recurring thread, plus the search
+          phrases "how to calculate IFTA", "IFTA surcharge Indiana
+          Kentucky", "IFTA quarterly return calculator" and "why do I owe
+          IFTA when I have a fuel credit", which spike around the four
+          filing deadlines. Counts are local, opt-in, off by default, and
+          honor DNT/GPC, so zero is the expected reading for a tool
+          nobody has visited or switched the counter on for yet.
   - slug: self-storage-rate-increase-calculator
     surface: github-pages
     readings:
