@@ -170,12 +170,45 @@ function canonical(value) {
 }
 
 /**
- * A probe's handler, in full. An earlier version reduced httpGet to path and
- * port, which called two probes identical when they deliberately differed by
- * `scheme`, `host`, or `httpHeaders` -- a readiness probe sending
- * `X-Probe: ready` and a liveness probe sending `X-Probe: live` hit the same
- * path and can exercise entirely different code, so reporting them as
- * duplicates was a false positive on a deliberate design.
+ * Fill in the defaults Kubernetes applies, so that comparing two handlers
+ * compares what the kubelet will actually *do* rather than how the manifest
+ * happened to spell it.
+ *
+ * This is the other half of comparing handlers in full. Comparing raw objects
+ * fixed a false positive (probes differing only by header were called
+ * duplicates) and introduced a false negative in its place: one probe omitting
+ * `scheme` and another setting `scheme: HTTP` are the same request, because
+ * HTTP is the default -- but they serialize differently, so a genuine
+ * duplicate pair went unreported. Both directions matter, and the defaults are
+ * where they meet.
+ *
+ * Meaningful differences are preserved: HTTPS still differs from HTTP, and
+ * distinct headers still differ. Headers are sorted because the kubelet sends
+ * the same set either way, so header *order* is spelling, not behaviour.
+ */
+function normalizeHandler(kind, handler) {
+  const h = handler && typeof handler === 'object' ? handler : {};
+  if (kind === 'httpGet') {
+    return {
+      path: h.path ?? '/',
+      port: h.port ?? null,
+      // Kubernetes' enum is HTTP | HTTPS, defaulting to HTTP.
+      scheme: String(h.scheme ?? 'HTTP').toUpperCase(),
+      // Absent and empty both mean "the pod's own IP".
+      host: h.host ? String(h.host) : null,
+      httpHeaders: (Array.isArray(h.httpHeaders) ? h.httpHeaders : [])
+        .map((x) => ({ name: String(x?.name ?? ''), value: String(x?.value ?? '') }))
+        .sort((a, b) => `${a.name} ${a.value}`.localeCompare(`${b.name} ${b.value}`)),
+    };
+  }
+  if (kind === 'tcpSocket') return { port: h.port ?? null, host: h.host ? String(h.host) : null };
+  if (kind === 'grpc') return { port: h.port ?? null, service: h.service ?? '' };
+  if (kind === 'exec') return { command: [].concat(h.command ?? []).map(String) };
+  return h;
+}
+
+/**
+ * A probe's handler, normalized and in full.
  *
  * Only the handler is compared, never the timing fields: two probes that hit
  * exactly the same endpoint with different periodSeconds are still the
@@ -184,7 +217,7 @@ function canonical(value) {
 function probeTarget(probe) {
   if (!probe || typeof probe !== 'object') return null;
   for (const kind of ['httpGet', 'tcpSocket', 'exec', 'grpc']) {
-    if (probe[kind]) return `${kind} ${canonical(probe[kind])}`;
+    if (probe[kind]) return `${kind} ${canonical(normalizeHandler(kind, probe[kind]))}`;
   }
   return null;
 }

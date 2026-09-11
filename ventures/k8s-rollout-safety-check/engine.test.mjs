@@ -702,3 +702,75 @@ test('the no-pdb finding does not claim a budget constrains this rollout', () =>
   assert.match(f.impact, /maxUnavailable and maxSurge alone/);
   assert.match(f.impact, /node drain/);
 });
+
+test('probe defaults are normalized, so spelling does not decide the verdict', () => {
+  // Comparing handlers in full fixed a false positive and introduced a false
+  // negative: an omitted `scheme` and an explicit `scheme: HTTP` are the same
+  // request to Kubernetes, but serialized differently, so a genuine duplicate
+  // pair went unreported. Both directions are pinned here.
+  const probes = (readiness, liveness) => safeDeployment()
+    .replace(`          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+`, `          readinessProbe:
+${readiness}`)
+    .replace(`          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+`, `          livenessProbe:
+${liveness}            initialDelaySeconds: 10
+`);
+
+  const plain = `            httpGet:
+              path: /probe
+              port: 8080
+`;
+  const explicitHttp = `            httpGet:
+              path: /probe
+              port: 8080
+              scheme: HTTP
+`;
+  const https = `            httpGet:
+              path: /probe
+              port: 8080
+              scheme: HTTPS
+`;
+  const noPath = `            httpGet:
+              port: 8080
+`;
+  const rootPath = `            httpGet:
+              path: /
+              port: 8080
+`;
+
+  assert.ok(
+    ids(run(probes(plain, explicitHttp))).includes('liveness-equals-readiness'),
+    'an omitted scheme and an explicit HTTP are the same handler',
+  );
+  assert.ok(
+    ids(run(probes(noPath, rootPath))).includes('liveness-equals-readiness'),
+    'an omitted path defaults to /',
+  );
+  assert.ok(
+    !ids(run(probes(plain, https))).includes('liveness-equals-readiness'),
+    'HTTPS is a real difference and must survive normalization',
+  );
+
+  // Header order is spelling; the kubelet sends the same set either way.
+  const headers = (first, second) => `            httpGet:
+              path: /probe
+              port: 8080
+              httpHeaders:
+                - name: ${first}
+                  value: v
+                - name: ${second}
+                  value: v
+`;
+  assert.ok(
+    ids(run(probes(headers('A', 'B'), headers('B', 'A')))).includes('liveness-equals-readiness'),
+    'the same headers in a different order are the same probe',
+  );
+});
