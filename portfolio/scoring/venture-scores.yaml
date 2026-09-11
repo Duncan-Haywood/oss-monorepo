@@ -11131,3 +11131,90 @@ ventures:
       under-resourced independent creators present professionally and
       price their own work, with no adversarial dynamic and no negative
       externality as usage scales.
+
+  - slug: auto-repair-effective-labor-rate
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 6
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The product is deliberately AI-free, and more strongly so than most
+      of the calculators here. A shop owner is going to take the result to
+      a pricing decision and, more importantly, is going to check it
+      against their own management system before believing it -- the whole
+      premise is that this number contradicts what they thought was true.
+      Every step therefore has to be one they can re-derive on paper from
+      reports they already run. Inference would make the number less
+      checkable without making it more correct, and an unfalsifiable
+      contradiction of a shop's own belief about its rate is worth less
+      than no tool at all.
+    basis: >-
+      Graduated and shipped 2026-09-11 with the score row in the same
+      commit, which is the failure mode CLAUDE.md records against #3615:
+      `--check` fails by design when the scored set and the set of
+      VENTURE.yaml files disagree, and a venture that ships without a row
+      turns `main` red for every later session that did not touch scoring.
+      Scored as a sibling of the route and rate calculators
+      (`shop-rate-calculator`, `atm-route-margin`,
+      `vending-machine-route-margin`) because the shape is the same --
+      browser-local arithmetic, no build step, no dependencies, no network
+      -- applied to a distinct buyer: an independent auto repair shop
+      measuring a month it has already billed, rather than a trade
+      contractor pricing an hour it has not yet sold.
+      Autonomous ops 10 and gross margin 10: static ES modules on the same
+      Pages artifact as the rest of the catalogue, no dependencies and no
+      network requests, so one more user costs nothing and there is nothing
+      to operate.
+      Distribution 7 rather than the 6 the newer trade calculators carry:
+      "effective labor rate" is an established term of art that shop owners
+      already search for by name, and the question behind it ("why is my
+      labor rate lower than my door rate") is a query rather than a
+      category. That is a better organic position than a bid calculator
+      competing against the trade's own price-per-unit rules of thumb.
+      Defensibility 6: the arithmetic is public and reproducible, as it has
+      to be. What is not trivially copied is the decomposition -- splitting
+      the gap into customer-pay discounting, warranty shortfall and unbilled
+      internal hours, and grossing the required rate up for realization --
+      which is the part that makes the number actionable and the part no
+      free tool currently computes.
+      Time to revenue 7: free by design in this phase, and the route to any
+      revenue is the same sponsorship link every tool here carries.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass on both. Liability containment needed the closer look because the
+      inputs are payroll, warranty reimbursement and a profit-and-loss
+      statement, which is the adjacency `screened-out.md` rejects under "AI
+      legal / medical / tax advice products" -- advice-of-record with no
+      professional carrying it. The containment is structural rather than a
+      matter of wording. The tool makes no determination about tax
+      treatment, about how any figure should be recorded, or about how any
+      technician should be paid or classified; it reads no warranty contract
+      and applies no jurisdiction's rules; and it ships no benchmark table
+      against which a shop could be told it is wrong. The artifact it
+      produces is a division of numbers the owner typed, every one of which
+      they can re-derive. The notes are written as statements about those
+      figures and `calc.test.mjs` asserts they never read as instructions --
+      no "raise your rate", no "stop taking warranty" -- because the tool
+      has no way to know a shop's market, competition or contracts, and a
+      recommendation on figures it cannot verify is exactly the shape that
+      turns arithmetic into advice.
+      Ethical robustness: the argument gets better for its users as it
+      scales and takes nothing from anybody else. A shop that discovers it
+      is collecting $138 against a posted $165 is better informed about its
+      own business; a customer who pays a correctly-priced repair is not
+      worse off than one paying a price the shop will have to recover
+      somewhere else later. Nothing is uploaded -- and this venture holds
+      more competitively sensitive data than any calculator here, which is
+      why it ships with no shareable link at all rather than the URL-encoded
+      share the rest of the catalogue offers. The one direction it could err
+      is arguing for higher prices on thin evidence, so the worked example
+      is labelled an illustration rather than a benchmark, on both pages.

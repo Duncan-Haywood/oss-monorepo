@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 260 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 261 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic &quot;can&#39;t contain an alpha channel&quot; rejection), wrong pixel dimensions, a HEIC renamed to .png, and a screenshot set whose members disagree about their own size. Runs entirely in your browser; nothing is uploaded. A zero-dependency CLI does the same in CI.</summary>
+  </entry>
+  <entry>
+    <title>Effective Labor Rate Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/auto-repair-effective-labor-rate/"/>
+    <id>tag:marisstella.dev,2026:tool/auto-repair-effective-labor-rate</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Trade &amp; contractor bids"/>
+    <summary type="text">Your posted door rate is not the rate you collect. Enter one month of customer-pay, warranty and internal hours and see your real effective labor rate, exactly where the rest of it went, and what the posted rate would have to be to hit your labor gross profit. Free, private, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Brand Deal Rate Calculator — Free, No Sign-Up</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-09T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>package.json Exports Drift Check — Does &quot;exports&quot; Point at Files That Exist?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/package-exports-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/package-exports-drift-check</id>
-    <published>2026-09-09T00:00:00Z</published>
-    <updated>2026-09-09T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your package.json and a listing of the files you actually publish and see every literal target in the &quot;exports&quot; map that points at a file that doesn&#39;t exist -- the cause of ERR_PACKAGE_PATH_NOT_EXPORTED and Cannot find module right after npm install. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

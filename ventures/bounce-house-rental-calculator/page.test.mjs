@@ -300,3 +300,15 @@ test('every field recomputes the quote live, not only on an explicit submit', ()
     'the form must carry a "change" listener that calls submit() so a select or checkbox edit updates the hero price immediately',
   );
 });
+
+test('typing is not counted as a pricing', () => {
+  // The live listeners above call `submit()` directly rather than going
+  // through the submit handler, so `quote_priced` still counts a deliberate
+  // press. A count on every keystroke would turn an aggregate feature tally
+  // into a typing log, which is not what the footer promises. Kept from this
+  // branch when main landed its own version of the test above: main's guards
+  // that the wiring exists, this guards what the wiring must not do.
+  const live = /addEventListener\(['"](?:input|change)['"],\s*\(\)\s*=>\s*submit\(\)\)/g;
+  assert.equal([...index.matchAll(live)].length, 2);
+  assert.doesNotMatch(index, /addEventListener\(['"]input['"],[^)]*count\(['"]quote_priced['"]\)/);
+});
