@@ -12,8 +12,12 @@ permissions:
 
 jobs:
   ssh:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: Probe HETZNERSSHKEY against both Hetzner boxes
         env:
           HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
