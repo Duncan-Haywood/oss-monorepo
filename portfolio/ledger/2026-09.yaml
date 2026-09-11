@@ -26993,6 +26993,51 @@ entries:
         alongside since it was a byproduct of running the required
         checklist step, not separate scope.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Named task: run the fleet-wide 7-check whole-catalogue
+        browser/accessibility sweep (`platform/ci/browser_checks.py`) since
+        `browser_state.py` reported all 7 checks (sideways, presets,
+        roundtrip, highlight, contrast, sweep, journey) STALE as of
+        `06c1aa2c` — the builder or front door had moved again since the
+        prior session's recording (`de7f16282`, #4583) and one more
+        venture (`ifta-quarterly-fuel-tax-calculator`, #4585) had landed a
+        markup change in between. Confirmed no open PRs before starting
+        (nothing to duplicate or collide with).
+      - >-
+        `git fetch origin main && git reset --hard origin/main` to
+        `c96b757b0` first, so the reading is against the tree a stranger
+        would actually get, not a stale worktree checkout. Installed
+        Playwright 1.56.0 + axe-core in the one required command (`npm
+        install --no-save playwright@1.56.0 axe-core`) and ran `python3
+        platform/ci/browser_checks.py --record --checks
+        sideways,presets,roundtrip,highlight,contrast,sweep,journey`
+        against a fresh build (no `--dist`, so nothing stale could be
+        served).
+      - >-
+        All 7 checks passed clean at `c96b757b0`, 981 pages / 2 viewports:
+        no WCAG A/AA violations (`contrast`), no page scrolling sideways
+        at 375px (`sideways`), 66/66 preset pickers keep the takeoff
+        (`presets`, 191 correctly skipped — no picker), 106/106 rejected
+        inputs correctly highlighted (`highlight`, 1 skipped), every
+        roundtrip-tested tool's shared link matches its own headline
+        (`roundtrip`), 261/261 tools answer with no errors (`sweep`), and
+        the full customer-journey narrative (save/restore/backup, sitemap
+        integrity, 404 handling, no off-origin requests, no console/page
+        errors) passed end to end (`journey`). No defect found — the fleet
+        had not regressed since the last clean reading, only gone stale on
+        paper because two more commits touched the builder/front door.
+      - >-
+        Recorded the fresh reading (`platform/ci/browser_state.json`,
+        commit `c96b757b0`) so the next session doesn't re-spend the
+        ~20-30 minutes re-verifying an unregressed fleet;
+        `browser_state.py` now reports all 7 checks current. Re-checked
+        open PRs immediately before pushing per the duplicate-PR collision
+        rule (still none).
+    mrr_end: 0
   - venture: forestry-mulching-bid-calculator
     agent_spend_usd: null
     human_hours: 0
