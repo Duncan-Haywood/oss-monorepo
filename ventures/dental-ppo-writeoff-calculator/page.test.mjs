@@ -10,9 +10,12 @@ const guide = readFileSync(join(here, 'what-is-my-effective-reimbursement-rate.h
 const readme = readFileSync(join(here, 'README.md'), 'utf8');
 const calc = readFileSync(join(here, 'calc.mjs'), 'utf8');
 
+const vsPage = readFileSync(join(here, 'vs-ppo-fee-negotiators.html'), 'utf8');
+
 const PAGES = [
   ['index.html', page],
   ['what-is-my-effective-reimbursement-rate.html', guide],
+  ['vs-ppo-fee-negotiators.html', vsPage],
 ];
 
 test('both pages carry the no-warranty clause', () => {
@@ -188,4 +191,51 @@ test('the dark result panel does not leave links at the browser default colour',
 test('the plan table scrolls rather than forcing the page sideways on a phone', () => {
   assert.match(page, /\.plan-table-wrap \{ overflow-x: auto/);
   assert.match(page, /class="plan-table-wrap"/);
+});
+
+test('the negotiator comparison page names no specific company', () => {
+  // It compares against an industry role (PPO fee-schedule negotiation
+  // services generally), not one named product, so it is listed in
+  // platform/pages/clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT rather than
+  // carrying the not-affiliated trademark line.
+  for (const bannedName of ['PPO Guardian', 'PPOPartner', 'PPO Negotiation Solutions', 'PPO Profits', 'PPO Advisors']) {
+    assert.ok(!vsPage.includes(bannedName), `names a specific negotiation company: ${bannedName}`);
+  }
+  assert.match(vsPage, /does not name, endorse, or compare against any specific negotiation company/);
+});
+
+test('the negotiator comparison page never promises a negotiation outcome', () => {
+  // "cannot promise"/"cannot ... guarantee" disclaim an outcome; an
+  // unqualified "will get you" or "guaranteed" would assert one.
+  assert.ok(!/will get you a (better|higher)/i.test(vsPage), 'the page implies a negotiation outcome it cannot back up');
+  assert.ok(!/guaranteed (increase|result|rate)/i.test(vsPage), 'the page implies a guaranteed outcome');
+  assert.match(vsPage, /cannot promise any carrier will move/);
+  assert.match(vsPage, /cannot predict or guarantee the outcome/);
+});
+
+test('the negotiator comparison page distinguishes rate from write-off dollars', () => {
+  assert.match(vsPage, /ranks every plan by write-off dollars/);
+  assert.match(vsPage, /not the same plan/);
+});
+
+test('every FAQ answer on the negotiator comparison page is rendered visibly', () => {
+  const entries = [...vsPage.matchAll(/"name":"([^"]+\?)","acceptedAnswer":\{"@type":"Answer","text":"((?:[^"\\]|\\.)*)"\}/g)];
+  assert.ok(entries.length >= 4, 'fewer FAQ entries than expected');
+  const decode = (s) => JSON.parse(`"${s}"`);
+  const strip = (s) =>
+    s
+      .replace(/&mdash;/g, '—')
+      .replace(/&#x27;|&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&amp;/g, '&');
+  const body = strip(vsPage);
+  for (const [, question, answer] of entries) {
+    assert.ok(body.includes(`<h3>${strip(question)}</h3>`), `"${question}" is not rendered as a heading`);
+    assert.ok(body.includes(decode(answer)), `the answer to "${question}" is not visible on the page`);
+  }
+});
+
+test('the negotiator comparison page links back to the calculator', () => {
+  assert.match(vsPage, /href="\.\/"/);
+  assert.match(page, /href="\.\/vs-ppo-fee-negotiators\.html"/);
 });

@@ -93,6 +93,11 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // could be mistaken for. The page's own FAQ already says so explicitly
   // ("does not name or link to any specific survey publisher").
   'custom-farm-rate-calculator/vs-survey-rates.html',
+  // Compares against "a PPO fee-schedule negotiation service" -- an industry
+  // role many different firms perform, charging a flat per-payer fee or a
+  // percentage of the increase they win. The page names no specific company
+  // and its own footer says so explicitly.
+  'dental-ppo-writeoff-calculator/vs-ppo-fee-negotiators.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
