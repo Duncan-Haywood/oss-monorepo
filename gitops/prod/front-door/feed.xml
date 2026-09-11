@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 251 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 252 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste a Kubernetes Deployment YAML and find every reason a rolling update can drop live requests: no readinessProbe, no preStop hook, a grace period shorter than the drain, maxUnavailable covering every replica, a PodDisruptionBudget that blocks a node drain. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>llms.txt Generator — Build a Spec-Compliant llms.txt File Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/llms-txt-generator/"/>
+    <id>tag:marisstella.dev,2026:tool/llms-txt-generator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your site&#39;s page list, a sitemap.xml, or a Markdown docs tree and get a valid llms.txt file — the emerging llmstxt.org convention that gives AI assistants a structured map of your site. Free, runs entirely in your browser, nothing is uploaded. Validate an existing llms.txt too.</summary>
   </entry>
   <entry>
     <title>Redirect Chain Checker — Find Redirect Loops, Long Chains &amp; Dead Ends</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-07T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your GitHub Actions workflow YAML and find actions/cache steps reachable from pull_request_target/workflow_run, and restore-keys fallbacks that can adopt a poisoned prefix match. Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>GitHub Actions Injection Check — Pwn Requests &amp; Script Injection</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/actions-injection-check/"/>
-    <id>tag:marisstella.dev,2026:tool/actions-injection-check</id>
-    <published>2026-09-07T00:00:00Z</published>
-    <updated>2026-09-07T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your GitHub Actions workflow YAML and find pull_request_target/workflow_run &#39;pwn request&#39; checkouts and shell script-injection from untrusted ${{ github.event }} expressions. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
 </feed>

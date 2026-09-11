@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>llms.txt Generator — Build a Spec-Compliant llms.txt File Free</title>
+  <meta name="description" content="Paste your site's page list, a sitemap.xml, or a Markdown docs tree and get a valid llms.txt file — the emerging llmstxt.org convention that gives AI assistants a structured map of your site. Free, runs entirely in your browser, nothing is uploaded. Validate an existing llms.txt too.">
+  <meta property="og:title" content="Build a valid llms.txt for your site, free">
+  <meta property="og:description" content="Turn a pasted URL list, a sitemap.xml, or a local Markdown docs tree into a spec-compliant llms.txt file — plus a validator for one you already have. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"llms.txt Generator","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Builds a spec-compliant llms.txt file (the llmstxt.org convention) from a pasted URL list, a sitemap.xml, or a local Markdown docs tree, and validates an existing llms.txt against the same structural rules. Runs entirely in the browser or as a zero-dependency Node CLI."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is llms.txt?","acceptedAnswer":{"@type":"Answer","text":"An emerging, optional convention (see llmstxt.org) for a plain-text Markdown file at /llms.txt that gives an AI assistant a short, curated map of a site's most important pages — cheaper to read than crawling the whole site, and curated rather than everything a sitemap lists. It is not enforced by any browser or search engine; it is a convention some AI tools already read and more are adopting."}},{"@type":"Question","name":"Is this file generated correctly to spec?","acceptedAnswer":{"@type":"Answer","text":"The generator always produces the required shape — an H1 title, an optional blockquote summary, and Markdown link bullets grouped under \"## Section\" headings — and every build is run back through the same validator shown in tab 3, so you see any warning before you publish. What it can't know is whether you picked the right pages to include; that judgment stays yours."}},{"@type":"Question","name":"Is my content uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page builds and validates entirely in your own browser and never sends what you paste anywhere. The CLI only reads local files, or fetches a URL you explicitly name (a sitemap.xml), and makes no other network call."}},{"@type":"Question","name":"Where do I put the generated file?","acceptedAnswer":{"@type":"Answer","text":"Publish it at the root of your site as /llms.txt — the same level as /robots.txt — so it's reachable at https://yoursite.com/llms.txt."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 140px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    textarea.output { min-height: 220px; background: #f7f9fb; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input[type="text"] { font: inherit; border: 1px solid #cdd5df; border-radius: 6px; padding: 7px 10px; width: 100%; max-width: 420px; box-sizing: border-box; }
+    .row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .row > div { flex: 1 1 220px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.tiny { padding: 5px 9px; font-size: .8rem; font-weight: 600; }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+    .tab { padding: 8px 14px; border-radius: 999px; background: #e3e9ef; color: #17324a; font-weight: 700; font-size: .86rem; cursor: pointer; border: 0; }
+    .tab.active { background: #17324a; color: #fff; }
+    .mode { display: none; }
+    .mode.active { display: block; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .warn { color: #92400e; }
+    .ok { color: #14532d; font-weight: 600; }
+    ul.report { margin: 6px 0 0; padding-left: 20px; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">LLMS.TXT GENERATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Build a valid llms.txt for your site</h1>
+    <p>Paste a short list of your pages, a <code>sitemap.xml</code>, or point the CLI at a local Markdown docs tree — this assembles a correctly structured <a href="https://llmstxt.org/" rel="noopener">llms.txt</a> file (the emerging convention that gives AI assistants a curated map of your site) and checks the result against the spec's own shape before you publish it.</p>
+    <p class="note">Nothing is uploaded. Everything below runs in this browser and is never sent anywhere.</p>
+  </header>
+
+  <section class="card">
+    <div class="tabs">
+      <button type="button" class="tab active" data-mode="list">1. Paste a page list</button>
+      <button type="button" class="tab" data-mode="sitemap">2. Paste a sitemap.xml</button>
+      <button type="button" class="tab" data-mode="check">3. Validate an existing llms.txt</button>
+    </div>
+
+    <div class="mode active" id="mode-list">
+      <h2>Build from a page list</h2>
+      <div class="row">
+        <div>
+          <label for="title-input">Site or project name (becomes the H1)</label>
+          <input type="text" id="title-input" placeholder="Example Site">
+        </div>
+        <div>
+          <label for="baseurl-input">Base URL (optional — prefixes any relative path below)</label>
+          <input type="text" id="baseurl-input" placeholder="https://example.com">
+        </div>
+      </div>
+      <label for="summary-input">One-line summary (optional, becomes the blockquote under the title)</label>
+      <input type="text" id="summary-input" placeholder="A short, structured map of this site's key pages for AI assistants.">
+      <label for="list-input">Pages — one per line: <code>url | title | note</code> (title and note optional). Start a line with <code>## Section Name</code> to group the links that follow it; everything before the first <code>##</code> line goes under a default "Docs" section.</label>
+      <textarea id="list-input" spellcheck="false" placeholder="## Docs&#10;/docs/start | Getting started | Install and first run&#10;/docs/api | API reference&#10;&#10;## Guides&#10;/guides/migrate | Migration guide"></textarea>
+      <p>
+        <button type="button" id="build-list">Build llms.txt</button>
+        <button type="button" class="secondary" id="load-example-list">Load worked example</button>
+      </p>
+    </div>
+
+    <div class="mode" id="mode-sitemap">
+      <h2>Build from a sitemap.xml</h2>
+      <div class="row">
+        <div>
+          <label for="title-input-sm">Site or project name</label>
+          <input type="text" id="title-input-sm" placeholder="Example Site">
+        </div>
+        <div>
+          <label for="summary-input-sm">One-line summary (optional)</label>
+          <input type="text" id="summary-input-sm" placeholder="A short, structured map of this site's key pages for AI assistants.">
+        </div>
+      </div>
+      <label for="domain-input">Domain (optional — many sites block cross-site requests to static files, so this won't always work)</label>
+      <p>
+        <input type="text" id="domain-input" placeholder="example.com">
+        <button type="button" class="secondary" id="try-fetch">Try fetching sitemap.xml</button>
+      </p>
+      <p class="note" id="fetch-status"></p>
+      <label for="sitemap-input">sitemap.xml content</label>
+      <textarea id="sitemap-input" spellcheck="false" placeholder="&lt;urlset&gt;&lt;url&gt;&lt;loc&gt;https://example.com/&lt;/loc&gt;&lt;/url&gt;&lt;/urlset&gt;"></textarea>
+      <p class="note">Every URL lands under one "## Pages" section, titled by its own URL — edit titles afterward in the output, or use the page-list tab for per-link titles.</p>
+      <p>
+        <button type="button" id="build-sitemap">Build llms.txt</button>
+        <button type="button" class="secondary" id="load-example-sitemap">Load worked example</button>
+      </p>
+    </div>
+
+    <div class="mode" id="mode-check">
+      <h2>Validate an existing llms.txt</h2>
+      <label for="check-input">Paste llms.txt content</label>
+      <textarea id="check-input" spellcheck="false" placeholder="# Your Site&#10;&#10;&gt; One-line summary&#10;&#10;## Docs&#10;- [Getting started](https://example.com/start)"></textarea>
+      <p>
+        <button type="button" id="run-check">Check it</button>
+        <button type="button" class="secondary" id="load-example-check">Load worked example</button>
+      </p>
+    </div>
+  </section>
+
+  <section class="card" id="output-card" hidden aria-live="polite">
+    <h2 id="output-heading">Result</h2>
+    <div id="check-report"></div>
+    <textarea class="output" id="output-text" readonly spellcheck="false" hidden></textarea>
+    <div id="output-actions" hidden>
+      <button type="button" id="copy-output">Copy</button>
+      <button type="button" class="secondary" id="download-output">Download llms.txt</button>
+    </div>
+    <div id="output-report"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or generating this in CI?</h2>
+    <p>Same logic, zero dependencies, one file — and it can walk a real Markdown docs tree or fetch a live sitemap directly (Node has no cross-origin restriction, unlike this page):</p>
+    <pre class="cmd"><code>node cli.mjs --dir ./docs --title "Example Docs" --base-url https://example.com
+node cli.mjs --sitemap https://example.com/sitemap.xml --title "Example Site"
+node cli.mjs --urls-file ./urls.txt --title "Example Site" --out llms.txt
+node cli.mjs --check ./llms.txt</code></pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> and <a href="generator.mjs" rel="noopener">generator.mjs</a> — Node 18+, nothing to install.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>What is llms.txt?</h3>
+    <p>An emerging, optional convention (see <a href="https://llmstxt.org/" rel="noopener">llmstxt.org</a>) for a plain-text Markdown file at <code>/llms.txt</code> that gives an AI assistant a short, curated map of a site's most important pages — cheaper to read than crawling the whole site, and curated rather than everything a sitemap lists. It is not enforced by any browser or search engine; it is a convention some AI tools already read and more are adopting. More background: <a href="what-is-llms-txt.html">what llms.txt is for, and what it isn't</a>.</p>
+    <h3>Is this file generated correctly to spec?</h3>
+    <p>The generator always produces the required shape — an H1 title, an optional blockquote summary, and Markdown link bullets grouped under "## Section" headings — and every build is run back through the same validator shown in tab 3, so you see any warning before you publish. What it can't know is whether you picked the <em>right</em> pages to include; that judgment stays yours.</p>
+    <h3>Is my content uploaded anywhere?</h3>
+    <p>No. The browser page builds and validates entirely in your own browser and never sends what you paste anywhere. The CLI only reads local files, or fetches a URL you explicitly name (a sitemap.xml), and makes no other network call.</p>
+    <h3>Where do I put the generated file?</h3>
+    <p>Publish it at the root of your site as <code>/llms.txt</code> — the same level as <code>/robots.txt</code> — so it's reachable at <code>https://yoursite.com/llms.txt</code>.</p>
+    <p>Same convention, opposite job: <a href="../ai-crawler-access-check/">AI Crawler Access Check</a> checks whether your <code>robots.txt</code> actually lets named AI crawlers reach your site, and does a lightweight structural check of an <code>llms.txt</code> you already have — this tool builds one from scratch instead of grading one that exists.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It produces a file matching the structural shape of the llmstxt.org convention — it does not guarantee any AI assistant reads or honors it, and it cannot judge whether the pages you chose to include are the right ones. <strong>You are responsible for reviewing and verifying its output before publishing it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>build_list</code>, <code>build_sitemap</code>, <code>check_run</code>, <code>example_loaded</code>, <code>fetch_attempted</code>, <code>download_clicked</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { buildLlmsTxt, validateLlmsTxt, parseSitemapXml, parseSectionedInput, resolveBaseUrl } from "./generator.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+    // --- tabs ---------------------------------------------------------
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+        document.querySelectorAll(".mode").forEach((m) => m.classList.remove("active"));
+        tab.classList.add("active");
+        $(`#mode-${tab.dataset.mode}`).classList.add("active");
+        $("#output-card").hidden = true;
+      });
+    });
+
+    // --- shared output rendering ---------------------------------------
+    const outputCard = $("#output-card"), outputHeading = $("#output-heading");
+    const outputText = $("#output-text"), outputActions = $("#output-actions"), outputReport = $("#output-report");
+    const checkReport = $("#check-report");
+
+    function renderReportList(report) {
+      const items = [
+        ...report.errors.map((e) => `<li class="error">${escapeHtml(e)}</li>`),
+        ...report.warnings.map((w) => `<li class="warn">${escapeHtml(w)}</li>`),
+      ];
+      return `<p>${report.valid ? '<span class="ok">Structurally valid.</span>' : '<span class="error">Has structural errors.</span>'} ${report.linkCount} link(s) across ${report.sections.length} section(s).</p>${items.length ? `<ul class="report">${items.join("")}</ul>` : ""}`;
+    }
+
+    function showBuilt(text, eventName) {
+      const report = validateLlmsTxt(text);
+      outputHeading.textContent = "Your llms.txt";
+      checkReport.innerHTML = "";
+      outputText.value = text;
+      outputText.hidden = false;
+      outputActions.hidden = false;
+      outputReport.innerHTML = renderReportList(report);
+      outputCard.hidden = false;
+      record(eventName);
+      outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function showError(message) {
+      outputHeading.textContent = "Couldn't build it";
+      checkReport.innerHTML = `<p class="error">${escapeHtml(message)}</p>`;
+      outputText.hidden = true;
+      outputActions.hidden = true;
+      outputReport.innerHTML = "";
+      outputCard.hidden = false;
+    }
+
+    // --- tab 1: page list ----------------------------------------------
+    $("#build-list").addEventListener("click", () => {
+      const title = $("#title-input").value.trim();
+      if (!title) return showError("Enter a site or project name first — it becomes the file's title.");
+      let sections = parseSectionedInput($("#list-input").value);
+      const baseUrl = $("#baseurl-input").value.trim();
+      if (baseUrl) sections = resolveBaseUrl(sections, baseUrl);
+      const totalLinks = sections.reduce((n, s) => n + s.links.length, 0);
+      if (!totalLinks) return showError("Add at least one line in the form \"url | title | note\".");
+      const text = buildLlmsTxt({ title, summary: $("#summary-input").value.trim(), sections });
+      showBuilt(text, "build_list");
+    });
+
+    const EXAMPLE_LIST = `## Docs
+/docs/start | Getting started | Install and first run
+/docs/api | API reference
+
+## Guides
+/guides/migrate | Migration guide`;
+    $("#load-example-list").addEventListener("click", () => {
+      $("#title-input").value = "Example Site";
+      $("#baseurl-input").value = "https://example.test";
+      $("#summary-input").value = "A short, structured map of this site's key pages for AI assistants.";
+      $("#list-input").value = EXAMPLE_LIST;
+      record("example_loaded");
+    });
+
+    // --- tab 2: sitemap --------------------------------------------------
+    $("#try-fetch").addEventListener("click", async () => {
+      const domain = $("#domain-input").value.trim();
+      const status = $("#fetch-status");
+      if (!domain) { status.innerHTML = `<span class="error">Enter a domain first.</span>`; return; }
+      const origin = /^https?:\/\//i.test(domain) ? domain.replace(/\/$/, "") : `https://${domain}`;
+      status.textContent = "Trying…";
+      record("fetch_attempted");
+      try {
+        const res = await fetch(`${origin}/sitemap.xml`);
+        if (res.ok) {
+          $("#sitemap-input").value = await res.text();
+          status.innerHTML = `<span class="ok">Fetched sitemap.xml.</span>`;
+          return;
+        }
+        throw new Error(String(res.status));
+      } catch {
+        status.innerHTML = `<span class="error">Couldn't fetch it from here</span> — most sites don't allow cross-site requests to their own static files, which a browser has to respect. Run <code>curl -s ${escapeHtml(origin)}/sitemap.xml</code> yourself and paste the result below, or use the CLI further down (<code>node cli.mjs --sitemap ${escapeHtml(origin)}/sitemap.xml --title "..."</code>).`;
+      }
+    });
+
+    $("#build-sitemap").addEventListener("click", () => {
+      const title = $("#title-input-sm").value.trim();
+      if (!title) return showError("Enter a site or project name first — it becomes the file's title.");
+      const urls = parseSitemapXml($("#sitemap-input").value);
+      if (!urls.length) return showError("No <loc> URLs found in that sitemap.xml.");
+      const sections = [{ heading: "Pages", links: urls.map((url) => ({ url, title: url })) }];
+      const text = buildLlmsTxt({ title, summary: $("#summary-input-sm").value.trim(), sections });
+      showBuilt(text, "build_sitemap");
+    });
+
+    const EXAMPLE_SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://example.test/</loc></url>
+  <url><loc>https://example.test/docs/start</loc></url>
+  <url><loc>https://example.test/docs/api</loc></url>
+</urlset>`;
+    $("#load-example-sitemap").addEventListener("click", () => {
+      $("#title-input-sm").value = "Example Site";
+      $("#summary-input-sm").value = "A short, structured map of this site's key pages for AI assistants.";
+      $("#sitemap-input").value = EXAMPLE_SITEMAP;
+      record("example_loaded");
+    });
+
+    // --- tab 3: validate ------------------------------------------------
+    $("#run-check").addEventListener("click", () => {
+      const text = $("#check-input").value;
+      if (!text.trim()) return showError("Paste an llms.txt file first.");
+      const report = validateLlmsTxt(text);
+      outputHeading.textContent = "Validation result";
+      outputText.hidden = true;
+      outputActions.hidden = true;
+      outputReport.innerHTML = "";
+      checkReport.innerHTML = renderReportList(report);
+      outputCard.hidden = false;
+      record("check_run");
+      outputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    const EXAMPLE_CHECK = `# Example Site
+
+> A short, structured map of this site's key pages for AI assistants.
+
+## Docs
+- [Getting started](https://example.test/docs/start)
+- [API reference](/docs/api)
+`;
+    $("#load-example-check").addEventListener("click", () => {
+      $("#check-input").value = EXAMPLE_CHECK;
+      record("example_loaded");
+    });
+
+    // --- copy / download --------------------------------------------------
+    $("#copy-output").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(outputText.value);
+        const btn = $("#copy-output");
+        const original = btn.textContent;
+        btn.textContent = "Copied!";
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      } catch {
+        outputText.select();
+      }
+    });
+
+    $("#download-output").addEventListener("click", () => {
+      const blob = new Blob([outputText.value], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "llms.txt";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      record("download_clicked");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+  </script>
+</body>
+</html>

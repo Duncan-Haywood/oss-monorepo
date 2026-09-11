@@ -1,0 +1,98 @@
+name: llms-txt-generator
+description: Free browser tool + zero-dependency Node CLI that builds a spec-compliant llms.txt file (the llmstxt.org convention giving AI assistants a curated map of a site) from a pasted page list, a pasted sitemap.xml, or -- via the CLI -- a local Markdown docs tree, plus a validator for an llms.txt you already have. Runs entirely client-side in the browser; the CLI can also fetch a live sitemap.xml directly (Node fetch has no CORS restriction) so it can be wired into a deploy pipeline to regenerate the file on every push.
+stage: prototype
+
+owner: duncan
+
+# Generator archetype, not a checker and not a trade-bid calculator.
+# portfolio/pipeline/README.md's "archetype itself" section (2026-09-07) and
+# its 2026-09-11 follow-up both measured that this fleet has now tried two
+# shapes 140+ and 38+ times respectively with zero recorded visitors between
+# them -- <trade>-bid-calculator and the *-check/*-checker family -- and
+# that clearing duplicate_check.py or picking an "underused" shape no longer
+# counts, on its own, as novelty evidence. This venture is neither: it is a
+# *generator* (PRODUCT_PLAYBOOK.md SS2's #1-ranked shape family alongside the
+# static browser app), producing an artifact a site owner publishes, not a
+# pass/fail report on one that already exists. ai-crawler-access-check
+# (2026-09-07) ships a structural *validator* for llms.txt as one small part
+# of a robots.txt-focused checker; this venture's entire job is the
+# complementary, harder half that one intentionally left alone -- actually
+# constructing a correct file from real content (a docs tree, a sitemap, a
+# hand-picked page list) rather than checking one that already exists.
+#
+# duplicate_check.py (run 2026-09-11) scored every existing venture,
+# screened-out row, ai-first-markets idea, and pipeline candidate against
+# "llms.txt generator: paste a sitemap or list of doc URLs/markdown files and
+# get a spec-compliant llms.txt file for AI crawlers, with validation against
+# the llms.txt spec". Top score 0.13 (wordpress-plugin-review-check and
+# ai-crawler-access-check, both on generic word overlap -- "checker"/"check"
+# and "AI crawler(s)" respectively) -- far under the 0.45 review bar.
+# ai-crawler-access-check's own VENTURE.yaml write-up independently confirms
+# the read above: it scored its own "robots.txt and llms.txt AI crawler
+# access checker" niche against the fleet and reports no llms.txt-generation
+# venture existed at that time either. Nothing in screened-out.md mentions
+# llms.txt, AI discoverability files, or site-summary generators.
+#
+# Distribution channel this was picked for, and the same honesty limit
+# ai-crawler-access-check's write-up names: this session has no live
+# internet access (the agent egress proxy 403s CONNECT to arbitrary hosts),
+# so no search-volume number here is a verified reading -- it is reasoned
+# from known, stable evidence visible from inside this repository and
+# general knowledge as of the model's training, not a live fetch.
+# 1. llmstxt.org itself (Jeremy Howard / Answer.AI) is a named, citable
+#    origin for the convention, not an invented one -- it is linked directly
+#    from this venture's own pages.
+# 2. The existence of other, independently built "llms.txt generator" tools
+#    (hosted generators from doc-tooling vendors, directory sites cataloguing
+#    llms.txt adoption across hundreds of domains) is evidence of real,
+#    sustained builder interest responding to real demand -- the same
+#    "a competitor's own comparison-search traffic" signal
+#    app-store-screenshot-check's write-up used, read here as "other tools
+#    exist for this job" rather than a direct competitor-traffic figure this
+#    session could pull.
+# 3. The search phrase itself ("llms.txt generator", "what is llms.txt",
+#    "do I need an llms.txt") is the kind of comparison/how-to query
+#    r/webdev, r/TechSEO, and Hacker News threads about the original
+#    proposal are already asking, per the class of evidence
+#    ai-crawler-access-check's write-up relied on for the same audience.
+# 4. The audience is the same developer/site-owner population
+#    ai-crawler-access-check and the *-check family already target, but the
+#    job (produce a file) is complementary rather than parity -- a visitor
+#    who validates a hand-written llms.txt and finds it broken is the
+#    generator's most likely next click, and the reverse is also true.
+# The next session that can browse should confirm search volume directly
+# before this channel claim is over-relied on -- exactly the caveat
+# ai-crawler-access-check's own write-up carries for the same reason.
+hypotheses:
+  - claim: A site owner or docs maintainer who has heard of llms.txt (from a doc-tooling vendor's own default, a Hacker News thread, or a "what is llms.txt" search) will use this instead of hand-writing the Markdown shape from the spec, because the generator guarantees the structural shape is right and the built-in validator catches what it can't guarantee (whether the chosen pages are the right ones).
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team that wants llms.txt kept current as pages are added or removed will wire cli.mjs's --dir or --sitemap mode into their own build/deploy pipeline (the same "regenerate on every deploy" argument the CLI's own docs page makes), rather than maintaining the file by hand and letting it go stale.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool builds and validates
+  # entirely client-side and uploads nothing. The CLI reads local files and,
+  # in --sitemap mode, fetches only a URL the user explicitly names -- there
+  # is no server of ours in the loop either way, so serving one more user
+  # costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own build or CI pipeline within 90 days.
+  - The llmstxt.org convention itself is abandoned or superseded by a materially different format before either of the above can be measured.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/llms-txt-generator/
+  analytics: null
