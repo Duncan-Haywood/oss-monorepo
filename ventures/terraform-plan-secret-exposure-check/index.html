@@ -86,7 +86,7 @@ node cli.mjs check plan.json --json</pre>
       <thead><tr><th>Failure this is checked against</th><th>Checked here as</th></tr></thead>
       <tbody id="cases-rows"></tbody>
     </table>
-    <p class="note">Sources and the exact scope: <a href="why-terraform-plan-json-leaks-secrets.html">why a Terraform plan can print a secret even though the schema has a `sensitive` flag</a>. Already run a general secret scanner like Gitleaks? See <a href="vs-gitleaks.html">how this checker differs from Gitleaks</a> — the short version is they catch different things. Config drifting from what a codebase actually reads is a related, separate failure — see <a href="../env-example-drift-check/">Env Example Drift Check</a> for `.env.example` rather than a Terraform plan.</p>
+    <p class="note">Sources and the exact scope: <a href="why-terraform-plan-json-leaks-secrets.html">why a Terraform plan can print a secret even though the schema has a `sensitive` flag</a>. Already run a general secret scanner like Gitleaks, or a broader policy scanner like Checkov? See <a href="vs-gitleaks.html">how this checker differs from Gitleaks</a> or <a href="vs-checkov.html">this checker vs. Checkov</a> — the short version is they all catch different things. Config drifting from what a codebase actually reads is a related, separate failure — see <a href="../env-example-drift-check/">Env Example Drift Check</a> for `.env.example` rather than a Terraform plan.</p>
   </section>
 
   <section class="card">

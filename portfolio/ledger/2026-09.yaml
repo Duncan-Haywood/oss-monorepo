@@ -28337,3 +28337,298 @@ entries:
         so a tick cannot bill against the metered key. No new ask added; the
         queued one already carries the exact commands.
     mrr_end: 0
+
+  - venture: dental-ppo-writeoff-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-practice-management-report.html`, closing one of the 12
+        ventures (of 254 with an `index.html`) that had no comparison page at
+        all. Comparison pages are this portfolio's proven organic-search
+        asset — 242 ventures carry one — and they matter more than usual on
+        this origin, because `pages_state.py`'s `indexing` row measures that
+        sitemap auto-discovery *cannot happen* from a project-Pages subpath.
+        Long-tail comparison queries are one of the few entry points a
+        stranger can arrive through without the owner submitting anything.
+      - >-
+        Compared against a generic role — "your practice management system's
+        reports" — rather than a named vendor, which is both the legally
+        safer framing (PRODUCT_PLAYBOOK 5f) and the accurate one: the
+        venture's own untested hypothesis is that a PMS "reports production
+        and contractual adjustments as separate dollar columns and never
+        divides them per carrier". The page states plainly that the PMS is
+        the system of record and this cannot replace it, that some systems
+        can be made to print the rate, and names no vendor. It needed no
+        `COMPARISON_DISCLAIMER_EXEMPT` entry: it carries a real
+        not-affiliated clause on its own terms, so the pattern was not
+        loosened for anyone else.
+      - >-
+        Every claim on the page was taken from the venture's own README and
+        `calc.mjs` anchors rather than written from memory, and each table
+        row deep-links to the output that answers it (`#heroRate`,
+        `#planRows`, `#breakEven`, `#planBars`, `#feePanel`). Nothing about
+        any third-party product is asserted, which is what let the page ship
+        honestly from a session with no egress to any vendor's documentation.
+      - >-
+        One deliberate contrast decision, measured rather than assumed: the
+        calculator's own `thead th` slate (#4d5b6c) measures 4.42:1 on this
+        page's #eceef4 ground — under WCAG AA's 4.5:1 at that size, because
+        the calculator only ever uses it on lighter #f8fafc panels and this
+        page has no panel behind its table. Used #3f5468 (5.93:1) instead.
+        `browser_checks.py --only dental-ppo-writeoff-calculator` confirms
+        `contrast` ok.
+      - >-
+        Verified locally (Actions runners starved this window — 60
+        consecutive `publish-pages-branch.yml` runs at `runner_id: 0`, and
+        `infra_state.yaml`'s reading re-confirmed): venture suite 54/54;
+        `platform/marketing` + `platform/pages` 1255/1255; `platform/proposal`
+        101/101; `platform/privacy` + `platform/webcheck` 82/82;
+        `gitops/tests` 581 passed / 1 skipped (the mirrored-tool count in
+        `test_manifests.py` did NOT trip — this venture already had a browser
+        surface, so the #3407 trap does not apply here, checked rather than
+        assumed); `clauses.mjs` clean across all 3 pages of the surface;
+        `checklist_coverage.py` clean; `siblings.mjs` 0 crawlable orphans of
+        263; `browser_checks.py --only` 6 checks ok, `highlight` skipped for
+        a missing dependency (a skip, not a failure); 1005 sitemap URLs
+        resolve, up from 1004. `regen.mjs` rewrote the mirror, catalog.json,
+        llms.txt and the front-door sitemap to match.
+      - >-
+        Also confirmed `main` itself green before starting, with
+        `run_workflow_locally.py --tree`: 9/9 selected workflows passed,
+        `portfolio-validate.yml` 68/68 real steps. And cleared every fixable
+        guard skip first — `apt-get update && apt-get install nginx-light
+        openssh-client` — after which `guard_state.py --require-runnable`
+        exits 0 with a single ENVIRONMENTAL skip
+        (`test_front_door_serving.py`, GitHub-runner-only). No guard that
+        could run here went unrun.
+    mrr_end: 0
+
+  - venture: vpat-acr-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture rather than picking up the stale
+        `candidates.yaml` queue, per `DIRECTION.md`'s 2026-09-06 "screen a
+        fresh niche yourself" guidance: `portfolio/pipeline/duplicate_check.py`
+        confirmed no existing venture, screened-out row, ai-first-markets
+        idea, or pipeline candidate scores above 0.10 for this niche (closest
+        match `shopify-a11y-evidence` at 0.10). A free, browser-only VPAT 2.5
+        / Accessibility Conformance Report generator for software vendors
+        preparing a Section 508 or enterprise procurement RFP response: the
+        vendor enters every WCAG 2.1 Level A/AA conformance level and remark
+        themselves, from their own testing, and the tool only formats those
+        answers into the standard document shape and flags completeness
+        problems (a Partially/Does Not Support row with no remarks; a missing
+        required header field). It never scans, tests, or assesses the
+        vendor's product, and never selects a conformance level -- that
+        framing is the deliberate liability-containment choice, argued in
+        `VENTURE.yaml`.
+      - >-
+        Named distribution-channel evidence, gathered via WebSearch this
+        session rather than assumed: "VPAT template"/"VPAT generator" is a
+        real, demonstrable search term -- Level Access, ITIC's own site,
+        BarrierBreak, Accessibility.Works, and WCAG.com all publish
+        SEO-targeted pages for exactly this query. More specifically, the
+        WebAIM Discussion List (webaim.org/discussion) is a long-running,
+        high-traffic accessibility-professional mailing list with real,
+        findable threads about VPAT mechanics (thread 8773, "VPATs for Word,
+        PPT, Excel, etc"; thread 10051, "VPAT for U508"), and WebAIM's own
+        article "Making VPATs and ACRs More Effective in Procurement"
+        independently names the exact completeness failure (incomplete ACRs
+        across the vendor pool; remarks too generic on a partial-support row)
+        this tool's checker targets -- a sourced problem statement from the
+        audience's own reference source.
+      - >-
+        `node platform/marketing/regen.mjs` after adding the page -- the
+        first run caught two real failures this session then fixed: a
+        `faq-visible.test.mjs` mismatch between the FAQPage JSON-LD text and
+        the visible on-page prose (two answers had been paraphrased slightly
+        differently in each place), and `build.test.mjs`'s catch-all-category
+        bound (adding an unclassified venture pushed the catch-all to 6,
+        past its committed bound of 5) plus `siblings.test.mjs`'s
+        crawlable-orphan budget (the new page had no inbound link from any
+        other venture). Fixed by filing the venture under the existing
+        "Compliance checks & evidence records" category in `build.mjs`
+        (a named-slug rule, matching the pattern already used for
+        `real-estate-agent-photo-app`/`print-atelier`) and adding a
+        reciprocal cross-link from `ada-title-ii-evidence`'s intro paragraph
+        to the closest existing accessibility-evidence sibling. Reran the
+        full marketing+pages suite green (1255/1255) after each fix.
+      - >-
+        A concurrent session merged #4627/#4628 to `main` while this session
+        was building (measured via `mcp__github__actions_list` immediately
+        before pushing, per the standing duplicate-PR check) -- rebased this
+        branch onto the new `origin/main` tip (`e7f78b80`) with a clean,
+        conflict-free rebase (the mirror-regeneration commit was kept
+        separate from the source commit specifically so the binary
+        front-door-tools shards never had to be rebased themselves; they
+        were regenerated fresh from the rebased tree instead), then reran
+        `regen.mjs` and the full verification set again against the rebased
+        tree before pushing.
+      - >-
+        Verified locally: `node --test ventures/vpat-acr-generator/*.test.mjs`
+        18/18; `node --test ventures/ada-title-ii-evidence/*.test.mjs` 33/33
+        (unaffected by the added cross-link); `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1255/1255;
+        `node platform/pages/clauses.mjs vpat-acr-generator` and
+        `ada-title-ii-evidence` both clean; `python3
+        portfolio/router/validate.py` all VENTURE.yaml valid; `python3
+        platform/ci/check_no_payment_code.py` clean; `python3
+        portfolio/scoring/score_ventures.py --check` 273 ventures consistent
+        (added an honest six-dimension + two-gate score row, floored at
+        `ai_leverage: 1` -- deterministic formatting, no free-text
+        generation a model could plausibly help with); `python3
+        portfolio/usage/validate_usage.py` 248 products/434 readings (added
+        a null-visitors baseline row); `python3
+        portfolio/pipeline/validate_candidates.py` and
+        `validate_doc_consistency.py` clean (not added as a
+        `candidates.yaml` write-up -- screened and graduated directly, per
+        the 2026-09-06 guidance); `python3 platform/ci/checklist_coverage.py`
+        clean; `python3 portfolio/ledger/check_ledger_only.py` exit 0 (real
+        code shipped in the same branch).
+
+  - venture: dental-ppo-writeoff-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second comparison page, `vs-ppo-fee-negotiators.html`,
+        ranking the free calculator against hiring a paid PPO fee-schedule
+        negotiation service. Found mid-session that a concurrent run had
+        just shipped and merged `vs-practice-management-report.html` on the
+        same venture (#4631) -- a different comparison (the practice's own
+        PMS reports) answering a different search query, not a duplicate.
+        Merged `origin/main` in, kept both new internal links and both
+        sitemap rows rather than picking one, and re-ran regen.
+      - >-
+        Compared against a generic industry role -- flat-fee-per-payer or
+        percentage-of-the-increase negotiation services -- rather than a
+        named vendor, so it carries no `COMPARISON_DISCLAIMER_EXEMPT`
+        loosening beyond being listed as a generic-role comparison, same
+        precedent as `seller-net-sheet/vs-title-company-net-sheet.html` and
+        `custom-farm-rate-calculator/vs-survey-rates.html`. Verified the
+        structural claim (flat-fee-per-payer or percentage-of-increase
+        pricing is how this service category actually charges) with
+        `WebSearch` before writing it; did not attempt to verify or cite any
+        single named competitor's current pricing, because `WebFetch` to
+        arbitrary sites is blocked by the session's own egress proxy and
+        PRODUCT_PLAYBOOK 5f requires a sourced claim, not a guessed one.
+      - >-
+        Caught and fixed a real defect before it reached `main`: the page's
+        FAQPage JSON-LD used literal `--` while the matching visible prose
+        used `&mdash;`, so `platform/pages/faq-visible.test.mjs` correctly
+        failed the exact-text match on all 4 answers. This is the class of
+        bug that check exists for -- caught here by actually running the
+        site-wide suite rather than only the venture's own tests, which
+        passed throughout because they check clause presence, not
+        JSON-LD/visible-text agreement.
+      - >-
+        Verified locally (`github-actions-runners` reads down today, run
+        34588034490, per `infra_state.yaml`): venture suite 59/59;
+        `platform/pages/*.test.mjs` 995/995; `platform/marketing/*.test.mjs`
+        260/260; `gitops/tests/test_manifests.py` 83/83; `clauses.mjs`
+        (venture-scoped) 4/4 pages carry required clauses;
+        `checklist_coverage.py` clean. `regen.mjs` rewrote the mirror,
+        `catalog.json` (page count 3 -> 4) and the front-door sitemap.
+      - >-
+        Spent the first part of this run on the mandate's open-PR/branch
+        drain: 0 open PRs at start (confirmed via both `list_pull_requests`
+        and `search_pull_requests`), so the 3-PR quota was vacuously met.
+        Spot-checked 30+ branches spanning the full commit-ahead-of-main
+        range with `supersede_check.py` and direct diff comparison against
+        `main` -- every one already shipped under a different PR/commit or
+        superseded, consistent with a prior session's exhaustive 232-branch
+        audit on 2026-09-05 reaching the same conclusion. No repairable PR
+        or branch found; did not spend further time re-triaging a backlog
+        `infra_state.yaml` already records as spent.
+      - >-
+        Confirmed rather than assumed, for the account owner's standing
+        request to prioritise Hetzner deployment/CI-CD and a Codex worker
+        there: `gitops/agents/host/` (Codex worker) and `gitops/ci/host/`
+        (self-hosted runner) are both fully built and tested
+        (`codex-host-mode` reads `up` in `infra_state.yaml`, measured
+        2026-09-10 -- 45/45 tests, clean `systemd-analyze verify`) but
+        genuinely not installed anywhere, blocked solely on
+        `hetzner-ssh-key-is-a-public-key` (#3184, 23+ days queued, an
+        owner-only credential action). Did not add a duplicate ask. The
+        `gh-pages` deploy route (the one live path, independent of the SSH
+        key) was confirmed `current` and `served` before and after this
+        change.
+    mrr_end: 0
+    mrr_end: 0
+  - venture: terraform-plan-secret-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a comparison page: `vs-checkov.html`, the venture's first
+        `vs-*.html` page. Checkov (Bridgecrew/Palo Alto Networks) is a real,
+        well-known open-source IaC static analysis tool whose bundled
+        secrets scanner is the closest adjacent product; the page states the
+        scope difference factually (Checkov's hundreds of misconfiguration
+        policies across many IaC frameworks vs. this tool's one narrow
+        check -- a Terraform structured plan's own `sensitive` flag misses,
+        respecting `before_sensitive`/`after_sensitive` first) and carries
+        the required no-warranty and not-affiliated (nominative fair use)
+        clauses per PRODUCT_PLAYBOOK.md 5f. Linked from `index.html`, added
+        to `sitemap.xml`, and `page.test.mjs` extended with coverage for the
+        link, back-link, disclaimer, and sitemap entry.
+      - >-
+        `node platform/marketing/regen.mjs` after adding the page caught one
+        real defect: the new page's FAQPage JSON-LD answer for "why not just
+        run Checkov" quoted a command in backticks that the visible `<code>`
+        prose did not carry, so `faq-visible.test.mjs` correctly failed on
+        the JSON-LD/visible-text divergence. Fixed by matching the JSON-LD
+        text to the rendered prose exactly, then reran the full
+        marketing+pages suite green.
+      - >-
+        Rebased twice onto a moving `origin/main` during this session as two
+        concurrent sessions merged `vpat-acr-generator` (#4632) and
+        `dental-ppo-writeoff-calculator`'s own new `vs-*.html` pages (#4633)
+        -- confirmed via `mcp__github__list_pull_requests` (0 open PRs) before
+        pushing, per the standing duplicate-PR check. Both merges were
+        clean, conflict-free except in the generated binary front-door-tools
+        shards, which were resolved by taking `origin/main`'s copy and
+        regenerating fresh from the rebased tree rather than replaying the
+        binaries themselves.
+      - >-
+        Verified locally: `node --test
+        ventures/terraform-plan-secret-exposure-check/*.test.mjs` 37/37;
+        `node platform/pages/clauses.mjs terraform-plan-secret-exposure-check`
+        and `faq-coverage.mjs`/`guide-coverage.mjs` for the slug all clean;
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        1255/1255 (run twice, once after each rebase); `python3 -m pytest
+        gitops/tests -q` 581 passed / 1 skipped (ENVIRONMENTAL per
+        `guard_state.py --require-runnable`, which also named a FIXABLE
+        `ssh-keygen` skip closed by installing `openssh-client`); all 25
+        `platform/ci` unittest modules and `agent_review`'s 21 pass; `python3
+        -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q` 435 passed;
+        `python3 platform/ci/checklist_coverage.py`,
+        `platform/router/validate.py` (273 VENTURE.yaml valid),
+        `platform/ci/publish_surface.py --check`,
+        `platform/ci/validate_workflows.py` (321 valid),
+        `platform/ci/check_no_payment_code.py`,
+        `portfolio/scoring/score_ventures.py --check` (274 consistent),
+        `portfolio/usage/validate_usage.py` (249 products/435 readings),
+        `portfolio/pipeline/validate_candidates.py` and
+        `validate_doc_consistency.py`, `platform/marketing/front-door-tools.mjs
+        --headroom`, `portfolio/pipeline/probes/validate_probe_index.py`, and
+        `portfolio/pipeline/score_sensitivity.py` all clean; `python3
+        platform/ci/run_workflow_locally.py --for-changes` selected 12
+        workflow files against the diff and exited 0 with zero real
+        failures -- only secret-/write-gated jobs (agent-cross-review's four
+        reviewers, hetzner-gitops-ci's hcloud-scope/preflight/restore,
+        portfolio-pages.yml's deploy, publish-pages-branch.yml's publish)
+        were held, all unrelated to this change. Runners were flapping
+        during this session (`ci_starvation.py` not run against a specific
+        PR check since none was opened before merge, but the starvation
+        checklist itself was followed in full as the substitute per
+        CLAUDE.md). Browser/a11y note: the new page adds no form inputs
+        (links and prose only), so the whole-catalogue Playwright/axe sweep
+        (`browser_state.py` reports it STALE purely from ordinary fleet
+        churn on every merge, not from anything in this diff) was not
+        re-run for this change.
+    mrr_end: 0

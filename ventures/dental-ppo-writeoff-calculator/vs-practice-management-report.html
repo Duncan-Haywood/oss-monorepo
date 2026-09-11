@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. your practice management system&#x27;s reports</title>
+  <meta name="description" content="Your practice management system reports production and contractual adjustments as separate dollar columns. Here is which report to run, what it cannot divide for you, and where each question is actually answered.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-practice-management-report.html">
+  <meta property="og:title" content="This calculator vs. your practice management system&#x27;s reports">
+  <meta property="og:description" content="A management system reports production and adjustments as dollar columns. This calculator divides them, per carrier, into a rate two contracts can be compared on.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"Which report do I run to fill this in?","acceptedAnswer":{"@type":"Answer","text":"Whatever your system calls a production-by-carrier or insurance-analysis report, for one closed period. You need three figures per plan: gross production at your own fee schedule, the contractual adjustment written off, and the period the two cover. Practice-wide you need chair hours worked, payroll and provider compensation, and practice overhead. Every one of those is a period total, not a patient record, so nothing protected leaves your system and nothing needs to be exported anywhere."}},
+    {"@type":"Question","name":"Can my practice management system work out the effective rate itself?","acceptedAnswer":{"@type":"Answer","text":"Some systems can be made to, with a custom report or a query, and if yours already prints a reimbursement rate per carrier then you do not need this page for that number. What no stock report does is rank the plans by the write-off dollars they take, state a break-even rate to compare them against, or separate what a fee schedule increase would collect from what it would merely add to the write-off. Those are the three outputs this calculator exists for."}},
+    {"@type":"Question","name":"Should I use this instead of my management system?","acceptedAnswer":{"@type":"Answer","text":"No, and it could not replace one. Your management system is the system of record: it holds the ledger, the claims, the schedule and the patient data, and every figure typed here comes out of it. This is a single-screen piece of arithmetic you run on top of a report you already have, for a question the report is not organised to answer. Check its output back against your own numbers before acting on it."}},
+    {"@type":"Question","name":"Why does the report name no carrier and this page ask me to?","acceptedAnswer":{"@type":"Answer","text":"Because the division only means something once you fix a period and a carrier. A practice-wide adjustment total names no contract, so it cannot be acted on: there is no decision whose answer changes when the total moves. A rate per carrier is the form in which two contracts can be compared, and comparing them is the only reason to compute it. The carrier labels stay in your browser and are never uploaded."}},
+    {"@type":"Question","name":"Is this page affiliated with any practice management system?","acceptedAnswer":{"@type":"Answer","text":"No. This page names no specific practice management system, makes no claim about any particular vendor's reports or features, and is not affiliated with, endorsed by, or sponsored by any of them. It describes practice management systems as a category, because every practice has one and the reports they produce are organised the same way for this purpose."}}
+  ]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f5c35; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #cbd4e0; vertical-align: top; }
+    /* #3f5468 rather than the #4d5b6c the calculator uses for its own `thead
+       th`: at .8rem bold on this page's #eceef4 ground that lighter slate
+       measures 4.42:1, just under the 4.5:1 WCAG AA needs at this size. The
+       calculator's own `thead th` sits on #f8fafc panels where the same colour
+       clears it; this page has no panel behind the table. #3f5468 measures
+       5.93:1 on #eceef4. */
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #3f5468; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #1f5c35; color: #f4f8f6; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #3f5468; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Dental PPO write-off calculator</a></p>
+  <h1>This calculator vs. your practice management system&#x27;s reports</h1>
+  <p>
+    Your practice management system already holds every number on this page. It
+    reports <strong>production</strong> and it reports <strong>contractual
+    adjustments</strong>, both as dollar columns, usually organised by provider,
+    by procedure, or by day. What it does not do is divide one by the other per
+    carrier &mdash; because that division only means something once you fix a
+    period <em>and</em> a contract, which is not how the reports are grouped.
+  </p>
+  <p>
+    So the figure a practice ends up holding is a practice-wide write-off total:
+    real money, correctly reported, and impossible to act on, because it names no
+    contract. The contractual adjustment is posted at the same moment as the
+    claim, never ages, is chased by nobody, and appears in no collections report.
+    It is the only money a practice loses that never looks like a loss. This
+    calculator takes three figures per plan off a report you already run and
+    turns them into a rate the contracts can be compared on.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What did we produce and what did we write off last quarter?</td>
+        <td>Your practice management system. It is the system of record and this page cannot replace it.</td>
+      </tr>
+      <tr>
+        <td>Which claims are outstanding, and what is on tomorrow&#x27;s schedule?</td>
+        <td>Your practice management system. This page holds no ledger, no claims and no patient data.</td>
+      </tr>
+      <tr>
+        <td>What rate is each carrier actually reimbursing us at?</td>
+        <td>This calculator&#x27;s <a href="./#heroRate">effective reimbursement rate</a>, per plan and blended &mdash; net over gross at your own fee schedule.</td>
+      </tr>
+      <tr>
+        <td>Which contract is costing us the most &mdash; not which has the worst rate?</td>
+        <td>This calculator&#x27;s <a href="./#planRows">plan table, ranked by write-off dollars</a> with the rate printed beside it. The worst rate is routinely not the biggest number.</td>
+      </tr>
+      <tr>
+        <td>Is any plan buying chair time for less than the chair costs to keep open?</td>
+        <td>This calculator&#x27;s <a href="./#breakEven">break-even reimbursement rate</a>, stated as a rate so it lines up against the per-plan rates by eye.</td>
+      </tr>
+      <tr>
+        <td>Is our write-off one bad contract or eight mediocre ones?</td>
+        <td>This calculator&#x27;s <a href="./#planBars">concentration reading</a> &mdash; how many carriers make up half of it. The same total, two entirely different problems.</td>
+      </tr>
+      <tr>
+        <td>If we raise the fee schedule, what would we actually collect?</td>
+        <td>This calculator&#x27;s <a href="./#feePanel">fee-increase model</a>, which separates what an increase collects from what it merely adds to the write-off.</td>
+      </tr>
+    </tbody>
+  </table>
+  <a class="cta" href="./">Work out your own rates</a>
+  <p>
+    No account, upload, or subscription: it is a static page, the arithmetic runs
+    in your browser, and your figures stay on your device. Every input is a
+    period total for a carrier &mdash; production, write-off, chair hours,
+    payroll, overhead &mdash; so no protected health information is involved at
+    any point. Saving a scenario writes to this browser&#x27;s own storage only.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Which report do I run to fill this in?</h3>
+  <p>Whatever your system calls a production-by-carrier or insurance-analysis report, for one closed period. You need three figures per plan: gross production at your own fee schedule, the contractual adjustment written off, and the period the two cover. Practice-wide you need chair hours worked, payroll and provider compensation, and practice overhead. Every one of those is a period total, not a patient record, so nothing protected leaves your system and nothing needs to be exported anywhere.</p>
+  <h3>Can my practice management system work out the effective rate itself?</h3>
+  <p>Some systems can be made to, with a custom report or a query, and if yours already prints a reimbursement rate per carrier then you do not need this page for that number. What no stock report does is rank the plans by the write-off dollars they take, state a break-even rate to compare them against, or separate what a fee schedule increase would collect from what it would merely add to the write-off. Those are the three outputs this calculator exists for.</p>
+  <h3>Should I use this instead of my management system?</h3>
+  <p>No, and it could not replace one. Your management system is the system of record: it holds the ledger, the claims, the schedule and the patient data, and every figure typed here comes out of it. This is a single-screen piece of arithmetic you run on top of a report you already have, for a question the report is not organised to answer. Check its output back against your own numbers before acting on it.</p>
+  <h3>Why does the report name no carrier and this page ask me to?</h3>
+  <p>Because the division only means something once you fix a period and a carrier. A practice-wide adjustment total names no contract, so it cannot be acted on: there is no decision whose answer changes when the total moves. A rate per carrier is the form in which two contracts can be compared, and comparing them is the only reason to compute it. The carrier labels stay in your browser and are never uploaded.</p>
+  <h3>Is this page affiliated with any practice management system?</h3>
+  <p>No. This page names no specific practice management system, makes no claim about any particular vendor&#x27;s reports or features, and is not affiliated with, endorsed by, or sponsored by any of them. It describes practice management systems as a category, because every practice has one and the reports they produce are organised the same way for this purpose.</p>
+  <p><a href="./what-is-my-effective-reimbursement-rate.html">What is my effective reimbursement rate?</a> works through the arithmetic itself, with a worked example.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, employment or contract advice, and it does not tell you what to charge, which networks to join or leave, how to code or record any adjustment, or how any agreement should be read. It is arithmetic on the numbers you type. Verify every figure against your own practice management system, payroll records and accounts, and against a qualified professional, before relying on it or acting on a contract with it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p><a href="./">Dental PPO write-off calculator</a></p>
+  </footer>
+</body>
+</html>
