@@ -25307,3 +25307,50 @@ entries:
         re-ran every check against the fresh base before committing, per
         this repo's high-concurrency expectations.
     mrr_end: 0
+  - venture: staffing-markup-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a vs-tempworks.html competitor comparison page and test suite --
+        staffing-markup-calculator was one of 20 ventures (out of 254) with no
+        vs-<competitor>.html page. TempWorks (TempWorks Software, Inc.) was
+        picked over a generic ATS name because it is a well-known, named,
+        all-in-one staffing agency software suite (ATS, CRM, payroll,
+        billing) that even publishes its own "Gross Profit Calculator"
+        marketing page, confirming it is the search-relevant competitor for
+        this niche (verified via web search; the vendor's own site is
+        unreachable from this environment's egress proxy, so no page detail
+        beyond publicly indexed facts is claimed, and no dollar figure for
+        its quote-based pricing appears anywhere on the new page).
+      - >-
+        Investigated the task's premise first: PRs #4515
+        (wildlife-exclusion-bid-calculator vs-pestpac) and #4518
+        (self-storage-rate-increase-calculator vs-sitelink) were reported as
+        closed without merging on 2026-09-10, but the GitHub API shows both
+        were actually merged (merged: true, merged_at set) minutes after
+        opening. Both pairings already exist on main, so a different,
+        unclaimed venture+competitor pair was chosen instead -- confirmed via
+        `find ventures -iname vs-*.html`, 0 open PRs, and no matching branch
+        or commit history for "tempworks" anywhere in the repo.
+      - >-
+        Verified: ventures/staffing-markup-calculator test suite 51/51 (45
+        pre-existing across calc.test.mjs/usage.test.mjs/page.test.mjs plus 6
+        new assertions in vs-tempworks.test.mjs); `python3
+        platform/ci/checklist_coverage.py` clean; `node
+        platform/marketing/regen.mjs` -- front-door-tools mirror updated (245
+        files now under staffing-markup-calculator's shard,
+        gitops/prod/front-door-tools/kustomization.yaml gained the one
+        expected staffing-markup-calculator__vs-tempworks.html.gz mount
+        line); no shared vs__tempworks.html.gz front-door aggregate page was
+        generated because TempWorks has only this one comparing venture,
+        matching the same single-comparator threshold rule confirmed in
+        #4518's own ledger entry; `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` 1219/1219; `python3 -m pytest gitops/tests
+        -q` 549 passed / 25 skipped (matches documented baseline);
+        `python3 platform/ci/pages_state.py` reports the published gh-pages
+        snapshot current against main's tip at the time. GitHub Actions
+        runners confirmed starved as of 2026-09-11 (this repo's own recent
+        session history), so merged on this local verification per CLAUDE.md's
+        standing starvation rule.
+    mrr_end: 0
