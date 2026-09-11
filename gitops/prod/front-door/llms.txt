@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 244 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 245 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 244 of them — and
+Every tool in the collection is listed below — all 245 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -265,6 +265,16 @@ page that hosts it.
 - [Whatnot Seller Payout Calculator — Keep After 8% + Processing](https://marisstella.dev/tools/whatnot-seller-payout/): Free Whatnot seller fee calculator. Commission on the hammer, processing on the checkout total (item + shipping + tax) plus $0.30, the $1,500 TCG cap, leftover after the label, and whether free shipping is cheaper. Nothing leaves your browser.
 - [Where to Sell Calculator — eBay vs Etsy vs Amazon](https://marisstella.dev/tools/where-to-sell-calculator/): Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, Reverb, your own store, and a local sale.
 
+## Logistics, freight & cloud cost
+
+- [Medical Courier Route Calculator — Per-Stop Pricing](https://marisstella.dev/tools/medical-courier-route-margin/): Free medical courier route calculator: margin per stop and vehicle-hour after paid wait, deadhead and overhead — plus the per-stop rate to quote.
+- [Owner Operator CPM Calculator — Deadhead-Adjusted Rate](https://marisstella.dev/tools/owner-operator-cpm-calculator/): Free owner-operator CPM calculator: fuel, truck note, insurance, and deadhead miles in one week. See all-in cost per mile and the loaded rate that actually covers the empty ones.
+- [3PL Cost Calculator](https://marisstella.dev/tools/3pl-quote-normalizer/): Compare a third-party logistics quote with in-house fulfillment costs, minimum monthly spend, and true cost per order.
+- [Freight Accessorial Invoice Auditor](https://marisstella.dev/tools/freight-accessorial-auditor/): Audit freight accessorial invoices for duplicate, over-expected, and missing-code charges before you pay. Free, private, and runs in your browser.
+- [LTL Freight Class Estimator](https://marisstella.dev/tools/ltl-freight-class-estimator/): Estimate LTL freight class from pallet dimensions, weight, and piece count — then see the packed height that reaches the next class down, and the height at which a carrier remeasure re-rates the shipment.
+- [Cloud Egress Cost Calculator for S3 Storage](https://marisstella.dev/tools/cloud-egress-calculator/): Compare monthly S3-compatible storage, request, and data egress costs for a real workload. Free, private, and runs in your browser.
+- [IFTA Quarterly Fuel Tax Calculator](https://marisstella.dev/tools/ifta-quarterly-fuel-tax-calculator/): Work your IFTA quarterly return from your own trip and fuel records: average fleet MPG, taxable gallons and net taxable gallons per jurisdiction, the Indiana/Kentucky/Virginia surcharge charged the way it is actually charged, and interest on a late return. Free, private, nothing leaves your browser.
+
 ## Creator & solo earner income
 
 - [Sponsor Ready — free GitHub Sponsors readiness checklist](https://marisstella.dev/tools/sponsor-ready/): Free, no-signup checklist that scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors, and tells you exactly what to fix first.
@@ -274,15 +284,6 @@ page that hosts it.
 - [Craft Fair Booth Calculator — Is This Market Worth Taking?](https://marisstella.dev/tools/craft-fair-booth-calculator/): Free calculator for makers: find what one craft fair, farmers market, or art festival booth has to sell to break even after booth fee, jury fee, mileage, materials, and card fees — plus your real hourly rate for the weekend and the most a booth could cost and still be worth it. Unsold stock is treated as inventory, not a loss.
 - [Gig Driver Net Pay Calculator — What You Keep After Gas](https://marisstella.dev/tools/gig-driver-net-pay-calculator/): Free calculator for DoorDash, Uber Eats, Instacart, Uber, and Lyft drivers: turn one session's gross pay into real net pay per hour and per mile after gas, maintenance, and insurance, plus a tax set-aside.
 - [Newsletter Sponsorship Rate Calculator — Free, No Sign-Up](https://marisstella.dev/tools/newsletter-sponsorship-rate-calculator/): Free newsletter sponsorship rate calculator. Enter your list size, open rate, and niche to get a price range for a dedicated send, primary placement, secondary placement, and classified ad — based on commonly cited newsletter-ad-market CPM benchmarks. No sign-up, nothing uploaded.
-
-## Logistics, freight & cloud cost
-
-- [Medical Courier Route Calculator — Per-Stop Pricing](https://marisstella.dev/tools/medical-courier-route-margin/): Free medical courier route calculator: margin per stop and vehicle-hour after paid wait, deadhead and overhead — plus the per-stop rate to quote.
-- [Owner Operator CPM Calculator — Deadhead-Adjusted Rate](https://marisstella.dev/tools/owner-operator-cpm-calculator/): Free owner-operator CPM calculator: fuel, truck note, insurance, and deadhead miles in one week. See all-in cost per mile and the loaded rate that actually covers the empty ones.
-- [3PL Cost Calculator](https://marisstella.dev/tools/3pl-quote-normalizer/): Compare a third-party logistics quote with in-house fulfillment costs, minimum monthly spend, and true cost per order.
-- [Freight Accessorial Invoice Auditor](https://marisstella.dev/tools/freight-accessorial-auditor/): Audit freight accessorial invoices for duplicate, over-expected, and missing-code charges before you pay. Free, private, and runs in your browser.
-- [LTL Freight Class Estimator](https://marisstella.dev/tools/ltl-freight-class-estimator/): Estimate LTL freight class from pallet dimensions, weight, and piece count — then see the packed height that reaches the next class down, and the height at which a carrier remeasure re-rates the shipment.
-- [Cloud Egress Cost Calculator for S3 Storage](https://marisstella.dev/tools/cloud-egress-calculator/): Compare monthly S3-compatible storage, request, and data egress costs for a real workload. Free, private, and runs in your browser.
 
 ## More free tools
 
