@@ -278,6 +278,9 @@ workflows:
 - workflow: dog-walking-route-pricing-ci.yml
   classification: none
   publishes: []
+- workflow: drone-mapping-job-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: dryer-vent-bid-calculator-ci.yml
   classification: none
   publishes: []

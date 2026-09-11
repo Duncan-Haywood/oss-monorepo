@@ -487,8 +487,20 @@ const CATEGORY_RULES = [
     // a price against a flat per-unit headline rate that hides the real
     // cost. Not a trade bid (nothing priced by area or a site visit) and not
     // the route-margin shape (one booking, not a rolled-up monthly route).
+    // `drone-mapping-job-calculator` joined 2026-09-11 on its first commit,
+    // for the same reason and by the same test: a Part 107 pilot pricing one
+    // mapping sortie from travel, setup, ground control, airtime and
+    // processing hours is a solo operator turning labour and equipment time
+    // into a quote — the same job as `photo-booth-event-quote` and
+    // `commercial-photo-license-calculator`, which it links to and which
+    // links back. `trades` was the near miss because it is priced by area,
+    // but the resemblance stops at the word "acre": a trade bid prices work
+    // *done to* a site, and this prices a flight *over* one, with the cost
+    // driven by sensor geometry and an overlap specification rather than by
+    // materials and crew hours on the ground. Filed here rather than left
+    // for a spell in the catch-all, which the bound below exists to prevent.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job)/.test(
         slug,
       ),
   },

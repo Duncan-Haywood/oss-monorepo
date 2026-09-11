@@ -25533,6 +25533,168 @@ entries:
         install needs its `apt-get update &&` prefix, exactly as CLAUDE.md
         already warns -- with it, gitops/tests skipped only 1 rather than 25.
     mrr_end: 0
+  - venture: drone-mapping-job-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR queue first, per the standing brief. Two PRs were open at the start
+        of this run (#4524, #4525) -- fewer than the three-PR quota, so the
+        rule reduced to processing all of them. Verified and merged #4525
+        (social-preview-check vs-screamingfrog) on local verification;
+        concurrent sessions merged #4524, #4526, #4527 and #4528 during that
+        verification, leaving the queue empty. #4523/#4526 and #4524/#4528
+        were duplicate pairs -- the same change merged twice within minutes.
+        Checked for damage rather than assuming: both second merges changed
+        zero files (`git show --numstat` empty), catalog.json page counts
+        still match the on-disk *.html counts, and the front-door sitemap has
+        no duplicate <loc>. No corruption; the cost was two sessions' output
+        landing as nothing.
+      - >-
+        Graduated `drone-mapping-job-calculator`: a flight-planning and job
+        pricing worksheet for Part 107 pilots quoting aerial mapping and
+        photogrammetry survey work. Ground sample distance from physical
+        sensor width, true focal length and image width at a chosen altitude
+        (and the inverse, the altitude a target GSD needs); frame footprint,
+        flight line spacing and exposure spacing from the two overlap
+        settings; line count, image count, path length, airtime, sorties and
+        battery swaps; field hours including setup, ground control, swaps and
+        travel; processing hours from the image count; and the price that
+        clears a target margin taken on price rather than as a markup on cost.
+      - >-
+        The product's argument, and the reason it is not another GSD
+        calculator: image count scales as 1/((1-front)(1-side)) while airtime
+        scales only as 1/(1-side), because front overlap triggers the shutter
+        more often along a line that was being flown anyway. So conceding
+        "a bit more overlap" from 70/70 to 80/80 leaves the flight nearly
+        unchanged and more than doubles the photographs and the processing
+        that follows them. On the shipped 100-acre example that is 2.19x the
+        images, 1.44x the airtime, and $135.30 more to quote -- 21.9% on a
+        job whose acreage did not move at all, and a term that never appears
+        in a per-acre quote. The page renders that comparison at four overlap
+        settings from the pilot's own inputs.
+      - >-
+        The optics are pinned against a published spec sheet rather than
+        against themselves: the Phantom 4 RTK preset returns 2.741 cm/px at
+        100 m against DJI's stated 2.74. Every figure quoted in the guide's
+        prose is recomputed from calc.mjs in page.test.mjs and asserted to
+        still be the number the page claims, because a worked example baked
+        into a paragraph is a copy of a computation and a copy goes stale
+        silently.
+      - >-
+        One real defect found and fixed while writing the tests rather than
+        by weakening one: `Number(null)` and `Number('')` are both 0, and 0
+        cleared the `min: 0` floor on every rate field -- so a blank hourly
+        rate would have priced the labour on a job at nothing and reported a
+        healthy margin on it. `requireFinite` now refuses absent before it
+        can become zero.
+      - >-
+        Liability containment is structural rather than wording. It ships no
+        airspace data, integrates with no LAANC service, produces no mission
+        file, and nothing it outputs is flown -- the artifact is a price, not
+        a flight. The one place it touches regulation is defensive: it flags
+        a target GSD that would need more than the 400 ft ceiling in 14 CFR
+        107.51(b) rather than silently reporting an altitude that cannot
+        legally be flown. Both pages state that it is not a flight plan,
+        grants no authorisation, and that airspace, currency, waivers and the
+        safety of the actual mission remain the pilot's. The square-site
+        model is disclosed on both pages as the optimistic end of the range
+        (least perimeter for a given area), which is the honest direction to
+        err for a tool arguing for higher quotes.
+      - >-
+        Screening: `duplicate_check.py` scored the closest match
+        (`wildlife-exclusion-bid-calculator`) at 0.08 against the final
+        description, far under the 0.45 bar, with the whole top ten at 0.08
+        or below. No aerial, drone, photogrammetry or survey-flight
+        arithmetic existed anywhere in `ventures/`, and no drone row exists
+        in `screened-out.md`. `commercial-photo-license-calculator` is the
+        nearest real neighbour and is complementary -- it prices the licence
+        on imagery, this prices the flight that captures it -- so the two now
+        link to each other, which is also what closed the crawlable-orphan
+        the new venture opened.
+      - >-
+        Four platform guards fired on the new venture and each was fixed
+        rather than waived. `launched.mjs --write` recorded the launch date.
+        `build.test.mjs`'s catch-all bound fired at 6 against a limit of 5:
+        enumerated the catch-all as that test instructs rather than reasoning
+        about one arrival, and the venture genuinely belongs in `services`
+        alongside `photo-booth-event-quote` and `notary-trip-quote` -- a solo
+        operator turning labour and equipment time into a quote -- so it was
+        placed there and the catch-all returned to 5. `siblings.mjs` reported
+        1 crawlable orphan, closed by the reciprocal link above with an
+        assertion in each venture's page.test.mjs. `test_publish_surface`
+        required the new venture CI workflow in `publish-surface.yaml`
+        (classification `none`, publishes nothing).
+      - >-
+        The documented four-places mirrored-tool count moved 245 -> 246, as
+        CLAUDE.md warns it must whenever a venture gains a browser surface:
+        `infra/OWNER_CHECKLIST.md` (three sentences),
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        (two comments) and the hardcoded total in
+        `gitops/tests/test_manifests.py`. `gitops/ci/sync_readme_counts.py`
+        repaired the workflow count the new CI file moved (338/340 across 300
+        -> 339/341 across 301).
+      - >-
+        Verified on this branch: ventures/drone-mapping-job-calculator 65/65;
+        ventures/commercial-photo-license-calculator 29/29;
+        checklist_coverage clean; clauses.mjs 2 published pages carrying their
+        required clauses; check_money_sign, check_input_bounds,
+        check_form_defaults, check_step_grid and check_no_payment_code all
+        clean; platform/marketing + platform/pages 1219/1219; platform/proposal
+        101/101; platform/privacy + platform/webcheck 82/82; gitops/tests 573
+        passed 1 skipped; all 23 platform/ci unittest modules OK; agent_review
+        OK; portfolio ledger/scoring/router/usage/pipeline + infra/tests 435
+        passed; score_ventures.py --check consistent across 255 ventures;
+        validate_usage.py valid at 211 products / 397 readings; siblings.mjs
+        0 orphans of 246.
+      - >-
+        Ran the browser/accessibility pass rather than skipping it, and it
+        changed the product. Prompted by #4533, which landed mid-session
+        fixing a WCAG AA contrast failure on the vs-screamingfrog page this
+        run had merged in #4525 -- a defect no `node --test` assertion can
+        see, which is the gap CLAUDE.md records against the 48 axe `label`
+        violations found in the first full contrast run. `browser_checks.py
+        --only drone-mapping-job-calculator` reported contrast clean (2 pages,
+        2 viewports, no WCAG A/AA violations), sideways, presets, roundtrip,
+        sweep and journey ok -- and `highlight` SKIPPED, with the reason that
+        this venture "does not print the promise sentence".
+      - >-
+        That skip was the real finding. The page had hand-rolled its own
+        invalid-input marking and worded the label "fix the highlighted
+        input", one word off the literal string
+        `platform/pages/invalid.mjs` matches (`check the highlighted input`).
+        The build injects the real highlighter -- the one that reads the
+        thrown message, finds the field it names and marks it -- into any page
+        printing that sentence exactly, and silently skips any page that does
+        not. So the page promised a highlight, got no injection, and shipped a
+        weaker hand-rolled substitute: the precise defect invalid.mjs was
+        written to remove from 103 tools, recreated on day one by a near-miss
+        spelling. Rewired to the family pattern (message in the hero, promise
+        sentence in the label), which is import-don't-restate applied to the
+        recovery path rather than to a constant. `highlight` now runs and
+        passes instead of skipping, and two assertions pin the literal string
+        and the label names calc.mjs throws about, because a near-miss is
+        silent.
+      - >-
+        main was green before this change: `run_workflow_locally.py --tree` on
+        a clean checkout reported 9/9 verification-only workflows passing,
+        portfolio-validate 66/66 steps, no UNRUN and no FAILED, with only
+        portfolio-pages.yml/deploy not run (needs Pages credentials). The
+        gh-pages snapshot was already current at 56ccbf8d and GitHub's managed
+        builder had succeeded on it (run 34551550561, 2026-09-11T01:40:11Z),
+        so a concurrent session had already published the four merges above.
+      - >-
+        GitHub Actions runners remain starved: `ci_starvation.py 103111560618`
+        (a check on #4525) reports runner_id 0, 3s, no steps. So the red checks
+        on these PRs are the outage and not the change, and the local run above
+        is the real gate per CLAUDE.md's standing rule. Environment note
+        confirming the 2026-09-11 CLAUDE.md addition: `pip install pytest`
+        again failed against files.pythonhosted.org in this web sandbox, and
+        `apt-get install -y --no-install-recommends python3-pytest` (7.4.4)
+        worked, as did `apt-get update && apt-get install ... nginx-light
+        openssh-client`, which is what let gitops/tests skip only 1 rather
+        than 25.
+    mrr_end: 0
   - venture: hreflang-reciprocity-check
     agent_spend_usd: null
     human_hours: 0

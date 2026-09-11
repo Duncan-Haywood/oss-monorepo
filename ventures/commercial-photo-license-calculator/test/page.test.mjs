@@ -14,3 +14,17 @@ test('index links one hop to the photo-booth-event-quote sibling', () => {
     'index must link ../photo-booth-event-quote/ so crawlers reach the photo booth event quote calculator in one hop',
   );
 });
+
+// The other half of the same reader's job. This page prices the *licence* on
+// imagery; the drone mapping calculator prices the *flight* that captures it,
+// and a pilot delivering aerial stills or an orthomosaic needs both numbers on
+// the same quote. It is also the only inbound link that venture has, so this
+// assertion is what keeps it off the crawlable-orphan list in
+// platform/pages/siblings-budget.json.
+test('index links one hop to the drone-mapping-job-calculator sibling', () => {
+  assert.match(
+    markup,
+    /href="\.\.\/drone-mapping-job-calculator\/"/,
+    'index must link ../drone-mapping-job-calculator/ so crawlers reach the drone mapping job calculator in one hop',
+  );
+});
