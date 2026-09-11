@@ -289,9 +289,11 @@
   page's own JSON-LD still matches its visible text, rather than which URL the page claims is
   canonical — <a href="../security-headers-check/">Security Headers checker</a> covers a third,
   unrelated response-header evidence class: clickjacking protection and Content-Security-Policy
-  strength — and <a href="../hreflang-reciprocity-check/">hreflang Reciprocity Check</a> covers a
+  strength — <a href="../hreflang-reciprocity-check/">hreflang Reciprocity Check</a> covers a
   fourth: whether a page's alternate-language links actually link back to it, rather than which URL
-  is canonical.</p>
+  is canonical — and <a href="../sitemap-lastmod-freshness-check/">Sitemap lastmod Freshness Check</a>
+  covers a fifth: whether a sitemap's own &lt;lastmod&gt; dates are valid, plausible, and confirmed
+  by each page's live HTTP headers, rather than anything in a page's own &lt;head&gt;.</p>
 </footer>
 </body>
 </html>

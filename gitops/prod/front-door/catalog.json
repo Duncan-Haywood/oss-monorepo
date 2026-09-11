@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 247,
-  "collection_total": 247,
+  "served_here": 248,
+  "collection_total": 248,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 33
+      "tool_count": 34
     },
     {
       "id": "evidence",
@@ -1748,6 +1748,14 @@
       "url": "https://marisstella.dev/tools/siding-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a vinyl, fiber-cement, or engineered-wood siding job from wall area, waste, openings, stories, and tear-off — not a flat price per square foot. See labor hours, walk-away price, and the margin a neighborhood special actually leaves.",
+      "pages": 3
+    },
+    {
+      "slug": "sitemap-lastmod-freshness-check",
+      "name": "Sitemap lastmod Freshness Check — Is Your Sitemap Faking Freshness?",
+      "url": "https://marisstella.dev/tools/sitemap-lastmod-freshness-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: paste a sitemap.xml and check its <lastmod> dates for the freshness-faking anti-pattern Google's own sitemap documentation warns about -- invalid/malformed W3C-Datetime format, a future-dated lastmod, duplicate URLs with conflicting dates, and a suspiciously uniform date across nearly every URL. The Node CLI also cross-checks each URL's live HTTP Last-Modified header. Runs in your browser or as a zero-dependency CLI. Nothing uploaded.",
       "pages": 3
     },
     {

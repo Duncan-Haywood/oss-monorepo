@@ -1,0 +1,115 @@
+name: sitemap-lastmod-freshness-check
+description: >-
+  A free, zero-dependency CLI (+ a browser tool) for developers and technical
+  SEO practitioners: checks a sitemap.xml's <lastmod> dates for the
+  well-documented "freshness faking" anti-pattern Google's own sitemap
+  documentation warns about -- a build step that stamps every URL with
+  today's date regardless of whether the page changed, which Google's
+  documentation says can make it stop trusting the field for that site
+  entirely. Checks: invalid or malformed <lastmod> values against the
+  sitemap protocol's required W3C Datetime format (including calendar
+  validity, e.g. rejecting a nonexistent Feb 30 that Date.parse would
+  silently roll over), a future-dated <lastmod> (never legitimate), duplicate
+  <loc> entries with conflicting <lastmod> values, and a suspiciously uniform
+  <lastmod> date shared by nearly every URL. The CLI additionally fetches
+  each URL's live HTTP Last-Modified response header (headers only, never the
+  page body) over real HTTP to cross-check whether the server's own metadata
+  confirms the sitemap's claim. The browser page works from pasted sitemap
+  XML for every check that needs no live fetch; the live server-header
+  cross-check needs the CLI, since a browser tab cannot reliably read a
+  cross-origin response's headers without the target's own CORS opt-in.
+stage: prototype
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section argues explicitly for this shape
+# over another <trade>-bid-calculator, and this venture follows the same
+# "read what's actually there, fetch what's named, report the exact
+# evidence" shape as hreflang-reciprocity-check (real network fetch the
+# browser can't fully do itself, paired with a paste-based browser mode) and
+# cors-misconfig-check (real network probing + a browser report-viewer that
+# cannot itself probe).
+#
+# duplicate_check.py (run 2026-09-11) scored every existing venture,
+# screened-out row, and pipeline candidate below 0.16 for this idea's
+# description -- nowhere near the 0.45 review bar. Closest matches by eye:
+# hreflang-reciprocity-check (0.16) is the nearest structural sibling (a
+# <link>/XML-tag reciprocity-and-format checker with a CLI-does-the-network
+# split) but checks an entirely different tag and rule; sri-check and
+# security-headers-check check unrelated evidence classes (subresource
+# integrity hashes, response-header security posture); merchant-feed-check
+# checks a different XML/CSV feed format's own field-level rules (GTIN/MPN,
+# price formatting), not sitemap <lastmod>. Nothing in screened-out.md
+# mentions sitemaps, lastmod, or freshness signals.
+#
+# Distribution channel: Google's own sitemap documentation states the
+# accuracy requirement and the consequence (a site whose lastmod values
+# don't hold up may have the field discounted) explicitly -- a written,
+# sourced requirement, not an inferred one, the same shape
+# hreflang-reciprocity-check's channel argument used for the reciprocity
+# rule. Established free competitor tooling exists for sitemap *structural*
+# validation (e.g. XML-Sitemaps.com's Sitemap Validator), which is evidence
+# of real, sustained search demand for "check my sitemap" as a query
+# category -- but based on general knowledge at screening time (unverified
+# against a live fetch this session; egress to arbitrary hosts is proxy-
+# denied here, per this repo's standing convention), no equivalent free tool
+# specifically cross-checks lastmod truthfulness against each URL's own live
+# HTTP headers, which is this tool's distinct wedge within that category.
+hypotheses:
+  - claim: >-
+      A developer or technical SEO practitioner auditing a site's crawl
+      efficiency, or who has read that Google may discount an unreliable
+      lastmod signal, will search terms like "sitemap lastmod checker",
+      "is my sitemap lastmod accurate", or "sitemap freshness faking" and
+      find this tool -- then wire the CLI into their own build's CI as a
+      regression gate once the generator is fixed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Google's own sitemap documentation stating the accuracy requirement and
+      naming the consequence of an unreliable lastmod signal, plus the
+      existence of established free sitemap-structural-validator tooling
+      (XML-Sitemaps.com), show this is a real, recurring technical-SEO
+      concern with proven adjacent-category demand, under-served by a
+      zero-install CLI that cross-checks lastmod against live server headers
+      rather than only validating XML structure.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A site owner who fixes a flagged freshness-faking build step will get a
+      return visit or a CI wiring from the same visitor without any action
+      from this portfolio, the same repeat-usage pattern hypothesized for
+      hreflang-reciprocity-check and cors-misconfig-check.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the CLI's network requests run on the user's
+  # own machine against a sitemap and URLs of their choosing, and the browser
+  # tool parses only text pasted into it -- no server of ours in the loop
+  # either way. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, CLI/repo engagement, or paste-in report after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's "fair
+    run" definition).
+  - A materially better free tool covering the same checks (format validity,
+    future-dating, duplicate-conflict, uniform-pattern detection, and a live
+    Last-Modified cross-check) with the same zero-install, CI-usable bar
+    becomes the obvious default, such that this tool's differentiation no
+    longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/sitemap-lastmod-freshness-check/
+  analytics: null
