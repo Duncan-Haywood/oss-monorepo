@@ -941,8 +941,28 @@ const CATEGORY_RULES = [
     // neighbors above are, and landing it here rather than the catch-all is
     // also what keeps that catch-all inside the bound `build.test.mjs` puts
     // on it.
+    //
+    // `redirect-chain-check` joined 2026-09-11: a zero-dependency CLI plus a
+    // matching browser page, run by a developer or SEO practitioner against
+    // a URL they name -- just for the URL's own HTTP redirect chain (a
+    // loop, an over-long chain, an HTTPS-to-HTTP downgrade, a temporary
+    // status code used for a permanent scheme/host move, a dead-end error),
+    // rather than a sitemap's `<lastmod>`, a page's `<head>` tags, or a
+    // response header. It shares `sitemap-lastmod-freshness-check`'s "CLI
+    // does the real network walk, browser half works from pasted evidence"
+    // split, for a related but distinct reason (a browser's default
+    // `fetch()` follows the whole chain and hides every intermediate hop,
+    // while `redirect: "manual"` makes the response opaque and hides the
+    // first hop's own status/Location instead -- either way the chain
+    // itself, not just one header, is unreadable), and cross-links
+    // `canonical-tag-check` and `security-headers-check` as Related (a
+    // seventh "does this URL's own HTTP behaviour actually hold up" class).
+    // Listed by exact slug rather than a new prefix, the same way its
+    // neighbors above are, and landing it here rather than the catch-all is
+    // also what keeps that catch-all inside the bound `build.test.mjs` puts
+    // on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check)/.test(
         slug,
       ),
   },

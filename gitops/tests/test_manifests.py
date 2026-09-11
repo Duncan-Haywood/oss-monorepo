@@ -1524,7 +1524,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # graduated the same day — same shape again: a new venture with a static
     # `index.html` from its first commit, entering the mirror and the total
     # together.
-    total = 248  # `infra/OWNER_CHECKLIST.md`'s own "N of the 248 tools" wording.
+    # 249 since 2026-09-11, when `redirect-chain-check` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    total = 249  # `infra/OWNER_CHECKLIST.md`'s own "N of the 249 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

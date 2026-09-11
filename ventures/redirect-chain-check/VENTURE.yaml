@@ -1,0 +1,114 @@
+name: redirect-chain-check
+description: >-
+  A free, zero-dependency CLI (+ a browser tool) for developers and technical
+  SEO practitioners: follows a URL's real HTTP redirect chain one hop at a
+  time and classifies it against five named misconfiguration patterns -- a
+  redirect loop that never terminates, a chain longer than the single hop
+  Google's own Search Central documentation recommends, an HTTPS-to-HTTP
+  protocol downgrade, a permanent-looking site move (scheme or www
+  normalization) that used a temporary 302/303/307 status instead of a
+  permanent 301/308, and a chain that ends in a 4xx/5xx error or is still
+  redirecting with nowhere further to go. The CLI walks the real chain over
+  HTTP itself (never letting a client's own follow-redirects behaviour hide
+  the intermediate hops); the browser page works from a pasted hop list
+  (status + URL per line, read off DevTools' Network panel or a curl -sI
+  trace), since a browser tab cannot reliably read a cross-origin redirect
+  chain's intermediate status codes and Location headers itself.
+stage: prototype
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section argues explicitly for this shape
+# over another <trade>-bid-calculator (141 of 200 ventures already share
+# that shape with zero measured traffic), and this venture follows the same
+# "read what's actually there, fetch what's named, report the exact
+# evidence" shape as sitemap-lastmod-freshness-check (real network fetch the
+# CLI does that the browser cannot, paired with a paste-based browser mode)
+# and cors-misconfig-check (real network probing + a browser report-viewer
+# that cannot itself probe, because the browser is forbidden from doing the
+# one thing the check needs -- there Origin, here reading a cross-origin
+# redirect's intermediate headers).
+#
+# duplicate_check.py (run 2026-09-11) scored every existing venture,
+# screened-out row, and pipeline candidate below 0.26 for this idea's
+# description -- nowhere near the 0.45 review bar. Closest matches by eye:
+# sitemap-lastmod-freshness-check (0.26) and hreflang-reciprocity-check
+# (0.19) are the nearest structural siblings (a CLI-fetches/browser-pastes
+# checker over real HTTP with a shared pure engine) but check an entirely
+# different evidence class -- sitemap <lastmod> truthfulness and hreflang
+# reciprocity, not HTTP redirect behaviour; canonical-tag-check (0.16) and
+# security-headers-check (0.13) check unrelated response-header/tag
+# evidence. Nothing in screened-out.md mentions redirects, 301s/302s, or
+# redirect chains.
+#
+# Distribution channel: Google's own Search Central documentation on
+# redirects states the "keep chains short" guidance and the 301-vs-302
+# permanence distinction explicitly -- a written, sourced requirement, not
+# an inferred one, the same shape sitemap-lastmod-freshness-check's channel
+# argument used for the freshness-faking rule. Established free competitor
+# tooling exists (httpstatus.io, redirect-checker.org) as raw chain/header
+# inspectors, which is evidence of real, sustained search demand for "check
+# my redirect" as a query category -- but based on general knowledge at
+# screening time (unverified against a live fetch this session; egress to
+# arbitrary hosts is proxy-denied here, per this repo's standing
+# convention), no equivalent free tool classifies the chain against named
+# misconfiguration patterns (loop, over-length, downgrade, wrong status for
+# a move) the way this tool does, which is this tool's distinct wedge
+# within that category.
+hypotheses:
+  - claim: >-
+      A developer or technical SEO practitioner auditing a site migration, or
+      debugging a "too many redirects" browser error, will search terms like
+      "redirect chain checker", "redirect loop checker", or "301 vs 302 for
+      site move" and find this tool -- then wire the CLI into their own
+      build's CI as a regression gate once the chain is fixed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Google's own Search Central documentation stating the "keep chains
+      short" guidance and the 301-vs-302 permanence distinction explicitly,
+      plus the existence of established free raw-chain-inspector tooling
+      (httpstatus.io, redirect-checker.org), show this is a real, recurring
+      technical-SEO concern with proven adjacent-category demand,
+      under-served by a zero-install tool that names the misconfiguration
+      pattern rather than only showing the raw chain.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A site owner who fixes a flagged redirect loop or downgrade will get a
+      return visit or a CI wiring from the same visitor without any action
+      from this portfolio, the same repeat-usage pattern hypothesized for
+      sitemap-lastmod-freshness-check and cors-misconfig-check.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the CLI's HTTP requests run on the user's own
+  # machine against a URL of their choosing, and the browser tool parses
+  # only text pasted into it -- no server of ours in the loop either way.
+  # Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, CLI/repo engagement, or paste-in report after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's "fair
+    run" definition).
+  - A materially better free tool covering the same checks (loop detection,
+    chain length, protocol downgrade, temporary-vs-permanent status code,
+    dead-end detection) with the same zero-install, CI-usable bar becomes
+    the obvious default, such that this tool's differentiation no longer
+    holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/redirect-chain-check/
+  analytics: null

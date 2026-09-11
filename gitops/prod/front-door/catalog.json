@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 248,
-  "collection_total": 248,
+  "served_here": 249,
+  "collection_total": 249,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 34
+      "tool_count": 35
     },
     {
       "id": "evidence",
@@ -1628,6 +1628,14 @@
       "url": "https://marisstella.dev/tools/real-estate-agent-photo-app/",
       "category": "Compliance checks & evidence records",
       "description": "Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser — nothing is uploaded. Download a dated evidence record before you deliver.",
+      "pages": 3
+    },
+    {
+      "slug": "redirect-chain-check",
+      "name": "Redirect Chain Checker — Find Redirect Loops, Long Chains & Dead Ends",
+      "url": "https://marisstella.dev/tools/redirect-chain-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: paste the hops a URL's redirects actually took (from your browser's Network tab, or a curl -sI trace) and check for a redirect loop, a chain longer than the recommended single hop, an HTTPS-to-HTTP downgrade, a permanent site move using a temporary status code, and a chain that dead-ends in a 404 or 500. A zero-dependency CLI follows the real chain over HTTP for you. Runs in your browser or as a CI check. Nothing uploaded.",
       "pages": 3
     },
     {
