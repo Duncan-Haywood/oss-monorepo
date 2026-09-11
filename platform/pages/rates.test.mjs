@@ -100,6 +100,17 @@ const NO_SHARED_SHOP_RATES = {
     'raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its overhead and target margin already ' +
     'match the canonical ids directly. It has no separate payroll-burden field at all, so it ' +
     'carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'forestry-mulching-bid-calculator':
+    'it costs a machine hour, not a crew hour, and carries none of the four canonical ids. Its ' +
+    'operator line (`operatorWagePerHour`) is explicitly a burdened rate -- wage and payroll ' +
+    'burden together -- so aliasing `hourlyWage` onto it would prefill a raw wage into a field ' +
+    'that already includes burden and understate every hour of the job, the same defect the ' +
+    'vehicle-wrap entry above records. There is no payroll-burden field to alias, and no ' +
+    'overhead-on-direct-cost percentage either: this tool carries overhead as the machine\'s own ' +
+    'payment and insurance spread over billable hours a month, in dollars per hour, which is a ' +
+    'different quantity from a percentage of direct cost. Only target margin means the same ' +
+    'thing, spelled `targetMarginPct` and capped at 95 rather than 99.9, and one carried field ' +
+    'is below MIN_CARRIED_FIELDS, so no bar is shown and no PARTIAL_SHOP_RATE_PAGES note is due.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {

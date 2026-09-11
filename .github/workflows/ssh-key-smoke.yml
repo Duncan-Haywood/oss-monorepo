@@ -12,9 +12,19 @@ permissions:
 
 jobs:
   ssh:
+    # Same switch every other workflow here reads, so one repository variable
+    # still moves all of them at once -- `gitops/tests/test_ci_runner.py`
+    # asserts it, and this workflow was the one exception.
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Two SSH attempts at a 20-second connect timeout each, plus checkout and
+    # setup: well under a minute in the ordinary case. Ten is headroom, and it
+    # matters more here than on most jobs -- a hung `ssh` against an
+    # unreachable box would otherwise ride GitHub's 360-minute default and
+    # spend hours of a metered allowance this repository is already rationing.
     timeout-minutes: 10
     steps:
+      # The probe below shells out to `python3`, so the interpreter is pinned
+      # rather than inherited from whatever the runner image happens to ship.
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

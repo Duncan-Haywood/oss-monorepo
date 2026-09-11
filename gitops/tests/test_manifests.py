@@ -1547,7 +1547,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # graduated the same day — same shape again: a new venture with a static
     # `index.html` from its first commit, entering the mirror and the total
     # together.
-    total = 255  # `infra/OWNER_CHECKLIST.md`'s own "N of the 255 tools" wording.
+    # 256 since 2026-09-11, when `forestry-mulching-bid-calculator` also
+    # graduated the same day — the count is of the tree, not of either
+    # session's own diff, which is why two sibling ventures graduating in
+    # parallel each correctly claimed 255 from their own base and merging
+    # both makes it 256.
+    total = 256  # `infra/OWNER_CHECKLIST.md`'s own "N of the 256 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
