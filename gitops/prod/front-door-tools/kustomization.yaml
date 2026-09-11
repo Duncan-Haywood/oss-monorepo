@@ -33,21 +33,21 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556587 bytes
-#   portfolio-front-tools-1: 110 files, 555657 bytes
-#   portfolio-front-tools-2: 149 files, 548395 bytes
-#   portfolio-front-tools-3: 141 files, 555251 bytes
-#   portfolio-front-tools-4: 122 files, 548029 bytes
-#   portfolio-front-tools-5: 133 files, 551368 bytes
-#   portfolio-front-tools-6: 137 files, 555208 bytes
-#   portfolio-front-tools-7: 117 files, 556465 bytes
-#   portfolio-front-tools-8: 109 files, 554270 bytes
-#   portfolio-front-tools-9: 123 files, 555387 bytes
-#   portfolio-front-tools-10: 130 files, 556724 bytes
-#   portfolio-front-tools-11: 105 files, 555197 bytes
-#   portfolio-front-tools-12: 112 files, 545531 bytes
-#   portfolio-front-tools-13: 68 files, 339715 bytes
-#   portfolio-front-tools-14: 54 files, 263686 bytes
+#   portfolio-front-tools-0: 136 files, 556582 bytes
+#   portfolio-front-tools-1: 110 files, 555645 bytes
+#   portfolio-front-tools-2: 149 files, 548391 bytes
+#   portfolio-front-tools-3: 141 files, 555247 bytes
+#   portfolio-front-tools-4: 125 files, 557050 bytes
+#   portfolio-front-tools-5: 134 files, 554469 bytes
+#   portfolio-front-tools-6: 137 files, 555188 bytes
+#   portfolio-front-tools-7: 117 files, 556371 bytes
+#   portfolio-front-tools-8: 109 files, 554256 bytes
+#   portfolio-front-tools-9: 123 files, 555533 bytes
+#   portfolio-front-tools-10: 130 files, 556713 bytes
+#   portfolio-front-tools-11: 105 files, 555152 bytes
+#   portfolio-front-tools-12: 112 files, 545448 bytes
+#   portfolio-front-tools-13: 68 files, 339709 bytes
+#   portfolio-front-tools-14: 54 files, 263675 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -717,6 +717,10 @@ configMapGenerator:
       - bounce-house-rental-calculator__usage.mjs.gz=bounce-house-rental-calculator__usage.mjs.gz
       - bounce-house-rental-calculator__vs-booqable.html.gz=bounce-house-rental-calculator__vs-booqable.html.gz
       - bounce-house-rental-calculator__vs-inflatableoffice.html.gz=bounce-house-rental-calculator__vs-inflatableoffice.html.gz
+      - brand-deal-rate-calculator__brand-deal-rate-benchmarks.html.gz=brand-deal-rate-calculator__brand-deal-rate-benchmarks.html.gz
+      - brand-deal-rate-calculator__calculator.mjs.gz=brand-deal-rate-calculator__calculator.mjs.gz
+      - brand-deal-rate-calculator__index.html.gz=brand-deal-rate-calculator__index.html.gz
+      - brand-deal-rate-calculator__usage.mjs.gz=brand-deal-rate-calculator__usage.mjs.gz
       - cabinet-refinishing-bid-calculator__calc.mjs.gz=cabinet-refinishing-bid-calculator__calc.mjs.gz
       - cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz=cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz
       - cabinet-refinishing-bid-calculator__index.html.gz=cabinet-refinishing-bid-calculator__index.html.gz
@@ -747,12 +751,12 @@ configMapGenerator:
       - carpet-cleaning-bid-calculator__usage.mjs.gz=carpet-cleaning-bid-calculator__usage.mjs.gz
       - carpet-cleaning-bid-calculator__vs-servicemonster.html.gz=carpet-cleaning-bid-calculator__vs-servicemonster.html.gz
       - carpet-install-bid-calculator__calc.mjs.gz=carpet-install-bid-calculator__calc.mjs.gz
-      - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
       - carpet-install-bid-calculator__index.html.gz=carpet-install-bid-calculator__index.html.gz
       - carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz=carpet-install-bid-calculator__should-i-charge-2-a-yard-to-install-carpet.html.gz
       - carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz=carpet-install-bid-calculator__should-i-charge-extra-for-moving-furniture-on-a-carpet-install.html.gz

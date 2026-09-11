@@ -35,3 +35,16 @@ test("index links one hop to the kdp-royalty-calculator sibling", () => {
   );
   assert.match(html, /KDP royalty calculator/i);
 });
+
+// Reciprocal of brand-deal-rate-calculator's own inbound link to this
+// venture: closes the sibling pair so platform/pages/siblings.mjs --check
+// counts neither tool as a crawlable orphan.
+test("index links one hop to the brand-deal-rate-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/brand-deal-rate-calculator\/"/,
+    "index must link ../brand-deal-rate-calculator/ so crawlers reach it in one hop",
+  );
+  assert.match(html, /brand deal rate calculator/i);
+});
