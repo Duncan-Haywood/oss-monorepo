@@ -277,11 +277,12 @@ def _fake_repo(tmp_path: Path, *, check_exit: int = 0, build_exit: int = 0) -> P
     return repo
 
 
-def _run_refresh(repo: Path, state: Path):
+def _run_refresh(repo: Path, state: Path, **extra_env: str):
     env = {
         **os.environ,
         "SITE_REPO_DIR": str(repo),
         "SITE_STATE_DIR": str(state),
+        **extra_env,
     }
     env.pop("GH_TOKEN", None)
     return subprocess.run(
@@ -573,3 +574,153 @@ def test_check_is_read_only_even_though_the_install_now_apt_gets(tmp_path):
     assert "apt-get update && apt-get install" in out
     # The advisory line, not a report of having done it.
     assert "Installing them from the distribution archive" not in out
+
+
+# --------------------------------------------- refresh-site.sh, IndexNow announce
+#
+# This box is the only publisher in the repository with real egress to
+# api.indexnow.org: an agent sandbox 403s that host, and the Actions route
+# needs a runner. Since `pages_state.py`'s `indexing` row measured that
+# sitemap auto-discovery has never happened for this catalogue, IndexNow is
+# the one enumeration route left -- so the announcement running here is the
+# difference between having that route and only owning the code for it.
+#
+# What these pin is the pair of properties that make it safe to leave in an
+# unattended timer: it always reports, and it never fails a deploy that has
+# already succeeded.
+
+
+def _with_indexnow_stub(repo: Path, *, exit_code: int = 0) -> Path:
+    """Give the fake repo an indexnow.mjs that records its argv and exits.
+
+    Recording argv is the point: the announcement must name the release that
+    was actually swapped in, not some other publisher's branch.
+    """
+    marketing = repo / "platform" / "marketing"
+    marketing.mkdir(parents=True, exist_ok=True)
+    log = repo / "indexnow-argv.txt"
+    (marketing / "indexnow.mjs").write_text(
+        "import fs from 'node:fs';\n"
+        f"fs.writeFileSync({str(log)!r}, process.argv.slice(2).join('\\n'));\n"
+        f"process.exit({exit_code});\n"
+    )
+    _commit(repo, "add indexnow stub")
+    return log
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="needs node")
+def test_a_successful_swap_announces_the_release_it_actually_serves(tmp_path):
+    repo = _fake_repo(tmp_path)
+    log = _with_indexnow_stub(repo)
+    state = tmp_path / "state"
+
+    result = _run_refresh(repo, state, SITE_BASE_URL="https://marisstella.dev/")
+    assert result.returncode == 0, result.stderr
+
+    argv = log.read_text().splitlines()
+    assert "--submit" in argv
+    assert "--base-url" in argv
+    assert argv[argv.index("--base-url") + 1] == "https://marisstella.dev/"
+
+    # The directory announced must be the one the symlink now points at. A
+    # payload describing a release that is not being served is worse than no
+    # payload: it asks a crawler to fetch pages this box may not have.
+    served = (state / "current").resolve()
+    assert Path(argv[argv.index("--dir") + 1]).resolve() == served
+    assert "IndexNow: submitted." in result.stdout
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="needs node")
+def test_no_base_url_configured_still_announces(tmp_path):
+    """Without SITE_BASE_URL the script omits the flag and lets indexnow.mjs
+
+    read the origin out of the artifact's own catalog.json, which is the
+    fallback `resolveBaseUrl` exists for.
+    """
+    repo = _fake_repo(tmp_path)
+    log = _with_indexnow_stub(repo)
+
+    result = _run_refresh(repo, tmp_path / "state")
+    assert result.returncode == 0, result.stderr
+    argv = log.read_text().splitlines()
+    assert "--base-url" not in argv
+    assert "--submit" in argv
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="needs node")
+@pytest.mark.parametrize(
+    "exit_code, expected",
+    [
+        # EXIT_NO_EGRESS. Expected on a proxied box; nothing sent, nothing broken.
+        (3, "no egress to api.indexnow.org"),
+        # A real rejection -- a bad key, a host mismatch. Loud, still not fatal.
+        (1, "submission rejected"),
+    ],
+)
+def test_a_failed_announcement_never_fails_a_deploy_that_succeeded(
+    tmp_path, exit_code, expected
+):
+    """The swap has already happened by the time this runs.
+
+    Failing here would put the systemd unit in a failed state and make a box
+    that is serving correct content look broken -- the same reasoning
+    publish-branch.sh gives for returning 0 from its own announcement.
+    """
+    repo = _fake_repo(tmp_path)
+    _with_indexnow_stub(repo, exit_code=exit_code)
+    state = tmp_path / "state"
+
+    result = _run_refresh(repo, state)
+    assert result.returncode == 0, result.stderr
+    assert expected in result.stdout
+    # And the site is live regardless.
+    assert (state / "current" / "index.html").read_text() == "built"
+    assert "done." in result.stdout
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="needs node")
+def test_site_indexnow_0_skips_the_announcement_but_still_says_so(tmp_path):
+    repo = _fake_repo(tmp_path)
+    log = _with_indexnow_stub(repo)
+
+    result = _run_refresh(repo, tmp_path / "state", SITE_INDEXNOW="0")
+    assert result.returncode == 0, result.stderr
+    assert not log.exists(), "SITE_INDEXNOW=0 must not run the announcer"
+    assert "IndexNow: skipped (SITE_INDEXNOW=0)" in result.stdout
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="needs node")
+def test_a_checkout_without_the_announcer_holds_rather_than_failing(tmp_path):
+    """An older checkout predating indexnow.mjs. Not an error, and not silent.
+
+    A refresh that died here would take the whole site down on a box whose
+    only fault is being a few commits behind.
+    """
+    repo = _fake_repo(tmp_path)  # no platform/marketing at all
+    state = tmp_path / "state"
+
+    result = _run_refresh(repo, state)
+    assert result.returncode == 0, result.stderr
+    assert "no platform/marketing/indexnow.mjs" in result.stdout
+    assert (state / "current" / "index.html").read_text() == "built"
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="needs node")
+def test_a_no_op_refresh_does_not_re_announce(tmp_path):
+    """Nothing was published, so there is nothing to tell a crawler about.
+
+    The timer ticks every ten minutes; re-announcing an unchanged catalogue
+    on every tick would spend the API's goodwill on no new information.
+    """
+    repo = _fake_repo(tmp_path)
+    log = _with_indexnow_stub(repo)
+    state = tmp_path / "state"
+
+    _run_refresh(repo, state)
+    assert log.exists()
+    log.unlink()
+
+    second = _run_refresh(repo, state)
+    assert second.returncode == 0, second.stderr
+    assert "nothing to do" in second.stdout
+    assert not log.exists(), "an unchanged commit must not re-announce"

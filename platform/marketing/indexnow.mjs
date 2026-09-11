@@ -44,6 +44,12 @@
  *   node platform/marketing/indexnow.mjs --submit       # actually POSTs
  *   node platform/marketing/indexnow.mjs --submit --ref gh-pages
  *   node platform/marketing/indexnow.mjs --submit --dir /path/to/built/site
+ *   node platform/marketing/indexnow.mjs --submit --dir dist --base-url https://marisstella.dev/
+ *
+ * `--base-url` names the origin explicitly, for a publisher that is not the
+ * `gh-pages` snapshot. Without it the origin is read from the artifact's own
+ * `catalog.json` — see `resolveBaseUrl` for the order and for the one case
+ * that refuses rather than guesses.
  *
  * `--ref` (default `gh-pages`) reads `catalog.json` from that git ref via
  * `git show`, matching how `published-base-url.mjs` reads the serving
@@ -66,7 +72,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { INDEXNOW_KEY, indexNowKeyFileName, REPO_ROOT } from '../pages/build.mjs';
-import { publishedBaseUrl } from '../pages/published-base-url.mjs';
+import { publishedBaseUrl, SERVING_BRANCH } from '../pages/published-base-url.mjs';
 
 export const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow';
 
@@ -184,6 +190,115 @@ export async function assertKeyFilePublished(readFile) {
   }
 }
 
+/**
+ * The origin the artifact under submission was *built for*, read out of the
+ * artifact itself.
+ *
+ * `build.mjs`'s `renderCatalog` writes `url: baseUrl` verbatim, so
+ * `catalog.json` carries the origin its own URLs are stamped with. That makes
+ * it a reading of what shipped rather than an inference about where it went —
+ * the same "read what actually published" preference `--ref` and `--dir`
+ * already follow for the URL list.
+ *
+ * Returns null rather than guessing when the field is missing or is not an
+ * absolute http(s) URL, so the caller can fall back and say that it did.
+ */
+export function originFromCatalog(catalog) {
+  const url = catalog?.url;
+  if (typeof url !== 'string' || url === '') return null;
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return null;
+  // `buildPayload` concatenates the key filename onto this, so a missing
+  // trailing slash would produce a `keyLocation` one path segment short.
+  return url.endsWith('/') ? url : `${url}/`;
+}
+
+/**
+ * Which origin to announce, and where that answer came from.
+ *
+ * ## Why this is not just `publishedBaseUrl()`
+ *
+ * It used to be, and that was a latent defect the `gh-pages` route never
+ * exposed. `publishedBaseUrl()` reads the **serving branch's** `CNAME`, so it
+ * answers "where does the *gh-pages snapshot* get served?" — correct for the
+ * one publisher that existed when this script was written, and wrong for any
+ * other. `--dir` says "here is the site I actually published", and the origin
+ * was still coming from somewhere else entirely.
+ *
+ * The caller that makes it concrete is `gitops/prod/host/refresh-site.sh`: it
+ * builds on the Hetzner box with `PAGES_BASE_URL=https://marisstella.dev/`
+ * from a deploy checkout that tracks `main` and has never fetched `gh-pages`.
+ * `publishedBaseUrl()` there returns `assumed-default` — the github.io project
+ * URL — so the payload would have declared `host: duncan-haywood.github.io`
+ * and a `keyLocation` on that host while every URL in `urlList` was on
+ * `marisstella.dev`. IndexNow rejects a host mismatch, so the one route in
+ * this repository standing on a host with real egress to the API would have
+ * spent every submission on a request that could not be accepted.
+ *
+ * ## The order, and why a disagreement is not always a conflict
+ *
+ *   1. `--base-url`, when the caller knows the origin. Explicit wins.
+ *   2. the artifact's own `catalog.json`. A reading of what shipped.
+ *   3. `publishedBaseUrl()`, when the artifact carries no usable origin.
+ *
+ * ## When a disagreement is a conflict, and when it is just two sites
+ *
+ * `publishedBaseUrl()` reads *the serving branch*. So it is a competing
+ * measurement of the same fact only when the artifact under submission **is**
+ * that snapshot — which is exactly the default, `--ref gh-pages`. Then a
+ * disagreement means the snapshot is stale or the domain moved without a
+ * republish; submitting either origin would be a guess, so this refuses and
+ * names both, the same fail-closed choice `assertKeyFilePublished` makes for a
+ * key that does not match.
+ *
+ * When `--dir` names some other build, or `--ref` names some other branch,
+ * gh-pages has nothing to say about it: they are two different sites that
+ * differ, not one site measured twice. `comparable` is that distinction, and
+ * getting it wrong is not hypothetical — the first draft compared
+ * unconditionally, and a `--dir` submission then started refusing the moment
+ * the clone happened to have `gh-pages` fetched. Whether an unrelated branch
+ * is present locally must not change what this announces.
+ *
+ * A serving branch that was never read (`assumed-default`, which
+ * `publishedBaseUrl`'s own docstring flags as "NOT a reading") is never a
+ * conflict either: there is nothing to disagree with.
+ */
+export function resolveBaseUrl({ explicit = null, catalog = null, published, comparable = false }) {
+  if (explicit) {
+    let parsed;
+    try {
+      parsed = new URL(explicit);
+    } catch {
+      throw new Error(`--base-url is not a valid absolute URL: ${JSON.stringify(explicit)}`);
+    }
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+      throw new Error(`--base-url must be http(s): ${JSON.stringify(explicit)}`);
+    }
+    return {
+      baseUrl: explicit.endsWith('/') ? explicit : `${explicit}/`,
+      source: 'explicit',
+    };
+  }
+
+  const fromArtifact = originFromCatalog(catalog);
+  if (fromArtifact === null) {
+    return { baseUrl: published.baseUrl, source: `published (${published.source})` };
+  }
+  if (comparable && published.source !== 'assumed-default' && published.baseUrl !== fromArtifact) {
+    return {
+      baseUrl: null,
+      source: 'conflict',
+      conflict: { artifact: fromArtifact, published: published.baseUrl, via: published.source },
+    };
+  }
+  return { baseUrl: fromArtifact, source: 'artifact (catalog.json)' };
+}
+
 export function buildPayload({ baseUrl, urls }) {
   const host = new URL(baseUrl).host;
   return {
@@ -227,11 +342,12 @@ export async function submit(payload) {
 }
 
 function parseArgs(argv) {
-  const args = { submit: false, ref: 'gh-pages', dir: null };
+  const args = { submit: false, ref: 'gh-pages', dir: null, baseUrl: null };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--submit') args.submit = true;
     else if (argv[i] === '--ref') args.ref = argv[++i];
     else if (argv[i] === '--dir') args.dir = argv[++i];
+    else if (argv[i] === '--base-url') args.baseUrl = argv[++i];
   }
   return args;
 }
@@ -243,7 +359,26 @@ if (isMain) {
   const readFile = readerFor(args);
   const catalog = await readCatalog(readFile);
 
-  const { baseUrl } = publishedBaseUrl();
+  const resolved = resolveBaseUrl({
+    explicit: args.baseUrl,
+    catalog,
+    published: publishedBaseUrl(),
+    // publishedBaseUrl() reads the serving branch, so it is a second reading
+    // of *this* artifact only when this artifact is that branch's snapshot.
+    comparable: !args.dir && args.ref === SERVING_BRANCH,
+  });
+  if (resolved.source === 'conflict') {
+    const { artifact, published, via } = resolved.conflict;
+    console.error(
+      `indexnow: two readings of this site's origin disagree, so nothing was submitted.\n` +
+        `  the artifact says   ${artifact}   (catalog.json in ${args.dir ? `dir ${args.dir}` : `ref ${args.ref}`})\n` +
+        `  the serving branch says ${published}   (${via})\n` +
+        '  That means the snapshot is stale or the domain moved without a republish.\n' +
+        '  Rebuild and republish, or pass --base-url to say which origin is right.',
+    );
+    process.exit(1);
+  }
+  const { baseUrl } = resolved;
   const urls = urlsFromCatalog(catalog);
 
   if (urls.length === 0) {
@@ -261,6 +396,7 @@ if (isMain) {
   const payload = buildPayload({ baseUrl, urls });
 
   console.log(`indexnow: ${urls.length} URL(s) from ${args.dir ? `dir ${args.dir}` : `ref ${args.ref}`}`);
+  console.log(`  origin:      ${baseUrl} (from ${resolved.source})`);
   console.log(`  host:        ${payload.host}`);
   console.log(`  keyLocation: ${payload.keyLocation}`);
   console.log(`  sample:      ${urls.slice(0, 3).join(', ')}${urls.length > 3 ? ', …' : ''}`);
