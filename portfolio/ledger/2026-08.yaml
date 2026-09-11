@@ -30150,7 +30150,6 @@ entries:
           20-branch sweep had already flagged ledger-only branches
           duplicating entries byte-for-byte as a recurring waste.
     mrr_end: null
-    mrr_end: null
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
