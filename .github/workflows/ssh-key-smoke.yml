@@ -1,0 +1,92 @@
+name: SSH key smoke
+
+# Diagnoses HETZNERSSHKEY without ever printing it. Run this before assuming
+# a failed deploy/restore-cluster run means the key is wrong -- see
+# portfolio/ledger/decision_queue.py's hetzner-ssh-key-is-a-public-key row.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ssh:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: Probe HETZNERSSHKEY against both Hetzner boxes
+        env:
+          HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
+        run: |
+          set -uo pipefail
+          if [ -z "${HETZNERSSHKEY}" ]; then
+            echo "HETZNERSSHKEY is empty or inaccessible"
+            exit 1
+          fi
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s' "${HETZNERSSHKEY}" > "$HOME/.ssh/id_test"
+          if [ "$(tail -c1 "$HOME/.ssh/id_test" | wc -c)" -ne 0 ]; then
+            echo >> "$HOME/.ssh/id_test"
+          fi
+          chmod 600 "$HOME/.ssh/id_test"
+          python3 -c '
+          from pathlib import Path
+          raw = Path.home().joinpath(".ssh/id_test").read_bytes()
+          text = raw.decode("utf-8", "replace")
+          stripped = text.lstrip()
+          print("bytes", len(raw))
+          print("newline_count", raw.count(b"\n"))
+          print("has_cr", b"\r" in raw)
+          print("literal_backslash_n", b"\\n" in raw)
+          print("has_begin", b"BEGIN" in raw)
+          print("looks_like_public", stripped.startswith(("ssh-ed25519", "ssh-rsa", "ecdsa-sha2")))
+          print("header_preview", "".join(chr(c) if 32 <= c < 127 else "." for c in raw[:24]))
+          if b"\\n" in raw and b"BEGIN" not in raw:
+              Path.home().joinpath(".ssh/id_test").write_bytes(raw.replace(b"\\n", b"\n").replace(b"\\r", b""))
+              print("normalized_escaped_newlines")
+          '
+          if grep -q "BEGIN .*PRIVATE KEY" "$HOME/.ssh/id_test"; then
+            echo "classified=private_key"
+          elif grep -Eq "^ssh-(ed25519|rsa)|ecdsa-sha2" "$HOME/.ssh/id_test"; then
+            echo "classified=public_key"
+            echo "Public key fingerprint:"
+            ssh-keygen -lf "$HOME/.ssh/id_test"
+            echo "A public key cannot open an SSH session. Store the matching private key in HETZNERSSHKEY."
+            exit 1
+          else
+            echo "classified=unknown"
+            echo "Secret is not an OpenSSH/PEM private key after normalization"
+            exit 1
+          fi
+          echo "Fingerprint:"
+          ssh-keygen -lf "$HOME/.ssh/id_test"
+          echo "Public key:"
+          ssh-keygen -y -f "$HOME/.ssh/id_test"
+          echo
+          echo "Trying root@89.167.29.39"
+          if ssh -i "$HOME/.ssh/id_test" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o IdentitiesOnly=yes \
+            -o ConnectTimeout=20 \
+            root@89.167.29.39 'echo HETZNERSSHKEY_ROOT_OK; whoami; hostname'; then
+            echo "root: success"
+          else
+            echo "root: failed"
+          fi
+          echo
+          echo "Trying deploy@89.167.29.39"
+          if ssh -i "$HOME/.ssh/id_test" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o IdentitiesOnly=yes \
+            -o ConnectTimeout=20 \
+            deploy@89.167.29.39 'echo HETZNERSSHKEY_DEPLOY_OK; whoami; hostname'; then
+            echo "deploy: success"
+          else
+            echo "deploy: failed (user may not exist)"
+          fi
+          shred -u "$HOME/.ssh/id_test" || rm -f "$HOME/.ssh/id_test"
