@@ -314,18 +314,16 @@
       if (result) count('quote_priced');
     });
 
-    // Recompute on every edit, not only on an explicit submit -- the same
-    // fix `staffing-markup-calculator` and `wildlife-exclusion-bid-calculator`
-    // already carry for this exact shape. Without this, editing a field and
-    // then immediately clicking "Copy link" (never pressing "Price this
-    // booking" first) copies a link encoding the new numbers while the
-    // on-screen hero price still shows the last-submitted figure --
-    // `platform/pages/roundtrip.mjs` caught it as a $1,574.46 vs $132,589.15
-    // headline mismatch with zero dropped fields, because the link and the
-    // restored page both compute correctly; only the sender's own screen was
-    // stale.
-    document.addEventListener('input', () => submit());
-    document.addEventListener('change', () => submit());
+    // Every other bid calculator in this fleet recomputes on every keystroke,
+    // so its own screen never disagrees with a link copied a moment later.
+    // This page only recomputed on the explicit "Price this booking" submit,
+    // so editing a field and clicking "Copy shareable link" without pressing
+    // that button first copied a link encoding the new figures while the
+    // sender's own screen kept showing the stale price for the old ones --
+    // caught by platform/pages/roundtrip.mjs as a headline that moved between
+    // a page and the link it had just copied.
+    el('quoteForm').addEventListener('input', () => submit());
+    el('quoteForm').addEventListener('change', () => submit());
 
     // A rental quote is settled between two people -- the yard and whoever is
     // booking the party. Until now the only way to hand one over was to read

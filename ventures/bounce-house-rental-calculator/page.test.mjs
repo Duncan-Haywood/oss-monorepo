@@ -291,12 +291,12 @@ test('generated fleet-table default quantities are on the qty field\'s own step 
 test('every field recomputes the quote live, not only on an explicit submit', () => {
   assert.match(
     index,
-    /document\.addEventListener\(['"]input['"],\s*\(\)\s*=>\s*submit\(\)\)/,
-    'a document-level "input" listener must call submit() so editing a field updates the hero price immediately',
+    /el\(['"]quoteForm['"]\)\.addEventListener\(['"]input['"],\s*\(\)\s*=>\s*submit\(\)\)/,
+    'the form must carry an "input" listener that calls submit() so editing a field updates the hero price immediately',
   );
   assert.match(
     index,
-    /document\.addEventListener\(['"]change['"],\s*\(\)\s*=>\s*submit\(\)\)/,
-    'a document-level "change" listener must call submit() so a select or checkbox edit updates the hero price immediately',
+    /el\(['"]quoteForm['"]\)\.addEventListener\(['"]change['"],\s*\(\)\s*=>\s*submit\(\)\)/,
+    'the form must carry a "change" listener that calls submit() so a select or checkbox edit updates the hero price immediately',
   );
 });
