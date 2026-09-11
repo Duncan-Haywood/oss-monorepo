@@ -1,0 +1,103 @@
+name: vpat-acr-generator
+description: >-
+  A free, browser-only VPAT 2.5 / Accessibility Conformance Report (ACR)
+  generator for software vendors preparing a federal (Section 508) or
+  enterprise procurement RFP response. The vendor chooses every WCAG 2.1
+  Level A/AA conformance level (Supports / Partially Supports / Does Not
+  Support / Not Applicable / Not Evaluated) and writes every remark
+  themselves, from their own testing; the tool only formats those answers
+  into the standard document shape and flags the specific completeness
+  problems WebAIM's own procurement guidance names -- a Partially/Does Not
+  Support row with no remarks, and a missing required header field. It does
+  not scan, crawl, or assess the vendor's product, and it never selects a
+  conformance level on the vendor's behalf.
+stage: prototype
+owner: duncan
+
+# Not a <trade>-bid-calculator, and not another <foo>-check scanner either --
+# both archetypes portfolio/pipeline/README.md flags as saturated (141 and 38
+# instances respectively as of 2026-09-11). This is a *document generator*
+# (PRODUCT_PLAYBOOK.md #2's top-ranked shape, a pure static browser app: zero
+# network calls, nothing to fetch or scan, no CLI companion needed because
+# there is no external data source -- VPAT authoring is inherently manual
+# form-filling). Distinct buyer and mechanism from every existing
+# accessibility venture: shopify-a11y-evidence and ada-title-ii-evidence both
+# format an axe-core *scan* of a website operator's own site into a dated
+# evidence record; this formats a *vendor's self-declared conformance table*
+# for any software product, in the standardized shape procurement reviewers
+# expect, and ships no paid service (unlike eaa-remediation-pipeline).
+#
+# duplicate_check.py (run 2026-09-11) scored every existing venture,
+# screened-out row, ai-first-markets idea, and pipeline candidate below 0.10
+# for this idea's description -- far under the 0.45 review bar. Closest
+# match: shopify-a11y-evidence (0.10, different regulation/buyer/document
+# type, reasoned through above); ai-first-markets' "AI Compliance Doc
+# Generator" (0.07) is SOC2/ISO27001/HIPAA-focused, AI-drafted, and connects
+# to a customer's cloud infrastructure -- a different domain and mechanism
+# entirely (this tool is deterministic, needs no AI, and reads nothing about
+# the vendor's actual systems).
+#
+# Distribution channel: "VPAT" / "VPAT template" is a real, demonstrable
+# search term -- Level Access, ITIC's own site, BarrierBreak,
+# Accessibility.Works, and WCAG.com all publish SEO-targeted pages for
+# exactly this query, evidence of sustained commercial search volume. More
+# specifically, the WebAIM Discussion List (webaim.org/discussion) is a
+# long-running, high-traffic accessibility-professional mailing list with
+# real, findable threads specifically about VPAT mechanics (thread 8773,
+# "VPATs for Word, PPT, Excel, etc"; thread 10051, "VPAT for U508"), and
+# WebAIM's own article "Making VPATs and ACRs More Effective in Procurement"
+# (webaim.org/articles/procurement/vpat/) independently names the exact
+# completeness failure this tool's checker targets -- a sourced problem
+# statement from the audience's own reference source, verified via WebSearch
+# this session rather than assumed.
+hypotheses:
+  - claim: >-
+      A software vendor's proposal, sales-engineering, or accessibility lead
+      preparing an RFP response will search "VPAT template", "VPAT
+      generator", or "ACR template" and find this tool, or will see it
+      mentioned in a WebAIM Discussion List thread about VPAT mechanics.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A vendor who starts a draft, is stopped by the completeness checker on
+      a specific row, fixes it, and finishes the document will return for
+      their next product version or their next product line without any
+      action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Positioning the tool strictly as a formatter of the vendor's own
+      self-assessment (never an assessor) keeps liability containment high
+      while still being genuinely useful -- the completeness checker adds
+      real value (catching the specific failure WebAIM's own procurement
+      guidance names) without ever rendering a judgment this portfolio is not
+      positioned to make.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: a static page with no network calls and no
+  # server in the loop. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, generated-report usage, or unsolicited feedback after
+    being listed and indexed for a fair run (per portfolio/usage/README.md's
+    "fair run" definition).
+  - A materially better free VPAT/ACR generator with the same zero-account,
+    zero-upload bar becomes the obvious default, such that this tool's
+    differentiation no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/vpat-acr-generator/
+  analytics: null
