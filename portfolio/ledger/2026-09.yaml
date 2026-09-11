@@ -26610,3 +26610,72 @@ entries:
         clean (no live venture disappears); `portfolio/ledger` + `scoring`
         + `router` + `usage` + `pipeline` + `infra/tests` 435 passed.
     mrr_end: 0
+  - venture: wildlife-exclusion-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled owner check-in asked that CI/CD, Hetzner marketing
+        deployment, and the Codex-on-Hetzner dev capacity stay prioritized.
+        Investigation found all three already fully built and correctly
+        ordered (PR #4577, merged earlier the same day, covers this in
+        detail) — the sole remaining blocker is the owner-only
+        `hetzner-ssh-key-is-a-public-key` action, already queued. Rather than
+        re-run that investigation, refreshed the stale GitHub Pages snapshot
+        (`platform/pages/publish-branch.sh`, confirmed current with
+        `pages_state.py --require-current`) and moved to product work.
+      - >-
+        Added `share.mjs` (the fleet's canonical save-to-browser /
+        copy-a-shareable-link module, byte-identical across the ventures that
+        carry it) to `wildlife-exclusion-bid-calculator`, one of 21 shipped
+        calculators found with a `calc.mjs` but no persistence. A pest
+        operator re-entering crew wage, burden, drive time, trap-check
+        cadence and 25+ other job figures on every bid had no way to keep
+        them between visits or hand a filled-in bid to a colleague — the
+        "used once and abandoned" gap `share.mjs`'s own header documents.
+        `BID_SPEC` is derived from the page's own `COST_IDS`/`FLAG_IDS`/
+        `CHOICE_IDS` rather than a second hand-kept field list. Wired
+        "Copy bid link" / "Start a fresh bid" controls, restore-on-load from
+        the URL fragment or localStorage, and save-on-every-input persist,
+        matching `withProposalTerms` so a link also carries the deposit,
+        hold-days and prose terms the customer proposal panel adds.
+      - >-
+        Found and fixed a real wiring bug during browser verification: this
+        venture (unlike the live-recalculating ventures the pattern was
+        copied from) only recomputes its hero price on explicit form submit,
+        so a link copied right after an edit encoded the new figures while
+        the on-screen price still showed the last submitted one —
+        `roundtrip.mjs` caught it as a $3,712.91 vs $25,541.29 headline
+        mismatch with zero dropped fields. Fixed by also recomputing on every
+        input/change, the same precedent `staffing-markup-calculator`
+        already set for this exact shape.
+      - >-
+        Also fixed, found via the same verification pass: `main` was red on
+        `platform/ci/test_publish_surface.py`'s snapshot-consistency check,
+        unrelated to this venture — PR #4573 (earlier the same day) added
+        `.github/workflows/actions-minutes-estimator-ci.yml` (a
+        venture-unit-test-only workflow, no deploy step) without a matching
+        entry in `platform/ci/publish-surface.yaml`. Added the
+        `classification: none` row.
+      - >-
+        Verified: venture's own suite 160/160 `node --test` (was 158; two new
+        wiring-regression tests added, mirroring the fleet's "a shared link
+        must carry every field the form reads" convention); headless-browser
+        round trip (Playwright/Chromium) — `sideways`, `presets`, `roundtrip`,
+        `contrast`, `sweep` all `ok` against this venture, 58 fields and the
+        headline both round-tripping through a real copied link;
+        `platform/ci/checklist_coverage.py` clean; `node platform/pages/build.mjs`
+        + `check.mjs` — 253 products, 980 pages, no dead links; `siblings.mjs
+        --check` 0 orphans; `platform/pages/clauses.mjs
+        wildlife-exclusion-bid-calculator` clean (3 pages); ran
+        `platform/marketing/regen.mjs` (mirror shard was stale after the
+        edit) and committed what it rewrote; `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs`: 1238/1238;
+        `node --test platform/proposal/*.test.mjs`: 101/101; `gitops/tests`
+        557 passed / 25 skipped (environmental, matches the documented
+        baseline); all 15 `platform/ci` unittest modules green after the
+        publish-surface fix, including `agent_review/test_review` (21/21);
+        all 8 `portfolio-validate.yml` validators clean; `portfolio/ledger` +
+        `scoring` + `router` + `usage` + `pipeline` + `infra/tests`: 435
+        passed.
+    mrr_end: 0
