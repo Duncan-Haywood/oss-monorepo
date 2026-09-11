@@ -1086,12 +1086,22 @@ const CATEGORY_RULES = [
     // quoting work for a customer, and a maker has no customer to quote —
     // they are deciding what their own hours are worth against a booth fee
     // nobody negotiated with them.
+    // `epk-generator` joined 2026-09-11: a musician or band assembling an
+    // electronic press kit is the same move as `ats-resume-checker`'s job
+    // seeker and `sponsor-ready`'s maintainer -- a self-presentation
+    // document or profile built to attract someone else's booking,
+    // employment, or funding decision, not a price and not a business
+    // check. It shipped with an inbound sibling link to ats-resume-checker
+    // from its first commit (see `siblings-budget.json`) rather than
+    // landing in the catch-all, which is also what keeps that catch-all
+    // inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
       [
         '3d-print-price-calculator',
         'affiliate-disclosure-checker',
         'ats-resume-checker',
         'craft-fair-booth-calculator',
+        'epk-generator',
         'gig-driver-net-pay-calculator',
         'newsletter-sponsorship-rate-calculator',
         'sponsor-ready',
