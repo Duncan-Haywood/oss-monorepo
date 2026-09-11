@@ -830,6 +830,9 @@ workflows:
 - workflow: sri-check-ci.yml
   classification: none
   publishes: []
+- workflow: ssh-key-smoke.yml
+  classification: none
+  publishes: []
 - workflow: staffing-markup-calculator-ci.yml
   classification: none
   publishes: []
