@@ -923,8 +923,26 @@ const CATEGORY_RULES = [
     // same way its neighbors above are, and landing it here rather than the
     // catch-all is also what keeps that catch-all inside the bound
     // `build.test.mjs` puts on it.
+    //
+    // `sitemap-lastmod-freshness-check` joined 2026-09-11: a zero-dependency
+    // CLI plus a matching browser page, run by a developer or SEO
+    // practitioner against a sitemap.xml (and, via the CLI, every URL's live
+    // response headers) they name -- just for a sitemap's own `<lastmod>`
+    // format validity, plausibility, internal consistency, and freshness
+    // against the live page's `Last-Modified` header, rather than a
+    // page's `<head>` tags or a response header. It shares
+    // `hreflang-reciprocity-check`'s "browser half can't do the full network
+    // check itself" split, for a related but distinct reason (an unreadable
+    // cross-origin response *header*, rather than an unreadable response
+    // *body*), and cross-links `canonical-tag-check` and
+    // `ai-crawler-access-check` as Related (a fifth and sixth "does the
+    // crawl-facing evidence a search engine reads actually hold up" question).
+    // Listed by exact slug rather than a new prefix, the same way its
+    // neighbors above are, and landing it here rather than the catch-all is
+    // also what keeps that catch-all inside the bound `build.test.mjs` puts
+    // on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check)/.test(
         slug,
       ),
   },

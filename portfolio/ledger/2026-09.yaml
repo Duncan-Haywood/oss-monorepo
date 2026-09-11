@@ -25955,3 +25955,113 @@ entries:
         and would have reported the timeout guard working without ever
         exercising it. shellcheck -S warning clean.
     mrr_end: 0
+  - venture: sitemap-lastmod-freshness-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `sitemap-lastmod-freshness-check`, a free
+        zero-dependency CLI + browser tool for developers/technical-SEO
+        practitioners that checks a sitemap.xml's `<lastmod>` dates for the
+        well-documented "freshness faking" anti-pattern Google's own sitemap
+        documentation warns about (a build step that stamps every URL with
+        today's date regardless of whether the page changed, which the
+        documentation says can make Google stop trusting the field for that
+        site). Checks: invalid/malformed `<lastmod>` against the sitemap
+        protocol's required W3C Datetime format, including calendar validity
+        (rejects a nonexistent `2026-02-30` that `Date.parse` would silently
+        roll over rather than reject); a future-dated `<lastmod>` (never
+        legitimate); duplicate `<loc>` entries with conflicting `<lastmod>`
+        values; a suspiciously uniform `<lastmod>` date shared by nearly
+        every URL (the freshness-faking signal, disclosed as statistical, not
+        a certainty); and, via the CLI only, whether the live page's own HTTP
+        `Last-Modified` response header confirms the sitemap's claim.
+        CLI/checker archetype per `pipeline/README.md`'s "archetype itself"
+        section, not a 249th trade-bid-calculator.
+      - >-
+        Screened first: `duplicate_check.py` scored the closest existing
+        venture (`hreflang-reciprocity-check`, the nearest structural sibling
+        but over an entirely different tag/rule) at 0.16 against the final
+        description, well under the 0.45 bar; nothing in `screened-out.md`
+        mentions sitemaps or lastmod. Scored and graduated per
+        `portfolio/pipeline/README.md`'s rubric (composite 6.25, floor 1 on
+        `ai_leverage`, both gates clear: `liability_containment` 7,
+        `ethical_robustness` 8) -- full write-up at
+        `portfolio/pipeline/candidates/sitemap-lastmod-freshness-check.md`,
+        entry added to `candidates.yaml` and the README table (row 37,
+        renumbering the two rows after it -- the table is ranked by
+        composite, so the new row could not simply be appended), and a
+        matching row added to `portfolio/scoring/venture-scores.yaml`.
+      - >-
+        Built `ventures/sitemap-lastmod-freshness-check/`: `engine.mjs`
+        (XML `<loc>`/`<lastmod>` extraction, W3C-Datetime format/calendar
+        validation, future-dating/duplicate-conflict/uniform-pattern/
+        server-mismatch classification, pure and network-free), `fetch-
+        url.mjs` (real HTTP(S) `fetchBody` for the sitemap and a headers-
+        only, never-reads-the-body `fetchHeaders` for the per-URL live
+        cross-check, modeled on `hreflang-reciprocity-check/fetch-page.mjs`
+        with timeout/redirect/byte-cap handling, tested only against a local
+        loopback server), `check.mjs` (CLI entry point, dedupes repeated
+        `<loc>` entries before fetching live headers), a browser `index.html`
+        that runs every check needing no live fetch entirely from pasted
+        sitemap XML (documents why the browser can't read a cross-origin
+        response's headers either, a different mechanism than
+        `hreflang-reciprocity-check`'s body-read restriction: an opaque
+        `no-cors` response hides every header by design), a secondary doc
+        page (`why-sitemap-lastmod-matters.html`), and a nominative-fair-use
+        comparison page against XML-Sitemaps.com's Sitemap Validator
+        (`vs-xml-sitemaps-validator.html` -- different job, XML-schema
+        validation vs. lastmod truthfulness -- `not affiliated with,
+        endorsed by, or sponsored by XML-Sitemaps.com`). 88 `node --test`
+        assertions across engine (including leap-year and calendar-overflow
+        cases), network layer, CLI orchestration, usage counter, and all
+        three pages' structure/disclaimers. `usage.mjs` follows the fleet's
+        `localStorage`-only, DNT/GPC-honouring pattern; no
+        `sponsor_link_clicked` per-venture wiring needed since the
+        published-site build counts it fleet-wide.
+      - >-
+        Wired into the platform: added `sitemap-lastmod-freshness-check` to
+        `build.mjs`'s `ci` category rule (it would otherwise have landed in
+        the catch-all, which `build.test.mjs` bounds -- confirmed by running
+        the suite before making the change and watching it fail with "the
+        catch-all has grown to 6 tools"); added a reciprocal sibling link
+        with `canonical-tag-check` so neither page is a crawlable orphan
+        (`siblings.mjs --check`: 0 orphans); ran `regen.mjs` and
+        `launched.mjs --write`; bumped the four-place mirrored-tool count
+        247 -> 248 (`gitops/tests/test_manifests.py`,
+        `infra/OWNER_CHECKLIST.md` x3, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2); added
+        `.github/workflows/sitemap-lastmod-freshness-check-ci.yml`, ran
+        `gitops/ci/sync_readme_counts.py` for the new workflow (341/343
+        across 303), and `publish_surface.py --write` (new workflow
+        classified `none` -- no deploy, matches every other venture CI
+        workflow).
+      - >-
+        One real defect caught before shipping, by a fleet-wide guard rather
+        than by inspection: `faq-visible.test.mjs` failed on all three pages
+        because the FAQPage JSON-LD was authored with ASCII `--` where the
+        visible prose renders a real em dash, plus one question whose JSON-LD
+        wording had drifted from its own visible `<h3>` heading. Fixed by
+        aligning both to the exact visible text (the same "copy is already on
+        the page, one character apart" pattern the test's own docstring
+        names) rather than rewriting either the JSON-LD or the prose from
+        scratch.
+      - >-
+        Verified: venture's own 88 `node --test` assertions;
+        `platform/pages/check.mjs` on a real `build.mjs --out` build (248
+        products, 964 pages, no dead links); `platform/pages/clauses.mjs`
+        fleet-wide clean (926 pages / 248 surfaces); `siblings.mjs --check`
+        0 orphans; `check_no_payment_code.py` clean; `validate_candidates.py`
+        / `validate_doc_consistency.py` / `router/validate.py` (256
+        VENTURE.yaml) / `score_ventures.py --check` (257 scores) all clean;
+        `check_venture_regression.py --base origin/main` clean;
+        `checklist_coverage.py` clean; `platform/marketing/*.test.mjs` +
+        `platform/pages/*.test.mjs` 1231/1231; `gitops/tests` 581 passed / 1
+        skipped (environmental, needs a GitHub-hosted runner, confirmed by
+        `guard_state.py --require-runnable`: no fixable skips); all 25
+        `platform/ci` unittest modules + `agent_review` OK; `portfolio/ledger`
+        + `scoring` + `router` + `usage` + `pipeline` + `infra/tests` 435
+        passed. GitHub Actions runners/`run_workflow_locally.py --tree` not
+        re-checked this session given the scope already covered above; ran
+        every guard the task's own minimum checklist named.
+    mrr_end: 0

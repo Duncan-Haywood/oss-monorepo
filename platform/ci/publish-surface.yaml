@@ -779,6 +779,9 @@ workflows:
 - workflow: siding-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sitemap-lastmod-freshness-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: skylight-install-bid-calculator-ci.yml
   classification: none
   publishes: []
