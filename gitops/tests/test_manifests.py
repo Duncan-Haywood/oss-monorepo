@@ -1601,7 +1601,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 268 since 2026-09-11, when `process-server-fee-calculator` graduated —
     # a static `index.html` from its first commit, same shape as the venture
     # above it.
-    total = 268  # `infra/OWNER_CHECKLIST.md`'s own "N of the 268 tools" wording.
+    # 269 since 2026-09-11, when `1099k-reconciliation-worksheet` also
+    # graduated the same day (#4641) — a multi-platform gig/marketplace
+    # 1099-K reconciliation worksheet with a static `index.html` from its
+    # first commit, merging on top of the above the same way the two
+    # ventures before it did: concurrent graduations each correctly claimed
+    # their own base, and merging both advances the total by one per venture.
+    total = 269  # `infra/OWNER_CHECKLIST.md`'s own "N of the 269 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -8,6 +8,9 @@
 #
 # classification: live | gated | dispatch | none  (see the module docstring)
 workflows:
+- workflow: 1099k-reconciliation-worksheet-ci.yml
+  classification: none
+  publishes: []
 - workflow: 3d-print-price-calculator-ci.yml
   classification: none
   publishes: []

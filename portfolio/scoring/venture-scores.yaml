@@ -11682,3 +11682,54 @@ ventures:
       bonded, or registered in a jurisdiction, or whether an affidavit of
       service will hold up in court. The tool never touches a live case or
       anyone else's data. Nothing entered leaves the browser.
+  - slug: 1099k-reconciliation-worksheet
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, by the venture's own VENTURE.yaml note ("ships
+      zero AI"). The value is deterministic subtraction/addition applying a
+      publicly documented IRS instruction (what Form 1099-K Box 1a excludes
+      and includes) to numbers the filer already holds, per platform and
+      combined across every marketplace at once.
+    basis: >-
+      Added to the score file 2026-09-11, in the same change that gave the
+      venture the per-venture CI workflow `validate_workflows.py` requires
+      (it had shipped `calc.test.mjs`/`page.test.mjs` with no workflow
+      running them). Scored on the same rubric as this portfolio's other
+      seller fee/reconciliation calculators. Defensibility 4: the
+      arithmetic is transparent, as it has to be, but the multi-row,
+      multi-platform aggregation (reconciling several marketplaces' 1099-K
+      forms into one combined worksheet) is a genuinely different shape
+      from the fleet's single-formula seller calculators
+      (`etsy-profit-calculator`, `poshmark-fee-calculator`), closer in kind
+      to `payment-reconciliation-workbench` and
+      `grant-reporting-tracker`'s multi-row queues, and no incumbent free
+      calculator combines multiple platforms' 1099-K forms in one place per
+      the venture's own `VENTURE.yaml` duplicate-check note. Distribution
+      6: r/tax, r/Etsyseller, r/eBay, r/Flipping, r/reselling, and
+      r/Mercari all see "why is my 1099-K higher than what I made" threads
+      every filing season (Jan-Apr) per the venture's own note -- a
+      structurally recurring, seasonal search topic distinct from the
+      per-sale fee questions the fleet's existing seller calculators
+      already answer -- but volume is unmeasured and the season has not
+      yet arrived.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: per the venture's own `VENTURE.yaml` gate reasoning
+      (liability_containment 7, ethical_robustness 8) -- every input is a
+      figure the filer already has (a 1099-K they received, their own
+      refund/fee/cost records), the worksheet is framed as a reconciliation
+      to verify rather than a filed amount or a determination of actual tax
+      liability, and the filer remains the one who files their own return.
+      Nothing entered leaves the browser.
