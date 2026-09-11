@@ -820,7 +820,7 @@
       "url": "https://marisstella.dev/tools/codeowners-shadow-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: paste your CODEOWNERS file and your repo's file list to see exactly which earlier, more specific rules a later, broader rule silently overrides -- GitHub's own last-match-wins resolution, the most common way a CODEOWNERS file quietly stops reviewing what you think it reviews. Nothing uploaded.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "concrete-lifting-bid-calculator",

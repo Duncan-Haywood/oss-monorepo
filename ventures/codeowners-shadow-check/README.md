@@ -59,6 +59,13 @@ repository being checked, so nothing needs fetching from another origin at all.
   the repository's default reviewers, if any.
 - **Syntax errors** — an owner that isn't `@user`, `@org/team`, or an email address.
 
+## Further reading
+
+[`why-codeowners-review-stops-being-required.html`](why-codeowners-review-stops-being-required.html)
+walks through the exact before-and-after of a rule losing a review requirement
+with no error anywhere, and how to call `buildReport` directly to gate CI on
+it instead of relying on the browser page.
+
 ## What this is, and isn't
 
 **Evidence from the file list you gave it, not a determination about the whole

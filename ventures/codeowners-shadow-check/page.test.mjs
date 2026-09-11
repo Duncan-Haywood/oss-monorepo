@@ -7,6 +7,7 @@ import { buildReport } from './codeowners.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(HERE, 'index.html'), 'utf8');
+const docHtml = readFileSync(join(HERE, 'why-codeowners-review-stops-being-required.html'), 'utf8');
 
 function jsonLdBlocks(source) {
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
@@ -49,6 +50,48 @@ test('every FAQ answer in the schema also appears as visible copy', () => {
 test('the no-warranty disclaimer is present', () => {
   assert.match(html, /No warranty/);
   assert.match(html, /provided free and as-is, without warranty/);
+});
+
+test('the doc page carries valid FAQPage JSON-LD, matching the guide-coverage convention', () => {
+  const blocks = jsonLdBlocks(docHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the doc page');
+  assert.ok(faq.mainEntity.length >= 3);
+});
+
+test('every FAQ answer in the doc page schema also appears as visible copy', () => {
+  const blocks = jsonLdBlocks(docHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  for (const qa of faq.mainEntity) {
+    assert.ok(docHtml.includes(qa.name), `question not visible on doc page: ${qa.name}`);
+    assert.ok(docHtml.includes(qa.acceptedAnswer.text), `answer not visible on doc page for: ${qa.name}`);
+  }
+});
+
+test('the no-warranty disclaimer is present on the doc page too', () => {
+  assert.match(docHtml, /No warranty/);
+  assert.match(docHtml, /provided free and as-is, without warranty/);
+});
+
+test('the MIT license is linked on the doc page', () => {
+  assert.match(docHtml, /href="LICENSE"/);
+  assert.match(docHtml, /MIT licen[cs]e/);
+});
+
+test('index links to the doc page, and the doc page links back', () => {
+  assert.match(html, /href="why-codeowners-review-stops-being-required\.html"/);
+  assert.match(docHtml, /href="index\.html"/);
+});
+
+test('the doc page shows a worked before/after CODEOWNERS example matching the tool\'s own semantics', () => {
+  assert.match(docHtml, /@payments-team/);
+  assert.match(docHtml, /@generalists/);
+  assert.match(docHtml, /last-match-wins|last matching pattern wins/);
+});
+
+test('the doc page names the exported function it tells readers to call for a CI gate', () => {
+  assert.match(docHtml, /buildReport/);
+  assert.match(docHtml, /from '\.\/codeowners\.mjs'/);
 });
 
 test('the privacy line states nothing is uploaded', () => {
