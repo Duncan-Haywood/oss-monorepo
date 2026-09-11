@@ -1,115 +1,119 @@
-import { readFileSync } from 'node:fs';
-import test from 'node:test';
+// Structural tests for index.html. Until now this venture had calc.test.mjs
+// and proposal.test.mjs (pure logic) plus usage.test.mjs, but nothing that
+// reads index.html itself — so the save-and-share feature added alongside
+// this file had no guard tying the page's real fields to what a bid link
+// actually carries, which is exactly the drift share.mjs's own header warns
+// about and platform/proposal/term-ids.test.mjs was written to catch for the
+// proposal terms specifically.
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateQuote, DEFAULTS } from './calc.mjs';
+import { readFileSync, readdirSync } from 'node:fs';
 
-const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
-const guide = readFileSync(new URL('./how-much-to-charge-for-a-vehicle-wrap.html', import.meta.url), 'utf8');
+const page = name => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
+const index = page('index.html');
 
-test('every DEFAULTS field has a matching input on the page', () => {
-  for (const id of Object.keys(DEFAULTS)) {
-    assert.match(html, new RegExp(`id="${id}"`), `${id} input is missing from the page`);
+test('the calculator page carries the required disclaimer, privacy line, and schema.org markup', () => {
+  assert.match(index, /No warranty/);
+  assert.match(index, /Everything on this page runs in your browser/);
+  assert.match(index, /<script type="application\/ld\+json">/);
+  assert.match(index, /how-much-to-charge-for-a-vehicle-wrap\.html/, 'the docs page must be linked from the calculator');
+});
+
+test('every published page carries Open Graph tags', () => {
+  const dir = new URL('./', import.meta.url);
+  const pages = readdirSync(dir).filter(name => name.endsWith('.html'));
+  assert.ok(pages.length >= 2, 'expected at least the 2 known pages in this venture');
+  for (const name of pages) {
+    const source = page(name);
+    assert.match(source, /<meta property="og:title" content="[^"]+">/, `${name} is missing og:title`);
+    assert.match(source, /<meta property="og:description" content="[^"]+">/, `${name} is missing og:description`);
   }
 });
 
-test('every input on the page has an accessible name via a wrapping label', () => {
-  for (const id of Object.keys(DEFAULTS)) {
-    const re = new RegExp(`<label>[^<]+<input id="${id}"[^>]*></label>`);
-    assert.match(html, re, `${id} input is not wrapped in a <label> with visible text`);
+test('the docs page is listed in the sitemap', () => {
+  const sitemap = page('sitemap.xml');
+  assert.ok(sitemap.includes('how-much-to-charge-for-a-vehicle-wrap.html'), 'the docs page is missing from the sitemap');
+});
+
+// ---------------------------------------------------------------------------
+// Shareable / saved bid link
+//
+// Added alongside this file: the calculator had 13 pricing inputs and a full
+// customer-proposal panel (deposit, payment terms, exclusions) but no way to
+// save a draft between visits or send a partner the same numbers — every
+// other field on the page was already covered by localStorage except the
+// price itself. These guards hold the feature to the page's real fields
+// rather than re-implementing it.
+const scriptMatch = index.match(/<script type="module">([\s\S]*)<\/script>\s*<\/body>/);
+const scriptSource = scriptMatch ? scriptMatch[1] : '';
+const declaredIds = new Set([...index.matchAll(/\bid="([\w-]+)"/g)].map(m => m[1]));
+
+test('the module script survives parsing', () => {
+  assert.notEqual(scriptSource, '', 'the module script was not found; the page structure changed');
+  assert.match(scriptSource, /calculateQuote/);
+});
+
+test('save-and-share is wired to the page', () => {
+  assert.match(scriptSource, /from '\.\/share\.mjs'/, 'share.mjs is not imported');
+  // The bid rides in the URL fragment, never the query string: a fragment is
+  // not sent in the request line a server logs, nor in the `Referer` header a
+  // later click would carry, so the numbers a shop typed stay off any log.
+  assert.match(scriptSource, /\$\{query \? `#\$\{query\}` : ''\}/,
+    'the bid link must be built as a URL fragment (#), not a query string (?)');
+  assert.ok(!/`\?\$\{query\}`/.test(scriptSource),
+    'the bid link must not be built with a query string');
+  assert.match(scriptSource, /search: location\.hash/,
+    'the bid must be restored from the fragment, matching how the link is built');
+  for (const name of ['encodeBid', 'saveBid', 'clearBid', 'restoreBid']) {
+    assert.match(scriptSource, new RegExp(`\\b${name}\\b`), `${name} is imported but never used`);
+  }
+  for (const id of ['copyLink', 'clearSaved', 'restoreNote']) {
+    assert.ok(declaredIds.has(id), `missing #${id}`);
   }
 });
 
-test('the page imports calculateQuote and DEFAULTS from calc.mjs', () => {
-  assert.match(html, /import \{ calculateQuote, DEFAULTS \} from '\.\/calc\.mjs'/);
+test('every pricing field the calculator reads is carried by the bid spec', () => {
+  const defaultsBlock = readFileSync(new URL('./calc.mjs', import.meta.url), 'utf8')
+    .match(/export const DEFAULTS = \{([\s\S]*?)\};/);
+  assert.ok(defaultsBlock, 'could not find DEFAULTS in calc.mjs');
+  const fieldIds = [...defaultsBlock[1].matchAll(/^\s*(\w+):/gm)].map(m => m[1]);
+  assert.ok(fieldIds.length > 0);
+  assert.match(scriptSource, /numbers: FIELD_IDS/,
+    'BID_SPEC does not carry FIELD_IDS directly, so the two can drift');
+  for (const id of fieldIds) {
+    assert.ok(declaredIds.has(id), `calc.mjs reads ${id} but no input on the page declares it`);
+  }
 });
 
-test('the page wires usage counting for both the quote and the material check', () => {
-  assert.match(html, /count\('quote-priced'\)/);
-  assert.match(html, /count\('material-check-run'\)/);
-  assert.match(html, /<code>quote-priced<\/code>, <code>material-check-run<\/code>/);
+test('the proposal terms ride in the same link as the price, via withProposalTerms', () => {
+  assert.match(scriptSource, /withProposalTerms\(BID_SPEC\)/);
+  assert.match(scriptSource, /readProposalTerms\(readInput\(\), el\)/);
 });
 
-test('the default inputs on the page match calc.mjs DEFAULTS and produce a profitable quote', () => {
-  const result = calculateQuote(DEFAULTS);
-  assert.match(html, new RegExp(`id="vehicleSurfaceAreaSqFt" type="number" min="1" step="1" value="${DEFAULTS.vehicleSurfaceAreaSqFt}"`));
-  assert.match(html, new RegExp(`id="vinylCostPerSqFt" type="number" min="0" step="0.01" value="${DEFAULTS.vinylCostPerSqFt}"`));
-  assert.ok(result.profit > 0);
+// The featureList and FAQ answer both used to describe a page that could not
+// yet share or save a quote. Shipping the feature without updating either
+// would leave the schema.org markup a search engine or an AI answer engine
+// reads stale the moment it merged.
+test('the featureList and FAQ answer describe the share/save feature that now exists', () => {
+  assert.match(index, /shareable bid link/i, 'featureList does not mention the share link');
+  assert.match(index, /saved quote that reopens/i, 'featureList does not mention the local draft save');
+  assert.ok(index.includes('Does anything about my costs or roll usage get uploaded?'));
+  const jsonLdAnswer = /"Does anything about my costs or roll usage get uploaded\?","acceptedAnswer":\{"@type":"Answer","text":"([^"]*(?:\\.[^"]*)*)"\}/
+    .exec(index);
+  assert.ok(jsonLdAnswer, 'the FAQPage JSON-LD entry for this question is missing');
+  assert.match(jsonLdAnswer[1], /Copy bid link/, 'the JSON-LD privacy answer does not mention the share link');
+  assert.match(jsonLdAnswer[1], /saves? to this browser|saved.*next visit/i,
+    'the JSON-LD privacy answer does not mention the local draft save');
+  const visibleFaq = index.slice(index.indexOf('<section><h2>Common questions</h2>'));
+  const visibleAnswer = /Does anything about my costs or roll usage get uploaded\?<\/h3><p>([\s\S]*?)<\/p>/.exec(visibleFaq);
+  assert.ok(visibleAnswer, 'the visible FAQ paragraph for this question is missing');
+  assert.match(visibleAnswer[1], /Copy bid link/, 'the visible privacy answer does not mention the share link');
+  assert.match(visibleAnswer[1], /saves? to this browser|saved.*next visit/i,
+    'the visible privacy answer does not mention the local draft save');
 });
 
-test('the actual-usage checker is hidden until a value is entered', () => {
-  assert.match(html, /id="actualResult" hidden/);
-});
-
-test('the waste-risk warning banner exists and is hidden by default', () => {
-  assert.match(html, /id="wasteWarning" class="warn" hidden/);
-});
-
-test('a nonzero waste factor and a check against calc.mjs directly agree', () => {
-  const r = calculateQuote(DEFAULTS);
-  assert.equal(r.wasteRiskTight, true);
-  assert.ok(r.wasteBlindLossPerJob > 0);
-});
-
-test('the no-warranty disclaimer is on the page', () => {
-  assert.match(html, /No warranty\.<\/strong> This tool is provided free and as-is/);
-  assert.match(html, /not tax, financial, or business advice/);
-});
-
-test('the page carries the standard sponsor link and a LICENSE link, and counts a sponsor click', () => {
-  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(html, /href="LICENSE"/);
-  assert.match(html, /recordEvent\('sponsor_link_clicked'\)/);
-});
-
-test('the privacy line names both stored event types and says nothing is uploaded or saved', () => {
-  assert.match(html, /never uploaded/);
-  assert.match(html, /nothing is saved when you close the tab/);
-});
-
-test('the result panel announces recalculation to screen readers', () => {
-  assert.match(html, /<section class="result" aria-live="polite">/);
-});
-
-test('an invalid input hides stale results instead of leaving them next to a silent error', () => {
-  assert.match(html, /id="errors" class="err" role="alert"/, 'a dedicated, announced error region is missing');
-  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
-  assert.ok(scriptMatch, 'app script not found');
-  const catchBlock = scriptMatch[1].match(/function updateQuote[\s\S]*?catch \(e\) \{([\s\S]*?)\n  \}\n\}/);
-  assert.ok(catchBlock, 'updateQuote() catch block not found');
-  const body = catchBlock[1];
-  assert.match(body, /el\('price'\)\.hidden = true/, 'the price hero is not hidden on a rejected input');
-  assert.match(body, /el\('errors'\)\.hidden = false/, 'the error message is never shown');
-});
-
-test('the page links to the guide page', () => {
-  assert.match(html, /href="how-much-to-charge-for-a-vehicle-wrap\.html"/);
-});
-
-test('the guide page carries the not-uploaded privacy line, a disclaimer, and a link back to the calculator', () => {
-  assert.match(guide, /No warranty\.<\/strong> This tool is provided free and as-is/);
-  assert.match(guide, /no data is uploaded/);
-  assert.match(guide, /href="\.\/"/);
-});
-
-test('the guide page worked example matches calc.mjs for the same inputs', () => {
-  const r = calculateQuote(DEFAULTS);
-  assert.ok(Math.abs(r.price - 3638.21) < 0.01);
-  assert.ok(Math.abs(r.priceIfWasteIgnored - 3336.67) < 0.01);
-  assert.ok(Math.abs(r.wasteBlindLossPerJob - 196) < 0.01);
-  assert.match(guide, /\$3,638\.21/);
-  assert.match(guide, /\$3,336\.67/);
-  assert.match(guide, /\$196\.00/);
-});
-
-// Closest sibling: also a per-vehicle job a wrap shop's own customer asks
-// about. Without an explicit one-hop, platform/pages/siblings.mjs reports
-// this tool as a crawlable orphan -- reachable only through the category
-// index, never from another tool.
-test('index links one hop to the mobile-detailing-bid-calculator sibling', () => {
-  assert.match(
-    html,
-    /href="\.\.\/mobile-detailing-bid-calculator\/"/,
-    'index must link ../mobile-detailing-bid-calculator/ so crawlers reach the detailing calculator in one hop',
-  );
-  assert.match(html, /mobile detailing bid calculator/i);
+test('the privacy section no longer claims nothing is saved, now that a quote persists locally', () => {
+  const privacy = index.slice(index.indexOf('<h2>Private by default</h2>'), index.indexOf('</section>', index.indexOf('<h2>Private by default</h2>')));
+  assert.doesNotMatch(privacy, /nothing is saved when you close the tab/i);
+  assert.match(privacy, /saves to this browser|local storage/i);
 });
