@@ -33,12 +33,25 @@ entries:
         workflows (`--plan free --minutes-per-job 3 --pushes 60 --prs 40`),
         the largest single line item is `Claude routine trigger` at ~2,194
         runs and ~6,582 allowance minutes a month, from one `*/20 * * * *`
-        schedule -- roughly 3x the Free allowance and 2x Team's, from one
-        cron. Stated as the tool's estimate, not a billing reading: no
-        session here can see the billing page, and CLAUDE.md is right that
-        the sub-cause of a starvation window is not knowable from a session.
-        What is new is *attribution*, which this repository had from no
-        source before.
+        schedule -- roughly 3x the Free allowance from one cron.
+      - >-
+        CORRECTED the same session, in #4574, and the correction is worth
+        more than the finding. That 6,582 is an **upper bound, not live
+        spend**: `asks.yaml`'s `routine-trigger-cadence` row records that the
+        job behind that schedule carries `if: github.event_name ==
+        'workflow_dispatch' || vars.ROUTINE_TRIGGER_ENABLED == 'true'`, and
+        the variable is unset -- a skipped job is decided before a runner is
+        assigned and bills nothing. The first cut of the tool did not model
+        job-level `if:` and so reported a ceiling as a projection, which is
+        exactly the "correct reading of the files, restated as a claim about
+        the world" failure CLAUDE.md records against itself three times over.
+        Fixed forward: conditional jobs are now counted separately
+        (`totals.conditionalMinutes`, an `of which conditional` line in the
+        report) and raise an `info` finding naming the condition and saying
+        the job may be switched off entirely. What the tool establishes on
+        this repo is therefore attribution and a **ceiling** -- if that
+        variable is ever set to `true`, one cron is 3x the Free allowance --
+        not current spend, which no session here can see.
       - >-
         Screened before building: `duplicate_check.py` scored every existing
         venture, screened-out row, ai-first-markets idea and pipeline
