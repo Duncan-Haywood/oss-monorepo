@@ -25695,6 +25695,103 @@ entries:
         openssh-client`, which is what let gitops/tests skip only 1 rather
         than 25.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed the gap between owning an enumeration route and being able to
+        execute it. `platform/marketing/indexnow.mjs` existed and was correct,
+        and no publisher in this repository could actually submit with it: an
+        agent sandbox answers 403 to CONNECT for api.indexnow.org (confirmed
+        again this run), and the Actions route needs a runner that has been
+        starved since 2026-09-04. `gitops/prod/host/refresh-site.sh` -- the
+        Hetzner host-mode site route, which rebuilds from main every ten
+        minutes on a box with ordinary networking -- never called it at all.
+        It now announces each release after the atomic swap. That is the one
+        publisher here standing on a host that can reach the API, which
+        matters because pages_state.py's `indexing` row measured that sitemap
+        auto-discovery has never once happened for this catalogue (the
+        project-Pages subpath means the robots.txt we publish is not the file
+        a crawler reads), leaving IndexNow as the only enumeration route.
+      - >-
+        Fixed a latent correctness bug the new caller would otherwise have
+        shipped into. indexnow.mjs derived the announced origin from
+        `publishedBaseUrl()`, which reads the *gh-pages* branch's CNAME --
+        correct for the one publisher that existed when it was written, and
+        wrong for any other, because `--dir` names the artifact while the
+        origin came from somewhere else entirely. On the Hetzner box the
+        deploy checkout tracks main and has never fetched gh-pages, so that
+        call returns `assumed-default` (the github.io project URL) while the
+        artifact is built with PAGES_BASE_URL=https://marisstella.dev/. The
+        payload would have declared host duncan-haywood.github.io and a
+        keyLocation on that host with every urlList entry on marisstella.dev
+        -- a host mismatch IndexNow rejects, so every submission from the only
+        host that can make one would have been spent on a request that could
+        not be accepted. Added `resolveBaseUrl`: explicit `--base-url` wins,
+        else the artifact's own catalog.json (`renderCatalog` writes
+        `url: baseUrl` verbatim, so it is a reading of what shipped), else
+        publishedBaseUrl. Two *readings* that disagree now refuse and name
+        both rather than picking one -- a stale snapshot or a moved domain --
+        while an unread serving branch is not treated as a disagreement.
+      - >-
+        Verified. platform/marketing + platform/pages 1230/1230 node --test
+        assertions (up from 1219; 11 new covering originFromCatalog, the
+        resolution order, the conflict refusal, and an end-to-end CLI run
+        asserting host and keyLocation land on the artifact's origin and that
+        github.io appears nowhere). gitops/tests 580 passed / 1 skipped (up
+        from 573; 7 new pinning that the announcement names the release
+        actually symlinked, passes --base-url from SITE_BASE_URL, never fails
+        a deploy that already succeeded on either exit 3 or exit 1, honours
+        SITE_INDEXNOW=0, holds cleanly on a checkout with no indexnow.mjs, and
+        does not re-announce an unchanged commit). Also: checklist_coverage.py
+        clean; platform/proposal + privacy + webcheck 181 passed / 2 skipped
+        (the two history-pinned blobs a shallow clone cannot reach); all 23
+        platform/ci unittest modules OK; agent_review 21/21; portfolio
+        ledger/scoring/router/usage/pipeline + infra/tests 435 passed;
+        shellcheck -S warning clean on refresh-site.sh; regen.mjs reported the
+        served surface already current and rewrote nothing.
+      - >-
+        One design correction, caught by the tree rather than by review, and
+        worth recording because the trigger was environmental. The first draft
+        compared the artifact's origin against `publishedBaseUrl()`
+        unconditionally. That passed in a shallow clone -- gh-pages is absent,
+        so the reading is `assumed-default` and never compares -- and started
+        failing the moment `git fetch --unshallow` brought gh-pages in, because
+        a `--dir` fixture on example.test then "disagreed" with the real
+        serving branch. The rule was over-broad rather than the test being
+        wrong: `publishedBaseUrl()` reads the *serving branch*, so it is a
+        second reading of the same fact only when the artifact under submission
+        IS that snapshot (`--ref gh-pages`, the default). A `--dir` build is a
+        different site. Gated it on that, so whether an unrelated branch
+        happens to be fetched locally cannot change what gets announced.
+      - >-
+        main was green before this change: `run_workflow_locally.py --tree` on
+        origin/main returned 9/9 verification-only workflows, portfolio-validate
+        66/66 run: steps, with the 4 not-run steps being uses: actions rather
+        than failures. guard_state.py --require-runnable reported no fixable
+        skips.
+      - >-
+        PR queue: 0 open PRs at the start of this run, so the three-PR merge
+        quota had nothing to draw on -- confirmed by list_pull_requests
+        (state=open, perPage=100) returning empty, and corroborated by the 15
+        most recently updated PRs all being closed. No branch was converted:
+        the prior run had already swept the branch backlog to empty.
+      - >-
+        Standing owner blocker, unchanged and NOT re-queued as a new ask. All
+        three of the account owner's named priorities this run -- Hetzner
+        deployment/CI-CD, marketing materials served from the Hetzner boxes,
+        and the Codex CLI worker spending the ChatGPT plan's included quota --
+        are downstream of exactly one action already ranked #1 in
+        decision_queue.py as `hetzner-ssh-key-is-a-public-key`: HETZNERSSHKEY
+        holds a public key, so nothing can SSH to either box. The code halves
+        are complete and tested (gitops/agents/host for the Codex worker,
+        gitops/ci/host for the runner, gitops/prod/host for the site). The
+        DRY_RUN rehearsal was run this session and prints its credential
+        pre-flight correctly before the SSH gate. This change adds one more
+        thing that starts working the moment that key is rotated, and nothing
+        that needs it before then.
+    mrr_end: 0
   - venture: hreflang-reciprocity-check
     agent_spend_usd: null
     human_hours: 0

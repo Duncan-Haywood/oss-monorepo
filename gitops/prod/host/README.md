@@ -84,6 +84,51 @@ Three properties make that safe to leave unattended:
 directly rather than reading it off the source, because it is the whole basis
 for letting a timer redeploy the site with nobody watching.
 
+## It is also the only host that can announce the catalogue
+
+After a successful swap, `refresh-site.sh` submits the release to
+[IndexNow](https://www.indexnow.org/) via
+[`platform/marketing/indexnow.mjs`](../../../platform/marketing/indexnow.mjs).
+That is not duplication of what `publish-branch.sh` already does — it is the
+only place the announcement can actually happen. Look at where each publisher
+stands:
+
+| publisher | egress to `api.indexnow.org` |
+|---|---|
+| `platform/pages/publish-branch.sh`, run from an agent session | none — the sandbox answers `403 to CONNECT` |
+| `.github/workflows/publish-pages-branch.yml` | yes, and it needs a metered Actions runner |
+| **this box** | **yes, and nothing is in the way** |
+
+It matters because of what `platform/ci/pages_state.py`'s `indexing` row
+measured: served from a project-Pages *subpath*, this catalogue's `robots.txt`
+— and the `Sitemap:` line naming every published page — is not the file a
+crawler reads, so sitemap auto-discovery has never once happened. IndexNow is
+the one enumeration route that survives that, because the protocol lets a
+submitter name its key's location per request instead of assuming the host
+root. Until this landed, the repository owned that route and could not execute
+it.
+
+Two properties make it safe in an unattended timer, both pinned by tests:
+
+- **It never fails the refresh.** The swap has already happened; the site is
+  live. A failed announcement logs and returns 0, so a box serving correct
+  content never enters a failed unit state. An older checkout with no
+  `indexnow.mjs`, and a host with no egress, are both clean holds.
+- **It never announces silently.** The outcome is logged either way. This is an
+  executed step rather than a line of prose precisely because the prose version
+  of the same instruction is what `publish-branch.sh`'s own header records
+  being skipped by every session that read it.
+
+`SITE_INDEXNOW=0` skips it, for a rollback or a release about to be replaced.
+A tick that finds `main` unmoved does not announce at all — there is nothing
+new to tell a crawler about.
+
+`SITE_BASE_URL` is passed through as `--base-url`. That matters here: this
+deploy checkout tracks `main` and never fetches `gh-pages`, so without it
+`indexnow.mjs` would fall back to reading the origin out of the artifact's own
+`catalog.json`. Correct either way, but the box saying which origin it serves
+is the stronger statement.
+
 ## TLS is not optional here
 
 `marisstella.dev` is a `.dev` name, and Google submitted the **entire `.dev`

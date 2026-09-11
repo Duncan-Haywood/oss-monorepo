@@ -43,6 +43,8 @@
 #   SITE_STATE_DIR   releases + current symlink (default /var/lib/portfolio-site)
 #   SITE_BASE_URL    passed to build.mjs as PAGES_BASE_URL
 #   SITE_KEEP        old releases to retain     (default 3)
+#   SITE_INDEXNOW    set to 0 to skip the IndexNow announcement after a swap.
+#                    Never fails the refresh either way -- see announce_to_indexnow.
 #   GH_TOKEN         read access, for a private origin. Absent is a clean hold,
 #                    not an error -- see the note where it is used.
 set -euo pipefail
@@ -236,4 +238,89 @@ done
 # nginx resolves `root` per request, and no open_file_cache is configured, so
 # the swap is picked up with no reload. Deliberate: a reload would be one more
 # thing that can fail after the site is already correct on disk.
+
+# ------------------------------------------------------------------ announce
+#
+# Tell IndexNow-participating engines (Bing, Yandex, Seznam, Naver — not
+# Google) that this release exists.
+#
+# Ordered after the prune, not before it, because the prune is local and
+# certain while this makes a network call. Node's `fetch` has no default
+# timeout, so an endpoint that blackholes would otherwise hold the unit open
+# until `TimeoutStartSec` with the old releases still on disk.
+#
+# WHY THIS ROUTE AND NOT ONLY `publish-branch.sh`
+#
+# `platform/pages/publish-branch.sh` already announces, and until now it was
+# the only caller. But look at where each one *stands*:
+#
+#   - `publish-branch.sh` is run from an agent session, whose sandbox answers
+#     `403 to CONNECT` for `api.indexnow.org`. Its own header says so. Every
+#     announcement from there takes the EXIT_NO_EGRESS branch and submits
+#     nothing.
+#   - `.github/workflows/publish-pages-branch.yml` would have real egress, and
+#     needs an Actions runner. Those are metered and have been starved for most
+#     of the last fortnight.
+#
+# This box has ordinary networking and no runner in the path, so it is the one
+# publisher in this repository that can actually reach the API. That matters
+# more than "keep the two routes in step": `platform/ci/pages_state.py`'s
+# `indexing` row measured that `robots.txt` — and the `Sitemap:` line naming
+# every published page — is unreachable to a crawler on a project-Pages
+# subpath, so sitemap auto-discovery has never once happened for this
+# catalogue. IndexNow is the one enumeration route that survives that, because
+# it names its key's location in the request instead of assuming the host root.
+# Leaving it out here left the catalogue with an enumeration route it could
+# never execute.
+#
+# WHY IT NEVER FAILS THE REFRESH
+#
+# By the time this runs the swap has already happened and the new release is
+# being served. Failing here would report a *successful deploy* as a failure,
+# put the systemd unit in a failed state, and make a box that is serving
+# correct content look broken — the same reasoning `publish-branch.sh` gives
+# for returning 0 from its own announcement. What it must not do is report
+# nothing: the outcome is logged either way, which is the whole point of
+# making this an executed step rather than a line of prose somebody remembers.
+#
+# `SITE_INDEXNOW=0` skips it, for a rebuild you deliberately do not want
+# announced (a rollback, or a release you are about to replace).
+announce_to_indexnow() {
+  if [[ "${SITE_INDEXNOW:-1}" == '0' ]]; then
+    log "IndexNow: skipped (SITE_INDEXNOW=0)"
+    return 0
+  fi
+
+  local script="$REPO_DIR/platform/marketing/indexnow.mjs"
+  if [[ ! -f "$script" ]]; then
+    # An older checkout predating the script. Not an error, and not silent.
+    log "IndexNow: skipped -- no platform/marketing/indexnow.mjs in this checkout."
+    return 0
+  fi
+
+  # `--dir` submits what this box actually built and is now serving, rather
+  # than what some other publisher's branch contains. `--base-url` is passed
+  # whenever the operator set one, because this deploy checkout tracks `main`
+  # and never fetches `gh-pages`: without it the script would fall back to
+  # reading the artifact's own catalog.json, which is correct here but is a
+  # weaker statement than the box saying which origin it serves.
+  local args=(--dir "$release" --submit)
+  if [[ -n "${SITE_BASE_URL:-}" ]]; then
+    args+=(--base-url "$SITE_BASE_URL")
+  fi
+
+  local status=0
+  node "$script" "${args[@]}" || status=$?
+  case "$status" in
+    0) log "IndexNow: submitted." ;;
+    # EXIT_NO_EGRESS. Expected on a box behind a proxy, and not a deploy
+    # failure: nothing was sent and nothing was broken.
+    3) log "IndexNow: not submitted -- this host has no egress to api.indexnow.org." ;;
+    *) log "IndexNow: submission rejected (exit $status). The site is live and unaffected; see the output above." ;;
+  esac
+  return 0
+}
+
+announce_to_indexnow
+
 log "done."

@@ -16,6 +16,8 @@ import {
   assertKeyFilePublished,
   EXIT_NO_EGRESS,
   isEgressRefusal,
+  originFromCatalog,
+  resolveBaseUrl,
 } from './indexnow.mjs';
 import { INDEXNOW_KEY, indexNowKeyFileName } from '../pages/build.mjs';
 
@@ -201,4 +203,142 @@ test('EXIT_NO_EGRESS is distinct from the ordinary failure exit', () => {
   // them back to 1 would silently turn the second into the first.
   assert.notEqual(EXIT_NO_EGRESS, 0);
   assert.notEqual(EXIT_NO_EGRESS, 1);
+});
+
+// ------------------------------------------------- which origin gets announced
+//
+// The regression these pin is the one `resolveBaseUrl`'s docstring describes:
+// the origin used to come from `publishedBaseUrl()` — a reading of the
+// *gh-pages* branch — no matter which artifact was actually being submitted.
+// For the Hetzner host route that produced a payload whose `host` and
+// `keyLocation` named github.io while every URL in `urlList` was on
+// marisstella.dev, which IndexNow rejects as a host mismatch.
+
+test('originFromCatalog reads the origin the artifact was built for', () => {
+  assert.equal(originFromCatalog(CATALOG), 'https://example.test/site/');
+});
+
+test('originFromCatalog adds the trailing slash keyLocation depends on', () => {
+  // buildPayload concatenates the key filename onto this, so a bare origin
+  // would produce a keyLocation one path segment short.
+  assert.equal(originFromCatalog({ url: 'https://example.test' }), 'https://example.test/');
+});
+
+test('originFromCatalog returns null rather than guessing at an unusable url', () => {
+  for (const url of [undefined, '', 'not-a-url', '/site/', 'ftp://example.test/']) {
+    assert.equal(originFromCatalog({ url }), null, `expected null for ${JSON.stringify(url)}`);
+  }
+});
+
+test('an explicit --base-url wins over both readings', () => {
+  const resolved = resolveBaseUrl({
+    explicit: 'https://marisstella.dev/',
+    catalog: CATALOG,
+    published: { baseUrl: 'https://duncan-haywood.github.io/monorepo-projects/', source: 'project-pages' },
+    comparable: true,
+  });
+  assert.equal(resolved.baseUrl, 'https://marisstella.dev/');
+  assert.equal(resolved.source, 'explicit');
+});
+
+test('an explicit --base-url is normalised to a trailing slash', () => {
+  const resolved = resolveBaseUrl({
+    explicit: 'https://marisstella.dev',
+    catalog: null,
+    published: { baseUrl: 'https://example.test/', source: 'cname' },
+  });
+  assert.equal(resolved.baseUrl, 'https://marisstella.dev/');
+});
+
+test('a malformed --base-url throws rather than reaching the API', () => {
+  for (const explicit of ['nonsense', 'ftp://example.test/']) {
+    assert.throws(
+      () => resolveBaseUrl({ explicit, catalog: CATALOG, published: { baseUrl: 'https://x.test/', source: 'cname' } }),
+      /--base-url/,
+    );
+  }
+});
+
+test('the artifact wins when the serving branch was never read', () => {
+  // This is the Hetzner box: a deploy checkout that tracks `main` and has
+  // never fetched `gh-pages`, so publishedBaseUrl() reports `assumed-default`
+  // — which its own docstring flags as NOT a reading. There is nothing to
+  // disagree with, so the artifact's own origin is the answer.
+  const resolved = resolveBaseUrl({
+    catalog: { url: 'https://marisstella.dev/' },
+    published: {
+      baseUrl: 'https://duncan-haywood.github.io/monorepo-projects/',
+      source: 'assumed-default',
+    },
+  });
+  assert.equal(resolved.baseUrl, 'https://marisstella.dev/');
+  assert.match(resolved.source, /artifact/);
+});
+
+test('two real readings of the same site that disagree refuse rather than pick one', () => {
+  // A stale snapshot, or a domain that moved without a republish. Submitting
+  // either origin would be a guess, so this fails closed and names both.
+  const resolved = resolveBaseUrl({
+    catalog: { url: 'https://old.example.test/' },
+    published: { baseUrl: 'https://new.example.test/', source: 'cname' },
+    comparable: true,
+  });
+  assert.equal(resolved.baseUrl, null);
+  assert.equal(resolved.source, 'conflict');
+  assert.equal(resolved.conflict.artifact, 'https://old.example.test/');
+  assert.equal(resolved.conflict.published, 'https://new.example.test/');
+});
+
+test('agreeing readings are not a conflict', () => {
+  const resolved = resolveBaseUrl({
+    catalog: { url: 'https://example.test/site/' },
+    published: { baseUrl: 'https://example.test/site/', source: 'cname' },
+    comparable: true,
+  });
+  assert.equal(resolved.baseUrl, 'https://example.test/site/');
+  assert.match(resolved.source, /artifact/);
+});
+
+test('a --dir artifact is not compared against the serving branch at all', () => {
+  // Two different sites that differ, not one site measured twice. The first
+  // draft compared unconditionally, and a --dir submission then started
+  // refusing the moment the clone happened to have gh-pages fetched --
+  // whether an unrelated branch is present locally must not change what this
+  // announces.
+  const resolved = resolveBaseUrl({
+    catalog: { url: 'https://old.example.test/' },
+    published: { baseUrl: 'https://new.example.test/', source: 'cname' },
+    comparable: false,
+  });
+  assert.equal(resolved.baseUrl, 'https://old.example.test/');
+  assert.match(resolved.source, /artifact/);
+});
+
+test('an artifact with no usable origin falls back and says so', () => {
+  const resolved = resolveBaseUrl({
+    catalog: { tools: [] },
+    published: { baseUrl: 'https://example.test/site/', source: 'cname' },
+    comparable: true,
+  });
+  assert.equal(resolved.baseUrl, 'https://example.test/site/');
+  assert.match(resolved.source, /published \(cname\)/);
+});
+
+test('the payload announces the origin the artifact carries, end to end', async () => {
+  // The whole point: host and keyLocation must be on the same origin as the
+  // URLs being submitted, or IndexNow rejects the request.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'indexnow-origin-'));
+  const catalog = {
+    url: 'https://marisstella.dev/',
+    tools: [{ slug: 'shop-rate-calculator', url: 'https://marisstella.dev/shop-rate-calculator/' }],
+  };
+  await fs.writeFile(path.join(dir, 'catalog.json'), JSON.stringify(catalog));
+  await fs.writeFile(path.join(dir, indexNowKeyFileName()), INDEXNOW_KEY);
+
+  const out = execFileSync('node', [SCRIPT, '--dir', dir, '--base-url', 'https://marisstella.dev/'], {
+    encoding: 'utf8',
+  });
+  assert.match(out, /host:\s+marisstella\.dev/);
+  assert.match(out, new RegExp(`keyLocation:\\s+https://marisstella\\.dev/${indexNowKeyFileName()}`));
+  assert.doesNotMatch(out, /github\.io/);
 });
