@@ -206,7 +206,7 @@
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or business advice, and it does not replace an agent, manager, or lawyer. <strong>You are responsible for reviewing and verifying everything in the generated media kit before sending it anywhere</strong> — including that any stats you enter are accurate and that any photo link you provide is one you have the right to use. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — download your generated media kit and keep your own copy.</p>
-    <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>kit_built</code>, <code>one_sheet_copied</code>, <code>download_clicked</code>, <code>example_loaded</code>, <code>draft_cleared</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. What you type is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>kit_built</code>, <code>one_sheet_copied</code>, <code>download_clicked</code>, <code>example_loaded</code>, <code>draft_cleared</code>, <code>handoff_offered</code>, <code>handoff_accepted</code>, <code>handoff_dismissed</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Pitching venues instead of brands? The <a href="../epk-generator/">EPK generator</a> is the same job for a different gatekeeper — it builds the one-pager a musician sends a venue or festival, the way this builds the one-pager a creator sends a brand.</p>
     <p>Don't know what to put in the rate card yet? The <a href="../brand-deal-rate-calculator/">brand deal rate calculator</a> turns your follower count, engagement rate, and platform into a starting price range for each deliverable.</p>
@@ -308,7 +308,17 @@
       if (!pendingHandoff) return;
       const { values, total } = applyHandoff(readForm(), pendingHandoff);
       writeForm(values);
-      scheduleSave();
+      // Saved immediately rather than through the 400ms autosave debounce.
+      // Pressing this is a discrete, deliberate act, and the very next thing a
+      // creator does is often navigate straight back to the other calculator
+      // to add their second platform -- inside the debounce window, which
+      // silently dropped everything just inserted. Typing still debounces;
+      // there is nothing to lose between two keystrokes.
+      try {
+        saveDraft(localStorage, values);
+      } catch {
+        /* storage may be unavailable; the form itself still carries the rows */
+      }
       closeHandoff();
       $("#draft-status").textContent = total
         ? `Added ${total} ${total === 1 ? "row" : "rows"} from the rate calculator. Edit them below like anything else.`
