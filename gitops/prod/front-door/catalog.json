@@ -1756,7 +1756,7 @@
       "url": "https://marisstella.dev/tools/social-preview-check/",
       "category": "CI checks & developer gates",
       "description": "Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter's large-image card, and the twitter:image -> og:image fallback chain. Also check any image URL's real pixel dimensions right in this page. Nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "sod-install-bid-calculator",
