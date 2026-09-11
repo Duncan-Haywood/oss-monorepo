@@ -33,21 +33,21 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556728 bytes
-#   portfolio-front-tools-1: 110 files, 556371 bytes
-#   portfolio-front-tools-2: 149 files, 548490 bytes
-#   portfolio-front-tools-3: 141 files, 555244 bytes
-#   portfolio-front-tools-4: 125 files, 556570 bytes
-#   portfolio-front-tools-5: 132 files, 547887 bytes
-#   portfolio-front-tools-6: 135 files, 552427 bytes
-#   portfolio-front-tools-7: 120 files, 553268 bytes
-#   portfolio-front-tools-8: 110 files, 554687 bytes
-#   portfolio-front-tools-9: 122 files, 554946 bytes
-#   portfolio-front-tools-10: 122 files, 554082 bytes
-#   portfolio-front-tools-11: 115 files, 555751 bytes
-#   portfolio-front-tools-12: 115 files, 554399 bytes
-#   portfolio-front-tools-13: 104 files, 509710 bytes
-#   portfolio-front-tools-14: 54 files, 263760 bytes
+#   portfolio-front-tools-0: 136 files, 556731 bytes
+#   portfolio-front-tools-1: 110 files, 556360 bytes
+#   portfolio-front-tools-2: 149 files, 548501 bytes
+#   portfolio-front-tools-3: 141 files, 555346 bytes
+#   portfolio-front-tools-4: 125 files, 556571 bytes
+#   portfolio-front-tools-5: 132 files, 547897 bytes
+#   portfolio-front-tools-6: 136 files, 556718 bytes
+#   portfolio-front-tools-7: 120 files, 553265 bytes
+#   portfolio-front-tools-8: 110 files, 554680 bytes
+#   portfolio-front-tools-9: 122 files, 554987 bytes
+#   portfolio-front-tools-10: 122 files, 554052 bytes
+#   portfolio-front-tools-11: 115 files, 555710 bytes
+#   portfolio-front-tools-12: 115 files, 554381 bytes
+#   portfolio-front-tools-13: 107 files, 522024 bytes
+#   portfolio-front-tools-14: 54 files, 263775 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -907,6 +907,7 @@ configMapGenerator:
       - dental-ppo-writeoff-calculator__calc.mjs.gz=dental-ppo-writeoff-calculator__calc.mjs.gz
       - dental-ppo-writeoff-calculator__index.html.gz=dental-ppo-writeoff-calculator__index.html.gz
       - dental-ppo-writeoff-calculator__usage.mjs.gz=dental-ppo-writeoff-calculator__usage.mjs.gz
+      - dental-ppo-writeoff-calculator__vs-practice-management-report.html.gz=dental-ppo-writeoff-calculator__vs-practice-management-report.html.gz
       - dental-ppo-writeoff-calculator__what-is-my-effective-reimbursement-rate.html.gz=dental-ppo-writeoff-calculator__what-is-my-effective-reimbursement-rate.html.gz
       - dependency-confusion-check__classify.mjs.gz=dependency-confusion-check__classify.mjs.gz
       - dependency-confusion-check__index.html.gz=dependency-confusion-check__index.html.gz
@@ -1830,6 +1831,9 @@ configMapGenerator:
       - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
+      - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
+      - vpat-acr-generator__index.html.gz=vpat-acr-generator__index.html.gz
+      - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
       - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
       - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
       - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz

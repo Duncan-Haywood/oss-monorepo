@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 264,
-  "collection_total": 264,
+  "served_here": 265,
+  "collection_total": 265,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -38,7 +38,7 @@
       "id": "evidence",
       "name": "Compliance checks & evidence records",
       "url": "https://marisstella.dev/c/evidence/",
-      "tool_count": 20
+      "tool_count": 21
     },
     {
       "id": "services",
@@ -956,7 +956,7 @@
       "url": "https://marisstella.dev/tools/dental-ppo-writeoff-calculator/",
       "category": "Back-office money & contracts",
       "description": "Your fee schedule is not what you collect. Enter one month of production and contractual write-offs by carrier and see the effective reimbursement rate for every plan, which plans pay less than an hour of chair time costs you, and exactly what a fee increase would and would not collect. Free, private, nothing uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "dependency-confusion-check",
@@ -2069,6 +2069,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a residential vinyl pool liner from the liner square feet a water-surface special cannot see, the hopper, the stairs, and the track — plus walk-away price and proposed-price margin check.",
       "pages": 3
+    },
+    {
+      "slug": "vpat-acr-generator",
+      "name": "Free VPAT / Accessibility Conformance Report Generator",
+      "url": "https://marisstella.dev/tools/vpat-acr-generator/",
+      "category": "Compliance checks & evidence records",
+      "description": "Fill in your own WCAG 2.1 A/AA conformance answers and get a correctly formatted VPAT 2.5 / Accessibility Conformance Report (ACR) for a federal or enterprise procurement RFP -- entirely in your browser, no account, nothing uploaded.",
+      "pages": 1
     },
     {
       "slug": "vscode-extension-drift-check",
