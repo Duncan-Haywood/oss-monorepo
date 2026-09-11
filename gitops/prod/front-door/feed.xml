@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 261 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 262 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -150,6 +150,15 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste a sitemap.xml and check its &lt;lastmod&gt; dates for the freshness-faking anti-pattern Google&#39;s own sitemap documentation warns about -- invalid/malformed W3C-Datetime format, a future-dated lastmod, duplicate URLs with conflicting dates, and a suspiciously uniform date across nearly every URL. The Node CLI also cross-checks each URL&#39;s live HTTP Last-Modified header. Runs in your browser or as a zero-dependency CLI. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Terraform Plan Secret Exposure Check — Find Secrets the `sensitive` Flag Missed</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/terraform-plan-secret-exposure-check/"/>
+    <id>tag:marisstella.dev,2026:tool/terraform-plan-secret-exposure-check</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste or load a Terraform structured plan (terraform show -json) and get a deterministic report of every attribute value that looks like a real secret -- an AWS access key, a PEM private key, a JWT, or a URL with embedded credentials -- which the provider schema did not mark sensitive. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Screen Printing &amp; Embroidery Price Calculator — Cost Per Shirt, Setup &amp; Margin</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-09T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free, browser-local checker: scans your extension&#39;s JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json&#39;s declared permissions, so an unused or missing permission doesn&#39;t cost you a Chrome Web Store rejection (&#39;Purple Potassium&#39;). Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>.env.example Drift Check — Does Your Example File Match the Code?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/env-example-drift-check/"/>
-    <id>tag:marisstella.dev,2026:tool/env-example-drift-check</id>
-    <published>2026-09-09T00:00:00Z</published>
-    <updated>2026-09-09T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste your .env.example and your source code and see every environment variable the code reads (process.env, os.getenv, os.environ, ENV[], System.getenv) that the example file never mentions -- the #1 cause of a fresh clone crashing right after install. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
 </feed>

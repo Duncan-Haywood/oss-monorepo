@@ -893,6 +893,9 @@ workflows:
 - workflow: tender-radar-ci.yml
   classification: none
   publishes: []
+- workflow: terraform-plan-secret-exposure-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: tiktok-shop-fee-calculator-ci.yml
   classification: none
   publishes: []

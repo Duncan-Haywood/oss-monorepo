@@ -6021,3 +6021,25 @@ products:
           signal worth watching once there is traffic: a visitor who builds
           but never downloads or copies got a preview, not a media kit they
           actually took away and sent to a brand.
+  - slug: terraform-plan-secret-exposure-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          file_loaded: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a free, zero-network CLI + browser
+          checker that flags Terraform plan attributes matching a known
+          secret shape (AWS access key, PEM private key, JWT, or a URL with
+          embedded credentials) that the provider schema did not mark
+          sensitive. `live_url_visitors` is null and not zero, deliberately
+          -- GitHub Pages exposes no server-side analytics and the local
+          counter is opt-in and off by default, so nobody has measured yet.
+          `check_run` against external CI adoption (see VENTURE.yaml's
+          kill_criteria: an external repo wiring cli.mjs into its own
+          pipeline) is the signal that actually matters for this shape --
+          the CLI is the primary distribution surface, not the browser page.
