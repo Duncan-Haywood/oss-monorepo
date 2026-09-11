@@ -11131,3 +11131,59 @@ ventures:
       under-resourced independent creators present professionally and
       price their own work, with no adversarial dynamic and no negative
       externality as usage scales.
+  - slug: terraform-plan-secret-exposure-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether an unmarked plan attribute
+      matches a known secret shape is decided by fixed regex patterns against
+      Terraform's own before_sensitive/after_sensitive maps -- a factual,
+      deterministic comparison, not a model judgment, and it never claims to
+      find every leak, only the four shapes it matches.
+    basis: >-
+      Screened 2026-09-11 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free CLI + browser checker, not another
+      <trade>-bid-calculator. duplicate_check.py's closest match was
+      env-example-drift-check at 0.20 (re-verified independently this
+      session; the agent's original screening measured 0.12 against an
+      earlier description) -- a related but explicitly different check ("not
+      a secrets scanner and not a .env file reader") -- well under the 0.45
+      review bar. Distribution 6: hashicorp/terraform's own issue tracker
+      carries multiple separately-reported instances of this exact bug class
+      (#16554, #26185, #27577), the archived cloudposse-archives/tfmask
+      (a CI-log secret-masking tool built for this same problem) left its
+      userbase with no clear successor, and r/Terraform (~90k members)
+      carries recurring threads on secrets leaking into plan/apply output --
+      three named, verifiable venues, not a generic SEO claim. Autonomous
+      ops 10 / gross margin 10: both the browser page and the CLI parse only
+      a locally supplied file, no network call in either, so serving one
+      more user costs a static file. Defensibility 4: forkable like every
+      checker in this portfolio; the four secret-shape patterns and the
+      sensitive-map walk are the whole product, no proprietary data.
+      Time to revenue 6: donations-only like the rest of the fleet, scored
+      against real, current thread volume in the named channels rather than
+      reinterpreted to look stronger.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool reports pattern matches against a plan file the user
+      supplies and fully controls -- no filing, signature, or determination
+      made on the user's behalf, and the worst case is a missed or extra
+      flag, never a claim the user relies on as advice. Redaction is a
+      deliberate safety property of the report itself (engine.mjs's
+      `redact`): it never echoes a full matched secret, because the report
+      is meant to be pasted into an issue or a CI annotation, and doing that
+      with the real value would recreate the exact leak the tool exists to
+      catch. Ethical robustness: gets strictly better for users as it
+      scales -- more leaks caught, free, with no paid tier gating accuracy
+      and no adversarial dynamic.

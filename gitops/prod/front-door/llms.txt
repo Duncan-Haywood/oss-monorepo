@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 260 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 261 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 260 of them — and
+Every tool in the collection is listed below — all 261 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -307,6 +307,7 @@ page that hosts it.
 - [Food Truck Event & Catering Margin Calculator — Price a Booking](https://marisstella.dev/tools/food-truck-event-margin-calculator/): Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you're already considering against the breakeven.
 - [Menu Engineering Calculator](https://marisstella.dev/tools/menu-engineering-calculator/): Free menu engineering calculator for independent restaurants: enter each dish's plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.
 - [Security Deposit Refund & Prorated Rent Calculator — Free, No Sign-Up](https://marisstella.dev/tools/security-deposit-return-calculator/): Free security deposit refund calculator: itemize deductions against a tenant's deposit and see the refund or balance due. Plus a prorated rent calculator for a partial first or last month. Entirely client-side, nothing uploaded.
+- [Terraform Plan Secret Exposure Check — Find Secrets the `sensitive` Flag Missed](https://marisstella.dev/tools/terraform-plan-secret-exposure-check/): Paste or load a Terraform structured plan (terraform show -json) and get a deterministic report of every attribute value that looks like a real secret -- an AWS access key, a PEM private key, a JWT, or a URL with embedded credentials -- which the provider schema did not mark sensitive. Free, runs entirely in your browser, nothing is uploaded.
 
 ## Optional
 

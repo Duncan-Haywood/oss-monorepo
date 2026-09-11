@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 260,
-  "collection_total": 260,
+  "served_here": 261,
+  "collection_total": 261,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -74,7 +74,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
+      "tool_count": 6
     }
   ],
   "tools": [
@@ -1981,6 +1981,14 @@
       "category": "Trade & contractor bids",
       "description": "Filter a public tender CSV by trade, minimum value, and deadline. Free, private browser tool for small contractors. Nothing is uploaded.",
       "pages": 3
+    },
+    {
+      "slug": "terraform-plan-secret-exposure-check",
+      "name": "Terraform Plan Secret Exposure Check — Find Secrets the `sensitive` Flag Missed",
+      "url": "https://marisstella.dev/tools/terraform-plan-secret-exposure-check/",
+      "category": "More free tools",
+      "description": "Paste or load a Terraform structured plan (terraform show -json) and get a deterministic report of every attribute value that looks like a real secret -- an AWS access key, a PEM private key, a JWT, or a URL with embedded credentials -- which the provider schema did not mark sensitive. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "toilet-replacement-bid-calculator",
