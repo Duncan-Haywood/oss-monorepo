@@ -76,3 +76,49 @@ test("opening a shared link renders the rates without yanking the viewport", () 
   assert.match(html, /runCalculate\(\{ scroll: false \}\)/);
   assert.match(html, /if \(scroll\) els\.reportCard\.scrollIntoView/);
 });
+
+// Static guard for the shape of bug platform/pages/roundtrip.mjs found live
+// in bounce-house-rental-calculator (#4606): "Copy shareable link" reads the
+// subscriber/open-rate/niche fields directly off the form, not off whatever
+// was last rendered. Without a live listener, editing a field after pressing
+// "Calculate my rates" left the on-screen ranges showing the *old* numbers
+// while a link copied a moment later carried the *new* ones -- the sender and
+// the recipient would see two different rate cards for the same link. The
+// authoritative regression check is the real browser behaviour in
+// roundtrip.mjs; this only pins that the wiring which fixes it stays shipped.
+test("every field recomputes the rate card live, not only on an explicit calculate", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /for \(const el of \[els\.subscribers, els\.openRate, els\.niche\]\)/,
+    "subscribers, openRate and niche must all be covered by the live-recompute listener loop",
+  );
+  assert.match(
+    html,
+    /el\.addEventListener\("input", syncFromInputs\)/,
+    'an "input" listener must call syncFromInputs so editing a field updates the rate card immediately',
+  );
+  assert.match(
+    html,
+    /el\.addEventListener\("change", syncFromInputs\)/,
+    'a "change" listener must call syncFromInputs so the niche <select> updates the rate card immediately',
+  );
+});
+
+// Distinct from the test above: repricing live must not turn calculate_run
+// into a per-keystroke typing counter -- the same guard
+// bounce-house-rental-calculator's #4616 added for its own live-recompute
+// fix. record("calculate_run") must stay tied to the explicit button click.
+test("repricing on input or change never records a usage event", () => {
+  const html = page("index.html");
+  assert.doesNotMatch(
+    html,
+    /function syncFromInputs\(\) \{[^}]*record\(/,
+    "syncFromInputs must not record a usage event on every keystroke",
+  );
+  assert.match(
+    html,
+    /runCalculate\(\);\s*\n\s*record\("calculate_run"\);/,
+    'record("calculate_run") must stay on the explicit "Calculate my rates" click handler',
+  );
+});
