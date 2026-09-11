@@ -11188,6 +11188,92 @@ ventures:
       scales -- more leaks caught, free, with no paid tier gating accuracy
       and no adversarial dynamic.
 
+  - slug: dental-ppo-writeoff-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 6
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deliberately AI-free, for the same reason as
+      `auto-repair-effective-labor-rate` and more sharply. The output
+      contradicts what a practice owner believes about its own contracts,
+      and the only thing that makes such a contradiction actionable is
+      that every step can be re-derived by hand from a production-by-carrier
+      report the practice already runs. Inference would make the figure
+      less checkable without making it more correct. It would also put a
+      model between a business and its payer agreements, which is the
+      wrong place for one.
+    basis: >-
+      Graduated and shipped 2026-09-11 with the score row in the same
+      commit, per CLAUDE.md's record against #3615. Scored as a sibling of
+      the after-the-sale reconciliation tools in `backoffice`
+      (`card-processing-fee-audit`, `cam-reconciliation-check`,
+      `duplicate-payment-audit`) and of `auto-repair-effective-labor-rate`,
+      which asks the same question -- what did a period already billed
+      actually collect -- of a different trade. `distribution` is a 7
+      rather than the 6 those carry: "effective reimbursement rate" and
+      "PPO write-off" are established terms of art that practice owners
+      already search by name, and the niche has an unusually dense set of
+      practice-management communities. `defensibility` is a 6 because the
+      arithmetic is simple and copyable; what is not copyable quickly is
+      the decision to rank plans by dollars rather than rate and to model a
+      fee rise honestly, both of which cut against what a vendor selling
+      fee-schedule services would want the page to say.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass on both, and liability containment needed the closer look because
+      the niche sits next to what `screened-out.md` rejects under "AI legal /
+      medical / tax advice products". The containment is structural, not a
+      matter of wording. No patient-level information is an input and none is
+      wanted: every figure is a period total for a carrier, which is what a
+      production-by-carrier report already yields and which carries no
+      protected health information, so the product is outside HIPAA's scope
+      rather than merely compliant with it. Nothing clinical is read,
+      computed or suggested. The tool makes no determination about how an
+      adjustment should be recorded, about tax treatment, or about the terms
+      of any participating-provider agreement, and it applies no
+      jurisdiction's rules. It ships no benchmark table against which a
+      practice could be told its contracts are wrong -- the worked example is
+      labelled an illustration on both pages. The artifact it produces is a
+      division of numbers the owner typed, every one of which they can
+      re-derive from a report they already run. `page.test.mjs` asserts the
+      notes never read as instructions -- no "renegotiate", no "drop this
+      plan" -- and the page states in its own copy that dropping a plan
+      removes its production along with its write-off, because the tool has
+      no way to know a practice's market or patients and a recommendation on
+      figures it cannot verify is where arithmetic turns into advice.
+      Ethical robustness: the argument gets better for its users as it
+      scales, and the one place the page could have flattered the reader --
+      the fee-increase model -- reports the answer they least want, that
+      raising the fee schedule collects almost nothing on contracted
+      production.
+    liability_note: >-
+      No patient-level data is an input and none is wanted: every figure is
+      a period total for a carrier, which is what the practice's own
+      production-by-carrier report yields and which carries no protected
+      health information. That keeps the product entirely outside HIPAA's
+      scope rather than merely compliant with it. The residual exposure is
+      that a practice acts on the output against a participating-provider
+      agreement; the page states that dropping a plan removes its
+      production along with its write-off, declines to recommend any
+      contract action, and carries the no-warranty clause on both pages.
+    ethical_note: >-
+      The tool argues for a practice being paid what its contracts say, on
+      the practice's own figures, and takes no position a payer or a
+      consultant would pay to have taken. The one place it could have
+      flattered the reader is the fee-increase model, and it does the
+      opposite: it reports that raising the fee schedule collects almost
+      nothing on contracted production, which is the answer a practice
+      least wants and the one most worth having.
   - slug: auto-repair-effective-labor-rate
     scores:
       ai_leverage: 1

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 262 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 263 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -60,6 +60,15 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste your CODEOWNERS file and your repo&#39;s file list to see exactly which earlier, more specific rules a later, broader rule silently overrides -- GitHub&#39;s own last-match-wins resolution, the most common way a CODEOWNERS file quietly stops reviewing what you think it reviews. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Dental PPO Write-Off Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dental-ppo-writeoff-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/dental-ppo-writeoff-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Your fee schedule is not what you collect. Enter one month of production and contractual write-offs by carrier and see the effective reimbursement rate for every plan, which plans pay less than an hour of chair time costs you, and exactly what a fee increase would and would not collect. Free, private, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Drone Mapping Job Calculator</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-09T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Paste a blog post&#39;s HTML and see every affiliate link it recognises (Amazon Associates tag= links, amzn.to, rel=sponsored, ShareASale/CJ/Impact/Skimlinks/AWIN tracking links) and whether a disclosure appears before the first one — plus whether an Amazon link carries Amazon&#39;s own required exact statement. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Chrome Extension Permission Checker — Unused &amp; Missing Permissions</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/chrome-extension-permission-check/"/>
-    <id>tag:marisstella.dev,2026:tool/chrome-extension-permission-check</id>
-    <published>2026-09-09T00:00:00Z</published>
-    <updated>2026-09-09T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free, browser-local checker: scans your extension&#39;s JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json&#39;s declared permissions, so an unused or missing permission doesn&#39;t cost you a Chrome Web Store rejection (&#39;Purple Potassium&#39;). Nothing is uploaded.</summary>
   </entry>
 </feed>

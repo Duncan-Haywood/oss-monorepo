@@ -606,7 +606,14 @@ const CATEGORY_RULES = [
     // just for a tax authority instead of a client.
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax)/.test(slug),
+      // `dental-ppo-writeoff-calculator` measures what a signed contract
+      // actually paid over a period already billed — the same after-the-sale
+      // reconciliation job as `card-processing-fee-audit` (splitting a
+      // processor's bill) and `cam-reconciliation-check` (a landlord's
+      // statement), for an insurance carrier's fee schedule instead. Named
+      // here rather than left in the catch-all, where a practice owner
+      // reading "contract terms" would never have seen it.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff)/.test(slug),
   },
   {
     id: 'ci',

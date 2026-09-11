@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dental PPO Write-Off Calculator | What Each Plan Actually Pays You</title>
+  <meta name="description" content="Your fee schedule is not what you collect. Enter one month of production and contractual write-offs by carrier and see the effective reimbursement rate for every plan, which plans pay less than an hour of chair time costs you, and exactly what a fee increase would and would not collect. Free, private, nothing uploaded.">
+  <meta property="og:title" content="Dental PPO Write-Off Calculator">
+  <meta property="og:description" content="Most practices know their total write-off and none know it per plan. One month of numbers ranks every carrier by the dollars it takes, sets a break-even reimbursement rate, and shows why raising your fees collects almost nothing.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Dental PPO Write-Off Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Effective reimbursement rate per insurance plan and blended across the practice, contractual write-off dollars ranked by carrier and annualised, net production per chair hour against cost per chair hour, a break-even reimbursement rate every plan is measured against, how concentrated the write-off is across carriers, and what a fee schedule increase would add to write-offs versus what it would actually collect"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f5c35; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
+    section { background: #f8fafc; border: 1px solid #cbd4e0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4d5b6c; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a8b7c8; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #9b2c1f; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a8b7c8; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e2eaf2; }
+    .primary { background: #1f5c35; border-color: #1f5c35; color: #f4f8f6; }
+    .primary:hover { background: #19492b; }
+    table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+    th, td { text-align: right; padding: 7px 6px; border-bottom: 1px solid #dde4ed; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; color: #4d5b6c; }
+    td input { padding: 7px; }
+    .plan-table-wrap { overflow-x: auto; }
+    .result { position: sticky; top: 15px; background: #14261a; color: #eef5f0; border-color: #14261a; }
+    /* The panel paints its own dark fill but never a link colour, so a link inside
+       it would fall back to the browser default blue — invisible at this contrast.
+       Inheriting the panel ink cannot drift from the background the panel paints. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .hero-sub { font-size: .95rem; font-weight: 700; margin: 10px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-sub.short { color: #ffb0a2; }
+    .hero-sub.ahead { color: #bfe3cd; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .panel { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .panel h3 { margin: 0 0 8px; font-size: .95rem; }
+    .panel p { font-size: .83rem; margin: 0; opacity: .9; }
+    .plan-rows { margin-top: 12px; }
+    .bar { display: grid; grid-template-columns: 1fr auto; gap: 8px; font-size: .86rem; padding: 3px 0; font-variant-numeric: tabular-nums; }
+    .track { grid-column: 1 / -1; height: 7px; border-radius: 4px; background: #ffffff26; overflow: hidden; margin-bottom: 9px; }
+    .track span { display: block; height: 100%; background: #bfe3cd; }
+    .track span.under { background: #ffb0a2; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .84rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd2c8; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4d5b6c; }
+    footer a { color: #1f5c35; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR DENTAL PRACTICE OWNERS AND OFFICE MANAGERS</p>
+    <h1>Your fee schedule is not what you collect.</h1>
+    <p>Every practice knows its total write-off. Almost none knows it per plan &mdash; and per plan is the only form in which two contracts can be compared. The adjustment is posted the moment the claim is, in a column no report turns into a rate, so the contract taking the most out of the practice is rarely the one that feels worst. Put one month in below and see what each carrier actually pays, which of them buy chair time for less than the chair costs, and what a fee increase would really collect.</p>
+    <p class="seo-link"><a href="./what-is-my-effective-reimbursement-rate.html">What is my effective reimbursement rate, and why is it lower than I think?</a></p>
+  </header>
+
+  <div class="layout">
+    <form id="form" novalidate>
+      <section>
+        <h2>One month, by carrier</h2>
+        <p class="hint">Straight off a production-by-carrier report. Production at <em>your own</em> fee schedule, and the contractual adjustment written off against it. Leave rows blank if you have fewer plans.</p>
+        <div class="plan-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Plan or carrier</th>
+                <th scope="col">Production at your fees</th>
+                <th scope="col">Contractual write-off</th>
+              </tr>
+            </thead>
+            <tbody id="planRows"></tbody>
+          </table>
+        </div>
+        <div class="actions">
+          <button type="button" id="addPlan">Add another plan</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>The practice</h2>
+        <p class="hint">Same month, same period, for all four.</p>
+        <div class="fields">
+          <label for="selfPayProduction">Production not billed to insurance ($)
+            <input id="selfPayProduction" name="selfPayProduction" inputmode="decimal" autocomplete="off">
+          </label>
+          <label for="chairHours">Clinical chair hours
+            <input id="chairHours" name="chairHours" inputmode="decimal" autocomplete="off">
+          </label>
+          <label for="providerCompensation">Provider compensation ($)
+            <input id="providerCompensation" name="providerCompensation" inputmode="decimal" autocomplete="off">
+          </label>
+          <label for="practiceOverhead">Practice overhead ($)
+            <input id="practiceOverhead" name="practiceOverhead" inputmode="decimal" autocomplete="off">
+          </label>
+          <label for="feeScheduleIncrease">Fee increase you are considering (%)
+            <input id="feeScheduleIncrease" name="feeScheduleIncrease" inputmode="decimal" autocomplete="off">
+          </label>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary">Show what each plan pays</button>
+          <button type="button" id="save">Save this month</button>
+          <button type="button" id="clear">Clear saved</button>
+        </div>
+        <p class="hint" id="saveState" role="status"></p>
+      </section>
+    </form>
+
+    <section class="result" id="result" aria-live="polite">
+      <p class="hero-label">Blended effective reimbursement rate</p>
+      <p class="hero-number" id="heroRate">&mdash;</p>
+      <p class="empty" id="exampleNote">This is the worked example the form opens on &mdash; a four-plan practice, not yours yet. Change the figures and press the button.</p>
+      <ul class="errors" id="errors" hidden></ul>
+      <div id="output" hidden>
+        <p class="hero-sub" id="heroMargin"></p>
+
+        <dl>
+          <dt class="group">The month</dt>
+          <dt>Production at your fee schedule</dt><dd id="grossProduction"></dd>
+          <dt>Contractual write-offs</dt><dd id="totalWriteOff"></dd>
+          <dt>Net production</dt><dd id="netProduction"></dd>
+          <dt>Written off, annualised</dt><dd id="annualWriteOff"></dd>
+
+          <dt class="group">Per chair hour</dt>
+          <dt>Produced at your fees</dt><dd id="grossPerHour"></dd>
+          <dt>Actually collected</dt><dd id="netPerHour"></dd>
+          <dt>Cost of the chair</dt><dd id="costPerHour"></dd>
+          <dt>Break-even reimbursement rate</dt><dd id="breakEven"></dd>
+        </dl>
+
+        <div class="panel">
+          <h3>Every plan, ranked by what it takes</h3>
+          <p>Bar length is the effective reimbursement rate. A red bar is below your break-even rate &mdash; that plan is buying chair time for less than the chair costs to keep open.</p>
+          <div class="plan-rows" id="planBars"></div>
+        </div>
+
+        <div class="panel" id="feePanel">
+          <h3>If you raised your fee schedule</h3>
+          <p id="feeNote"></p>
+          <dl>
+            <dt>Added production billed</dt><dd id="feeGross"></dd>
+            <dt>Added write-off</dt><dd id="feeWriteOff"></dd>
+            <dt>Added collections</dt><dd id="feeCollections"></dd>
+          </dl>
+        </div>
+
+        <ul class="note-list" id="notes"></ul>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <h2>What this is, and is not</h2>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, employment or contract advice, and it does not tell you what to charge, which networks to join or leave, how to code or record any adjustment, or how any agreement should be read. It is arithmetic on the numbers you type. Verify every figure against your own practice management system, payroll records and accounts, and against a qualified professional, before relying on it or acting on a contract with it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Private by construction.</strong> The calculator runs entirely in your browser. Nothing is uploaded, there is no account, and there is deliberately no shareable link &mdash; a practice's production, payroll and overhead should not ride in a URL. No patient-level information is an input. Saving a month writes the figures to this browser's own storage; clearing your browser data clears them.</p>
+    <p><label><input type="checkbox" id="optOut"> Do not count my use of this tool</label> &mdash; the counter records only which features were used and the day, never a figure from your month.</p>
+    <p>Auditing what a different counterparty actually paid you? The <a href="../card-processing-fee-audit/">card processing fee audit</a> splits a merchant statement into pass-through cost and the processor's own markup &mdash; the same after-the-sale question as this page, asked of a card processor's bill instead of an insurance fee schedule.</p>
+    <p class="support">Free and open source. If it changes what you sign, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { effectiveReimbursement } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const SCENARIO_KEY = 'dental-ppo-writeoff-scenario';
+    const OPT_OUT_KEY = 'dental-ppo-writeoff-optout';
+    const PLAN_ROWS = 6;
+
+    const EXAMPLE = {
+      plans: [
+        { planName: 'Delta Premier', grossProduction: '48000', writeOff: '9600' },
+        { planName: 'Delta PPO', grossProduction: '62000', writeOff: '24800' },
+        { planName: 'Cigna', grossProduction: '31000', writeOff: '13950' },
+        { planName: 'MetLife', grossProduction: '19000', writeOff: '6650' },
+      ],
+      selfPayProduction: '40000',
+      chairHours: '640',
+      providerCompensation: '52000',
+      practiceOverhead: '61000',
+      feeScheduleIncrease: '8',
+    };
+
+    const el = (id) => document.getElementById(id);
+    const money = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+    const money2 = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const pct = (n) => `${(n * 100).toFixed(1)}%`;
+
+    function optedOut() {
+      try {
+        return globalThis.localStorage?.getItem(OPT_OUT_KEY) === '1';
+      } catch {
+        return false;
+      }
+    }
+
+    function buildRows() {
+      const body = el('planRows');
+      for (let i = 0; i < PLAN_ROWS; i += 1) addRow(body, i);
+    }
+
+    function addRow(body, index) {
+      const tr = document.createElement('tr');
+      for (const field of ['planName', 'grossProduction', 'writeOff']) {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.id = `plan-${index}-${field}`;
+        input.name = input.id;
+        input.autocomplete = 'off';
+        if (field !== 'planName') input.inputMode = 'decimal';
+        // Every cell needs an accessible name of its own: a column header alone
+        // is announced by some screen readers and not others, and a row of
+        // inputs reading "edit, number" is the exact defect the catalogue's
+        // first full axe run found across three live products.
+        const label = field === 'planName' ? 'Plan or carrier name' : field === 'grossProduction' ? 'Production at your fees' : 'Contractual write-off';
+        input.setAttribute('aria-label', `${label}, row ${index + 1}`);
+        td.append(input);
+        tr.append(td);
+      }
+      body.append(tr);
+    }
+
+    function readForm() {
+      const plans = [];
+      for (let i = 0; i < el('planRows').children.length; i += 1) {
+        plans.push({
+          planName: el(`plan-${i}-planName`)?.value ?? '',
+          grossProduction: el(`plan-${i}-grossProduction`)?.value ?? '',
+          writeOff: el(`plan-${i}-writeOff`)?.value ?? '',
+        });
+      }
+      return {
+        plans,
+        selfPayProduction: el('selfPayProduction').value,
+        chairHours: el('chairHours').value,
+        providerCompensation: el('providerCompensation').value,
+        practiceOverhead: el('practiceOverhead').value,
+        feeScheduleIncrease: el('feeScheduleIncrease').value,
+      };
+    }
+
+    function fillForm(state) {
+      (state.plans ?? []).forEach((plan, i) => {
+        if (!el(`plan-${i}-planName`)) addRow(el('planRows'), i);
+        el(`plan-${i}-planName`).value = plan.planName ?? '';
+        el(`plan-${i}-grossProduction`).value = plan.grossProduction ?? '';
+        el(`plan-${i}-writeOff`).value = plan.writeOff ?? '';
+      });
+      for (const id of ['selfPayProduction', 'chairHours', 'providerCompensation', 'practiceOverhead', 'feeScheduleIncrease']) {
+        el(id).value = state[id] ?? '';
+      }
+    }
+
+    // True only while the panel is showing the figures the page shipped with.
+    // The first edit of any field retires it, so the example caveat never sits
+    // above a reader's own practice.
+    let showingExample = true;
+
+    function markInvalid(errors) {
+      for (const input of document.querySelectorAll('input')) input.removeAttribute('aria-invalid');
+      for (const error of errors) el(error.id)?.setAttribute('aria-invalid', 'true');
+    }
+
+    function renderPlanBars(result) {
+      const host = el('planBars');
+      host.textContent = '';
+      const widest = Math.max(...result.plans.map((p) => p.reimbursementRate), result.breakEvenReimbursementRate, 0.01);
+      for (const plan of result.plans) {
+        const row = document.createElement('div');
+        row.className = 'bar';
+        const name = document.createElement('span');
+        name.textContent = `${plan.name} — ${pct(plan.reimbursementRate)}`;
+        const value = document.createElement('span');
+        value.textContent = `${money(plan.writeOff)} written off`;
+        const track = document.createElement('div');
+        track.className = 'track';
+        const fill = document.createElement('span');
+        fill.style.width = `${Math.max(2, (plan.reimbursementRate / widest) * 100)}%`;
+        if (plan.belowBreakEven) fill.classList.add('under');
+        track.append(fill);
+        row.append(name, value, track);
+        host.append(row);
+      }
+    }
+
+    function render(result) {
+      markInvalid(result.ok ? [] : result.errors);
+      el('errors').hidden = result.ok;
+      el('output').hidden = !result.ok;
+      el('exampleNote').hidden = !showingExample;
+
+      if (!result.ok) {
+        el('heroRate').textContent = '—';
+        el('errors').textContent = '';
+        for (const error of result.errors) {
+          const li = document.createElement('li');
+          li.textContent = error.message;
+          el('errors').append(li);
+        }
+        return;
+      }
+
+      el('heroRate').textContent = pct(result.blendedReimbursementRate);
+      const margin = el('heroMargin');
+      margin.textContent = result.coversCost
+        ? `${money2(result.marginPerChairHour)} per chair hour above what the chair costs`
+        : `${money2(Math.abs(result.marginPerChairHour))} per chair hour below what the chair costs`;
+      margin.className = `hero-sub ${result.coversCost ? 'ahead' : 'short'}`;
+
+      el('grossProduction').textContent = money(result.grossProduction);
+      el('totalWriteOff').textContent = money(result.totalWriteOff);
+      el('netProduction').textContent = money(result.netProduction);
+      el('annualWriteOff').textContent = money(result.annualWriteOff);
+      el('grossPerHour').textContent = money2(result.grossProductionPerHour);
+      el('netPerHour').textContent = money2(result.netProductionPerHour);
+      el('costPerHour').textContent = money2(result.costPerChairHour);
+      el('breakEven').textContent = pct(result.breakEvenReimbursementRate);
+
+      renderPlanBars(result);
+
+      const fee = result.feeRaiseImpact;
+      el('feePanel').hidden = fee.percent === 0;
+      el('feeNote').textContent = `A ${fee.percent}% rise across your fee schedule, with every contract unchanged. ${pct(fee.contractedShareOfProduction)} of your production runs through a plan whose allowed fee is a fixed dollar amount, so on that share the rise becomes write-off and nothing else.`;
+      el('feeGross').textContent = money(fee.addedGrossProduction);
+      el('feeWriteOff').textContent = money(fee.addedWriteOff);
+      el('feeCollections').textContent = money(fee.addedCollections);
+
+      const notes = el('notes');
+      notes.textContent = '';
+      for (const note of notesFor(result)) {
+        const li = document.createElement('li');
+        li.textContent = note;
+        notes.append(li);
+      }
+    }
+
+    // Statements about the figures, never instructions. The tool cannot know a
+    // practice's market, its patient base, or the terms of any agreement, and a
+    // recommendation resting on figures it cannot verify is where arithmetic
+    // stops being arithmetic.
+    function notesFor(result) {
+      const notes = [];
+      notes.push(
+        `You collected ${pct(result.blendedReimbursementRate)} of what you billed at your own fee schedule. The ${money(result.totalWriteOff)} difference is ${money(result.annualWriteOff)} a year at this month's mix.`,
+      );
+      const worst = [...result.plans].sort((a, b) => a.reimbursementRate - b.reimbursementRate)[0];
+      if (worst && worst.name !== result.plans[0].name) {
+        notes.push(
+          `${result.plans[0].name} takes the most dollars (${money(result.plans[0].writeOff)} at ${pct(result.plans[0].reimbursementRate)}), but ${worst.name} has the lowest rate (${pct(worst.reimbursementRate)}). Ranking by rate and ranking by dollars point at different contracts.`,
+        );
+      }
+      if (result.plansToHalfTheWriteOff > 0) {
+        notes.push(
+          result.plansToHalfTheWriteOff === 1
+            ? `One plan accounts for more than half of everything written off this month.`
+            : `${result.plansToHalfTheWriteOff} of your ${result.planCount} plans account for more than half of everything written off this month.`,
+        );
+      }
+      if (result.plansBelowBreakEven.length > 0) {
+        notes.push(
+          `Your break-even reimbursement rate is ${pct(result.breakEvenReimbursementRate)}. Below it, an hour of chair earns less than the chair costs to keep open. ${result.plansBelowBreakEven.join(', ')} ${result.plansBelowBreakEven.length === 1 ? 'is' : 'are'} below it, on ${money(result.productionBelowBreakEven)} of production. Removing a contract removes its production as well as its write-off; what refills that schedule is a question about your patients, not about these figures.`,
+        );
+      } else {
+        notes.push(`Every plan reimburses above your break-even rate of ${pct(result.breakEvenReimbursementRate)}.`);
+      }
+      const fee = result.feeRaiseImpact;
+      if (fee.percent > 0) {
+        notes.push(
+          `A ${fee.percent}% fee increase would bill ${money(fee.addedGrossProduction)} more and collect ${money(fee.addedCollections)} of it. The other ${money(fee.addedWriteOff)} becomes write-off, because a contracted allowed fee does not move when your posted fee does.`,
+        );
+      }
+      return notes;
+    }
+
+    function recompute(counted) {
+      const result = effectiveReimbursement(readForm());
+      render(result);
+      if (counted && result.ok) recordUsage(globalThis.localStorage, optedOut(), 'rate_calculated');
+    }
+
+    buildRows();
+    fillForm(EXAMPLE);
+
+    el('form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      recompute(true);
+    });
+
+    // Live recompute, delegated on the form so rows added later are covered
+    // without restating an id list. The counted event stays on submit alone —
+    // a keystroke is not a calculation, and counting one would turn a feature
+    // tally into a typing log.
+    el('form').addEventListener('input', () => {
+      showingExample = false;
+      recompute(false);
+    });
+
+    el('addPlan').addEventListener('click', () => {
+      addRow(el('planRows'), el('planRows').children.length);
+    });
+
+    el('save').addEventListener('click', () => {
+      try {
+        globalThis.localStorage.setItem(SCENARIO_KEY, JSON.stringify(readForm()));
+        el('saveState').textContent = 'Saved to this browser.';
+        recordUsage(globalThis.localStorage, optedOut(), 'scenario_saved');
+      } catch {
+        el('saveState').textContent = 'This browser is not allowing site data, so nothing was saved.';
+      }
+    });
+
+    el('clear').addEventListener('click', () => {
+      try {
+        globalThis.localStorage.removeItem(SCENARIO_KEY);
+      } catch {
+        // Nothing to clear if the browser refused to store it in the first place.
+      }
+      el('saveState').textContent = 'Saved month cleared.';
+    });
+
+    el('optOut').addEventListener('change', (event) => {
+      try {
+        if (event.target.checked) globalThis.localStorage.setItem(OPT_OUT_KEY, '1');
+        else globalThis.localStorage.removeItem(OPT_OUT_KEY);
+      } catch {
+        // A browser refusing site data cannot record the preference either.
+      }
+    });
+
+    try {
+      el('optOut').checked = optedOut();
+      const saved = JSON.parse(globalThis.localStorage?.getItem(SCENARIO_KEY) || 'null');
+      if (saved) {
+        fillForm(saved);
+        // A returning practice's own figures are not the shipped example, so
+        // the caveat above the panel must not claim they are.
+        showingExample = false;
+      }
+    } catch {
+      // A corrupt or unreadable saved month must not stop the page computing.
+    }
+
+    recompute(false);
+  </script>
+</body>
+</html>

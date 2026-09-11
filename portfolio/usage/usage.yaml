@@ -6021,6 +6021,29 @@ products:
           signal worth watching once there is traffic: a visitor who builds
           but never downloads or copies got a preview, not a media kit they
           actually took away and sent to a brand.
+  - slug: dental-ppo-writeoff-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          rate_calculated: 0
+          scenario_saved: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a free, browser-local calculator that
+          takes one month of production and contractual write-offs by carrier
+          and returns an effective reimbursement rate per plan, a break-even
+          reimbursement rate from cost per chair hour, and an honest model of
+          what a fee-schedule increase would and would not collect.
+          `live_url_visitors` is null and not zero, deliberately -- GitHub
+          Pages exposes no server-side analytics, this portfolio adds no
+          third-party one, and the local counter is opt-in and off by
+          default, so nobody has measured yet. `rate_calculated` is the
+          activation signal (a practice completed a month and read a result);
+          `scenario_saved` is the return signal, and the one that matters for
+          this shape, because the value compounds only if a practice comes
+          back next month and compares.
   - slug: terraform-plan-secret-exposure-check
     surface: github-pages
     readings:

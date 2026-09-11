@@ -27951,3 +27951,122 @@ entries:
         `null` (never measured), this only closes a real divergence a
         visitor could have hit before any visitor was ever counted.
     mrr_end: 0
+  - venture: dental-ppo-writeoff-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the open-PR queue first, as the standing floor requires. Two
+        PRs were open across the run and both were verified end to end here
+        before their own sessions merged them. #4610 (auto-repair effective
+        labor rate): ran the whole starvation checklist plus a 36-minute
+        7-check whole-catalogue browser sweep, which came back clean at
+        47a06d60 -- 994 sitemap URLs resolving, no WCAG A/AA violation, no
+        horizontal overflow at 375px -- and independently re-derived the
+        calculator's arithmetic in node, confirming the gap decomposition
+        closes exactly ($8,000 + $4,200 = $12,200) and the required posted
+        rate is the required effective rate grossed up for realization.
+        #4617 (terraform plan secret exposure): found it RED on its pushed
+        head -- `front-door-tools.test.mjs` failing on "the committed mirror
+        matches what the generator produces" and "the committed kustomization
+        matches the file list", because the branch had merged main without
+        re-running `regen.mjs`, leaving
+        `newsletter-sponsorship-rate-calculator__handoff.mjs.gz` out of the
+        mirror entirely. That is the same defect CLAUDE.md records against
+        #3256-#3258 and #3324-#3326: the sitemap advertises a page the apex
+        would 404 on, and it is invisible behind starved checks. Its own
+        session fixed it before the merge landed, so the repair was
+        redundant in the end; the finding is recorded because the shape keeps
+        recurring and this is the fourth instance.
+      - >-
+        Graduated `dental-ppo-writeoff-calculator`, the portfolio's first
+        venture for a healthcare practice's own back office. Every practice
+        knows its total insurance write-off and almost none knows it per
+        plan, which is the only form in which two contracts can be compared:
+        the contractual adjustment is posted at the same moment as the claim,
+        never ages, is chased by nobody, and appears in no collections
+        report. A practice management system reports production and it
+        reports adjustments, both as dollar columns, and nothing divides one
+        by the other -- so the practice holds the one figure that names no
+        contract and cannot be acted on.
+      - >-
+        Three decisions are load-bearing and each is argued in `calc.mjs`'s
+        header. Chair hours are allocated between carriers in proportion to
+        gross production at the practice's own fee schedule, because no
+        practice tracks hours by carrier and a tool demanding them could not
+        be filled in from any report that exists; the assumption is stated
+        rather than hidden and collapses to an identity -- net per chair hour
+        equals reimbursement rate times gross production per hour -- that
+        `calc.test.mjs` asserts holds for every row. The break-even is
+        expressed as a *rate* rather than as dollars, so it lines up directly
+        against the per-plan rates and the comparison is made by eye. And the
+        fee-increase model is honest, which means modelling it as mostly
+        ineffective: a PPO allowed fee is a contracted dollar amount, so
+        raising the fee schedule raises gross production and the write-off by
+        exactly the same amount on contracted procedures and collects
+        nothing. In the worked example an 8% rise bills $16,000 more, writes
+        off $12,800 and collects $3,200 -- and the write-off percentage, the
+        figure everyone watches, gets worse while the practice is slightly
+        better off. Both halves are printed together.
+      - >-
+        Plans are ranked by write-off dollars rather than by rate, because
+        the worst rate is routinely not the biggest problem: in the worked
+        example Cigna has the lowest rate (55%) and Delta PPO takes nearly
+        twice the dollars at a better rate (60% of a larger base). A test
+        pins that the ranking and the worst rate disagree, so the property
+        cannot silently regress.
+      - >-
+        No patient-level data is an input and none is wanted: every figure is
+        a period total for a carrier, which is what a production-by-carrier
+        report already yields and which carries no protected health
+        information, putting the product outside HIPAA's scope rather than
+        merely compliant with it. Ships with no shareable link at all, unlike
+        most of the catalogue -- a month of a practice's production, payroll
+        and overhead should not ride in a URL -- and `page.test.mjs` asserts
+        the absence of `location.hash`, `URLSearchParams`,
+        `history.replaceState` and `navigator.clipboard`. Local-storage save
+        and restore solves the retyping problem instead. Notes are statements
+        about the figures, never instructions: a test rejects
+        "renegotiate", "drop this plan", "raise your fees" and "terminate",
+        and the page states in its own copy that removing a contract removes
+        its production along with its write-off, because what refills that
+        schedule is a question about patients that no calculator can answer.
+      - >-
+        Filed into `backoffice` on its first commit rather than the `more`
+        catch-all, beside `card-processing-fee-audit` and
+        `cam-reconciliation-check` -- the same after-the-sale reconciliation
+        job, asked of an insurance fee schedule instead of a processor's bill
+        or a landlord's statement. Cross-linked with
+        `card-processing-fee-audit` both ways, so `siblings.mjs` reports 0
+        crawlable orphans of 263 and the budget holds at 0.
+      - >-
+        Verified here, Actions starved throughout
+        (`ci_starvation.py --run 34627201079`: `runner_id: 0`, 3s, no steps).
+        Venture suite 54/54; `platform/marketing` + `platform/pages`
+        1255/1255; `platform/proposal` + `privacy` + `webcheck` 183/183 with
+        **0 skipped** after `git fetch --unshallow`, which lets the two
+        history-pinned `page-integrity` tests actually run rather than skip;
+        `gitops/tests` 581 passed, 1 skipped; all 25 `platform/ci` unittest
+        modules and `agent_review` OK; `portfolio/*` + `infra/tests` 435
+        passed; all ten validators clean including `score_ventures --check`
+        across 272 and `publish_surface.py --check`;
+        `guard_state.py --require-runnable` exit 0 with one ENVIRONMENTAL
+        skip. A real headless browser pass on the new pages: contrast (0 WCAG
+        A/AA violations across 2 pages and 2 viewports), sweep, sideways all
+        ok. `regen.mjs` carried both pages into the mirror and required the
+        mirrored-tool count 262 -> 263 in the four documented places plus
+        `test_manifests.py`'s pinned total; `sync_readme_counts.py` updated
+        `gitops/ci/README.md` for the new workflow.
+      - >-
+        Hit two real defects of my own during the build and fixed both rather
+        than working around them. The FAQPage JSON-LD started on the
+        calculator page, where `platform/pages/faq-visible.test.mjs` failed
+        it correctly: this repo requires every authored question and answer
+        to be *rendered visibly* on the page that declares it, which is a
+        good rule -- structured data the page does not back up is a claim
+        about content that is not there. Moved the whole FAQ to the guide and
+        rendered all eight questions as headings with their answers as prose,
+        matching the sibling venture's shape. And the first build left one
+        crawlable orphan, which the sibling-link budget of 0 caught before
+        the merge rather than after.
+    mrr_end: 0
