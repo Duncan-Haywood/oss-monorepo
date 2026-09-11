@@ -37,13 +37,13 @@
 #   portfolio-front-tools-1: 110 files, 555663 bytes
 #   portfolio-front-tools-2: 149 files, 548396 bytes
 #   portfolio-front-tools-3: 141 files, 555249 bytes
-#   portfolio-front-tools-4: 125 files, 554979 bytes
-#   portfolio-front-tools-5: 134 files, 556858 bytes
-#   portfolio-front-tools-6: 135 files, 541645 bytes
+#   portfolio-front-tools-4: 125 files, 555229 bytes
+#   portfolio-front-tools-5: 134 files, 556232 bytes
+#   portfolio-front-tools-6: 136 files, 546382 bytes
 #   portfolio-front-tools-7: 115 files, 547176 bytes
-#   portfolio-front-tools-8: 112 files, 555785 bytes
-#   portfolio-front-tools-9: 121 files, 552732 bytes
-#   portfolio-front-tools-10: 128 files, 553702 bytes
+#   portfolio-front-tools-8: 110 files, 554956 bytes
+#   portfolio-front-tools-9: 123 files, 554495 bytes
+#   portfolio-front-tools-10: 129 files, 557055 bytes
 #   portfolio-front-tools-11: 106 files, 555463 bytes
 #   portfolio-front-tools-12: 115 files, 555190 bytes
 #   portfolio-front-tools-13: 78 files, 385939 bytes
@@ -720,6 +720,7 @@ configMapGenerator:
       - bounce-house-rental-calculator__vs-inflatableoffice.html.gz=bounce-house-rental-calculator__vs-inflatableoffice.html.gz
       - brand-deal-rate-calculator__brand-deal-rate-benchmarks.html.gz=brand-deal-rate-calculator__brand-deal-rate-benchmarks.html.gz
       - brand-deal-rate-calculator__calculator.mjs.gz=brand-deal-rate-calculator__calculator.mjs.gz
+      - brand-deal-rate-calculator__handoff.mjs.gz=brand-deal-rate-calculator__handoff.mjs.gz
       - brand-deal-rate-calculator__index.html.gz=brand-deal-rate-calculator__index.html.gz
       - brand-deal-rate-calculator__usage.mjs.gz=brand-deal-rate-calculator__usage.mjs.gz
       - cabinet-refinishing-bid-calculator__calc.mjs.gz=cabinet-refinishing-bid-calculator__calc.mjs.gz
@@ -750,12 +751,12 @@ configMapGenerator:
       - carpet-cleaning-bid-calculator__index.html.gz=carpet-cleaning-bid-calculator__index.html.gz
       - carpet-cleaning-bid-calculator__share.mjs.gz=carpet-cleaning-bid-calculator__share.mjs.gz
       - carpet-cleaning-bid-calculator__usage.mjs.gz=carpet-cleaning-bid-calculator__usage.mjs.gz
-      - carpet-cleaning-bid-calculator__vs-servicemonster.html.gz=carpet-cleaning-bid-calculator__vs-servicemonster.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - carpet-cleaning-bid-calculator__vs-servicemonster.html.gz=carpet-cleaning-bid-calculator__vs-servicemonster.html.gz
       - carpet-install-bid-calculator__calc.mjs.gz=carpet-install-bid-calculator__calc.mjs.gz
       - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
       - carpet-install-bid-calculator__index.html.gz=carpet-install-bid-calculator__index.html.gz
@@ -889,12 +890,12 @@ configMapGenerator:
       - dependency-confusion-check__classify.mjs.gz=dependency-confusion-check__classify.mjs.gz
       - dependency-confusion-check__index.html.gz=dependency-confusion-check__index.html.gz
       - dependency-confusion-check__usage.mjs.gz=dependency-confusion-check__usage.mjs.gz
-      - dependency-confusion-check__vs-socket.html.gz=dependency-confusion-check__vs-socket.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - dependency-confusion-check__vs-socket.html.gz=dependency-confusion-check__vs-socket.html.gz
       - dependency-confusion-check__what-is-dependency-confusion.html.gz=dependency-confusion-check__what-is-dependency-confusion.html.gz
       - dns-configuration-evidence__dns-evidence.mjs.gz=dns-configuration-evidence__dns-evidence.mjs.gz
       - dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz=dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz
@@ -1211,6 +1212,7 @@ configMapGenerator:
       - ifta-quarterly-fuel-tax-calculator__vs-expressifta.html.gz=ifta-quarterly-fuel-tax-calculator__vs-expressifta.html.gz
       - influencer-media-kit-generator__generator.mjs.gz=influencer-media-kit-generator__generator.mjs.gz
       - influencer-media-kit-generator__index.html.gz=influencer-media-kit-generator__index.html.gz
+      - influencer-media-kit-generator__prefill.mjs.gz=influencer-media-kit-generator__prefill.mjs.gz
       - influencer-media-kit-generator__state.mjs.gz=influencer-media-kit-generator__state.mjs.gz
       - influencer-media-kit-generator__usage.mjs.gz=influencer-media-kit-generator__usage.mjs.gz
       - influencer-media-kit-generator__what-is-a-media-kit.html.gz=influencer-media-kit-generator__what-is-a-media-kit.html.gz
@@ -1264,14 +1266,14 @@ configMapGenerator:
       - k8s-rollout-safety-check__yaml.mjs.gz=k8s-rollout-safety-check__yaml.mjs.gz
       - kdp-royalty-calculator__calc.mjs.gz=kdp-royalty-calculator__calc.mjs.gz
       - kdp-royalty-calculator__index.html.gz=kdp-royalty-calculator__index.html.gz
-      - kdp-royalty-calculator__share.mjs.gz=kdp-royalty-calculator__share.mjs.gz
-      - kdp-royalty-calculator__should-i-enroll-this-book-in-kindle-unlimited.html.gz=kdp-royalty-calculator__should-i-enroll-this-book-in-kindle-unlimited.html.gz
-      - kdp-royalty-calculator__usage.mjs.gz=kdp-royalty-calculator__usage.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - kdp-royalty-calculator__share.mjs.gz=kdp-royalty-calculator__share.mjs.gz
+      - kdp-royalty-calculator__should-i-enroll-this-book-in-kindle-unlimited.html.gz=kdp-royalty-calculator__should-i-enroll-this-book-in-kindle-unlimited.html.gz
+      - kdp-royalty-calculator__usage.mjs.gz=kdp-royalty-calculator__usage.mjs.gz
       - kdp-royalty-calculator__vs-amazon-kdp-royalty-calculator.html.gz=kdp-royalty-calculator__vs-amazon-kdp-royalty-calculator.html.gz
       - kitchen-tile-backsplash-bid-calculator__calc.mjs.gz=kitchen-tile-backsplash-bid-calculator__calc.mjs.gz
       - kitchen-tile-backsplash-bid-calculator__do-leftover-tile-boxes-cover-the-next-wall.html.gz=kitchen-tile-backsplash-bid-calculator__do-leftover-tile-boxes-cover-the-next-wall.html.gz
@@ -1392,12 +1394,12 @@ configMapGenerator:
       - parking-lot-striping-bid-calculator__usage.mjs.gz=parking-lot-striping-bid-calculator__usage.mjs.gz
       - parking-lot-striping-bid-calculator__vs-saasphalt.html.gz=parking-lot-striping-bid-calculator__vs-saasphalt.html.gz
       - patio-door-bid-calculator__calc.mjs.gz=patio-door-bid-calculator__calc.mjs.gz
-      - patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz=patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz=patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz
       - patio-door-bid-calculator__index.html.gz=patio-door-bid-calculator__index.html.gz
       - patio-door-bid-calculator__usage.mjs.gz=patio-door-bid-calculator__usage.mjs.gz
       - patio-door-bid-calculator__vs-jobber.html.gz=patio-door-bid-calculator__vs-jobber.html.gz

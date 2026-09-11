@@ -75,13 +75,40 @@ keep your own copy.
 Optional [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) never
 changes what this tool does.
 
+## Arriving from the brand deal rate calculator
+
+The two things this tool's own validator warns about most often — "No
+platforms listed" and "No rate card" — are exactly what
+[`brand-deal-rate-calculator`](../brand-deal-rate-calculator/) works out. So
+its report offers a link here carrying the platform line and a rate-card row
+per deliverable, and [`prefill.mjs`](prefill.mjs) is the receiving half.
+
+Three rules shape it, and each is a bug it is written not to have:
+
+- **It never overwrites.** A creator can arrive with a draft they have spent
+  twenty minutes on. The page shows a banner with exactly what the link is
+  carrying and inserts nothing until the button is pressed; inserting
+  *appends* the lines the form does not already have, so following the same
+  link twice does not duplicate a rate card and nothing typed by hand is
+  touched.
+- **It trusts nothing in the URL.** Only `platformsRaw` and `ratesRaw` can be
+  filled — checked against `state.mjs`'s own `STRING_FIELDS`, imported rather
+  than restated — so a link cannot write a bio or a partnerships email
+  address. Control and bidi characters are stripped, and line count, line
+  length and total size are capped.
+- **Nothing is transmitted.** The values ride in the URL fragment, which
+  browsers do not send to any server, and `prefill.mjs` does no I/O at all.
+
+Events: `handoff_offered`, `handoff_accepted`, `handoff_dismissed` — counted
+the same privacy-conscious way as everything below.
+
 ## Privacy-conscious usage tracking
 
 Everything runs in your browser. What you type is never uploaded; there are
 no accounts, cookies, or analytics vendors. Anonymous feature events
 (`kit_built`, `one_sheet_copied`, `download_clicked`, `example_loaded`,
-`draft_cleared`) are counted only in `localStorage`, never tied to what you
-typed. Do Not Track and Global Privacy Control are honoured, and a button on
+`draft_cleared`, and the three handoff events below) are counted only in
+`localStorage`, never tied to what you typed. Do Not Track and Global Privacy Control are honoured, and a button on
 the page turns counting off entirely.
 
 ## Development
@@ -94,7 +121,9 @@ node --test *.test.mjs
 parser, and XSS-safe escaping. `state.test.mjs` covers the autosave
 round-trip. `usage.test.mjs` covers the opt-out event counter.
 `page.test.mjs` checks the shipped markup: disclaimers, structured data, the
-sponsor link, and the sibling docs-page link.
+sponsor link, and the sibling docs-page link. `prefill.test.mjs` covers the
+handoff described above — the field allowlist, the caps, and, most of all,
+that merging never removes or rewrites what the creator already typed.
 
 ## Status
 
