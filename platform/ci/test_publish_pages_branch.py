@@ -771,16 +771,142 @@ class AnnouncingThePublishedSnapshot(unittest.TestCase):
             "engines about content that is not live",
         )
 
-    def test_the_workflow_does_not_also_submit(self) -> None:
-        """No second copy: both workflow steps go through the script."""
+    def test_the_workflow_announces_when_the_script_cannot(self) -> None:
+        """Exactly one announce path is reachable per configuration.
+
+        Corrected 2026-09-11. This case used to assert the workflow never
+        submits directly, on the reasoning that both of its steps go through
+        `publish-branch.sh` and a second copy would double-submit. The
+        de-duplication was right; the coverage claim inside it was not, and the
+        difference is the whole finding.
+
+        Folding the announcement into the script's PUSH=1 branch made it
+        reachable only on a run that *pushes*, and on this repository's real
+        configuration no such run exists. `vars.PAGES_BRANCH_PUBLISH` is not
+        `true` -- read from evidence, since a workflow cannot print a variable:
+        every commit on `gh-pages` is authored `CI <ci@example.com>`, an agent
+        session's identity, and none by `github-actions[bot]`. So the runner
+        route resolves to the PUSH=0 step and never reaches the announcement,
+        while the by-hand route that does reach it runs in a sandbox whose
+        egress proxy 403s `api.indexnow.org` and exits `EXIT_NO_EGRESS` every
+        time.
+
+        Between them those two routes covered every publish and announced none
+        of them: the route with egress never reached the call, and the route
+        that reached the call had no egress. Verified against run history --
+        every `Publish Pages branch` run since IndexNow landed in #4366 came
+        back `runner_id: 0` in 3-5s.
+
+        So the invariant is not "the workflow never submits". It is that the
+        two paths are exact complements: never both (a double-submit), and
+        never neither (a silently unannounced catalogue, which is what was
+        actually shipping).
+        """
         doc = load()
-        runs = [str(s.get("run", "")) for s in doc["jobs"]["publish"]["steps"]]
-        submitting = [r for r in runs if "indexnow" in r and "--submit" in r]
+        steps = doc["jobs"]["publish"]["steps"]
+
+        direct = [
+            s
+            for s in steps
+            if "indexnow" in str(s.get("run", "")) and "--submit" in str(s.get("run", ""))
+        ]
         self.assertEqual(
-            submitting,
-            [],
-            "the workflow invokes indexnow.mjs --submit directly as well as "
-            "through publish-branch.sh, so a real publish would double-submit",
+            len(direct),
+            1,
+            "expected exactly one step that submits to IndexNow directly; the "
+            "script's own announce covers only the PUSH=1 path, which this "
+            "repository's configuration never takes",
+        )
+
+        pushing = [
+            s
+            for s in steps
+            if SCRIPT in str(s.get("run", ""))
+            and str(s.get("env", {}).get("PUSH", "")).strip() == "1"
+        ]
+        self.assertEqual(len(pushing), 1, f"expected one {SCRIPT} step with PUSH=1")
+
+        push_gate = _norm(pushing[0].get("if"))
+        announce_gate = _norm(direct[0].get("if"))
+        self.assertIsNotNone(
+            announce_gate,
+            "an ungated announce would double-submit whenever the script also "
+            "announces -- it must be the complement of the publish gate",
+        )
+
+        # The complement, spelled as the negation of the same comparison rather
+        # than merely "some other condition": anything looser reopens one of
+        # the two failures above.
+        self.assertEqual(
+            push_gate,
+            "vars.PAGES_BRANCH_PUBLISH == 'true'",
+            "the publish gate moved; the announce complement below is written "
+            "against this exact expression",
+        )
+        self.assertEqual(
+            announce_gate,
+            "vars.PAGES_BRANCH_PUBLISH != 'true'",
+            "the direct announce must run exactly when the script's own "
+            "announce cannot, so that precisely one of them fires",
+        )
+
+    def test_the_direct_announce_reads_the_live_snapshot(self) -> None:
+        """It announces what is served, not what this run happened to build.
+
+        On the path that reaches it the run did *not* push, so "what this run
+        built" is not live and must not be announced. `gh-pages` is the serving
+        branch, and both `indexnow.mjs --ref` and `published-base-url.mjs` read
+        it as a *local* git ref (`git show gh-pages:...`) -- which
+        `actions/checkout` does not provide, since it fetches only the pushed
+        ref. Without the fetch the origin degrades to `assumed-default`, which
+        `publishedBaseUrl` itself flags as "NOT a reading".
+        """
+        doc = load()
+        step = next(
+            s
+            for s in doc["jobs"]["publish"]["steps"]
+            if "indexnow" in str(s.get("run", "")) and "--submit" in str(s.get("run", ""))
+        )
+        run = str(step["run"])
+        self.assertIn(
+            "--ref gh-pages",
+            run,
+            "the direct announce must name the serving branch explicitly",
+        )
+        self.assertIn(
+            "gh-pages:gh-pages",
+            run,
+            "the serving branch must be fetched as a local ref, or both the "
+            "catalog read and the origin reading fall back to a guess",
+        )
+
+    def test_the_direct_announce_tolerates_no_egress_but_not_a_refusal(self) -> None:
+        """The same distinction the script makes, for the same reason.
+
+        `EXIT_NO_EGRESS` means the request never left the runner: nothing was
+        submitted and nothing broke, so it must not fail a merge. Any other
+        non-zero status means IndexNow saw the request and refused it -- an
+        invalid or unpublished key file, which would silently cost every future
+        submission and so must stay loud.
+        """
+        doc = load()
+        step = next(
+            s
+            for s in doc["jobs"]["publish"]["steps"]
+            if "indexnow" in str(s.get("run", "")) and "--submit" in str(s.get("run", ""))
+        )
+        run = str(step["run"])
+        self.assertIn(
+            "EXIT_NO_EGRESS",
+            run,
+            "the no-egress exit code must be handled by name, not by a bare "
+            "`|| true` that would swallow a genuine refusal too",
+        )
+        self.assertRegex(
+            run,
+            r"exit\s+\"?\$\{?status",
+            "a genuine refusal must propagate rather than be reported and "
+            "passed over",
         )
 
     def test_a_host_without_egress_does_not_fail_the_publish(self) -> None:
