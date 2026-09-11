@@ -27675,3 +27675,71 @@ entries:
         not enough, and the copy is generated from the JSON-LD strings so the
         two cannot diverge.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        CI/CD check-in per the owner's standing instruction to keep
+        deployment and CI/CD a priority. 0 open PRs at session start (the
+        three-PR drain quota is not applicable when the queue is already
+        empty). `pages_state.py` confirms the `gh-pages` snapshot is current
+        at `main`'s tip (7effb7de) and already deployed (managed Pages
+        builder run 34631674513, success). `ci_starvation.py` on the latest
+        `publish-pages-branch.yml` run (34631539717) shows Actions runners
+        starved again (`runner_id: 0`) as of 2026-09-11 ~18:10Z — the
+        allowance-cycling pattern CLAUDE.md already documents, not a new
+        regression, and not something an agent session can fix.
+      - >-
+        Installed the missing local prerequisites
+        (`apt-get update && apt-get install python3-pytest nginx-light
+        openssh-client`) and ran the full local-verification substitute
+        while Actions is starved: `guard_state.py --require-runnable` exits
+        0 with only the one documented ENVIRONMENTAL skip
+        (`test_front_door_serving.py`, GitHub-hosted-runner only) —
+        no FIXABLE or UNCLASSIFIED skips. `checklist_coverage.py` clean.
+      - >-
+        Ran the full-catalogue browser/accessibility sweep (stale for
+        several commits, last recorded at `a1c62285`): installed
+        `playwright@1.56.0` + `axe-core` in one command per
+        `gitops/agents/host/README.md`'s and CLAUDE.md's documented pinning
+        (1.56.0 matches the image's prebuilt Chromium 1194). All 7 checks —
+        sideways, presets, roundtrip, highlight, contrast, sweep, journey —
+        passed clean at `main`'s tip 7effb7de: 995 pages / 2 viewports with
+        zero WCAG A/AA violations, 268/268 tools answer with no errors,
+        106/106 validation-highlight checks correct, 995/995 sitemap URLs
+        resolve, zero page/console errors on the full user-journey script.
+        Recorded via `browser_checks.py --record` (only `platform/ci/browser_state.json`
+        changed) so the next session reads this as current rather than
+        re-running an unnecessary 20-30 minute sweep.
+      - >-
+        Investigated the owner's request to prioritise the Hetzner-hosted
+        Codex CLI ("use the built-in quota... following a similar prompt to
+        this"): it is already built and already kept in sync.
+        `gitops/agents/host/` (systemd-timer scheduler, no k3s needed),
+        `gitops/agents/workers/mandate.md` (the worker's standing prompt —
+        already mirrors this session's own product-first / drain-PRs-first /
+        deployment-and-CI/CD-count-as-product-work mandate near verbatim,
+        last touched 2026-09-11) and `CODEX_AUTH_JSON` (the "spend the
+        ChatGPT plan's included quota, not a metered API key" credential
+        path, documented in `gitops/agents/secrets/README.md`) are all
+        already in place. What remains is exclusively owner-only: a real SSH
+        private key (`HETZNERSSHKEY` currently holds a public key — decision
+        queue item 1, `hetzner-ssh-key-is-a-public-key`, already open 7d)
+        and a `codex login` in a browser on a machine signed into the
+        owner's ChatGPT account. No agent session can supply either —
+        confirmed again this session (`agent-session-egress` is `down`,
+        no `ssh` binary, egress proxy blocks the boxes). Did not duplicate
+        the existing ask; did not attempt the SSH connection.
+      - >-
+        No new product code this session: PR queue was empty at start (no
+        three-PR quota to clear), the `build-now` pipeline is empty per
+        `session_gate.py`, and this check-in's own verification work (apt
+        installs, a 20-30 minute browser sweep, reading ~15 infra/ledger
+        files) filled the available budget. Highest-value next step for the
+        next session: `python3 portfolio/router/allocate.py`'s top
+        candidates (`reverb-fee-calculator`, `where-to-sell-calculator`,
+        `auto-repair-effective-labor-rate`) each still carry untested
+        hypotheses worth building evidence-gathering content against, or
+        screen a fresh niche per `portfolio/DIRECTION.md`.
+    mrr_end: 0
