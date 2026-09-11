@@ -2100,7 +2100,7 @@
       "url": "https://marisstella.dev/tools/vpat-acr-generator/",
       "category": "Compliance checks & evidence records",
       "description": "Fill in your own WCAG 2.1 A/AA conformance answers and get a correctly formatted VPAT 2.5 / Accessibility Conformance Report (ACR) for a federal or enterprise procurement RFP -- entirely in your browser, no account, nothing uploaded.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "vscode-extension-drift-check",

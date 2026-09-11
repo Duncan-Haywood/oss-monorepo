@@ -64,6 +64,9 @@
     footer a { color: #1f5c35; }
     .support { margin-top: 14px; }
     .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .faq h3 { font-size: .95rem; margin: 18px 0 4px; }
+    .faq h3:first-of-type { margin-top: 0; }
+    .faq p { font-size: .88rem; margin: 0; color: #2c3a4c; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
     @media (max-width: 820px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
@@ -173,6 +176,28 @@
       </div>
     </section>
   </div>
+
+  <section class="faq">
+    <h2>Common questions</h2>
+
+    <h3>How do I work out my effective reimbursement rate for each PPO plan?</h3>
+    <p>Divide what a carrier actually paid by what you billed it at your own fee schedule &mdash; net production over gross production, per plan. That is the whole calculation, and it is the only form in which two contracts can be compared, because a dollar adjustment says nothing about the fee it was taken from. Put one month in above and the tool does the division for every carrier at once, then ranks them.</p>
+
+    <h3>Where do I find the write-off figure for each carrier?</h3>
+    <p>A production-by-carrier report for one month gives you both columns this page needs: production posted at your own fee schedule, and the contractual adjustment written off against it. Your practice management system may call that adjustment a write-off, a contractual, or a PPO adjustment; it is the line posted at the moment the claim is, not a bad debt anyone chased. Only period totals per carrier are entered here &mdash; no procedure-level or patient-level figures are used.</p>
+
+    <h3>Will raising my fee schedule reduce my write-offs?</h3>
+    <p>On contracted production, no &mdash; and this is the result most practices are surprised by. An allowed fee is a contracted dollar amount, not a percentage of whatever you happen to charge, so raising your UCR fees raises gross production and the write-off by exactly the same amount and collects nothing extra. A fee rise moves money only on production that is not contracted, which for most practices means self-pay. Enter a percentage above and the tool shows all three figures separately: added production billed, added write-off, and added collections.</p>
+
+    <h3>If a plan pays below my break-even rate, should I drop it?</h3>
+    <p>This tool does not answer that, and you should not read a red bar as saying so. The break-even rate is your cost per chair hour divided by your gross production per chair hour, so a plan below it is buying chair time for less than the chair costs to keep open &mdash; on the month you entered, under the hour allocation described below. What it does not model is what would happen to those hours afterwards: dropped contract hours do not automatically refill with better-paying work, and network participation carries patient-retention, referral and contractual consequences that are nowhere in this arithmetic. Treat the ranking as a place to start a conversation with your own advisers.</p>
+
+    <h3>Why does it allocate chair hours by production instead of asking for hours per carrier?</h3>
+    <p>Because almost no practice tracks chair time by carrier, so a tool that demanded it could not be filled in from any report that already exists. Your own fee schedule is, by construction, your own pricing of chair time: an hour billed at $600 of UCR is an hour of chair whatever a carrier later allows. So hours are allocated between plans in proportion to gross production at your fees. That makes it an assumption written down where you can check it rather than a guess hidden inside the result.</p>
+
+    <h3>Does any of this leave my computer?</h3>
+    <p>No. The calculator runs entirely in your browser, there is no account, nothing is uploaded, and there is deliberately no shareable link &mdash; a practice's production, payroll and overhead should not ride in a URL. Saving a month writes the figures to this browser's own storage and clearing your browser data clears them. No patient-level information is an input to begin with, so nothing you type here is protected health information.</p>
+  </section>
 
   <footer>
     <h2>What this is, and is not</h2>

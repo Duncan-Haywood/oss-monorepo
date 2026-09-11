@@ -1,15 +1,15 @@
 name: 1099k-reconciliation-worksheet CI
 
-# Test runner for the browser-local 1099-K reconciliation worksheet for
-# multi-platform gig and marketplace sellers. Static ES modules, no build
-# step, no dependencies.
+# Dependency-free browser tool: plain ES modules, no build step, so this runs
+# exactly what a contributor runs locally (`node --test`) and nothing else. It
+# publishes nothing, registers nothing, and spends no API budget.
 #
-# Added 2026-09-11, one merge after the venture itself: #4641 shipped
-# calc.test.mjs and page.test.mjs with no workflow filtering on this
-# venture's path, so both files ran only on a contributor's machine.
-# `platform/ci/test_validate_workflows.py` catches exactly that and was red
-# on `main` because Actions runners are starved and nothing executed it.
-
+# Every venture here gets its own workflow because the portfolio-wide
+# workflows do not run venture unit tests: `portfolio-validate.yml` checks
+# structure and markup, `proposal-module-ci.yml` runs only
+# `ventures/*/proposal.test.mjs`, and nothing else executes `node --test`
+# inside a venture. `validate_workflows.py` invariant 7 fails the build if a
+# venture ships `*.test.mjs` with no workflow running it.
 on:
   pull_request:
     paths:
@@ -29,27 +29,21 @@ concurrency:
   group: 1099k-reconciliation-worksheet-ci-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    working-directory: ventures/1099k-reconciliation-worksheet
+
 jobs:
-  site-test:
+  test:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: ventures/1099k-reconciliation-worksheet
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
-      - run: node --test
-      # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every
-      # published page, and it is the half build.mjs cannot inject: what a
-      # tool is not advice *about* is written in the venture's own voice.
-      # It matters more than usual here -- a worksheet that reconciles 1099-K
-      # totals sits close enough to tax advice that the disclaimer is the
-      # line between the two. Checked here so the venture that needs the
-      # clause is the one that goes red, before the merge, rather than the
-      # Pages job going red on main afterward.
+          node-version: 22
+      - name: Run the venture's tests
+        run: node --test
       - name: Published pages carry the no-warranty clause
         working-directory: .
         run: node platform/pages/clauses.mjs 1099k-reconciliation-worksheet
