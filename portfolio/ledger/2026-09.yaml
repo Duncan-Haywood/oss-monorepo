@@ -28933,77 +28933,90 @@ entries:
         is the route with real egress for that step.
     mrr_end: 0
 
-  - venture: vpat-acr-generator
+  - venture: portfolio
     agent_spend_usd: null
     human_hours: 0
     outcomes:
       - >-
-        Fixed a product that was live and completely non-functional. A
-        full-catalogue browser sweep (`browser_checks.py`, all 7 checks, the
-        first axe run over this venture since it graduated in #4632 hours
-        earlier) caught `pageerror: Failed to execute 'querySelector' on
-        'Document': '#level-1.1.1' is not a valid selector`. A WCAG criterion
-        id contains dots and a leading digit, so `id="level-1.1.1"` is a legal
-        id attribute but not a legal CSS selector -- the dots parse as class
-        selectors. `querySelector` throws rather than returning null, so
-        `currentInput()` threw on the first of 50 rows and every button on the
-        page was dead. Switched all three interpolated-id lookups to
-        `getElementById`, and made the rule absolute rather than
-        case-by-case: no id built by interpolation is turned into a selector
-        on this page, because a rule with an exception is one someone
-        re-derives at the moment they add a row.
+        Drained the open-PR queue, which held two PRs. #4631 was `dirty`
+        against a `main` that moved four times during the repair: resolved the
+        generated mirror through the repo's own `resolve-mirror-merge.sh` and
+        `regen.mjs` rather than picking a side, took `main`'s superseded
+        mirrored-tool counts, kept both sessions' ledger entries, and
+        integrated *a second session's concurrent repair of the same branch*
+        by merge rather than force-push — checking entry-by-entry first that
+        its ledger held nothing this side lacked (453 entries there, all
+        present among the 457 here). Every push was a fast-forward. #4637 was
+        reviewed and merged after local verification (marketing+pages
+        1255/1255, venture 37/37, privacy+webcheck 82/82, gitops 581 passed /
+        1 skipped, clauses clean across all 4 pages); it names a real
+        third-party product and carries a not-affiliated clause, a trademark
+        acknowledgement and a no-warranty note.
       - >-
-        The gap worth naming: the venture's logic was always correct and its
-        18 unit tests all passed, because they import `calc.mjs` and never
-        load the page. What shipped broken was the only part a user touches.
-        `browser_checks.py --checks sweep` is the one check in this tree that
-        asks whether a tool answers at all, and it had never been run against
-        this venture.
+        Shipped two guards for the same silent-failure family (#4640). First:
+        `yaml.safe_load` resolves a duplicated mapping key by taking the last
+        and saying nothing, so a ledger file that repeats a key parses clean,
+        validates clean, and discards a value. Found one on `main` while
+        resolving #4631; writing the check found two more. All three benign —
+        each duplicate held the value it shadowed — but the same shape with an
+        `outcomes:` key would discard a whole session's record while every
+        validator stayed green, and ledger conflicts are resolved by hand here
+        several times an hour. Second: `run_workflow_locally.py --tree` reads
+        the checkout as it stands and takes 40+ minutes, so running it in the
+        background while working makes it lie. Measured on myself — a sweep
+        reported the apex tool mirror stale; it was not, another PR's branch
+        had been checked out mid-sweep, and the identical step passed 260/260
+        on an untouched worktree at the same commit. It now fingerprints the
+        checkout before and after and fails when it moved. Both guards were
+        proved to fail before being trusted.
       - >-
-        Same sweep, same page: 100 critical axe `select-name` violations --
-        every conformance dropdown and every remarks textarea is built in
-        JavaScript and none carried an accessible name, so a screen reader
-        announced all 100 as "combo box" and nothing else and the criterion
-        being answered was unknowable. Given per-criterion `aria-label`s
-        naming the id and title. That matters more here than anywhere else in
-        the catalogue: this product exists to help a vendor document their own
-        accessibility conformance for a Section 508 or procurement response,
-        and a tool that fails WCAG 4.1.2 Name, Role, Value while collecting a
-        WCAG 4.1.2 answer is both unusable for part of its own audience and a
-        poor argument for itself.
+        Ran the first full-catalogue browser sweep since 89b7dbe7 (all 7
+        checks, 1018 pages, ~45 minutes) and it found a dead product:
+        `vpat-acr-generator`, graduated hours earlier in #4632, threw
+        `pageerror: Failed to execute 'querySelector' on 'Document':
+        '#level-1.1.1' is not a valid selector` — a WCAG criterion id contains
+        dots, which parse as class selectors, so `querySelector` throws rather
+        than returning null and every button on the page was dead. The same
+        page carried 100 critical axe `select-name` violations. **A concurrent
+        session shipped the repair first (#4643), independently and more
+        fully**, so this branch carries none of it: their `page.test.mjs`
+        guards both defects and more. Recorded here because the finding is the
+        reusable part — the venture's logic was always correct and all 18 of
+        its unit tests passed, because they import `calc.mjs` and never load
+        the page. `browser_checks.py --checks sweep` is the only check in this
+        tree that asks whether a tool answers at all, and it had never been
+        run against that venture. A venture can pass every test it has and be
+        a dead product.
       - >-
-        Four regression tests added, each proved to fail against the pre-fix
-        source (16 pass / 3 fail before, 22 / 0 after) rather than only to
-        pass after. They read `index.html` as text because the defects were
-        missing attributes on elements built in a loop, which is visible in
-        the source; they are the cheap guard that runs in every `node --test`
-        session, not a substitute for the 40-minute browser sweep. One
-        asserts the premise -- that the ids this page generates really are
-        invalid CSS selectors -- so the guard cannot outlive its reason.
+        Deployed: refreshed the `gh-pages` snapshot, which had fallen behind
+        `main` by three merges including a venture graduation, so the live
+        catalogue was missing a product. `pages_state.py --require-current`
+        exits 0 and GitHub's managed builder served the push
+        (`gh-pages` at 3a31cd15, built from 777dc72a).
       - >-
-        Re-verified in a real browser after the fix:
-        `browser_checks.py --only vpat-acr-generator --checks sweep,contrast`
-        reports the tool answering via "Generate ACR" and `1 pages, 2
-        viewports: no WCAG A/AA violations` -- 100 to 0.
+        Fixed forward two red assertions on `main`, confirmed pre-existing by
+        running them in a detached worktree at `origin/main`:
+        `test_readme_runs_on_count_matches_reality` and
+        `test_sync_readme_counts_repairs_drift_and_is_idempotent`. #4643 added
+        `1099k-reconciliation-worksheet-ci.yml` without running
+        `gitops/ci/sync_readme_counts.py`, so the README claimed 361 of 363
+        `runs-on` lines across 323 workflows when the tree holds 362 of 364
+        across 324. Regenerated with the repo's own tool, not edited by hand.
       - >-
-        Two further reds on `main`, both confirmed pre-existing by running
-        them in a detached worktree at `origin/main`, both fixed forward.
-        (1) `test_mirrored_tool_count_matches_what_the_docs_claim`: #4641
-        graduated the 1099-K worksheet without moving the constant or the four
-        hand-typed prose counts it pins (267 -> 268); the #3407 trap CLAUDE.md
-        records, invisible while runners are starved. (2)
-        `test_validate_workflows`: that venture's `calc.test.mjs` and
-        `page.test.mjs` ran in **no workflow at all**, so its assertions
-        executed only on a contributor's machine. Added
-        `.github/workflows/1099k-reconciliation-worksheet-ci.yml` and recorded
-        it with `publish_surface.py --write` in the same commit, as that
-        check asks.
-      - >-
-        Verified locally (Actions starved -- `ci_starvation.py --run
-        34655853152` reports `runner_id: 0`, 3s, no step executed): venture
-        suite 22/22; `platform/marketing` + `platform/pages` 1255/1255;
-        `platform/proposal` + `privacy` + `webcheck` 183/183; `gitops/tests`
-        581 passed / 1 skipped; all 24 `platform/ci` unittest modules plus
-        `agent_review` OK; `clauses.mjs` clean; `guard_state.py
-        --require-runnable` exit 0 with one ENVIRONMENTAL skip.
+        Owner-blocked, each measured this session rather than inherited.
+        **Hetzner/Codex:** `DRY_RUN=1 WITH_CODEX_HOST=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1
+        bootstrap/restore-cluster.sh` prints a complete plan for all three
+        extras and stops at `cannot SSH to control-plane root@89.167.29.39`.
+        The Codex host governor — which spends a ChatGPT plan's included quota
+        via `CODEX_AUTH_JSON` and runs `worker.sh` against
+        `gitops/agents/workers/mandate.md`, itself already a mirror of the
+        portfolio's own operating mandate including the PR-drain floor — is
+        built, tested and ready to install. Blocker is
+        `hetzner-ssh-key-is-a-public-key` (#3184, queued 23+ days). No
+        duplicate ask added. **IndexNow:** still `never` for all 1008 live
+        URLs; verified the egress limit directly rather than inheriting it —
+        `api.indexnow.org`, `www.bing.com` and `duncan-haywood.github.io` all
+        `connect_rejected` at the sandbox proxy. **Usage:** `never-measured`;
+        `live_url_visitors` is `null` across every reading, never once a zero.
     mrr_end: 0
