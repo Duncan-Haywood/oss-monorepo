@@ -25792,3 +25792,136 @@ entries:
         thing that starts working the moment that key is rotated, and nothing
         that needs it before then.
     mrr_end: 0
+  - venture: hreflang-reciprocity-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `hreflang-reciprocity-check`, a free
+        zero-dependency CLI + browser tool for developers/SEO practitioners
+        that checks a page's `<link rel="alternate" hreflang href>` tags for
+        missing reciprocal confirmation (Google's own hreflang documentation
+        requires alternates to link back or the annotation may be
+        disregarded), invalid/malformed language-region codes validated
+        against the full ISO 639-1 and ISO 3166-1 lists (naming the en-uk ->
+        en-GB mistake explicitly, since "UK" was never assigned an ISO
+        3166-1 code), a missing x-default fallback, a missing
+        self-referencing hreflang entry, and duplicate/conflicting hreflang
+        values. CLI/checker archetype per pipeline/README.md's "archetype
+        itself" section, not a 247th trade-bid-calculator.
+      - >-
+        Screened first: `duplicate_check.py` scored the closest existing
+        venture (`canonical-tag-check`) at 0.16 against the final
+        description, well under the 0.45 bar; nothing in `screened-out.md`
+        mentions hreflang. Scored and graduated per
+        `portfolio/pipeline/README.md`'s rubric (composite 6.375, floor 1 on
+        `ai_leverage`, both gates clear: `liability_containment` 7,
+        `ethical_robustness` 8) -- full write-up at
+        `portfolio/pipeline/candidates/hreflang-reciprocity-check.md`, entry
+        added to `candidates.yaml` and the README table (row 36, renumbering
+        the two rows after it), and a matching row added to
+        `portfolio/scoring/venture-scores.yaml`.
+      - >-
+        Built `ventures/hreflang-reciprocity-check/`: `engine.mjs` (parsing,
+        BCP-47/ISO 639-1+ISO 3166-1 validation, reciprocity/x-default/
+        self-reference/duplicate checks, pure and network-free),
+        `fetch-page.mjs` (real HTTP(S) fetch with timeout/redirect/byte-cap
+        handling, modeled on `cors-misconfig-check/probe.mjs`, tested only
+        against a local loopback server), `check.mjs` (CLI entry point,
+        fetches the target and every alternate its own tags name), a browser
+        `index.html` that works from pasted HTML plus an honest best-effort
+        per-alternate automatic-fetch attempt (documents why a cross-origin
+        fetch usually can't be read back rather than pretending it always
+        works), a secondary doc page
+        (`why-hreflang-must-be-reciprocal.html`), and a comparison page
+        against Merkle's hreflang Tags Testing Tool
+        (`vs-merkle-hreflang-tool.html`, nominative-fair-use disclaimer,
+        sourced facts, `not affiliated with, endorsed by, or sponsored by
+        Merkle`). 81 `node --test` assertions across engine, network layer,
+        CLI, usage counter, and all three pages' structure/disclaimers.
+        `usage.mjs` follows the fleet's `localStorage`-only,
+        DNT/GPC-honouring pattern; no `sponsor_link_clicked` per-venture
+        wiring needed since the published-site build counts it fleet-wide.
+      - >-
+        Two real defects caught before shipping, both by fleet-wide guards
+        rather than by inspection. (1) `platform/marketing/front-door-
+        tools.mjs`'s link-resolver and `platform/pages/check.mjs`'s
+        dead-link scanner both do a raw text regex for `href="..."` with no
+        HTML-tag awareness, so illustrative prose like `href="..."` inside a
+        `<code>` block or a `.mjs` comment/string reads as a real dead link
+        -- reworded every such occurrence in `index.html`, `check.mjs`, and
+        `engine.mjs` (kept the illustrative syntax, dropped the literal
+        `="..."`) rather than leaving a false dead-link report standing.
+        (2) The worked-example fake page inside `index.html`'s inline
+        `<script type="module">` used literal, un-obfuscated `<body>`/
+        `</body>` tags in a JS template literal -- the exact corruption
+        `structured-data-drift-check/index.html`'s own comment warns about
+        (the site build locates a page's real closing tags by literal text
+        search to splice in shared navigation, so a fake one earlier in the
+        file gets spliced into first). `browser_checks.py --only
+        hreflang-reciprocity-check`'s sweep check caught the resulting
+        `pageerror: Unexpected end of input`; fixed by obfuscating
+        `BODY_OPEN`/`BODY_CLOSE` the same way the file already obfuscated
+        `HTML_OPEN`/`HEAD_CLOSE`/`SCRIPT_OPEN` but had declared-and-forgotten
+        for `body`.
+      - >-
+        Also caught by the same browser sweep: a `<table>` and a `<pre
+        class="cmd">` scrolled sideways at 360px/375px with no keyboard tab
+        stop (WCAG 1.4.10 Reflow and the axe `scrollable-region-focusable`
+        rule) -- wrapped both tables in a `.table-wrap { overflow-x: auto }`
+        div with `tabindex="0"` and added `tabindex="0"` to the two `<pre>`
+        blocks across `index.html` and the docs page, per the pattern
+        `platform/pages/reflow.mjs` documents for exactly this shape.
+        `python3 platform/ci/browser_checks.py --only
+        hreflang-reciprocity-check` now passes all 6 applicable checks
+        (sideways/presets/roundtrip/contrast/sweep/journey; `highlight`
+        correctly skips -- this venture makes no highlight promise).
+      - >-
+        Landing the venture pushed the apex tool mirror past 244, so fixed
+        the four-place mirrored-tool-count drift `CLAUDE.md` already
+        documents (`gitops/tests/test_manifests.py`'s own `total =` constant,
+        `infra/OWNER_CHECKLIST.md` x3, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2) and added
+        `hreflang-reciprocity-check` to `build.mjs`'s `ci` category regex so
+        it landed in "CI checks & developer gates" instead of pushing the
+        catch-all category over its own test bound. Also closed a
+        `sibling-links-ci.yml` orphan-link failure by adding one reciprocal
+        link from `canonical-tag-check/index.html` (the closest sibling by
+        `duplicate_check.py` score) back to the new venture -- the only edit
+        made to a file outside this venture.
+      - >-
+        `origin/main` moved three times while this session was in progress
+        (up to 9, then 3, then 2 more commits ahead at points checked) --
+        `ifta-quarterly-fuel-tax-calculator` graduated concurrently and
+        independently bumped the same four mirrored-tool-count places to
+        245; merged each time (`git fetch --unshallow` was needed twice --
+        the checkout re-shallowed between fetches -- then `git merge
+        origin/main`, stashing/popping this branch's uncommitted work around
+        pure-generated-file conflicts and hand-resolving two real conflicts
+        in `gitops/tests/test_manifests.py` and
+        `portfolio/scoring/venture-scores.yaml` where both branches appended
+        at the same line) and re-ran `regen.mjs` / `launched.mjs --write` /
+        `sync_readme_counts.py` / `publish_surface.py --write` plus the full
+        verification sweep after each merge. Final state: 246 mirrored
+        tools, 301 workflows, `git rev-list --count HEAD..origin/main` = 0.
+      - >-
+        Verified on this branch, after the final merge: venture's own 81
+        `node --test` assertions; `platform/pages/check.mjs dist` clean (246
+        products, 959 pages, no dead links); `node platform/pages/clauses.mjs`
+        fleet-wide clean (921 pages / 246 surfaces); `check_no_payment_code.py`
+        clean; `validate_candidates.py` / `validate_doc_consistency.py` /
+        `router/validate.py` / `score_ventures.py --check` all clean;
+        `check_venture_regression.py --base origin/main` clean;
+        `platform/marketing/*.test.mjs` + `platform/pages/*.test.mjs`
+        1219/1219; `gitops/tests` 573 passed / 1 skipped (environmental,
+        needs a GitHub-hosted runner); all 25 `platform/ci` unittest modules
+        + `agent_review` OK; `portfolio/ledger` + `scoring` + `router` +
+        `usage` + `pipeline` + `infra/tests` 435 passed;
+        `run_workflow_locally.py --tree` on this branch: 9/9 verification-
+        only workflows passed, `portfolio-validate.yml` 66/66 steps,
+        `portfolio-pages.yml` 3/3 (including `check.mjs` on the real
+        canonical build); `guard_state.py --require-runnable`: no fixable
+        skips, 1 environmental. GitHub Actions runners not re-checked this
+        session (prior entry already confirmed starvation); ran every guard
+        locally per CLAUDE.md's starvation checklist regardless.
+    mrr_end: 0

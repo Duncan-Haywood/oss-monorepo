@@ -1248,6 +1248,29 @@ candidates:
     mitigation: Keep the probe set and classification deterministic and conservative -- a probe that fails at the network level is reported as incomplete rather than silently skipped or guessed at, and a finding is only ever raised from a header this tool actually observed; never claim a full security assessment or penetration test; measure real user reports before expanding the probe set into authenticated or stateful requests, which would raise both the liability and the implementation surface.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: hreflang-reciprocity-check
+    name: hreflang reciprocity checker
+    doc: candidates/hreflang-reciprocity-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-11
+    initiated_path: ventures/hreflang-reciprocity-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+      liability_containment: 7
+      ethical_robustness: 8
+    composite: 6.375
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the validation and classification deterministic and conservative -- a code this tool has no ISO 639-1/ISO 3166-1 entry for is named as invalid or left unvalidated (a script subtag, a numeric UN M49 region) rather than guessed at, and an alternate that could not be fetched or pasted is reported as unverified, never as a confirmed-clean reciprocal link; never claim a full international-SEO audit or a ranking guarantee; measure real user reports before adding any AI-assisted feature or expanding into checking hreflang across a whole crawled site, which would raise both the liability and the implementation surface into territory an established crawler-based tool already covers.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
   - slug: social-preview-check
     name: Social preview checker
     doc: candidates/social-preview-check.md

@@ -1,0 +1,108 @@
+name: hreflang-reciprocity-check
+description: >-
+  A free, zero-dependency CLI (+ a browser tool) for developers and SEO
+  practitioners: checks a page's <link rel="alternate" hreflang="..."
+  href="..."> tags for the well-documented international-SEO
+  misconfigurations -- missing reciprocal confirmation (Google's hreflang
+  documentation requires alternates to link back or the annotation may be
+  ignored), invalid or malformed language/region codes checked against the
+  full ISO 639-1 and ISO 3166-1 lists (e.g. "en-uk", which is invalid because
+  "UK" was never an ISO 3166-1 code -- the correct code is "en-GB"), a
+  missing x-default fallback, a missing self-referencing hreflang entry, and
+  duplicate/conflicting hreflang values. The CLI fetches the target and its
+  alternates over real HTTP for CI use; the browser page works from pasted
+  HTML (or a best-effort same-page fetch attempt) since a page on a
+  different origin usually cannot read another site's response due to the
+  browser's own Cross-Origin Resource Sharing policy.
+stage: prototype
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator: portfolio/pipeline/
+# README.md's "archetype itself" section argues explicitly for this shape
+# over another <trade>-bid-calculator, and this venture follows the same
+# "read what's actually there, fetch what's named, report the exact
+# evidence" shape as cors-misconfig-check (real network probing + a
+# browser report-viewer that cannot itself do the network part) and
+# structured-data-drift-check (deterministic single-page text/markup
+# comparison, zero network in the browser).
+#
+# duplicate_check.py (run 2026-09-11) scored every existing venture,
+# screened-out row, and pipeline candidate below 0.16 for this idea's
+# description -- nowhere near the 0.45 review bar. Closest matches by eye:
+# canonical-tag-check (0.16) also reads a page's own <link> tags, but checks
+# which URL a rel=canonical tag names as authoritative, a single-page
+# question with no cross-page reciprocity to confirm; sri-check and
+# security-headers-check (also <link>/response-header evidence tools) check
+# unrelated evidence classes entirely (subresource integrity hashes,
+# clickjacking/CSP headers). Nothing in screened-out.md mentions hreflang,
+# international SEO, or alternate-language link tags.
+#
+# Distribution channel: Google's own Search Central hreflang documentation
+# states the reciprocity requirement explicitly and names disregarding the
+# annotation as the consequence of violating it -- a written, sourced
+# requirement, not an inferred one, the same shape structured-data-drift-
+# check's channel argument used for FAQPage/HowTo visibility. r/TechSEO and
+# recurring Search Engine Land/Search Engine Journal explainer articles on
+# hreflang mistakes are well-documented, recurring pain points in this
+# niche, and two established free competitor tools (Merkle's hreflang Tags
+# Testing Tool at technicalseo.com, and Aleyda Solis's hreflang tools) prove
+# real, sustained channel demand for exactly this check.
+hypotheses:
+  - claim: >-
+      A developer or SEO practitioner who is auditing an international site's
+      hreflang setup, or who got a Google Search Console International
+      Targeting report flagging a "no return tags" or "confusing"
+      hreflang error, will search terms like "hreflang reciprocal check",
+      "hreflang validator", or "en-uk hreflang invalid" and find this tool --
+      then wire the CLI into their own build's CI as a regression gate once
+      the site is fixed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      r/TechSEO, Search Engine Land/Search Engine Journal explainer content
+      about hreflang mistakes, and the existence of established free
+      competitor tools (Merkle's hreflang Tags Testing Tool, Aleyda Solis's
+      hreflang tools) show this is a real, recurring pain point with proven
+      channel demand, under-served by a zero-install CLI usable as a CI gate
+      with this portfolio's disclaimer/usage conventions.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A site owner who fixes a flagged hreflang set will get a return visit
+      or a CI wiring from the same visitor without any action from this
+      portfolio, the same repeat-usage pattern hypothesized for
+      cors-misconfig-check and structured-data-drift-check.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the CLI's network requests run on the user's
+  # own machine against a target and alternates of their choosing, and the
+  # browser tool parses only text pasted into it (or fetches directly from
+  # the visitor's own browser to a URL they named) -- no server of ours in
+  # the loop either way. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, CLI/repo engagement, or paste-in report after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's "fair
+    run" definition).
+  - A materially better free tool covering the same five checks with the
+    same zero-install, CI-usable bar becomes the obvious default, such that
+    this tool's differentiation (one CLI command usable in any CI, a
+    paste-based browser mode needing no third-party server, a classification
+    core tested independently of the network layer) no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/hreflang-reciprocity-check/
+  analytics: null

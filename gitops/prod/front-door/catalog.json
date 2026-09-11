@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 246,
-  "collection_total": 246,
+  "served_here": 247,
+  "collection_total": 247,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 32
+      "tool_count": 33
     },
     {
       "id": "evidence",
@@ -1236,6 +1236,14 @@
       "url": "https://marisstella.dev/tools/hot-tub-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a hot-tub install from size, access path, circuit footage, pad, haul-away, and crane — not a published $499-delivery-and-setup special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "hreflang-reciprocity-check",
+      "name": "hreflang Reciprocity Check — Are Your Alternate-Language Links Actually Reciprocal?",
+      "url": "https://marisstella.dev/tools/hreflang-reciprocity-check/",
+      "category": "CI checks & developer gates",
+      "description": "Free tool: paste a page's HTML (or try fetching its alternates) and check its hreflang tags for missing reciprocal links, invalid language/region codes (en-uk vs en-GB), a missing x-default, a missing self-reference, and conflicting hreflang values. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.",
       "pages": 3
     },
     {

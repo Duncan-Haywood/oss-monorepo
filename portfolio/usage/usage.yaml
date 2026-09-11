@@ -5224,3 +5224,28 @@ products:
           terms this is built to meet are "drone mapping GSD calculator",
           "how much to charge for drone mapping", "photogrammetry flight
           time calculator" and "front vs side overlap".
+  - slug: hreflang-reciprocity-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a zero-dependency CLI and browser tool
+          that checks a page's hreflang alternates for missing reciprocal
+          confirmation, invalid or malformed language-region codes, a missing
+          x-default, a missing self-reference, and duplicate or conflicting
+          values. Counts are local, opt-in, off by default, and honor DNT/GPC,
+          so zero is the expected reading for a tool nobody has visited or
+          switched the counter on for yet. Added in the merge that reconciled
+          this venture with `drone-mapping-job-calculator` (both graduated
+          2026-09-11): the venture shipped `usage.mjs` and wired both events
+          into its pages, but carried no baseline row here, so nothing in this
+          file would have recorded that the instrument exists. The reading
+          worth watching is `check_run` against `example_loaded` -- a visitor
+          who only ever loads the example has not brought their own page to
+          it, which is the difference between a demo and a tool.

@@ -437,6 +437,9 @@ workflows:
 - workflow: hot-tub-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: hreflang-reciprocity-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: hvac-maintenance-contract-calculator-ci.yml
   classification: none
   publishes: []
