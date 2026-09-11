@@ -25925,3 +25925,33 @@ entries:
         session (prior entry already confirmed starvation); ran every guard
         locally per CLAUDE.md's starvation checklist regardless.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fix-forward on #4536, same session, found by reviewing the merged diff
+        against the systemd unit rather than by a failure. That change made the
+        Hetzner site route announce each release to IndexNow and took care that
+        a *failed* announcement never fails the refresh -- every exit code
+        returns 0, because the swap has already happened and a red unit on a
+        box serving correct content is a lie. It did not cover an announcement
+        that never finishes. Node's `fetch` has no default timeout, so an
+        endpoint that accepts the connection and then goes quiet would hold the
+        script open until `portfolio-site-refresh.service`'s own
+        `TimeoutStartSec=600` killed it, and systemd would mark the unit FAILED
+        -- the exact outcome the non-fatal handling exists to prevent, reached
+        by the one path it did not guard. Bounded the call with `timeout`
+        (default 120s, `SITE_INDEXNOW_TIMEOUT`), well inside the unit's budget,
+        with exit 124 reported as its own outcome; a host without coreutils
+        `timeout` still announces rather than skipping.
+      - >-
+        Verified: gitops/tests/test_portfolio_site_host.py 32 passed (up from
+        31), the new one driving the real script against an indexnow.mjs stub
+        that genuinely hangs. Worth recording why that stub is a live timer and
+        not a bare unresolved top-level await: the first version used the
+        await, and node exits 13 immediately on a drained event loop rather
+        than hanging, so the test passed through the generic-rejection branch
+        and would have reported the timeout guard working without ever
+        exercising it. shellcheck -S warning clean.
+    mrr_end: 0

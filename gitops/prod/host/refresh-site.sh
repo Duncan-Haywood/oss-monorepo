@@ -45,6 +45,7 @@
 #   SITE_KEEP        old releases to retain     (default 3)
 #   SITE_INDEXNOW    set to 0 to skip the IndexNow announcement after a swap.
 #                    Never fails the refresh either way -- see announce_to_indexnow.
+#   SITE_INDEXNOW_TIMEOUT  seconds to allow that announcement (default 120).
 #   GH_TOKEN         read access, for a private origin. Absent is a clean hold,
 #                    not an error -- see the note where it is used.
 set -euo pipefail
@@ -309,13 +310,37 @@ announce_to_indexnow() {
     args+=(--base-url "$SITE_BASE_URL")
   fi
 
+  # Bound it, because "never fails the refresh" does not survive a *hang*.
+  #
+  # The case below returns 0 for every exit code this can produce, which
+  # covers an announcement that fails. It does not cover one that never
+  # finishes: Node's `fetch` has no default timeout, so an endpoint that
+  # accepts the connection and then goes quiet holds this open until the
+  # unit's own `TimeoutStartSec=600` kills the whole script -- and systemd
+  # marks the unit FAILED, which is precisely the "a box serving correct
+  # content looks broken" outcome the property above exists to prevent. The
+  # site is already live by then, so the failure is cosmetic and the next tick
+  # recovers, but a red unit is the signal an operator acts on and it would be
+  # lying.
+  #
+  # `timeout` costs one skipped announcement instead, well inside the unit's
+  # budget. It is coreutils and present on any Debian/Ubuntu box; the fallback
+  # is there so a host without it still announces rather than skipping.
+  local runner=(node "$script")
+  local limit="${SITE_INDEXNOW_TIMEOUT:-120}"
+  if command -v timeout >/dev/null 2>&1; then
+    runner=(timeout "$limit" node "$script")
+  fi
+
   local status=0
-  node "$script" "${args[@]}" || status=$?
+  "${runner[@]}" "${args[@]}" || status=$?
   case "$status" in
     0) log "IndexNow: submitted." ;;
     # EXIT_NO_EGRESS. Expected on a box behind a proxy, and not a deploy
     # failure: nothing was sent and nothing was broken.
     3) log "IndexNow: not submitted -- this host has no egress to api.indexnow.org." ;;
+    # GNU timeout's own code for "I killed it".
+    124) log "IndexNow: not submitted -- timed out after ${limit}s. The site is live and unaffected." ;;
     *) log "IndexNow: submission rejected (exit $status). The site is live and unaffected; see the output above." ;;
   esac
   return 0
