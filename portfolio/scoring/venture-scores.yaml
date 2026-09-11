@@ -11633,3 +11633,52 @@ ventures:
       otherwise skip 508 documentation altogether. Nothing is uploaded, no
       personal data is collected, and no claim is made that improves this
       portfolio's position at a user's expense.
+  - slug: process-server-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model -- extra-attempt,
+      rush, and skip-trace add-ons split from a client's base fee, mileage
+      revenue split from actual vehicle cost, and a break-even base fee
+      derivation -- and it is arithmetic a process server has to be able to
+      re-derive when deciding whether a client relationship is worth
+      keeping.
+    basis: >-
+      Graduated and scored 2026-09-11, in the same change, per
+      `score_ventures.py --check`. Same two-layer shape as this portfolio's
+      other route/deployment-pricing calculators
+      (`cat-adjuster-fee-calculator`, `medical-courier-route-margin`),
+      scored the same way, applied to a genuinely different buyer: an
+      independent 1099 process server paid a flat per-serve base fee,
+      deciding whether a specific job or a specific client relationship is
+      worth taking. Defensibility 3: the arithmetic is transparent and
+      reproducible, as it has to be, and it is somewhat less
+      niche-specific than the CAT-adjuster deployment split -- the
+      attempts/skip-trace/mileage-vs-vehicle-cost shape generalizes more
+      readily to other route-billing add-on structures than a blended
+      large-loss fee does. Distribution 5: "process server fee calculator"
+      and "how much to charge to serve papers" are narrow, low-competition
+      search terms, and r/ProcessServers, NAPPS's member forums, and
+      process-serving Facebook groups are named, active communities that
+      already discuss per-serve and per-attempt pricing -- but membership
+      is smaller and more fragmented than the CAT-adjuster forums this
+      portfolio scored 6, and volume is unmeasured either way.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the server's own figures, never a
+      determination of whether service was validly effected under any
+      state's rules of civil procedure, whether the server is licensed,
+      bonded, or registered in a jurisdiction, or whether an affidavit of
+      service will hold up in court. The tool never touches a live case or
+      anyone else's data. Nothing entered leaves the browser.

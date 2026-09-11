@@ -700,6 +700,9 @@ workflows:
 - workflow: print-atelier-ci.yml
   classification: none
   publishes: []
+- workflow: process-server-fee-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: proposal-module-ci.yml
   classification: none
   publishes: []

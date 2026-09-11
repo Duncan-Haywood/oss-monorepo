@@ -152,6 +152,15 @@
     <summary type="text">Paste your site&#39;s page list, a sitemap.xml, or a Markdown docs tree and get a valid llms.txt file — the emerging llmstxt.org convention that gives AI assistants a structured map of your site. Free, runs entirely in your browser, nothing is uploaded. Validate an existing llms.txt too.</summary>
   </entry>
   <entry>
+    <title>Process Server Fee &amp; Route Profit Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/process-server-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/process-server-fee-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for independent process servers: find real net profit for one service-of-process job after extra attempts, rush and skip-trace fees, mileage, and your own drive time and vehicle cost, then compare what two or three client law firms actually pay per hour.</summary>
+  </entry>
+  <entry>
     <title>Quarterly Estimated Tax Calendar — Free, No Sign-Up</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/quarterly-estimated-tax-calendar/"/>
     <id>tag:marisstella.dev,2026:tool/quarterly-estimated-tax-calendar</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: generate a sha384 integrity= hash for any script or stylesheet, or run a CLI that checks a page&#39;s cross-origin tags for a missing integrity attribute, a missing crossorigin attribute, or a hash that no longer matches what the CDN serves. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Staffing Markup Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/staffing-markup-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/staffing-markup-calculator</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="Service business pricing &amp; quotes"/>
-    <summary type="text">Price a staffing placement properly: employer burden per hour, the real gross margin behind your markup, the break-even markup, and the markup a target margin needs. Free, private, nothing leaves your browser.</summary>
   </entry>
 </feed>

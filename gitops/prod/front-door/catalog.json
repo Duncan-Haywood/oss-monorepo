@@ -9,7 +9,7 @@
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
   "served_here": 268,
-  "collection_total": 267,
+  "collection_total": 268,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -44,7 +44,7 @@
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
-      "tool_count": 19
+      "tool_count": 20
     },
     {
       "id": "backoffice",
@@ -74,7 +74,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 6
+      "tool_count": 5
     }
   ],
   "tools": [
@@ -1714,7 +1714,7 @@
       "slug": "process-server-fee-calculator",
       "name": "Process Server Fee & Route Profit Calculator",
       "url": "https://marisstella.dev/tools/process-server-fee-calculator/",
-      "category": "More free tools",
+      "category": "Service business pricing & quotes",
       "description": "Free calculator for independent process servers: find real net profit for one service-of-process job after extra attempts, rush and skip-trace fees, mileage, and your own drive time and vehicle cost, then compare what two or three client law firms actually pay per hour.",
       "pages": 2
     },

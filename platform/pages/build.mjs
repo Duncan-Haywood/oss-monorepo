@@ -514,8 +514,16 @@ const CATEGORY_RULES = [
     // professional turning time, travel, and materials/add-ons into a
     // customer-facing price, not a trade bid (nothing priced by area of
     // construction work done to the site) and not a marketplace fee.
+    // `process-server-fee-calculator` joined 2026-09-11 on its first commit,
+    // filed here rather than left for a catch-all spell: an independent
+    // process server pricing one service-of-process job from a flat base
+    // fee, extra-attempt/rush/skip-trace add-ons, mileage, and their own
+    // vehicle cost and time is the same job as `notary-trip-quote` (which it
+    // links to) — a solo legal-support professional turning a client's flat
+    // fee schedule and their own travel/time cost into an accept-or-decline
+    // decision, not a trade bid and not a marketplace fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|process-server-fee)/.test(
         slug,
       ),
   },
