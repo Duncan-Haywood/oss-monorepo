@@ -702,3 +702,146 @@ test('the no-pdb finding does not claim a budget constrains this rollout', () =>
   assert.match(f.impact, /maxUnavailable and maxSurge alone/);
   assert.match(f.impact, /node drain/);
 });
+
+test('probe defaults are normalized, so spelling does not decide the verdict', () => {
+  // Comparing handlers in full fixed a false positive and introduced a false
+  // negative: an omitted `scheme` and an explicit `scheme: HTTP` are the same
+  // request to Kubernetes, but serialized differently, so a genuine duplicate
+  // pair went unreported. Both directions are pinned here.
+  const probes = (readiness, liveness) => safeDeployment()
+    .replace(`          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+`, `          readinessProbe:
+${readiness}`)
+    .replace(`          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+`, `          livenessProbe:
+${liveness}            initialDelaySeconds: 10
+`);
+
+  const plain = `            httpGet:
+              path: /probe
+              port: 8080
+`;
+  const explicitHttp = `            httpGet:
+              path: /probe
+              port: 8080
+              scheme: HTTP
+`;
+  const https = `            httpGet:
+              path: /probe
+              port: 8080
+              scheme: HTTPS
+`;
+  const noPath = `            httpGet:
+              port: 8080
+`;
+  const rootPath = `            httpGet:
+              path: /
+              port: 8080
+`;
+
+  assert.ok(
+    ids(run(probes(plain, explicitHttp))).includes('liveness-equals-readiness'),
+    'an omitted scheme and an explicit HTTP are the same handler',
+  );
+  assert.ok(
+    ids(run(probes(noPath, rootPath))).includes('liveness-equals-readiness'),
+    'an omitted path defaults to /',
+  );
+  assert.ok(
+    !ids(run(probes(plain, https))).includes('liveness-equals-readiness'),
+    'HTTPS is a real difference and must survive normalization',
+  );
+
+  // Header order is spelling; the kubelet sends the same set either way.
+  const headers = (first, second) => `            httpGet:
+              path: /probe
+              port: 8080
+              httpHeaders:
+                - name: ${first}
+                  value: v
+                - name: ${second}
+                  value: v
+`;
+  assert.ok(
+    ids(run(probes(headers('A', 'B'), headers('B', 'A')))).includes('liveness-equals-readiness'),
+    'the same headers in a different order are the same probe',
+  );
+});
+
+
+test('repeated header names keep their order; distinct names do not', () => {
+  // RFC 9110 is asymmetric here, and so is this. Different field names carry
+  // no order; repeated lines under ONE name are combined in the order
+  // received, so reversing them is a different request. A flat sort by
+  // (name, value) collapsed both cases and called the second pair duplicates.
+  const probe = (headers) => `            httpGet:
+              path: /probe
+              port: 8080
+              httpHeaders:
+${headers}`;
+  const hdr = (name, value) => `                - name: ${name}
+                  value: ${value}
+`;
+  const pair = (readiness, liveness) => safeDeployment()
+    .replace(`          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+`, `          readinessProbe:
+${readiness}`)
+    .replace(`          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+`, `          livenessProbe:
+${liveness}            initialDelaySeconds: 10
+`);
+
+  // Same name repeated, values reversed -> a real difference.
+  const readyThenLive = probe(hdr('X-Probe', 'ready') + hdr('X-Probe', 'live'));
+  const liveThenReady = probe(hdr('X-Probe', 'live') + hdr('X-Probe', 'ready'));
+  assert.ok(
+    !ids(run(pair(readyThenLive, liveThenReady))).includes('liveness-equals-readiness'),
+    'repeated header values are combined in order, so reversing them differs',
+  );
+
+  // Distinct names reordered -> the same request.
+  const ab = probe(hdr('A', '1') + hdr('B', '2'));
+  const ba = probe(hdr('B', '2') + hdr('A', '1'));
+  assert.ok(
+    ids(run(pair(ab, ba))).includes('liveness-equals-readiness'),
+    'distinct field names carry no order',
+  );
+
+  // Identical repeated headers in the same order are still duplicates.
+  assert.ok(
+    ids(run(pair(readyThenLive, readyThenLive))).includes('liveness-equals-readiness'),
+  );
+});
+
+test('no source file in this venture contains a control character', async () => {
+  // A literal NUL reached engine.mjs once, written by a heredoc that took a
+  // backslash-u escape at face value. It parsed fine and ran fine, which is
+  // why nothing caught it -- but it makes the file binary to grep, diff and
+  // code review, so a reviewer stops being able to read the thing they are
+  // reviewing. Cheap to assert, and it fires on the whole venture.
+  const { readdir, readFile } = await import('node:fs/promises');
+  const dir = new URL('./', import.meta.url);
+  for (const name of await readdir(dir)) {
+    if (!/[.](mjs|html|md|yaml|xml|txt)$/.test(name)) continue;
+    const text = await readFile(new URL(name, dir), 'utf8');
+    const bad = [...text].findIndex((c) => {
+      const code = c.codePointAt(0);
+      return code < 9 || (code > 13 && code < 32);
+    });
+    assert.equal(bad, -1, `${name} contains a control character at index ${bad}`);
+  }
+});
