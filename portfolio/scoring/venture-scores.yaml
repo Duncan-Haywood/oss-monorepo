@@ -10741,6 +10741,18 @@ ventures:
       switch (an optional, bring-your-own-key AI bio-polish pass) is a
       plausible later add if usage shows the bio field is where people
       stall, not built speculatively now.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool renders content the artist supplies and fully controls
+      -- no financial figure, no compliance judgment, no advice-of-record.
+      The worst-case failure is a plain or incomplete press kit, not an
+      actionable claim; the footer states plainly that reviewing the output
+      (including rights to any photo link supplied) stays the artist's own
+      responsibility. Ethical robustness: helps under-resourced independent
+      artists present themselves professionally, with no adversarial
+      dynamic and no negative externality as usage scales.
   - slug: forestry-mulching-bid-calculator
     scores:
       ai_leverage: 1
@@ -10804,14 +10816,6 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Pass: the tool renders content the artist supplies and fully controls
-      -- no financial figure, no compliance judgment, no advice-of-record.
-      The worst-case failure is a plain or incomplete press kit, not an
-      actionable claim; the footer states plainly that reviewing the output
-      (including rights to any photo link supplied) stays the artist's own
-      responsibility. Ethical robustness: helps under-resourced independent
-      artists present themselves professionally, with no adversarial
-      dynamic and no negative externality as usage scales.
       Pass on both, and liability containment needed the closer look because
       the customer operates heavy equipment on land that frequently carries
       environmental restrictions. The containment is structural rather than a
