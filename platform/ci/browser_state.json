@@ -2,27 +2,6 @@
   "readings": [
     {
       "checks": [
-        "contrast",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "365aa0fae96790b7db6371d831d7982089096ee3",
-      "measured": "2026-09-10",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "apparel-decoration-price-calculator"
-      ],
-      "surface": {
-        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
-        "platform/pages": "66f1b89fc644003a5074e53e5ace199dabcae5ae",
-        "ventures": "5b896789c2e31d8a40fec232a8967537010d4819"
-      }
-    },
-    {
-      "checks": [
         "highlight"
       ],
       "commit": "365aa0fae96790b7db6371d831d7982089096ee3",
@@ -387,6 +366,27 @@
         "platform/marketing": "40c8e66eca01f2d545ca23f25cf1bddbbb2a74bc",
         "platform/pages": "add479d5154d66e1eed0c93f7924eec6a91d6cb2",
         "ventures": "886d40e7674f2ea0a78e0922a4626e96720a2904"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "a5d797880a472126577b010a287a252402e6fe82",
+      "measured": "2026-09-11",
+      "pages": 958,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "40c8e66eca01f2d545ca23f25cf1bddbbb2a74bc",
+        "platform/pages": "ed191365cbe61365ceebb45863186b132e4a7526",
+        "ventures": "efcde1298ada111d8fa7c9fe8930816f2cbb7e0f"
       }
     }
   ]
