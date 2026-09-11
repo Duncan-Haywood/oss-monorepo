@@ -10374,3 +10374,79 @@ ventures:
       page states plainly that a clean result means these named checks
       found nothing -- not a production-readiness audit, and not a
       guarantee of a zero-downtime deploy.
+  - slug: app-store-screenshot-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.000
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a PNG declares an alpha
+      channel is read from its IHDR colour type; whether it carries a tRNS
+      chunk is read from the chunk list; a file's real format is read from
+      its magic bytes; and whether a screenshot set is internally consistent
+      is exact comparison of measured dimensions. Every one is a factual,
+      deterministic property of the bytes, not a model judgment, and the
+      tool never claims to judge whether the artwork is good or whether the
+      app will pass review.
+    basis: >-
+      Screened 2026-09-11 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool in the same
+      family as the other *-check ventures, not another <trade>-bid-
+      calculator. duplicate_check.py scored every existing venture,
+      screened-out row and pipeline candidate at 0.16 or below against the
+      final description, far under the 0.45 flag bar; the nearest by eye are
+      ios-privacy-manifest-check (0.16, same "catch it before the store
+      does" framing but a different file, failure and release stage) and the
+      already-graduated mls-photo-spec-preflight (0.12, the same
+      validate-images-against-a-published-spec shape against MLS listing
+      rules -- an unrelated market and specification). Distinct within the
+      family in two ways worth recording: it is the first whose evidence is
+      binary rather than text (PNG IHDR/tRNS and JPEG SOFn bytes, not a
+      robots.txt, sitemap, header list or JSON payload), and it inverts the
+      family's usual CLI-does-the-real-work split -- a browser can read a
+      local file completely through the File API, so the page is the full
+      check rather than a degraded paste-based fallback. Autonomous ops 10 /
+      gross margin 10: the CLI reads local files and opens no sockets, the
+      browser page uploads nothing, so serving one more user costs a static
+      file. Distribution 6, a point above the family norm: the store's own
+      rejection message is a near-verbatim search query ("app icon can't
+      contain alpha channel"), searched at a moment of acute need mid-release
+      with a build already archived, and both requirements are published,
+      written rules rather than inferred ones. Based on general knowledge at
+      screening time (unverified against a live fetch this session; egress to
+      arbitrary hosts is proxy-denied here), the established paid and free
+      tooling in this category generates assets (resizing, device framing)
+      rather than validating assets the developer already has, and none of it
+      reads the alpha declaration out of a PNG header. Time to revenue 6,
+      defensibility 3: donations-only; a deterministic header-reading check
+      over a documented rule is easy to reimplement once the rule is known,
+      same as this portfolio's other checkers, so defensibility rests only on
+      the CI-usable CLI, the no-upload browser mode, the honest
+      structural-vs-table severity split, and this portfolio's
+      disclaimer/usage conventions.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: neither half of the tool opens a socket. The CLI reads the header
+      bytes of local files the user names and writes nothing; the browser
+      page reads a visitor's own files through the File API, examines only
+      the first 64 KB of each, decodes no pixels, and transmits nothing --
+      which matters more than usual here, because the files are an
+      unreleased app's artwork. The local usage counter records two event
+      names and a date and is asserted by test to record nothing else.
+      Severity is split so the tool cannot overclaim: checks derived from
+      this repository's transcription of Apple's and Google's size tables
+      carry notice severity and name that table as the suspect, while only
+      structural checks and three long-stable fixed sizes fail a build. Every
+      page states plainly that the tool is not affiliated with Apple or
+      Google, that each store's own current documentation is authoritative,
+      and that passing every check means the images are well-formed enough to
+      upload -- never that the app will be approved.
