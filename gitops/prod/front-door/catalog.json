@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 251,
-  "collection_total": 251,
+  "served_here": 252,
+  "collection_total": 252,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 37
+      "tool_count": 38
     },
     {
       "id": "evidence",
@@ -1357,6 +1357,14 @@
       "category": "CI checks & developer gates",
       "description": "Paste two snapshots of your dependency tree's declared licenses (npm, pip, cargo, go) and find out in one click which packages changed license since the last one — the change Dependabot and Renovate do not flag. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 3
+    },
+    {
+      "slug": "llms-txt-generator",
+      "name": "llms.txt Generator — Build a Spec-Compliant llms.txt File Free",
+      "url": "https://marisstella.dev/tools/llms-txt-generator/",
+      "category": "CI checks & developer gates",
+      "description": "Paste your site's page list, a sitemap.xml, or a Markdown docs tree and get a valid llms.txt file — the emerging llmstxt.org convention that gives AI assistants a structured map of your site. Free, runs entirely in your browser, nothing is uploaded. Validate an existing llms.txt too.",
+      "pages": 2
     },
     {
       "slug": "locksmith-bid-calculator",

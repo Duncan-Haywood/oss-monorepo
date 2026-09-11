@@ -128,7 +128,10 @@
         <p class="hint" style="margin:14px 0 0">Net margin is a share of the price, not a mark-up on cost. Ten per cent margin on a $10,000 job is $1,000 of profit; a 10% mark-up on $10,000 of cost is $909. The rate you charge today is optional and changes none of the arithmetic &mdash; leave it blank and the answer is the same; fill it in and the result also says what that rate is earning, and what would have to be true for it to work.</p>
         <div class="actions">
           <button type="submit" class="primary" id="calculate">Work out my shop rate</button>
+          <button type="button" id="saveScenario">Save this scenario on this device</button>
+          <button type="button" id="forgetScenario" hidden>Forget saved scenario</button>
         </div>
+        <p class="hint" id="scenarioStatus" role="status" style="margin:8px 0 0"></p>
       </section>
     </form>
 
@@ -263,7 +266,7 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, accounting, insurance, or financial advice, and it does not tell you what to charge, what your workers&rsquo; comp classification is, or how anyone should be classified or paid. It is arithmetic on the numbers you type. Verify every figure against your own payroll records, insurance declarations, and accounts, and against a qualified professional, before relying on it or pricing work with it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your wage, payroll costs, overhead and resulting rates are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally. Saving your shop rates writes the four carried figures to this site&rsquo;s own browser storage so the bid calculators can read them; clearing your browser data clears them.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your wage, payroll costs, overhead and resulting rates are never uploaded and never appear in a usage count &mdash; those are anonymous tallies of which features were used, stored locally. Saving your shop rates writes the four carried figures to this site&rsquo;s own browser storage so the bid calculators can read them; clearing your browser data clears them. &ldquo;Save this scenario on this device&rdquo; writes all eighteen figures the same way, so you are not retyping your whole payroll and overhead picture on your next visit &mdash; deliberately local storage only, with no shareable link: a shop&rsquo;s payroll and overhead are more than should ever ride in a URL you might paste into a chat app.</p>
     <p>Pricing custom field work instead of shop labor? The <a href="../custom-farm-rate-calculator/">custom farm rate calculator</a> works out a per-acre rate from a machine's field capacity, fuel, repairs, and ownership cost &mdash; nothing uploaded.</p>
     <p>Billing someone else&rsquo;s labor to a client rather than your own crew&rsquo;s? The <a href="../staffing-markup-calculator/">staffing markup calculator</a> prices a placement the way agencies quote it &mdash; a markup on the pay rate &mdash; and shows what that markup earns once capped unemployment taxes, the workers&rsquo; comp class code, and the wait to be paid are counted.</p>
     <p class="support">Free and open source. If it changes what you bid, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -273,6 +276,17 @@
     import { calculateShopRate, ALL_INPUT_IDS } from './calc.mjs';
     import { saveCarriedRates, readCarriedRates, SHOP_RATES_KEY } from './shop-rates.mjs';
     import { recordUsage } from './usage.mjs';
+
+    // The four rates above are what the *rest of the site* reads; nothing
+    // saved the other fourteen (crew size, hours, benefits, overhead line
+    // items, materials). A shop owner revisiting this calculator itself still
+    // retyped the whole form every time. This key holds the full scenario, on
+    // this device only — deliberately no shareable link and no URL encoding:
+    // a shop's payroll and overhead figures are more than should ever ride in
+    // a URL that could end up logged or pasted into a chat app. See the
+    // "does not read or write a saved bid or a shared link" test below, which
+    // this save/restore pair is written to keep true.
+    const SCENARIO_KEY = 'shop-rate-calculator-scenario';
 
     const el = id => document.getElementById(id);
     const money = (value) => {
@@ -294,6 +308,12 @@
 
     function readInput() {
       return Object.fromEntries(ALL_INPUT_IDS.map(id => [id, el(id).value]));
+    }
+
+    function writeInputs(values) {
+      for (const id of ALL_INPUT_IDS) {
+        if (Object.prototype.hasOwnProperty.call(values, id)) el(id).value = values[id];
+      }
     }
 
     // The last good result, so the carry button never writes rates that are not
@@ -466,6 +486,38 @@
       refreshSavedState();
     });
 
+    el('saveScenario').addEventListener('click', () => {
+      try {
+        localStorage.setItem(SCENARIO_KEY, JSON.stringify(readInput()));
+        el('scenarioStatus').textContent = 'Saved to this browser on this device. Nothing was uploaded.';
+        count('scenario_saved');
+      } catch {
+        el('scenarioStatus').textContent = 'This browser will not let the page save site data, so the scenario could not be stored.';
+      }
+      refreshScenarioState();
+    });
+
+    el('forgetScenario').addEventListener('click', () => {
+      try {
+        localStorage.removeItem(SCENARIO_KEY);
+        el('scenarioStatus').textContent = 'Saved scenario deleted from this browser.';
+        count('scenario_forgotten');
+      } catch {
+        el('scenarioStatus').textContent = 'This browser will not let the page change site data.';
+      }
+      refreshScenarioState();
+    });
+
+    function refreshScenarioState() {
+      let saved = null;
+      try {
+        saved = JSON.parse(localStorage.getItem(SCENARIO_KEY) || 'null');
+      } catch {
+        // A blob written by a future version, or a browser refusing storage.
+      }
+      el('forgetScenario').hidden = !(saved && typeof saved === 'object');
+    }
+
     // The page's own copy promises "the form opens on a worked example", and the
     // eighteen defaults are that example -- but the answer stayed hidden behind
     // the button, so a first visit showed an em-dash and the example's whole
@@ -473,20 +525,48 @@
     // was invisible. Every sibling bid calculator opens on its own worked
     // result; this one now does too.
     //
-    // Two things are deliberately *not* done here. No `rate_calculated` count:
-    // that event is the denominator of this venture's carry-through ratio, and
-    // a page load is not a calculation. And `current` is cleared afterwards, so
-    // the carry button still needs an explicit press -- carrying the example's
-    // figures would open all 103 bid calculators on someone else's shop, which
-    // is the exact error this venture exists to stop.
+    // A returning visitor who saved their own scenario gets their own figures
+    // here instead of the shipped example -- restored before this runs, so the
+    // first render is already theirs rather than a stranger's shop. `current`
+    // is set (not left null) in that case: it is a real result the visitor
+    // already confirmed once by saving it, not an unpressed example, so the
+    // carry button works immediately on a returning visit.
+    //
+    // Two things are deliberately *not* done for the shipped example itself.
+    // No `rate_calculated` count: that event is the denominator of this
+    // venture's carry-through ratio, and a page load is not a calculation.
+    // And `current` stays null for the example specifically, so the carry
+    // button still needs an explicit press -- carrying the example's figures
+    // would open all 103 bid calculators on someone else's shop, which is the
+    // exact error this venture exists to stop.
     (() => {
+      let restoredOwnScenario = false;
+      try {
+        const savedScenario = JSON.parse(localStorage.getItem(SCENARIO_KEY) || 'null');
+        if (savedScenario && typeof savedScenario === 'object') {
+          writeInputs(savedScenario);
+          restoredOwnScenario = true;
+        }
+      } catch {
+        // A browser refusing storage, or a blob from a future version.
+      }
+
       const example = calculateShopRate(readInput());
       if (!example.ok) return;
       render(example);
-      current = null;
-      showingExample = true;
-      el('exampleNote').hidden = false;
+      if (restoredOwnScenario) {
+        current = example;
+        showingExample = false;
+        el('exampleNote').hidden = true;
+        el('scenarioStatus').textContent = 'Opened your saved scenario. Review the numbers before you rely on them.';
+      } else {
+        current = null;
+        showingExample = true;
+        el('exampleNote').hidden = false;
+      }
     })();
+
+    refreshScenarioState();
 
     el('forgetRates').addEventListener('click', () => {
       try {

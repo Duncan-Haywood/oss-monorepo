@@ -10,6 +10,9 @@ import {
   INDEXNOW_ENDPOINT,
   MAX_URLS_PER_REQUEST,
   urlsFromCatalog,
+  urlsFromSitemaps,
+  locsIn,
+  isSitemapIndex,
   buildPayload,
   submit,
   readerFor,
@@ -100,11 +103,131 @@ test('MAX_URLS_PER_REQUEST matches the protocol ceiling', () => {
   assert.equal(MAX_URLS_PER_REQUEST, 10000);
 });
 
-async function withFixtureDir(fn) {
+// --- the published surface, not just the catalogue index -------------------
+//
+// Measured 2026-09-11 against the live `gh-pages` snapshot: `catalog.json`
+// named 261 URLs and the published sitemaps enumerated 973. The 712 in the
+// difference are the `vs-*` comparison pages, guides and FAQ pages -- the
+// long-tail surface this catalogue builds specifically to be found by search,
+// and the surface IndexNow exists to announce. These tests pin the walk that
+// closes that gap.
+
+test('locsIn reads every <loc> and unescapes the one entity build.mjs writes', () => {
+  assert.deepEqual(locsIn(urlset(['https://a.test/', 'https://a.test/b.html'])), [
+    'https://a.test/',
+    'https://a.test/b.html',
+  ]);
+  assert.deepEqual(locsIn('<url><loc>https://a.test/?x=1&amp;y=2</loc></url>'), ['https://a.test/?x=1&y=2']);
+  assert.deepEqual(locsIn('<urlset></urlset>'), []);
+});
+
+test('isSitemapIndex distinguishes an index of sitemaps from a set of pages', () => {
+  assert.equal(isSitemapIndex(SITEMAP_INDEX), true);
+  assert.equal(isSitemapIndex(urlset(['https://a.test/'])), false);
+});
+
+test('urlsFromSitemaps follows the index into every child sitemap', () =>
+  withFixtureDir(async (dir) => {
+    const { urls, warnings, childCount } = await urlsFromSitemaps(readerFor({ dir }), BASE);
+    assert.equal(childCount, 3);
+    assert.deepEqual(warnings, []);
+    assert.equal(urls.length, FIXTURE_PAGE_COUNT);
+    // The regression this exists to prevent: reading only the root sitemap
+    // yields the three *sitemap* URLs and not one page.
+    assert.ok(urls.includes(`${BASE}gutter-guard-bid-calculator/vs-leaffilter.html`));
+    assert.ok(!urls.some((u) => u.endsWith('sitemap.xml')));
+  }));
+
+test('urlsFromSitemaps returns a root <urlset> as-is, without a second pass', () =>
+  withFixtureDir(async (dir) => {
+    await fs.writeFile(path.join(dir, 'sitemap.xml'), urlset([BASE, `${BASE}solo.html`]));
+    const { urls, childCount } = await urlsFromSitemaps(readerFor({ dir }), BASE);
+    assert.equal(childCount, 0);
+    assert.deepEqual(urls, [BASE, `${BASE}solo.html`]);
+  }));
+
+// Degrading rather than refusing is a deliberate trade: announcing most of
+// the site beats announcing none of it because one child is unreadable. The
+// warning is what keeps a systematic breakage from being silent.
+test('urlsFromSitemaps skips an unreadable or foreign child sitemap and says so', () =>
+  withFixtureDir(async (dir) => {
+    await fs.rm(path.join(dir, 'shop-rate-calculator/sitemap.xml'));
+    await fs.writeFile(
+      path.join(dir, 'sitemap.xml'),
+      SITEMAP_INDEX.replace('</sitemapindex>', '  <sitemap><loc>https://elsewhere.test/sitemap.xml</loc></sitemap>\n</sitemapindex>'),
+    );
+    const { urls, warnings } = await urlsFromSitemaps(readerFor({ dir }), BASE);
+    assert.equal(urls.length, FIXTURE_PAGE_COUNT - 2); // the two shop-rate pages
+    assert.equal(warnings.length, 2);
+    assert.ok(warnings.some((w) => /absent from the artifact/.test(w)));
+    assert.ok(warnings.some((w) => /not under/.test(w)));
+  }));
+
+test('the CLI submits the union of the catalogue and the sitemaps, and names both sources', () =>
+  withFixtureDir(async (dir) => {
+    const out = execFileSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8' });
+    assert.match(out, new RegExp(`${CATALOG.tools.length + CATALOG.categories.length + 1} from catalog\\.json`));
+    assert.match(out, new RegExp(`${FIXTURE_PAGE_COUNT} from 3 published sitemap\\(s\\)`));
+  }));
+
+// A missing sitemap must not cost the announcement entirely: the catalogue
+// floor is still a correct submission. It must also not be quiet, because the
+// difference between announcing the site and announcing a quarter of it is
+// exactly what this change was about.
+test('the CLI falls back to the catalogue floor, loudly, when the sitemaps cannot be read', () =>
+  withFixtureDir(
+    async (dir) => {
+      const out = execFileSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8', stdio: 'pipe' });
+      assert.match(out, new RegExp(`${CATALOG.tools.length + CATALOG.categories.length + 1} URL\\(s\\)`));
+      assert.match(out, /sitemaps UNREAD/);
+    },
+    { sitemaps: false },
+  ));
+
+// The fixture mirrors what `build.mjs` actually publishes: `sitemap.xml` is a
+// sitemap *index*, and the per-venture sitemaps it names carry pages that are
+// not in `catalog.json` at all -- the `vs-*` comparison pages and guides.
+// That shape is the whole point of the sitemap walk, so the fixture has to
+// have it or the tests below would pass against a site that does not exist.
+const BASE = CATALOG.url;
+const SITEMAP_INDEX = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap><loc>${BASE}sitemap-hub.xml</loc></sitemap>
+  <sitemap><loc>${BASE}gutter-guard-bid-calculator/sitemap.xml</loc></sitemap>
+  <sitemap><loc>${BASE}shop-rate-calculator/sitemap.xml</loc></sitemap>
+</sitemapindex>`;
+const CHILD_SITEMAPS = {
+  'sitemap-hub.xml': [BASE, `${BASE}about.html`],
+  // Three pages for one tool, only the first of which catalog.json names.
+  'gutter-guard-bid-calculator/sitemap.xml': [
+    `${BASE}gutter-guard-bid-calculator/`,
+    `${BASE}gutter-guard-bid-calculator/vs-leaffilter.html`,
+    `${BASE}gutter-guard-bid-calculator/guide.html`,
+  ],
+  'shop-rate-calculator/sitemap.xml': [
+    `${BASE}shop-rate-calculator/`,
+    `${BASE}shop-rate-calculator/vs-shopmonkey.html`,
+  ],
+};
+const urlset = (locs) =>
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${locs
+    .map((loc) => `  <url><loc>${loc}</loc></url>`)
+    .join('\n')}\n</urlset>`;
+// Every distinct page the fixture site publishes: 2 hub + 3 + 2.
+const FIXTURE_PAGE_COUNT = 7;
+
+async function withFixtureDir(fn, { sitemaps = true } = {}) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'indexnow-fixture-'));
   try {
     await fs.writeFile(path.join(dir, 'catalog.json'), JSON.stringify(CATALOG));
     await fs.writeFile(path.join(dir, indexNowKeyFileName()), INDEXNOW_KEY);
+    if (sitemaps) {
+      await fs.writeFile(path.join(dir, 'sitemap.xml'), SITEMAP_INDEX);
+      for (const [rel, locs] of Object.entries(CHILD_SITEMAPS)) {
+        await fs.mkdir(path.join(dir, path.dirname(rel)), { recursive: true });
+        await fs.writeFile(path.join(dir, rel), urlset(locs));
+      }
+    }
     await fn(dir);
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
@@ -134,7 +257,11 @@ test('CLI dry run prints what would be submitted and makes no network call', () 
     // an environment problem to work around.
     const out = execFileSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8' });
     assert.match(out, /Dry run — no request sent/);
-    assert.match(out, new RegExp(`${CATALOG.tools.length + CATALOG.categories.length + 1} URL\\(s\\)`));
+    // The union of the catalogue floor and the published sitemaps. The two
+    // category pages are catalogue-only (no sitemap lists them) and the
+    // comparison/guide pages are sitemap-only, so this number being right
+    // means both halves landed and neither replaced the other.
+    assert.match(out, new RegExp(`${FIXTURE_PAGE_COUNT + CATALOG.categories.length} URL\\(s\\)`));
     assert.match(out, /example\.test/);
   }));
 
