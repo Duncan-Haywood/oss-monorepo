@@ -33,20 +33,20 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556579 bytes
-#   portfolio-front-tools-1: 110 files, 555646 bytes
-#   portfolio-front-tools-2: 149 files, 548273 bytes
-#   portfolio-front-tools-3: 144 files, 555086 bytes
-#   portfolio-front-tools-4: 122 files, 556830 bytes
-#   portfolio-front-tools-5: 130 files, 549630 bytes
-#   portfolio-front-tools-6: 135 files, 549959 bytes
-#   portfolio-front-tools-7: 113 files, 545165 bytes
-#   portfolio-front-tools-8: 112 files, 547062 bytes
-#   portfolio-front-tools-9: 118 files, 546579 bytes
-#   portfolio-front-tools-10: 127 files, 551717 bytes
-#   portfolio-front-tools-11: 102 files, 556654 bytes
-#   portfolio-front-tools-12: 114 files, 543333 bytes
-#   portfolio-front-tools-13: 61 files, 307226 bytes
+#   portfolio-front-tools-0: 136 files, 556589 bytes
+#   portfolio-front-tools-1: 110 files, 555655 bytes
+#   portfolio-front-tools-2: 149 files, 548278 bytes
+#   portfolio-front-tools-3: 144 files, 555068 bytes
+#   portfolio-front-tools-4: 122 files, 556826 bytes
+#   portfolio-front-tools-5: 130 files, 549571 bytes
+#   portfolio-front-tools-6: 135 files, 550056 bytes
+#   portfolio-front-tools-7: 115 files, 553242 bytes
+#   portfolio-front-tools-8: 113 files, 556818 bytes
+#   portfolio-front-tools-9: 121 files, 555637 bytes
+#   portfolio-front-tools-10: 128 files, 554654 bytes
+#   portfolio-front-tools-11: 102 files, 556719 bytes
+#   portfolio-front-tools-12: 114 files, 543269 bytes
+#   portfolio-front-tools-13: 61 files, 307284 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1142,12 +1142,19 @@ configMapGenerator:
       - hot-tub-bid-calculator__share.mjs.gz=hot-tub-bid-calculator__share.mjs.gz
       - hot-tub-bid-calculator__usage.mjs.gz=hot-tub-bid-calculator__usage.mjs.gz
       - hot-tub-bid-calculator__vs-jobber.html.gz=hot-tub-bid-calculator__vs-jobber.html.gz
-      - ice-dam-removal-bid-calculator__calc.mjs.gz=ice-dam-removal-bid-calculator__calc.mjs.gz
+      - hreflang-reciprocity-check__check.mjs.gz=hreflang-reciprocity-check__check.mjs.gz
+      - hreflang-reciprocity-check__engine.mjs.gz=hreflang-reciprocity-check__engine.mjs.gz
+      - hreflang-reciprocity-check__fetch-page.mjs.gz=hreflang-reciprocity-check__fetch-page.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hreflang-reciprocity-check__index.html.gz=hreflang-reciprocity-check__index.html.gz
+      - hreflang-reciprocity-check__usage.mjs.gz=hreflang-reciprocity-check__usage.mjs.gz
+      - hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz=hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz
+      - hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz=hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz
+      - ice-dam-removal-bid-calculator__calc.mjs.gz=ice-dam-removal-bid-calculator__calc.mjs.gz
       - ice-dam-removal-bid-calculator__index.html.gz=ice-dam-removal-bid-calculator__index.html.gz
       - ice-dam-removal-bid-calculator__usage.mjs.gz=ice-dam-removal-bid-calculator__usage.mjs.gz
       - ice-dam-removal-bid-calculator__vs-jobber.html.gz=ice-dam-removal-bid-calculator__vs-jobber.html.gz
@@ -1256,15 +1263,15 @@ configMapGenerator:
       - metal-roof-bid-calculator__calc.mjs.gz=metal-roof-bid-calculator__calc.mjs.gz
       - metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz=metal-roof-bid-calculator__how-much-to-charge-for-a-metal-roof.html.gz
       - metal-roof-bid-calculator__index.html.gz=metal-roof-bid-calculator__index.html.gz
-      - metal-roof-bid-calculator__usage.mjs.gz=metal-roof-bid-calculator__usage.mjs.gz
-      - metal-roof-bid-calculator__vs-acculynx.html.gz=metal-roof-bid-calculator__vs-acculynx.html.gz
-      - mini-split-bid-calculator__calc.mjs.gz=mini-split-bid-calculator__calc.mjs.gz
-      - mini-split-bid-calculator__how-much-to-charge-to-install-a-mini-split.html.gz=mini-split-bid-calculator__how-much-to-charge-to-install-a-mini-split.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - metal-roof-bid-calculator__usage.mjs.gz=metal-roof-bid-calculator__usage.mjs.gz
+      - metal-roof-bid-calculator__vs-acculynx.html.gz=metal-roof-bid-calculator__vs-acculynx.html.gz
+      - mini-split-bid-calculator__calc.mjs.gz=mini-split-bid-calculator__calc.mjs.gz
+      - mini-split-bid-calculator__how-much-to-charge-to-install-a-mini-split.html.gz=mini-split-bid-calculator__how-much-to-charge-to-install-a-mini-split.html.gz
       - mini-split-bid-calculator__index.html.gz=mini-split-bid-calculator__index.html.gz
       - mini-split-bid-calculator__usage.mjs.gz=mini-split-bid-calculator__usage.mjs.gz
       - mini-split-bid-calculator__vs-servicetitan.html.gz=mini-split-bid-calculator__vs-servicetitan.html.gz
@@ -1382,12 +1389,12 @@ configMapGenerator:
       - pool-plaster-bid-calculator__usage.mjs.gz=pool-plaster-bid-calculator__usage.mjs.gz
       - pool-plaster-bid-calculator__vs-buildxact.html.gz=pool-plaster-bid-calculator__vs-buildxact.html.gz
       - popcorn-ceiling-bid-calculator__calc.mjs.gz=popcorn-ceiling-bid-calculator__calc.mjs.gz
-      - popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz=popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz=popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz
       - popcorn-ceiling-bid-calculator__index.html.gz=popcorn-ceiling-bid-calculator__index.html.gz
       - popcorn-ceiling-bid-calculator__usage.mjs.gz=popcorn-ceiling-bid-calculator__usage.mjs.gz
       - popcorn-ceiling-bid-calculator__vs-jobber.html.gz=popcorn-ceiling-bid-calculator__vs-jobber.html.gz

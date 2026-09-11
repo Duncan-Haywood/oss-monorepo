@@ -10043,3 +10043,67 @@ ventures:
       mileage schedule is both tax data and a map of the business's lanes.
       No account, no upload, no data retained anywhere but an anonymous
       local event count.
+  - slug: hreflang-reciprocity-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a hreflang alternate links
+      back, and whether a language/region code is valid, is decided by exact
+      comparison against the target's own normalized URL and the full
+      ISO 639-1/ISO 3166-1 lists -- a factual, deterministic comparison, not
+      a model judgment, and it never claims a full international-SEO audit.
+    basis: >-
+      Screened 2026-09-11 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool in the same
+      shape as cors-misconfig-check (real network fetch the browser can't
+      fully do itself) and structured-data-drift-check (deterministic
+      markup-vs-evidence comparison), not a 246th <trade>-bid-calculator.
+      duplicate_check.py scored the closest existing venture
+      (canonical-tag-check, a different <link>-tag question -- which URL a
+      rel=canonical tag names, a single-page question with no cross-page
+      reciprocity) at 0.16 against the final description, well under the
+      0.45 flag bar; nothing in screened-out.md or the existing venture set
+      reads hreflang tags. Autonomous ops 10 / gross margin 10: the CLI's
+      requests run from the user's own machine against a target and
+      alternates they choose, and the browser's automatic-fetch attempts run
+      in the visitor's own tab, so serving one more user costs a static
+      file.
+      Distribution 6: a developer or SEO practitioner auditing an
+      international site, or responding to a Search Console International
+      Targeting report, is a real, named search-term anchor (Google's own
+      hreflang documentation, "hreflang reciprocal check", "en-uk hreflang
+      invalid"), plus r/TechSEO and recurring Search Engine Land/Search
+      Engine Journal hreflang-mistake explainer content -- narrower than a
+      general security-checker audience (cors-misconfig-check) since it is
+      specific to international SEO rather than web security broadly.
+      Time to revenue 6, defensibility 3: donations-only; a transparent
+      probe-and-classify tool over a documented reciprocity rule and two
+      closed ISO code lists is easy to reimplement, and two established free
+      competitor tools already exist (Merkle's hreflang Tags Testing Tool,
+      Aleyda Solis's hreflang tools) -- evidence of real channel demand
+      rather than an unserved niche, but not a moat -- so defensibility
+      rests only on the CI-usable CLI and paste-based, no-third-party-server
+      browser mode, and this portfolio's disclaimer/usage conventions.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only ordinary, unauthenticated GET requests from
+      the user's own machine to a target and alternate URLs the user's own
+      page names, and the browser's automatic-fetch attempts run in the
+      visitor's own tab against a URL shown on screen -- never this
+      portfolio's infrastructure touching a third party, no different in
+      kind from opening a URL in a tab. An alternate that could not be
+      fetched or pasted is reported as unverified, never as a confirmed-
+      clean reciprocal link, and every page states plainly that a clean
+      result is evidence from the pages actually fetched or pasted, not a
+      full international-SEO audit or a ranking guarantee.

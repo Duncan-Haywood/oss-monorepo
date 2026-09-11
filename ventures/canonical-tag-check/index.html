@@ -287,9 +287,11 @@
   <p>Also worth a pass: <a href="../structured-data-drift-check/">Structured Data drift checker</a>
   covers a different "does what search engines read still match the page" question — whether a
   page's own JSON-LD still matches its visible text, rather than which URL the page claims is
-  canonical — and <a href="../security-headers-check/">Security Headers checker</a> covers a third,
+  canonical — <a href="../security-headers-check/">Security Headers checker</a> covers a third,
   unrelated response-header evidence class: clickjacking protection and Content-Security-Policy
-  strength.</p>
+  strength — and <a href="../hreflang-reciprocity-check/">hreflang Reciprocity Check</a> covers a
+  fourth: whether a page's alternate-language links actually link back to it, rather than which URL
+  is canonical.</p>
 </footer>
 </body>
 </html>
