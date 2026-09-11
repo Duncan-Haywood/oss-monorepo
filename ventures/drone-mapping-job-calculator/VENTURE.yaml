@@ -1,0 +1,71 @@
+name: drone-mapping-job-calculator
+description: >-
+  A private browser worksheet for Part 107 pilots quoting aerial mapping and
+  photogrammetry survey work. It computes ground sample distance from physical
+  sensor width, true focal length and image width at a chosen altitude, and the
+  altitude a target GSD would require; turns the frame footprint and the two
+  overlap settings into flight line spacing, exposure spacing, line count and
+  total image count; converts path length into airtime, sorties and battery
+  swaps; adds the field hours that are not airtime -- setup, ground control,
+  swaps and travel -- and the processing hours that follow the image count; and
+  prices the job at a target margin taken on price rather than as a markup on
+  cost. It shows the same site flown at four overlap settings side by side,
+  because the overlap spec is the term that moves a mapping job most and the
+  one a per-acre quote cannot see. It ships no airspace data and files nothing
+  by design; it flags a target GSD that would need more than the 400 ft Part
+  107 ceiling rather than planning an altitude that cannot legally be flown.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: >-
+      Pilots quote mapping work per acre, and the overlap specification -- which
+      never appears in a per-acre number -- moves the real cost enough that
+      seeing it changes how they write the quote. On the shipped 100-acre
+      example, 70/70 to 80/80 is 2.19x the images and $135.30 more to quote, a
+      21.9% swing on a job whose acreage did not change at all.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The quadratic is the part that is genuinely counter-intuitive rather than
+      merely tedious. Image count goes as 1/((1-front)(1-side)) while airtime
+      goes only as 1/(1-side), so the flight looks almost unchanged and the
+      processing bill more than doubles -- which is why the error survives
+      experience and a pilot who has flown a hundred jobs still concedes the
+      overlap on a call.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Airtime is a small minority of a mapping day -- 12% of billable field time
+      on the shipped example, against 44% travel and 22% ground control -- and
+      pilots who discount because "it is only a twenty-minute flight" are
+      discounting against a number that was never the cost.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Refusing to ship airspace data, LAANC integration or a mission planner is
+      a feature rather than a gap. The tool a pilot quotes from and the software
+      they fly from are different tools used at different moments, and a
+      quoting worksheet carrying stale airspace would be worse than one
+      carrying none.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three pilots price a second job within 90 days, which is the shortest interval at which a quoting tool can show it entered anybody's workflow.
+  - Pilots report their ground control software already reports image count and airtime for a planned mission, so the flight arithmetic here is one they are handed before they need to quote.
+  - The overlap insight turns out not to be news -- pilots already price overlap as a named term and the per-acre quote this exists to argue against is not what the trade actually does.
+  - Pilots report that a square-site model is too coarse to quote from, and that without parcel geometry or a corridor mode the airtime is not usable however correct the optics are.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/drone-mapping-job-calculator/
+  analytics: null

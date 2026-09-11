@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Drone Mapping Job Calculator | GSD, Flight Time, Image Count and What to Quote</title>
+  <meta name="description" content="Plan and price an aerial mapping sortie: ground sample distance from your sensor and altitude, flight line spacing, image count, airtime, battery swaps, processing hours and the price that clears your margin. Free, private, nothing leaves your browser.">
+  <meta property="og:title" content="Drone Mapping Job Calculator">
+  <meta property="og:description" content="Overlap is not linear. Going 70/70 to 80/80 sounds like a small change and is more than twice the photographs. Price the flight you are actually going to fly.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Drone Mapping Job Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Ground sample distance computed from physical sensor width, true focal length and image width at a chosen altitude, and the altitude required for a target GSD; image footprint, flight line spacing and exposure spacing from front and side overlap; flight line count, total image count, path length and airtime for a site given in acres; sorties and battery swaps from usable battery window; field hours including setup, ground control points, swaps and travel; processing hours from image count; total cost and the price that clears a target margin taken on price rather than as a markup on cost; a side-by-side of the same site flown at two overlap settings; and advisory checks for a target GSD that would need more than the 400 ft Part 107 ceiling, a job needing more sorties than batteries carried, absent ground control, and overlap below the usual photogrammetry reconstruction floor"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you calculate ground sample distance for a drone survey?","acceptedAnswer":{"@type":"Answer","text":"GSD in centimetres per pixel is the physical sensor width in millimetres, times altitude in metres, times 100, divided by the true focal length in millimetres times the image width in pixels. The 100 converts metres to centimetres, and the two millimetre figures cancel, which is why the formula needs a physical sensor width rather than a crop factor. The mistake that quietly ruins a spreadsheet is using the 35 mm equivalent focal length alongside the real sensor width: the answer still looks plausible and the flight comes back at the wrong resolution."}},{"@type":"Question","name":"Why does raising overlap from 70% to 80% cost so much more than it sounds?","acceptedAnswer":{"@type":"Answer","text":"Because image count scales as one divided by the product of the two remaining fractions. At 70% front and 70% side you keep 30% of each, so the count goes as 1 / (0.3 x 0.3). At 80/80 you keep 20% of each, so it goes as 1 / (0.2 x 0.2). That is 2.25 times the photographs for what sounds like ten more percent. Airtime rises much less, around 1.5 times, because only side overlap adds flight lines — front overlap just triggers the shutter more often along a line you were already flying. So the airtime barely moves, the image count more than doubles, and the processing bill follows the image count. A pilot quoting by the acre absorbs that difference personally."}},{"@type":"Question","name":"Does a finer GSD mean a longer flight?","acceptedAnswer":{"@type":"Answer","text":"Yes, and roughly as the square. A finer GSD needs a lower altitude, a lower altitude gives a smaller ground footprint per frame, and a smaller footprint means both more flight lines across the site and more exposures along each one. Halving the GSD halves the altitude, which halves the footprint in both directions and so roughly quadruples the image count and doubles the number of lines. Agreeing a resolution on a call without pricing it again is one of the more expensive habits in this trade."}},{"@type":"Question","name":"Can I fly high enough to get any GSD I want?","acceptedAnswer":{"@type":"Answer","text":"No. 14 CFR 107.51(b) caps a small unmanned aircraft at 400 feet above ground level, which is 121.92 metres, unless you are within 400 feet of a structure or hold a waiver. If a coarse target GSD would need more altitude than that, you fly at the ceiling instead, get a finer GSD than the client asked for, and cover less ground per pass — so the flight takes longer than an unrestricted plan suggests. This calculator flags that case rather than quietly planning an illegal altitude. It does not grant any authorisation, check airspace, or file anything: LAANC, airspace class and currency remain entirely yours."}},{"@type":"Question","name":"What does this assume about the shape of the site?","acceptedAnswer":{"@type":"Answer","text":"That it is square. Acreage alone does not determine a flight — a long thin corridor and a square block of the same area fly very differently — and a square is the shape with the least perimeter for a given area. That makes this the optimistic end of the range rather than a neutral guess, so real flights over awkward parcels run longer, not shorter. Treat the airtime as a floor. For a corridor job, price it from the corridor length and swath width instead of from acreage."}},{"@type":"Question","name":"Is margin the same as markup?","acceptedAnswer":{"@type":"Answer","text":"No, and confusing them is how a job that looked profitable is not. Margin is a share of the price: a 40% margin means price equals cost divided by 0.6. Markup is a share of the cost: adding 40% to cost gives price equals cost times 1.4, which is only a 28.6% margin. On a $1,000 job the margin figure quotes $1,667 and the markup figure quotes $1,400 — a $267 difference on one sortie, repeated on every job. This calculator takes margin on the price, which is what pilots mean when they say it."}},{"@type":"Question","name":"Is any of this uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and the page makes no network requests — it runs entirely in your browser. Your site areas, your hourly rates, the margin you quote at and the jobs you price are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control."}},{"@type":"Question","name":"Is this a flight plan, and can I fly from it?","acceptedAnswer":{"@type":"Answer","text":"No to both. It is a worksheet: arithmetic on figures you type. It is not a flight plan, not an airspace authorisation, and not aviation, legal or safety advice. It does not know your terrain, your obstacles, your airspace, the weather, your battery health or your aircraft's real endurance, and every one of those changes the flight it describes. Plan the actual mission in your ground control software, check airspace and obtain any authorisation you need, and treat these numbers as an estimate to quote from rather than a mission to fly."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eef0f2; }
+    body { max-width: 1180px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 830px; margin-bottom: 26px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3.1rem); line-height: 1.03; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #13405a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .68fr); gap: 18px; align-items: start; }
+    section { background: #fbfcfd; border: 1px solid #ccd4da; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #12283310; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    h3 { font-size: 1rem; }
+    .hint { font-size: .82rem; color: #45535e; margin: -6px 0 14px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    .unit { font-weight: 450; color: #45535e; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9fabb4; border-radius: 7px; padding: 9px; font: inherit; background: #fff; }
+    input[aria-invalid="true"] { border-color: #8c2318; background: #fdf4f2; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9fabb4; background: #e9edf0; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dbe2e7; }
+    .primary { background: #13405a; border-color: #13405a; color: #f2f6f9; }
+    .primary:hover { background: #0e3047; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .grid-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .grid-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .87rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 6px 7px; border-bottom: 1px solid #d5dce1; }
+    th:first-child, td:first-child { text-align: left; }
+    thead th { font-size: .74rem; letter-spacing: .03em; text-transform: uppercase; color: #45535e; font-weight: 700; vertical-align: bottom; }
+    .result { position: sticky; top: 15px; background: #10222f; color: #eef2f5; border-color: #10222f; }
+    .result a { color: inherit; }
+    .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+    .hero-label { font-size: .84rem; opacity: .82; margin: 0; }
+    .hero-sub { font-size: .85rem; opacity: .85; margin: 4px 0 0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .belief { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .belief h3 { margin: 0 0 8px; font-size: .95rem; }
+    .belief p { font-size: .85rem; margin: 0; }
+    .belief .gap { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 6px; }
+    .note-list { margin: 16px 0 0; padding: 0; list-style: none; }
+    .note-list li { font-size: .83rem; background: #ffffff14; border-radius: 9px; padding: 10px; margin-bottom: 8px; }
+    .note-list strong { display: block; margin-bottom: 3px; }
+    .errors { margin: 0; padding: 0; list-style: none; font-size: .85rem; }
+    .errors li { color: #ffd0c6; padding: 2px 0; }
+    .empty { font-size: .87rem; opacity: .84; }
+    tfoot td { font-weight: 700; border-top: 2px solid #9fabb4; }
+    footer { margin-top: 25px; font-size: .82rem; color: #45535e; }
+    footer a { color: #13405a; }
+    .support { margin-top: 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .seo-link a { color: #13405a; }
+    #faq h3 { margin-bottom: 4px; }
+    .optout { font-size: .82rem; font-weight: 450; display: flex; gap: 7px; align-items: flex-start; }
+    .optout input { width: auto; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; }
+      .grid-two, .grid-three { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR PART 107 PILOTS QUOTING AERIAL MAPPING AND SURVEY WORK</p>
+    <h1>Overlap is not a ten percent decision.</h1>
+    <p>Going from 70/70 to 80/80 sounds like a small concession to make on a call. It is <strong>2.25&times; the photographs</strong> &mdash; because image count goes as 1&nbsp;/&nbsp;((1&minus;front)&nbsp;&times;&nbsp;(1&minus;side)), not as the overlap itself. Airtime barely moves, about 1.5&times;, since only <em>side</em> overlap adds flight lines. So the flight looks almost the same and the processing bill more than doubles, and a pilot quoting by the acre pays that difference personally.</p>
+    <p>Put your own job in. Everything runs in this browser; nothing is uploaded.</p>
+    <p class="seo-link"><a href="./how-much-to-charge-for-drone-mapping.html">How much should you charge for drone mapping? &mdash; the worked example, line by line</a></p>
+  </header>
+
+  <form id="job">
+    <div class="layout">
+      <div>
+        <section>
+          <h2>1. The site and the camera</h2>
+          <p class="hint">Area drives everything downstream. The plan assumes a <strong>square</strong> site &mdash; the least-perimeter shape, so treat the airtime as a floor rather than a midpoint.</p>
+          <div class="grid-two">
+            <label>Site area <span class="unit">acres</span>
+              <input type="number" id="areaAcres" value="100" min="0.1" max="100000" step="0.1" required>
+            </label>
+            <label>Aircraft / camera
+              <select id="preset">
+                <option value="mavic-3e" selected>DJI Mavic 3E (4/3", 20 MP)</option>
+                <option value="phantom-4-rtk">DJI Phantom 4 RTK (1", 20 MP)</option>
+                <option value="air-2s">DJI Air 2S (1", 20 MP)</option>
+                <option value="m300-p1-35">DJI M300 + Zenmuse P1, 35 mm (45 MP)</option>
+                <option value="mini-4-pro">DJI Mini 4 Pro (1/1.3", 48 MP)</option>
+                <option value="custom">Custom sensor&hellip;</option>
+              </select>
+            </label>
+          </div>
+          <div class="grid-two" id="sensorFields" style="margin-top:13px">
+            <label>Sensor width <span class="unit">mm</span>
+              <input type="number" id="sensorWidthMm" value="17.3" min="0.1" max="100" step="0.1" required>
+            </label>
+            <label>Focal length <span class="unit">mm, true not 35 mm equivalent</span>
+              <input type="number" id="focalLengthMm" value="12.29" min="0.1" max="2000" step="0.01" required>
+            </label>
+            <label>Image width <span class="unit">px</span>
+              <input type="number" id="imageWidthPx" value="5280" min="100" max="100000" step="1" required>
+            </label>
+            <label>Image height <span class="unit">px</span>
+              <input type="number" id="imageHeightPx" value="3956" min="100" max="100000" step="1" required>
+            </label>
+          </div>
+        </section>
+
+        <section>
+          <h2>2. The flight</h2>
+          <p class="hint">Altitude sets resolution. The 400 ft (121.92 m) Part&nbsp;107 ceiling is checked against what your target resolution would need.</p>
+          <div class="grid-three">
+            <label>Altitude <span class="unit">m AGL</span>
+              <input type="number" id="altitudeM" value="120" min="1" max="1000" step="1" required>
+            </label>
+            <label>Front overlap <span class="unit">%</span>
+              <input type="number" id="frontOverlapPct" value="75" min="0" max="95" step="1" required>
+            </label>
+            <label>Side overlap <span class="unit">%</span>
+              <input type="number" id="sideOverlapPct" value="70" min="0" max="95" step="1" required>
+            </label>
+            <label>Ground speed <span class="unit">m/s</span>
+              <input type="number" id="speedMs" value="10" min="0.5" max="30" step="0.5" required>
+            </label>
+            <label>Usable flight time <span class="unit">min / battery</span>
+              <input type="number" id="usableBatteryMin" value="25" min="1" max="120" step="1" required>
+            </label>
+            <label>Batteries carried
+              <input type="number" id="batteryCount" value="4" min="1" max="60" step="1" required>
+            </label>
+            <label>Turn overhead <span class="unit">s / line</span>
+              <input type="number" id="turnSeconds" value="8" min="0" max="120" step="1" required>
+            </label>
+            <label>Ground control points
+              <input type="number" id="gcpCount" value="5" min="0" max="200" step="1" required>
+            </label>
+            <label>Minutes per GCP
+              <input type="number" id="gcpMinutesEach" value="6" min="0" max="120" step="1" required>
+            </label>
+          </div>
+        </section>
+
+        <section>
+          <h2>3. Time and money</h2>
+          <p class="hint">Margin is taken on the price, not added to cost &mdash; a 40% margin is cost&nbsp;/&nbsp;0.6, not cost&nbsp;&times;&nbsp;1.4.</p>
+          <div class="grid-three">
+            <label>Setup and site walk <span class="unit">min</span>
+              <input type="number" id="setupMinutes" value="30" min="0" max="600" step="1" required>
+            </label>
+            <label>Battery swap <span class="unit">min each</span>
+              <input type="number" id="swapMinutes" value="4" min="0" max="60" step="1" required>
+            </label>
+            <label>Travel time <span class="unit">min, round trip</span>
+              <input type="number" id="travelMinutes" value="60" min="0" max="1440" step="1" required>
+            </label>
+            <label>Travel distance <span class="unit">miles</span>
+              <input type="number" id="travelMiles" value="45" min="0" max="5000" step="1" required>
+            </label>
+            <label>Mileage rate <span class="unit">$ / mile</span>
+              <input type="number" id="mileageRate" value="0.7" min="0" max="10" step="0.01" required>
+            </label>
+            <label>Field rate <span class="unit">$ / hour</span>
+              <input type="number" id="fieldHourlyRate" value="125" min="0" max="2000" step="1" required>
+            </label>
+            <label>Processing rate <span class="unit">$ / hour</span>
+              <input type="number" id="processingHourlyRate" value="95" min="0" max="2000" step="1" required>
+            </label>
+            <label>Processing <span class="unit">s / image</span>
+              <input type="number" id="secondsPerImage" value="9" min="0" max="600" step="1" required>
+            </label>
+            <label>Target margin <span class="unit">%</span>
+              <input type="number" id="targetMarginPct" value="40" min="0" max="95" step="1" required>
+            </label>
+          </div>
+          <div class="actions">
+            <button type="submit" class="primary">Price this job</button>
+            <button type="button" id="clear">Clear the example</button>
+          </div>
+          <p class="hint" style="margin:12px 0 0">
+            <label class="optout">
+              <input type="checkbox" id="optout">
+              <span>Don't count my use of this tool. The counter is anonymous, stays on this device, records only which features were used and the day, and already switches itself off for Do&nbsp;Not&nbsp;Track and Global Privacy Control.</span>
+            </label>
+          </p>
+        </section>
+
+        <section id="comparison" hidden>
+          <h2>The same site at four overlap settings</h2>
+          <p class="hint">Your own numbers, re-flown. This is the table to have open when a client asks for &ldquo;a bit more overlap&rdquo;.</p>
+          <div class="table-wrap">
+            <table>
+              <caption class="hint" style="text-align:left;margin-bottom:6px">Everything else held exactly as entered above.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Front / side</th>
+                  <th scope="col">Images</th>
+                  <th scope="col">Airtime</th>
+                  <th scope="col">Sorties</th>
+                  <th scope="col">Cost</th>
+                  <th scope="col">Price at your margin</th>
+                </tr>
+              </thead>
+              <tbody id="comparisonBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="faq">
+          <h2>Common questions</h2>
+          <h3>How do you calculate ground sample distance for a drone survey?</h3>
+          <p>GSD in centimetres per pixel is the physical sensor width in millimetres, times altitude in metres, times 100, divided by the true focal length in millimetres times the image width in pixels. The 100 converts metres to centimetres, and the two millimetre figures cancel, which is why the formula needs a physical sensor width rather than a crop factor. The mistake that quietly ruins a spreadsheet is using the 35 mm equivalent focal length alongside the real sensor width: the answer still looks plausible and the flight comes back at the wrong resolution.</p>
+          <h3>Why does raising overlap from 70% to 80% cost so much more than it sounds?</h3>
+          <p>Because image count scales as one divided by the product of the two remaining fractions. At 70% front and 70% side you keep 30% of each, so the count goes as 1 / (0.3 x 0.3). At 80/80 you keep 20% of each, so it goes as 1 / (0.2 x 0.2). That is 2.25 times the photographs for what sounds like ten more percent. Airtime rises much less, around 1.5 times, because only side overlap adds flight lines — front overlap just triggers the shutter more often along a line you were already flying. So the airtime barely moves, the image count more than doubles, and the processing bill follows the image count. A pilot quoting by the acre absorbs that difference personally.</p>
+          <h3>Does a finer GSD mean a longer flight?</h3>
+          <p>Yes, and roughly as the square. A finer GSD needs a lower altitude, a lower altitude gives a smaller ground footprint per frame, and a smaller footprint means both more flight lines across the site and more exposures along each one. Halving the GSD halves the altitude, which halves the footprint in both directions and so roughly quadruples the image count and doubles the number of lines. Agreeing a resolution on a call without pricing it again is one of the more expensive habits in this trade.</p>
+          <h3>Can I fly high enough to get any GSD I want?</h3>
+          <p>No. 14 CFR 107.51(b) caps a small unmanned aircraft at 400 feet above ground level, which is 121.92 metres, unless you are within 400 feet of a structure or hold a waiver. If a coarse target GSD would need more altitude than that, you fly at the ceiling instead, get a finer GSD than the client asked for, and cover less ground per pass — so the flight takes longer than an unrestricted plan suggests. This calculator flags that case rather than quietly planning an illegal altitude. It does not grant any authorisation, check airspace, or file anything: LAANC, airspace class and currency remain entirely yours.</p>
+          <h3>What does this assume about the shape of the site?</h3>
+          <p>That it is square. Acreage alone does not determine a flight — a long thin corridor and a square block of the same area fly very differently — and a square is the shape with the least perimeter for a given area. That makes this the optimistic end of the range rather than a neutral guess, so real flights over awkward parcels run longer, not shorter. Treat the airtime as a floor. For a corridor job, price it from the corridor length and swath width instead of from acreage.</p>
+          <h3>Is margin the same as markup?</h3>
+          <p>No, and confusing them is how a job that looked profitable is not. Margin is a share of the price: a 40% margin means price equals cost divided by 0.6. Markup is a share of the cost: adding 40% to cost gives price equals cost times 1.4, which is only a 28.6% margin. On a $1,000 job the margin figure quotes $1,667 and the markup figure quotes $1,400 — a $267 difference on one sortie, repeated on every job. This calculator takes margin on the price, which is what pilots mean when they say it.</p>
+          <h3>Is any of this uploaded?</h3>
+          <p>No. There is no account and the page makes no network requests — it runs entirely in your browser. Your site areas, your hourly rates, the margin you quote at and the jobs you price are never sent anywhere and never appear in a usage count. The optional counter records only which features were used and the day, stored on your own device, and it switches itself off for browsers sending Do Not Track or Global Privacy Control.</p>
+          <h3>Is this a flight plan, and can I fly from it?</h3>
+          <p>No to both. It is a worksheet: arithmetic on figures you type. It is not a flight plan, not an airspace authorisation, and not aviation, legal or safety advice. It does not know your terrain, your obstacles, your airspace, the weather, your battery health or your aircraft's real endurance, and every one of those changes the flight it describes. Plan the actual mission in your ground control software, check airspace and obtain any authorisation you need, and treat these numbers as an estimate to quote from rather than a mission to fly.</p>
+        </section>
+      </div>
+
+      <section class="result" aria-live="polite">
+        <p class="hero-label">Quote this job at</p>
+        <p class="hero-number" id="heroPrice">&mdash;</p>
+        <p class="hero-sub" id="heroSub">Press &ldquo;Price this job&rdquo; to work the example.</p>
+
+        <ul class="errors" id="errors"></ul>
+
+        <dl id="figures"></dl>
+
+        <div class="belief" id="belief" hidden>
+          <h3>If you accept 80/80 instead</h3>
+          <p class="gap" id="beliefGap"></p>
+          <p id="beliefText"></p>
+        </div>
+
+        <ul class="note-list" id="notes"></ul>
+      </section>
+    </div>
+  </form>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not aviation, legal, safety, surveying or financial advice, it is not a flight plan, and it grants no airspace authorisation. It does not know your terrain, obstacles, airspace, weather, battery health or aircraft endurance. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, for planning and flying the actual mission safely, and for complying with 14 CFR Part 107 and every other rule that applies where you fly. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Estimates, not measurements.</strong> The flight is modelled on a square site at a constant altitude in still air. Wind, terrain relief, obstacle avoidance, battery degradation, temperature and the real shape of the parcel all move the airtime, and they move it upward far more often than down.</p>
+    <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="seo-link"><a href="./how-much-to-charge-for-drone-mapping.html">How much should you charge for drone mapping?</a> &mdash; the worked example line by line, and why quoting by the acre loses money.</p>
+    <p>Also worth a pass: <a href="../commercial-photo-license-calculator/">commercial photo licensing calculator</a> covers what to charge for the imagery rights once the flight is flown, a different question from the cost of flying it.</p>
+  </footer>
+
+<script type="module">
+  import { PART_107_CEILING_M, SENSOR_PRESETS, money, priceJob, reviewPlan } from './calc.mjs';
+  import { recordUsage } from './usage.mjs';
+
+  const form = document.getElementById('job');
+  const $ = (id) => document.getElementById(id);
+
+  const NUMERIC = [
+    'areaAcres', 'sensorWidthMm', 'focalLengthMm', 'imageWidthPx', 'imageHeightPx',
+    'altitudeM', 'frontOverlapPct', 'sideOverlapPct', 'speedMs', 'usableBatteryMin',
+    'batteryCount', 'turnSeconds', 'gcpCount', 'gcpMinutesEach', 'setupMinutes',
+    'swapMinutes', 'travelMinutes', 'travelMiles', 'mileageRate', 'fieldHourlyRate',
+    'processingHourlyRate', 'secondsPerImage', 'targetMarginPct',
+  ];
+
+  // Selecting a preset writes its geometry into the four sensor fields rather
+  // than hiding them. The numbers stay visible and editable, because a pilot
+  // flying a lens this list does not carry must be able to see what is being
+  // assumed and change it.
+  $('preset').addEventListener('change', (event) => {
+    const preset = SENSOR_PRESETS[event.target.value];
+    if (!preset) return;
+    $('sensorWidthMm').value = preset.sensorWidthMm;
+    $('focalLengthMm').value = preset.focalLengthMm;
+    $('imageWidthPx').value = preset.imageWidthPx;
+    $('imageHeightPx').value = preset.imageHeightPx;
+  });
+
+  function readInputs() {
+    const values = {};
+    for (const id of NUMERIC) {
+      const raw = $(id).value.trim();
+      values[id] = raw === '' ? null : Number(raw);
+    }
+    return values;
+  }
+
+  // The browser's own constraint check, which runs before calc.mjs ever sees a
+  // value: a number outside an input's min/max never reaches the arithmetic, so
+  // there is no thrown message for the build-injected highlighter to match a
+  // field against. This marks the field and returns the label text that names
+  // it, so the message the page prints says *which box* rather than "some
+  // figures". Past that point the thrown message names its own field and
+  // `platform/pages/invalid.mjs` -- injected at build time into any page
+  // printing the promise sentence below -- does the marking.
+  function markInvalid() {
+    let first = null;
+    for (const id of NUMERIC) {
+      const field = $(id);
+      const ok = field.checkValidity();
+      field.setAttribute('aria-invalid', ok ? 'false' : 'true');
+      if (!ok && !first) first = field;
+    }
+    return first;
+  }
+
+  /** The visible label of a field, without its unit hint. */
+  function labelFor(field) {
+    const label = field.closest('label');
+    if (!label) return field.id;
+    const clone = label.cloneNode(true);
+    for (const part of clone.querySelectorAll('input, select, .unit')) part.remove();
+    return clone.textContent.trim();
+  }
+
+  function minutes(value) {
+    const m = Math.round(value);
+    if (m < 60) return `${m} min`;
+    return `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')} min`;
+  }
+
+  function render(values) {
+    const result = priceJob(values);
+    const notes = reviewPlan(values, result);
+
+    $('heroPrice').textContent = money(result.price);
+    $('heroSub').textContent =
+      `${money(result.pricePerAcre)} per acre · ${money(result.totalCost)} of cost · ` +
+      `${money(result.profit)} left at ${values.targetMarginPct}% margin`;
+
+    const rows = [
+      ['group', 'Resolution'],
+      ['Ground sample distance', `${result.gsdCmPx.toFixed(2)} cm/px`],
+      ['Frame footprint', `${result.footprintWidthM.toFixed(0)} × ${result.footprintHeightM.toFixed(0)} m`],
+      ['Altitude used', `${values.altitudeM} m of ${PART_107_CEILING_M} m allowed`],
+      ['group', 'The flight'],
+      ['Flight lines', `${result.lines}`],
+      ['Line spacing', `${result.lineSpacingM.toFixed(0)} m`],
+      ['Exposure every', `${result.triggerSpacingM.toFixed(0)} m`],
+      ['Images', result.totalPhotos.toLocaleString('en-US')],
+      ['Path length', `${(result.pathLengthM / 1000).toFixed(1)} km`],
+      ['Airtime', minutes(result.flightMinutes)],
+      ['Sorties / swaps', `${result.sortiesNeeded} / ${result.batterySwaps}`],
+      ['group', 'Hours'],
+      ['On site', minutes(result.onSiteMinutes)],
+      ['Billable field time', minutes(result.billableFieldMinutes)],
+      ['Processing', minutes(result.processingMinutes)],
+      ['group', 'Cost'],
+      ['Field', money(result.fieldCost)],
+      ['Processing', money(result.processingCost)],
+      ['Mileage', money(result.mileageCost)],
+      ['Total cost', money(result.totalCost)],
+    ];
+
+    const dl = $('figures');
+    dl.textContent = '';
+    for (const [label, value] of rows) {
+      if (label === 'group') {
+        const dt = document.createElement('dt');
+        dt.className = 'group';
+        dt.textContent = value;
+        dl.append(dt);
+        continue;
+      }
+      const dt = document.createElement('dt');
+      dt.textContent = label;
+      const dd = document.createElement('dd');
+      dd.textContent = value;
+      dl.append(dt, dd);
+    }
+
+    // The comparison table: the same job at four overlap settings.
+    const pairs = [[70, 70], [75, 70], [80, 80], [85, 80]];
+    const body = $('comparisonBody');
+    body.textContent = '';
+    let baseline = null;
+    for (const [front, side] of pairs) {
+      const row = priceJob({ ...values, frontOverlapPct: front, sideOverlapPct: side });
+      if (!baseline) baseline = row;
+      const tr = document.createElement('tr');
+      for (const cell of [
+        `${front} / ${side}`,
+        row.totalPhotos.toLocaleString('en-US'),
+        minutes(row.flightMinutes),
+        `${row.sortiesNeeded}`,
+        money(row.totalCost),
+        money(row.price),
+      ]) {
+        const td = document.createElement('td');
+        td.textContent = cell;
+        tr.append(td);
+      }
+      body.append(tr);
+    }
+    $('comparison').hidden = false;
+
+    // The headline claim, restated in this pilot's own money.
+    const at70 = priceJob({ ...values, frontOverlapPct: 70, sideOverlapPct: 70 });
+    const at80 = priceJob({ ...values, frontOverlapPct: 80, sideOverlapPct: 80 });
+    $('beliefGap').textContent =
+      `${(at80.totalPhotos / at70.totalPhotos).toFixed(2)}× the images, ` +
+      `${money(at80.price - at70.price)} more to quote`;
+    $('beliefText').textContent =
+      `Against a 70/70 flight of the same site: ${at70.totalPhotos.toLocaleString('en-US')} images ` +
+      `and ${minutes(at70.flightMinutes)} becomes ${at80.totalPhotos.toLocaleString('en-US')} images ` +
+      `and ${minutes(at80.flightMinutes)}. The airtime rose ` +
+      `${(at80.flightMinutes / at70.flightMinutes).toFixed(2)}×; the processing rose with the images.`;
+    $('belief').hidden = false;
+
+    const list = $('notes');
+    list.textContent = '';
+    for (const note of notes) {
+      const li = document.createElement('li');
+      const strong = document.createElement('strong');
+      strong.textContent = note.title;
+      li.append(strong, document.createTextNode(note.detail));
+      list.append(li);
+    }
+    recordUsage(globalThis.localStorage, $('optout').checked, 'job_priced');
+    recordUsage(globalThis.localStorage, $('optout').checked, 'overlap_compared');
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const errors = $('errors');
+    errors.textContent = '';
+
+    // The label under the hero is the family's promise sentence, spelled
+    // exactly as platform/pages/invalid.mjs looks for it. Printing it is what
+    // makes the build inject the highlighter, which reads the message in the
+    // hero, finds the field it names and marks it — the half a message cannot
+    // express and every page here used to claim without doing.
+    const fail = (message) => {
+      $('heroPrice').textContent = message;
+      $('heroSub').textContent = 'check the highlighted input';
+      const li = document.createElement('li');
+      li.textContent = message;
+      errors.append(li);
+      $('belief').hidden = true;
+      $('comparison').hidden = true;
+      $('figures').textContent = '';
+      $('notes').textContent = '';
+    };
+
+    const invalid = markInvalid();
+    if (invalid) {
+      fail(`${labelFor(invalid)} is outside the range this worksheet accepts`);
+      invalid.focus();
+      return;
+    }
+
+    try {
+      render(readInputs());
+    } catch (error) {
+      fail(error.message);
+    }
+  });
+
+  $('clear').addEventListener('click', () => {
+    for (const id of NUMERIC) {
+      $(id).value = '';
+      $(id).setAttribute('aria-invalid', 'false');
+    }
+    $('figures').textContent = '';
+    $('notes').textContent = '';
+    $('errors').textContent = '';
+    $('belief').hidden = true;
+    $('comparison').hidden = true;
+    $('heroPrice').textContent = '—';
+    $('heroSub').textContent = 'Enter your own job and press “Price this job”.';
+    $('areaAcres').focus();
+  });
+</script>
+</body>
+</html>

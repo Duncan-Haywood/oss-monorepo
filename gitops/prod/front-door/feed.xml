@@ -8,13 +8,13 @@
   <updated>2026-09-11T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
-    <title>hreflang Reciprocity Check — Are Your Alternate-Language Links Actually Reciprocal?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hreflang-reciprocity-check/"/>
-    <id>tag:marisstella.dev,2026:tool/hreflang-reciprocity-check</id>
+    <title>Drone Mapping Job Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/drone-mapping-job-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/drone-mapping-job-calculator</id>
     <published>2026-09-11T00:00:00Z</published>
     <updated>2026-09-11T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: paste a page&#39;s HTML (or try fetching its alternates) and check its hreflang tags for missing reciprocal links, invalid language/region codes (en-uk vs en-GB), a missing x-default, a missing self-reference, and conflicting hreflang values. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Plan and price an aerial mapping sortie: ground sample distance from your sensor and altitude, flight line spacing, image count, airtime, battery swaps, processing hours and the price that clears your margin. Free, private, nothing leaves your browser.</summary>
   </entry>
   <entry>
     <title>Screen Printing &amp; Embroidery Price Calculator — Cost Per Shirt, Setup &amp; Margin</title>
