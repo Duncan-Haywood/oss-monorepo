@@ -300,19 +300,16 @@ async function perturb(limit = 4) {
  * an ordinary-looking verb on an ordinary-looking button and would simply
  * become the next wrong thing pressed.
  *
- * `[data-mode]` joins the exclusion for the same reason and one more DOM
- * position argument: a tab switcher. `llms-txt-generator` renders three
- * `<button data-mode="…">` tab controls *before* its own "Build llms.txt"
- * button, so `pressPrimaryAction` found "1. Paste a page list" first — an
- * ordinary-looking label, not excluded by `NOT_AN_ACTION`, and clicking it
- * (the already-active tab) changes nothing. The tool loaded its own worked
- * example correctly and was still recorded `NO-RESPONSE`, because the real
- * action button never got pressed. A tab control switches which section of
- * the form is visible; it is exactly the kind of chrome this selector
- * already exists to keep out of "the tool's own action buttons".
+ * A tab switcher is excluded separately, in `pressPrimaryAction` itself via
+ * `isTabSwitch` rather than here: it is still one of the venture's own
+ * controls (it should count toward `interactive` below, and a page whose only
+ * form controls are its tabs is not `NO-CONTROLS`), just not a candidate for
+ * "the action to press". Container exclusion and role exclusion answer two
+ * different questions -- whose button is this, and what kind of button is it
+ * -- and collapsing them here would answer the second with the first's tool.
  */
 const OWN_BUTTONS = 'button:not([data-pf-jobs-root] button)'
-  + ':not([data-pf-rates-root] button):not(.pf-chrome button):not([data-mode])';
+  + ':not([data-pf-rates-root] button):not(.pf-chrome button)';
 
 async function pressMatching(pattern) {
   for (const button of await page.$$(OWN_BUTTONS)) {
