@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 136 files, 556572 bytes
 #   portfolio-front-tools-1: 110 files, 555642 bytes
 #   portfolio-front-tools-2: 149 files, 548375 bytes
-#   portfolio-front-tools-3: 140 files, 553010 bytes
+#   portfolio-front-tools-3: 141 files, 556942 bytes
 #   portfolio-front-tools-4: 125 files, 554678 bytes
 #   portfolio-front-tools-5: 132 files, 555504 bytes
 #   portfolio-front-tools-6: 135 files, 550462 bytes
@@ -554,6 +554,7 @@ configMapGenerator:
       - actions-permissions-check__index.html.gz=actions-permissions-check__index.html.gz
       - actions-permissions-check__usage.mjs.gz=actions-permissions-check__usage.mjs.gz
       - actions-permissions-check__vs-openssf-scorecard.html.gz=actions-permissions-check__vs-openssf-scorecard.html.gz
+      - actions-runner-starvation-check__add-a-starvation-guard-to-a-github-actions-workflow.html.gz=actions-runner-starvation-check__add-a-starvation-guard-to-a-github-actions-workflow.html.gz
       - actions-runner-starvation-check__classify.mjs.gz=actions-runner-starvation-check__classify.mjs.gz
       - actions-runner-starvation-check__index.html.gz=actions-runner-starvation-check__index.html.gz
       - actions-runner-starvation-check__usage.mjs.gz=actions-runner-starvation-check__usage.mjs.gz
