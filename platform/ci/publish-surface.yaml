@@ -380,6 +380,9 @@ workflows:
 - workflow: food-truck-event-margin-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: forestry-mulching-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: forge-surface-reachability-ci.yml
   classification: none
   publishes: []
@@ -828,6 +831,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: sri-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: ssh-key-smoke.yml
   classification: none
   publishes: []
 - workflow: staffing-markup-calculator-ci.yml
