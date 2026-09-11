@@ -40,6 +40,18 @@ test("index links one hop to the epk-generator sibling", async () => {
   );
 });
 
+// Adjacent step in the same workflow: brand-deal-rate-calculator answers
+// "what should I charge", this tool answers "how do I present it" -- a
+// creator with a rate in hand still needs the one-pager to send it in.
+test("index links one hop to the brand-deal-rate-calculator sibling", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    /href="\.\.\/brand-deal-rate-calculator\/"/,
+    "index must link ../brand-deal-rate-calculator/ so a reader weighing both reaches it in one hop",
+  );
+});
+
 test("index carries the sponsor link", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /github\.com\/sponsors\/Duncan-Haywood/);
