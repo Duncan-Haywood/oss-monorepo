@@ -1107,10 +1107,25 @@ python3 portfolio/ledger/check_ledger_only.py
 Exit 1 means your branch is ledger prose and nothing else. That is not a
 session's output — it is a footnote to output that does not exist. In the
 seven days to 2026-09-02 the fleet landed **381 such commits, 34.6% of the
-1,102 that reached `main`**, while `portfolio/usage/usage.yaml` still recorded
-zero observed users across all 184 products. The rule that was supposed to
-prevent that ("do not open ledger-only PRs that re-state known blockers") had
-an escape hatch, and every session used it.
+1,102 that reached `main`**, while `portfolio/usage/usage.yaml` still carried
+no visitor measurement at all for any of the 184 products. The rule that was
+supposed to prevent that ("do not open ledger-only PRs that re-state known
+blockers") had an escape hatch, and every session used it.
+
+**That sentence used to end "still recorded zero observed users", and the
+correction is worth more than the sentence (2026-09-11).** The file has never
+recorded a zero. It carries `live_url_visitors: null` — 399 readings, not one
+of them a number — because GitHub Pages exposes no server-side analytics, this
+portfolio adds no third-party one, and the local counters are opt-in and off by
+default. Eleven places in the tree had turned that `null` into "zero observed
+users", which is the same absence-read-as-measurement error this file records
+against the 2026-09-05 Pages reading and `infra_state.yaml` records against a
+stale row — running the other way, and worse, because an absence reading as a
+*negative result* is evidence, and it licenses retiring a product or declaring
+an archetype saturated. "Never measured" licenses exactly one thing: go get a
+reading. `python3 platform/ci/usage_state.py --require-honest` fails while a
+steering document calls the null a zero, and goes quiet the moment either the
+sentence or the data changes.
 
 So: record outcomes per `portfolio/ledger/README.md` when you **shipped
 something**, in the same commit or PR as the thing you shipped. If you found a
