@@ -7,6 +7,7 @@ import { buildReport } from './analyze.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(HERE, 'index.html'), 'utf8');
+const cdnDoc = readFileSync(join(HERE, 'why-isnt-my-cdn-caching-this.html'), 'utf8');
 
 function jsonLdBlocks(source) {
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
@@ -91,6 +92,58 @@ test('the page explains the Vary: * rule, not just a vague caching warning', () 
 test('the page explains the public + Set-Cookie leak pattern', () => {
   assert.match(html, /shared cache/);
   assert.match(html, /Set-Cookie/);
+});
+
+// The guide page is the venture's only long-tail search surface, and the
+// checks below are what keep it from silently decaying into a landing page:
+// it must stay reachable from the tool, carry the same liability text every
+// other user-facing surface here carries, and keep the JSON-LD it is indexed
+// on parseable. A prose-only page has no unit test to fail, so these are it.
+test('the index page links to the CDN-caching guide', () => {
+  assert.match(html, /href="why-isnt-my-cdn-caching-this\.html"/);
+});
+
+test('the guide page links back to the tool it belongs to', () => {
+  assert.match(cdnDoc, /href="index\.html"/);
+});
+
+test('the guide page carries valid HowTo JSON-LD with a step per diagnosis', () => {
+  const blocks = jsonLdBlocks(cdnDoc);
+  assert.ok(blocks.length >= 1, 'expected at least one JSON-LD block on the guide page');
+  for (const block of blocks) {
+    assert.doesNotThrow(() => JSON.parse(block), `invalid JSON in block: ${block.slice(0, 80)}...`);
+  }
+  const howTo = blocks.map((b) => JSON.parse(b)).find((b) => b['@type'] === 'HowTo');
+  assert.ok(howTo, 'missing HowTo JSON-LD on the guide page');
+  assert.ok(howTo.step.length >= 5, 'the guide documents six checks; JSON-LD must not drift below them');
+});
+
+test('the guide page carries the no-warranty and authorisation text', () => {
+  assert.match(cdnDoc, /No warranty/);
+  assert.match(cdnDoc, /provided free and as-is, without warranty/);
+  assert.match(cdnDoc, /authoris(?:ed|ation)/i);
+});
+
+test('the guide page keeps the sponsor link and MIT licence', () => {
+  assert.match(cdnDoc, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(cdnDoc, /href="LICENSE"/);
+  assert.match(cdnDoc, /MIT licen[cs]e/);
+});
+
+// Each of these is a finding `analyze.mjs` can emit. If a finding is renamed
+// or dropped the guide is the surface that goes stale first, because nothing
+// imports it -- so assert the pairing rather than trusting the prose.
+test('the guide explains every danger-severity pattern the analyzer reports', () => {
+  assert.match(cdnDoc, /Vary: \*/);
+  assert.match(cdnDoc, /Set-Cookie/);
+  assert.match(cdnDoc, /no-store/);
+  assert.match(cdnDoc, /weak <code>ETag<\/code>|weak `?ETag/i);
+  assert.match(cdnDoc, /Expires/);
+});
+
+test('the guide is listed in the venture sitemap', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /why-isnt-my-cdn-caching-this\.html/);
 });
 
 function extractConst(name) {

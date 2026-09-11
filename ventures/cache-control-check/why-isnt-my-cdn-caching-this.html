@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why Isn't My CDN Caching This? — Vary: *, Set-Cookie, no-store, Weak ETags</title>
+<meta name="description" content="A diagnostic order for a response your CDN refuses to cache: Vary: * (never reusable per RFC 9111), an accidental Set-Cookie, no-store and private, a missing freshness lifetime, and a weak ETag that breaks range requests. Each step names the exact header that proves it.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/cache-control-check/why-isnt-my-cdn-caching-this.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Why isn't my CDN caching this?">
+<meta property="og:description" content="Six response-header reasons a CDN stores nothing, in the order to check them -- each one backed by the RFC rule that makes it binding, not a style preference.">
+<meta property="og:url" content="https://example.invalid/cache-control-check/why-isnt-my-cdn-caching-this.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to diagnose a response your CDN will not cache",
+  "description": "A step-by-step order for finding which response header is stopping a shared cache from storing or reusing a response, using only the headers the server actually sent.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Rule out Vary: * first",
+      "text": "RFC 9111 section 4.1 states that a Vary field value of * always fails to match, so a stored response can never be reused for any later request. This outranks every other caching header: Cache-Control: public, max-age=31536000 alongside Vary: * is still never served from cache. Check it first because it is the one rule no configuration on the cache side can override, and because it is usually accidental -- copied from a template or added defensively against a vary bug that no longer exists."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Look for a Set-Cookie header you did not intend to send",
+      "text": "Many CDNs refuse to cache a response carrying Set-Cookie by default, because storing it would mean serving one visitor's cookie to the next. A session framework that starts a session on every request -- including requests for static assets -- attaches Set-Cookie to responses nobody meant to make uncacheable. The inverse is the dangerous case: if the response says Cache-Control: public and also sets a cookie, a shared cache that is not specifically configured to strip Set-Cookie on write can hand that cookie to a different visitor."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Check for no-store, private, or no-cache",
+      "text": "These three are commonly confused. no-store forbids writing the response to any cache at all. private permits a browser cache but forbids a shared cache, which is exactly the CDN. no-cache does allow storing -- it requires revalidation before each reuse, so the CDN still holds the bytes and still saves origin bandwidth on a 304. Only the first two make a CDN store nothing; seeing no-cache and concluding the response is uncacheable is a frequent misdiagnosis."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Confirm the response has an explicit freshness lifetime",
+      "text": "A response with no Cache-Control max-age or s-maxage and no Expires has no explicit freshness lifetime. RFC 9111 permits a cache to apply a heuristic lifetime in that case, but heuristics vary between implementations and many CDNs default to not caching rather than guessing. A static-asset-shaped path -- a hashed filename, a .js or .css extension -- with no caching headers at all is almost always an origin-configuration gap rather than a deliberate choice."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Check whether Expires is being silently overridden or is already stale",
+      "text": "If both Expires and Cache-Control max-age are present, RFC 9111 requires the cache to ignore Expires entirely. An Expires header that appears to grant a long lifetime therefore does nothing when a short max-age sits beside it. Separately, an Expires value at or before the response's own Date header means the response is born already stale, which is a common result of a hardcoded past date used as a cache-buster."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Check ETag strength if the problem is corrupt resumed downloads rather than a cache miss",
+      "text": "This one is not about storage at all. RFC 9110 requires a strong validator for a conditional range request. A response that advertises Accept-Ranges: bytes but whose ETag is weak -- prefixed W/ -- cannot safely support If-Range, so a resumed or parallel-segment download may be assembled from bytes belonging to two different versions of the resource. The symptom is a corrupt large file rather than a cache miss, which is why it is rarely found while looking for a caching problem."
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 760px; margin: 0 auto; padding: 1.5rem; line-height: 1.6; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.5rem, 4vw, 2.1rem); }
+  h2 { margin-top: 1.8rem; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #8886; padding: 0.4rem 0.6rem; text-align: left; }
+  code { background: rgba(127,127,127,0.15); padding: 0.1rem 0.3rem; border-radius: 4px; }
+  pre { background: rgba(127,127,127,0.15); padding: 0.7rem 0.8rem; border-radius: 6px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  ol > li { margin: 0.6rem 0; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<h1>Why isn't my CDN caching this?</h1>
+<p>
+  <a href="index.html">← Back to Cache-Control Checker</a>
+</p>
+<p>
+  A response your CDN stores nothing for is almost always one of six things, and they are worth
+  checking in this order — the first one outranks everything below it, so finding it second wastes
+  the time you spent on the others. Every rule here is a protocol requirement with a citation, not a
+  tuning preference: each one is something a compliant cache <em>must</em> do, which is why changing
+  the CDN's settings will not work around it.
+</p>
+<p>
+  All six read off the response headers the origin actually sent. To see yours:
+</p>
+<pre><code>node check.mjs https://example.com/your-asset.js --json</code></pre>
+<p>
+  …then paste the JSON into <a href="index.html">the report viewer</a>, which names which of these
+  patterns it found and quotes the header that proves each one. Only point it at a system you own or
+  are authorised to test.
+</p>
+
+<h2>1. <code>Vary: *</code> — never reusable, whatever else you set</h2>
+<p>
+  <a href="https://www.rfc-editor.org/rfc/rfc9111#section-4.1" rel="noopener">RFC 9111 §4.1</a> states
+  that a <code>Vary</code> field value of <code>*</code> <em>always fails to match</em>. A cache may
+  store the response, but it can never select it for reuse against any later request, however
+  identical. This outranks every other caching header in the response:
+</p>
+<pre><code>Cache-Control: public, max-age=31536000
+Vary: *</code></pre>
+<p>
+  is never served from cache, by any compliant browser or CDN, ever. It is worth checking first for
+  two reasons: no setting on the CDN side can override it, and it is nearly always accidental —
+  copied from a template, or added defensively against a content-negotiation bug that has since been
+  fixed, and then never removed. If you have one header to look at, look at this one.
+</p>
+
+<h2>2. An accidental <code>Set-Cookie</code></h2>
+<p>
+  Most CDNs decline to cache a response carrying <code>Set-Cookie</code> by default, and the reason
+  is sound: storing it would mean handing one visitor's cookie to the next one served from that copy.
+  The usual cause is a session framework configured to start a session on <em>every</em> request,
+  including requests for static assets that nobody intended to make uncacheable.
+</p>
+<p>
+  The inverse case is the dangerous one, and it is the reason this checker rates it a danger rather
+  than a notice. If the response says <code>Cache-Control: public</code> <em>and</em> sets a cookie,
+  it is explicitly inviting every shared cache between the origin and the visitor to store and reuse
+  it. A shared cache that is not specifically configured to strip <code>Set-Cookie</code> on write can
+  then serve one visitor's session cookie to a different visitor. "The CDN won't cache this" is the
+  benign symptom of that pairing; a cache that <em>does</em> cache it is the incident.
+</p>
+
+<h2>3. <code>no-store</code>, <code>private</code>, and <code>no-cache</code> are three different things</h2>
+<p>
+  These are the most commonly confused directives in HTTP caching, and only two of the three stop a
+  CDN from storing anything:
+</p>
+<table>
+  <thead><tr><th>Directive</th><th>Browser cache</th><th>Shared cache / CDN</th></tr></thead>
+  <tbody>
+    <tr><td><code>no-store</code></td><td>must not store</td><td>must not store</td></tr>
+    <tr><td><code>private</code></td><td>may store</td><td>must not store</td></tr>
+    <tr><td><code>no-cache</code></td><td>may store, must revalidate first</td><td>may store, must revalidate first</td></tr>
+  </tbody>
+</table>
+<p>
+  <code>no-cache</code> is the one that catches people out: it does <em>not</em> mean "do not cache".
+  The CDN still holds the bytes and still answers a revalidation with a 304, so it is still saving
+  origin bandwidth. Concluding that a <code>no-cache</code> response is uncacheable — and then going
+  looking for a CDN bug — is a frequent dead end.
+</p>
+<p>
+  <code>no-store</code> alongside a <code>max-age</code> is a contradiction rather than a compromise:
+  the <code>max-age</code> is dead text, because nothing was stored for it to apply to. This checker
+  reports that pairing as a notice, since it usually means two pieces of configuration are fighting
+  and one of them is silently losing.
+</p>
+
+<h2>4. No explicit freshness lifetime at all</h2>
+<p>
+  A response with no <code>max-age</code>, no <code>s-maxage</code> and no <code>Expires</code> has no
+  explicit freshness lifetime. RFC 9111 permits a cache to apply a <em>heuristic</em> lifetime in that
+  case, but heuristics differ between implementations and plenty of CDNs default to not caching
+  rather than guessing on your behalf. Relying on that default is relying on undocumented behaviour
+  that can change under you.
+</p>
+<p>
+  The clearest version is a static-asset-shaped path — a content-hashed filename, a
+  <code>.js</code> or <code>.css</code> extension — served with no caching headers whatsoever. That is
+  almost never a decision; it is an origin that was never configured for those paths. A hashed
+  filename is specifically designed to be safe to cache for a year, so a missing header there is pure
+  loss.
+</p>
+
+<h2>5. <code>Expires</code> that is overridden, or already stale on arrival</h2>
+<p>
+  Two distinct failures share one header. First, if both <code>Expires</code> and
+  <code>Cache-Control: max-age</code> are present, RFC 9111 requires the cache to <strong>ignore
+  <code>Expires</code> entirely</strong>. A long <code>Expires</code> sitting beside a short
+  <code>max-age</code> does nothing at all — the lifetime you think you granted is not the one in
+  effect.
+</p>
+<pre><code>Cache-Control: max-age=60
+Expires: Thu, 31 Dec 2026 23:59:59 GMT   &lt;-- ignored; the lifetime is 60 seconds</code></pre>
+<p>
+  Second, an <code>Expires</code> value at or before the response's own <code>Date</code> header means
+  the response is born already stale. That is usually a hardcoded past date left over from being used
+  as a cache-buster, which then keeps busting long after the reason for it went away.
+</p>
+
+<h2>6. A weak <code>ETag</code> on a range-capable response</h2>
+<p>
+  This one is not a caching failure and will not show up as a cache miss — it is here because it is
+  the caching-adjacent bug people find last and pay for most.
+  <a href="https://www.rfc-editor.org/rfc/rfc9110#section-13.1.5" rel="noopener">RFC 9110 §13.1.5</a>
+  requires a <strong>strong</strong> validator for a conditional range request. A response that
+  advertises <code>Accept-Ranges: bytes</code> but returns a weak <code>ETag</code>:
+</p>
+<pre><code>Accept-Ranges: bytes
+ETag: W/"abc123"</code></pre>
+<p>
+  cannot safely support <code>If-Range</code>. A resumed download, or a client fetching segments in
+  parallel, can end up assembling bytes that belong to two different versions of the resource. The
+  symptom is a corrupt large file — not a slow one — which is why it is almost never found by someone
+  investigating a caching problem, and why this tool reports it alongside them.
+</p>
+
+<h2>Reading the answer off one response</h2>
+<p>
+  Every check above is decidable from a single response's headers, which is what the
+  <a href="index.html">Cache-Control Checker</a> does: one real GET, then a report naming each pattern
+  it matched and quoting the exact header that proves it. It deliberately does not grade your caching
+  strategy or guess at a target hit rate — those depend on your traffic, not on the protocol — and it
+  does not crawl anything beyond the one URL you name.
+</p>
+<p>
+  Related response-header evidence on the same site:
+  <a href="../security-headers-check/">Security Headers checker</a> for Content-Security-Policy and
+  clickjacking headers, and <a href="../cookie-security-check/">Cookie Security checker</a> for
+  <code>Set-Cookie</code> attribute patterns — a different class of finding than the caching headers
+  here, though step 2 above is where the two overlap.
+</p>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> The rules above are protocol requirements from
+  RFC 9110 and RFC 9111, but a specific CDN's behaviour is also shaped by its own configuration,
+  which this page cannot see. A response that clears every check here can still be uncached because
+  of a rule set at the edge. Treat this as a diagnostic order for the origin's own headers, not a
+  guarantee about any particular provider.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not performance or security advice, and it does not replace a
+  qualified review. <strong>You are responsible for reviewing and verifying its output before
+  relying on it</strong>, and for having authorisation to test any system you point the CLI at.
+  To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
