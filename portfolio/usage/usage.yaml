@@ -6150,3 +6150,23 @@ products:
           external repo wiring cli.mjs in between plan and apply) is the
           signal that actually matters for this shape -- the CLI is the
           primary distribution surface, not the browser page.
+  - slug: 1099k-reconciliation-worksheet
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          row_added: 0
+          csv_exported: 0
+          example_loaded: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a free,
+          browser-only worksheet reconciling one or more Form 1099-K Box 1a
+          gross totals (Etsy, eBay, Poshmark, Mercari, Depop, Whatnot,
+          StockX) down to an estimated net taxable profit, per platform and
+          combined. `live_url_visitors` is null and not zero, deliberately
+          -- GitHub Pages exposes no server-side analytics and the local
+          counter is opt-in and off by default, so nobody has measured yet.
+          Named channel to watch: r/tax, r/Etsyseller, r/eBay, r/Flipping,
+          r/reselling, r/Mercari around filing season (Jan-Apr), where "why
+          is my 1099-K higher than what I made" is a recurring thread.

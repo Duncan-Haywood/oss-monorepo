@@ -76,6 +76,7 @@ names what tripped it so a real verification step is not silently dropped.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import re
 import subprocess
@@ -1035,6 +1036,74 @@ def run_for_changes(args) -> int:
     return _run_selected(args, selected, held)
 
 
+def checkout_fingerprint() -> tuple[str, str] | None:
+    """(HEAD sha, digest of every tracked path's content id).
+
+    Deliberately reads **tracked content only**, via `git diff HEAD --raw`,
+    whose output names each differing path and the blob id on both sides.
+    Untracked files are excluded on purpose: several steps here legitimately
+    write temp artifacts, a build directory or a node_modules tree, and a
+    fingerprint that moved on those would cry wolf on every clean run and be
+    switched off within a day -- the same fate this file's own comments
+    predict for any check that fails on correct input.
+
+    Returns None when git cannot answer (not a repository, no git binary), so
+    a missing fingerprint can be told apart from an unchanged one: the caller
+    treats "could not measure" as no finding rather than as a finding.
+    """
+    try:
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO,
+                              capture_output=True, text=True, timeout=30)
+        tracked = subprocess.run(["git", "diff", "HEAD", "--raw"], cwd=REPO,
+                                 capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if head.returncode != 0 or tracked.returncode != 0:
+        return None
+    return (head.stdout.strip(),
+            hashlib.sha256(tracked.stdout.encode()).hexdigest())
+
+
+def checkout_drift(before, after) -> str | None:
+    """Describe how the checkout moved under a sweep, or None if it held still.
+
+    WHY THIS EXISTS
+    ---------------
+    `--tree` reads the checkout as it stands, and takes 40+ minutes to do it.
+    That is long enough that the obvious way to run it -- in the background,
+    while getting on with something else -- is also the way to make it lie,
+    because "something else" in this repository means checking out a PR
+    branch, merging `main`, or running `regen.mjs`.
+
+    Measured 2026-09-11: a sweep started on `main` reported
+    `FAILED validate / Check the apex tool mirror is not stale`. The mirror
+    was not stale. The session had checked out another PR's branch while the
+    sweep ran, and the step read that branch's tree. Re-run on an untouched
+    worktree at the same commit, the identical step passed 260/260.
+
+    A false red costs a session chasing a defect that does not exist. A false
+    *green* is worse and is equally available -- a sweep that reads a fixed
+    tree for the half of its run covering the broken file reports the tree
+    green. Neither is a reading, so this fails the sweep rather than warning
+    inside it: a warning in the middle of 40 minutes of scrollback is a
+    warning nobody sees, which is the argument `pages_state.py
+    --require-current` and `guard_state.py --require-runnable` already make
+    here for an exit code over a reminder.
+
+    It cannot distinguish "another session wrote to this checkout" from "a
+    step under test rewrote a tracked file", and does not try: both mean the
+    verdict covers more than one tree, and both want the same answer.
+    """
+    if before is None or after is None or before == after:
+        return None
+    head_before, _ = before
+    head_after, _ = after
+    if head_before != head_after:
+        return (f"HEAD moved from {head_before[:9]} to {head_after[:9]} while "
+                "the sweep ran")
+    return "tracked files changed while the sweep ran (HEAD did not move)"
+
+
 def _run_selected(args, selected, held, absent=()) -> int:
     """Execute the chosen workflows' read-only steps and report."""
     for name, job_id, why in held:
@@ -1045,6 +1114,8 @@ def _run_selected(args, selected, held, absent=()) -> int:
             print(f"  [run   ] {name} ({', '.join(sorted(allowed))})")
         return 0
 
+    before = checkout_fingerprint()
+
     failures = []
     for name, workflow, allowed in selected:
         steps, uses_skipped = collect(workflow, only=allowed)
@@ -1054,6 +1125,8 @@ def _run_selected(args, selected, held, absent=()) -> int:
         run_steps(steps, args.timeout)
         if report(name, steps, uses_skipped, False) != 0:
             failures.append(name)
+
+    drift = checkout_drift(before, checkout_fingerprint())
 
     print(f"\n{len(selected) - len(failures)}/{len(selected)} selected "
           f"workflow(s) passed.")
@@ -1071,6 +1144,14 @@ def _run_selected(args, selected, held, absent=()) -> int:
     if absent:
         print("  Not a clean sweep: " + ", ".join(absent)
               + " named in VERIFICATION_ONLY but absent from the tree.")
+        return 1
+    # Reported last, and after the pass/fail line, because it invalidates that
+    # line in *both* directions -- see `checkout_drift`.
+    if drift:
+        print("\n  UNSTABLE CHECKOUT: " + drift)
+        print("  The verdict above was not taken against one tree, so it is "
+              "not a reading of anything. Re-run on a checkout nothing else "
+              "is writing to, and do not report either result.")
         return 1
     return 1 if failures else 0
 

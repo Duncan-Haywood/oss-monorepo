@@ -48,6 +48,19 @@ test("index links one hop to the gig-driver-net-pay-calculator sibling", () => {
   );
 });
 
+// Sibling-orphan budget (platform/pages/siblings.test.mjs, siblings-budget.json):
+// reciprocal half of the link added to 1099k-reconciliation-worksheet the
+// same session -- both serve a self-employed marketplace seller at two
+// different points of the same tax year.
+test("index links one hop to the 1099k-reconciliation-worksheet sibling", () => {
+  const html = page("index.html");
+  assert.match(
+    html,
+    /href="\.\.\/1099k-reconciliation-worksheet\/"/,
+    'index must link ../1099k-reconciliation-worksheet/ so crawlers reach it in one hop',
+  );
+});
+
 test("index links the Keeper incumbent-comparison page and the sitemap lists it too", () => {
   const html = page("index.html");
   const sitemap = page("sitemap.xml");
