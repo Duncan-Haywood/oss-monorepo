@@ -27038,3 +27038,140 @@ entries:
         open PRs immediately before pushing per the duplicate-PR collision
         rule (still none).
     mrr_end: 0
+  - venture: forestry-mulching-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated `forestry-mulching-bid-calculator`, a fresh niche screened
+        against `screened-out.md` and `duplicate_check.py`: a bid worksheet
+        for the owner-operator running a skid steer or compact track loader
+        with a forestry mulching head. It derives acres per machine-hour from
+        head width, forward advance speed while cutting, the number of passes
+        needed to finish the mat, a terrain factor and the share of the hour
+        actually spent cutting; builds a cost per machine hour from operator
+        time, fuel at load, carbide tooth wear over the life of a set, a
+        service reserve, and machine payment plus insurance spread over
+        billable hours a month; keeps mobilization as its own line; and
+        reports machine hours, days on site, cost, the price at a target
+        margin, price per acre, break-even per acre, price per machine hour
+        and per day.
+      - >-
+        The product's argument, and the reason it is not a 143rd cost-times-
+        margin calculator: price per acre is a quotient, not a rate. The
+        machine is paid for by the hour, the customer counts acres, and the
+        production rate between them is a property of what is standing on the
+        lot rather than of its size. On the shipped 3-acre example one flat
+        $1,000/acre quote earns $2,059.29 on light brush and loses $3,810.40
+        in 8-12 in understory -- a $5,869.69 spread with the acreage
+        unchanged, because the same 3 acres is 5.9 machine hours in one case
+        and 53.4 in the other. It compounds from two terms, not one: the
+        advance speed falls by about three and the pass count rises by about
+        three. The page renders that comparison across all four density
+        classes from the operator's own inputs and their own quoted number.
+      - >-
+        Where the first visitor would come from, per DIRECTION.md's North
+        star point 2 (named as a graduation condition rather than assumed):
+        the pricing question is asked continuously and in these words in
+        r/Skidsteer, r/Forestry, Heavy Equipment Forums and the Forestry
+        Forum's equipment boards, and the transactional search terminology is
+        unusually concrete -- "forestry mulching price per acre", "how much
+        to charge for forestry mulching", "land clearing cost per acre",
+        "forestry mulching production rate acres per hour". A second
+        population asks the same arithmetic before buying a head at all
+        ("can I make money mulching"). The guide page is written to answer
+        the pricing query directly rather than to rank for the calculator
+        query alone.
+      - >-
+        Two cost lines the trade's hand-written quotes routinely omit are
+        surfaced as their own per-hour figures rather than folded into
+        overhead: carbide tooth wear ($1,800 a set over 250 hours = $7.20/hr,
+        a consumable whose bill arrives months after the jobs that caused it)
+        and the machine payment over real billable hours ($40.00/hr at 70
+        hours a month, 32.3% of the $123.70 machine hour). The review notes
+        report the second as a *utilisation* finding rather than a reason to
+        raise a price -- at 160 billable hours the same payment is $17.50/hr
+        and the same job prices at $2,297.32 instead of $2,737.29.
+      - >-
+        Mobilization is kept out of the hourly rate deliberately, because it
+        does not scale with acreage: the same $207.00 trailer trip is 29% of
+        the price on a half-acre lot and 2% on a ten-acre one, so the honest
+        per-acre price runs $838.12 to $1,443.20 on nothing but lot size. The
+        tool flags the job once mobilization passes a quarter of the price
+        and says to quote it as a day rate or a minimum charge instead.
+      - >-
+        Liability containment is structural rather than wording. It ships no
+        regulatory data, no soil, wetland or species layer and no parcel
+        lookup, makes no determination about any parcel, and both pages state
+        that permits, burn rules, stream and wetland buffers, erosion
+        control, protected species, property lines and buried or overhead
+        utilities are outside it. The one place it touches operational safety
+        is defensive: a largest stem above the head's rating is flagged as a
+        felling job to price separately or exclude in writing, rather than
+        folded silently into a production rate.
+      - >-
+        The density presets are disclosed on both pages, in the README and in
+        `calc.mjs`'s own docstring as starting points to overwrite rather
+        than survey data, and `advanceSpeedForAcresPerHour` inverts the model
+        so an operator who has timed a finished lot can enter their measured
+        rate and read back the advance speed it implies. That is the honest
+        direction to err for a tool whose argument is that quotes are too
+        low.
+      - >-
+        Every figure quoted in the guide's prose and in the calculator's own
+        headline is recomputed from `calc.mjs` in `page.test.mjs` and
+        asserted to still be the number the page claims, including the
+        shipped form defaults, which are read back out of the markup rather
+        than retyped. A worked example baked into a paragraph is a copy of a
+        computation and a copy goes stale silently.
+      - >-
+        Adopted `platform/proposal` in the same commit rather than taking an
+        exemption: `platform/proposal/discoverability.test.mjs` requires every
+        `*-bid-calculator` to either ship the printable customer proposal or
+        be named in the module README with a reason, and 0 of 112 currently
+        take the second route. A mulching operator does hand a landowner a
+        sheet, so the honest answer was to adopt. The page needed a `<main>`,
+        an `el()` helper and a `count()` helper, and the trade entry names
+        `"calcFn": "priceJob"` -- the documented `notary-trip-quote` route --
+        rather than contorting the render loop into the inferred
+        `calculate*(readInput())` shape.
+      - >-
+        Excluded from the shared shop-rate bar with a stated reason
+        (`NO_SHARED_SHOP_RATES` in `platform/pages/rates.test.mjs`) rather
+        than aliased into it. This tool costs a machine hour, not a crew
+        hour: its operator line is explicitly a *burdened* rate, so aliasing
+        `hourlyWage` onto it would prefill a raw wage into a field that
+        already includes burden and understate every hour of the job -- the
+        same defect the `vehicle-wrap` entry above it records. There is no
+        payroll-burden field and no overhead-on-direct-cost percentage
+        (overhead here is the machine's own payment and insurance in dollars
+        per hour), so it carries one of the four canonical ids, below
+        `MIN_CARRIED_FIELDS`, and shows no bar.
+      - >-
+        Cross-linked with `tree-service-bid-calculator` in both directions
+        with an assertion on the href in each venture's tests, so the new
+        tool ships with an inbound sibling link from its first commit rather
+        than landing as an orphan to close later -- `siblings.mjs --check`
+        reports 0 orphans of 255, holding the budget at 0. The pairing is
+        real rather than manufactured: one lot carries both understory a
+        mulching head eats and standing stems it is not rated for, and the
+        operator quoting either is regularly asked about the other. Filed
+        into `trades-outdoor` beside that sibling on its first commit rather
+        than left in the `trades-other` fallback.
+      - >-
+        Verified locally while Actions runners are starved: venture 109/109;
+        `platform/marketing` + `platform/pages` 1238/1238 after the
+        shop-rate exclusion; `platform/proposal` 138/138;
+        `platform/privacy` + `platform/webcheck` 82/82; `gitops/tests` 557
+        passed 25 skipped; all 25 `platform/ci` unittest modules OK plus
+        `agent_review`; `score_ventures.py --check` consistent across 264
+        ventures; `validate_usage.py` valid; `checklist_coverage.py` clean;
+        `clauses.mjs` clean on both pages; `siblings.mjs --check` 0 orphans.
+        `regen.mjs` also required the mirrored-tool count 254 -> 255 in the
+        four places `gitops/tests/test_manifests.py` pins
+        (`infra/OWNER_CHECKLIST.md` x3, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2), and the new workflow
+        required `gitops/ci/sync_readme_counts.py` and
+        `publish_surface.py --write` (classification `none`, publishes
+        nothing).
+    mrr_end: 0

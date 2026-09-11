@@ -1860,7 +1860,18 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-outdoor',
       title: 'Landscape, deck & pool',
-      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|landscape-lighting|holiday-light|snow-removal|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
+      // `forestry-mulching` joins this group beside `tree-service`, and the
+      // two link to each other: one lot commonly carries both standing stems
+      // a mulching head is not rated for and understory a chainsaw crew has
+      // no business on, so the operator quoting either is regularly asked
+      // about the other. Filed here on its first commit rather than left for
+      // a spell in `trades-other`, which `build.test.mjs`'s "every published
+      // trade tool lands in a named sub-group" assertion exists to prevent.
+      // `trades-site` was the near miss -- land clearing does precede site
+      // work -- but this tool prices vegetation removal by acres per
+      // machine-hour, not excavation, grading or a poured product, and its
+      // nearest neighbour by both buyer and job is the tree service beside it.
+      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|forestry-mulching|landscape-lighting|holiday-light|snow-removal|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
     },
   ],
 };

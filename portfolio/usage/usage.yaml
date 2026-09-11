@@ -5891,3 +5891,33 @@ products:
           count here is weaker evidence than usual and should not on its own
           be read as no use; repository engagement is the other half of the
           signal.
+
+  - slug: forestry-mulching-bid-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          job_priced: 0
+          density_compared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route from its first commit: a bid worksheet for owner-operators
+          running a forestry mulching head, which derives acres per
+          machine-hour from head width, advance speed while cutting, pass
+          count and a terrain factor, builds a cost per machine hour that
+          includes carbide tooth wear and the machine payment spread over
+          billable hours, keeps mobilization as its own line because a
+          trailer trip does not scale with acreage, and re-prices the same
+          acreage across four brush density classes against one flat quoted
+          price per acre. Counts are local, opt-in, off by default, and honor
+          DNT/GPC, so zero is the expected reading for a tool nobody has
+          visited or switched the counter on for yet. The reading worth
+          watching is `density_compared` against `job_priced`: the comparison
+          table renders on every successful price, so a divergence between
+          the two would mean the page is throwing after the first render
+          rather than that operators are ignoring it. Search terms this is
+          built to meet are "forestry mulching price per acre", "how much to
+          charge for forestry mulching", "land clearing cost per acre" and
+          "forestry mulching production rate acres per hour".
