@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How AI coding plan pricing actually works — subscriptions vs. API tokens</title>
+  <meta name="description" content="Why a flat-rate Claude, Cursor, or Copilot subscription and the same vendor's per-token API rate can point to completely different answers for the same usage — cache reads, seat pricing, and how to check the numbers yourself.">
+  <link rel="canonical" href="./how-ai-coding-plan-pricing-works.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why do cache reads matter so much more than input or output tokens?","acceptedAnswer":{"@type":"Answer","text":"An agentic coding session resends the system prompt, the tool definitions, the files it has already read, and most of the prior conversation on nearly every turn, because the model has no memory between calls otherwise. Providers that support prompt caching bill that repeated, unchanged block at a small fraction of the fresh-input rate, and publicly reported breakdowns of heavy Claude Code usage put cache reads above 90% of total tokens processed."}},{"@type":"Question","name":"Is a subscription always cheaper for a heavy user?","acceptedAnswer":{"@type":"Answer","text":"Not automatically. It depends on the plan price, the model's API rates, and how many of your tokens are cheap cache reads versus expensive fresh input and output. A heavy user whose sessions are mostly cache reads can still come out ahead on the API for some models and plans, which is why the calculator asks for your own numbers rather than assuming a verdict."}},{"@type":"Question","name":"Do seats change which option is cheaper?","acceptedAnswer":{"@type":"Answer","text":"Yes. Business and team subscription tiers are priced per seat, and the API-equivalent side scales with actual usage, not headcount, so a team with uneven usage across seats is a different comparison from a single heavy user. Enter the seat count that matches your plan and a typical member's usage, or run the calculator once per usage band."}},{"@type":"Question","name":"How current are the default prices and rates?","acceptedAnswer":{"@type":"Answer","text":"They are dated defaults recorded because this page makes no network call, not a live feed, and vendors change pricing without notice. Check the vendor's own current pricing page before switching plans on the strength of a result here."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.1; color: #17324a; }
+    h2 { color: #17324a; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+    th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+    .note { font-size: .86rem; color: #55606f; }
+    a { color: #17604a; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; font-size: .86rem; color: #55606f; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; back to the calculator</a></p>
+  <h1>How AI coding plan pricing actually works</h1>
+  <p>Every flat-rate AI coding plan — Claude Pro/Max, Cursor, GitHub Copilot, ChatGPT Plus — is really a bet the vendor is making about your usage against what the same work would cost billed per token. Whether that bet pays off for <em>you</em> depends on numbers neither pricing page shows side by side.</p>
+
+  <section class="card">
+    <h2>Why cache reads are the number that decides it</h2>
+    <p>An agentic coding session does not send one prompt and get one reply. It resends the system prompt, the tool definitions, the files it has already read, and most of the prior conversation on nearly every turn, because the model has no memory between calls otherwise. Providers that support prompt caching bill that repeated, unchanged block at a small fraction of the fresh-input rate — often around a tenth — specifically because it costs the provider far less to serve a cache hit than to reprocess the same tokens from scratch.</p>
+    <p>Publicly reported breakdowns of heavy Claude Code usage put cache reads above 90% of total tokens processed, with fresh input and output together under a few percent. A calculator that multiplies "tokens" by one blended rate treats a cache read as if it cost as much as fresh input, which overstates the API-equivalent cost by a large factor for exactly the heavy users who are the ones actually asking "is my plan worth it?" That is why <a href="./">this calculator</a> asks for fresh input, output, cache write, and cache read separately.</p>
+  </section>
+
+  <section class="card">
+    <h2>The two things a subscription is actually pricing</h2>
+    <table>
+      <thead><tr><th>Model</th><th>What you're really buying</th></tr></thead>
+      <tbody>
+        <tr><td>Flat-rate plan</td><td>A usage allowance (often soft, reset-based, or "fair use") at a fixed monthly price, regardless of your actual token mix. The vendor is pooling risk across many users' usage patterns.</td></tr>
+        <tr><td>Pay-per-token API</td><td>Exactly what you use, at published per-token rates, with no allowance to hit or reset to wait out — but no ceiling either if usage spikes.</td></tr>
+      </tbody>
+    </table>
+    <p>Neither is "correct" on its own — a light user well under a plan's allowance is very likely leaving money on the table by paying the flat rate; a heavy user who keeps hitting a five-hour usage reset is very likely leaving money on the table too, in the form of blocked time the API model would not have cost them. The calculator's break-even figure is the usage level where the two cross for your own numbers.</p>
+  </section>
+
+  <section class="card">
+    <h2>Seats change the comparison, not just the total</h2>
+    <p>Business and team subscription tiers are priced per seat, and the API-equivalent side scales with actual usage, not headcount — a team where three of five seats are light users is a very different comparison from one where all five run agentic loops most of the day. Enter the seat count that matches your plan and let the usage fields reflect a typical member, or run the calculator once per usage band if your team is uneven.</p>
+  </section>
+
+  <section class="card">
+    <h2>Check the numbers yourself before deciding</h2>
+    <p>List prices and API rates in the calculator are dated defaults, not a live feed — nothing on this page makes a network call, so it cannot know about a price change the moment it happens. Before switching plans on the strength of a result here, check the vendor's own current pricing:</p>
+    <ul>
+      <li><a href="https://www.anthropic.com/pricing" rel="noopener">Anthropic — Claude plans and API pricing</a></li>
+      <li><a href="https://cursor.com/pricing" rel="noopener">Cursor — plan pricing</a></li>
+      <li><a href="https://github.com/features/copilot/plans" rel="noopener">GitHub Copilot — plan pricing</a></li>
+      <li><a href="https://openai.com/api/pricing/" rel="noopener">OpenAI — API pricing</a></li>
+    </ul>
+    <p class="note">Not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, GitHub, Microsoft, or OpenAI. Each is a trademark of its respective owner, named here only to point to their own published pricing.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+
+    <h3>Why do cache reads matter so much more than input or output tokens?</h3>
+    <p>An agentic coding session resends the system prompt, the tool definitions, the files it has already read, and most of the prior conversation on nearly every turn, because the model has no memory between calls otherwise. Providers that support prompt caching bill that repeated, unchanged block at a small fraction of the fresh-input rate, and publicly reported breakdowns of heavy Claude Code usage put cache reads above 90% of total tokens processed.</p>
+
+    <h3>Is a subscription always cheaper for a heavy user?</h3>
+    <p>Not automatically. It depends on the plan price, the model's API rates, and how many of your tokens are cheap cache reads versus expensive fresh input and output. A heavy user whose sessions are mostly cache reads can still come out ahead on the API for some models and plans, which is why the calculator asks for your own numbers rather than assuming a verdict.</p>
+
+    <h3>Do seats change which option is cheaper?</h3>
+    <p>Yes. Business and team subscription tiers are priced per seat, and the API-equivalent side scales with actual usage, not headcount, so a team with uneven usage across seats is a different comparison from a single heavy user. Enter the seat count that matches your plan and a typical member's usage, or run the calculator once per usage band.</p>
+
+    <h3>How current are the default prices and rates?</h3>
+    <p>They are dated defaults recorded because this page makes no network call, not a live feed, and vendors change pricing without notice. Check the vendor's own current pricing page before switching plans on the strength of a result here.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the linked calculator produce estimates from numbers you supply — they are not financial advice and not a quote from any vendor. Verify anything here against the vendor's own pricing page before acting on it.</p>
+    <p><a href="./">Back to the calculator</a></p>
+  </footer>
+</body>
+</html>

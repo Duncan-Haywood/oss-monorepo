@@ -10540,6 +10540,80 @@ ventures:
       day-of-month/day-of-week OR rule, larger runners billing outside the
       allowance) and the refusal to guess, which is where a careless clone
       produces confidently wrong numbers.
+  - slug: ai-coding-plan-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Liability: pure arithmetic over usage and rates the visitor enters
+      themselves, against a vendor's own public, non-personal pricing. No
+      advice-of-record (it computes, the visitor decides), no compliance
+      claim, no PII, no payment code, no account. The only failure mode is a
+      stale default rate, which is why every rate ships editable with a
+      dated "as of" label and the no-warranty clause tells the reader to
+      verify against the vendor's own pricing page before deciding; both
+      pages carry the clause and the four-vendor trademark disclaimer.
+      Ethics: gets strictly better for the visitor as it scales -- it exists
+      only to help someone pay less for a tool they already use or are
+      deciding whether to buy, with no adverse incentive on our side (no
+      affiliate link, no referral fee, donations-only same as the rest of
+      the portfolio). The trademark disclaimer keeps the four named vendors
+      clear of any implied endorsement.
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately, for the same reason as
+      actions-minutes-estimator right above this entry: every figure is
+      deterministic arithmetic over usage and rates the visitor supplies. A
+      language model would add nothing but a source of wrong numbers to a
+      tool whose entire value is that its numbers can be checked by hand.
+    basis: >-
+      Screened 2026-09-11 against the same saturation notes
+      actions-minutes-estimator was screened against: 141 tries at the
+      <trade>-bid-calculator shape and 38 at the *-check/*-checker shape,
+      both with zero recorded visitors, and the standing test that shape
+      novelty is "necessary, not sufficient" on its own. This venture is
+      neither saturated shape -- the same "forward-looking cost model" shape
+      as actions-minutes-estimator, comparing two prices rather than
+      classifying one misconfiguration as safe or unsafe.
+      duplicate_check.py scored every venture, screened-out row,
+      ai-first-markets idea and pipeline candidate against this niche's
+      description; top score 0.10, far under the 0.45 review bar, and every
+      hit scored on incidental words ("actions"/"cache") rather than the
+      actual comparison -- this portfolio has no venture that compares a
+      subscription price to an API price for anything, AI-coding or
+      otherwise.
+      Named channel, checked this session with WebSearch (the agent egress
+      proxy blocks a direct fetch): a cluster of 2026-dated blog posts
+      (SSD Nodes, ksred.com, RelayPlane, BSWEN, dev.to, laozhang.ai) doing
+      this exact "Claude Max vs API" / "self-hosted vs API" arithmetic by
+      hand for their own accounts, including one citing why "Reddit threads
+      on r/LocalLLaMA about this topic often devolve into arguments, which
+      is why detailed calculators are useful" -- documented demand for a
+      calculator, not just the question, in the community this targets
+      (r/ClaudeAI, r/cursor). No interactive tool modelling subscription
+      coding-assistant plans with the cache-read/cache-write split was
+      found; the general-purpose GPU-vs-API calculators that do exist
+      compare a different decision (buy/rent hardware vs. API) and do not
+      model this. Distribution 6, not higher, because this is
+      content-ranking evidence of the question being asked and hand-solved
+      repeatedly, not a measured search-volume or referral reading -- this
+      session could not take one, and the venture's kill criteria are
+      written against that honestly (90-day engagement and referral
+      thresholds, not an assumed volume). Composite 5.833 rather than
+      actions-minutes-estimator's 6.0 for the same reason: distribution here
+      is reasoned from ranking content rather than from this repository's
+      own dated, measured CI-starvation record, which is a stronger form of
+      evidence than either.
   - slug: llms-txt-generator
     scores:
       ai_leverage: 1

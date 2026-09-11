@@ -1028,8 +1028,19 @@ const CATEGORY_RULES = [
     // several of its neighbours above are: one tool does not earn a whole
     // family pattern, and landing it here rather than the catch-all is also
     // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
+    //
+    // `ai-coding-plan-cost-calculator` joined 2026-09-11, the same day. Not
+    // a checker or a generator — a cost model, the same shape as
+    // `actions-minutes-estimator` right above this family — but it shares
+    // this family's exact audience: a developer deciding something about
+    // their own AI-assisted coding setup, not a trade bid, a marketplace
+    // fee, or a compliance evidence packet. It cross-links
+    // `mcp-supply-chain-watch` as Related. Listed by exact slug rather than
+    // a new prefix, the same way several of its neighbours above are, and
+    // landing it here rather than the catch-all is also what keeps that
+    // catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator)/.test(
         slug,
       ),
   },

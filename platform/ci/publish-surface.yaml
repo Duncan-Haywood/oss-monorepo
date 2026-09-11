@@ -80,6 +80,9 @@ workflows:
 - workflow: agent-pr-auto-merge.yml
   classification: none
   publishes: []
+- workflow: ai-coding-plan-cost-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: ai-crawler-access-check-ci.yml
   classification: none
   publishes: []

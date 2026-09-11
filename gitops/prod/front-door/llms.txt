@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 254 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 255 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 254 of them — and
+Every tool in the collection is listed below — all 255 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -159,6 +159,7 @@ page that hosts it.
 - [Actions Permissions Check — Does Your GITHUB_TOKEN Use Least Privilege?](https://marisstella.dev/tools/actions-permissions-check/): Paste your GitHub Actions workflow YAML and find every workflow or job with no explicit permissions block (running on the ambient default) or permissions: write-all. Free, runs in your browser, nothing uploaded.
 - [Actions Runner Starvation Check — Is Your Red CI Even Real?](https://marisstella.dev/tools/actions-runner-starvation-check/): Paste the JSON from a GitHub Actions run and find out in one click whether a red check is a real failure or GitHub silently never assigned it a runner. Free, runs in your browser, nothing uploaded.
 - [Actions Self-Hosted Exposure Check — Is Your Self-Hosted Runner Exposed to Forks?](https://marisstella.dev/tools/actions-self-hosted-exposure-check/): Paste your GitHub Actions workflow YAML and find every job that runs on a self-hosted label in a workflow triggered by pull_request, pull_request_target, workflow_run, or issue_comment — the exact pattern GitHub's own docs warn against on public repos. Free, runs in your browser, nothing uploaded.
+- [AI Coding Plan Cost Calculator — Subscription vs. API](https://marisstella.dev/tools/ai-coding-plan-cost-calculator/): Is your Claude Max, Cursor, GitHub Copilot, or ChatGPT Plus plan actually cheaper than paying per token through the API? Enter your own usage and rates and see the monthly cost both ways, plus the break-even point. Free, runs entirely in your browser, nothing is uploaded.
 - [AI Crawler Access Check — Which AI Bots Does Your robots.txt Block?](https://marisstella.dev/tools/ai-crawler-access-check/): Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.
 - [App Store Screenshot Checker — Catch a Rejected Icon or Wrong-Size Screenshot Before Upload](https://marisstella.dev/tools/app-store-screenshot-check/): Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic "can't contain an alpha channel" rejection), wrong pixel dimensions, a HEIC renamed to .png, and a screenshot set whose members disagree about their own size. Runs entirely in your browser; nothing is uploaded. A zero-dependency CLI does the same in CI.
 - [Cache-Control Checker — Vary: *, public + Set-Cookie, weak ETags](https://marisstella.dev/tools/cache-control-check/): Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor's cookie to another), and lower-severity caching directive conflicts. Nothing uploaded.

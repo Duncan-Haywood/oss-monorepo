@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 254,
-  "collection_total": 254,
+  "served_here": 255,
+  "collection_total": 255,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "ci",
       "name": "CI checks & developer gates",
       "url": "https://marisstella.dev/c/ci/",
-      "tool_count": 40
+      "tool_count": 41
     },
     {
       "id": "evidence",
@@ -581,6 +581,14 @@
       "category": "Creator & solo earner income",
       "description": "Paste a blog post's HTML and see every affiliate link it recognises (Amazon Associates tag= links, amzn.to, rel=sponsored, ShareASale/CJ/Impact/Skimlinks/AWIN tracking links) and whether a disclosure appears before the first one — plus whether an Amazon link carries Amazon's own required exact statement. Free, runs entirely in your browser, nothing is uploaded.",
       "pages": 3
+    },
+    {
+      "slug": "ai-coding-plan-cost-calculator",
+      "name": "AI Coding Plan Cost Calculator — Subscription vs. API",
+      "url": "https://marisstella.dev/tools/ai-coding-plan-cost-calculator/",
+      "category": "CI checks & developer gates",
+      "description": "Is your Claude Max, Cursor, GitHub Copilot, or ChatGPT Plus plan actually cheaper than paying per token through the API? Enter your own usage and rates and see the monthly cost both ways, plus the break-even point. Free, runs entirely in your browser, nothing is uploaded.",
+      "pages": 2
     },
     {
       "slug": "ai-crawler-access-check",
