@@ -97,6 +97,7 @@
       <tbody id="rates-body"></tbody>
     </table>
     <div id="findings"></div>
+    <p class="note" id="handoff" hidden></p>
   </section>
 
   <section class="card">
@@ -135,12 +136,14 @@
   <script type="module">
     import { computeRates, DELIVERABLES, DELIVERABLE_LABELS } from "./calculator.mjs";
     import { record, setUsageOptOut } from "./usage.mjs";
+    import { HANDOFF, handoffUrl } from "./handoff.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const els = {
       followers: $("#followers"), engagementRate: $("#engagement-rate"), platform: $("#platform"),
       status: $("#status"), reportCard: $("#report-card"),
       stats: $("#stats"), ratesBody: $("#rates-body"), findings: $("#findings"),
+      handoff: $("#handoff"),
     };
 
     function money(n) {
@@ -161,6 +164,42 @@
         </div>`).join("");
     }
 
+    // The next thing a creator does with a price range is put it in front of
+    // a brand, and this portfolio already builds that document. Offer the
+    // rates as a link rather than asking for them to be retyped there --
+    // `handoff.mjs` returns null when there is nothing worth carrying, and
+    // then no link is shown at all.
+    function renderHandoff(input, result) {
+      const href = handoffUrl(input, result);
+      if (!href) {
+        els.handoff.hidden = true;
+        els.handoff.replaceChildren();
+        return;
+      }
+      // Built with DOM calls rather than innerHTML. Everything interpolated
+      // here is already safe -- `href` is URLSearchParams-encoded and the
+      // label is a module constant -- but a link whose target is assembled
+      // from form input is exactly the place not to depend on that staying
+      // true.
+      els.handoff.replaceChildren();
+      const link = document.createElement("a");
+      link.id = "handoff-link";
+      link.href = href;
+      link.textContent = "Put these rates in a media kit →";
+      // Counted on the click rather than on render, so the event measures
+      // whether the handoff is used, not how often a page happens to show it.
+      link.addEventListener("click", () => record("handoff_followed"));
+      els.handoff.append(
+        link,
+        document.createTextNode(
+          ` Opens the ${HANDOFF.label} with this platform line and rate card` +
+          ` ready to add. The numbers travel inside the link itself and are` +
+          ` never uploaded.`,
+        ),
+      );
+      els.handoff.hidden = false;
+    }
+
     function runCalculate() {
       const followers = Number(els.followers.value);
       const engagementRate = Number(els.engagementRate.value);
@@ -174,6 +213,7 @@
         return `<tr><td>${DELIVERABLE_LABELS[deliverable]}</td><td class="price">${money(r.low)} – ${money(r.high)}</td></tr>`;
       }).join("");
       renderFindings(result.findings);
+      renderHandoff({ followers, engagementRate, platform }, result);
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("calculate_run");

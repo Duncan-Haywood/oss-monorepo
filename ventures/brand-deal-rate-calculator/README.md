@@ -60,6 +60,34 @@ Every output is a **range to start a negotiation from, never a quote,
 valuation, or offer performed on the user's behalf** — the creator decides
 what to actually charge.
 
+## Putting the rates in a media kit
+
+A price range is not the end of the job — the creator still has to put it in
+front of a brand. Once rates are calculated, the report offers a **"Put these
+rates in a media kit"** link into
+[`influencer-media-kit-generator`](../influencer-media-kit-generator/), whose
+own validator warns on exactly the two things this page has just worked out:
+"No platforms listed" and "No rate card".
+
+The link carries the platform line (`Instagram | 45000 | 4.5%`) and one
+rate-card row per deliverable, in that tool's own pipe-delimited format, so
+none of it has to be retyped. Two properties are deliberate:
+
+- **The numbers ride in the URL fragment**, which browsers never send to any
+  server, so the handoff keeps this tool's promise that nothing leaves the
+  device. The link is relative, so it works on GitHub Pages, under a custom
+  domain, and from a local static server.
+- **The range travels, not a single number.** This tool is explicit that its
+  output starts a negotiation and is never a quote; picking a point estimate
+  on the way into a document a brand reads would make a claim it refuses to
+  make here.
+
+On arrival the media kit generator *asks* before inserting anything and only
+ever appends — a draft already in progress is never overwritten. See
+[`handoff.mjs`](handoff.mjs) for the sending half and
+[`../influencer-media-kit-generator/prefill.mjs`](../influencer-media-kit-generator/prefill.mjs)
+for the receiving half.
+
 ## Disclaimers
 
 This is not financial or business advice, and it is not a guarantee of what
@@ -75,7 +103,8 @@ changes what this tool does.
 
 Everything runs in your browser. The numbers you enter are **never
 uploaded** — there is no server component at all. Anonymous feature events
-(`calculate_run`, `example_loaded`) are counted in `localStorage` only, never
+(`calculate_run`, `example_loaded`, `handoff_followed`) are counted in
+`localStorage` only, never
 transmitted, never tied to your account's identity. Do Not Track and Global
 Privacy Control are honoured, and a button on the page turns counting off
 entirely.
@@ -83,7 +112,7 @@ entirely.
 ## Development
 
 ```sh
-node --test calculator.test.mjs
+node --test calculator.test.mjs page.test.mjs handoff.test.mjs
 ```
 
 ## Status
