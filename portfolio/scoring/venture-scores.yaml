@@ -10607,3 +10607,68 @@ ventures:
       picking which pages belong in the file is the publisher's judgment, not
       something the tool can verify -- the same evidence-not-determination
       framing this portfolio's other tools use.
+
+  - slug: codeowners-shadow-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a rule ever wins ownership
+      of a given file under GitHub's own last-match-wins resolution is
+      decided by parsing plain text and running deterministic
+      gitignore-style pattern matching against a supplied path list -- a
+      factual, reproducible computation, not a model judgment, and it never
+      guesses at intent.
+    basis: >-
+      Screened 2026-09-11 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free CLI + browser checker, not another
+      <trade>-bid-calculator or a 40th generic *-checker, scored on this
+      file's six-dimension rubric to keep coverage complete for
+      score_ventures.py --check and portfolio/router/test_allocate.py.
+      duplicate_check.py scored every existing venture, screened-out row,
+      ai-first-markets idea, and pipeline candidate against the final
+      description at 0.12 or below (closest: oidc-trust-policy-check,
+      email-auth-check, both generic word overlap on "resolves" and
+      "checker"), well under the 0.45 review bar; a manual pass over the
+      fleet's ~40 *-check/*-checker ventures by name found none covering
+      CODEOWNERS resolution or code-review routing, distinct from
+      repository-branch-hygiene (stale branch inventory, not review
+      routing) and actions-permissions-check (workflow token scope, not
+      review routing).
+      Autonomous ops 10 / gross margin 10: the browser page parses only
+      text pasted into it and the CLI reads only local files (plus `git
+      ls-files`) on the user's own machine, so serving one more user costs
+      a static file -- unlike several sibling checkers, this one makes no
+      network call of any kind in either the CLI or the browser page, since
+      both inputs are already local to the repository being checked.
+      Distribution 6, level with env-example-drift-check: GitHub's
+      last-match-wins CODEOWNERS resolution is a well-documented, widely
+      hit gotcha with real recurring search and forum volume ("codeowners
+      not working", "codeowners last match wins", r/git, r/github, Stack
+      Overflow), and GitHub's own CODEOWNERS syntax highlighting explicitly
+      stops at syntax validation, leaving the resolution question
+      unanswered by any first-party tool -- the wedge this wedge fills.
+      Time to revenue 5, defensibility 3: same level as the portfolio's
+      other checker ventures -- free, donation-only, easy to reimplement
+      once the shape is known, but cheap enough to give away that being
+      copied costs nothing.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive -- it resolves ownership from a
+      CODEOWNERS file and a file list the user supplies and reports exactly
+      which rules never win and which files are uncovered, never a claim
+      that a listed owner is a real collaborator (that would need an
+      authenticated GitHub API call this tool deliberately never makes) and
+      never a claim that a clean report means the file has no other issues.
+      Makes no network call of any kind, and the page's own footer and FAQ
+      state both limits plainly.

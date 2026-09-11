@@ -1013,8 +1013,23 @@ const CATEGORY_RULES = [
     // neighbours above are, and landing it here rather than the catch-all is
     // also what keeps that catch-all inside the bound `build.test.mjs` puts
     // on it.
+    //
+    // `codeowners-shadow-check` joined 2026-09-11, the same day. Same shape
+    // again — a browser-local checker plus a matching CLI, run by a
+    // maintainer against a CODEOWNERS file and a file list they already
+    // have, reporting exactly which rules never win ownership of anything
+    // because a broader rule listed later always overrides them under
+    // GitHub's last-match-wins resolution — just for review-routing
+    // correctness instead of a workflow, a manifest, or a page's own
+    // structured data. It shares this family's audience (a repository
+    // maintainer hardening their own repo) exactly, and cross-links
+    // `actions-permissions-check` and `repository-branch-hygiene` as
+    // Related. Listed by exact slug rather than a new prefix, the same way
+    // several of its neighbours above are: one tool does not earn a whole
+    // family pattern, and landing it here rather than the catch-all is also
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check)/.test(
         slug,
       ),
   },

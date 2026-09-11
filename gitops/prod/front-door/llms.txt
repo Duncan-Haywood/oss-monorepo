@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 253 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 254 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 253 of them — and
+Every tool in the collection is listed below — all 254 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -164,6 +164,7 @@ page that hosts it.
 - [Cache-Control Checker — Vary: *, public + Set-Cookie, weak ETags](https://marisstella.dev/tools/cache-control-check/): Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor's cookie to another), and lower-severity caching directive conflicts. Nothing uploaded.
 - [Canonical Tag Checker — Conflicting, Cross-Domain & Dead-End Canonicals](https://marisstella.dev/tools/canonical-tag-check/): Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical that 404s or is itself marked noindex. Nothing uploaded.
 - [Chrome Extension Permission Checker — Unused & Missing Permissions](https://marisstella.dev/tools/chrome-extension-permission-check/): Free, browser-local checker: scans your extension's JavaScript/TypeScript source for chrome.* API usage and compares it against manifest.json's declared permissions, so an unused or missing permission doesn't cost you a Chrome Web Store rejection ('Purple Potassium'). Nothing is uploaded.
+- [CODEOWNERS Shadow Checker — Find Rules GitHub Silently Overrides](https://marisstella.dev/tools/codeowners-shadow-check/): Free tool: paste your CODEOWNERS file and your repo's file list to see exactly which earlier, more specific rules a later, broader rule silently overrides -- GitHub's own last-match-wins resolution, the most common way a CODEOWNERS file quietly stops reviewing what you think it reviews. Nothing uploaded.
 - [Cookie Security Checker — SameSite=None, __Host-/__Secure- prefixes](https://marisstella.dev/tools/cookie-security-check/): Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on SameSite=None cookies missing Secure (which current browsers reject outright), broken __Host-/__Secure- prefix cookies, and missing Secure/HttpOnly/SameSite. Nothing uploaded.
 - [CORS Misconfiguration Checker — Reflected Origin, Null Origin, Unanchored Allow-Lists](https://marisstella.dev/tools/cors-misconfig-check/): Free tool: run a CLI that sends real requests with crafted Origin headers to your API, then paste the JSON here for a plain-English report on reflected-origin, null-origin, and unanchored allow-list CORS misconfigurations. Nothing uploaded.
 - [Coverage Drop Check — Did This PR Lower Line Coverage?](https://marisstella.dev/tools/coverage-drop-check/): Paste two Cobertura or JaCoCo coverage XML reports — baseline vs this PR — and see whether line coverage dropped, and which files got worse. Free, runs in your browser, nothing uploaded. A floor like --cov-fail-under=80 misses a drop from 92% to 81%.
