@@ -9,7 +9,7 @@
 <meta property="og:description" content="A '3-hour, $500' package prices only the hours a guest sees the booth running. Find real profit after setup/teardown, travel, labor, and the print-volume risk an unlimited-print package hides.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Photo Booth Event Quote Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a mobile photo booth event booking from booked hours, setup/teardown time, travel, attendant labor, print cost, props, and equipment cost, then flags the print-volume risk in unlimited-print packages and checks a proposed price against breakeven."}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why count setup and teardown time when the guest only sees the booth running for the booked hours?","acceptedAnswer":{"@type":"Answer","text":"Because you and your equipment are committed to the job for that time too. A 3-hour package with an hour of setup and 45 minutes of teardown is 4.75 hours on site before travel — pricing only the 3 booked hours quietly cuts your real hourly rate every time."}},{"@type":"Question","name":"Why does the calculator treat print cost as a risk, not just a cost line?","acceptedAnswer":{"@type":"Answer","text":"Unlimited-print packages are quoted from an estimated print count, but the actual count depends on how many guests show up and use the booth — a busy open bar can print far more strips than a seated dinner. The calculator reports what share of your price the print line already represents, so you can see how much room is left before extra prints erase the margin you built the quote on."}},{"@type":"Question","name":"How is the recommended overtime rate different from just charging my hourly rate for the extra time?","acceptedAnswer":{"@type":"Answer","text":"It marks the extra hour up the same way the rest of the quote is marked up — attendant pay plus your overhead rate, divided by your target margin — so an event that runs long still earns the same margin instead of just covering the added labor at cost."}},{"@type":"Question","name":"Does anything about my event details get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why count setup and teardown time when the guest only sees the booth running for the booked hours?","acceptedAnswer":{"@type":"Answer","text":"Because you and your equipment are committed to the job for that time too. A 3-hour package with an hour of setup and 45 minutes of teardown is 4.75 hours on site before travel — pricing only the 3 booked hours quietly cuts your real hourly rate every time."}},{"@type":"Question","name":"Why does the calculator treat print cost as a risk, not just a cost line?","acceptedAnswer":{"@type":"Answer","text":"Unlimited-print packages are quoted from an estimated print count, but the actual count depends on how many guests show up and use the booth — a busy open bar can print far more strips than a seated dinner. The calculator reports what share of your price the print line already represents, so you can see how much room is left before extra prints erase the margin you built the quote on."}},{"@type":"Question","name":"How is the recommended overtime rate different from just charging my hourly rate for the extra time?","acceptedAnswer":{"@type":"Answer","text":"It marks the extra hour up the same way the rest of the quote is marked up — attendant pay plus your overhead rate, divided by your target margin — so an event that runs long still earns the same margin instead of just covering the added labor at cost."}},{"@type":"Question","name":"Does anything about my event details get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. The shareable link is the one thing that travels, and only when you press the button for it: it carries your numbers inside the URL itself rather than uploading them anywhere, so whoever you send it to opens the same quote — send it only to the person you are quoting. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
 <style>
 :root{font:16px/1.5 system-ui,sans-serif;color:#2a1730;background:#f7eefb}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e2c7ee;border-radius:16px;padding:20px;box-shadow:0 8px 24px #4a127708;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #ecd9f4;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#7a1c8f;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #d8a9e8;border-radius:8px;font:inherit;background:#fdfbff}.result{background:#5c0f5c;color:#fff;border-color:#5c0f5c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6a4c66}.result .note{color:#eacdea}.err{color:#ffd9a6;font-weight:700}.warn{background:#fff4e0;border:1px solid #f0c987;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#3f0a3f;border-color:#a35bb0;color:#ffe6b0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #d8a9e8;background:#fff;cursor:pointer;color:#2a1730}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
 </style></head>
@@ -59,6 +59,7 @@
 <dt>Recommended overtime rate ($/hr extra)</dt><dd id="overtimeOut"></dd>
 </dl>
 <p id="printWarning" class="warn" hidden></p>
+<p><button id="copyLink" type="button">Copy shareable link</button> <span id="copyStatus" class="note" role="status"></span></p>
 <p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not add sales tax, insurance, or a no-show/cancellation policy unless you fold those into other cost yourself.</p>
 </section>
 </main>
@@ -75,13 +76,13 @@
 </dl>
 </section>
 
-<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your event details, prices, and costs are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>quote-priced</code>, <code>proposed-price-checked</code>) so we can tell whether the calculator gets used — no event details, prices, or costs are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your event details, prices, and costs are never uploaded, there is no account, and nothing is saved when you close the tab. The one exception is the shareable link, and it is one you choose: pressing &ldquo;Copy shareable link&rdquo; writes your numbers into the URL itself so whoever you send it to opens the same quote — nothing is stored on a server, but treat that link like the figures it carries and send it only to the person quoting the event. We count only anonymous local feature events (<code>quote-priced</code>, <code>proposed-price-checked</code>, <code>link-copied</code>) so we can tell whether the calculator gets used — no event details, prices, or costs are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
 
 <section><h2>Common questions</h2>
 <h3>Why count setup and teardown time when the guest only sees the booth running for the booked hours?</h3><p>Because you and your equipment are committed to the job for that time too. A 3-hour package with an hour of setup and 45 minutes of teardown is 4.75 hours on site before travel — pricing only the 3 booked hours quietly cuts your real hourly rate every time.</p>
 <h3>Why does the calculator treat print cost as a risk, not just a cost line?</h3><p>Unlimited-print packages are quoted from an estimated print count, but the actual count depends on how many guests show up and use the booth — a busy open bar can print far more strips than a seated dinner. The calculator reports what share of your price the print line already represents, so you can see how much room is left before extra prints erase the margin you built the quote on.</p>
 <h3>How is the recommended overtime rate different from just charging my hourly rate for the extra time?</h3><p>It marks the extra hour up the same way the rest of the quote is marked up — attendant pay plus your overhead rate, divided by your target margin — so an event that runs long still earns the same margin instead of just covering the added labor at cost.</p>
-<h3>Does anything about my event details get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+<h3>Does anything about my event details get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. The shareable link is the one thing that travels, and only when you press the button for it: it carries your numbers inside the URL itself rather than uploading them anywhere, so whoever you send it to opens the same quote — send it only to the person you are quoting. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
 </section>
 
 <p class="note">New to pricing bookings? Read the guide: <a href="./how-much-to-charge-for-a-photo-booth-rental.html">how much to charge for a photo booth rental</a>.</p>
@@ -91,6 +92,7 @@
 
 <script type="module">
 import { calculateQuote, DEFAULTS } from './calc.mjs';
+import { SHARE_FIELDS, encodeInputs, decodeInputs, formValues } from './share.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
 const el = id => document.getElementById(id);
 const money = (n) => {
@@ -160,6 +162,40 @@ el('proposedPrice').addEventListener('input', () => updateProposed(true));
 el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
 el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
 if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+// The quote is the thing two people have to agree on -- the operator and the
+// couple or planner they sent a number to. Until now the only way to hand it
+// over was a screenshot of a figure with none of the assumptions behind it.
+// The link carries the inputs in the URL itself; nothing is sent anywhere.
+function shareUrl() {
+  const values = Object.fromEntries(SHARE_FIELDS.map(id => [id, el(id).value]));
+  return `${location.origin}${location.pathname}#${encodeInputs(values)}`;
+}
+
+el('copyLink').addEventListener('click', async () => {
+  const url = shareUrl();
+  try {
+    await navigator.clipboard.writeText(url);
+    el('copyStatus').textContent = 'Link copied.';
+  } catch {
+    // Clipboard access can be refused (an insecure origin, a permission
+    // prompt declined). Showing the URL still lets them copy it by hand,
+    // which is better than a button that silently does nothing.
+    el('copyStatus').textContent = url;
+  }
+  recordEvent('link-copied');
+});
+
+// A link wins over whatever the page shipped with, and `formValues` writes
+// every field rather than patching the ones the link happened to carry -- so a
+// field the sender blanked arrives blank instead of showing this page's own
+// example figure. See platform/ci/check_shared_link_clears.py.
+const fromLink = decodeInputs(location.hash || location.search);
+if (Object.keys(fromLink).length > 0) {
+  const values = formValues(fromLink);
+  for (const id of SHARE_FIELDS) el(id).value = values[id];
+}
+
 updateQuote(false);
 updateProposed(false);
 </script>

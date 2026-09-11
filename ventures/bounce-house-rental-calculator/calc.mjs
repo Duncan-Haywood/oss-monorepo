@@ -30,6 +30,28 @@ export const UNIT_PRESETS = Object.freeze([
   { id: 'dunk-tank', label: 'Dunk tank', dailyRate: 180, replacementValue: 2400, wet: true },
 ]);
 
+/**
+ * Every scalar `calculateQuote` reads off the form, in the order the page lays
+ * them out. The fleet table is not here: its fields are derived per row from
+ * `UNIT_PRESETS` above.
+ *
+ * This lived in `index.html` until the shareable link needed it too. A second
+ * copy is how a field gets added to the form and quietly left out of the link,
+ * so the recipient prices a different booking from the same URL with nothing
+ * on screen saying so — the failure `platform/ci/check_shared_link_clears.py`
+ * exists to catch, and the copied-constant mistake CLAUDE.md records twice
+ * against the front-door mirror. The page and `share.mjs` both import it.
+ */
+export const COST_IDS = Object.freeze([
+  'eventDays', 'setupMinutesPerUnit', 'teardownMinutesPerUnit', 'crewSize', 'laborRate',
+  'deliveryFee', 'pickupFee', 'milesOneWay', 'ratePerMile', 'generatorFee',
+  'attendantHours', 'attendantRate', 'insuranceRatePct', 'consumablesPerUnit', 'otherCost',
+  'overheadRate', 'targetMargin', 'proposedPrice',
+]);
+
+/** The three per-unit fields the fleet table renders for each preset. */
+export const UNIT_FIELDS = Object.freeze(['quantity', 'dailyRate', 'replacementValue']);
+
 function number(value, name, { min = 0, allowZero = true } = {}) {
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);

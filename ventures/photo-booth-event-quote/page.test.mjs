@@ -96,3 +96,30 @@ test('index links one hop to the booth-rent-vs-commission sibling', () => {
   );
 });
 
+
+// The share link is the only thing on this page that leaves the browser, and
+// three separate claims have to stay true together: the button exists, the
+// restore path writes every field rather than patching the ones the link
+// carried, and the page's own privacy copy says so. A page that gained the
+// feature and kept the old "nothing you type is saved anywhere" wording would
+// be making a claim about the visitor's data that is no longer accurate.
+test('the page offers a shareable link and restores one through formValues', () => {
+  assert.match(html, /id="copyLink"/);
+  assert.match(html, /import \{ SHARE_FIELDS, encodeInputs, decodeInputs, formValues \} from '\.\/share\.mjs'/);
+  assert.match(html, /formValues\(fromLink\)/, 'a decoded link must be applied through formValues so an omitted field is cleared');
+  assert.match(html, /recordEvent\('link-copied'\)/);
+  assert.match(html, /<code>link-copied<\/code>/, 'the privacy copy must list every event the page records');
+});
+
+test('the privacy copy and the FAQ both disclose that the link carries the numbers', () => {
+  // Visible copy and the FAQPage JSON-LD have to agree -- CLAUDE.md records a
+  // merge where they diverged and the structured data described a page that
+  // no longer existed.
+  const disclosures = html.match(/carries your numbers inside the URL|writes your numbers into the URL itself/g) || [];
+  assert.ok(disclosures.length >= 2, 'both the privacy section and the FAQ (visible + JSON-LD) must disclose the link');
+  assert.doesNotMatch(
+    html,
+    /nothing you type is saved anywhere[^.]*\.\s*Usage counting/,
+    'the old unqualified claim must not survive alongside a share link',
+  );
+});
