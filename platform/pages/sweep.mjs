@@ -281,9 +281,20 @@ async function perturb(limit = 4) {
  * `NOT_AN_ACTION` already skips "Copy link to this bid", but "Save this bid" is
  * an ordinary-looking verb on an ordinary-looking button and would simply
  * become the next wrong thing pressed.
+ *
+ * `[data-mode]` joins the exclusion for the same reason and one more DOM
+ * position argument: a tab switcher. `llms-txt-generator` renders three
+ * `<button data-mode="…">` tab controls *before* its own "Build llms.txt"
+ * button, so `pressPrimaryAction` found "1. Paste a page list" first — an
+ * ordinary-looking label, not excluded by `NOT_AN_ACTION`, and clicking it
+ * (the already-active tab) changes nothing. The tool loaded its own worked
+ * example correctly and was still recorded `NO-RESPONSE`, because the real
+ * action button never got pressed. A tab control switches which section of
+ * the form is visible; it is exactly the kind of chrome this selector
+ * already exists to keep out of "the tool's own action buttons".
  */
 const OWN_BUTTONS = 'button:not([data-pf-jobs-root] button)'
-  + ':not([data-pf-rates-root] button):not(.pf-chrome button)';
+  + ':not([data-pf-rates-root] button):not(.pf-chrome button):not([data-mode])';
 
 async function pressMatching(pattern) {
   for (const button of await page.$$(OWN_BUTTONS)) {
