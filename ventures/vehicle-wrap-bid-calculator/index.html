@@ -226,19 +226,28 @@ const money = (n) => {
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
 const FIELD_IDS = Object.keys(DEFAULTS);
+// Not in DEFAULTS/FIELD_IDS on purpose: these two are an optional post-install
+// reconciliation, not a pricing input calculateQuote requires, so they stay
+// out of the generic FIELD_IDS input listener below. But a bid link is a
+// shop's rate sheet sent to itself or a partner, and dropping the actual roll
+// usage a setter already measured silently reopened the link short of what
+// the sender saw -- kept as their own list here rather than folded into
+// FIELD_IDS.
+const ACTUAL_FIELD_IDS = ['actualVinylSqFtUsed', 'actualInstallHours'];
 let counted = false;
 let actualCounted = false;
 
-function readInput() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+function readInput() { return Object.fromEntries([...FIELD_IDS, ...ACTUAL_FIELD_IDS].map(id => [id, el(id).value])); }
 function count(event) { recordEvent(event); }
 
 // A shop re-enters the same vinyl cost, install rate, and margin on every
 // single wrap — losing them when the tab closes is why a pricing tool gets
 // used once and never again. This spec is what a bid link and the local save
 // carry between visits or to a partner; see share.mjs for how. `numbers`
-// is `FIELD_IDS` directly (not a hand-kept copy) so a field added to the
-// pricing form is shareable and savable the moment it exists.
-const BID_SPEC = { key: 'vehicle-wrap-bid', numbers: FIELD_IDS, flags: [], choices: {} };
+// is FIELD_IDS plus ACTUAL_FIELD_IDS (not a hand-kept copy of either) so a
+// field added to the pricing form, or the actual-usage panel, is shareable
+// and savable the moment it exists.
+const BID_SPEC = { key: 'vehicle-wrap-bid', numbers: [...FIELD_IDS, ...ACTUAL_FIELD_IDS], flags: [], choices: {} };
 
 // Puts a restored or shared quote back on screen. Generic over every key in
 // `values`, not just FIELD_IDS — the proposal panel's own terms (deposit %,
