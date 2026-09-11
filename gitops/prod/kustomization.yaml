@@ -238,6 +238,7 @@ configMapGenerator:
       - vs__socket.html.gz=front-door/vs__socket.html.gz
       - vs__zizmor.html.gz=front-door/vs__zizmor.html.gz
       - vs__pestpac.html.gz=front-door/vs__pestpac.html.gz
+      - vs__booqable.html.gz=front-door/vs__booqable.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf
