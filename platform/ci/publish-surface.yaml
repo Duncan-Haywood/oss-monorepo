@@ -696,6 +696,9 @@ workflows:
     step: uses cloudflare/wrangler-action
     gates:
     - env.CLOUDFLARE_API_TOKEN != ''
+- workflow: redirect-chain-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: register-change-rate-ci.yml
   classification: none
   publishes: []

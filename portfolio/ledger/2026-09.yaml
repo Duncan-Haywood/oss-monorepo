@@ -26183,3 +26183,123 @@ entries:
         no session credential exists for any of it (checked: no HCLOUD, SSH,
         Argo or Codex value in the environment). Added no duplicate ask.
     mrr_end: 0
+  - venture: redirect-chain-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and graduated a fresh niche per `DIRECTION.md`'s standing
+        preference for new ventures with the pipeline's gates cleared:
+        `redirect-chain-check`, a zero-dependency CLI (+ browser page) that
+        walks a URL's real HTTP redirect chain one hop at a time and
+        classifies it against five named misconfigurations -- a redirect
+        loop that never terminates, a chain longer than the single hop
+        Google's own Search Central redirect documentation recommends, an
+        HTTPS-to-HTTP protocol downgrade, a same-path scheme/host
+        normalization using a temporary 302/303/307 instead of a permanent
+        301/308, and a chain that dead-ends in a 4xx/5xx error or is still
+        redirecting with nowhere further to go. `duplicate_check.py` scored
+        every venture/candidate/screened-out row at 0.26 or below against the
+        final description, well under the 0.45 read-this-first bar; written
+        up in `portfolio/pipeline/candidates/redirect-chain-check.md`,
+        `candidates.yaml` (composite 6.25, floor 1 on `ai_leverage` by
+        design), the pipeline README table, and
+        `portfolio/scoring/venture-scores.yaml`. This continues the
+        checker/CLI archetype `pipeline/README.md`'s "archetype itself"
+        section argues for over another `<trade>-bid-calculator` (141 of 200
+        ventures already share that shape with zero measured traffic), in
+        the same family as `sitemap-lastmod-freshness-check`,
+        `hreflang-reciprocity-check`, and `cors-misconfig-check`.
+      - >-
+        The CLI (`fetch-chain.mjs`) makes one real HTTP request per hop and
+        deliberately never auto-follows a redirect, so every intermediate
+        hop stays visible -- the opposite of what a browser's default
+        `fetch()` does, and the reason the browser page instead works from a
+        pasted `<status> <url>` hop list (read off DevTools' Network panel or
+        a `curl -sI` trace): `redirect: "manual"` in a page's own `fetch()`
+        makes the response opaque, hiding even the first hop's status and
+        Location header. `engine.mjs` is the shared, independently-tested
+        classification logic (loop detection, chain-length, protocol
+        downgrade, temporary-vs-permanent status, the paste-format parser),
+        so the CLI and the browser view can never silently disagree about
+        what a chain means. Shipped: `index.html` (browser tool),
+        `why-redirect-chains-matter.html` (docs page), a nominative-fair-use
+        comparison page against httpstatus.io (`vs-httpstatus-io.html` --
+        different job, raw chain/header inspection vs. misconfiguration
+        classification -- "not affiliated with, endorsed by, or sponsored by
+        httpstatus.io"), usage counting (`usage.mjs`, the fleet's
+        `localStorage`-only, DNT/GPC-honouring pattern), the standard
+        disclaimer/privacy/sponsor copy, and 64 `node --test` assertions
+        across the engine, the network layer (a local loopback HTTP server,
+        never the real internet, including a never-auto-follow guarantee and
+        a hang-proof timeout), the CLI's orchestration, the usage counter,
+        and all three pages' structure/disclaimers.
+      - >-
+        Wired into the platform: added `redirect-chain-check` to
+        `build.mjs`'s `ci` category rule (it would otherwise have landed in
+        the catch-all, which `build.test.mjs` bounds -- confirmed by running
+        the suite before making the change and watching it fail with "the
+        catch-all has grown to 6 tools"); added a reciprocal sibling link
+        with `canonical-tag-check` so neither page is a crawlable orphan; ran
+        `regen.mjs` and `launched.mjs --write` (249 tools); bumped the
+        four-place mirrored-tool count 248 -> 249
+        (`gitops/tests/test_manifests.py`, `infra/OWNER_CHECKLIST.md` x2,
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        x2); added `.github/workflows/redirect-chain-check-ci.yml` (the
+        venture's `*.test.mjs` files would otherwise fail
+        `test_validate_workflows.py`'s "every test file runs somewhere"
+        check); and `publish_surface.py --write` (new workflow classified
+        `none` -- no deploy, matches every other venture CI workflow).
+      - >-
+        Two real defects caught before shipping, by fleet-wide guards rather
+        than by inspection: (1) `faq-visible.test.mjs` failed on all three
+        pages because the FAQPage JSON-LD was authored with ASCII `--` where
+        the visible prose renders a real em dash -- fixed by aligning the
+        JSON-LD to the exact visible text, the same one-character drift the
+        test's own docstring names as the common case; (2)
+        `test_validate_workflows.py`'s
+        `test_the_real_venture_tree_has_every_test_file_running_somewhere`
+        failed until the CI workflow above was added, and
+        `test_publish_surface.py`'s snapshot test failed until
+        `publish_surface.py --write` picked up that new workflow -- both
+        caught locally before push, not discovered as a red PR check.
+      - >-
+        Also spent part of this session sampling the open-PR/branch backlog
+        for supersede-safe closes, per CLAUDE.md's "Duplicate PRs" section.
+        `list_pull_requests` (state=open) returned zero open PRs on this
+        repo right now, so there was nothing to close or reopen regardless of
+        what the sample found. Ran `supersede_check.py` against 12 sampled
+        stale-looking branches with no open PR (a mix of `agent/claude/`,
+        `agent/cursor/`, `claude/`, and named feature branches):
+        9 of 12 (`agent/claude/issue-4094`, `agent/cursor/issue-3980`,
+        `atm-route-margin-guide-page`, `bounce-house-rental-calculator-vs-inflatableoffice`,
+        `childcare-vs-procare`, `ci/hetzner-ssh-key-diagnostic`,
+        `claude/charming-hawking-5my8mo`, `claude/clever-bohr-2flv27`,
+        `agent/deploy-cicd-ledger-2868`) came back SUPERSEDED (six by
+        identical-merge proof, two by the line scan finding nothing
+        unmatched); the other 3 (`agent/claude/issue-3738`,
+        `agent/cursor/issue-3689`, `atm-route-margin`) came back NOT
+        SUPERSEDED, naming real unmatched lines (70, 28, and 88 respectively)
+        in files under `gitops/`. Recorded here rather than acted on: none of
+        the 3 has an open PR to merge or a branch owner to hand it to, and
+        opening a fresh PR from a stale, unowned branch this session did not
+        write is out of this task's scope -- but the finding itself (three
+        real, unshipped diffs sitting on unowned branches with no PR) is
+        worth a future session's attention before those branches age further
+        or get pruned.
+      - >-
+        Verified: venture's own 64 `node --test` assertions;
+        `platform/pages/clauses.mjs redirect-chain-check` clean (3 pages);
+        `check_no_payment_code.py` clean; `validate_candidates.py` /
+        `validate_doc_consistency.py` / `router/validate.py` (257
+        VENTURE.yaml checked) / `score_ventures.py --check` (258 scores) all
+        clean; `checklist_coverage.py` clean;
+        `platform/marketing/*.test.mjs` + `platform/pages/*.test.mjs`
+        0 failures after the two fixes above (full suite, not just this
+        venture's pages); `gitops/tests` 581 passed / 1 skipped
+        (environmental, same as prior sessions); all platform/ci unittest
+        modules green including `test_validate_workflows` and
+        `test_publish_surface` after the fixes;
+        `portfolio/ledger` + `scoring` + `router` + `usage` + `pipeline` +
+        `infra/tests` 435 passed.
+    mrr_end: 0
