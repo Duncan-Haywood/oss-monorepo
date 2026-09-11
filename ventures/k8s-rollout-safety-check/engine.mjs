@@ -159,13 +159,43 @@ export function servingContainers(podSpec, { service = null, deployment = null }
   return matched.length > 0 ? matched : containers;
 }
 
+/** Deterministic JSON, so two handlers compare equal only when every field
+ * does. Key order in the manifest must not decide the verdict. */
+function canonical(value) {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((k) => `${JSON.stringify(k)}:${canonical(value[k])}`).join(',')}}`;
+  }
+  return JSON.stringify(value ?? null);
+}
+
+/**
+ * A probe's handler, in full. An earlier version reduced httpGet to path and
+ * port, which called two probes identical when they deliberately differed by
+ * `scheme`, `host`, or `httpHeaders` -- a readiness probe sending
+ * `X-Probe: ready` and a liveness probe sending `X-Probe: live` hit the same
+ * path and can exercise entirely different code, so reporting them as
+ * duplicates was a false positive on a deliberate design.
+ *
+ * Only the handler is compared, never the timing fields: two probes that hit
+ * exactly the same endpoint with different periodSeconds are still the
+ * duplicate this check is about.
+ */
 function probeTarget(probe) {
   if (!probe || typeof probe !== 'object') return null;
-  if (probe.httpGet) return `httpGet ${probe.httpGet.path ?? '/'}:${probe.httpGet.port ?? ''}`;
-  if (probe.tcpSocket) return `tcpSocket ${probe.tcpSocket.port ?? ''}`;
-  if (probe.exec?.command) return `exec ${[].concat(probe.exec.command).join(' ')}`;
-  if (probe.grpc) return `grpc ${probe.grpc.port ?? ''}${probe.grpc.service ? ` ${probe.grpc.service}` : ''}`;
+  for (const kind of ['httpGet', 'tcpSocket', 'exec', 'grpc']) {
+    if (probe[kind]) return `${kind} ${canonical(probe[kind])}`;
+  }
   return null;
+}
+
+/** How a handler reads in a finding, where the full JSON would be noise. */
+function probeSummary(probe) {
+  if (probe?.httpGet) return `httpGet ${probe.httpGet.path ?? '/'}:${probe.httpGet.port ?? ''}`;
+  if (probe?.tcpSocket) return `tcpSocket ${probe.tcpSocket.port ?? ''}`;
+  if (probe?.exec?.command) return `exec ${[].concat(probe.exec.command).join(' ')}`;
+  if (probe?.grpc) return `grpc ${probe.grpc.port ?? ''}`;
+  return 'the same handler';
 }
 
 export function resourceLabel(doc) {
@@ -263,7 +293,7 @@ function analyzeDeployment(deployment, pdbs, { services = [], scaleFor = () => n
       if (a && b && a === b) {
         out.push(finding(
           'liveness-equals-readiness', where, name,
-          `Both probes check the same thing (${a}). When a dependency slows down, the readinessProbe correctly pulls the pod out of rotation — and the livenessProbe then restarts the container for the same reason. During a rollout that turns a recoverable brownout into a crash loop that stalls the rollout with reduced capacity.`,
+          `Both probes use an identical handler (${probeSummary(readiness)}) — every field matches, not just the path and port. When a dependency slows down, the readinessProbe correctly pulls the pod out of rotation, and the livenessProbe then restarts the container for the same reason. During a rollout that turns a recoverable brownout into a crash loop that stalls the rollout with reduced capacity.`,
           'Point livenessProbe at a cheap endpoint that only proves the process is not wedged, and leave the dependency checks to readinessProbe.',
         ));
       }
@@ -282,7 +312,7 @@ function analyzeDeployment(deployment, pdbs, { services = [], scaleFor = () => n
   if (matching.length === 0) {
     out.push(finding(
       'no-pdb-found', where, null,
-      'Nothing in what was checked declares a PodDisruptionBudget selecting these pods. A rollout is a *voluntary* disruption and so is a node drain during a cluster upgrade — without a budget, the drain is free to evict every replica at once, whatever the rollout strategy says.',
+      'Nothing in what was checked declares a PodDisruptionBudget selecting these pods. A budget does NOT constrain this Deployment\'s own rolling update — the Deployment controller deletes pods directly, and the rollout is governed by maxUnavailable and maxSurge alone. What a budget governs is eviction, and the eviction that matters is a node drain during a cluster upgrade: without one, the drain is free to evict every replica of this workload at the same moment.',
       'Add a PodDisruptionBudget with `minAvailable` set below the replica count (for example `minAvailable: 1` at 2 replicas). If one already exists outside the files checked here, this finding does not apply.',
     ));
   }

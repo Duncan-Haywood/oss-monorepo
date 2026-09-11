@@ -628,3 +628,77 @@ spec:
   const missing = result.findings.filter((f) => f.id === 'no-readiness-probe').map((f) => f.container);
   assert.ok(missing.includes('app'), 'the port-less application container must still be checked');
 });
+
+test('probes that differ only by header or scheme are not called duplicates', () => {
+  // A readiness probe sending `X-Probe: ready` and a liveness probe sending
+  // `X-Probe: live` hit the same path and can exercise entirely different
+  // code. Comparing only path and port called them identical and reported a
+  // deliberate design as a defect.
+  const withHeaders = (value) => `            httpGet:
+              path: /probe
+              port: 8080
+              httpHeaders:
+                - name: X-Probe
+                  value: ${value}
+`;
+  const yaml = safeDeployment()
+    .replace(`          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+`, `          readinessProbe:
+${withHeaders('ready')}`)
+    .replace(`          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+`, `          livenessProbe:
+${withHeaders('live')}            initialDelaySeconds: 10
+`);
+  assert.ok(!ids(run(yaml)).includes('liveness-equals-readiness'), 'different headers are different probes');
+
+  // Genuinely identical handlers are still reported.
+  const same = safeDeployment()
+    .replace(`          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+`, `          readinessProbe:
+${withHeaders('x')}`)
+    .replace(`          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+`, `          livenessProbe:
+${withHeaders('x')}            initialDelaySeconds: 10
+`);
+  assert.ok(ids(run(same)).includes('liveness-equals-readiness'));
+});
+
+test('the no-pdb finding does not claim a budget constrains this rollout', () => {
+  // A PodDisruptionBudget governs eviction, not a Deployment's own rolling
+  // update -- the controller deletes those pods directly. Saying otherwise
+  // would send a reader off to add a budget expecting it to stop rollout
+  // downtime, and it contradicted this venture's own guide page.
+  const yaml = safeDeployment().replace(
+    `spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: api
+`,
+    `spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: elsewhere
+`,
+  );
+  const f = run(yaml).findings.find((x) => x.id === 'no-pdb-found');
+  assert.ok(f);
+  assert.match(f.impact, /does NOT constrain/);
+  assert.match(f.impact, /maxUnavailable and maxSurge alone/);
+  assert.match(f.impact, /node drain/);
+});
