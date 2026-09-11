@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAT Adjuster Fee Schedule &amp; Deployment Profit Calculator</title>
+<meta name="description" content="Free calculator for independent catastrophe (CAT) claims adjusters: find real net profit for a storm deployment after estimating-software, lodging, per diem, vehicle, and unpaid travel-day cost, then compare IA firms' fee schedules by what they actually pay per hour.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="CAT Adjuster Fee Schedule & Deployment Profit Calculator">
+<meta property="og:description" content="A per-claim fee schedule reads well until the unpaid travel days, software, lodging, and per diem come out. Find real deployment profit and compare IA firms' offers by effective hourly rate, not headline rate.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"CAT Adjuster Fee Schedule & Deployment Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds true net profit for one independent catastrophe (CAT) claims adjuster's storm deployment after estimating-software, lodging, per diem, vehicle, and mileage cost on both working and unpaid travel days, and ranks several IA firms' fee-schedule offers by net profit and effective hourly rate."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the per-claim fee alone not tell me whether a deployment is worth it?","acceptedAnswer":{"@type":"Answer","text":"Because the per-claim fee only pays for claims you actually close, and closing them depends on a pace you cannot fully control. Meanwhile estimating-software, lodging, per diem, vehicle, and mileage cost accrue every day you are away from home, including the unpaid travel days spent driving to and from the disaster zone before your first claim closes. A fee schedule can look generous per claim and still pay a low effective hourly rate once the full trip's costs and a realistic pace are netted out."}},{"@type":"Question","name":"Does this tool tell me whether I'm licensed or appointed to work a deployment?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator only prices your own deployment economics from numbers you supply. It does not determine your licensing, appointment, or authority to handle a claim in any state, and it does not evaluate an IA firm's reputation, timeliness of payment, or claim-volume promises -- verify those independently before accepting a deployment."}},{"@type":"Question","name":"Why do unpaid travel days count toward the cost but not the claims?","acceptedAnswer":{"@type":"Answer","text":"Because that is what actually happens on a deployment: you are paying for lodging, food, your estimating-software subscription, and your vehicle on the days you drive to and from the disaster zone, but you are not closing claims on those days. Leaving travel days out of the cost side is the most common way a deployment's real profit gets overstated."}},{"@type":"Question","name":"Does anything about my deployment or fee schedule get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the fee-schedule offers you type into the comparison table are never saved anywhere -- they exist only in the page while it is open. The deployment inputs above are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#131b2e;background:#eef1f8}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #c7d0e8;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a123008;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #dbe1f2;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1f3ca3;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #a9b6e0;border-radius:8px;font:inherit;background:#fbfcff}.result{background:#101a45;color:#fff;border-color:#101a45;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4a5578}.result .note{color:#c7d0f2}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#1f3ca3}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #a9b6e0;background:#fff;cursor:pointer;color:#131b2e}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR INDEPENDENT CATASTROPHE (CAT) CLAIMS ADJUSTERS</p><h1>A good per-claim rate can still be a bad trip.</h1><p class="lede">A fee schedule that pays $550 a claim reads well right up until the estimating-software, lodging, per diem, vehicle cost, and the unpaid days spent driving to and from the disaster zone come out. This free calculator finds real net profit for one deployment, then lets you compare two or three IA firms' offers by what they actually pay per hour — not their headline per-claim rate.</p></header>
+
+<main class="layout">
+<section><h2>Price one deployment</h2>
+<fieldset><legend>Deployment &amp; pace</legend><div class="fields">
+<label>Working days in the field<input id="deploymentDays" type="number" min="0" step="1" value="21"></label>
+<label>Unpaid travel days (there &amp; back)<input id="travelDaysUnpaid" type="number" min="0" step="1" value="2"></label>
+<label>Claims closed per working day<input id="claimsPerDay" type="number" min="0" step="0.1" value="1.5"></label>
+<label>Work hours per working day<input id="workHoursPerDay" type="number" min="0" step="0.5" value="10"></label>
+</div></fieldset>
+<fieldset><legend>Fee schedule</legend><div class="fields">
+<label>Fee per claim ($)<input id="feePerClaim" type="number" min="0" step="5" value="550"></label>
+<label>Large-loss claims (%)<input id="largeLossPct" type="number" min="0" max="100" step="1" value="10"></label>
+<label>Large-loss bonus ($/claim)<input id="largeLossBonusPerClaim" type="number" min="0" step="5" value="400"></label>
+</div></fieldset>
+<fieldset><legend>Daily cost in the field</legend><div class="fields">
+<label>Estimating software ($/day)<input id="estimatingSoftwareDailyCost" type="number" min="0" step="1" value="12"></label>
+<label>Lodging ($/night)<input id="lodgingPerNight" type="number" min="0" step="1" value="95"></label>
+<label>Per diem / food ($/day)<input id="perDiemFood" type="number" min="0" step="1" value="45"></label>
+<label>Vehicle ($/day)<input id="vehicleDailyCost" type="number" min="0" step="1" value="35"></label>
+<label>Miles driven per day<input id="mileagePerDay" type="number" min="0" step="1" value="80"></label>
+<label>Mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.67"></label>
+</div></fieldset>
+<fieldset><legend>Fixed costs</legend><div class="fields">
+<label>This deployment's share of E&amp;O / license / dues ($)<input id="fixedDeploymentCost" type="number" min="0" step="5" value="150"></label>
+</div></fieldset>
+<p id="draftStatus" class="note" role="status">Your deployment inputs above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded. Your fee-schedule comparison rows below are never saved.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
+</section>
+
+<section class="result" aria-live="polite"><h2>Profit for this deployment</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="profit" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Gross revenue</dt><dd id="revenueOut"></dd>
+<dt>In-zone cost</dt><dd id="inZoneOut"></dd>
+<dt>Travel-day cost</dt><dd id="travelOut"></dd>
+<dt>Fixed cost</dt><dd id="fixedOut"></dd>
+<dt>Profit margin</dt><dd id="marginOut"></dd>
+<dt>Profit per claim</dt><dd id="perClaimOut"></dd>
+<dt>Break-even pace (claims/day)</dt><dd id="breakEvenOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not determine your licensing, appointment, or authority to handle a claim in any state, and it does not evaluate an IA firm's reputation, payment timeliness, or claim-volume promises.</p>
+</section>
+</main>
+
+<section><h2>Compare fee schedules</h2><p class="note">For each IA firm's offer, run it through the calculator above with that firm's numbers and enter the resulting net profit here. Blank or zero rows are ignored. Nothing you type here is saved or uploaded — refreshing the page clears it.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Firm / offer</th><th>Net profit ($)</th></tr></thead><tbody id="offerRows">
+<tr><td><input class="offerName" data-row="1" aria-label="Offer 1 firm or offer name" type="text" value="Firm A"></td><td><input class="offerProfit" data-row="1" aria-label="Offer 1 net profit in dollars" type="number" step="1" value="13008"></td></tr>
+<tr><td><input class="offerName" data-row="2" aria-label="Offer 2 firm or offer name" type="text" value="Firm B"></td><td><input class="offerProfit" data-row="2" aria-label="Offer 2 net profit in dollars" type="number" step="1" value="555"></td></tr>
+<tr><td><input class="offerName" data-row="3" aria-label="Offer 3 firm or offer name" type="text" value=""></td><td><input class="offerProfit" data-row="3" aria-label="Offer 3 net profit in dollars" type="number" step="1" value=""></td></tr>
+<tr><td><input class="offerName" data-row="4" aria-label="Offer 4 firm or offer name" type="text" value=""></td><td><input class="offerProfit" data-row="4" aria-label="Offer 4 net profit in dollars" type="number" step="1" value=""></td></tr>
+</tbody></table></div>
+<p id="offerErrors" class="err" role="alert" hidden></p>
+<dl>
+<dt>Offers compared</dt><dd id="offerCount"></dd>
+<dt>Best offer</dt><dd id="offerBest"></dd>
+<dt>Worst offer</dt><dd id="offerWorst"></dd>
+<dt>Spread between them</dt><dd id="offerSpread"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your deployment inputs (days, pace, fee schedule, daily costs) are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. Your fee-schedule comparison rows are a different promise: they are never saved anywhere, and closing or refreshing the tab clears them. There is no account. We count only anonymous local feature events (<code>deployment-priced</code>, <code>offers-compared</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no firm names, fees, or deployment figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Fee schedule looks fine on paper — is it actually worth it?</h2>
+<p>A $550-a-claim offer can still pay under $3 an hour once a slow pace and the full trip's costs are netted out. <a href="is-this-cat-adjuster-fee-schedule-worth-it.html">Is this CAT adjuster fee schedule worth it?</a> works through the arithmetic on a real lowball offer next to a solid one.</p>
+</section>
+
+<section><h2>Common questions</h2>
+<h3>Why does the per-claim fee alone not tell me whether a deployment is worth it?</h3><p>Because the per-claim fee only pays for claims you actually close, and closing them depends on a pace you cannot fully control. Meanwhile estimating-software, lodging, per diem, vehicle, and mileage cost accrue every day you are away from home, including the unpaid travel days spent driving to and from the disaster zone before your first claim closes. A fee schedule can look generous per claim and still pay a low effective hourly rate once the full trip's costs and a realistic pace are netted out.</p>
+<h3>Does this tool tell me whether I'm licensed or appointed to work a deployment?</h3><p>No. This calculator only prices your own deployment economics from numbers you supply. It does not determine your licensing, appointment, or authority to handle a claim in any state, and it does not evaluate an IA firm's reputation, timeliness of payment, or claim-volume promises -- verify those independently before accepting a deployment.</p>
+<h3>Why do unpaid travel days count toward the cost but not the claims?</h3><p>Because that is what actually happens on a deployment: you are paying for lodging, food, your estimating-software subscription, and your vehicle on the days you drive to and from the disaster zone, but you are not closing claims on those days. Leaving travel days out of the cost side is the most common way a deployment's real profit gets overstated.</p>
+<h3>Does anything about my deployment or fee schedule get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the fee-schedule offers you type into the comparison table are never saved anywhere -- they exist only in the page while it is open. The deployment inputs above are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not determine your licensing, appointment, or authority to handle a claim in any state, and it does not evaluate an IA firm's reputation, timeliness of payment, or claim-volume promises &mdash; verify those independently before accepting a deployment. It does not audit your books or replace your own insurance, licensing, or accountant.</p><p>MIT licensed. If it helped you decide which deployment to accept, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p><p>Pricing a courier route instead of a claims deployment? The <a href="../medical-courier-route-margin/">medical courier route margin calculator</a> prices scheduled, STAT, or dedicated routes after paid wait, deadhead, loaded labor, and vehicle cost. Quoting a freelance project instead of a per-claim fee? The <a href="../translator-project-quote/">translator project quote calculator</a> prices weighted word counts, rush work, and a minimum price before you accept the job — nothing uploaded either way.</p></footer>
+
+<script type="module">
+import { calculate, rankOffers, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const DEPLOYMENT_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'cat-adjuster-fee-calculator-deployment-draft';
+const OFFER_ROWS = 4;
+let counted = false;
+let offersCounted = false;
+
+function deploymentInputs() { return Object.fromEntries(DEPLOYMENT_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_DEPLOYMENT_INPUTS = deploymentInputs();
+
+function applyDeploymentInputs(values) {
+  for (const id of DEPLOYMENT_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persistDeployment() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(deploymentInputs())));
+}
+
+function updateDeployment(count = false) {
+  try {
+    const r = calculate(deploymentInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('profit').hidden = false;
+    el('profit').textContent = money(r.netProfit);
+    el('rateLine').textContent = r.effectiveHourlyRate === null
+      ? 'no work hours entered'
+      : `about ${money(r.effectiveHourlyRate)}/hr worked, or ${money(r.effectiveDailyRate)}/day across the whole trip`;
+    el('revenueOut').textContent = money(r.grossRevenue);
+    el('inZoneOut').textContent = money(r.inZoneCost);
+    el('travelOut').textContent = money(r.travelCost);
+    el('fixedOut').textContent = money(r.fixedDeploymentCost);
+    el('marginOut').textContent = r.profitMarginPct === null ? '—' : `${r.profitMarginPct.toFixed(1)}%`;
+    el('perClaimOut').textContent = r.profitPerClaim === null ? '—' : money(r.profitPerClaim);
+    el('breakEvenOut').textContent = r.breakEvenClaimsPerDay === null ? '—' : r.breakEvenClaimsPerDay.toFixed(2);
+    if (count && !counted) { recordEvent('deployment-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('profit').hidden = true;
+    for (const id of ['rateLine', 'revenueOut', 'inZoneOut', 'travelOut', 'fixedOut', 'marginOut', 'perClaimOut', 'breakEvenOut']) el(id).textContent = '';
+  }
+}
+
+function updateOffers(count = false) {
+  try {
+    const offers = [];
+    for (let row = 1; row <= OFFER_ROWS; row++) {
+      const nameEl = document.querySelector(`.offerName[data-row="${row}"]`);
+      const profitEl = document.querySelector(`.offerProfit[data-row="${row}"]`);
+      const profit = parseFloat(profitEl.value);
+      if (!Number.isFinite(profit) || profit === 0) continue;
+      offers.push({ name: nameEl.value || `Offer ${row}`, netProfit: profit });
+    }
+    const ranked = rankOffers(offers);
+    el('offerErrors').hidden = true; el('offerErrors').textContent = '';
+    el('offerCount').textContent = String(ranked.offerCount);
+    el('offerBest').textContent = ranked.best ? `${ranked.best.name} (${money(ranked.best.netProfit)})` : '—';
+    el('offerWorst').textContent = ranked.worst ? `${ranked.worst.name} (${money(ranked.worst.netProfit)})` : '—';
+    el('offerSpread').textContent = money(ranked.spread);
+    if (count && !offersCounted) { recordEvent('offers-compared'); offersCounted = true; }
+  } catch (e) {
+    el('offerErrors').textContent = e.message; el('offerErrors').hidden = false;
+    for (const id of ['offerCount', 'offerBest', 'offerWorst', 'offerSpread']) el(id).textContent = '';
+  }
+}
+
+DEPLOYMENT_IDS.forEach(id => el(id).addEventListener('input', () => { updateDeployment(true); persistDeployment(); }));
+document.querySelectorAll('.offerProfit, .offerName').forEach(input => input.addEventListener('input', () => updateOffers(true)));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(deploymentInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyDeploymentInputs(DEFAULT_DEPLOYMENT_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  updateDeployment(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every deployment field, so one the link omitted
+// is cleared rather than left showing the recipient's own saved draft.
+(() => {
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  if (Object.keys(saved).length) applyDeploymentInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applyDeploymentInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
+      ? 'Opened a shared deployment. Review the numbers before you use it.'
+      : 'Restored your last deployment from this browser. Your fee-schedule comparison rows are never saved.';
+  }
+})();
+
+updateDeployment(false);
+updateOffers(false);
+</script>
+</body></html>

@@ -11413,3 +11413,139 @@ ventures:
       Practice require the inspector to check. The tool never touches a live
       transaction, a specific property, or anyone else's data. Nothing
       entered leaves the browser.
+  - slug: cat-adjuster-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model -- a blended
+      per-claim fee (base plus a large-loss bonus share), estimating-
+      software, lodging, per diem, vehicle and mileage cost split explicitly
+      between working days and unpaid travel days, and a break-even pace
+      derivation -- and it is arithmetic an adjuster has to be able to
+      re-derive when deciding whether a deployment is worth taking.
+    basis: >-
+      Graduated and scored 2026-09-11, in the same change, per
+      `score_ventures.py --check`. Same shape as this portfolio's other
+      route/deployment calculators (`fire-extinguisher-inspection-route-
+      margin`, `medical-courier-route-margin`), scored the same way, applied
+      to a genuinely different buyer: an independent 1099 catastrophe (CAT)
+      claims adjuster paid a flat fee per claim rather than a wage, deciding
+      whether an IA firm's fee schedule is worth a multi-week deployment.
+      Defensibility 4: the arithmetic is transparent and reproducible, as it
+      has to be, and the fleet's calculator archetype generally scores 1-5
+      here; the deployment-day-vs-travel-day cost split and the blended
+      large-loss fee are specific to this buyer and not modeled by a generic
+      gig-work or freelance rate calculator. Distribution 6: "CAT adjuster
+      fee calculator" and "how much do CAT adjusters make" are narrow,
+      low-competition search terms, and r/Adjusters, r/InsuranceAdjusters,
+      and CatAdjuster.org's forums are named, active communities that
+      already discuss exactly this fee-schedule trade-off -- but volume is
+      unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the adjuster's own figures, never a
+      determination of licensing, appointment, or authority to handle a
+      claim in any state, and never an evaluation of a named IA firm's
+      reputation, payment timeliness, or claim-volume promises. The tool
+      never touches a live claim or anyone else's data. Nothing entered
+      leaves the browser.
+  - slug: vpat-acr-generator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 4
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      A form-to-document formatter and a deterministic completeness checker
+      (does a Partially/Does Not Support row carry remarks; are the required
+      header fields filled in) -- no free-text generation, no summarization,
+      no judgment call a model could plausibly help with. Every substantive
+      claim in the output is the vendor's own typed answer; a model would
+      only add hallucination risk to a document a vendor attaches to a real
+      procurement bid.
+    basis: >-
+      Graduated 2026-09-11 as a free, browser-only VPAT 2.5 / Accessibility
+      Conformance Report (ACR) generator for software vendors preparing a
+      Section 508 or enterprise procurement RFP response. The vendor enters
+      every WCAG 2.1 Level A/AA conformance level and remark from their own
+      testing; the tool formats those answers into the standard document
+      shape and flags the specific completeness problems WebAIM's own
+      procurement guidance names (a Partially/Does Not Support row with no
+      remarks; a missing required header field) -- it never scans, tests, or
+      assesses the vendor's product. Confirmed against
+      `portfolio/pipeline/duplicate_check.py` before writing this up -- no
+      match above 0.10, including against shopify-a11y-evidence and
+      ada-title-ii-evidence, the two nearest existing accessibility
+      write-ups (both format an axe-core *scan* of a website operator's own
+      site; this formats a *vendor's self-declared conformance table* for
+      any software product, for a different buyer -- a vendor's proposal/
+      sales-engineering team, not a website operator).
+      Time to revenue 6: no direct revenue path beyond the standard
+      voluntary GitHub Sponsors link, scored like this portfolio's other
+      free-forever evidence/formatting tools rather than assumed lower.
+      Defensibility 3: the VPAT template itself is a free public document
+      ITI already publishes as a downloadable Word file, so the format is
+      not defensible on its own -- what this tool adds is a guided form,
+      instant formatting, and the specific completeness check sourced to
+      WebAIM's own procurement guidance, all of which a competitor could
+      replicate without much difficulty. Scored low rather than at the
+      floor because the completeness-check mechanism is a real, sourced
+      differentiator, not zero.
+      Distribution 4: "VPAT template" / "VPAT generator" is a real,
+      demonstrable search term -- Level Access, ITIC's own site,
+      BarrierBreak, Accessibility.Works, and WCAG.com all publish
+      SEO-targeted pages for exactly this query (verified via WebSearch
+      this session), which is evidence of real, sustained, evergreen search
+      volume rather than a novelty spike. Scored below the ADA-Title-II
+      evidence tool's 5 rather than above it because that demand is also
+      the most competitive SERP this portfolio has entered so far --
+      several funded accessibility vendors already target the identical
+      keywords -- and, unlike the government-webmaster niche, this session
+      found no owned channel of ours in the software-vendor procurement
+      buyer segment specifically; the WebAIM Discussion List is real and
+      on-topic but is a professional mailing list with posting norms, not
+      something this portfolio can post into on demand.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass on both, and liability containment is the reason this shape was
+      chosen over a scanning or assessment tool. The tool never reads,
+      tests, or scores the vendor's actual product -- every conformance
+      level and every remark in the rendered document is the vendor's own
+      typed input, and `calc.mjs`'s own module comment states the boundary
+      explicitly: this file never decides a conformance level. Being wrong
+      here costs a formatting mistake in the vendor's own document, not a
+      false assessment this portfolio rendered and the vendor relied on --
+      a materially different liability shape from eaa-remediation-pipeline
+      (which does run an automated audit) or a hypothetical AI-scored VPAT
+      this portfolio does not build. The disclaimer states plainly that the
+      vendor remains solely responsible for every level and remark, and
+      that this tool does not test, assess, or audit anything.
+      Ethical robustness: gets better for its users as it scales and takes
+      nothing from anybody else. A correctly-formatted, complete ACR is a
+      better outcome for a buyer evaluating competing vendors than an
+      incomplete one, and the completeness check pushes toward that outcome
+      for every user regardless of budget -- a $2-5k VPAT-preparation
+      consulting fee (per public accessibility-consultancy pricing pages)
+      is exactly the cost this tool removes for a small vendor who would
+      otherwise skip 508 documentation altogether. Nothing is uploaded, no
+      personal data is collected, and no claim is made that improves this
+      portfolio's position at a user's expense.
