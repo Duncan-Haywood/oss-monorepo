@@ -27768,3 +27768,186 @@ entries:
         `handoff_accepted` / `handoff_dismissed` on the receiver) are the
         instrument for the router's hypothesis, not evidence for it.
     mrr_end: 0
+  - venture: auto-repair-effective-labor-rate
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Gave the effective-labor-rate calculator (graduated earlier this
+        session) a comparison/marketing page: `vs-tekmetric.html`, matching
+        the pattern 246 of 271 ventures already carry and that #4612's
+        `vs-keeper.html` on `quarterly-estimated-tax-calendar` demonstrated
+        most recently. Tekmetric is a well-known paid shop management
+        system for independent auto repair shops whose KPI dashboard
+        reports an effective labor rate once a shop's whole workflow runs
+        through the platform. The page names that distinction honestly —
+        a single free calculator needing no account or migration versus an
+        ongoing paid operating system — rather than claiming Tekmetric
+        lacks a feature it may have, and carries the required no-warranty
+        and not-affiliated clauses (`PRODUCT_PLAYBOOK.md` 5b/5f), verified
+        against `platform/pages/clauses.mjs`'s patterns directly.
+      - >-
+        Chose this over a sibling `vs-` page on an already-covered venture
+        or a fresh candidate because the venture shipped this session with
+        zero inbound distribution surface beyond its own two pages, and the
+        pipeline (`session_gate.py`) reported the `build-now` queue empty
+        with no in-progress venture of my own to continue.
+      - >-
+        Full starvation-window checklist run locally (CLAUDE.md): venture
+        suite 52/52 (5 new assertions); `platform/marketing` +
+        `platform/pages` 1255/1255; `platform/proposal` 101/101;
+        `platform/privacy` + `platform/webcheck` 82/82; all 15
+        `platform/ci` unittest modules (915 tests) plus `agent_review` (21)
+        OK; `gitops/tests` 581 passed / 1 skipped (ENVIRONMENTAL —
+        GitHub-hosted-runner-only, confirmed by `guard_state.py
+        --require-runnable` exiting 0 with no fixable skips); `portfolio/*`
+        + `infra/tests` 435 passed; `score_ventures.py --check` consistent
+        across 270 ventures; `validate_usage.py` valid (245 products, 431
+        readings); `router/validate.py` valid (269 VENTURE.yaml); pipeline
+        doc-consistency, candidate-consistency, probe-index and
+        score-sensitivity validators all clean; `front-door-tools.mjs
+        --headroom` reports 62.7% mirror capacity used, no ceiling issue.
+        `checklist_coverage.py` confirmed this checklist itself is current.
+        `apt-get update && apt-get install python3-pytest nginx-light
+        openssh-client` was needed and worked, exactly as CLAUDE.md
+        records.
+      - >-
+        Browser/a11y pass scoped to this venture (`browser_checks.py --only
+        auto-repair-effective-labor-rate`, Playwright 1.56.0 + axe-core, the
+        whole-catalogue reading was already `STALE` from a same-day builder
+        change unrelated to this PR): sideways, presets, roundtrip,
+        contrast (0 WCAG A/AA violations across 3 pages, 2 viewports),
+        sweep and journey all `ok`; `highlight` skipped for a missing
+        dependency, not a failure.
+      - >-
+        No public-URL verification possible from this sandbox (the egress
+        proxy 403s `github.io`); `pages_state.py` and the publish-branch
+        script are the route, run after merge per CLAUDE.md.
+    mrr_end: 0
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        CI/CD check-in per the owner's standing instruction to keep
+        deployment and CI/CD a priority. 0 open PRs at session start (the
+        three-PR drain quota is not applicable when the queue is already
+        empty). `pages_state.py` confirms the `gh-pages` snapshot is current
+        at `main`'s tip (7effb7de) and already deployed (managed Pages
+        builder run 34631674513, success). `ci_starvation.py` on the latest
+        `publish-pages-branch.yml` run (34631539717) shows Actions runners
+        starved again (`runner_id: 0`) as of 2026-09-11 ~18:10Z — the
+        allowance-cycling pattern CLAUDE.md already documents, not a new
+        regression, and not something an agent session can fix.
+      - >-
+        Installed the missing local prerequisites
+        (`apt-get update && apt-get install python3-pytest nginx-light
+        openssh-client`) and ran the full local-verification substitute
+        while Actions is starved: `guard_state.py --require-runnable` exits
+        0 with only the one documented ENVIRONMENTAL skip
+        (`test_front_door_serving.py`, GitHub-hosted-runner only) —
+        no FIXABLE or UNCLASSIFIED skips. `checklist_coverage.py` clean.
+      - >-
+        Ran the full-catalogue browser/accessibility sweep (stale for
+        several commits, last recorded at `a1c62285`): installed
+        `playwright@1.56.0` + `axe-core` in one command per
+        `gitops/agents/host/README.md`'s and CLAUDE.md's documented pinning
+        (1.56.0 matches the image's prebuilt Chromium 1194). All 7 checks —
+        sideways, presets, roundtrip, highlight, contrast, sweep, journey —
+        passed clean at `main`'s tip 7effb7de: 995 pages / 2 viewports with
+        zero WCAG A/AA violations, 268/268 tools answer with no errors,
+        106/106 validation-highlight checks correct, 995/995 sitemap URLs
+        resolve, zero page/console errors on the full user-journey script.
+        Recorded via `browser_checks.py --record` (only `platform/ci/browser_state.json`
+        changed) so the next session reads this as current rather than
+        re-running an unnecessary 20-30 minute sweep.
+      - >-
+        Investigated the owner's request to prioritise the Hetzner-hosted
+        Codex CLI ("use the built-in quota... following a similar prompt to
+        this"): it is already built and already kept in sync.
+        `gitops/agents/host/` (systemd-timer scheduler, no k3s needed),
+        `gitops/agents/workers/mandate.md` (the worker's standing prompt —
+        already mirrors this session's own product-first / drain-PRs-first /
+        deployment-and-CI/CD-count-as-product-work mandate near verbatim,
+        last touched 2026-09-11) and `CODEX_AUTH_JSON` (the "spend the
+        ChatGPT plan's included quota, not a metered API key" credential
+        path, documented in `gitops/agents/secrets/README.md`) are all
+        already in place. What remains is exclusively owner-only: a real SSH
+        private key (`HETZNERSSHKEY` currently holds a public key — decision
+        queue item 1, `hetzner-ssh-key-is-a-public-key`, already open 7d)
+        and a `codex login` in a browser on a machine signed into the
+        owner's ChatGPT account. No agent session can supply either —
+        confirmed again this session (`agent-session-egress` is `down`,
+        no `ssh` binary, egress proxy blocks the boxes). Did not duplicate
+        the existing ask; did not attempt the SSH connection.
+      - >-
+        No new product code this session: PR queue was empty at start (no
+        three-PR quota to clear), the `build-now` pipeline is empty per
+        `session_gate.py`, and this check-in's own verification work (apt
+        installs, a 20-30 minute browser sweep, reading ~15 infra/ledger
+        files) filled the available budget. Highest-value next step for the
+        next session: `python3 portfolio/router/allocate.py`'s top
+        candidates (`reverb-fee-calculator`, `where-to-sell-calculator`,
+        `auto-repair-effective-labor-rate`) each still carry untested
+        hypotheses worth building evidence-gathering content against, or
+        screen a fresh niche per `portfolio/DIRECTION.md`.
+    mrr_end: 0
+  - venture: newsletter-sponsorship-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found and fixed the same stale-headline/share-link divergence
+        `platform/pages/roundtrip.mjs` caught live in
+        `bounce-house-rental-calculator` (#4606, #4616), by static reading
+        rather than a fresh browser run: "Calculate my rates" only
+        recomputed the on-screen rate card on an explicit click, while
+        "Copy shareable link" read subscribers/open-rate/niche straight off
+        the form. Editing a field after calculating, then copying the link
+        without recalculating, copied a link encoding the *new* numbers
+        while the sender's own screen kept showing the *old* rate card --
+        the operator and the sponsor they send it to would see two
+        different rate cards for the same link.
+      - >-
+        Fixed the same way as #4606/#4616: every input/change on the three
+        fields now recomputes the rate card live via a `syncFromInputs`
+        helper, and `record("calculate_run")` was moved off the render path
+        onto the explicit "Calculate my rates" click handler alone, so
+        repricing on every keystroke cannot inflate that counter into a
+        typing counter. Two regression tests added mirroring
+        bounce-house-rental-calculator's page.test.mjs pattern.
+      - >-
+        Landed on top of #4618 (merged mid-session), which added a
+        media-kit handoff link to this same file's `runCalculate` --
+        rebased by hand twice as `main` moved twice more during
+        verification (`git fetch origin main`, reapplying the same patch
+        against the new file content each time; `git fetch --unshallow`
+        was needed the second time after a shallow-clone false positive in
+        `check_venture_regression.py`) rather than pushing a stale diff.
+        One side benefit: the handoff link is rendered inside
+        `runCalculate` too, so it now also stays in sync with live edits
+        instead of only the last explicit calculate.
+      - >-
+        Verified: venture's own suite 46/46 (was 44, two new regression
+        tests), `platform/marketing` + `platform/pages` 1255/1255 after
+        `regen.mjs`, `checklist_coverage.py` clean, `clauses.mjs` clean,
+        all 15 `platform/ci` unittest modules + `agent_review` OK,
+        `gitops/tests` 557 passed / 25 skipped (documented
+        nginx-light/openssh-client skips, unrelated to this change),
+        `portfolio/ledger` + `scoring` + `router` + `usage` + `pipeline` +
+        `infra/tests` 435 passed, `run_workflow_locally.py --for-changes`
+        clean on every selected workflow once rebased onto the current
+        `origin/main` tip (`newsletter-sponsorship-rate-calculator-ci.yml`
+        2/2 run steps; `portfolio-pages.yml` 3/3;
+        `check_venture_regression.py` clean after the rebase). One
+        `pages.yml` step ("Check every hub link resolves") reported FAIL
+        only because its prerequisite build step is skipped by the local
+        runner (unresolvable `${{ }}` expression) -- ran the same two
+        commands (`build_pages_site.py`, `check_pages_links.py`) by hand:
+        261 products / 3069 files built, 960 pages checked, all links
+        resolve. Not a correctness change to `calculator.mjs`/`share.mjs`,
+        so no usage-signal claim: `usage.yaml`'s `live_url_visitors` stays
+        `null` (never measured), this only closes a real divergence a
+        visitor could have hit before any visitor was ever counted.
+    mrr_end: 0
