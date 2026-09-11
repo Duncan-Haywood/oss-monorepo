@@ -398,14 +398,21 @@
       }
     }
 
+    // Shared by the submit handler and the live-update listener below, so the
+    // two can never compute a different answer for the same inputs.
+    function priceIt() {
+      const result = calculatePlacement(readInput());
+      if (result.ok) render(result);
+      return result;
+    }
+
     el('placementForm').addEventListener('submit', (event) => {
       event.preventDefault();
-      const result = calculatePlacement(readInput());
+      const result = priceIt();
       if (!result.ok) {
         renderErrors(result.errors);
         return;
       }
-      render(result);
       count('placement_priced');
     });
 
@@ -428,11 +435,24 @@
       try { clearBid(localStorage, SHARE_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
       location.href = location.pathname;
     });
-    // Every input already recalculates nothing on its own (the form submits
-    // to price), but saving on every keystroke means the placement survives a
-    // closed tab even if "Price this placement" was never pressed.
-    document.addEventListener('input', persist);
-    document.addEventListener('change', persist);
+    // Every keystroke re-prices the placement, silently and without stealing
+    // focus: `priceIt()` only ever repaints the result panel on a currently
+    // valid form and otherwise leaves whatever is already on screen alone, so
+    // a mid-edit invalid value (a field cleared to retype it) does not flash
+    // an error under the visitor's cursor. Validation errors — and the
+    // `placement_priced` count — stay tied to the explicit submit above.
+    //
+    // This also keeps the headline honest for the "Copy shareable link"
+    // button below: before this, editing a field only saved it — the number
+    // on screen stayed the last-priced one until "Price this placement" was
+    // clicked, so a setter who copied a link straight after editing sent a
+    // bid whose numbers matched what they typed but whose own screen still
+    // showed a stale answer, invisible to them (found by
+    // `platform/pages/roundtrip.mjs`, which re-prices the *other* page after
+    // opening the link and compares headlines — mismatched because only one
+    // side had actually recomputed).
+    document.addEventListener('input', () => { persist(); priceIt(); });
+    document.addEventListener('change', () => { persist(); priceIt(); });
     persist();
 
     // Open on the restored placement if one exists, or the worked example
@@ -442,10 +462,7 @@
     // `placement_priced` count is recorded here: a page load is not a
     // pricing, and that event is the denominator of this venture's own usage
     // question.
-    (() => {
-      const example = calculatePlacement(readInput());
-      if (example.ok) render(example);
-    })();
+    priceIt();
   </script>
 </body>
 </html>
