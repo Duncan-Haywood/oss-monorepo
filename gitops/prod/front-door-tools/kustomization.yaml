@@ -36,8 +36,8 @@
 #   portfolio-front-tools-0: 136 files, 556563 bytes
 #   portfolio-front-tools-1: 110 files, 555632 bytes
 #   portfolio-front-tools-2: 149 files, 548374 bytes
-#   portfolio-front-tools-3: 141 files, 557033 bytes
-#   portfolio-front-tools-4: 124 files, 550451 bytes
+#   portfolio-front-tools-3: 141 files, 556791 bytes
+#   portfolio-front-tools-4: 125 files, 554626 bytes
 #   portfolio-front-tools-5: 132 files, 555567 bytes
 #   portfolio-front-tools-6: 135 files, 550423 bytes
 #   portfolio-front-tools-7: 114 files, 556979 bytes
@@ -554,6 +554,7 @@ configMapGenerator:
       - actions-permissions-check__index.html.gz=actions-permissions-check__index.html.gz
       - actions-permissions-check__usage.mjs.gz=actions-permissions-check__usage.mjs.gz
       - actions-permissions-check__vs-openssf-scorecard.html.gz=actions-permissions-check__vs-openssf-scorecard.html.gz
+      - actions-runner-starvation-check__add-a-starvation-guard-to-a-github-actions-workflow.html.gz=actions-runner-starvation-check__add-a-starvation-guard-to-a-github-actions-workflow.html.gz
       - actions-runner-starvation-check__classify.mjs.gz=actions-runner-starvation-check__classify.mjs.gz
       - actions-runner-starvation-check__index.html.gz=actions-runner-starvation-check__index.html.gz
       - actions-runner-starvation-check__usage.mjs.gz=actions-runner-starvation-check__usage.mjs.gz
@@ -619,12 +620,12 @@ configMapGenerator:
       - app-store-screenshot-check__why-store-uploads-get-rejected.html.gz=app-store-screenshot-check__why-store-uploads-get-rejected.html.gz
       - apparel-decoration-price-calculator__calculator.mjs.gz=apparel-decoration-price-calculator__calculator.mjs.gz
       - apparel-decoration-price-calculator__index.html.gz=apparel-decoration-price-calculator__index.html.gz
-      - apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz=apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz=apparel-decoration-price-calculator__should-i-charge-extra-for-a-second-print-location.html.gz
       - apparel-decoration-price-calculator__usage.mjs.gz=apparel-decoration-price-calculator__usage.mjs.gz
       - apparel-decoration-price-calculator__vs-printavo.html.gz=apparel-decoration-price-calculator__vs-printavo.html.gz
       - appointment-deposit-calculator__app.mjs.gz=appointment-deposit-calculator__app.mjs.gz
