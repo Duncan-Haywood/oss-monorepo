@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Social Preview Checker vs. Facebook Sharing Debugger</title>
+<meta name="description" content="Facebook Sharing Debugger is Meta's own tool for checking how a URL renders when shared on Facebook: sign in, and its own crawler fetches the page and shows the Open Graph tags it read, with a button to force a re-scrape of Facebook's cache. This is a free, no-account checker covering Open Graph and Twitter Card tags together, plus the real pixel dimensions of the preview image, and a matching CLI. Not affiliated with Meta or Facebook.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-facebook-sharing-debugger.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Social Preview Checker vs. Facebook Sharing Debugger">
+<meta property="og:description" content="Facebook Sharing Debugger checks Facebook's own cached view of a URL, and needs a Facebook login to use. This page's checker covers Open Graph and Twitter Card tags together, reads the real pixel dimensions of the preview image, and needs no account -- plus a matching CLI for CI.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/social-preview-check/vs-facebook-sharing-debugger.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this checker or Facebook Sharing Debugger?","acceptedAnswer":{"@type":"Answer","text":"They overlap on one thing -- reading a page's Open Graph tags -- and differ in scope and how they get there. Facebook Sharing Debugger, at developers.facebook.com/tools/debug/, is Meta's own tool for checking how a URL will look when shared on Facebook: you sign in with a Facebook account, its own crawler fetches the page from Facebook's servers, and it shows the Open Graph tags that crawler read along with a preview card and a button to force Facebook to re-scrape the page and refresh its cache. This checker does a broader, differently-shaped job: a CLI you run yourself sends one request to the page and its preview image, reads Open Graph and Twitter Card tags together, applies the twitter:image to og:image fallback chain, and reads the image file's real pixel dimensions directly from its header rather than trusting a cached crawler's read -- with no Facebook account and no sign-in. Use Facebook Sharing Debugger when you specifically need to see or refresh Facebook's own cached preview of a page; use this checker when you want one report covering Open Graph and Twitter Card together, or a check you can wire into your own CI with no account involved."}},{"@type":"Question","name":"Facebook Sharing Debugger is free too -- what does this add?","acceptedAnswer":{"@type":"Answer","text":"Being free is not the difference. Facebook Sharing Debugger requires signing in with a Facebook account before it will run at all, and what it shows you is scoped to Facebook's own crawler and Facebook's own cache of the page -- it does not check Twitter/X's card tags or fallback rules, and it reports the image dimensions its own crawler resolved rather than independently reading the image file's real pixel header. This checker needs no account of any kind, checks Open Graph and Twitter Card tags in the same report, applies the twitter:image/title/description to og:image/title/description fallback chain platforms document, and includes a standalone tool that reads any image URL's actual pixel dimensions straight from the file, with no crawler or cache in between. It also ships as a CLI, so the same check can run unattended in your own build pipeline."}},{"@type":"Question","name":"Why does this need a CLI instead of one paste-a-URL box like Facebook Sharing Debugger?","acceptedAnswer":{"@type":"Answer","text":"Facebook Sharing Debugger can fetch an arbitrary URL because the fetch happens on Facebook's own servers, where cross-origin restrictions do not apply. A browser tab has no such privilege: fetching a third-party page's HTML from inside a page you're visiting is blocked by CORS unless that site opts in, which almost none do. A small local CLI, run from your own machine, does not have that restriction. The one piece that genuinely can run in any browser with no CLI is checking an image URL's real pixel dimensions, since loading an image via an img tag -- unlike fetching its bytes -- is not subject to CORS, which is what this page's standalone image-size tool uses."}},{"@type":"Question","name":"Is this page affiliated with Facebook or Meta?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Meta Platforms, Inc. or Facebook. Facebook Sharing Debugger is a trademark of its owner, named here only to describe what this checker is and is not. What Facebook Sharing Debugger currently checks, and whether it requires a login, are described on Meta's own developer site -- check there for what it covers today."}}]}</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 900px; margin: 0 auto; padding: 1.5rem; line-height: 1.55; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .eyebrow { font-size: 0.85rem; }
+  .cta { display: inline-block; margin: 1rem 0; padding: 0.6rem 1rem; border-radius: 8px; background: #0a7c42; color: #fff; text-decoration: none; font-weight: 650; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: rgba(127,127,127,0.12); }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow"><a href="./">&larr; Social Preview Checker</a></p>
+  <h1>Social Preview Checker vs. Facebook Sharing Debugger</h1>
+  <p>Different shapes: Facebook Sharing Debugger checks and refreshes Facebook's own cached view of one page, from Facebook's servers, and needs a Facebook login. This checker reads Open Graph and Twitter Card tags together, reads the preview image's real pixel dimensions, and needs no account -- as a browser report viewer or a matching CLI.</p>
+
+  <p><a class="cta" href="./">Check your page's tags &rarr;</a></p>
+
+  <section>
+    <p>
+      <strong>Facebook Sharing Debugger</strong>, at
+      <a href="https://developers.facebook.com/tools/debug/" rel="nofollow noopener">developers.facebook.com/tools/debug</a>,
+      is Meta's own tool for checking how a URL will look when someone
+      shares it on Facebook. You sign in with a Facebook account, paste a
+      URL, and its own crawler fetches the page from Facebook's servers --
+      not from your browser -- then shows you the Open Graph tags that
+      crawler read, a preview of the resulting share card, and a "Scrape
+      Again" action that forces Facebook to re-fetch the page and refresh
+      what it has cached for that URL. It is the tool Meta itself documents
+      for diagnosing why a link looks wrong specifically on Facebook.
+    </p>
+    <p>
+      This checker does a broader, differently-shaped job. A CLI you run
+      yourself (<code>node check.mjs &lt;url&gt; --json</code>) sends one
+      request to the page and its preview image, and the report covers
+      <strong>both</strong> Open Graph and Twitter Card tags in one pass,
+      applying the <code>twitter:image</code>/<code>twitter:title</code>/
+      <code>twitter:description</code> &rarr; <code>og:*</code> fallback
+      chain platforms document rather than flagging a missing
+      <code>twitter:image</code> as a problem on its own. It reads the
+      preview image's real pixel dimensions straight out of the image
+      file's own header -- not a cached crawler's account of them -- and a
+      standalone tool on this page checks any image URL's real size with no
+      CLI at all. No sign-in, no Facebook account, nothing uploaded to this
+      site.
+    </p>
+    <div class="table-wrap">
+    <table>
+      <caption>What each tool answers.</caption>
+      <thead>
+        <tr><th scope="col">What you are trying to do</th><th scope="col">Where to do it</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>See exactly what Facebook's own crawler currently has cached for a URL, and force it to re-scrape after a fix.</td>
+          <td>Facebook Sharing Debugger &mdash; it talks to Facebook's own cache directly, which this checker cannot do.</td>
+        </tr>
+        <tr>
+          <td>Get one report covering both Open Graph and Twitter Card tags, including the fallback chain between them, without a Facebook login.</td>
+          <td>This checker &mdash; no account, and it checks both tag families in the same pass.</td>
+        </tr>
+        <tr>
+          <td>Know whether the preview image's actual pixel dimensions clear each platform's documented minimum, read from the image file itself rather than a crawler's report.</td>
+          <td>This checker &mdash; the CLI reads the real header bytes, and the standalone browser tool checks any image URL directly.</td>
+        </tr>
+        <tr>
+          <td>Run the same check unattended in your own CI before a page ships.</td>
+          <td>This checker's CLI, exit-code gateable &mdash; Facebook Sharing Debugger is an interactive, logged-in web tool.</td>
+        </tr>
+        <tr>
+          <td>Confirm how a link will actually render inside Facebook's own product surfaces today.</td>
+          <td>Facebook Sharing Debugger &mdash; this checker only reads tags and image bytes; it does not talk to Facebook, X, or any platform's cache.</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <p>
+      These compose rather than compete. A reasonable habit is this checker
+      first, for a fast, account-free read across both tag families and the
+      real image size before a page ships, and Facebook Sharing Debugger
+      afterward when you specifically need to see or refresh what Facebook
+      itself has cached for that exact URL.
+    </p>
+
+    <h2>Common questions</h2>
+    <h3>Should I use this checker or Facebook Sharing Debugger?</h3>
+    <p>They overlap on one thing -- reading a page's Open Graph tags -- and differ in scope and how they get there. Facebook Sharing Debugger, at developers.facebook.com/tools/debug/, is Meta's own tool for checking how a URL will look when shared on Facebook: you sign in with a Facebook account, its own crawler fetches the page from Facebook's servers, and it shows the Open Graph tags that crawler read along with a preview card and a button to force Facebook to re-scrape the page and refresh its cache. This checker does a broader, differently-shaped job: a CLI you run yourself sends one request to the page and its preview image, reads Open Graph and Twitter Card tags together, applies the twitter:image to og:image fallback chain, and reads the image file's real pixel dimensions directly from its header rather than trusting a cached crawler's read -- with no Facebook account and no sign-in. Use Facebook Sharing Debugger when you specifically need to see or refresh Facebook's own cached preview of a page; use this checker when you want one report covering Open Graph and Twitter Card together, or a check you can wire into your own CI with no account involved.</p>
+    <h3>Facebook Sharing Debugger is free too -- what does this add?</h3>
+    <p>Being free is not the difference. Facebook Sharing Debugger requires signing in with a Facebook account before it will run at all, and what it shows you is scoped to Facebook's own crawler and Facebook's own cache of the page -- it does not check Twitter/X's card tags or fallback rules, and it reports the image dimensions its own crawler resolved rather than independently reading the image file's real pixel header. This checker needs no account of any kind, checks Open Graph and Twitter Card tags in the same report, applies the twitter:image/title/description to og:image/title/description fallback chain platforms document, and includes a standalone tool that reads any image URL's actual pixel dimensions straight from the file, with no crawler or cache in between. It also ships as a CLI, so the same check can run unattended in your own build pipeline.</p>
+    <h3>Why does this need a CLI instead of one paste-a-URL box like Facebook Sharing Debugger?</h3>
+    <p>Facebook Sharing Debugger can fetch an arbitrary URL because the fetch happens on Facebook's own servers, where cross-origin restrictions do not apply. A browser tab has no such privilege: fetching a third-party page's HTML from inside a page you're visiting is blocked by CORS unless that site opts in, which almost none do. A small local CLI, run from your own machine, does not have that restriction. The one piece that genuinely can run in any browser with no CLI is checking an image URL's real pixel dimensions, since loading an image via an img tag -- unlike fetching its bytes -- is not subject to CORS, which is what this page's standalone image-size tool uses.</p>
+    <h3>Is this page affiliated with Facebook or Meta?</h3>
+    <p>No. This site is not affiliated with, endorsed by, or sponsored by Meta Platforms, Inc. or Facebook. Facebook Sharing Debugger is a trademark of its owner, named here only to describe what this checker is and is not. What Facebook Sharing Debugger currently checks, and whether it requires a login, are described on Meta's own developer site -- check there for what it covers today.</p>
+    <p><a href="./">Open the Social Preview Checker</a> to check your own page, or read <a href="./social-preview-fallback-rules.html">the fallback chain and size-rule reference</a>.</p>
+  </section>
+</main>
+
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This checks a specific, documented set of Open Graph and
+  Twitter Card patterns from one page fetch. It is not a guarantee of how any individual platform will render
+  the result today -- platforms cache aggressively and can change rendering rules without notice. A clean
+  report describes what this one fetch found, not a promise about every platform's preview.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express
+  or implied. It is not marketing, SEO, or legal advice, and it does not replace checking each platform's own
+  preview tool before you rely on a link. <strong>You are responsible for reviewing and verifying its output
+  before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for
+  any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken,
+  moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> This page makes no live comparison against Facebook Sharing
+  Debugger and no network request of any kind -- it is a static page describing publicly documented facts. The
+  checker's own CLI requests go straight from your machine to the URL you name and its preview image, never
+  through this site.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>, and optional
+  support via <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>
+  never changes what the tool does.</p>
+</footer>
+</body>
+</html>
