@@ -37,8 +37,8 @@
 #   portfolio-front-tools-1: 110 files, 555646 bytes
 #   portfolio-front-tools-2: 149 files, 548273 bytes
 #   portfolio-front-tools-3: 144 files, 555086 bytes
-#   portfolio-front-tools-4: 122 files, 553019 bytes
-#   portfolio-front-tools-5: 128 files, 542995 bytes
+#   portfolio-front-tools-4: 122 files, 554670 bytes
+#   portfolio-front-tools-5: 129 files, 545660 bytes
 #   portfolio-front-tools-6: 135 files, 549959 bytes
 #   portfolio-front-tools-7: 113 files, 545165 bytes
 #   portfolio-front-tools-8: 112 files, 547062 bytes
@@ -696,6 +696,7 @@ configMapGenerator:
       - bounce-house-rental-calculator__index.html.gz=bounce-house-rental-calculator__index.html.gz
       - bounce-house-rental-calculator__usage.mjs.gz=bounce-house-rental-calculator__usage.mjs.gz
       - bounce-house-rental-calculator__vs-booqable.html.gz=bounce-house-rental-calculator__vs-booqable.html.gz
+      - bounce-house-rental-calculator__vs-inflatableoffice.html.gz=bounce-house-rental-calculator__vs-inflatableoffice.html.gz
       - cabinet-refinishing-bid-calculator__calc.mjs.gz=cabinet-refinishing-bid-calculator__calc.mjs.gz
       - cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz=cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz
       - cabinet-refinishing-bid-calculator__index.html.gz=cabinet-refinishing-bid-calculator__index.html.gz
@@ -749,12 +750,12 @@ configMapGenerator:
       - chimney-sweep-bid-calculator__share.mjs.gz=chimney-sweep-bid-calculator__share.mjs.gz
       - chimney-sweep-bid-calculator__usage.mjs.gz=chimney-sweep-bid-calculator__usage.mjs.gz
       - chimney-sweep-bid-calculator__vs-jobber.html.gz=chimney-sweep-bid-calculator__vs-jobber.html.gz
-      - chrome-extension-permission-check__check.mjs.gz=chrome-extension-permission-check__check.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - chrome-extension-permission-check__check.mjs.gz=chrome-extension-permission-check__check.mjs.gz
       - chrome-extension-permission-check__index.html.gz=chrome-extension-permission-check__index.html.gz
       - chrome-extension-permission-check__purple-potassium-unused-permissions.html.gz=chrome-extension-permission-check__purple-potassium-unused-permissions.html.gz
       - chrome-extension-permission-check__scan.mjs.gz=chrome-extension-permission-check__scan.mjs.gz
