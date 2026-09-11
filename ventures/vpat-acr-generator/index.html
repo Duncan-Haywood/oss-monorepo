@@ -133,7 +133,20 @@
       const tr = document.createElement('tr');
       tr.dataset.criterionId = c.id;
       const select = document.createElement('select');
+      // `c.id` is a WCAG criterion number like "1.1.1", so these ids contain
+      // dots and a leading digit. That is legal for an id attribute and
+      // `getElementById` handles it, but it is NOT a valid CSS selector --
+      // `querySelector('#level-1.1.1')` reads the dots as class selectors and
+      // throws a SyntaxError. Every lookup of these ids must therefore use
+      // `getElementById`; see the regression test in calc.test.mjs.
       select.id = `level-${c.id}`;
+      // Named per criterion rather than left to the row's visual position.
+      // These controls live in a table, and a screen reader reading the
+      // conformance column announces the control alone: without this, all 100
+      // are "combo box" and nothing else, and the one being answered is
+      // unknowable. The criterion id and name are what the row means, so they
+      // are what the name says.
+      select.setAttribute('aria-label', `Conformance level for ${c.id} ${c.name}`);
       for (const [id, label] of LEVEL_OPTIONS) {
         const opt = document.createElement('option');
         opt.value = id; opt.textContent = label;
@@ -142,6 +155,11 @@
       const textarea = document.createElement('textarea');
       textarea.id = `remarks-${c.id}`;
       textarea.placeholder = 'Remarks and explanations';
+      // The placeholder is identical on all 100 rows, so it cannot say which
+      // criterion this is; and a placeholder is not a label in any case -- it
+      // disappears the moment the field has content, which is exactly when a
+      // user re-reading their own answers needs it most.
+      textarea.setAttribute('aria-label', `Remarks and explanations for ${c.id} ${c.name}`);
       const tdCrit = document.createElement('td');
       tdCrit.className = 'crit';
       tdCrit.innerHTML = `${c.id} ${c.name}<span class="wl">WCAG Level ${c.wcagLevel}</span>`;
@@ -157,8 +175,8 @@
       const rows = {};
       for (const c of WCAG21_AA_CRITERIA) {
         rows[c.id] = {
-          level: document.querySelector(`#level-${c.id}`).value,
-          remarks: document.querySelector(`#remarks-${c.id}`).value,
+          level: document.getElementById(`level-${c.id}`).value,
+          remarks: document.getElementById(`remarks-${c.id}`).value,
         };
       }
       return {
@@ -180,14 +198,20 @@
         ['vendorCompany', 'vendorCompany'], ['vendorContact', 'vendorContact'],
         ['evaluationMethods', 'evaluationMethods'], ['notes', 'notes'],
       ]) {
-        const el = document.querySelector(`#${id}`);
+        // These ids are plain identifiers and would survive `querySelector`,
+        // but the rule here is absolute on purpose: no id built by
+        // interpolation is ever turned into a CSS selector on this page. A
+        // rule with an exception is one someone has to re-derive at the
+        // moment they add a row, which is how the criterion-keyed lookups
+        // came to throw.
+        const el = document.getElementById(id);
         if (el && typeof input[field] === 'string') el.value = input[field];
       }
       for (const c of WCAG21_AA_CRITERIA) {
         const row = input.rows && input.rows[c.id];
         if (!row) continue;
-        const levelEl = document.querySelector(`#level-${c.id}`);
-        const remarksEl = document.querySelector(`#remarks-${c.id}`);
+        const levelEl = document.getElementById(`level-${c.id}`);
+        const remarksEl = document.getElementById(`remarks-${c.id}`);
         if (row.level) levelEl.value = row.level;
         if (typeof row.remarks === 'string') remarksEl.value = row.remarks;
       }

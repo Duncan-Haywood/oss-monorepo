@@ -28932,3 +28932,78 @@ entries:
         limitation) -- the runner route or the Hetzner box under host mode
         is the route with real egress for that step.
     mrr_end: 0
+
+  - venture: vpat-acr-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a product that was live and completely non-functional. A
+        full-catalogue browser sweep (`browser_checks.py`, all 7 checks, the
+        first axe run over this venture since it graduated in #4632 hours
+        earlier) caught `pageerror: Failed to execute 'querySelector' on
+        'Document': '#level-1.1.1' is not a valid selector`. A WCAG criterion
+        id contains dots and a leading digit, so `id="level-1.1.1"` is a legal
+        id attribute but not a legal CSS selector -- the dots parse as class
+        selectors. `querySelector` throws rather than returning null, so
+        `currentInput()` threw on the first of 50 rows and every button on the
+        page was dead. Switched all three interpolated-id lookups to
+        `getElementById`, and made the rule absolute rather than
+        case-by-case: no id built by interpolation is turned into a selector
+        on this page, because a rule with an exception is one someone
+        re-derives at the moment they add a row.
+      - >-
+        The gap worth naming: the venture's logic was always correct and its
+        18 unit tests all passed, because they import `calc.mjs` and never
+        load the page. What shipped broken was the only part a user touches.
+        `browser_checks.py --checks sweep` is the one check in this tree that
+        asks whether a tool answers at all, and it had never been run against
+        this venture.
+      - >-
+        Same sweep, same page: 100 critical axe `select-name` violations --
+        every conformance dropdown and every remarks textarea is built in
+        JavaScript and none carried an accessible name, so a screen reader
+        announced all 100 as "combo box" and nothing else and the criterion
+        being answered was unknowable. Given per-criterion `aria-label`s
+        naming the id and title. That matters more here than anywhere else in
+        the catalogue: this product exists to help a vendor document their own
+        accessibility conformance for a Section 508 or procurement response,
+        and a tool that fails WCAG 4.1.2 Name, Role, Value while collecting a
+        WCAG 4.1.2 answer is both unusable for part of its own audience and a
+        poor argument for itself.
+      - >-
+        Four regression tests added, each proved to fail against the pre-fix
+        source (16 pass / 3 fail before, 22 / 0 after) rather than only to
+        pass after. They read `index.html` as text because the defects were
+        missing attributes on elements built in a loop, which is visible in
+        the source; they are the cheap guard that runs in every `node --test`
+        session, not a substitute for the 40-minute browser sweep. One
+        asserts the premise -- that the ids this page generates really are
+        invalid CSS selectors -- so the guard cannot outlive its reason.
+      - >-
+        Re-verified in a real browser after the fix:
+        `browser_checks.py --only vpat-acr-generator --checks sweep,contrast`
+        reports the tool answering via "Generate ACR" and `1 pages, 2
+        viewports: no WCAG A/AA violations` -- 100 to 0.
+      - >-
+        Two further reds on `main`, both confirmed pre-existing by running
+        them in a detached worktree at `origin/main`, both fixed forward.
+        (1) `test_mirrored_tool_count_matches_what_the_docs_claim`: #4641
+        graduated the 1099-K worksheet without moving the constant or the four
+        hand-typed prose counts it pins (267 -> 268); the #3407 trap CLAUDE.md
+        records, invisible while runners are starved. (2)
+        `test_validate_workflows`: that venture's `calc.test.mjs` and
+        `page.test.mjs` ran in **no workflow at all**, so its assertions
+        executed only on a contributor's machine. Added
+        `.github/workflows/1099k-reconciliation-worksheet-ci.yml` and recorded
+        it with `publish_surface.py --write` in the same commit, as that
+        check asks.
+      - >-
+        Verified locally (Actions starved -- `ci_starvation.py --run
+        34655853152` reports `runner_id: 0`, 3s, no step executed): venture
+        suite 22/22; `platform/marketing` + `platform/pages` 1255/1255;
+        `platform/proposal` + `privacy` + `webcheck` 183/183; `gitops/tests`
+        581 passed / 1 skipped; all 24 `platform/ci` unittest modules plus
+        `agent_review` OK; `clauses.mjs` clean; `guard_state.py
+        --require-runnable` exit 0 with one ENVIRONMENTAL skip.
+    mrr_end: 0

@@ -1598,7 +1598,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the tree, not of any one session's diff, so concurrent ventures
     # graduating in parallel each correctly claimed their own base and
     # merging all of them advances the total by one per venture.
-    total = 267  # `infra/OWNER_CHECKLIST.md`'s own "N of the 267 tools" wording.
+    # 268 since 2026-09-11, when the 1099-K multi-platform reconciliation
+    # worksheet graduated (#4641) — a static `index.html` from its first
+    # commit, so it entered the mirror and the total together like the six
+    # above it. #4641 landed without moving this constant or the four prose
+    # counts it pins, so `main` was red on this assertion until this commit;
+    # confirmed pre-existing rather than caused here by running the suite in a
+    # detached worktree at `origin/main` with none of this branch's changes
+    # present. That is the #3407 trap CLAUDE.md records — a venture gaining a
+    # browser surface silently rewrites several hundred generated files and
+    # four hand-typed counts — and while runners are starved, no check says so.
+    total = 268  # `infra/OWNER_CHECKLIST.md`'s own "N of the 268 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

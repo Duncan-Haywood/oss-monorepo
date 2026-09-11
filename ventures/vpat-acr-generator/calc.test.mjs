@@ -152,3 +152,107 @@ test('reportAsText surfaces a nonzero issue count for an incomplete report', () 
   assert.match(text, /completeness issue\(s\) before this is submission-ready/);
   assert.match(text, /1\.4\.3 Contrast \(Minimum\)/);
 });
+
+// --- accessibility of the generated form ---------------------------------
+//
+// Found by `browser_checks.py --checks contrast` on 2026-09-11, the first
+// axe run over this venture after it graduated: 100 critical `select-name`
+// violations on one page -- every conformance dropdown and every remarks
+// field is built in JavaScript and none carried a name. A screen reader
+// announced all 100 as "combo box" and nothing else, so the criterion being
+// answered was unknowable.
+//
+// It matters more here than it would anywhere else in the catalogue. This
+// product exists to help a vendor document their own accessibility
+// conformance for a Section 508 or enterprise procurement response; a tool
+// that fails WCAG 4.1.2 Name, Role, Value while collecting a WCAG 4.1.2
+// answer is both unusable for part of its own audience and a poor argument
+// for itself.
+//
+// The test reads index.html as text rather than booting a DOM, because the
+// defect was a missing attribute on an element built in a loop, and that is
+// visible in the source. It is deliberately not a substitute for the axe run
+// -- it is the cheap guard that fires in `node --test` in every session,
+// where the browser sweep takes 40 minutes and is run rarely.
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const INDEX = fs.readFileSync(path.join(HERE, 'index.html'), 'utf8');
+
+test('every generated form control is given an accessible name', () => {
+  // The controls are created in one loop each, so one assertion per control
+  // type covers all 50 rows -- and would have caught the original defect.
+  assert.match(
+    INDEX,
+    /select\.setAttribute\(\s*'aria-label'/,
+    'the conformance-level select is built without an accessible name; a '
+      + 'screen reader announces it as "combo box" with no criterion',
+  );
+  assert.match(
+    INDEX,
+    /textarea\.setAttribute\(\s*'aria-label'/,
+    'the remarks textarea is built without an accessible name; its '
+      + 'placeholder is identical on all 50 rows and disappears once typed in',
+  );
+});
+
+test('the accessible name identifies which criterion the control belongs to', () => {
+  // A constant name on all 50 rows would satisfy axe and still leave the
+  // control useless: "Conformance level" x50 says nothing about which one.
+  for (const snippet of [
+    /aria-label',\s*`Conformance level for \$\{c\.id\} \$\{c\.name\}`/,
+    /aria-label',\s*`Remarks and explanations for \$\{c\.id\} \$\{c\.name\}`/,
+  ]) {
+    assert.match(INDEX, snippet);
+  }
+});
+
+test('criterion-keyed controls are never looked up with a CSS selector', () => {
+  // THE defect this venture shipped with, found by `browser_checks.py
+  // --checks sweep` on 2026-09-11:
+  //
+  //   pageerror: Failed to execute 'querySelector' on 'Document':
+  //   '#level-1.1.1' is not a valid selector.
+  //
+  // `c.id` is a WCAG criterion number ("1.1.1"), so `id="level-1.1.1"` is a
+  // legal id attribute but not a legal CSS selector -- the dots parse as
+  // class selectors and the leading digit is invalid in an identifier.
+  // `querySelector` throws rather than returning null, so `currentInput()`
+  // threw on the first row and **every button on the page was dead**. The
+  // product was completely non-functional in a browser while passing all 18
+  // of its unit tests, because the tests import calc.mjs and never load the
+  // page.
+  //
+  // That is the gap worth naming: this venture's logic was always correct.
+  // What shipped broken was the only part a user actually touches.
+  for (const m of INDEX.matchAll(/querySelector\(\s*`#\$\{?[^`]*`/g)) {
+    assert.fail(
+      `index.html builds a CSS selector from an interpolated id: ${m[0]} -- `
+        + 'criterion ids contain dots and a leading digit, so this throws a '
+        + 'SyntaxError at runtime. Use getElementById.',
+    );
+  }
+  // And the positive half: the lookups exist and use the safe API.
+  assert.match(INDEX, /getElementById\(`level-\$\{c\.id\}`\)/);
+  assert.match(INDEX, /getElementById\(`remarks-\$\{c\.id\}`\)/);
+});
+
+test('the ids this page generates are valid ids but invalid CSS selectors', () => {
+  // Asserts the premise rather than restating it, so the test above cannot
+  // outlive the reason for it. Uses the platform's own selector parser via
+  // the same error `querySelector` raises, without needing a DOM: the CSS
+  // identifier grammar forbids an unescaped leading digit and treats an
+  // unescaped dot as a class separator.
+  const INVALID_CSS_ID = /^#[A-Za-z_-][A-Za-z0-9_-]*$/;
+  for (const c of WCAG21_AA_CRITERIA) {
+    assert.ok(
+      !INVALID_CSS_ID.test(`#level-${c.id}`),
+      `#level-${c.id} unexpectedly looks like a valid selector; if criterion `
+        + 'ids ever stop containing dots, simplify this guard rather than '
+        + 'leaving it asserting something that is no longer true',
+    );
+  }
+});
