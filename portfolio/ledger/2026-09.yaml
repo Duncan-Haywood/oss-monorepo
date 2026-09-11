@@ -28070,3 +28070,102 @@ entries:
         crawlable orphan, which the sibling-link budget of 0 caught before
         the merge rather than after.
     mrr_end: 0
+  - venture: forestry-mulching-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-aspire.html`, the venture's first competitor-comparison
+        page: distinguishes this free, single-purpose acres-per-machine-hour
+        forestry mulching worksheet from Aspire's revenue-tiered,
+        account-based landscape business-management platform. Reused the
+        Aspire identity facts (founded 2013, Kevin Kehoe/Mark Tipton,
+        Chesterfield MO, ServiceTitan's 2021 acquisition, revenue-tiered
+        pricing with no published dollar figure) already verified and used
+        across five sibling `vs-aspire.html` pages in this repo, rather than
+        re-deriving them. No price for Aspire is stated as fact anywhere on
+        the page.
+      - >-
+        Started this session by picking `auto-repair-effective-labor-rate`
+        for a `vs-shopmonkey.html` page too, then found a concurrent PR
+        (#4619, merged as `12bd8b866` mid-session) had already shipped that
+        exact venture's first comparison page against Tekmetric. Dropped the
+        Shopmonkey page entirely rather than duplicate marketing effort on
+        one brand-new venture, rebased this branch onto the new `main`, and
+        built a third page (`oidc-trust-policy-check` vs Wiz, below)
+        instead. Matches CLAUDE.md's "Duplicate PRs" guidance: checked open
+        PRs, found the overlap, did not ship a second page for the same
+        venture.
+    mrr_end: 0
+  - venture: influencer-media-kit-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-kitly.html`, the venture's first competitor-comparison
+        page: distinguishes this no-account, no-social-linking, one-time
+        media-kit generator from Kitly's account-based, social-account-
+        linked media-kit + analytics platform (free tier plus paid tiers
+        unlocking more connected accounts/kits/reports, per Kitly's own
+        public positioning). No dollar figure for Kitly is stated as fact,
+        since its own pricing page was not reachable from this session's
+        egress-proxied sandbox (WebSearch surfaced third-party pricing
+        figures, but only vendor-verifiable, non-numeric facts were used on
+        the page, matching the discipline this repo's other `vs-*.html`
+        pages already use).
+      - >-
+        Rebased this session's branch onto `main` twice as concurrent
+        sessions merged PR #4618 (newsletter rates in this same venture's
+        `index.html`/`page.test.mjs`), #4619, #4621 and #4623. One real merge
+        conflict each time (independent test additions to the tail of
+        `page.test.mjs`, then the ledger's own append point) resolved by
+        keeping both sides' content; `index.html` merged cleanly both times.
+        Re-ran the venture's full test suite (245/245 across the three
+        touched ventures) after each rebase, not just before it.
+    mrr_end: 0
+  - venture: oidc-trust-policy-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-wiz.html`, the venture's first competitor-comparison
+        page: distinguishes this free, local, one-time AWS IAM trust-policy
+        sub/aud checker from Wiz's paid, account-connected, continuously-
+        inventorying CNAPP platform. Wiz is a strong fit for a nominative
+        comparison here specifically because Wiz's own security research
+        team has publicly written about this exact GitHub Actions OIDC
+        trust-policy misconfiguration class (a missing/wildcarded `sub`
+        condition), found via WebSearch and cited on the page as the basis
+        for the comparison rather than invented. No dollar figure for Wiz is
+        stated, since Wiz publishes no public price list.
+      - >-
+        Built as the replacement for a dropped `auto-repair-effective-labor-
+        rate` vs-Shopmonkey page (see that venture's entry above) after
+        finding PR #4619 had already shipped that venture's comparison page
+        against a different competitor (Tekmetric) earlier the same session.
+      - >-
+        Verified locally (Actions runners starved this window per
+        `infra_state.yaml`): all three touched ventures' own test suites
+        245/245; `platform/marketing` + `platform/pages` 1255/1255 (twice —
+        once before, once after rebasing onto `main`'s concurrent merges);
+        `platform/proposal` + `platform/privacy` + `platform/webcheck`
+        183/183; `clauses.mjs` clean on all three ventures;
+        `check_no_payment_code.py` clean; `checklist_coverage.py` clean;
+        `score_ventures.py --check` consistent across 271 ventures;
+        `validate_usage.py` valid (246 products, 432 readings);
+        `router/validate.py` valid (270 VENTURE.yaml); browser/a11y checks
+        scoped to each touched venture (Playwright 1.56.0 + axe-core,
+        `browser_checks.py --only <slug>` for all three) all `ok` except
+        `highlight`, which skipped for a missing dependency on two of the
+        three runs (not a failure); `run_workflow_locally.py --for-changes`
+        against the rebased, regenerated tree: `portfolio-validate.yml`
+        68/68 real steps passed, 13/15 selected workflows passed overall —
+        the two non-passes are `agent-cross-review.yml` and
+        `hetzner-gitops-ci.yml`'s secret-gated jobs, correctly held rather
+        than run without `--force`. The only genuine failure anywhere in the
+        sweep is `pages.yml`'s `_site`-dependent link-check step, a
+        pre-existing environmental limitation of the offline simulator
+        (a `${{ }}` conditional it cannot evaluate) already documented in
+        CLAUDE.md and in #4619's own report the same day — not a regression
+        from this change.
+    mrr_end: 0

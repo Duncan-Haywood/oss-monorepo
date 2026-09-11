@@ -122,3 +122,34 @@ test("the page's privacy note names every event it counts", async () => {
     assert.ok(footer.includes(event), `the footer does not name the '${event}' event it counts`);
   }
 });
+
+test('index links the Kitly incumbent-comparison page and the sitemap lists it too', async () => {
+  const index = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
+  assert.match(index, /vs-kitly\.html/);
+  assert.match(sitemap, /vs-kitly\.html/);
+});
+
+test("the Kitly comparison page links back, names the incumbent honestly, and states no unverifiable price", async () => {
+  const vsKitly = await readFile(new URL("./vs-kitly.html", import.meta.url), "utf8");
+  assert.match(vsKitly, /<a href="\.\/">/);
+  assert.match(vsKitly, /not affiliated with, endorsed by, or sponsored by Kitly/i);
+  // Kitly's own site was not reached by a live fetch from this session, so
+  // no dollar figure for its product may appear on the page.
+  assert.doesNotMatch(vsKitly, /\$\d/);
+  assert.match(vsKitly, /No warranty/i);
+  assert.match(vsKitly, /Best-effort hosting, no SLA/i);
+  assert.match(vsKitly, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test("the Kitly comparison page FAQPage JSON-LD matches the visible copy verbatim", async () => {
+  const vsKitly = await readFile(new URL("./vs-kitly.html", import.meta.url), "utf8");
+  const match = vsKitly.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
+  assert.ok(match, "no FAQPage schema found on vs-kitly.html");
+  const schema = JSON.parse(match[1]);
+  assert.ok(schema.mainEntity.length > 0);
+  for (const { name, acceptedAnswer } of schema.mainEntity) {
+    assert.ok(vsKitly.includes(`<h3>${name}</h3>`), `FAQ question "${name}" has no matching <h3>`);
+    assert.ok(vsKitly.includes(acceptedAnswer.text), `answer not found verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
+  }
+});
