@@ -1598,7 +1598,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the tree, not of any one session's diff, so concurrent ventures
     # graduating in parallel each correctly claimed their own base and
     # merging all of them advances the total by one per venture.
-    total = 267  # `infra/OWNER_CHECKLIST.md`'s own "N of the 267 tools" wording.
+    # 268 since 2026-09-11, when `process-server-fee-calculator` graduated —
+    # a static `index.html` from its first commit, same shape as the venture
+    # above it.
+    total = 268  # `infra/OWNER_CHECKLIST.md`'s own "N of the 268 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
