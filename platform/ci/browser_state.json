@@ -4,55 +4,6 @@
       "checks": [
         "contrast",
         "highlight",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "34273aa041f3b3e7c91161cb64f593df1f45e9ec",
-      "measured": "2026-09-10",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "actions-self-hosted-exposure-check",
-        "atm-route-margin",
-        "carpet-install-bid-calculator",
-        "chrome-extension-permission-check",
-        "cors-misconfig-check",
-        "dog-walking-route-pricing",
-        "env-example-drift-check",
-        "fire-extinguisher-inspection-route-margin",
-        "poshmark-fee-calculator",
-        "reverb-fee-calculator",
-        "vending-machine-route-margin",
-        "whatnot-seller-payout",
-        "where-to-sell-calculator"
-      ],
-      "surface": {
-        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
-        "platform/pages": "66f1b89fc644003a5074e53e5ace199dabcae5ae",
-        "ventures": "9d59d39c959417a7c78434846e48b64f882c6c06"
-      }
-    },
-    {
-      "checks": [
-        "journey"
-      ],
-      "commit": "34273aa041f3b3e7c91161cb64f593df1f45e9ec",
-      "measured": "2026-09-10",
-      "pages": 897,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "ca5f041aa099ccd16bacdb2b45b701bab7f421a8",
-        "platform/pages": "66f1b89fc644003a5074e53e5ace199dabcae5ae",
-        "ventures": "9d59d39c959417a7c78434846e48b64f882c6c06"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
         "journey",
         "presets",
         "roundtrip",
@@ -406,6 +357,48 @@
         "platform/marketing": "6a092fe8951a7ccc8da62b0a1b660ee6065f66cc",
         "platform/pages": "db7632e331340c673be5642d76f0fa6127e3b767",
         "ventures": "6a1128e9afba85ac46e5992223ccd00e21f604a7"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "58c54769a81148213ec1f244b4ec87a878b374f9",
+      "measured": "2026-09-11",
+      "pages": 975,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "790e07eba9f60496ede8511968a73aa9599e2789",
+        "platform/pages": "07cdde2bacc6e201a0c0a899e2e2bb714029c380",
+        "ventures": "1032ae2ce9a00473e5be92f57e781c43f26956c2"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "0861bf7d9a222b57cd74bf652b4e28fb739cfd0d",
+      "measured": "2026-09-11",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "staffing-markup-calculator"
+      ],
+      "surface": {
+        "platform/marketing": "790e07eba9f60496ede8511968a73aa9599e2789",
+        "platform/pages": "07cdde2bacc6e201a0c0a899e2e2bb714029c380",
+        "ventures": "f55359f50989bfd1314c2d597740d2737c64ceb4"
       }
     }
   ]
