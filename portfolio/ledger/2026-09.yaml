@@ -28337,7 +28337,92 @@ entries:
         so a tick cannot bill against the metered key. No new ask added; the
         queued one already carries the exact commands.
     mrr_end: 0
-
+  - venture: home-inspection-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a free browser calculator for independent
+        residential home inspectors (not on a franchise fee schedule) to
+        price one inspection from square footage, stories, foundation type,
+        and home age -- the specifics a flat per-square-foot fee schedule
+        quietly folds away -- plus radon, sewer scope, termite/WDO, and mold
+        add-ons at their own flat fee and a same-day rush premium applied to
+        labor time only, then check a week of bookings against a target
+        weekly income. Screened against `screened-out.md` (no row exists)
+        and `duplicate_check.py` (top match 0.13, well under the 0.45 bar);
+        scored in `venture-scores.yaml` (composite 6.333, gates pass) and
+        `portfolio/router/validate.py`.
+      - >-
+        A fresh niche, not a queued pipeline candidate, chosen to avoid both
+        saturated archetypes `pipeline/README.md` already flags: not the
+        142nd `<trade>-bid-calculator` and not the 39th `-check`/`-checker`.
+        Home inspectors are a real, organised buyer with money at stake (a
+        home purchase) and a named channel this session did not verify
+        traffic for but did name: InterNACHI's Inspector Forum and
+        r/HomeInspector.
+      - >-
+        Shipped: `calc.mjs` (pure arithmetic, 8 unit tests), `index.html`
+        (calculator + weekly income check + FAQ, JSON-LD SoftwareApplication
+        and FAQPage), a worked-example guide page
+        (`how-to-price-a-home-inspection.html`), `usage.mjs`
+        (localStorage-only, DNT/GPC-respecting, opt-out), LICENSE (MIT),
+        README with the disclaimer and privacy sections, robots.txt,
+        sitemap.xml, `VENTURE.yaml`, and
+        `.github/workflows/home-inspection-fee-calculator-ci.yml` (required
+        by `validate_workflows.py` invariant 7 once the venture ships
+        `*.test.mjs`).
+      - >-
+        Ran the product itself, not just its tests: a real Chromium pass via
+        `browser_checks.py` (Playwright 1.56.0 + axe-core) found 0 a11y
+        violations, 0 console/page errors, and a 23-field draft that
+        round-trips through the page -- and it caught two real defects this
+        session then fixed: `squareFootage`'s `min="1" step="50"` excluded
+        every whole number from the accepted grid
+        (`test_check_step_grid.py`), and two JSON-LD `FAQPage` answers
+        diverged from their visible prose by punctuation/wording
+        (`faq-visible.test.mjs`).
+      - >-
+        Ran the full starvation-window checklist rather than a subset:
+        `node platform/marketing/regen.mjs` (mirror count 263 -> 264 at the
+        time this session first ran it; two concurrent sessions each
+        graduated a venture to `origin/main` while this one was verifying --
+        `cat-adjuster-fee-calculator` and `vpat-acr-generator` -- so the
+        branch was merged onto the moved `origin/main` and `regen.mjs`
+        rerun, propagated across every mirrored page, landing the real
+        total at 266); `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` 1255/1255
+        (after filing `home-inspection-fee-calculator` into the `services`
+        front-door category to close a catch-all-size regression, adding a
+        `rates.mjs` `REVIEWED_NOT_CARRIED` entry for the billed-rate-not-a-wage
+        distinction, and closing a link-graph orphan by adding a reciprocal
+        link from `real-estate-agent-photo-app`); `python3 -m pytest
+        gitops/tests` 581 passed/1 skipped (after updating the four
+        hand-typed mirrored-tool-count locations `CLAUDE.md` names:
+        `OWNER_CHECKLIST.md` x3, `aggregate.py`, `default.conf` x2, and the
+        test's own running count); all `platform/ci` unittest modules (25,
+        run per-module per the documented working-directory trap) and
+        `agent_review` 21/21; portfolio + `infra/tests` 435 passed (after
+        adding the new venture's row to `venture-scores.yaml`, which
+        `score_ventures.py --check` and `test_allocate.py` both require);
+        `checklist_coverage.py` clean; `guard_state.py --require-runnable`
+        clean, 0 fixable skips; `gitops/ci/sync_readme_counts.py` (the new
+        workflow moved the `runs-on` count); `python3 platform/router/validate.py`
+        (273 VENTURE.yaml files valid); `node platform/pages/clauses.mjs
+        home-inspection-fee-calculator` (both pages carry the no-warranty
+        clause); `publish_surface.py --write` (new test-only workflow,
+        classified `none`).
+      - >-
+        Merged self after local verification, per CLAUDE.md's "Ship without
+        review ceremony" -- Actions is starved this window
+        (`indexnow_state.py`/recent `publish-pages-branch.yml` runs read
+        `starved`). Not yet on the live GitHub Pages snapshot:
+        `pages_state.py` will read `stale` after this merge until
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+        runs, which is the next session's (or this one's, before it ends)
+        job. No Hetzner/k3s action attempted or needed -- that route stays
+        the owner-blocked one already queued.
+    mrr_end: 0
   - venture: dental-ppo-writeoff-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -28403,7 +28488,6 @@ entries:
         (`test_front_door_serving.py`, GitHub-runner-only). No guard that
         could run here went unrun.
     mrr_end: 0
-
   - venture: vpat-acr-generator
     agent_spend_usd: null
     human_hours: 0
@@ -28557,6 +28641,80 @@ entries:
         key) was confirmed `current` and `served` before and after this
         change.
     mrr_end: 0
+
+  - venture: terraform-plan-secret-exposure-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a comparison page: `vs-checkov.html`, the venture's first
+        `vs-*.html` page. Checkov (Bridgecrew/Palo Alto Networks) is a real,
+        well-known open-source IaC static analysis tool whose bundled
+        secrets scanner is the closest adjacent product; the page states the
+        scope difference factually (Checkov's hundreds of misconfiguration
+        policies across many IaC frameworks vs. this tool's one narrow
+        check -- a Terraform structured plan's own `sensitive` flag misses,
+        respecting `before_sensitive`/`after_sensitive` first) and carries
+        the required no-warranty and not-affiliated (nominative fair use)
+        clauses per PRODUCT_PLAYBOOK.md 5f. Linked from `index.html`, added
+        to `sitemap.xml`, and `page.test.mjs` extended with coverage for the
+        link, back-link, disclaimer, and sitemap entry.
+      - >-
+        `node platform/marketing/regen.mjs` after adding the page caught one
+        real defect: the new page's FAQPage JSON-LD answer for "why not just
+        run Checkov" quoted a command in backticks that the visible `<code>`
+        prose did not carry, so `faq-visible.test.mjs` correctly failed on
+        the JSON-LD/visible-text divergence. Fixed by matching the JSON-LD
+        text to the rendered prose exactly, then reran the full
+        marketing+pages suite green.
+      - >-
+        Rebased twice onto a moving `origin/main` during this session as two
+        concurrent sessions merged `vpat-acr-generator` (#4632) and
+        `dental-ppo-writeoff-calculator`'s own new `vs-*.html` pages (#4633)
+        -- confirmed via `mcp__github__list_pull_requests` (0 open PRs) before
+        pushing, per the standing duplicate-PR check. Both merges were
+        clean, conflict-free except in the generated binary front-door-tools
+        shards, which were resolved by taking `origin/main`'s copy and
+        regenerating fresh from the rebased tree rather than replaying the
+        binaries themselves.
+      - >-
+        Verified locally: `node --test
+        ventures/terraform-plan-secret-exposure-check/*.test.mjs` 37/37;
+        `node platform/pages/clauses.mjs terraform-plan-secret-exposure-check`
+        and `faq-coverage.mjs`/`guide-coverage.mjs` for the slug all clean;
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        1255/1255 (run twice, once after each rebase); `python3 -m pytest
+        gitops/tests -q` 581 passed / 1 skipped (ENVIRONMENTAL per
+        `guard_state.py --require-runnable`, which also named a FIXABLE
+        `ssh-keygen` skip closed by installing `openssh-client`); all 25
+        `platform/ci` unittest modules and `agent_review`'s 21 pass; `python3
+        -m pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q` 435 passed;
+        `python3 platform/ci/checklist_coverage.py`,
+        `platform/router/validate.py` (273 VENTURE.yaml valid),
+        `platform/ci/publish_surface.py --check`,
+        `platform/ci/validate_workflows.py` (321 valid),
+        `platform/ci/check_no_payment_code.py`,
+        `portfolio/scoring/score_ventures.py --check` (274 consistent),
+        `portfolio/usage/validate_usage.py` (249 products/435 readings),
+        `portfolio/pipeline/validate_candidates.py` and
+        `validate_doc_consistency.py`, `platform/marketing/front-door-tools.mjs
+        --headroom`, `portfolio/pipeline/probes/validate_probe_index.py`, and
+        `portfolio/pipeline/score_sensitivity.py` all clean; `python3
+        platform/ci/run_workflow_locally.py --for-changes` selected 12
+        workflow files against the diff and exited 0 with zero real
+        failures -- only secret-/write-gated jobs (agent-cross-review's four
+        reviewers, hetzner-gitops-ci's hcloud-scope/preflight/restore,
+        portfolio-pages.yml's deploy, publish-pages-branch.yml's publish)
+        were held, all unrelated to this change. Runners were flapping
+        during this session (`ci_starvation.py` not run against a specific
+        PR check since none was opened before merge, but the starvation
+        checklist itself was followed in full as the substitute per
+        CLAUDE.md). Browser/a11y note: the new page adds no form inputs
+        (links and prose only), so the whole-catalogue Playwright/axe sweep
+        (`browser_state.py` reports it STALE purely from ordinary fleet
+        churn on every merge, not from anything in this diff) was not
+        re-run for this change.
     mrr_end: 0
 
   - venture: dental-ppo-writeoff-calculator

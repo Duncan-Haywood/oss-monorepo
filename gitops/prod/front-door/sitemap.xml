@@ -1531,6 +1531,12 @@
     <loc>https://marisstella.dev/tools/home-elevator-bid-calculator/vs-jobber.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/home-inspection-fee-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/home-inspection-fee-calculator/how-to-price-a-home-inspection.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/home-staging-bid-calculator/</loc>
   </url>
   <url>
@@ -2723,6 +2729,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/terraform-plan-secret-exposure-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/terraform-plan-secret-exposure-check/vs-checkov.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/terraform-plan-secret-exposure-check/why-terraform-plan-json-leaks-secrets.html</loc>
