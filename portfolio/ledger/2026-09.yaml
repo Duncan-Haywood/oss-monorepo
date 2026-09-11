@@ -27302,6 +27302,123 @@ entries:
         `publish_surface.py --write` (classification `none`, publishes
         nothing).
     mrr_end: 0
+  - venture: brand-deal-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous-development-mandate brief. First drained the
+        PR/branch queue per the mandate's three-PR quota: 0 open PRs existed,
+        and an exhaustive supersede_check.py sweep of all 198 unmerged remote
+        branches (30 checked directly, 168 more via a background agent) found
+        zero genuinely mergeable work -- every non-trivial candidate was
+        either an identical-merge no-op or a STALE DRAFT SUSPECTED /
+        RENAME SUSPECTED case main had already superseded. Queue confirmed
+        empty rather than assumed.
+      - >-
+        Graduated brand-deal-rate-calculator: a free, client-side calculator
+        turning a social media creator's follower count, engagement rate,
+        and platform into a brand-deal price range per deliverable (feed
+        post, Story, Reel/short video, dedicated video), modeled on the
+        already-graduated newsletter-sponsorship-rate-calculator for a
+        different creator-economy channel. duplicate_check.py scored nothing
+        >= 0.10 against any existing venture, pipeline candidate, or
+        screened-out row. Shipped with a reciprocal sibling link to
+        newsletter-sponsorship-rate-calculator (0 orphans per
+        siblings.mjs --check), filed under the solo-earner front-door
+        category rather than the catch-all, VENTURE.yaml with duplicate-check
+        evidence and passing liability/ethics gates, venture-scores.yaml
+        entry, launched.json entry, and CI workflow.
+      - >-
+        Also fixed, found while verifying: main's tool count moved 257 -> 258
+        with this graduation, requiring updates to
+        infra/OWNER_CHECKLIST.md, gitops/prod/front-door/default.conf,
+        gitops/prod/usage/aggregate.py, and
+        gitops/tests/test_manifests.py's own constant, plus
+        gitops/ci/sync_readme_counts.py for the runs-on-count drift the new
+        CI workflow caused -- the exact drift shape CLAUDE.md already
+        documents costing live product twice.
+      - >-
+        A concurrent session landed a share-link feature on
+        newsletter-sponsorship-rate-calculator while this branch was in
+        progress (git fetch --unshallow was needed after the working clone
+        re-shallowed mid-session). Merged origin/main, combined both sets of
+        page.test.mjs tests, and re-ran regen.mjs/build.mjs to resolve the
+        generated-artifact (gzip mirror shard) conflicts rather than
+        hand-merging binaries.
+      - >-
+        Verified locally while Actions runners were starved (confirmed via
+        ci_starvation.py on both `main` and the PR -- runner_id 0, 3-5s, no
+        steps): venture's own suite 16/16; newsletter sibling's suite 29/29
+        after the merge; node platform/marketing/regen.mjs +
+        node platform/pages/build.mjs -- 258 tools, 991 pages; check.mjs --
+        no dead links; siblings.mjs --check -- 0 orphans; node --test across
+        platform/marketing + platform/pages -- 1255/1255; platform/proposal
+        101/101; platform/privacy + platform/webcheck 82/82; all 15
+        platform/ci unittest modules including agent_review/test_review
+        21/21; portfolio/ledger + scoring + router + usage + pipeline +
+        infra/tests 435/435; gitops/tests 581 passed 1 environmental skip;
+        score_ventures.py --check, router/validate.py,
+        publish_surface.py --check, checklist_coverage.py all clean;
+        run_workflow_locally.py --for-changes 12/14 selected workflows
+        passed (2 need Hetzner cluster/bot-app credentials this sandbox
+        lacks). Merged as #4605.
+      - >-
+        Deployed: gh-pages was stale (built from 4413c482, main moved to
+        7080a5a9) -- CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh republished, pages_state.py
+        --require-current now reports current. indexnow_state.py confirms
+        the announce step is (as documented) blocked from this sandbox's
+        egress proxy, not skipped by oversight -- needs a runner or the
+        Hetzner host.
+      - >-
+        Also confirmed, per the session's other stated priority: the
+        Codex-CLI-on-Hetzner setup (gitops/agents/host/) is fully built and
+        tested (104/104 across test_host_governor.py,
+        test_install_codex_host.py, test_portfolio_site_host.py,
+        test_install_github_runner_host.py; systemd-analyze verify clean on
+        both units) and genuinely blocked on nothing but the owner rotating
+        HETZNERSSHKEY from a public to a private key -- already the #1 row
+        in decision_queue.py. Not re-adding that ask.
+    mrr_end: 0
+  - venture: bounce-house-rental-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session, after the brand-deal-rate-calculator graduation above:
+        ran the whole-catalogue browser/accessibility sweep (staled by that
+        graduation's build.mjs change) and roundtrip.mjs caught a real,
+        live defect -- the hero price only recomputed on an explicit "Price
+        this booking" submit, so editing a field and clicking "Copy
+        shareable link" without pressing Calculate first copied a link
+        encoding the new figures while the sender's own screen kept
+        showing the stale worked-example price ($1,574.46 vs the correct
+        $132,589.15 for the edited booking, zero fields dropped). Diagnosed
+        by hand with calculateQuote() against the exact captured field
+        values, confirming the link and the restored page both computed
+        correctly and only the sender's own screen was stale.
+      - >-
+        Fixed by adding the document/form-level input+change listener this
+        exact bug shape already has a fleet precedent for
+        (staffing-markup-calculator, wildlife-exclusion-bid-calculator). A
+        concurrent session found and fixed the identical bug independently
+        in the same window (#4606, functionally equivalent, scoped to
+        `el('quoteForm')`) and merged to main first; reconciled by keeping
+        #4606's fix on merge and carrying forward this session's own static
+        regression test (updated to match its actual selector), which #4606
+        did not add.
+      - >-
+        Verified: venture's own suite 74/74 (was 73, one regression test
+        added); a scoped roundtrip re-run against the fix -- 36 fields,
+        headline $132,589.15, ok; sideways/presets/contrast/sweep clean
+        against this venture in isolation; node --test across
+        platform/marketing + platform/pages -- 1255/1255 after
+        regen.mjs/build.mjs reconciled the mirror with both this fix and
+        the concurrently-graduated influencer-media-kit-generator (#4607);
+        check.mjs -- 259 products, 993 pages, no dead links; siblings.mjs
+        --check -- 0 orphans.
+    mrr_end: 0
   - venture: quarterly-estimated-tax-calendar
     agent_spend_usd: null
     human_hours: 0
@@ -27388,4 +27505,173 @@ entries:
         the new workflow's README line; `publish_surface.py --write`
         recorded the new workflow (classification `none`, publishes
         nothing).
+    mrr_end: 0
+  - venture: quarterly-estimated-tax-calendar
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added `vs-keeper.html`, the venture's first competitor-comparison
+        page, six commits after graduation and while the tool still had a
+        single page. Names Keeper's own free quarterly-tax calculator
+        (`keepertax.com/quarterly-tax-calculator`, plus its help-center
+        description of in-app reminders) as the incumbent, states the real
+        distinction sourced from Keeper's own copy -- Keeper projects a
+        ballpark from expected income/deductions, this page applies the
+        published IRS 1040-ES safe-harbor formula to numbers a filer already
+        has and exports a portable, account-free `.ics` reminder -- and
+        carries no dollar figure for Keeper's product, since only Keeper's
+        own current app could confirm one (PRODUCT_PLAYBOOK.md 5f). Linked
+        from `index.html` and `sitemap.xml`; `page.test.mjs` gained four
+        assertions mirroring the repo's own `vs-<competitor>` convention
+        (back-link, sourced claim, no bare `$`, the not-affiliated clause).
+      - >-
+        Hit and fixed the exact bug CLAUDE.md's own 2026-09-11
+        `faq-visible.test.mjs` note describes: the FAQPage JSON-LD used a
+        literal `--` where the rendered copy used `&mdash;`, so
+        `platform/pages/faq-visible.test.mjs` failed on the punctuation
+        mismatch alone (text otherwise identical). Fixed by matching the
+        visible copy's em dash in the JSON-LD.
+      - >-
+        Verified locally, Actions still starved that morning
+        (`ci_starvation.py --run 34588034490`: `runner_id: 0`, no steps):
+        venture's own suite 33/33 (up from 26); `platform/marketing` 260/260;
+        `platform/pages` 995/995 (the one failure above, fixed, re-run
+        clean); `platform/pages/build.mjs` then `check.mjs --dist=` --
+        260 products, 995 pages, no dead links; `clauses.mjs` on the venture
+        clean; `gitops/tests` 557 passed / 25 skipped (documented
+        environmental skips, `nginx-light`/`ssh` binaries not installed in
+        this sandbox); `portfolio/ledger` + `scoring` + `router` + `usage`
+        + `pipeline` + `infra/tests` pytest 435/435; `checklist_coverage.py`
+        clean. `regen.mjs` re-ran and carried the new page into the
+        front-door mirror shard and sitemap.
+        Also swept the open-PR queue (0 open) and sampled ~15 of the
+        several hundred PR-less branches by name relevance to CI/CD,
+        deployment, and marketing work specifically -- every one checked
+        (`atm-route-margin`, `ci/hetzner-ssh-key-diagnostic`, four
+        `vs-<competitor>` comparison branches, the epk-generator graduation
+        branch, three browser-sweep-record branches) was already superseded
+        by a fuller or later version already on `main`; none needed a PR.
+    mrr_end: 0
+  - venture: auto-repair-effective-labor-rate
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the collaborative queue first, as the standing three-PR
+        floor requires: **zero open PRs existed** (`list_pull_requests` and a
+        `search_pull_requests` cross-check both returned empty), so the
+        quota was met vacuously rather than by merging. Spot-checked the two
+        most recent unmerged branches
+        (`ci/record-clean-browser-sweep-2026-09-11`,
+        `claude/browser-sweep-record-e7ac56f6`) against `main`: both are net
+        *deletions* — `main` carries a later draft of every file they touch
+        — which is the STALE DRAFT shape `supersede_check.py` documents, so
+        nothing was repairable. Consistent with the 2026-09-05 readings that
+        the branch backlog is spent; not re-derived across all ~200.
+      - >-
+        Read `main` itself with `run_workflow_locally.py --tree` rather than
+        `--for-changes`: green on every workflow before this session's work,
+        so the two failures the sweep reported were this branch's own new
+        venture missing a CI workflow, not a pre-existing red.
+      - >-
+        **Fixed a live user-facing defect on `bounce-house-rental-calculator`
+        that no test in the tree could see.** The first full browser sweep of
+        the session (`browser_checks.py`, all seven checks, whole catalogue)
+        came back 6/7 with `roundtrip` red: a share link round-tripped a
+        headline of **$1,574.46 → $132,589.15**. Every field round-tripped
+        correctly and `share.mjs` was sound — reproduced the encode/decode
+        path in node and it is exact. The defect was that this page repriced
+        on submit *only*, and it was the one tool of 185 with a share link
+        and no live recompute. Because `shareState()` reads the form
+        directly, a link copied after an edit carried the *new* booking while
+        the panel still showed the price from the last button press: the yard
+        reads one number down the phone and the customer opens another. Fixed
+        by delegating `input`/`change` on the form element (bubbling, so the
+        five script-created fleet rows are covered without a restated id list
+        — the staleness CLAUDE.md records twice), leaving `quote_priced`
+        counted on submit alone so a keystroke is not logged as a pricing.
+        Re-ran the check against a real browser: `1/1 share links round-trip`
+        at $132,589.15, which is the arithmetically correct answer for the
+        perturbed inputs. Two regression assertions added to that venture's
+        `page.test.mjs`.
+      - >-
+        Graduated a new venture: auto-repair-effective-labor-rate, a free
+        browser tool that divides an independent auto repair shop's labor
+        sales by the labor hours they were billed against — the effective
+        labor rate — and then splits the gap to the posted door rate into
+        customer-pay discounting and warranty shortfall, prices unbilled
+        comeback hours as forgone capacity, and reports technician efficiency
+        with cost per billed hour against cost per clock hour. Not the
+        saturated `<trade>-bid-calculator` shape and not a marketplace fee
+        tool: it measures a month already billed rather than pricing a job
+        not yet sold. The niche is absent from `screened-out.md` and from all
+        267 existing ventures — the portfolio had no automotive service
+        venture at all.
+      - >-
+        The output the venture exists for is the **required posted rate**.
+        A shop needing $175.34 an hour to reach 70% labor gross profit does
+        not need a $175 door rate: at the 84% of posted it currently
+        collects, it needs about $208.39, because the coupons, fleet
+        agreements and warranty mix do not go away when the sign changes.
+        That correction — grossing the required effective rate up for
+        realization — is the most common reason a rate rise lands short, and
+        no free tool computes it.
+      - >-
+        Distinguished from `shop-rate-calculator` deliberately rather than by
+        accident: that tool builds a required hourly rate up from payroll and
+        overhead before work is sold; this measures the hour that was
+        actually sold. Cross-linked in both directions with an href assertion
+        in each venture's tests, so it ships with an inbound sibling link
+        from its first commit — `siblings.mjs` reports 0 crawlable orphans of
+        258, holding the budget at 0. Filed into `trades` / `trades-paid`
+        beside `shop-rate` on its first commit rather than left in the
+        `more` catch-all, which `build.test.mjs` had already grown to its
+        6-tool bound.
+      - >-
+        Recorded in `REVIEWED_NOT_CARRIED` rather than aliased into the
+        shared shop-rate bar, with the quantity that differs named: technician
+        pay here is a period total in dollars with burden already inside it,
+        overhead is whole-shop dollars rather than a percentage of direct cost
+        (the page nets parts gross profit off overhead instead of allocating
+        by a percentage), and the target is labor gross profit rather than net
+        margin on a job — 70% is ordinary for the first and nonsense for the
+        second. Prefilling any of them would put a considered-looking wrong
+        number on the page, which is what that map exists to prevent.
+      - >-
+        Ships with no shareable link at all, which is a departure from the
+        rest of the catalogue and is deliberate: this page holds a month of a
+        business's labor sales, payroll and fixed expenses, which is more
+        than should ride in a URL a proxy might log. `page.test.mjs` asserts
+        the absence of `location.hash`, `URLSearchParams` and
+        `history.replaceState`. Local-storage save/restore covers the
+        retyping problem instead.
+      - >-
+        Verified locally while Actions runners are starved (`indexnow_state.py`
+        shows all ten most recent `publish-pages-branch.yml` runs `starved`;
+        this sandbox's egress proxy 403s `api.indexnow.org`, `github.io` and
+        `bing.com`, so no public fetch was possible from here): new venture
+        50/50; `bounce-house-rental-calculator` 75/75;
+        `shop-rate-calculator` 85/85; `platform/marketing` +
+        `platform/pages` 1255/1255; `platform/proposal` +
+        `platform/privacy` + `platform/webcheck` 183/183; `gitops/tests` 581
+        passed 1 skipped; all `platform/ci` unittest modules OK plus
+        `agent_review`; `portfolio/*` + `infra/tests` 435 passed;
+        `score_ventures.py --check` consistent across 267 ventures;
+        `validate_usage.py` valid; `checklist_coverage.py` clean;
+        `clauses.mjs` clean on both pages; `guard_state.py
+        --require-runnable` exit 0 with only the one ENVIRONMENTAL skip
+        remaining. `apt-get install python3-pytest` and `apt-get update &&
+        apt-get install nginx-light openssh-client` were both needed and
+        both worked, exactly as CLAUDE.md records.
+      - >-
+        `regen.mjs` again required the mirrored-tool count 257 -> 258 in the
+        four places `gitops/tests/test_manifests.py` pins
+        (`infra/OWNER_CHECKLIST.md` x3, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2), and the new workflow
+        required `gitops/ci/sync_readme_counts.py` and
+        `publish_surface.py --write`. Both FAQ surfaces needed a *visible*
+        FAQ section to satisfy `faq-visible.test.mjs` — the JSON-LD alone is
+        not enough, and the copy is generated from the JSON-LD strings so the
+        two cannot diverge.
     mrr_end: 0

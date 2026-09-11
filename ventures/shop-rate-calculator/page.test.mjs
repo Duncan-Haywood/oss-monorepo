@@ -301,3 +301,10 @@ test('index links one hop to the staffing-markup-calculator sibling', () => {
     'index must link ../staffing-markup-calculator/ so crawlers reach the staffing markup calculator in one hop',
   );
 });
+
+test('index links one hop to the auto-repair-effective-labor-rate sibling', () => {
+  // Closes the crawlable-orphan pair recorded in platform/pages/siblings.mjs:
+  // that tool measures a month already billed, this one prices an hour about
+  // to be sold, and a shop owner arriving at either is one hop from the other.
+  assert.match(markup, /href="\.\.\/auto-repair-effective-labor-rate\//);
+});
