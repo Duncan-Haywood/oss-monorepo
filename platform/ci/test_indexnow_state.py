@@ -10,7 +10,9 @@ no trace in the tree and so cannot be checked by looking at files.
 
 from __future__ import annotations
 
+import subprocess
 import unittest
+import unittest.mock
 
 import indexnow_state as state
 
@@ -274,6 +276,127 @@ class ExitCodes(unittest.TestCase):
         )
         self.assertEqual(result["verdict"], "never")
         self.assertEqual(state.exit_code(result), 0)
+
+
+class ParsingDryRunOutput(unittest.TestCase):
+    """`parse_dry_run_output` reads `indexnow.mjs`'s real stdout shape.
+
+    Pinned against the two lines the script actually prints (see its own
+    `if (isMain)` block) rather than a shape this file invents, because a
+    parser tested only against its own assumptions cannot catch the script
+    changing out from under it.
+    """
+
+    def test_reads_the_count_and_the_source_breakdown(self) -> None:
+        stdout = (
+            "indexnow: 975 URL(s) from ref origin/gh-pages\n"
+            "  sources:     262 from catalog.json, 975 from 253 published sitemap(s)\n"
+            "  origin:      https://duncan-haywood.github.io/monorepo-projects/ "
+            "(from artifact (catalog.json))\n"
+        )
+        parsed = state.parse_dry_run_output(stdout)
+        self.assertEqual(parsed["count"], 975)
+        self.assertEqual(parsed["sources"], "262 from catalog.json, 975 from 253 published sitemap(s)")
+
+    def test_missing_sources_line_still_yields_a_count(self) -> None:
+        """An older `indexnow.mjs` without the sources line must not crash this."""
+        parsed = state.parse_dry_run_output("indexnow: 261 URL(s) from ref gh-pages\n")
+        self.assertEqual(parsed["count"], 261)
+        self.assertIsNone(parsed["sources"])
+
+    def test_unrecognised_output_is_none_not_a_crash(self) -> None:
+        self.assertIsNone(state.parse_dry_run_output("node: command not found\n"))
+        self.assertIsNone(state.parse_dry_run_output(""))
+
+
+class LiveCoverage(unittest.TestCase):
+    """`live_coverage` degrades on every local-environment failure.
+
+    This is a nice-to-have cross-check layered on top of the GitHub-API
+    reading `collect()` already does without any local checkout at all, so a
+    session with no `node`, no `origin/gh-pages` fetched, or a script that
+    changed shape must get a named reason -- never a crash, and never a
+    silently absent row that reads as "nothing to show".
+    """
+
+    def test_a_working_dry_run_reports_the_count(self) -> None:
+        result = state.live_coverage(run_dry=lambda: {"count": 975, "sources": "some breakdown"})
+        self.assertEqual(result, {"count": 975, "sources": "some breakdown", "note": None})
+
+    def test_a_raising_dry_run_degrades_to_a_note(self) -> None:
+        def boom():
+            raise RuntimeError("origin/gh-pages is not fetched in this clone")
+
+        result = state.live_coverage(run_dry=boom)
+        self.assertIsNone(result["count"])
+        self.assertIn("not fetched", result["note"])
+
+    def test_run_indexnow_dry_names_a_missing_node(self) -> None:
+        with unittest.mock.patch.object(
+            state.subprocess, "run", side_effect=FileNotFoundError("node")
+        ):
+            with self.assertRaises(RuntimeError) as ctx:
+                state.run_indexnow_dry(ref="origin/gh-pages")
+        self.assertIn("could not run node", str(ctx.exception))
+
+    def test_run_indexnow_dry_names_a_nonzero_exit(self) -> None:
+        failed = subprocess.CompletedProcess(args=[], returncode=1, stdout="", stderr="fatal: bad ref\n")
+        with unittest.mock.patch.object(state.subprocess, "run", return_value=failed):
+            with self.assertRaises(RuntimeError) as ctx:
+                state.run_indexnow_dry(ref="origin/gh-pages")
+        self.assertIn("fatal: bad ref", str(ctx.exception))
+
+    def test_run_indexnow_dry_names_unparseable_output(self) -> None:
+        odd = subprocess.CompletedProcess(args=[], returncode=0, stdout="not the expected shape\n", stderr="")
+        with unittest.mock.patch.object(state.subprocess, "run", return_value=odd):
+            with self.assertRaises(RuntimeError) as ctx:
+                state.run_indexnow_dry(ref="origin/gh-pages")
+        self.assertIn("could not parse", str(ctx.exception))
+
+
+class CollectIncludesLiveCoverage(unittest.TestCase):
+    def test_the_live_row_is_injectable_and_present_in_render(self) -> None:
+        api = api_for([_run(1, "2026-09-11T04:15:40Z")], {1: [_job(0)]}, branch=branch_commit())
+        result = state.collect(api, run_dry=lambda: {"count": 975, "sources": "262 from catalog.json"})
+        self.assertEqual(result["live"], {"count": 975, "sources": "262 from catalog.json", "note": None})
+        text = state.render(result)
+        self.assertIn("975 URL(s) right now", text)
+        self.assertIn("262 from catalog.json", text)
+
+    def test_a_degraded_live_reading_still_renders(self) -> None:
+        api = api_for([_run(1, "2026-09-11T04:15:40Z")], {1: [_job(0)]}, branch=branch_commit())
+
+        def boom():
+            raise RuntimeError("could not run node (no such file)")
+
+        result = state.collect(api, run_dry=boom)
+        self.assertIsNone(result["live"]["count"])
+        text = state.render(result)
+        self.assertIn("would announce    unknown", text)
+        self.assertIn("could not run node", text)
+
+    def test_it_never_changes_the_verdict_or_exit_code(self) -> None:
+        """A local-environment fact must not leak into whether it was announced."""
+        api = api_for(
+            [_run(1, "2026-09-11T05:00:00Z")],
+            {
+                1: [
+                    _job(
+                        1000054728,
+                        steps=[{"name": "Notify IndexNow", "conclusion": "success"}],
+                        conclusion="success",
+                    )
+                ]
+            },
+            branch=branch_commit(date="2026-09-11T04:16:35Z"),
+        )
+
+        def boom():
+            raise RuntimeError("node is not on PATH")
+
+        result = state.collect(api, run_dry=boom)
+        self.assertEqual(result["verdict"], "announced")
+        self.assertEqual(state.exit_code(result, require_announced=True), 0)
 
 
 if __name__ == "__main__":

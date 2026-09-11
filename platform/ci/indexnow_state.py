@@ -59,6 +59,25 @@ whole point:
 2xx means the engines *accepted* the submission; Google does not participate
 at all. Treat it as "asked", exactly as `indexnow.mjs`'s own header does.
 
+## The `would announce` row
+
+None of the above says *how much* a successful announcement covered — a run
+history has no room for a URL count, only a step conclusion. That is exactly
+the shape #4568 shipped silently: `indexnow.mjs` reported `success` on every
+run while submitting 261 of 973 published pages, because `catalog.json` was
+read as the whole surface when it is only the floor (one entry per tool, not
+per page). Every verdict above would have read `announced` throughout.
+
+So this also runs `indexnow.mjs`'s own dry mode — no `--submit`, no network,
+just the artifact — against `origin/gh-pages` and reports the count it
+prints, by parsing its stdout rather than re-deriving the sitemap walk a
+second time. A local checkout with `origin/gh-pages` fetched and `node` on
+`PATH` gets a live number to eyeball against `announced`'s URL count next
+time this file grows one; without either it says so by name instead of
+omitting the row or guessing. It never affects `verdict` or the exit code —
+a missing local checkout is a fact about this environment, not about whether
+the catalogue was announced.
+
 ## Usage
 
     python3 platform/ci/indexnow_state.py
@@ -76,6 +95,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
+import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -91,6 +112,19 @@ from ci_starvation import (  # noqa: E402  (path shim must precede the import)
 
 PUBLISH_WORKFLOW = "publish-pages-branch.yml"
 SERVING_BRANCH = "gh-pages"
+
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+INDEXNOW_SCRIPT = os.path.join(REPO_ROOT, "platform", "marketing", "indexnow.mjs")
+
+# The remote-tracking ref, not the bare branch name `indexnow.mjs --ref
+# gh-pages` reads by default. `publish-pages-branch.yml` writes a *local*
+# `gh-pages` branch before calling the script that way (`git fetch --depth=1
+# origin gh-pages:gh-pages`) because `git show gh-pages:...` needs one to
+# exist. This tool is a reader, like `pages_state.py` and `ci_starvation.py`
+# before it, and a reader does not write refs into someone else's checkout as
+# a side effect of answering a question -- so it asks for what an ordinary
+# `git fetch origin gh-pages` already leaves behind instead.
+LIVE_REF = "origin/gh-pages"
 
 RUNS_PATH = (
     f"repos/{REPO_PLACEHOLDER}/actions/workflows/{PUBLISH_WORKFLOW}"
@@ -146,6 +180,77 @@ def read_serving_branch(api):
     }
 
 
+def parse_dry_run_output(stdout):
+    """Pull the URL count and per-source breakdown out of `indexnow.mjs`'s
+    own stdout, rather than re-deriving them from `catalog.json` and the
+    sitemaps a second time.
+
+    This repository has twice paid for a copied rule going stale in place of
+    an imported one (CLAUDE.md, "168 became 169") -- `host_governor.py`
+    importing `governor.py`'s decision functions instead of restating them is
+    the cheap version of the same guard. Parsing the real script's own report
+    is that guard applied here: if `urlsFromSitemaps` ever changes what it
+    counts, this reading changes with it for free, in the same commit, with
+    no second file to remember.
+    """
+    match = re.search(r"^indexnow: (\d+) URL\(s\)", stdout, re.MULTILINE)
+    if not match:
+        return None
+    count = int(match.group(1))
+    sources_match = re.search(r"^\s*sources:\s+(.+)$", stdout, re.MULTILINE)
+    return {"count": count, "sources": sources_match.group(1).strip() if sources_match else None}
+
+
+def run_indexnow_dry(ref=LIVE_REF, timeout=60):
+    """Shell out to the real `indexnow.mjs`, dry (no `--submit`, no network).
+
+    Raises on anything that stops this from being a reading: the ref not
+    fetched locally, `node` missing, the script erroring, or output this
+    version of the parser does not recognise. `live_coverage` is what turns
+    that into a degraded note instead of an unhandled crash -- this function
+    stays a plain "do the thing or raise", matching `read_serving_branch` and
+    the rest of this file's API-calling functions.
+    """
+    try:
+        proc = subprocess.run(
+            ["node", INDEXNOW_SCRIPT, "--ref", ref],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError(f"could not run node ({exc})") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(f"indexnow.mjs did not finish within {timeout}s") from exc
+    if proc.returncode != 0:
+        tail = (proc.stderr or proc.stdout or "").strip().splitlines()
+        detail = tail[-1] if tail else f"exit {proc.returncode}"
+        raise RuntimeError(f"indexnow.mjs --ref {ref} exited {proc.returncode}: {detail}")
+    parsed = parse_dry_run_output(proc.stdout)
+    if parsed is None:
+        raise RuntimeError("could not parse indexnow.mjs's dry-run output")
+    return parsed
+
+
+def live_coverage(run_dry=None):
+    """How many URLs the live snapshot would submit right now, or why not.
+
+    Never raises -- this is a nice-to-have cross-check on top of the GitHub
+    run history `collect()` reads, not a second required datasource, and
+    this file's own header explains why an unreadable state must never
+    collapse into a false negative. A session with no local checkout of
+    `origin/gh-pages`, or without `node`, gets a named reason instead of a
+    crash or a silently missing row.
+    """
+    run_dry = run_dry or run_indexnow_dry
+    try:
+        result = run_dry()
+    except Exception as exc:  # noqa: BLE001 - any local-environment failure degrades, never crashes
+        return {"count": None, "sources": None, "note": str(exc)}
+    return {"count": result["count"], "sources": result["sources"], "note": None}
+
+
 def announce_outcome(jobs):
     """What the announce step did in this run, from its own steps.
 
@@ -171,10 +276,11 @@ def announce_outcome(jobs):
     return "absent"
 
 
-def collect(api, limit=DEFAULT_RUN_LIMIT):
+def collect(api, limit=DEFAULT_RUN_LIMIT, run_dry=None):
     """The whole reading, as plain data so `--json` and `render` agree."""
     runs = read_runs(api, limit)
     serving = read_serving_branch(api)
+    live = live_coverage(run_dry)
 
     examined = []
     announced = None
@@ -235,6 +341,7 @@ def collect(api, limit=DEFAULT_RUN_LIMIT):
         "covers": covers,
         "examined": examined[:10],
         "examined_count": len(examined),
+        "live": live,
     }
 
 
@@ -305,6 +412,17 @@ def render(state):
             "  coverage          STALE -- the live snapshot was pushed after the last "
             "announcement, so its pages have not been announced"
         )
+    lines.append("")
+
+    live = state.get("live") or {}
+    if live.get("count") is not None:
+        lines.append(f"  would announce    {live['count']} URL(s) right now (no network -- read from {LIVE_REF})")
+        if live.get("sources"):
+            lines.append(f"                    {live['sources']}")
+    else:
+        lines.append("  would announce    unknown")
+        for chunk in _wrap(live.get("note") or "no reason given"):
+            lines.append(f"                    {chunk}")
     lines.append("")
 
     if state["examined"]:
