@@ -252,6 +252,57 @@ export async function urlsFromSitemaps(readFile, baseUrl) {
  * a checkout — for testing, and for a session that already has one on disk).
  * Same shape either way so the rest of the script does not care which.
  */
+/**
+ * The `git fetch` that would actually make `ref` readable.
+ *
+ * This existed as `git fetch origin ${ref}` and was wrong for the only ref this
+ * script is ever called with. `indexnow_state.py` passes `origin/gh-pages` — a
+ * remote-tracking name — so the hint interpolated to
+ * `git fetch origin origin/gh-pages`, and git answers
+ * `fatal: couldn't find remote ref origin/gh-pages`: there is no ref by that
+ * name on the remote, only the branch `gh-pages` that it tracks.
+ *
+ * Measured 2026-09-11 in a web session, where it matters most. A session's clone
+ * is shallow and has no `gh-pages`, so `indexnow_state.py`'s "would announce"
+ * row — the one number saying how many published pages have never been
+ * announced to any engine — reads `unknown`, and the printed way out does not
+ * work. Running it and being told the ref does not exist is the reader's first
+ * evidence about this tool, which is the cost CLAUDE.md names against the
+ * `apt-get update` line: a fix instruction that fails costs more than none,
+ * because it also spends the trust in the next one. With `git fetch origin
+ * gh-pages` the same row reads 979.
+ *
+ * A bare ref (`gh-pages`, or a tag) is already the remote's own name and passes
+ * through unchanged; only the `<remote>/` prefix is translated, and only for a
+ * remote this clone actually has, so a branch honestly named `origin/thing`
+ * is not mangled into something else.
+ */
+export function fetchHint(ref, remotes = null) {
+  const known = remotes ?? knownRemotes();
+  const slash = String(ref).indexOf('/');
+  if (slash > 0) {
+    const remote = String(ref).slice(0, slash);
+    const rest = String(ref).slice(slash + 1);
+    if (rest && known.includes(remote)) return `git fetch ${remote} ${rest}`;
+  }
+  return `git fetch origin ${ref}`;
+}
+
+/** The remotes this clone has, or `['origin']` if git cannot say. */
+function knownRemotes() {
+  try {
+    return execFileSync('git', ['-C', REPO_ROOT, 'remote'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean);
+  } catch {
+    return ['origin'];
+  }
+}
+
 export function readerFor({ ref, dir }) {
   if (dir) {
     return async (relativePath) => fs.readFile(path.join(dir, relativePath), 'utf8');
@@ -265,7 +316,7 @@ export function readerFor({ ref, dir }) {
     } catch (err) {
       throw new Error(
         `could not read '${relativePath}' from ref '${ref}': ${err.message.trim()}. ` +
-          `Is '${ref}' fetched in this clone? (git fetch origin ${ref})`,
+          `Is '${ref}' fetched in this clone? (${fetchHint(ref)})`,
       );
     }
   };
