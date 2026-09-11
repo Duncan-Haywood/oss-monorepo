@@ -147,6 +147,31 @@ pytest, so that `gitops/tests` line exits `No module named pytest` rather than
 failing any test. Do not read that as a clean run. The `platform/ci` line needs
 no pytest — those suites are `unittest`.)
 
+**And when `pip` itself cannot reach PyPI, use apt (measured 2026-09-11).**
+The line above assumes `pip install pytest` works. In this web session it did
+not, twice, and not quickly: it spent its timeout and ended in
+
+```
+pip._vendor.urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(
+  host='files.pythonhosted.org', port=443): Read timed out.
+```
+
+`files.pythonhosted.org` is in the egress proxy's `noProxy` list, so this is a
+reachability failure rather than a policy denial — which makes it the kind that
+can recur on one session and not the next, with nothing in the tree to say so.
+The distribution's own package works and is one line:
+
+```
+apt-get install -y --no-install-recommends python3-pytest   # pytest 7.4.4
+```
+
+That is enough for every `pytest` line in this checklist. Recorded here for the
+same reason the `apt-get update &&` paragraph below exists: a session that
+follows this block exactly and hits a failing install has to choose between
+reporting the tree green with `gitops/tests` unrun and spending the session
+rediscovering a one-line workaround, and this file already knows which one gets
+picked.
+
 **`pip install pytest` is not the whole barrier, and the rest of it has been
 invisible since it was written (added 2026-09-10).** That parenthesis warns
 about the run that fails loudly. The run that *succeeds* needs two more lines:

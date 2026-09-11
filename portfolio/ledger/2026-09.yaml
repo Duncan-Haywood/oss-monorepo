@@ -25437,3 +25437,99 @@ entries:
         `run_workflow_locally.py --tree` returned 9/9 workflows and 66/66
         `portfolio-validate.yml` run steps against the tip.
     mrr_end: 0
+  - venture: cache-control-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Refreshed the published gh-pages snapshot first: session_gate.py and
+        pages_state.py --require-current both reported it stale (built from
+        74d6dfd6 while main was at 3bbdd4e6, 4 changed files feeding the
+        build), so the live site was a merge behind main. Ran
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`;
+        pages_state.py then reported `current`, and GitHub's own managed Pages
+        builder ran on the resulting gh-pages commit and concluded success
+        (run 34546310196, 2026-09-11T00:24:23Z). That is a measured deploy,
+        not an inference from the manifests. IndexNow announcement reported
+        its documented no-egress outcome (exit 3) -- this sandbox's proxy
+        answers 403 to CONNECT for api.indexnow.org, confirmed directly.
+      - >-
+        Added ventures/cache-control-check/why-isnt-my-cdn-caching-this.html:
+        a six-step diagnostic guide for a response a shared cache refuses to
+        store, in the order the checks are worth making. Covers Vary: *
+        (RFC 9111 s4.1 -- always fails to match, so it outranks every other
+        caching header), an accidental Set-Cookie and the public+Set-Cookie
+        shared-cache leak that is its dangerous inverse, the
+        no-store/private/no-cache confusion (only the first two stop a CDN
+        storing; no-cache still stores and revalidates), a missing explicit
+        freshness lifetime, Expires silently overridden by max-age or already
+        stale against the response's own Date, and a weak ETag on a
+        range-capable response (RFC 9110 s13.1.5 requires a strong validator,
+        so the symptom is a corrupt resumed download rather than a cache
+        miss). Every claim is a protocol requirement with a citation, not a
+        tuning preference -- which is the reason the page says changing the
+        CDN's settings will not work around them.
+      - >-
+        Why this venture: cache-control-check was the thinnest published
+        venture in the catalogue -- one HTML page, no guide page and no
+        vs-<competitor> page -- measured by counting *.html per venture
+        across all 254. Its own VENTURE.yaml hypothesis is explicitly about
+        long-tail search terminology ("Vary star uncacheable",
+        "Cache-Control public Set-Cookie", "weak etag range request"), and it
+        had no page targeting any of those queries. A one-page venture has
+        one keyword; this is the venture where an added search surface buys
+        the most, rather than a 181st vs-<competitor> page on a venture that
+        already has several.
+      - >-
+        Linked from index.html in two places (an intro pointer for a visitor
+        who arrived with a symptom, and a footer "longer read"), listed in
+        the venture sitemap, and mirrored into the front door by
+        `node platform/marketing/regen.mjs` (new
+        gitops/prod/front-door-tools/cache-control-check__why-isnt-my-cdn-caching-this.html.gz
+        plus the kustomization mount, catalog.json and front-door sitemap).
+        Nine new assertions in page.test.mjs guard what a prose-only page
+        cannot guard itself: the index-to-guide and guide-to-index links, the
+        HowTo JSON-LD parsing with at least five steps, the no-warranty and
+        authorisation text, the sponsor link and MIT licence, sitemap
+        listing, and that the guide still names every danger-severity pattern
+        analyze.mjs can emit (so a renamed finding fails the test rather than
+        silently staling the prose).
+      - >-
+        PR queue: 0 open PRs at the start of this run, confirmed twice
+        (list_pull_requests and a is:pr is:open search both returned empty),
+        so the three-PR merge quota had nothing to draw on. Spot-checked two
+        recent closed-unmerged PRs for dropped work -- #4505
+        (social-preview-check graduation) and #4430 (3d-print-price-calculator
+        share link dropping actualSellingPrice) -- and both landed on main by
+        other branches. 438 remote branches exist but every one of their PRs
+        is closed; nothing repairable was left open.
+      - >-
+        main was green before this change and after it. `python3
+        platform/ci/run_workflow_locally.py --tree` on a clean checkout of
+        main: 9/9 verification-only workflows passed, portfolio-validate
+        66/66 steps, no UNRUN and no FAILED. `guard_state.py
+        --require-runnable`: no fixable skips, 1 environmental
+        (test_front_door_serving.py needs a GitHub-hosted runner).
+      - >-
+        Verified on this branch: ventures/cache-control-check 64/64 (55
+        pre-existing plus 9 new); checklist_coverage.py clean;
+        platform/marketing + platform/pages 1219/1219; platform/proposal
+        101/101; platform/privacy + platform/webcheck 82/82; gitops/tests 573
+        passed / 1 skipped; all 23 platform/ci unittest modules OK;
+        agent_review 21/21; portfolio ledger/scoring/router/usage/pipeline +
+        infra/tests 435 passed; `run_workflow_locally.py --for-changes` 10/12
+        selected workflows passed with the other 2 not run rather than failed
+        (agent-cross-review, hetzner preflight/restore, pages deploy and
+        publish-pages-branch all need a runner or a credential this session
+        does not hold). GitHub Actions runners confirmed still starved:
+        `ci_starvation.py --run 34546151270` reports runner_id 0, 3s, no
+        steps.
+      - >-
+        Two prerequisite notes measured rather than recalled, both affecting
+        CLAUDE.md's starvation checklist. `pip install pytest` fails in this
+        web sandbox (repeated ReadTimeoutError against files.pythonhosted.org
+        through the egress proxy); `apt-get install -y --no-install-recommends
+        python3-pytest` succeeds and gives pytest 7.4.4. And the nginx-light
+        install needs its `apt-get update &&` prefix, exactly as CLAUDE.md
+        already warns -- with it, gitops/tests skipped only 1 rather than 25.
+    mrr_end: 0
