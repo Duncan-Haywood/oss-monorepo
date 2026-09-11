@@ -48,3 +48,15 @@ test('index links to the related coverage-drop-check', async () => {
     'index must link ../coverage-drop-check/ so crawlers can reach the coverage-delta checker',
   );
 });
+
+test('index links one hop to the actions-minutes-estimator sibling', async () => {
+  // The reciprocal half of a deliberate pair: this tool answers "is the red
+  // check real, or did GitHub never assign a runner?", and the answer
+  // "starved" leaves the reader needing the cost attribution that one does.
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(
+    page,
+    /href="\.\.\/actions-minutes-estimator\/"/,
+    'index must link ../actions-minutes-estimator/ so crawlers reach it in one hop',
+  );
+});

@@ -1,5 +1,77 @@
 period: 2026-09
 entries:
+  - venture: actions-minutes-estimator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: a free browser tool + zero-dependency Node
+        CLI that reads GitHub Actions workflow YAML and projects monthly
+        billable minutes and dollar cost, attributed per workflow and per
+        job, naming the avoidable patterns (macOS 10x multiplier, per-job
+        rounding on wide matrices, a missing `timeout-minutes` letting one
+        wedged job bill 360 minutes, `push`+`pull_request` building every PR
+        commit twice, over-frequent cron). The CLI adds
+        `--max-allowance-percent`, a budget gate that fails a build *before*
+        the allowance is spent rather than after.
+      - >-
+        Picked against `pipeline/README.md`'s two saturation notes, which
+        state that shape novelty is "necessary, not sufficient" and that the
+        real test is a named channel and a named first visitor. Both are
+        answerable here rather than reasoned. Named first visitor: this
+        repository's own owner -- Actions runners have been starved since
+        2026-08-26, CLAUDE.md records it as the portfolio's single largest
+        blocker, and it also records that no session can attribute the burn
+        because `/actions/runs/<id>/timing` reports a billable `total_ms` of
+        0 even on a run that genuinely held a runner for 99 seconds. Named
+        channel: `actions-runner-starvation-check` already targets the exact
+        moment this audience appears, and its answer ("you are out of
+        minutes") leaves an unanswered next question that is this tool. The
+        two pages now link each other one hop.
+      - >-
+        Measured the thing it was built for. Run against this repo's own 218
+        workflows (`--plan free --minutes-per-job 3 --pushes 60 --prs 40`),
+        the largest single line item is `Claude routine trigger` at ~2,194
+        runs and ~6,582 allowance minutes a month, from one `*/20 * * * *`
+        schedule -- roughly 3x the Free allowance and 2x Team's, from one
+        cron. Stated as the tool's estimate, not a billing reading: no
+        session here can see the billing page, and CLAUDE.md is right that
+        the sub-cause of a starvation window is not knowable from a session.
+        What is new is *attribution*, which this repository had from no
+        source before.
+      - >-
+        Screened before building: `duplicate_check.py` scored every existing
+        venture, screened-out row, ai-first-markets idea and pipeline
+        candidate against the final description at 0.13 or below (closest
+        `actions-cache-poisoning-check`, on the word "actions"), far under
+        the 0.45 bar. Read directly rather than from the score: all seven
+        existing GitHub Actions ventures here are *security* checkers and not
+        one models cost; `screened-out.md` mentions no CI-cost or
+        build-spend venture.
+      - >-
+        Two correctness bugs found and fixed by using the tool on real input
+        rather than on fixtures. (1) `runs-on: ${{ matrix.os }}` -- the most
+        common matrix shape there is -- classified as "unclassified" and
+        dropped the job out of the totals entirely, which reads as free;
+        `runs-on` is now resolved per matrix leg and each leg costed at its
+        own multiplier. (2) The wedged-job worst case took the first leg's
+        multiplier for the whole job, understating a mixed-OS matrix by 4x
+        (3 legs: 360x1 + 360x10 + 360x2, not 3 x 360 x 1). Both are pinned by
+        tests. A third, `${{ vars.CI_RUNNER || 'ubuntu-latest' }}`, put
+        321,321 minutes into "unclassified" on this repo's own workflows and
+        now reads the quoted fallback, flagged as presumed.
+      - >-
+        Verified: 65 assertions in the venture (`estimate.test.mjs`,
+        `cli.test.mjs`, `page.test.mjs`), 1,238 in
+        `platform/marketing`+`platform/pages`, 183 in
+        `platform/proposal`+`privacy`+`webcheck`, 557 in `gitops/tests`, 435
+        in the portfolio Python suites, all 15 `platform/ci` unittest modules
+        and `agent_review`. Ran `checklist_coverage.py`, `clauses.mjs`,
+        `score_ventures.py --check`, `validate_usage.py`, `usage_state.py
+        --require-honest`, `siblings.mjs` (0 orphans of 253) and
+        `regen.mjs`. Fixed the four hand-typed mirrored-tool counts
+        (252->253) that CLAUDE.md warns every venture page gaining a browser
+        surface will break.
   - venture: llms-txt-generator
     agent_spend_usd: null
     human_hours: 0

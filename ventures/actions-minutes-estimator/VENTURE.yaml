@@ -1,0 +1,111 @@
+name: actions-minutes-estimator
+description: Free browser tool + zero-dependency Node CLI that reads GitHub Actions workflow YAML and projects monthly billable minutes and dollar cost, attributed per workflow and per job, naming the avoidable patterns (macOS 10x multiplier, per-job rounding on wide matrices, missing timeout-minutes, PR commits built twice by push+pull_request, over-frequent cron). Runs entirely client-side; the CLI adds a --max-allowance-percent budget gate that fails a build before the allowance is spent rather than after.
+stage: prototype
+
+owner: duncan
+
+# Shape: a forward-looking *cost model*, which is neither of the two archetypes
+# portfolio/pipeline/README.md has now flagged as saturated. It is not a
+# <trade>-bid-calculator (141 tries, zero visitors) and not a pass/fail
+# *-check scanner (38 tries, zero visitors) -- it does not classify one
+# misconfiguration as safe or unsafe, it projects a quantity forward from a
+# model and attributes it. But that README is explicit that shape novelty is
+# "necessary, not sufficient", and that the test since 2026-08-18 has been a
+# named distribution channel and a named first visitor. Both are below, and
+# they are the reason this was built rather than the shape.
+#
+# duplicate_check.py (run 2026-09-11) scored every existing venture,
+# screened-out row, ai-first-markets idea and pipeline candidate against
+# "GitHub Actions minutes and cost estimator: paste your workflow YAML and
+# estimate monthly billable minutes and dollar cost by runner type, with the
+# expensive patterns named". Top score 0.13 (actions-cache-poisoning-check),
+# far under the 0.45 review bar, and every one of the top ten hits scored on
+# the words "actions"/"check" alone. Read directly rather than inferred from
+# the score: this portfolio has SEVEN GitHub Actions ventures
+# (artifact-poisoning, cache-poisoning, injection, permissions,
+# runner-starvation, self-hosted-exposure, pinned-actions) and every one of
+# them is a *security* checker. Not one models cost. Nothing in
+# screened-out.md mentions CI cost, Actions minutes, or build-spend
+# forecasting.
+#
+# NAMED FIRST VISITOR: the account owner of this repository, and the evidence
+# is in this repository's own CLAUDE.md rather than reasoned from a market.
+# Actions runners here have been starved since 2026-08-26 (a second window
+# from 2026-09-04, still open on 2026-09-11), which CLAUDE.md documents at
+# length as the single largest blocker in the portfolio -- it takes down CI,
+# the IndexNow announcement route, and the Pages publish workflow together.
+# CLAUDE.md also records, correctly, that the *sub-cause* is not knowable from
+# a session: exhausted minutes, a spending limit, a payment problem and
+# Actions switched off are indistinguishable from here, and
+# `/actions/runs/<id>/timing` reports a billable total_ms of 0 even on a run
+# that genuinely occupied a runner for 99 seconds, so no per-workflow
+# attribution can be built on it. That is a real, dated, expensive, unanswered
+# question for a named person.
+#
+# This tool answers the attribution half of it from the workflow files, which
+# needs no billing access. Measured 2026-09-11 against this repo's own 218
+# workflows (--plan free --minutes-per-job 3 --pushes 60 --prs 40): the
+# largest single line item is `Claude routine trigger` at ~2,194 runs and
+# ~6,582 allowance minutes a month, from one `*/20 * * * *` schedule -- about
+# 3x the Free allowance from one cron. Stated as the tool's estimate and not
+# as a billing reading, per the same honesty rule CLAUDE.md applies to
+# manifest-derived claims about the public surface.
+#
+# NAMED DISTRIBUTION CHANNEL, and it is in-portfolio and complementary rather
+# than a search-volume claim this session cannot verify (the agent egress
+# proxy 403s CONNECT to every host, so no number here is a live reading).
+# ventures/actions-runner-starvation-check already targets the exact moment
+# this tool's audience appears: its own VENTURE.yaml hypothesis is "a
+# maintainer or agent whose CI just went red across every check within seconds
+# will search for why". A visitor who lands there and learns the answer is
+# "you are out of minutes" has an immediate, urgent and currently unanswered
+# next question -- *which workflow burned them, and how do I stop it
+# recurring*. That is this tool, one hop away, and the two pages link each
+# other. The reverse direction is also real: someone who reads a cost estimate
+# and then hits a wall of red checks needs the starvation classifier. This is
+# the same complementary-pair argument llms-txt-generator made about
+# ai-crawler-access-check on 2026-09-11, with the referral running between two
+# products that already exist rather than into a niche neither serves.
+#
+# Secondary channel, reasoned rather than measured, and flagged as such: the
+# phrases here ("github actions minutes", "actions minutes cost", "why did my
+# github actions stop running", "github actions macos 10x") are how-to and
+# diagnostic queries of the class ai-crawler-access-check's write-up relied on
+# for the same developer audience. A session that can browse should confirm
+# volume before this half is leaned on.
+hypotheses:
+  - claim: A maintainer who has just discovered their Actions allowance is spent, or who watched a bill grow, will paste their workflow files into a tool that attributes the spend per workflow and per job, because GitHub's own billing page aggregates across the account and cannot attribute it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A team that has been surprised once will wire `cli.mjs --max-allowance-percent` into their own CI as a budget gate, because it is the only point at which the cost of a workflow change is visible before the allowance is spent rather than after.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The three counter-intuitive rules this tool surfaces (macOS at 10x, per-job rounding on wide matrices, and a 360-minute default timeout that lets one wedged job outspend a whole month) are unknown to enough maintainers that the explainer page earns search traffic on its own and feeds the tool.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses and costs entirely
+  # client-side and uploads nothing; the CLI reads local files and makes no
+  # network call at all. There is no server of ours in the loop either way, so
+  # serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI as a budget gate within 90 days.
+  - GitHub ships per-workflow cost attribution in its own billing UI, or an API that makes it reliable, removing the gap this exists to fill.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/actions-minutes-estimator/
+  analytics: null

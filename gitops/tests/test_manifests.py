@@ -1537,7 +1537,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 252 since 2026-09-11, when `llms-txt-generator` also graduated the same
     # day — same shape again: a new venture with a static `index.html` from
     # its first commit, entering the mirror and the total together.
-    total = 252  # `infra/OWNER_CHECKLIST.md`'s own "N of the 252 tools" wording.
+    # 253 since 2026-09-11, when `actions-minutes-estimator` also graduated the
+    # same day — same shape again: a new venture with a static `index.html`
+    # from its first commit, entering the mirror and the total together.
+    total = 253  # `infra/OWNER_CHECKLIST.md`'s own "N of the 253 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
