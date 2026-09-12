@@ -176,6 +176,10 @@ const READ_BY_ID = (id) => {
 
 /** The part of two long strings that actually differs, for a readable report. */
 function brief(before, after) {
+  // Short values are the whole story, and trimming a shared prefix off them
+  // turns "true"/"false" into "tru"/"fals", which reads like a bug in the
+  // report rather than a finding about the page.
+  if (before.length <= 24 && after.length <= 24) return { before, after };
   let head = 0;
   while (head < before.length && head < after.length && before[head] === after[head]) head += 1;
   let tail = 0;
