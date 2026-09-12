@@ -84,8 +84,13 @@ document.querySelector('#copyShare').onclick = async () => {
     {
       const usageControl = document.getElementById('usage');
       if (usageControl && 'checked' in usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        // This control is opt-IN -- "Count anonymous local feature events",
+        // checked by default, and its value reaches `recordUsage` as
+        // `enabled`. Painting it from `readOptOut` directly would uncheck it
+        // on every fresh load and write an opt-out when the visitor checks
+        // it: counting off in both states, and the control lying about which.
+        usageControl.checked = !readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, !usageControl.checked));
       } else if (usageControl) {
         const paint = () => {
           usageControl.textContent = readOptOut(localStorage)

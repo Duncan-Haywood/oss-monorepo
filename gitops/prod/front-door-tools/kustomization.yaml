@@ -33,11 +33,11 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 554867 bytes
+#   portfolio-front-tools-0: 133 files, 555237 bytes
 #   portfolio-front-tools-1: 107 files, 556822 bytes
 #   portfolio-front-tools-2: 148 files, 555907 bytes
 #   portfolio-front-tools-3: 138 files, 555621 bytes
-#   portfolio-front-tools-4: 123 files, 555877 bytes
+#   portfolio-front-tools-4: 123 files, 555962 bytes
 #   portfolio-front-tools-5: 135 files, 550787 bytes
 #   portfolio-front-tools-6: 128 files, 555612 bytes
 #   portfolio-front-tools-7: 119 files, 543338 bytes
@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 120 files, 555175 bytes
 #   portfolio-front-tools-11: 127 files, 544505 bytes
 #   portfolio-front-tools-12: 100 files, 554169 bytes
-#   portfolio-front-tools-13: 114 files, 552366 bytes
+#   portfolio-front-tools-13: 114 files, 551637 bytes
 #   portfolio-front-tools-14: 98 files, 501128 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and

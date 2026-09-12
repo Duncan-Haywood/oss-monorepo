@@ -104,11 +104,21 @@ if (!fs.existsSync(DIST)) {
 // browser on 997 pages to find out. Deliberately loose — the DOM pass below
 // is what decides, and a page named here that turns out to have no control is
 // reported rather than skipped.
-const CANDIDATE = /<(?:input|button)\b[^>]*>/gi;
+// An `<input>` carries everything it says in its attributes; a `<button>`
+// carries it in its text, and the first draft of this filter read only the
+// opening tag. `translator-project-quote` and
+// `ai-engineering-academy/tools/rc-time-calculator` both ship
+// `<button id="privacy">Turn off local usage counting</button>`, whose tag
+// says nothing about usage at all -- so neither page was ever opened, and a
+// sweep could report every candidate passing while never exercising two real
+// opt-outs. The prefilter is here only to avoid launching a browser on 997
+// pages; when in doubt it must include the page, because the DOM pass below
+// is what actually decides.
+const CANDIDATE = /<input\b[^>]*>|<button\b[^>]*>[\s\S]{0,200}?<\/button>/gi;
 function offersAControl(rel) {
   const src = fs.readFileSync(path.join(DIST, rel), 'utf8');
-  for (const tag of src.match(CANDIDATE) ?? []) {
-    if (/opt.?out|usage/i.test(tag)) return true;
+  for (const candidate of src.match(CANDIDATE) ?? []) {
+    if (/opt.?out|usage|counting/i.test(candidate)) return true;
   }
   return false;
 }
