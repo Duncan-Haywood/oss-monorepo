@@ -29056,3 +29056,41 @@ entries:
         which is why several sections of that file read as a record of
         corrections rather than as a clean statement.
     mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Recorded the first clean whole-catalogue browser/accessibility reading
+        since `89b7dbe7`: all 7 checks (`sideways`, `presets`, `roundtrip`,
+        `highlight`, `contrast`, `sweep`, `journey`) passing over 1022 pages
+        at `d4970cdd`, two viewports, **no WCAG A/AA violations**.
+        `browser_state.py` now reports every check covering the current tree
+        instead of all 7 stale.
+      - >-
+        This is the check that earns its 45 minutes. The previous full sweep,
+        run earlier the same session, is what caught `vpat-acr-generator`
+        shipping completely dead -- `querySelector('#level-1.1.1')` throws,
+        because a WCAG criterion id's dots parse as class selectors, so every
+        button on the page was inert -- plus 100 critical axe `select-name`
+        violations on the same page. That venture passed all 18 of its unit
+        tests the whole time it was broken, because they import `calc.mjs`
+        and never load the page. This reading confirms the repair (#4643)
+        held: `sweep` and `contrast` both clean on that venture now.
+      - >-
+        Run from the main checkout rather than a nested worktree, and
+        deliberately: an earlier attempt was abandoned because a `git
+        worktree` inside the repo is untracked and uncommittable, and the
+        recorded reading has to be a tracked file to be worth anything. The
+        tree was left untouched for the duration -- the same discipline the
+        `--tree` drift guard shipped in #4640 enforces for
+        `run_workflow_locally.py`, applied by hand here because
+        `browser_checks.py` already pins its commit before the build.
+      - >-
+        `--record` refuses a run with any failure or skip, which is why no
+        reading was recorded for the earlier sweep despite it being the more
+        valuable of the two: a reading that laundered a failing run into "the
+        catalogue passed" would be worse than none. Both outcomes are the
+        tool behaving correctly.
+    mrr_end: 0
