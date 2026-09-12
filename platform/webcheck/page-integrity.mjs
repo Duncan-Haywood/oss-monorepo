@@ -318,6 +318,27 @@ export function stripComments(source) {
  * keeping. What distinguishes the two is where the *call* sits, not where the
  * id sits -- so the scanner records each string's interior and `lookupIdsIn`
  * drops any match that begins inside one.
+ *
+ * **Measured 2026-09-12, because by review round four this mechanism was
+ * generating most of the findings and had to justify itself.** Across the
+ * whole catalogue -- 997 pages with inline script, 2,164 ids -- the span
+ * filter removes **0 ids on 0 pages**. Every finding it has ever produced
+ * here came from the lexer *under* it being wrong: a `/` misread as division
+ * (or as a regex) swallows a quote, the quote opens a span that was never
+ * there, and the span then suppresses a real lookup. Findings 24, 25 and 26
+ * all reach the caller by that exact route.
+ *
+ * Deleting it would therefore have cost nothing measurable and closed three
+ * of four findings at a stroke. It is kept anyway, and the reason is the
+ * direction of the two failures. Without it, a lookup written *about* code --
+ * in prose, in a template, in a string -- is reported as a query against an
+ * id no page has, which is a false positive: the checker cries wolf about a
+ * sound page, and this file's own docstring records that as the failure mode
+ * that gets a checker ignored. With it, a lexer bug suppresses a finding on a
+ * page that is genuinely broken -- also bad, but it is the direction the
+ * whole-catalogue run can still catch, and it is the direction that has a
+ * fix rather than a tradeoff. Zero measured benefit is not zero value when
+ * what it buys is the safer failure. Re-measure before removing it.
  */
 export function scanSource(source) {
   let out = '';
@@ -346,7 +367,7 @@ export function scanSource(source) {
   // `continue` are also the restricted productions where a newline forces
   // automatic semicolon insertion, which is how `break\n/re/…` arises.
   const REGEX_AFTER_KEYWORD =
-    /\b(return|throw|break|continue|debugger|default|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
+    /\b(return|throw|break|continue|debugger|default|extends|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
   // `}` is here for a reason worth stating, because it was the cause behind
   // three separate review findings. A `}` immediately before a `/` closes a
   // *block*, and a regex may follow one: `if (ok) {} /re/.test(x)`. The other
@@ -459,7 +480,14 @@ export function scanSource(source) {
   function opensAnExpressionBody(before) {
     const head = before.match(/\b(class|function)\b[^{};]*$/);
     if (!head) return false;
-    const upto = before.slice(0, before.length - head[0].length).replace(/\s+$/, '');
+    const upto = before
+      .slice(0, before.length - head[0].length)
+      .replace(/\s+$/, '')
+      // `const n = async function(){…}` -- the match begins at `function`, so
+      // `async` is left in the prefix and would read as an identifier, making
+      // the body look like a declaration's block.
+      .replace(/\basync$/, '')
+      .replace(/\s+$/, '');
     if (upto === '') return false;
     const prev = upto.slice(-1);
     return REGEX_AFTER_PUNCT.has(prev) || OBJECT_LITERAL_AFTER_KEYWORD.test(upto);
@@ -504,8 +532,20 @@ export function scanSource(source) {
         if (i < source.length) { out += source[i]; i += 1; }
         continue;
       }
-      if (c === '`') { out += c; i += 1; stack.pop(); continue; }
+      if (c === '`') {
+        // Template *text* is content, the same as a quoted string's -- review
+        // finding 23. `${…}` substitutions are code and are excluded, because
+        // each one closes the span before it and opens a new one after.
+        const from = top().spanStart;
+        if (from !== undefined && out.length > from) stringSpans.push([from, out.length]);
+        out += c;
+        i += 1;
+        stack.pop();
+        continue;
+      }
       if (c === '$' && next === '{') {
+        const from = top().spanStart;
+        if (from !== undefined && out.length > from) stringSpans.push([from, out.length]);
         out += '${';
         i += 2;
         stack.push({ type: 'subst', depth: 0 });
@@ -520,7 +560,14 @@ export function scanSource(source) {
     if (top()?.type === 'subst') {
       if (c === '{') { top().depth += 1; out += c; i += 1; continue; }
       if (c === '}') {
-        if (top().depth === 0) { stack.pop(); out += c; i += 1; continue; }
+        if (top().depth === 0) {
+          stack.pop();
+          out += c;
+          i += 1;
+          // Back in template text: start a fresh span after the substitution.
+          if (top()?.type === 'template') top().spanStart = out.length;
+          continue;
+        }
         top().depth -= 1;
         out += c;
         i += 1;
@@ -552,10 +599,18 @@ export function scanSource(source) {
       const before = out.replace(/\s+$/, '');
       const last = before.slice(-1);
       // An object literal: a `{` sitting in expression position.
+      // A `:` is the one punctuation mark with both readings. Inside an object
+      // literal it separates a key from its value, so `{a: {` opens a nested
+      // literal. At statement level it ends a label or a `case`, so
+      // `case 1: {` opens a *block*. The brace stack already knows which we
+      // are in.
+      const insideALiteral = braces[braces.length - 1] === true;
+      const colonOpensAValue = last !== ':' || insideALiteral;
       const literal =
         before !== ''
         && last !== ')'
         && last !== '}'
+        && colonOpensAValue
         && (REGEX_AFTER_PUNCT.has(last) || OBJECT_LITERAL_AFTER_KEYWORD.test(before));
       braces.push(literal || opensAnExpressionBody(before));
       out += c;
@@ -594,7 +649,7 @@ export function scanSource(source) {
       for (; i < stop; i += 1) out += isLineTerminator(source[i]) ? source[i] : ' ';
       continue;
     }
-    if (c === '`') { out += c; i += 1; stack.push({ type: 'template' }); continue; }
+    if (c === '`') { out += c; i += 1; stack.push({ type: 'template', spanStart: out.length }); continue; }
     if (c === '"' || c === "'") {
       // A quote sitting immediately after a slash still cannot be a string --
       // `x /'abc'` is NaN -- so it came from a regex this scanner misread.

@@ -733,6 +733,63 @@ test('an id is only reported when both readings agree it is live', () => {
   assert.deepEqual([...queriedIds(rx)], ['m3'], 'an escaped-slash regex blanked the line');
 });
 
+test('the fourth review round: template text, extends, async, and case labels', () => {
+  // Codex findings 23-26. Three of the four reach the caller the same way:
+  // a quote inside a *misclassified regex* opens a string span, and the span
+  // then suppresses a real lookup after it. So these are not four unrelated
+  // lexer nits; they are the same defect shape the earlier rounds had, and
+  // the reason the span filter is worth keeping rather than deleting is that
+  // it fails in the safe direction only while the lexer under it is right.
+
+  // 23. A no-substitution template's *text* is content, exactly like a
+  // string's. It was being scanned as code, so a lookup written inside one
+  // was reported as a real query against an id no page has.
+  assert.deepEqual(
+    [...queriedIds('const s = `document.getElementById("ghost")`;')],
+    [],
+    'a lookup inside template text was read as code',
+  );
+  // But a substitution *is* code, and text after it is text again.
+  assert.deepEqual(
+    [...queriedIds('const s = `a${document.getElementById("real").value}b`;')],
+    ['real'],
+    'a lookup inside a substitution was swallowed as template text',
+  );
+
+  // 24. `extends` heads an expression (class heritage), so a `/` after it
+  // opens a regex. Read as division, the quote inside it opened a span that
+  // swallowed the lookup on the same line.
+  assert.deepEqual(
+    [...queriedIds(`class X extends /a'/.constructor {}; document.getElementById('missing');`)],
+    ['missing'],
+    'a regex after `extends` was read as division',
+  );
+
+  // 25. `async function(){}` is an *expression*, so the `/` after it divides.
+  // The match begins at `function`, which left `async` sitting in the prefix
+  // looking like an identifier -- i.e. like a declaration, whose `}` closes a
+  // block and permits a regex.
+  assert.deepEqual(
+    [...queriedIds(`const n = async function(){return 4} / 2; label:// document.getElementById('ghost')\n0;`)],
+    [],
+    'a divided async function expression was read as a declaration',
+  );
+
+  // 26. The `:` of a label or a `case` introduces a *block*, not an object
+  // literal -- the opposite reading from the `:` between a key and its value.
+  assert.deepEqual(
+    [...queriedIds(`switch(x){ case 1: {} /a'/.test('a'); document.getElementById('missing'); }`)],
+    ['missing'],
+    "a block after a case label was read as an object literal",
+  );
+  // The other reading of `:` must survive: inside a literal it opens a value.
+  assert.deepEqual(
+    [...queriedIds(`const o = {a: {b: 1}}; o.a / 2; // document.getElementById('ghost')`)],
+    [],
+    'a nested object literal was read as a block, resurrecting a comment',
+  );
+});
+
 test('a real keyword is still a keyword', () => {
   // The other side of the same change: excluding member properties must not
   // stop the genuine statement keywords from permitting a regex, or the two
