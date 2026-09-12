@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Repair or Replace? Work Truck &amp; Equipment Planner for Small Fleets</title>
+  <meta name="description" content="Free browser planner for trade and service fleets: cost out repair-versus-replace for every van, truck and machine including the downtime days most owners leave out, then rank which ones to replace against a fixed capital budget. Nothing uploaded.">
+  <meta property="og:title" content="Repair or replace your work truck? — free planner, no sign-up">
+  <meta property="og:description" content="The repair invoice is the visible number and usually the smaller one. Price in the days off the road, then see which vehicles and machines actually pay to replace this year — and which fit your budget.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Fleet Repair-or-Replace Planner","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Costs out repair-versus-replace for every vehicle and major equipment item in a small trade or service fleet, valuing downtime days alongside repair spend, then ranks which assets to replace against a fixed capital budget using equivalent annual cost and payback period. Entirely client-side; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is it cheaper to repair or replace a work truck?","acceptedAnswer":{"@type":"Answer","text":"It depends on two numbers most owners compare and one they usually leave out. Repairing costs you the annual repair spend plus the revenue lost on the days the vehicle is off the road. Replacing costs you the net capital you lay out (replacement price minus trade-in) spread over the years of service it buys, plus whatever the new vehicle still costs to run. Replacing is cheaper when the first total is larger than the second. The number that gets left out is downtime: a van in the shop is billable days your crew could not work, and for a crew billing several hundred dollars a day that frequently exceeds the repair invoice that got all the attention."}},{"@type":"Question","name":"How do you work out the annual cost of replacing a vehicle?","acceptedAnswer":{"@type":"Answer","text":"Take the replacement price, subtract the trade-in or resale value to get the net capital actually leaving the business, and divide that by the number of years of service you expect from the replacement. That gives an equivalent annual cost for the capital. Then add the running costs the new asset still has — its own expected repairs and any downtime you still expect. This planner does that arithmetic straight-line and undiscounted, so you can check it on paper; it does not model financing interest, so add your own cost of borrowing if you would finance the purchase."}},{"@type":"Question","name":"What is a good payback period on replacing equipment?","acceptedAnswer":{"@type":"Answer","text":"Payback is the net capital divided by the annual saving replacing produces. This planner calls out anything paying back inside three years as a strong case, because that is comfortably inside the service life of most vehicles and machines and leaves room for the input estimates to be somewhat wrong. A payback longer than the expected service life means the asset does not pay to replace on these numbers at all. Payback deliberately ignores the time value of money, so treat it as a screening measure rather than a financing decision."}},{"@type":"Question","name":"How do I choose which vehicles to replace when I cannot afford all of them?","acceptedAnswer":{"@type":"Answer","text":"Rank them by annual saving per dollar of capital rather than by the size of the saving or the age of the asset. An older vehicle with a large repair bill can still be the wrong one to replace first if the replacement is expensive and the trade-in is worthless. This planner sorts your assets that way and fills the capital budget you enter in that order, then shows what deferring the rest costs you per year so you can weigh it against what the extra capital would cost to borrow."}},{"@type":"Question","name":"Is this planner financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It performs arithmetic on the numbers you enter. It does not appraise your equipment, does not know your tax position, depreciation schedule or financing terms, and does not decide anything on your behalf. Confirm replacement quotes and trade-in values in writing and take the worksheet, not the recommendation, to whoever advises you."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b2320; background: #f1f4f2; }
+    body { max-width: 1080px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.8rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #14452f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14452f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #47524c; }
+    .card { background: #fff; border: 1px solid #d6e0da; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14452f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; font-size: .92rem; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9c6bf; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    .row-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; align-items: end; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #14452f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0eae4; color: #14452f; }
+    button.danger { background: #fff; color: #8a2e0c; border: 1px solid #8a2e0c; padding: 6px 10px; font-size: .85rem; margin: 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #eaefec; }
+    th { font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; color: #47524c; }
+    tfoot td { font-weight: 800; border-top: 2px solid #d6e0da; border-bottom: none; }
+    .amount { font-weight: 700; }
+    .loss { color: #8a2e0c; }
+    .verdict { display: inline-block; font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+    .verdict.replace { background: #dcf0e3; color: #14452f; }
+    .verdict.keep { background: #eaefec; color: #47524c; }
+    .chosen { font-weight: 800; color: #14452f; }
+    .finding { border-bottom: 1px solid #eaefec; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .96rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fbe4e0; color: #8a2e0c; }
+    .pill.medium { background: #fbf0d4; color: #6f540d; }
+    .pill.info { background: #e0eae4; color: #14452f; }
+    .stats { font-size: .94rem; color: #2c352f; }
+    .empty { color: #47524c; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0da; padding-top: 16px; }
+    @media (max-width: 700px) { table { font-size: .82rem; } th:nth-child(n+5), td:nth-child(n+5) { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FLEET REPAIR-OR-REPLACE PLANNER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Is it cheaper to repair or replace it this year?</h1>
+    <p>Add one row per van, truck or machine you are deciding about. The
+    planner costs out keeping it — last year's repair spend <em>plus the
+    revenue you lost on the days it was off the road</em> — against replacing
+    it, then ranks the whole fleet by annual saving per dollar of capital and
+    fills the budget you have.</p>
+    <p class="note">The repair invoices are the visible number and usually
+    the smaller one. See <a href="is-it-cheaper-to-repair-or-replace-a-work-truck.html">why
+    downtime decides this</a> for the two-minute version.</p>
+    <p class="note">Nothing is uploaded. Your figures are read in this
+    browser and never leave your device — see the privacy note in the
+    footer. Weighing a lease buyout instead of a cash purchase? The
+    <a href="../equipment-lease-buyout-calculator/">equipment lease buyout
+    calculator</a> does that one asset in more depth; this page decides
+    which of several assets to act on at all.</p>
+  </header>
+
+  <section class="card">
+    <h2>Add a vehicle or machine</h2>
+    <form id="row-form">
+      <div class="row-form">
+        <div><label for="f-name">Asset</label><input id="f-name" name="name" placeholder="e.g. Van 3 (2014 Transit)" required></div>
+        <div><label for="f-annualRepairSpend">Repair spend last 12 months ($)</label><input id="f-annualRepairSpend" name="annualRepairSpend" type="number" min="0" step="0.01" placeholder="parts + labour" required></div>
+        <div><label for="f-downtimeDays">Days out of service last 12 months</label><input id="f-downtimeDays" name="downtimeDays" type="number" min="0" step="0.5" value="0"></div>
+        <div><label for="f-dailyLostRevenue">What a day off the road costs you ($)</label><input id="f-dailyLostRevenue" name="dailyLostRevenue" type="number" min="0" step="0.01" value="0"></div>
+        <div><label for="f-replacementCost">Replacement cost ($)</label><input id="f-replacementCost" name="replacementCost" type="number" min="0" step="0.01" placeholder="dealer quote" required></div>
+        <div><label for="f-resaleValue">Trade-in or resale value ($)</label><input id="f-resaleValue" name="resaleValue" type="number" min="0" step="0.01" value="0"></div>
+        <div><label for="f-expectedLifeYears">Expected service life of replacement (years)</label><input id="f-expectedLifeYears" name="expectedLifeYears" type="number" min="0" step="0.5" value="7"></div>
+        <div><label for="f-annualRepairOnNew">Expected annual repairs on replacement ($)</label><input id="f-annualRepairOnNew" name="annualRepairOnNew" type="number" min="0" step="0.01" value="0"></div>
+        <div><label for="f-downtimeDaysOnNew">Expected days out of service on replacement</label><input id="f-downtimeDaysOnNew" name="downtimeDaysOnNew" type="number" min="0" step="0.5" value="0"></div>
+      </div>
+      <button type="submit">Add asset</button>
+      <button type="button" class="secondary" id="load-example">Load an example</button>
+      <button type="button" class="secondary" id="clear">Clear all</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>This year's capital budget</h2>
+    <p class="note">What you can actually spend on replacements this year.
+    Leave it at 0 for no stated limit — every asset that pays will then be
+    selected.</p>
+    <div class="row-form">
+      <div><label for="f-budget">Capital budget ($)</label><input id="f-budget" name="capitalBudget" type="number" min="0" step="0.01" value="0"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The plan</h2>
+    <p class="stats" id="stats"></p>
+    <p class="empty" id="empty">No assets added yet — add one above, or load the example.</p>
+    <div style="overflow:auto">
+    <table id="results-table" hidden>
+      <thead><tr><th>Asset</th><th>Keep / year</th><th>Replace / year</th><th>Annual saving</th><th>Capital</th><th>Payback</th><th>Verdict</th><th>In plan</th><th></th></tr></thead>
+      <tbody id="results-body"></tbody>
+      <tfoot id="results-foot"></tfoot>
+    </table>
+    </div>
+    <p><button type="button" class="secondary" id="export-csv">Export CSV</button></p>
+    <div id="findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>Keeping an asset costs you its repair spend <strong>plus</strong> the
+    revenue lost on the days it was out of service. Replacing it costs you
+    the net capital that actually leaves the business — replacement price
+    minus trade-in — spread straight-line over the years of service you
+    expect, plus what the replacement still costs to run. Replacing wins when
+    the first total is larger.</p>
+    <p>It does <strong>not</strong> appraise your equipment, know your tax
+    position, depreciation schedule or financing terms, or model interest,
+    inflation and the time value of money. The budget ranking is a
+    heuristic — annual saving per dollar of capital, filled in that order —
+    not a guaranteed-optimal subset. Confirm every quote and trade-in
+    figure in writing before committing capital.</p>
+    <h3>The assumptions, stated</h3>
+    <ul id="assumptions"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is it cheaper to repair or replace a work truck?</h3>
+    <p>It depends on two numbers most owners compare and one they usually leave out. Repairing costs you the annual repair spend plus the revenue lost on the days the vehicle is off the road. Replacing costs you the net capital you lay out (replacement price minus trade-in) spread over the years of service it buys, plus whatever the new vehicle still costs to run. Replacing is cheaper when the first total is larger than the second. The number that gets left out is downtime: a van in the shop is billable days your crew could not work, and for a crew billing several hundred dollars a day that frequently exceeds the repair invoice that got all the attention.</p>
+    <h3>How do you work out the annual cost of replacing a vehicle?</h3>
+    <p>Take the replacement price, subtract the trade-in or resale value to get the net capital actually leaving the business, and divide that by the number of years of service you expect from the replacement. That gives an equivalent annual cost for the capital. Then add the running costs the new asset still has — its own expected repairs and any downtime you still expect. This planner does that arithmetic straight-line and undiscounted, so you can check it on paper; it does not model financing interest, so add your own cost of borrowing if you would finance the purchase.</p>
+    <h3>What is a good payback period on replacing equipment?</h3>
+    <p>Payback is the net capital divided by the annual saving replacing produces. This planner calls out anything paying back inside three years as a strong case, because that is comfortably inside the service life of most vehicles and machines and leaves room for the input estimates to be somewhat wrong. A payback longer than the expected service life means the asset does not pay to replace on these numbers at all. Payback deliberately ignores the time value of money, so treat it as a screening measure rather than a financing decision.</p>
+    <h3>How do I choose which vehicles to replace when I cannot afford all of them?</h3>
+    <p>Rank them by annual saving per dollar of capital rather than by the size of the saving or the age of the asset. An older vehicle with a large repair bill can still be the wrong one to replace first if the replacement is expensive and the trade-in is worthless. This planner sorts your assets that way and fills the capital budget you enter in that order, then shows what deferring the rest costs you per year so you can weigh it against what the extra capital would cost to borrow.</p>
+    <h3>Is this planner financial advice?</h3>
+    <p>No. It performs arithmetic on the numbers you enter. It does not appraise your equipment, does not know your tax position, depreciation schedule or financing terms, and does not decide anything on your behalf. Confirm replacement quotes and trade-in values in writing and take the worksheet, not the recommendation, to whoever advises you.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any capital commitment it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool except in your own browser's local storage.</p>
+    <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>row_added</code>, <code>row_removed</code>, <code>budget_changed</code>, <code>csv_exported</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { ASSUMPTIONS, planFleet, toCsv, sampleRows } from "./calc.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const STORAGE_KEY = "fleet-repair-or-replace-planner-rows";
+    const BUDGET_KEY = "fleet-repair-or-replace-planner-budget";
+    const $ = (sel) => document.querySelector(sel);
+    const form = $("#row-form");
+    const empty = $("#empty");
+    const table = $("#results-table");
+    const stats = $("#stats");
+    const body = $("#results-body");
+    const foot = $("#results-foot");
+    const findingsEl = $("#findings");
+    const budgetInput = $("#f-budget");
+
+    function loadRows() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveRows(next) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        /* storage is optional */
+      }
+    }
+
+    function loadBudget() {
+      try {
+        return localStorage.getItem(BUDGET_KEY) || "0";
+      } catch {
+        return "0";
+      }
+    }
+
+    function saveBudget(value) {
+      try {
+        localStorage.setItem(BUDGET_KEY, String(value));
+      } catch {
+        /* storage is optional */
+      }
+    }
+
+    let rows = loadRows();
+    let lastResult = null;
+    budgetInput.value = loadBudget();
+
+    const money = (n) =>
+      n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    }
+
+    $("#assumptions").innerHTML = ASSUMPTIONS.map((a) => `<li>${escapeHtml(a)}</li>`).join("");
+
+    function render() {
+      const result = planFleet(rows, budgetInput.value);
+      lastResult = result;
+      const has = result.rows.length > 0;
+      table.hidden = !has;
+      empty.hidden = has;
+
+      const chosen = new Set(result.budget.selected.map((r) => r.name));
+
+      stats.textContent = has
+        ? `${result.rows.length} asset${result.rows.length === 1 ? "" : "s"} · keeping them all costs ${money(result.totals.keepAnnualCost)}/yr · ${chosen.size} in this year's plan for ${money(result.budget.capitalCommitted)} of capital, saving ${money(result.budget.annualSavingCaptured)}/yr`
+        : "";
+
+      body.innerHTML = result.rows.map((r, i) => `
+        <tr>
+          <td>${escapeHtml(r.name)}</td>
+          <td>${money(r.keepAnnualCost)}</td>
+          <td>${money(r.replaceAnnualCost)}</td>
+          <td class="amount ${r.annualSaving < 0 ? "loss" : ""}">${money(r.annualSaving)}</td>
+          <td>${money(r.capitalNeeded)}</td>
+          <td>${r.paybackYears === null ? "—" : `${r.paybackYears} yr`}</td>
+          <td><span class="verdict ${r.recommendation}">${r.recommendation}</span></td>
+          <td class="${chosen.has(r.name) ? "chosen" : ""}">${chosen.has(r.name) ? "Yes" : "No"}</td>
+          <td><button type="button" class="danger" data-remove="${i}">Remove</button></td>
+        </tr>`).join("");
+
+      foot.innerHTML = result.rows.length > 1 ? `
+        <tr>
+          <td>Total</td>
+          <td>${money(result.totals.keepAnnualCost)}</td>
+          <td></td>
+          <td></td>
+          <td>${money(result.totals.capitalNeeded)}</td>
+          <td></td>
+          <td></td>
+          <td>${chosen.size}</td>
+          <td></td>
+        </tr>` : "";
+
+      findingsEl.innerHTML = result.findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${escapeHtml(f.title)}</h4>
+          <p>${escapeHtml(f.detail)}</p>
+        </div>`).join("");
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = Object.fromEntries(new FormData(form));
+      rows.push(data);
+      saveRows(rows);
+      form.reset();
+      render();
+      record("row_added");
+    });
+
+    body.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-remove]");
+      if (!button) return;
+      rows.splice(Number(button.dataset.remove), 1);
+      saveRows(rows);
+      render();
+      record("row_removed");
+    });
+
+    budgetInput.addEventListener("input", () => {
+      saveBudget(budgetInput.value);
+      render();
+      record("budget_changed");
+    });
+
+    $("#load-example").addEventListener("click", () => {
+      if (rows.length) {
+        if (!confirm("This replaces the assets you've already entered with the worked example. Continue?")) return;
+      }
+      rows = sampleRows();
+      saveRows(rows);
+      budgetInput.value = "40000";
+      saveBudget("40000");
+      render();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      rows = [];
+      saveRows(rows);
+      render();
+    });
+
+    $("#export-csv").addEventListener("click", () => {
+      const csv = toCsv(lastResult ?? planFleet(rows, budgetInput.value));
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "fleet-repair-or-replace-plan.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      record("csv_exported");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    render();
+  </script>
+</body>
+</html>

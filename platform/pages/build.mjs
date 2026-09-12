@@ -644,7 +644,15 @@ const CATEGORY_RULES = [
       // statement), for an insurance carrier's fee schedule instead. Named
       // here rather than left in the catch-all, where a practice owner
       // reading "contract terms" would never have seen it.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff)/.test(slug),
+      // `fleet-repair-or-replace-planner` joined 2026-09-12, in the same
+      // commit that graduated it. It is the same capital-decision arithmetic
+      // as `equipment-lease-buyout-calculator` above -- converting a
+      // financing or replacement choice into an annual cost per asset -- but
+      // applied across a whole fleet against one budget rather than to a
+      // single machine. Named here rather than left in the catch-all, where
+      // an owner reading "the break-even behind a price change" would never
+      // have found the page that ranks which van to replace first.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff)/.test(slug),
   },
   {
     id: 'ci',

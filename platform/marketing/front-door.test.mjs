@@ -29,6 +29,8 @@ import {
   FRONT_DOOR_URL,
   CATALOG_FILE,
   CATALOG_OUTPUT_FILE,
+  COMPRESSED_SUFFIX,
+  catalogStoredKey,
   EMBED_HOST_OUTPUT_FILE,
   EMBED_MODULE_OUTPUT_FILE,
   EMBED_STYLE_OUTPUT_FILE,
@@ -1650,12 +1652,48 @@ test('catalog.json carries no funding key', () => {
   assert.ok(!('funding' in catalog));
 });
 
+/**
+ * The committed catalogue, inflated.
+ *
+ * Stored gzip-only since 2026-09-12 (see `catalogStoredKey` in
+ * `front-door.mjs`), so every assertion below reads it through here rather
+ * than as UTF-8. Reading the `.gz` bytes as text would not throw — it would
+ * produce mojibake that fails `JSON.parse` with a message about position 0,
+ * which reads like a corrupt generator rather than like a test that has not
+ * caught up with how the key is stored.
+ */
+async function readCommittedCatalog() {
+  return zlib.gunzipSync(await fs.readFile(CATALOG_OUTPUT_FILE)).toString('utf8');
+}
+
+test('the stored catalogue key agrees with the compression suffix constant', () => {
+  // `CATALOG_OUTPUT_FILE` spells `.gz` literally, because `COMPRESSED_SUFFIX`
+  // is declared below it and a forward reference would be a TDZ error at
+  // module load. This is the assertion that comment promises, so the literal
+  // cannot drift from the constant the rest of the mechanism uses.
+  assert.equal(catalogStoredKey(), `${CATALOG_FILE}${COMPRESSED_SUFFIX}`);
+  assert.equal(path.basename(CATALOG_OUTPUT_FILE), catalogStoredKey());
+});
+
 test('the committed catalog.json matches what this generator produces', async () => {
   const { catalog } = await buildFrontDoor();
   assert.equal(
-    await fs.readFile(CATALOG_OUTPUT_FILE, 'utf8'),
+    await readCommittedCatalog(),
     catalog,
-    'gitops/prod/front-door/catalog.json is stale — run: node platform/marketing/regen.mjs',
+    'gitops/prod/front-door/catalog.json.gz is stale — run: node platform/marketing/regen.mjs',
+  );
+});
+
+test('no plain catalog.json is left beside the compressed key', async () => {
+  // The stale-sibling trap, asserted rather than trusted to the sweep in
+  // `front-door.mjs`: `location = /catalog.json`'s own `root` would still find
+  // a plain file, so a regeneration that stopped writing the `.gz` would go on
+  // serving a frozen catalogue under a 200 for as long as anybody looked.
+  const plain = path.join(path.dirname(CATALOG_OUTPUT_FILE), CATALOG_FILE);
+  assert.equal(
+    await fs.stat(plain).then(() => true, () => false),
+    false,
+    `${CATALOG_FILE} must not exist beside its .gz — front-door.mjs sweeps it`,
   );
 });
 
@@ -1666,7 +1704,7 @@ test('every tool in the committed catalog.json is backed by a mirrored page', as
   const { buildMirror } = await import('./front-door-tools.mjs');
   const { files } = await buildMirror();
   const keys = new Set(files.map((f) => f.key));
-  const catalog = JSON.parse(await fs.readFile(CATALOG_OUTPUT_FILE, 'utf8'));
+  const catalog = JSON.parse(await readCommittedCatalog());
   assert.ok(catalog.tools.length > 10, 'the committed catalog should carry the mirrored tools');
   for (const tool of catalog.tools) {
     assert.ok(
@@ -1686,7 +1724,7 @@ test('the committed catalog.json parses and agrees with llms.txt', async () => {
   // is capped and the sitemap counts pages, so the tool *set* is only
   // comparable between these two — and a client that read both and got
   // different collections would have no way to tell which was right.
-  const catalog = JSON.parse(await fs.readFile(CATALOG_OUTPUT_FILE, 'utf8'));
+  const catalog = JSON.parse(await readCommittedCatalog());
   const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
   const linked = new Set(
     [...txt.matchAll(/\]\((https:\/\/marisstella\.dev\/tools\/([a-z0-9-]+)\/)\)/g)].map((m) => m[2]),
@@ -1719,8 +1757,27 @@ test('nginx answers /catalog.json as JSON, above the catch-all', async () => {
   );
   assert.ok(block, `front-door/default.conf must serve /${CATALOG_FILE} explicitly`);
   assert.match(block[0], /default_type application\/json;/);
-  assert.match(block[0], new RegExp(`try_files /${escapeForRegExp(CATALOG_FILE)} =404;`));
   assert.match(block[0], /charset utf-8;/);
+  // Stored gzip-only since 2026-09-12, so this block is served out of the
+  // content phase by `gzip_static` rather than resolved in the rewrite phase
+  // by `try_files`. Both halves are asserted, because each fails a different
+  // way and both fail silently:
+  //
+  //   - a surviving `try_files` stats the *uncompressed* name, which is on
+  //     disk nowhere now, and answers 404 before `gzip_static` ever runs --
+  //     this document dark behind a config that still reads correctly. That
+  //     is the exact failure `test_front_door_serving.py` exists for and the
+  //     one the mirror's own blocks document at length.
+  //   - plain `gzip_static on` would consult the `.gz` only for a client that
+  //     sent `Accept-Encoding: gzip`, so every scripted fetch that sent no
+  //     encoding header -- the common case for a machine-readable catalogue --
+  //     would fall through to a plain file that does not exist.
+  assert.ok(
+    !/try_files/.test(block[0]),
+    'no try_files in a gz-only block: it stats the uncompressed name and 404s before gzip_static runs',
+  );
+  assert.match(block[0], /gzip_static always;/);
+  assert.match(block[0], /gunzip on;/);
   assert.ok(!/X-Robots-Tag/.test(block[0]), '/catalog.json exists to be fetched by clients');
   // The highest-stakes ordering assertion in this file. Below the catch-all,
   // `/catalog.json` returns 49 KB of HTML under a 200 and every client fails
@@ -1736,9 +1793,17 @@ test('catalog.json rides in the ConfigMap that mounts at the document root', asy
     path.join(path.dirname(OUTPUT_FILE), '..', 'kustomization.yaml'),
     'utf8',
   );
+  // The compressed key, and the plain name must not also be listed: two keys
+  // for one URL is how a frozen copy ends up being served beside a live one.
   assert.match(
     kustomization,
-    new RegExp(`- ${escapeForRegExp(CATALOG_FILE)}=front-door/${escapeForRegExp(CATALOG_FILE)}`),
+    new RegExp(`- ${escapeForRegExp(catalogStoredKey())}=front-door/${escapeForRegExp(catalogStoredKey())}`),
+  );
+  assert.ok(
+    !new RegExp(`- ${escapeForRegExp(CATALOG_FILE)}=front-door/${escapeForRegExp(CATALOG_FILE)}$`, 'm').test(
+      kustomization,
+    ),
+    'the plain catalog.json key must be gone, not listed alongside its .gz',
   );
 });
 

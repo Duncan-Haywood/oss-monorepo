@@ -29020,3 +29020,123 @@ entries:
         `connect_rejected` at the sandbox proxy. **Usage:** `never-measured`;
         `live_url_visitors` is `null` across every reading, never once a zero.
     mrr_end: 0
+  - venture: fleet-repair-or-replace-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and graduated a new venture. `session_gate.py` returned
+        PROCEED and reported the `build-now` pipeline empty (every scored
+        candidate has graduated), which is the case DIRECTION.md's 'Owner
+        direction, 2026-09-06' ranks a fresh niche first in. The open-PR queue
+        was empty at the start of this session -- zero open PRs, confirmed by
+        both `list_pull_requests` and a search -- so the three-PR merge quota
+        in the standing brief had nothing to drain and new work was in bounds.
+        Niche: a repair-or-replace planner for owners of small trade and
+        service fleets. A multi-row cost comparison plus a budget-constrained
+        ranking across rows -- not a single-formula bid calculator and not a
+        single-request checker, the two archetypes pipeline/README.md steers
+        sessions away from.
+      - >-
+        The product insight, and the reason this is not another calculator:
+        the comparison owners actually make is last year's repair invoices
+        against the price of a new one, which omits the days the asset was off
+        the road. The planner asks for downtime explicitly, values it at the
+        revenue the owner says a day costs, and reports per asset and
+        fleet-wide whether the repair bill or the downtime is the larger
+        number. On the shipped worked example, dropping the downtime line
+        turns a $12,712/yr saving into a coin toss -- the explainer page walks
+        exactly that, and `page.test.mjs` pins its figures against what
+        `calc.mjs` computes, so changing the arithmetic without updating the
+        published prose turns the suite red.
+      - >-
+        `duplicate_check.py` scored nothing >= 0.45 (run 2026-09-12); top
+        match 0.10. The genuine nearest neighbour,
+        equipment-lease-buyout-calculator (0.09), was read rather than taken
+        on its score: it prices ONE asset's lease buyout against
+        return-and-replace, where this answers the question a level up --
+        which of several owned assets to act on at all, against one budget.
+        The two are now cross-linked in both directions with an assertion on
+        the href in each venture, which also holds
+        `platform/pages/siblings-budget.json` at its committed orphan budget
+        of 0 (measured 0 of 269 after the change) rather than shipping the
+        tool as an orphan to close later.
+      - >-
+        Gates, both clearing the >= 5 bar: liability_containment 6,
+        ethical_robustness 8. Full reasoning in the venture's VENTURE.yaml and
+        the `venture-scores.yaml` gate_note. The containment argument rests on
+        three tested properties: the tool is willing to recommend KEEPING (the
+        shipped example includes a row the arithmetic says to keep, asserted
+        in calc.test.mjs, because a planner that could never say keep would be
+        a sales tool for capital spending); `not-a-determination` and
+        `undiscounted-eac` fire unconditionally on every non-empty plan rather
+        than only when something looks wrong; and `missing-replacement-cost`
+        fires rather than letting a blank quote read as zero capital, which
+        would otherwise make replacing always look like the win. Composite
+        6.5. Ships with LICENSE, the no-warranty clause naming what it is not
+        advice about, the privacy line, local-only usage counting with an
+        opt-out honouring DNT/GPC, an optional Sponsors link, robots.txt,
+        sitemap.xml, SoftwareApplication + FAQPage JSON-LD, OG tags, and a
+        launch date in `launched.json` so it enters the Atom feed.
+      - >-
+        Hit a real ceiling on the way, and fixed it rather than raising it.
+        Adding the venture took the apex's `portfolio-front-html` ConfigMap to
+        943,974 bytes against the 943,718-byte budget in
+        `gitops/tests/test_manifests.py` -- over by 256 bytes, and over that
+        budget is not a degraded document but the whole `prod` Application
+        (the hashed ConfigMap name `portfolio-front.yaml` mounts never gets
+        created, new pods sit in ContainerCreating, Argo reports Degraded).
+        The test says to make the object smaller rather than raise the budget,
+        so `catalog.json` is now stored gzip-only, the lever the mirror and the
+        comparison pages already pulled: 147,400 bytes to 34,840, on the
+        criterion `COMPRESSED_SUFFIX`'s own note already states (it grows with
+        the catalogue at ~550 bytes per venture, where the front page and the
+        category pages do not). Roughly thirty ventures of headroom rather
+        than none. The URL is unchanged -- a well-known path is not something
+        to move to save bytes; only the stored key changed.
+      - >-
+        That change needed a guard it did not have, and finding that out is
+        the more useful half. Serving a gz-only key means dropping
+        `try_files` (it stats the uncompressed name, which is on disk nowhere,
+        and 404s in the rewrite phase before `gzip_static` ever runs -- the
+        trap the mirror's blocks document at length) and using `gzip_static
+        always` plus `gunzip on`. `test_front_door_serving.py` already fetched
+        `/catalog.json` over real nginx, but only with `Accept-Encoding:
+        gzip`. Every assertion in that file passes with plain `gzip_static
+        on;` and no `gunzip on;` -- a configuration that serves the gzip
+        client and 404s every client that did not ask for gzip, which for a
+        machine-readable catalogue is the common case, since a scripted fetch
+        frequently sends no encoding header. Added an `Accept-Encoding:
+        identity` assertion and then PROVED it against the real defect rather
+        than an approximation: sabotaging the block to `gzip_static on;` with
+        no `gunzip on;` makes the whole file still report 19 passed before the
+        new assertion and fails with `404 == 200` after it. Config restored
+        and re-verified green.
+      - >-
+        Verified locally (Actions starved this window -- 60 consecutive
+        `publish-pages-branch.yml` runs at `runner_id: 0`, so "run or read CI"
+        means run it here): the venture's own 28 calc + 38 page assertions
+        pass; equipment-lease-buyout-calculator 49/49 after its new inbound
+        link; `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` 1257/1257; `python3 -m pytest gitops/tests
+        -q` 581 passed / 1 skipped, with `guard_state.py --require-runnable`
+        exiting 0 (the one remaining skip is the GitHub-hosted-runner-only
+        one) after `apt-get install python3-pytest nginx-light
+        openssh-client`; all 25 `platform/ci` unittest modules OK;
+        `agent_review` OK; `python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline
+        infra/tests -q` 446 passed; `score_ventures.py --check` clean at 278;
+        `router/validate.py` clean at 277; `validate_workflows.py` clean at
+        325; `publish_surface.py --check` clean; `clauses.mjs` clean on both
+        pages; `siblings.mjs --check` 0 orphans; `checklist_coverage.py`
+        clean; `check_venture_regression.py --base origin/main` reports no
+        live venture disappearing; `regen.mjs` run and its output committed.
+      - >-
+        Counter syncs this graduation required, all four of which exist
+        because a venture touches files no one edits on purpose:
+        `gitops/ci/sync_readme_counts.py` for the workflow counts (324 -> 325),
+        and the mirrored-tool count from 268 to 269 in the four places
+        `test_manifests.py` pins it (`infra/OWNER_CHECKLIST.md` x3,
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        x2, plus the running `total` constant in the test itself).
+    mrr_end: 0
