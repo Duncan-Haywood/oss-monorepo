@@ -50,7 +50,7 @@
 </footer>
 <script type="module">
 import { compare } from './calc.mjs';
-import { recordUsage, setUsageOptOut } from './usage.mjs';
+import { recordUsage, setUsageOptOut, readOptOut, writeOptOut } from './usage.mjs';
 import { encodeShare, decodeShare } from './share.mjs';
 
 const $ = (id) => document.getElementById(id);
@@ -195,4 +195,28 @@ else restoreDraft();
 renderInputs();
 update();
 recordUsage('comparison_completed');
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('optout');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
 </script></body></html>

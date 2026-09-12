@@ -140,7 +140,7 @@
   <script type="module">
     import { computeRates, PLACEMENTS, PLACEMENT_LABELS } from "./calculator.mjs";
     import { SHARE_FIELDS, encodeInputs, decodeInputs, formValues } from "./share.mjs";
-    import { record, setUsageOptOut } from "./usage.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { HANDOFF, handoffUrl } from "./handoff.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -310,6 +310,19 @@
       if (els.subscribers.value && els.openRate.value) {
         runCalculate({ scroll: false });
         els.status.textContent = "These numbers came in from a shared link. Change anything to price your own list.";
+      }
+    }
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
       }
     }
   </script>

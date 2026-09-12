@@ -197,6 +197,35 @@ never ran, and a session reading only the checklist concludes it did. Both
 are right about what they ran. Run the `python3 -m` form and say which
 spelling you used.
 
+**It is not only pytest, and the mypy instance is worse because it reports as
+a real failure rather than as `UNRUN` (measured 2026-09-12).**
+`vendor-change-watch-ci.yml`'s lint job runs bare `mypy .`, and
+`run_workflow_locally.py` reported it `FAILED` on two files this PR does not
+touch:
+
+```
+tests/test_usage.py:1: error: Cannot find implementation or library stub for
+  module named "pytest"  [import-not-found]
+Found 2 errors in 2 files (checked 11 source files)
+```
+
+Same shim, same shape: `/root/.local/bin/mypy` is a `uv tool install` whose
+shebang is `/root/.local/share/uv/tools/mypy/bin/python`, and that interpreter
+has no pytest — `python3` has 7.4.4. So the two spellings disagree in the same
+shell, minutes apart:
+
+```
+mypy .              # Found 2 errors: pytest has no stub here
+python3 -m mypy .   # Success: no issues found in 11 source files
+```
+
+The sweep cannot classify this one as `UNRUN`, and that is not a bug in the
+sweep: mypy *did* run, and an `import-not-found` is a result it is entitled to
+report. Only the reader can tell that the missing module is missing from the
+wrong interpreter. So the rule generalises past pytest — **prefer `python3 -m
+<tool>` for every Python tool in this checklist, and when a workflow step
+spells it bare, run both before you believe the red.**
+
 **`pip install pytest` is not the whole barrier, and the rest of it has been
 invisible since it was written (added 2026-09-10).** That parenthesis warns
 about the run that fails loudly. The run that *succeeds* needs two more lines:

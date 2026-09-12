@@ -17,7 +17,13 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // measured 2026-09-12. Every one of them must keep the choice across a
 // reload, and the count itself is pinned -- see the catalogue test at the
 // bottom for why a lower bound is not enough.
-const SWITCHES_IN_THE_CATALOGUE = 93;
+//
+// It went 69 -> 93 when discovery stopped using a name allowlist, and 93 ->
+// 254 when the page-level repair gave 161 more modules a `writeOptOut` the
+// recorder itself consults. That last jump is the point of the pinned count
+// rather than an embarrassment to it: a number that moves by 161 is a claim
+// worth restating deliberately, and the assertion made me restate it.
+const SWITCHES_IN_THE_CATALOGUE = 254;
 
 let counter = 0;
 function fixture(source) {

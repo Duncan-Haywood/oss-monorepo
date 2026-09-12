@@ -57,7 +57,7 @@
   <p class="note" style="max-width:920px;margin:0 auto;color:#4e6661;font-size:.9rem">Already run a janitorial management platform? See <a href="vs-janitorial-manager.html">this calculator vs. Janitorial Manager</a>.</p>
   <footer><label style="display:flex;align-items:center;gap:7px;font-weight:400"><input id="optOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, engineering, or safety advice, and it does not replace a qualified professional or the product label/SDS. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p><strong>Private by design.</strong> Everything runs in your browser. No data is uploaded, there are no accounts, cookies, or analytics vendors. Your last entry is kept in this browser's local storage so it survives a refresh, and a shareable link carries your numbers only in the URL you choose to send &mdash; never to a server. Only anonymous feature counts are stored locally and can be disabled above. Do Not Track and Global Privacy Control disable counting automatically.</p><p>Pricing a carpet-cleaning stop rather than a chemical batch? The <a href="../carpet-cleaning-bid-calculator/">carpet cleaning bid calculator</a> prices rooms, stairs, pet urine, upholstery, and drive &mdash; nothing uploaded.</p><p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
   <script type="module">
-    import { calculateDilution } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, NUMBER_FIELD_IDS as ids } from './share.mjs';
+    import { calculateDilution } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs'; import { encodeInputs, decodeInputs, NUMBER_FIELD_IDS as ids } from './share.mjs';
     const $=id=>document.getElementById(id); const storageKey='cleaning-dilution-draft'; const money=(n) => {
                                                                                                                                                                                const format = (n) => `$${n.toFixed(2)}`;
                                                                                                                                                                                const text = format(Math.abs(n));
@@ -76,5 +76,29 @@
       try{await navigator.clipboard.writeText(location.href);$('shareStatus').textContent='Link copied — it reopens this page with the same numbers.';}
       catch{$('shareStatus').textContent='Link is in your address bar — copy it to share these numbers.';}
     });
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('optOut');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
   </script>
 </body></html>

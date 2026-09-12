@@ -163,7 +163,7 @@
 
 <script type="module">
   import { extractCrossOriginAssets, buildReport, digestBase64, integrityValue } from './sri.mjs';
-  import { recordUsage } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -310,6 +310,19 @@
   // the real classification engine against this page's own bundled example
   // without a browser.
   window.__sriCheckExample = { extractCrossOriginAssets, buildReport, EXAMPLE };
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
 </script>
 
 <footer>

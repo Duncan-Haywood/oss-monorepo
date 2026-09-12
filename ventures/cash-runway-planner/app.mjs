@@ -1,5 +1,35 @@
 import { encodeInputs, decodeInputs } from './share.mjs';
 
+// Remember the visitor's usage-counting choice between visits. The control
+// gates the counter correctly and was never stored, so it came back in its
+// default state and the choice was silently undone -- a control that quietly
+// stops working is worse than none, because the visitor believes they have
+// already used it. Polarity-agnostic on purpose: this page's control may mean
+// "count me" or "do not", and what has to survive is whichever the visitor
+// chose.
+// It runs first in this script, before anything is recorded or a shared
+// link is replayed. A restore that runs afterwards is too late: the
+// control is still in its default state while the startup events go
+// through, so a visitor who opted out has a visit counted anyway and a
+// visitor who opted in loses one.
+(() => {
+  const usagePreference = 'cash-runway-planner-usage-preference';
+  // A few ventures import this file under `node --test`, with no DOM or a
+  // stub one. Remembering a preference must not be what breaks that.
+  if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document.getElementById !== 'function') return;
+  const usageControl = document.getElementById('usage');
+  if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+  try {
+    const saved = localStorage.getItem(usagePreference);
+    if (saved !== null) usageControl.checked = saved === '1';
+  } catch { /* a browser refusing site data simply does not remember */ }
+  usageControl.addEventListener('change', () => {
+    try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+    catch { /* as above */ }
+  });
+})();
+
 // How many one-off rows the page carries. The rows are written into the HTML
 // rather than created at runtime, so the form's field set is the same on every
 // visit: the saved-bid band injected by the Pages build compares a restored
@@ -419,3 +449,4 @@ if (typeof document !== 'undefined') {
     bump('cash-runway-share-events');
   });
 }
+

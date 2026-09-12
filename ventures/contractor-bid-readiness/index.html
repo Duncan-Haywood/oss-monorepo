@@ -39,7 +39,7 @@
 <p>Checking a pasted public tender for deadline, bond, and insurance phrases instead of listing requirements by hand? The <a href="../tender-bid-readiness/">tender bid readiness checker</a> scans solicitation text for those signals &mdash; nothing uploaded.</p>
 <footer>Free to use. Review the original solicitation and confirm requirements with the issuing authority. The checklist is an evidence aid, not a compliance or award determination.</footer>
 <script type="module">
-import { assessBid, deadlineSentence, markdownReport } from './model.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs } from './share.mjs';
+import { assessBid, deadlineSentence, markdownReport } from './model.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs'; import { encodeInputs, decodeInputs } from './share.mjs';
 const items = document.querySelector('#items'); const add = (value = {}) => { const row = document.createElement('div'); row.className='item'; for (const [label, placeholder, content] of [['Requirement','Requirement',value.name],['Owner','Owner',value.owner],['Note or next action','Note or next action',value.note]]) { const input=document.createElement('input'); input.setAttribute('aria-label',label); input.placeholder=placeholder; input.value=content || ''; row.append(input); } const select=document.createElement('select'); select.setAttribute('aria-label','Status'); select.innerHTML='<option value="ready">Ready</option><option value="attention">Attention</option><option value="blocked">Blocked</option>'; select.value=value.status || 'attention'; row.insertBefore(select,row.lastElementChild); const remove=document.createElement('button'); remove.type='button'; remove.setAttribute('aria-label','Remove requirement'); remove.textContent='Remove'; remove.onclick=()=>row.remove(); row.append(remove); items.append(row); };
 // A shared checklist arrives in the fragment, which browsers never send to a
 // server or log in a Referer header. `search` is accepted too in case a link
@@ -75,5 +75,34 @@ document.querySelector('#copyShare').onclick = async () => {
     document.querySelector('#shareStatus').textContent = 'Could not copy automatically — the link is now in your address bar.';
   }
 };
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usage');
+      if (usageControl && 'checked' in usageControl) {
+        // This control is opt-IN -- "Count anonymous local feature events",
+        // checked by default, and its value reaches `recordUsage` as
+        // `enabled`. Painting it from `readOptOut` directly would uncheck it
+        // on every fresh load and write an opt-out when the visitor checks
+        // it: counting off in both states, and the control lying about which.
+        usageControl.checked = !readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, !usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
 </script>
 </body></html>

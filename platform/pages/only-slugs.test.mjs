@@ -142,11 +142,11 @@ test('every check that imports the filter actually applies it', async () => {
     assert.match(src, /\b(keepSlug|keepPagePath)\(/, `${file} reads the filter but never applies it`);
     wired.push(file);
   }
-  // The six per-venture checks. `journey.mjs` is a whole-site narrative and is
-  // deliberately absent; if it ever appears here, that was a decision, not a
-  // tidy-up.
+  // The seven per-venture checks. `journey.mjs` is a whole-site narrative and
+  // is deliberately absent; if it ever appears here, that was a decision, not
+  // a tidy-up.
   assert.deepEqual(wired.sort(), [
-    'contrast.mjs', 'highlight.mjs', 'presets.mjs',
+    'contrast.mjs', 'highlight.mjs', 'optout.mjs', 'presets.mjs',
     'roundtrip.mjs', 'sideways.mjs', 'sweep.mjs',
   ]);
 });

@@ -29542,3 +29542,99 @@ entries:
         page source is the static shortcut this file already got wrong five
         times. Next change.
     mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        The same broken privacy promise as the entry above, one layer up, and
+        larger: **273 of the 329 published pages offering a usage opt-out
+        forgot the visitor's choice**, and 20 more gave no visible feedback at
+        all. 36 worked. The visitor ticked "do not keep an anonymous local
+        usage count", came back, and the box was unticked and counting had
+        resumed -- so they had no reason to think it had ever failed. All 329
+        now remember it.
+      - >-
+        Measured in a real browser, never inferred. `platform/pages/optout.mjs`
+        loads each page, changes the control, reloads, and requires the new
+        state to survive. It is **direction-agnostic on purpose**: labels are
+        worded both ways in this catalogue ("Do not keep an anonymous local
+        usage count" and "Count anonymous local feature use (off by default)"),
+        and a checker that decided which state meant "off" would be wrong on
+        one of them and go on being wrong silently. It reads two control
+        shapes, because the catalogue has two -- a checkbox carrying state in
+        `checked`, and a button carrying it in its own label.
+      - >-
+        The repair has three shapes. Where the module already remembered
+        (#4657) and only the button's label did not, the page asks the module
+        on load and replays exactly what the click does -- 38 ventures. Where
+        nothing remembered, the module gained `readOptOut`/`writeOptOut`,
+        consulted by the recorder itself so the promise no longer depends on
+        one line of page wiring, and the page restores and writes -- 164
+        ventures. Where the counting is a closure in the page's own script with
+        no module at all, the page stores the control's own state under a
+        page-local key -- 18 ventures, including two whose logic lives in
+        `app.js` and three in `app.mjs`.
+      - >-
+        The second pass stopped matching the recording gate and started
+        **adding** one: `if (readOptOut(storage)) return;` as the recorder's
+        first statement asks the same question earlier and cannot change the
+        meaning of whatever guard follows. Only-adds is the safer edit in a
+        privacy control, and it reached 16 ventures whose gate is spelled with
+        `enabled`, an event allowlist, or no storage parameter at all.
+      - >-
+        **Four defects in the transform, each caught by a different guard that
+        was not looking for it**, which is the part worth keeping. The
+        behavioural module check merged hours earlier reported five modules as
+        `undrivable`: the generated `readOptOut` closed over a *function-scoped*
+        `const key`, so every call threw, the `try` swallowed it, and the
+        opt-out silently never worked -- worse than the defect being fixed, and
+        invisible to the ventures' own suites, which pass the choice in
+        explicitly and never exercise the stored path. `check_pages.mjs` caught
+        `<script> is opened 2x but closed 3x`. `discoverability.test.mjs`
+        caught a JSON-LD blob that no longer parsed. And the browser check
+        itself caught a block inserted into `<script type="module" src="...">`,
+        whose body a browser ignores entirely -- the diff looked right and the
+        page did nothing.
+      - >-
+        Those four are one mistake at three levels of specificity: append to a
+        script tag, then to any script tag without a `src`, then cut a span by
+        eye and take the neighbour with it. Recorded because the lesson is not
+        "be careful with regexes" -- it is that a 400-file mechanical change
+        hides its own collateral, and the only reason none of it shipped is
+        that this repository has accumulated guards that ask different
+        questions.
+      - >-
+        The checker was also wrong twice before it was right, both times in the
+        direction of accusing pages that work. It matched bare `count` inside
+        "ac**count** login record" and answered for the wrong checkbox on
+        `chargeback-evidence-packet`; and it read only the control's own label,
+        so `locksmith-bid-calculator` -- which persists the choice *and* shows
+        it, in a sibling `#usageStatus` -- came back as "no feedback at all". A
+        guard that accuses working pages is one that gets muted, so it now
+        matches on the identifier first with word boundaries, and reads the
+        surroundings only where the control's own state did not move.
+      - >-
+        Registering an eighth browser check meant editing four hand-maintained
+        copies of the list (`browser_checks.CHECKS`, `browser_state.CHECKS`,
+        and two spellings in `browser-checks-ci.yml`).
+        `test_every_enumeration_of_the_checks_agrees` now ties them together:
+        the existing guard catches a check *no* list names, this catches one
+        that only some of them name -- where the local sweep runs it and the
+        nightly does not.
+      - >-
+        Found and left for its own change: `shopify-permission-drift` keeps its
+        recorder in `capture.mjs`, and `findUsageModules` walks `usage.mjs` and
+        `usage.js` only -- so the catalogue checker has never once looked at
+        it. Fixed in place here; the filename convention standing in for a
+        check is not, because widening it moves the pinned count again and
+        deserves its own measurement.
+      - >-
+        Verified: 329 of 329 pages remember the choice, measured in Chromium
+        after the change; every touched venture's suite 19634/19634 across 219
+        ventures; `platform/marketing` + `pages` + `privacy` + `webcheck` +
+        `proposal` 1483/1483; `check_pages.mjs` 997 pages all sound;
+        `gitops/tests` 581 passed 1 skipped; `portfolio/ledger` + `scoring` +
+        `router` + `usage` 374 passed; `checklist_coverage` clean.
+    mrr_end: 0

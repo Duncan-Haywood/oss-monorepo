@@ -12,6 +12,7 @@
 // nothing; a module can read it into a variable it never branches on. So each
 // module is actually called, with a storage spy, under three navigator states.
 
+import { execFileSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -25,6 +26,41 @@ const SIGNALS = [
   { label: "Global Privacy Control", navigator: { globalPrivacyControl: true } },
   { label: "Do Not Track", navigator: { doNotTrack: "1" } },
 ];
+
+// The walk finds files on disk, and a build output is a file on disk. Six
+// copies of `ai-engineering-academy`'s tool modules live under
+// `ventures/ai-engineering-academy/site/dist/`, which `.gitignore` covers and
+// only exists once somebody has run that venture's build -- so the catalogue
+// count read 254 in CI and 260 in a working tree that had built, and the
+// pinned-count assertion in the test beside this file failed for a reason
+// that was not a change to the catalogue.
+//
+// Naming `dist` here alongside `node_modules` would fix today's instance and
+// go stale at the next `build/`, `out/` or `_site/`. Git already knows the
+// answer, so ask it: one `check-ignore` call over the whole list, tracked
+// files exempt by default (that is check-ignore's own rule, and it is the one
+// we want -- a committed file is part of the catalogue whatever a pattern
+// says). Outside a repository -- the tmpdir fixtures in the test file -- git
+// exits non-zero with no output and everything is kept, which is correct
+// there: a fixture directory has no build output to confuse.
+function ignoredByGit(paths) {
+  if (paths.length === 0) return new Set();
+  try {
+    const out = execFileSync("git", ["-C", REPO_ROOT, "check-ignore", "--stdin", "-z"], {
+      input: paths.join("\0"),
+      encoding: "utf8",
+      stdio: ["pipe", "pipe", "ignore"],
+    });
+    return new Set(out.split("\0").filter(Boolean));
+  } catch (error) {
+    // Exit 1 is "none of them are ignored" and carries an empty stdout; any
+    // other failure (no git, no work tree) means we cannot tell, and keeping
+    // every path is the honest answer -- a checker that silently checked
+    // nothing because git was missing is the failure this repo keeps
+    // recording.
+    return new Set((error.stdout ?? "").split("\0").filter(Boolean));
+  }
+}
 
 export function findUsageModules(root = VENTURES) {
   const found = [];
@@ -43,7 +79,8 @@ export function findUsageModules(root = VENTURES) {
     }
   };
   walk(root);
-  return found.sort();
+  const ignored = ignoredByGit(found);
+  return found.filter((path) => !ignored.has(path)).sort();
 }
 
 function makeStorage(writes) {
