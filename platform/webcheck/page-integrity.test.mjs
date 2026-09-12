@@ -363,6 +363,77 @@ test('a regex after a labelled break or continue is not read as division', () =>
   assert.deepEqual([...queriedIds(cjk)], ['m9b'], 'a non-Latin label was not recognised');
 });
 
+test('a newline between break and a name means it is not a label', () => {
+  // Codex finding 10. `break` and `continue` are restricted productions, so
+  // JavaScript forbids a line terminator before the label. `break\nouter` is
+  // `break;` then the expression `outer`, and the slash after it is division.
+  // Matching across the newline claimed `outer` as a label, made the slash a
+  // regex opener, and let it swallow the comment.
+  //
+  // This one also got past the cross-check, which is why it matters more than
+  // its badge suggests: the comment is introduced as `label://`, whose colon
+  // sits exactly where a URL scheme's would, so the naive pass exempts it and
+  // agrees with the mistaken lexer. Both readings wrong together is the one
+  // way an invented lookup still survives -- see the note on `queriedIds`.
+  const src = "while(false){break\nouter / 2; label:// document.getElementById('ghost')\n;}";
+  assert.deepEqual([...queriedIds(src)], [], 'a commented-out lookup was reported');
+
+  // The genuine labelled statement must keep working: no newline, so it is a
+  // real label and the slash after it really does open a regex.
+  const real = "outer: while (false) { break outer\n/[/*]/.test('x'); } document.getElementById('m7');";
+  assert.deepEqual([...queriedIds(real)], ['m7'], 'a real labelled break stopped being recognised');
+});
+
+test('all four ECMAScript line terminators end a line', () => {
+  // Codex finding 11 named the label half. The comment half was not reported
+  // and is the same cause pointing the other way, so both are pinned here.
+  //
+  // `\n` is the one everybody remembers. A lone `\r`, U+2028 and U+2029
+  // terminate a line just as definitively, and every place in the scanner that
+  // asks "is the line over?" has to agree.
+  for (const [name, t] of [['LF', '\n'], ['CR', '\r'], ['LS', '\u2028'], ['PS', '\u2029']]) {
+    // Label direction: the separator is a restricted-production boundary, so
+    // `outer` is an expression and the slash after it is division. Treating
+    // the separator as ordinary space made it a label, opened a regex, and
+    // swallowed the comment -- an invented lookup.
+    const laballed = `while(false){break${t}outer / 2; label:// document.getElementById('ghost')${t};}`;
+    assert.deepEqual([...queriedIds(laballed)], [], `${name} was not treated as a line terminator (label)`);
+
+    // Comment direction: a line comment ends at the terminator. Not ending
+    // there swallowed the rest of the file and every lookup in it.
+    const commented = `// a comment${t}document.getElementById('real');`;
+    assert.deepEqual([...queriedIds(commented)], ['real'], `${name} did not end a line comment`);
+  }
+});
+
+test('U+2028 and U+2029 do not end a quoted string', () => {
+  // Codex finding 12, and a defect I introduced with the previous commit's
+  // sweeping fix: `isLineTerminator` was applied to the string-literal scan
+  // too. Since ES2019 subsumed JSON, U+2028 and U+2029 are *legal inside a
+  // quoted string* -- they stopped ending one, while still ending a comment,
+  // a regex literal and a statement. Ending the string early made a later
+  // `//` in that same string read as a comment.
+  //
+  // Asserted on `stripComments` rather than `queriedIds`, and the reason is
+  // worth knowing: `queriedIds` drops this lookup anyway, because the naive
+  // pass has no idea what a string is and blanks from the `//`. That is the
+  // cross-check's documented cost, not this bug, and it would mask the
+  // regression completely.
+  for (const sep of ['\u2028', '\u2029']) {
+    const src = `const s = 'a${sep}// still string'; document.getElementById('ghost')`;
+    assert.ok(
+      stripComments(src).includes("getElementById('ghost')"),
+      `${escape(sep)} ended a quoted string, so a later // read as a comment`,
+    );
+  }
+
+  // LF and CR do still end one -- the exclusion must not go the other way.
+  for (const sep of ['\n', '\r']) {
+    const src = `const s = 'unterminated${sep}document.getElementById('real');`;
+    assert.deepEqual([...queriedIds(src)], ['real'], 'LF/CR stopped ending a quoted string');
+  }
+});
+
 test('a private member named like a keyword is not that keyword', () => {
   // Codex finding 8, and a gap in finding 6's own fix: `this.#break` leaves
   // `#` as the character before the word, not `.`, so the dot guard missed it.

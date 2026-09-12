@@ -279,6 +279,26 @@ export function declaredIds(markup, scriptSource = '') {
  * happened to close the bogus regex before the comment began. One operand
  * fewer and it would have caught this.
  */
+/**
+ * ECMAScript has four line terminators, not one.
+ *
+ * `\n` is the one everybody remembers; `\r` (a lone CR, without a following
+ * LF), U+2028 LINE SEPARATOR and U+2029 PARAGRAPH SEPARATOR terminate a line
+ * just as definitively. Every place in this file that asks "is the line over?"
+ * has to agree, and before this was shared they did not:
+ *
+ *   - a `//` comment ended only at `\n`, so one terminated by any of the
+ *     other three swallowed the rest of the file and every lookup in it;
+ *   - the label check treated the other three as ordinary space, so
+ *     `break\router` read `outer` as a label and let the following slash
+ *     open a regex, which then ate a comment -- an invented lookup.
+ *
+ * Opposite directions, one cause. Defined once here so a future reader
+ * changing the set changes it everywhere.
+ */
+const LINE_TERMINATOR = /[\n\r\u2028\u2029]/;
+const isLineTerminator = (ch) => ch !== undefined && LINE_TERMINATOR.test(ch);
+
 export function stripComments(source) {
   let out = '';
   let i = 0;
@@ -327,7 +347,15 @@ export function stripComments(source) {
     // The label is a JavaScript identifier, which is Unicode -- `café:` is as
     // valid as `outer:`. An ASCII-only class here silently stopped recognising
     // the statement, which put the slash back to division and blanked the line.
-    const labelled = before.match(/\b(break|continue)\s+[\p{ID_Start}$_][\p{ID_Continue}$]*$/u);
+    // `[^\S\n]` rather than `\s`: `break` and `continue` are restricted
+    // productions, so JavaScript forbids a line terminator between them and
+    // their label. `break\nouter` is therefore `break;` followed by the
+    // expression `outer`, and a slash after it is division. Matching across
+    // the newline claimed `outer` as a label, made the slash a regex opener,
+    // and let it swallow a comment -- an invented lookup.
+    const labelled = before.match(
+      /\b(break|continue)[^\S\n\r\u2028\u2029]+[\p{ID_Start}$_][\p{ID_Continue}$]*$/u,
+    );
     if (labelled) {
       const head = before.slice(0, before.length - labelled[0].length).replace(/\s+$/, '');
       return !head.endsWith('.') && !head.endsWith('#');
@@ -436,13 +464,13 @@ export function stripComments(source) {
     }
 
     if (c === '/' && next === '/') {
-      while (i < source.length && source[i] !== '\n') { out += ' '; i += 1; }
+      while (i < source.length && !isLineTerminator(source[i])) { out += ' '; i += 1; }
       continue;
     }
     if (c === '/' && next === '*') {
       const end = source.indexOf('*/', i + 2);
       const stop = end === -1 ? source.length : end + 2;
-      for (; i < stop; i += 1) out += source[i] === '\n' ? '\n' : ' ';
+      for (; i < stop; i += 1) out += isLineTerminator(source[i]) ? source[i] : ' ';
       continue;
     }
     if (c === '`') { out += c; i += 1; stack.push({ type: 'template' }); continue; }
@@ -458,7 +486,14 @@ export function stripComments(source) {
           continue;
         }
         if (source[i] === c) { i += 1; break; }
-        if (source[i] === '\n') { i += 1; break; }
+        // Not `isLineTerminator`, and the difference is a real one. Since
+        // ES2019 subsumed JSON, U+2028 and U+2029 are *legal inside a quoted
+        // string* -- they stopped terminating one, while still terminating a
+        // comment, a regex literal and a statement. Treating them as ending a
+        // string here closed it early, so a `//` later in that same string
+        // read as a comment and swallowed a real lookup after it. Only LF and
+        // CR end a quoted string.
+        if (source[i] === '\n' || source[i] === '\r') { i += 1; break; }
         i += 1;
       }
       continue;
@@ -480,7 +515,7 @@ export function stripComments(source) {
         if (r === '[') inClass = true;
         else if (r === ']') inClass = false;
         else if (r === '/' && !inClass) { i += 1; break; }
-        else if (r === '\n') { i += 1; break; }
+        else if (isLineTerminator(r)) { i += 1; break; }
         i += 1;
       }
       continue;
@@ -541,10 +576,10 @@ function lookupIdsIn(scriptSource) {
  * something.
  */
 function naiveUncommented(source) {
-  const blank = (text) => text.replace(/[^\n]/g, ' ');
+  const blank = (text) => text.replace(/[^\n\r\u2028\u2029]/g, ' ');
   return source
     .replace(/\/\*[\s\S]*?\*\//g, blank)
-    .replace(/(^|[^:\\])(\/\/[^\n]*)/g, (whole, before, comment) => before + blank(comment));
+    .replace(/(^|[^:\\])(\/\/[^\n\r\u2028\u2029]*)/g, (whole, before, comment) => before + blank(comment));
 }
 
 /**
@@ -567,9 +602,26 @@ function naiveUncommented(source) {
  * different things, and an id has to survive both.
  *
  * The asymmetry that makes this sound: intersection can only ever *remove*
- * ids. So a lexer bug can now cost a finding, and can no longer invent one.
- * That is the right way round for a gate over 995 pages, and it holds even
- * for the lexer bug nobody has found yet.
+ * ids. So a lexer bug costs a finding rather than inventing one, which is the
+ * right way round for a gate over 995 pages.
+ *
+ * **It is a strong guard, not an absolute one, and the difference was found
+ * the hard way.** An earlier revision of this comment said invented lookups
+ * were "structurally impossible". They are not: the guard only holds while
+ * the naive pass independently rejects the comment, and the `:` exemption
+ * below is a hole in exactly that. Review finding 10 walked through it with
+ * `label:// document.getElementById('ghost')` -- a labelled statement whose
+ * colon sits where a URL scheme's would, so the naive pass exempts the `//`
+ * and agrees with the mistaken lexer. Both readings are then wrong together
+ * and the intersection preserves the error.
+ *
+ * The lexer bug behind that one is fixed at its root (see the restricted
+ * production note in `endsWithKeyword`). The hole in the naive pass stays,
+ * because `label://` and `https://` are textually identical to a scan that
+ * does not parse, and removing the exemption loses a real lookup after any
+ * URL in a string. So: the cross-check makes the invented-lookup class rare
+ * and shallow rather than impossible, and `stripComments` still has to be
+ * right. Do not read this paragraph as a licence to stop caring about that.
  *
  * What it costs, stated plainly: a lookup whose only occurrence sits after a
  * `//` inside a string (`"a//b"`, an XPath, a bare separator) is dropped by
