@@ -320,11 +320,22 @@ export function stripComments(source) {
    * the original list too.
    */
   function endsWithKeyword(before) {
+    // `break outer` / `continue outer`: the label is the last token, but the
+    // statement is still a restricted production, so ASI applies and a slash
+    // on the next line opens a regex. Checked before the bare-keyword match,
+    // because the label hides the keyword from it.
+    const labelled = before.match(/\b(break|continue)\s+[A-Za-z_$][\w$]*$/);
+    if (labelled) {
+      const head = before.slice(0, before.length - labelled[0].length).replace(/\s+$/, '');
+      return !head.endsWith('.') && !head.endsWith('#');
+    }
     const match = before.match(REGEX_AFTER_KEYWORD);
     if (!match) return false;
     const head = before.slice(0, before.length - match[0].length).replace(/\s+$/, '');
-    // `.` covers `?.` as well, since both end in a dot.
-    return !head.endsWith('.');
+    // `.` covers `?.` as well, since both end in a dot. `#` covers a private
+    // member -- `this.#break` leaves `#` as the last character, not `.`, which
+    // the first version of this guard missed.
+    return !head.endsWith('.') && !head.endsWith('#');
   }
 
   // `)` is the ambiguous one, and it is why this stack exists. A `/` after the
@@ -490,8 +501,7 @@ export function stripComments(source) {
  * a template literal containing `${...}` is skipped — the id is computed at
  * runtime and cannot be checked statically without guessing.
  */
-export function queriedIds(rawScriptSource) {
-  const scriptSource = stripComments(rawScriptSource);
+function lookupIdsIn(scriptSource) {
   const ids = new Set();
   const add = (raw) => {
     if (raw && !raw.includes('${')) ids.add(raw);
@@ -500,6 +510,76 @@ export function queriedIds(rawScriptSource) {
   for (const m of scriptSource.matchAll(/querySelector(?:All)?\(\s*["'`]#([\w:.-]+)["'`]\s*\)/g)) add(m[1]);
   for (const m of scriptSource.matchAll(/(?<![\w$.])\$\(\s*["'`]([\w:.-]+)["'`]\s*\)/g)) add(m[1]);
   return ids;
+}
+
+/**
+ * A deliberately naive second opinion on what is a comment.
+ *
+ * It knows nothing about strings, template literals or regexes: a block
+ * comment runs to the first closing delimiter after its opener, and a line
+ * comment is a double slash to the end of the line. (Spelled out in words
+ * rather than punctuation because the closing delimiter cannot be written
+ * inside this comment.) That is far too crude to strip comments correctly on
+ * its own -- and it is never asked to. It exists only to *disagree* with
+ * `stripComments`.
+ *
+ * Two characters before the `//` are exempt, and both were measured rather
+ * than guessed:
+ *
+ *   - `:` -- `https://example.com` inside a string, which is everywhere.
+ *   - `\` -- the escaped slashes of a URL-matching regex. `/https?:\/\//`
+ *     ends in `\/\/`, whose last two characters are a literal `//`; without
+ *     this exemption the naive pass blanks the rest of that line and drops a
+ *     real lookup sitting after it. Caught by the fixture for finding 3,
+ *     which is exactly what those fixtures are for.
+ *
+ * Being crude everywhere else is the point: its mistakes are in a different
+ * place from a lexer's, which is what makes the intersection below mean
+ * something.
+ */
+function naiveUncommented(source) {
+  const blank = (text) => text.replace(/[^\n]/g, ' ');
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, blank)
+    .replace(/(^|[^:\\])(\/\/[^\n]*)/g, (whole, before, comment) => before + blank(comment));
+}
+
+/**
+ * Ids the script asks the document for.
+ *
+ * **An id is reported only when two independent readings agree it is live**,
+ * and that belt-and-braces is the whole design rather than a flourish. Review
+ * found eight defects in `stripComments` across four pull requests, and four
+ * of them were the same shape: a lexing mistake let a comment's text survive,
+ * so a lookup that existed *only inside a comment* was reported as real. That
+ * direction is the expensive one. A false positive turns the catalogue-wide
+ * sweep red on a page that is perfectly fine, and `declaredIds` above already
+ * records where that ends: "a check that cries wolf is one the next session
+ * turns off".
+ *
+ * Patching the lexer one finding at a time was not converging -- two of those
+ * eight defects were *caused* by the fix for the one before, and a third was a
+ * gap left by it. So the fix is structural: intersect the careful reading with
+ * a deliberately stupid one (`naiveUncommented`). The two are wrong about
+ * different things, and an id has to survive both.
+ *
+ * The asymmetry that makes this sound: intersection can only ever *remove*
+ * ids. So a lexer bug can now cost a finding, and can no longer invent one.
+ * That is the right way round for a gate over 995 pages, and it holds even
+ * for the lexer bug nobody has found yet.
+ *
+ * What it costs, stated plainly: a lookup whose only occurrence sits after a
+ * `//` inside a string (`"a//b"`, an XPath, a bare separator) is dropped by
+ * the naive pass and so goes unreported. Measured across every page in the
+ * catalogue when this was added, that cost was zero ids. It is not zero in
+ * principle, and `stripComments` is still worth getting right -- the
+ * false-negative half of the defects above is still real and still fixed
+ * there. This only guarantees the failures land on the safe side.
+ */
+export function queriedIds(rawScriptSource) {
+  const careful = lookupIdsIn(stripComments(rawScriptSource));
+  const naive = lookupIdsIn(naiveUncommented(rawScriptSource));
+  return new Set([...careful].filter((id) => naive.has(id)));
 }
 
 /**

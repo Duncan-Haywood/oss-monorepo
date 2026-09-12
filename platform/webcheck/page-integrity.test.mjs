@@ -344,6 +344,86 @@ test('a property named like a keyword is not treated as that keyword', () => {
   }
 });
 
+test('a regex after a labelled break or continue is not read as division', () => {
+  // Codex finding 7. `break outer` is still a restricted production, so ASI
+  // applies, but the last token is the label -- which hid the keyword from the
+  // bare-word check entirely.
+  const brk = "outer: while (false) { break outer\n/[/*]/.test('x'); } document.getElementById('m7');";
+  assert.deepEqual([...queriedIds(brk)], ['m7'], 'a real lookup was blanked after a labelled break');
+  const cont = "outer: for(;;) { continue outer\n/[/*]/.test('x'); } document.getElementById('m7b');";
+  assert.deepEqual([...queriedIds(cont)], ['m7b'], 'a real lookup was blanked after a labelled continue');
+});
+
+test('a private member named like a keyword is not that keyword', () => {
+  // Codex finding 8, and a gap in finding 6's own fix: `this.#break` leaves
+  // `#` as the character before the word, not `.`, so the dot guard missed it.
+  for (const src of [
+    "this.#break / 2; // document.getElementById('ghost')",
+    "this.#return / 2; // document.getElementById('ghost')",
+  ]) {
+    assert.deepEqual([...queriedIds(src)], [], 'a private member was read as a keyword');
+    // Asserted at the stripComments level too, and deliberately. Through
+    // `queriedIds` the cross-check below would mask this guard entirely --
+    // removing it fails no test, because the naive pass drops the id anyway.
+    // That is the cross-check working, but it would let the lexer silently rot.
+    assert.doesNotMatch(
+      stripComments(src),
+      /ghost/,
+      'the comment survived stripComments: a private member was read as a keyword',
+    );
+  }
+});
+
+test('a broken lexer can lose an id but can never invent one', () => {
+  // The safety property the cross-check exists for, stated as a test rather
+  // than as a claim in a docstring. Eight review findings landed on
+  // `stripComments`; four were the invented-lookup kind. Intersecting with an
+  // independent naive scan makes that direction structurally impossible, so it
+  // holds for the lexing bug nobody has found yet.
+  //
+  // This asserts the composition rather than simulating a broken lexer, which
+  // a unit test cannot do without rewriting the module: a comment that the
+  // careful pass somehow let through still has to survive the naive pass, and
+  // on an ordinary line comment it cannot.
+  const commented = "const x = a / 2; // document.getElementById('ghost')";
+  assert.deepEqual([...queriedIds(commented)], [], 'a commented-out lookup was reported');
+  assert.ok(
+    naiveDropsIt(commented, 'ghost'),
+    'the naive pass did not independently reject the commented-out lookup',
+  );
+});
+
+/** Does the deliberately naive reading also refuse to see `id`? */
+function naiveDropsIt(source, id) {
+  // Re-derived here rather than exported: the test should notice if the naive
+  // pass stops being an independent opinion, not inherit whatever it became.
+  const naive = source
+    .replace(/\/\*[\s\S]*?\*\//g, (t) => t.replace(/[^\n]/g, ' '))
+    .replace(/(^|[^:\\])(\/\/[^\n]*)/g, (w, b, c) => b + c.replace(/[^\n]/g, ' '));
+  return !naive.includes(id);
+}
+
+test('an id is only reported when both readings agree it is live', () => {
+  // The structural guard. `queriedIds` intersects the careful lexer with a
+  // deliberately naive comment scan, so a lexing bug can cost a finding but
+  // can never invent one -- the direction that matters for a gate over 995
+  // pages. Sabotaging stripComments to return its input unchanged is the
+  // strongest form of "the lexer is wrong": every comment survives it.
+  const commented = "const x = a / 2; // document.getElementById('ghost')";
+  assert.deepEqual(
+    [...queriedIds(commented)],
+    [],
+    'a commented-out lookup was reported',
+  );
+  // And the naive pass must not be so eager that it eats real code: the two
+  // exemptions it carries are a URL in a string and the escaped slashes of a
+  // URL-matching regex.
+  const url = 'const u = "https://example.com/x"; document.getElementById("real");';
+  assert.deepEqual([...queriedIds(url)], ['real'], 'a URL in a string blanked the line');
+  const rx = "if (ok) /https?:\\/\\//.test(url); document.getElementById('m3');";
+  assert.deepEqual([...queriedIds(rx)], ['m3'], 'an escaped-slash regex blanked the line');
+});
+
 test('a real keyword is still a keyword', () => {
   // The other side of the same change: excluding member properties must not
   // stop the genuine statement keywords from permitting a regex, or the two
