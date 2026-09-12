@@ -298,8 +298,13 @@ export function stripComments(source) {
   // slash, swallows whatever lies between, and a comment caught inside it
   // survives into the output -- which is the defect this whole function
   // exists to prevent.
+  // `throw`, `break` and `continue` earn their place for a reason worth
+  // stating: none of them can be followed by division in valid JavaScript, so
+  // a `/` after one is always a regex (or a syntax error). `break` and
+  // `continue` are also the restricted productions where a newline forces
+  // automatic semicolon insertion, which is how `break\n/re/…` arises.
   const REGEX_AFTER_KEYWORD =
-    /\b(return|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
+    /\b(return|throw|break|continue|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
   const REGEX_AFTER_PUNCT = new Set([...'([{;,:=!&|?+-*/~%^<>']);
 
   // `)` is the ambiguous one, and it is why this stack exists. A `/` after the
@@ -318,7 +323,16 @@ export function stripComments(source) {
     const before = out.replace(/\s+$/, '');
     if (before === '') return true;
     const last = before.slice(-1);
-    if (last === '\n') return true;
+    // There is deliberately no "a newline before the slash means a regex"
+    // branch here. An earlier revision had one; it was dead code, because
+    // `\s` matches `\n` and the trim above had already removed it. Making it
+    // *live* would be worse than dead, because a newline does not imply a
+    // statement boundary -- `const a = b` / newline / `/re/.test(c)` is the
+    // classic ASI trap and really does parse as two divisions. Treating it as
+    // a regex would swallow the rest of the line and invent lookups, the
+    // direction this function exists to avoid. The statement boundaries that
+    // *do* matter are the restricted-production keywords, handled in
+    // REGEX_AFTER_KEYWORD above, where no division is possible either way.
     if (last === ')') return lastCloseWasCondition;
     if (REGEX_AFTER_PUNCT.has(last)) return true;
     return REGEX_AFTER_KEYWORD.test(before);

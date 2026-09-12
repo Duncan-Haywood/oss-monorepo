@@ -307,6 +307,51 @@ test('a regex after a condition is parsed as a regex, not merely survived', () =
   );
 });
 
+test('a regex after break or continue is not read as division', () => {
+  // Codex review on #4650, round 2. `break` and `continue` are restricted
+  // productions: a newline after them forces automatic semicolon insertion,
+  // so `break\n/re/` is two statements and that slash opens a regex. Read as
+  // division, the unescaped `/*` in the character class opens a bogus block
+  // comment and the real lookup after it disappears.
+  const brk = "while (false) { break\n/[/*]/.test('x'); } document.getElementById('missing');";
+  assert.deepEqual([...queriedIds(brk)], ['missing'], 'a real lookup was blanked after break');
+  const cont = "for (;;) { continue\n/[/*]/.test('y'); } document.getElementById('cont');";
+  assert.deepEqual([...queriedIds(cont)], ['cont'], 'a real lookup was blanked after continue');
+});
+
+test('a regex used as a throw operand is not read as division', () => {
+  // Same round. `throw` can take a regex literal as its same-line operand and
+  // can never be followed by division, so a `/` after it is always a regex.
+  const src = "function fail() { throw /[/*]/; } document.getElementById('missing2');";
+  assert.deepEqual([...queriedIds(src)], ['missing2'], 'a real lookup was blanked after throw');
+});
+
+test('a newline alone does not make the next slash a regex', () => {
+  // The fix Codex proposed for the break/continue case was to treat a removed
+  // newline as a statement boundary. That would be wrong, and this pins why:
+  // a newline does *not* imply ASI when the next line can continue the
+  // expression, and `/` can. `const a = b` / newline / `/re/.test(c)` is the
+  // classic trap and really parses as two divisions. Treating it as a regex
+  // would swallow to the next slash and invent lookups -- the direction these
+  // guards exist to prevent. The keyword list is the correct mechanism,
+  // because after `break`/`continue`/`throw` no division is possible at all.
+  const src = "const a = b\n/re/.test(c); document.getElementById('asi');";
+  assert.deepEqual([...queriedIds(src)], ['asi'], 'the ASI-trap line was mis-parsed');
+
+  // And the case that shows the cost rather than merely the parse. Here the
+  // continued expression is a division with a comment after it. Read as a
+  // regex, the scan runs to the comment's first slash, the `//` pair is
+  // broken up, the comment text survives, and a lookup that exists only
+  // inside a comment is reported as live -- the exact false positive
+  // `stripComments` was added to remove.
+  const costly = "const a = b\n/ 2; // document.getElementById('ghost')\nconst c = 1;";
+  assert.deepEqual(
+    [...queriedIds(costly)],
+    [],
+    'treating a newline as a statement boundary resurrected a commented-out lookup',
+  );
+});
+
 test('division after a call is still division', () => {
   // The other side of the same change: fixing `if (ok) /re/` must not turn
   // every `)` into a regex opener, or `f(x) / 2` starts swallowing comments
