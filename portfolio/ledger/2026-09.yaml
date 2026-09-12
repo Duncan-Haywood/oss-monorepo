@@ -29175,4 +29175,42 @@ entries:
         `test_manifests.py` pins it (`infra/OWNER_CHECKLIST.md` x3,
         `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
         x2, plus the running `total` constant in the test itself).
+      - >-
+        The automated Codex review on #4649 raised three findings and all three
+        were real; fixed in the same PR before merge. The serious one was a
+        wrong number on a published page: `paybackYears` divided the capital
+        outlay by `annualSaving`, which has already had `annualisedCapital`
+        subtracted from it, so the purchase was charged for itself twice. It
+        reported 2.95 years on the shipped worked example against a true simple
+        payback of $37,500 / ($19,000 - $1,600) = 2.16, and pushed assets
+        across the three-year `strong-payback` threshold in the pessimistic
+        direction. Payback now divides by a new `operatingSaving` (the repair
+        and downtime spend replacing stops, no capital term); `annualSaving`
+        stays the EAC comparison that drives the recommendation and the budget
+        ranking, which is what it answers correctly.
+      - >-
+        The other two: selection membership was keyed on the asset *name*, so a
+        fleet with two rows both called "Truck" ticked both when only one fitted
+        the budget, collapsed the pair in the count, and exported a `keep` row
+        as "in this year's plan" -- fixed with a stable `id` rather than by
+        forbidding duplicate names, since a duplicate label in a fleet is
+        ordinary bookkeeping. And `savingPerDollar` was rounded to cents before
+        being sorted on, which collapsed 0.011 and 0.014 into a tie and handed
+        the decision to the absolute-saving tie-break -- systematically
+        preferring the big expensive asset in exactly the close cases the ratio
+        heuristic exists for. Kept exact now, rounded only for display.
+      - >-
+        Two lessons worth the entry. First, the guard that should have caught
+        the payback bug was the one this venture shipped *specifically* to
+        prevent published prose drifting from the module -- `page.test.mjs`
+        pins the explainer's worked figures against `calc.mjs`. It passed,
+        because it asserted the page and the module *agreed*, and they did:
+        both were wrong the same way. A consistency check cannot catch a shared
+        error, which is the same shape CLAUDE.md records for manifest-derived
+        claims about the public surface. Second, the fix had to change the
+        prose as well as the code: the explainer taught payback as "capital
+        divided by the annual saving", so a reader applying that method to
+        their own fleet would have carried the bug forward. Each finding now
+        has a regression test written against the review's own
+        counter-example.
     mrr_end: 0
