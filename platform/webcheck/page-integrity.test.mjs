@@ -434,6 +434,235 @@ test('U+2028 and U+2029 do not end a quoted string', () => {
   }
 });
 
+test('a lookup written inside a string is prose, not code', () => {
+  // Codex finding 13 arrived at this from a strange direction -- a `//` and a
+  // U+2028 inside a string -- but the class is older and simpler than the
+  // reported case, and predates this whole sequence: `lookupIdsIn` matches
+  // textually, and text inside a string literal looks exactly like text
+  // outside one.
+  const plain = `const s = 'document.getElementById("ghost")';`;
+  assert.deepEqual([...queriedIds(plain)], [], 'a lookup quoted inside a string was reported as live');
+
+  // The reported shape: the naive pass used to blank through the separator and
+  // hide this by accident. Once it learned that U+2028 ends a line, both passes
+  // agreed and the intersection stopped filtering -- so the fix has to be in
+  // what counts as code, not in either pass's idea of a comment.
+  for (const sep of ['\u2028', '\u2029']) {
+    const src = `const s = 'a// prose${sep}document.getElementById("ghost")';`;
+    assert.deepEqual([...queriedIds(src)], [], 'lookup-shaped prose inside a string was reported');
+  }
+
+  // The distinction that makes this fixable: it is where the *call* sits, not
+  // where the id sits. The id is always a string -- that is the part worth
+  // keeping -- so blanking string contents wholesale would break every page.
+  assert.deepEqual(
+    [...queriedIds('document.getElementById("price").value;')],
+    ['price'],
+    'a genuine lookup stopped being found',
+  );
+  assert.deepEqual(
+    [...queriedIds(`const label = 'a string'; document.getElementById('real');`)],
+    ['real'],
+    'a preceding string swallowed a genuine lookup',
+  );
+
+  // Codex finding 14. A span is only trusted when the string met its closing
+  // quote. Unterminated means this scanner mistook something else for a quote
+  // and then ran to the end of the line or file, over whatever real code lay
+  // between -- and since a span exists to *suppress* a finding, trusting a
+  // misparse loses one. Here a block `}` is still read as division (a
+  // documented limit), so the regex's `'` opened a "string" that swallowed the
+  // rest of the line.
+  assert.deepEqual(
+    [...queriedIds(`if (ok) {} /'/.test(x); document.getElementById("missing");`)],
+    ['missing'],
+    'an unterminated string span swallowed a genuine lookup',
+  );
+  assert.deepEqual(
+    [...queriedIds("const s = 'unterminated\ndocument.getElementById('afterEOL');")],
+    ['afterEOL'],
+    'a string ended by a line terminator suppressed a later lookup',
+  );
+
+  // Codex finding 15: `closed` alone is not enough. With the *same* quote
+  // style on both, the regex's `'` opened the "string" and the id argument's
+  // own `'` closed it, so the span looked perfectly well formed and covered
+  // the call. A quote sitting immediately after a slash is what actually
+  // distinguishes the case -- in valid JavaScript a string never directly
+  // follows a division slash.
+  assert.deepEqual(
+    [...queriedIds(`if (ok) {} /'/.test(x); document.getElementById('missing');`)],
+    ['missing'],
+    'a regex quote matching the id quote style suppressed a genuine lookup',
+  );
+
+  // And the ordinary strings that must keep producing spans, or finding 13
+  // comes back: a URL (which contains slashes) and two in a row.
+  assert.deepEqual(
+    [...queriedIds(`const u = 'https://example.com'; document.getElementById('u2');`)],
+    ['u2'],
+    'a URL in a string broke the scan',
+  );
+  assert.deepEqual(
+    [...queriedIds(`const a = 'x', b = 'y'; document.getElementById('two');`)],
+    ['two'],
+    'consecutive strings broke the scan',
+  );
+
+  // Codex finding 16, and the cause behind 14 and 15 as well. Each of those
+  // was patched at the quote; all three were really one thing -- a `}` read as
+  // division, which sent the scanner into a regex hunting for a string. Any
+  // quote anywhere in that regex then opened a span over the real lookup, so
+  // every guard written at the quote was defeated by moving the quote.
+  for (const [src, label] of [
+    [`if (ok) {} /a'/.test('a'); document.getElementById('missing');`, 'quote later in the regex'],
+    [`if (ok) {} /'/.test(x); document.getElementById('missing');`, 'matching quote styles'],
+    [`if (ok) {} /'/.test(x); document.getElementById("missing");`, 'differing quote styles'],
+  ]) {
+    assert.deepEqual([...queriedIds(src)], ['missing'], `a genuine lookup was suppressed: ${label}`);
+  }
+
+  // The other reading of `}` must not be broken by that: division after an
+  // object literal's member, and after a call, are both still division.
+  assert.deepEqual(
+    [...queriedIds(`const o = {}; o.x / 2; // document.getElementById('ghost')`)],
+    [],
+    'division after an object literal resurrected a comment',
+  );
+
+  // Codex finding 17. `}` has both readings, and the previous fix took the
+  // block one for all of them -- which was right for 14/15/16 and wrong here.
+  // An object literal used directly as a division operand is a *value*, so the
+  // `/` after it really is division. Each `{` now records which it opened.
+  assert.deepEqual(
+    [...queriedIds(`const n = {valueOf(){return 4}} / 2; label:// document.getElementById('ghost')\n0;`)],
+    [],
+    'a divided object literal was read as a block, resurrecting a comment',
+  );
+
+  // Codex finding 18: `debugger` is a statement, so ASI applies and a regex
+  // may follow it. It can never be followed by division.
+  assert.deepEqual(
+    [...queriedIds(`debugger\n/a'/.test('a'); document.getElementById('missing');`)],
+    ['missing'],
+    'a regex after `debugger` was read as division',
+  );
+});
+
+test('every position where a regex may start is classified', () => {
+  // The lesson of this whole review sequence, turned into a check.
+  //
+  // `throw`, `break`, `continue` and `debugger` were each added to the
+  // classifier one at a time, as each was reported -- four rounds for one
+  // question nobody had asked in full: *where, in ECMAScript, does a `/` open
+  // a regex rather than divide?* Enumerating the grammar answers it once.
+  // CLAUDE.md records the same lesson twice already, against the front-door
+  // mirror and platform/proposal.
+  //
+  // The probe is a regex containing `/*`. As a regex it is inert; misread as
+  // division, its `/*` opens a block comment that swallows the lookup after
+  // it -- so a position this scanner gets wrong shows up as [] rather than
+  // ['x'], with no need to hand-craft a failure per case.
+  const probe = (prefix) => `${prefix} /[/*]/.test('a'); document.getElementById('x');`;
+
+  for (const [prefix, label] of [
+    ['return', 'return'],
+    ['throw', 'throw'],
+    ['debugger\n', 'debugger then ASI'],
+    ['while(1){break\n', 'break then ASI'],
+    ['for(;;){continue\n', 'continue then ASI'],
+    ['outer: while(1){break outer\n', 'a labelled break'],
+    ['do', 'do'],
+    ['if (a) b(); else', 'else'],
+    ['typeof', 'typeof'],
+    ['void', 'void'],
+    ['delete', 'delete'],
+    ['x instanceof', 'instanceof'],
+    ['new', 'new'],
+    ['function* g(){ yield', 'yield'],
+    ['async function a(){ await', 'await'],
+    ['switch (x) { case 1:', 'a case label'],
+    ['switch (x) { default:', 'a default label'],
+    ['const f = (x) =>', 'an arrow body'],
+    ['if (ok)', 'an if condition'],
+    ['while (ok)', 'a while condition'],
+    ['for (;;)', 'a for header'],
+    ['if (ok) {}', 'a closing block'],
+    ['try {} finally {}', 'a finally block'],
+    ['const a = [', 'an array literal'],
+    ['f(', 'a call argument'],
+    ['x =', 'an assignment'],
+    ['a ?', 'a ternary'],
+    ['a ||', 'a logical operator'],
+    [';', 'a semicolon'],
+    ['', 'the start of input'],
+    // Module grammar. The first version of this enumeration covered only
+    // script grammar and still said "no gaps" -- review finding 20 was an
+    // `export default` it did not reach, and pointed that out explicitly.
+    // These pages are served as `type="module"`, so this half is not optional.
+    ['export default', 'export default'],
+    ['export const a =', 'an export initialiser'],
+    // A declaration's `}` closes a block, so a regex may follow it. (The
+    // *expression* forms are in the division enumeration below -- same brace,
+    // opposite answer.)
+    ['class X {}', 'a class declaration'],
+    ['function f(){}', 'a function declaration'],
+    ['const a = [...', 'a spread'],
+    ['do {} ', 'a do block'],
+    ['if (a) b(); else {}', 'an else block'],
+  ]) {
+    assert.deepEqual(
+      [...queriedIds(probe(prefix))],
+      ['x'],
+      `a regex after ${label} was read as division, swallowing the lookup`,
+    );
+  }
+});
+
+test('every position where a slash divides is classified', () => {
+  // The other direction, enumerated the same way. The probe is a division
+  // followed by a comment: read as a regex, the scan runs to the comment's own
+  // slash, the `//` pair is broken up and the comment's text survives -- so a
+  // misclassification shows up as ['ghost'], a lookup that exists only inside
+  // a comment.
+  //
+  // The comment is introduced as `label://`, and that detail is load-bearing.
+  // With a plain `// …` the naive cross-check pass blanks it correctly and the
+  // intersection hides the lexer's mistake -- the first version of this test
+  // did exactly that and passed with the `}`-tracking removed, proving
+  // nothing. `label:` puts the colon where a URL scheme's would be, which is
+  // the documented hole in the naive pass, so this probe reaches the lexer.
+  // Same trap as the `#` guard and the ES2019 string case: a test that passes
+  // is not proof the branch under it works.
+  const probe = (expr) => `${expr} / 2; label:// document.getElementById('ghost')\n0;`;
+
+  for (const [expr, label] of [
+    ['const a = b', 'an identifier'],
+    ['const a = f(x)', 'a call result'],
+    ['const a = arr[0]', 'an index'],
+    ['const a = 4', 'a number'],
+    ['const o = {}; o.x', 'a member'],
+    ['obj.break', 'a property named like a keyword'],
+    ['this.#break', 'a private member named like a keyword'],
+    ['const n = {valueOf(){return 4}}', 'an object literal as a value'],
+    // Review finding 19: a class or function *expression* closes into a value,
+    // where the same syntax as a declaration closes into a block.
+    ['const n = class { static [Symbol.toPrimitive]() { return 4 } }', 'a class expression as a value'],
+    ['const n = function(){ return 4 }', 'a function expression as a value'],
+    // Review finding 22: `throw` is expression position, so the literal after
+    // it is a value. It reached the regex-start list and not the
+    // object-literal one, which is why the two are now derived from each other
+    // rather than maintained side by side.
+    ['function f(){ throw {valueOf(){return 4}}', 'an object literal after throw'],
+  ]) {
+    assert.deepEqual(
+      [...queriedIds(probe(expr))],
+      [],
+      `division after ${label} was read as a regex, resurrecting a comment`,
+    );
+  }
+});
+
 test('a private member named like a keyword is not that keyword', () => {
   // Codex finding 8, and a gap in finding 6's own fix: `this.#break` leaves
   // `#` as the character before the word, not `.`, so the dot guard missed it.
@@ -502,6 +731,63 @@ test('an id is only reported when both readings agree it is live', () => {
   assert.deepEqual([...queriedIds(url)], ['real'], 'a URL in a string blanked the line');
   const rx = "if (ok) /https?:\\/\\//.test(url); document.getElementById('m3');";
   assert.deepEqual([...queriedIds(rx)], ['m3'], 'an escaped-slash regex blanked the line');
+});
+
+test('the fourth review round: template text, extends, async, and case labels', () => {
+  // Codex findings 23-26. Three of the four reach the caller the same way:
+  // a quote inside a *misclassified regex* opens a string span, and the span
+  // then suppresses a real lookup after it. So these are not four unrelated
+  // lexer nits; they are the same defect shape the earlier rounds had, and
+  // the reason the span filter is worth keeping rather than deleting is that
+  // it fails in the safe direction only while the lexer under it is right.
+
+  // 23. A no-substitution template's *text* is content, exactly like a
+  // string's. It was being scanned as code, so a lookup written inside one
+  // was reported as a real query against an id no page has.
+  assert.deepEqual(
+    [...queriedIds('const s = `document.getElementById("ghost")`;')],
+    [],
+    'a lookup inside template text was read as code',
+  );
+  // But a substitution *is* code, and text after it is text again.
+  assert.deepEqual(
+    [...queriedIds('const s = `a${document.getElementById("real").value}b`;')],
+    ['real'],
+    'a lookup inside a substitution was swallowed as template text',
+  );
+
+  // 24. `extends` heads an expression (class heritage), so a `/` after it
+  // opens a regex. Read as division, the quote inside it opened a span that
+  // swallowed the lookup on the same line.
+  assert.deepEqual(
+    [...queriedIds(`class X extends /a'/.constructor {}; document.getElementById('missing');`)],
+    ['missing'],
+    'a regex after `extends` was read as division',
+  );
+
+  // 25. `async function(){}` is an *expression*, so the `/` after it divides.
+  // The match begins at `function`, which left `async` sitting in the prefix
+  // looking like an identifier -- i.e. like a declaration, whose `}` closes a
+  // block and permits a regex.
+  assert.deepEqual(
+    [...queriedIds(`const n = async function(){return 4} / 2; label:// document.getElementById('ghost')\n0;`)],
+    [],
+    'a divided async function expression was read as a declaration',
+  );
+
+  // 26. The `:` of a label or a `case` introduces a *block*, not an object
+  // literal -- the opposite reading from the `:` between a key and its value.
+  assert.deepEqual(
+    [...queriedIds(`switch(x){ case 1: {} /a'/.test('a'); document.getElementById('missing'); }`)],
+    ['missing'],
+    "a block after a case label was read as an object literal",
+  );
+  // The other reading of `:` must survive: inside a literal it opens a value.
+  assert.deepEqual(
+    [...queriedIds(`const o = {a: {b: 1}}; o.a / 2; // document.getElementById('ghost')`)],
+    [],
+    'a nested object literal was read as a block, resurrecting a comment',
+  );
 });
 
 test('a real keyword is still a keyword', () => {
