@@ -117,6 +117,35 @@ function persistentStorage(values, writes) {
   };
 }
 
+// What a reload actually destroys is *every* in-memory global, not one named
+// property. An earlier draft deleted `globalThis.__usageOptOut` and nothing
+// else, so a module keeping its transient flag under any other name --
+// `globalThis.trackingDisabled` -- carried the choice across the simulated
+// reload and passed, while a real page load would have lost it and resumed
+// counting. The realm is restored wholesale instead: whatever the page put on
+// `globalThis`, the reload takes away.
+function snapshotGlobals() {
+  const snapshot = new Map();
+  for (const key of Reflect.ownKeys(globalThis)) {
+    snapshot.set(key, Object.getOwnPropertyDescriptor(globalThis, key));
+  }
+  return snapshot;
+}
+
+function restoreGlobals(snapshot) {
+  for (const key of Reflect.ownKeys(globalThis)) {
+    if (snapshot.has(key)) continue;
+    try { delete globalThis[key]; } catch { /* non-configurable; not ours anyway */ }
+  }
+  for (const [key, descriptor] of snapshot) {
+    const now = Object.getOwnPropertyDescriptor(globalThis, key);
+    if (now && now.value === descriptor.value && now.get === descriptor.get && now.set === descriptor.set) {
+      continue;
+    }
+    try { Object.defineProperty(globalThis, key, descriptor); } catch { /* frozen built-in */ }
+  }
+}
+
 function withStorage(values, writes, fn) {
   const previous = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
   const storage = persistentStorage(values, writes);
@@ -132,6 +161,20 @@ function withStorage(values, writes, fn) {
 let reloadCounter = 0;
 
 export async function checkModule(path) {
+  // Before the module has been evaluated at all: the realm a fresh page load
+  // starts from. Restoring to this is what makes the reload below a reload,
+  // and the `finally` hands the next module the same clean realm this one
+  // got -- 265 modules share one process, and a global left behind by an
+  // earlier one would answer for a later one.
+  const pristine = snapshotGlobals();
+  try {
+    return await drivenCheck(path, pristine);
+  } finally {
+    restoreGlobals(pristine);
+  }
+}
+
+async function drivenCheck(path, pristine) {
   const name = relative(REPO_ROOT, path);
   const url = pathToFileURL(path).href;
   const first = await import(url);
@@ -177,12 +220,16 @@ export async function checkModule(path) {
   if (!repeat.some((key) => counterKeys.has(key))) {
     return unverifiable("the recorder does not write repeatably, so silence proves nothing");
   }
-  // The page state a visitor would be switching off from: counted already.
+  // The page state a visitor would be switching off from: counted already,
+  // module evaluated, nothing switched off yet. `loaded` is that realm; the
+  // next attempt is reset to it so one candidate's globals cannot make the
+  // following candidate look like a switch.
   const baseline = new Map(values);
+  const loaded = snapshotGlobals();
   const restoreBaseline = () => {
     values.clear();
     for (const [key, value] of baseline) values.set(key, value);
-    delete globalThis.__usageOptOut;
+    restoreGlobals(loaded);
   };
 
   for (const [switchName, switchFn] of candidates) {
@@ -205,13 +252,16 @@ export async function checkModule(path) {
       });
       if (samePage.some((key) => counterKeys.has(key))) continue;
 
-      // The reload. A fresh module realm -- which is what drops an in-memory
-      // flag -- over the storage the switch just wrote to. The cache-buster is
-      // the only way to get a second realm in one process.
+      // The reload. Two things go, in the order a browser does them: every
+      // global the page put there, then the module instance itself. The
+      // cache-buster is the only way to get a second realm in one process,
+      // and it is imported *after* the restore so its own top-level
+      // evaluation re-establishes whatever it sets, exactly as a fresh page
+      // load would.
+      restoreGlobals(pristine);
       const reloaded = await import(`${url}?optout-reload=${reloadCounter++}`);
       const after = [];
       withStorage(values, after, (storage) => {
-        delete globalThis.__usageOptOut;
         drive(reloaded, {}, after, eventNames, storage);
       });
 

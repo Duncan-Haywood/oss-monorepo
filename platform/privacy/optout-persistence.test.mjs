@@ -155,6 +155,22 @@ export function setUsageOptOut(value) {
 }
 `;
 
+// The same forgetting, under a different global. An earlier draft simulated
+// the reload by deleting `globalThis.__usageOptOut` and nothing else, so this
+// module -- broken in exactly the way FORGETS is -- kept its flag across the
+// "reload" and passed. A real page load discards every global, not one name.
+const ALTERNATE_GLOBAL = `
+const KEY = "fixture-usage";
+export function record(event) {
+  if (typeof localStorage === "undefined" || globalThis.trackingDisabled) return;
+  localStorage.setItem(KEY, String((Number(localStorage.getItem(KEY)) || 0) + 1));
+}
+export function disableTracking() {
+  globalThis.trackingDisabled = true;
+  if (typeof localStorage !== "undefined") localStorage.removeItem(KEY);
+}
+`;
+
 // A recorder that writes once and then dedupes. It falls silent on its own,
 // so "the recorder went quiet" stops being evidence of anything and every
 // export would look like a switch.
@@ -257,6 +273,23 @@ test("a counter key that contains \"off\" is still a counter", async () => {
   const result = await statusOf(COUNTER_NAMED_LIKE_A_FLAG);
   assert.equal(result.status, "fail", JSON.stringify(result));
   assert.deepEqual(result.keys, ["coffee-usage"]);
+});
+
+test("a flag under a different global is still lost on reload", async () => {
+  // The reload has to discard the realm, not one property of it. Special-
+  // casing `__usageOptOut` passed a module that spells its flag anything
+  // else, which is the same "names prove nothing" mistake as the allowlist.
+  const result = await statusOf(ALTERNATE_GLOBAL);
+  assert.equal(result.status, "fail", JSON.stringify(result));
+  assert.match(result.switch, /disableTracking/);
+});
+
+test("a check leaves the realm as it found it", async () => {
+  // 265 modules share one process. A global left behind by one would answer
+  // for the next, and the failure would land on an innocent venture.
+  assert.equal("trackingDisabled" in globalThis, false);
+  await statusOf(ALTERNATE_GLOBAL);
+  assert.equal("trackingDisabled" in globalThis, false);
 });
 
 test("a recorder that falls silent on its own is not read as an opt-out", async () => {
