@@ -11,6 +11,7 @@ as a healthy one.
 import json
 import os
 import tempfile
+import pathlib
 import unittest
 from unittest import mock
 
@@ -575,6 +576,83 @@ class ChangedSlugsTreesTest(unittest.TestCase):
 
     def test_a_path_with_no_file_segment_is_ignored(self):
         self.assertEqual(self._diff("1" * 40, "2" * 40, "loose-file"), set())
+
+
+class ArtifactCountIsNotAttributedToAnyCheck(unittest.TestCase):
+    """The count is artifact size, and no check row may carry it.
+
+    `browser_checks.py::_count_html` counts HTML files in the built artifact
+    and its own docstring calls the number "only ever context", explicitly not
+    derived from any check's scope. The checks cover different sets --
+    `contrast.mjs` filters out every `404.html` and `offline.html`.
+
+    Rendered as "N pages" it invited a claim nobody measured, and did: #4651's
+    ledger entry recorded "all 7 checks passing over 1022 pages at two
+    viewports, with no WCAG A/AA violations" when contrast had covered 1020.
+
+    Renaming the unit to "files" was the first attempt and was not enough --
+    `contrast ... 1022 files` still attributes the number to contrast, because
+    the attribution comes from the position, not the noun. The count is now
+    off the rows entirely and printed once as artifact context. These tests
+    fail against the "files" version as well as the original.
+    """
+
+    def test_the_count_is_not_on_any_check_row(self):
+        state = {
+            c: {
+                "verdict": "current",
+                "reading": {
+                    "measured": "2026-09-12",
+                    "commit": "d4970cdd" + "0" * 32,
+                    "pages": 1022,
+                    "result": "pass",
+                },
+            }
+            for c in browser_state.CHECKS
+        }
+        text = browser_state.report(state)
+        # Not on any check's row, whatever noun follows it. Renaming the unit
+        # was the first attempt and was not enough: `contrast ... 1022 files`
+        # still reads as contrast's number.
+        for line in text.splitlines():
+            if any(f" {c:<10} " in line for c in browser_state.CHECKS):
+                self.assertNotIn("1022", line, f"count attributed to a check: {line!r}")
+        # Once, labelled as artifact context.
+        self.assertIn("1022 HTML files", text)
+        self.assertIn("not any check's coverage", text)
+        self.assertNotIn("1022 pages", text)
+
+    def test_the_source_does_not_render_the_count_on_a_row(self):
+        # Source-level, because the renderer's exact entry point has moved
+        # before and a guard that silently stops inspecting anything is worse
+        # than none.
+        src = pathlib.Path(browser_state.__file__).read_text()
+        self.assertNotIn('f", {pages} pages"', src)
+        self.assertNotIn('f", {pages} files"', src)
+
+
+    def test_two_different_counts_are_not_collapsed_into_one(self):
+        """A `--only` run records a scoped reading, so counts can differ.
+
+        Printing one number for all seven would be the same overstatement one
+        level up from the row-level one this class exists to prevent.
+        """
+        state = {}
+        for i, c in enumerate(browser_state.CHECKS):
+            state[c] = {
+                "verdict": "current",
+                "reading": {
+                    "measured": "2026-09-12",
+                    "commit": ("a" if i == 0 else "b") * 40,
+                    "pages": 1000 if i == 0 else 1022,
+                    "result": "pass",
+                },
+            }
+        text = browser_state.report(state)
+        self.assertIn("1000 HTML files", text)
+        self.assertIn("1022 HTML files", text)
+        # The minority line must name which checks it covers.
+        self.assertIn(browser_state.CHECKS[0], text.split("artifact at")[1])
 
 
 if __name__ == "__main__":
