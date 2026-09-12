@@ -11696,3 +11696,90 @@ ventures:
       excludes/includes), no dark patterns, nothing collected
       server-side, and no revenue model tied to the number shown beyond an
       optional, unrelated donation link.
+  - slug: fleet-repair-or-replace-planner
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI anywhere in the product. Every input is a figure the owner
+      already holds -- their own repair ledger and downtime log, a dealer
+      quote, a trade-in appraisal -- and the model is addition,
+      subtraction and one division, deliberately simple enough that the
+      explainer page can walk the whole worked example on paper. A number
+      an owner cannot check is a number they should not commit capital on,
+      so inference here would make the result less trustworthy without
+      making it more correct.
+    basis: >-
+      Graduated 2026-09-12. A multi-row cost comparison plus a
+      budget-constrained ranking across rows, which is a different
+      mechanism from both shapes portfolio/pipeline/README.md steers
+      sessions away from: the <trade>-bid-calculator archetype (one
+      formula, one job, one trade) and the -check/-checker archetype
+      (single-request classifier over a pasted file). Nearest shape
+      relatives in the fleet are which-job-first (ranks a list) and
+      payment-reconciliation-workbench (multi-row worksheet).
+      duplicate_check.py scored nothing >= 0.45; the genuine nearest
+      neighbour, equipment-lease-buyout-calculator (0.09), was read
+      closely rather than taken on the number -- it compares ONE asset's
+      lease buyout against return-and-replace, where this answers the
+      question one level up, across several owned assets against one
+      budget. The two are cross-linked in both directions.
+      Defensibility 5, a point above quarterly-estimated-tax-calendar and
+      1099k-reconciliation-worksheet, and the reason is incentive rather
+      than novelty: equivalent annual cost is textbook and trivially
+      restated, but every free calculator ranking for these phrases
+      belongs to an equipment dealer, a fleet-leasing company or a
+      fleet-management SaaS vendor -- all of whom have a commercial reason
+      to prefer the "replace" answer, and all of whom gate the
+      multi-asset version behind a demo or a subscription. A tool with no
+      transaction, no referral and no finance partner can be willing to
+      say "keep", and ships a worked example that does.
+      Distribution 7: "repair or replace work truck", "when to replace a
+      service van" and "which truck to replace first" are recurring
+      high-intent searches across r/HVAC, r/Plumbing, r/electricians,
+      r/Construction, r/smallbusiness and r/Truckers, from an audience
+      with a real capital decision and the money to act on it.
+      Time to revenue 6: the decision recurs at every budget cycle rather
+      than once in a filing season, which is the same recurrence argument
+      that scored quarterly-estimated-tax-calendar a 6 and
+      1099k-reconciliation-worksheet a 5.
+      Autonomous ops 10 / gross margin 10: a static page, no build step,
+      no dependencies, and no network request of any kind. One more user,
+      or one more CSV export, costs nothing.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass on both. Liability containment: being wrong costs the owner a
+      worksheet that wants a second look before capital is committed, not
+      a lawsuit or a third party's money. Three properties keep it
+      contained and each has a test. The tool is willing to recommend
+      keeping -- sampleRows() ships a row the arithmetic says to keep and
+      calc.test.mjs asserts it, because a planner that could never say
+      keep would be a sales tool for capital spending.
+      `not-a-determination` and `undiscounted-eac` both fire
+      unconditionally on every non-empty plan rather than only when
+      something looks wrong, so the output cannot be read as an
+      endorsement of the rest. And `missing-replacement-cost` fires
+      rather than letting a blank quote read as zero capital, which would
+      otherwise make replacing always look like the win. Scored a point
+      below 1099k-reconciliation-worksheet's 7 honestly: that tool
+      reconciles a figure a third party already reported, changing
+      nothing about what was filed, whereas this one informs a
+      forward-looking capital commitment not yet made.
+      Ethical robustness: deterministic arithmetic over the owner's own
+      figures, nothing uploaded, no dark patterns, and no degradation for
+      users as traffic grows. The bias a business here would be tempted
+      toward -- recommending purchases -- has no mechanism: no
+      transaction, no referral, no lead capture, no finance partner, and
+      no revenue tied to the recommendation, only an unrelated optional
+      donation link. Every disclosure it raises pushes toward re-checking
+      a figure that would overstate the case for spending.
