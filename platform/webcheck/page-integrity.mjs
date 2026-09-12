@@ -300,8 +300,51 @@ const LINE_TERMINATOR = /[\n\r\u2028\u2029]/;
 const isLineTerminator = (ch) => ch !== undefined && LINE_TERMINATOR.test(ch);
 
 export function stripComments(source) {
+  return scanSource(source).text;
+}
+
+/**
+ * `stripComments`, plus where the quoted-string contents were.
+ *
+ * `lookupIdsIn` matches `getElementById('x')` textually, and text inside a
+ * string literal looks exactly like text outside one. So
+ * `const s = 'document.getElementById("ghost")'` reported `ghost` as a live
+ * lookup -- prose about code, read as code. That predates everything in this
+ * sequence; review finding 13 arrived at it from a stranger direction (a `//`
+ * and a U+2028 inside the string) and is the same bug.
+ *
+ * It cannot be fixed by blanking string contents, because the id itself is a
+ * string: in `getElementById('price')`, `price` is exactly the part worth
+ * keeping. What distinguishes the two is where the *call* sits, not where the
+ * id sits -- so the scanner records each string's interior and `lookupIdsIn`
+ * drops any match that begins inside one.
+ *
+ * **Measured 2026-09-12, because by review round four this mechanism was
+ * generating most of the findings and had to justify itself.** Across the
+ * whole catalogue -- 997 pages with inline script, 2,164 ids -- the span
+ * filter removes **0 ids on 0 pages**. Every finding it has ever produced
+ * here came from the lexer *under* it being wrong: a `/` misread as division
+ * (or as a regex) swallows a quote, the quote opens a span that was never
+ * there, and the span then suppresses a real lookup. Findings 24, 25 and 26
+ * all reach the caller by that exact route.
+ *
+ * Deleting it would therefore have cost nothing measurable and closed three
+ * of four findings at a stroke. It is kept anyway, and the reason is the
+ * direction of the two failures. Without it, a lookup written *about* code --
+ * in prose, in a template, in a string -- is reported as a query against an
+ * id no page has, which is a false positive: the checker cries wolf about a
+ * sound page, and this file's own docstring records that as the failure mode
+ * that gets a checker ignored. With it, a lexer bug suppresses a finding on a
+ * page that is genuinely broken -- also bad, but it is the direction the
+ * whole-catalogue run can still catch, and it is the direction that has a
+ * fix rather than a tradeoff. Zero measured benefit is not zero value when
+ * what it buys is the safer failure. Re-measure before removing it.
+ */
+export function scanSource(source) {
   let out = '';
   let i = 0;
+  /** [start, end) of every quoted-string interior, in `out` coordinates. */
+  const stringSpans = [];
 
   // Where we are. Empty means plain code. A `template` entry means inside a
   // backtick literal's text, where a `//` is content and not a comment. A
@@ -324,7 +367,15 @@ export function stripComments(source) {
   // `continue` are also the restricted productions where a newline forces
   // automatic semicolon insertion, which is how `break\n/re/…` arises.
   const REGEX_AFTER_KEYWORD =
-    /\b(return|throw|break|continue|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
+    /\b(return|throw|break|continue|debugger|default|extends|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
+  // `}` is here for a reason worth stating, because it was the cause behind
+  // three separate review findings. A `}` immediately before a `/` closes a
+  // *block*, and a regex may follow one: `if (ok) {} /re/.test(x)`. The other
+  // reading -- an object literal divided by something -- is not code anyone
+  // writes: `{a: 1} / 2` is NaN, and `f({}) / 2` ends in `)`, which the paren
+  // tracking below handles separately. Reading it as division sent the scanner
+  // into the regex looking for a string, and whatever quote it found there
+  // opened a span that swallowed real lookups (findings 14, 15, 16).
   const REGEX_AFTER_PUNCT = new Set([...'([{;,:=!&|?+-*/~%^<>']);
 
   /**
@@ -378,6 +429,70 @@ export function stripComments(source) {
   const parens = [];
   let lastCloseWasCondition = false;
 
+  // `}` has the same two readings as `)`, and needs the same treatment. It
+  // closes a *block* -- after which a regex may start -- or an *object
+  // literal*, which is a value, after which a `/` is division:
+  //
+  //     if (ok) {} /re/.test(x)              block:   regex
+  //     const n = {valueOf(){return 4}} / 2  literal: division
+  //
+  // Treating every `}` as a block (the previous revision) misreads the second;
+  // treating every one as a literal misreads the first, which is what findings
+  // 14, 15 and 16 all were. So each `{` records which it opened, by the same
+  // test JavaScript itself uses: a `{` in expression position is a literal,
+  // anywhere else it is a block.
+  // Derived from the list above rather than written out again, because the two
+  // answer almost the same question -- "is this expression position?" -- and
+  // when they were maintained separately they drifted: `throw` reached the
+  // regex list and not this one, so `throw {…} / 2` read the literal as a
+  // block (review finding 22). Deriving it makes that drift impossible.
+  //
+  // The exclusions are the whole difference, and each is a real one:
+  //   do, else        take a *block*, so `do {}` is not a value
+  //   break,
+  //   continue,
+  //   debugger        cannot be followed by `{` at all
+  const BLOCK_NOT_LITERAL = new Set(['do', 'else', 'break', 'continue', 'debugger']);
+  const OBJECT_LITERAL_AFTER_KEYWORD = new RegExp(
+    `\\b(${REGEX_AFTER_KEYWORD.source
+      .replace(/^\\b\(/, '')
+      .replace(/\)\$$/, '')
+      .split('|')
+      .filter((word) => !BLOCK_NOT_LITERAL.has(word))
+      .join('|')})$`,
+  );
+  const braces = [];
+  let lastCloseWasBlock = true;
+
+  /**
+   * Is this `{` the body of a class or function *expression*?
+   *
+   * A declaration's `}` closes a block, so a regex may follow it
+   * (`function f(){} /re/.test(x)`). An expression's `}` closes a **value**,
+   * so a `/` after it divides (`const n = function(){ return 4 } / 2`). Same
+   * brace, opposite answers, exactly like the object-literal case above --
+   * which is the whole reason `braces` exists.
+   *
+   * Finds the nearest preceding `class`/`function` with no `{`, `}` or `;`
+   * between it and here (so it really is this brace's head), then asks the
+   * same expression-position question of the keyword itself.
+   */
+  function opensAnExpressionBody(before) {
+    const head = before.match(/\b(class|function)\b[^{};]*$/);
+    if (!head) return false;
+    const upto = before
+      .slice(0, before.length - head[0].length)
+      .replace(/\s+$/, '')
+      // `const n = async function(){…}` -- the match begins at `function`, so
+      // `async` is left in the prefix and would read as an identifier, making
+      // the body look like a declaration's block.
+      .replace(/\basync$/, '')
+      .replace(/\s+$/, '');
+    if (upto === '') return false;
+    const prev = upto.slice(-1);
+    return REGEX_AFTER_PUNCT.has(prev) || OBJECT_LITERAL_AFTER_KEYWORD.test(upto);
+  }
+
   function regexCanStartHere() {
     // `out` has comments already blanked to spaces, so trimming trailing
     // whitespace skips them -- a comment between a token and a `/` should not
@@ -396,6 +511,11 @@ export function stripComments(source) {
     // *do* matter are the restricted-production keywords, handled in
     // REGEX_AFTER_KEYWORD above, where no division is possible either way.
     if (last === ')') return lastCloseWasCondition;
+    if (last === '}') return lastCloseWasBlock;
+    // `...` spreads an expression, so a regex may follow it directly. The
+    // final character is a `.`, which on its own means a member access and
+    // would read as division -- the ellipsis has to be matched whole.
+    if (before.endsWith('...')) return true;
     if (REGEX_AFTER_PUNCT.has(last)) return true;
     return endsWithKeyword(before);
   }
@@ -412,8 +532,20 @@ export function stripComments(source) {
         if (i < source.length) { out += source[i]; i += 1; }
         continue;
       }
-      if (c === '`') { out += c; i += 1; stack.pop(); continue; }
+      if (c === '`') {
+        // Template *text* is content, the same as a quoted string's -- review
+        // finding 23. `${…}` substitutions are code and are excluded, because
+        // each one closes the span before it and opens a new one after.
+        const from = top().spanStart;
+        if (from !== undefined && out.length > from) stringSpans.push([from, out.length]);
+        out += c;
+        i += 1;
+        stack.pop();
+        continue;
+      }
       if (c === '$' && next === '{') {
+        const from = top().spanStart;
+        if (from !== undefined && out.length > from) stringSpans.push([from, out.length]);
         out += '${';
         i += 2;
         stack.push({ type: 'subst', depth: 0 });
@@ -428,7 +560,14 @@ export function stripComments(source) {
     if (top()?.type === 'subst') {
       if (c === '{') { top().depth += 1; out += c; i += 1; continue; }
       if (c === '}') {
-        if (top().depth === 0) { stack.pop(); out += c; i += 1; continue; }
+        if (top().depth === 0) {
+          stack.pop();
+          out += c;
+          i += 1;
+          // Back in template text: start a fresh span after the substitution.
+          if (top()?.type === 'template') top().spanStart = out.length;
+          continue;
+        }
         top().depth -= 1;
         out += c;
         i += 1;
@@ -446,6 +585,43 @@ export function stripComments(source) {
     }
     if (c === ')') {
       lastCloseWasCondition = parens.pop() ?? false;
+      out += c;
+      i += 1;
+      continue;
+    }
+
+    // And the same for `{`, so the matching `}` can say whether it closed a
+    // block or an object literal. A `{` in *expression* position -- after an
+    // operator, a separator, an open bracket, `return` and friends -- opens a
+    // literal; anywhere else it opens a block. That is the same question
+    // `regexCanStartHere` answers about `/`, so it is answered the same way.
+    if (c === '{') {
+      const before = out.replace(/\s+$/, '');
+      const last = before.slice(-1);
+      // An object literal: a `{` sitting in expression position.
+      // A `:` is the one punctuation mark with both readings. Inside an object
+      // literal it separates a key from its value, so `{a: {` opens a nested
+      // literal. At statement level it ends a label or a `case`, so
+      // `case 1: {` opens a *block*. The brace stack already knows which we
+      // are in.
+      const insideALiteral = braces[braces.length - 1] === true;
+      const colonOpensAValue = last !== ':' || insideALiteral;
+      const literal =
+        before !== ''
+        && last !== ')'
+        && last !== '}'
+        && colonOpensAValue
+        && (REGEX_AFTER_PUNCT.has(last) || OBJECT_LITERAL_AFTER_KEYWORD.test(before));
+      braces.push(literal || opensAnExpressionBody(before));
+      out += c;
+      i += 1;
+      continue;
+    }
+    if (c === '}') {
+      // Default to `true` (a block) when the stack is empty: an inline script
+      // fragment can close a brace it never opened, and a block is the reading
+      // that keeps a following regex scannable.
+      lastCloseWasBlock = !(braces.pop() ?? false);
       out += c;
       i += 1;
       continue;
@@ -473,10 +649,18 @@ export function stripComments(source) {
       for (; i < stop; i += 1) out += isLineTerminator(source[i]) ? source[i] : ' ';
       continue;
     }
-    if (c === '`') { out += c; i += 1; stack.push({ type: 'template' }); continue; }
+    if (c === '`') { out += c; i += 1; stack.push({ type: 'template', spanStart: out.length }); continue; }
     if (c === '"' || c === "'") {
+      // A quote sitting immediately after a slash still cannot be a string --
+      // `x /'abc'` is NaN -- so it came from a regex this scanner misread.
+      // With `}` now classified correctly above, the case that produced this
+      // is gone; it is kept because it costs nothing and the `/` ambiguity has
+      // more corners than the three that were reported.
+      const quotedFromARegex = out.endsWith('/');
       out += c;
       i += 1;
+      const spanStart = out.length;
+      let closed = false;
       while (i < source.length) {
         out += source[i];
         if (source[i] === '\\') {
@@ -485,7 +669,7 @@ export function stripComments(source) {
           i += 1;
           continue;
         }
-        if (source[i] === c) { i += 1; break; }
+        if (source[i] === c) { i += 1; closed = true; break; }
         // Not `isLineTerminator`, and the difference is a real one. Since
         // ES2019 subsumed JSON, U+2028 and U+2029 are *legal inside a quoted
         // string* -- they stopped terminating one, while still terminating a
@@ -495,6 +679,30 @@ export function stripComments(source) {
         // CR end a quoted string.
         if (source[i] === '\n' || source[i] === '\r') { i += 1; break; }
         i += 1;
+      }
+      // Only a string that actually met its closing quote is recorded.
+      //
+      // An unterminated one means this scanner took a `'` for a quote that was
+      // something else, and the only thing it can do then is run to the end of
+      // the line or the file -- over however much real code lies between.
+      // Since a span's whole job is to *suppress* a finding, trusting a
+      // misparse here loses one. Review finding 14 is exactly that:
+      //
+      //     if (ok) {} /'/.test(x); document.getElementById("missing");
+      //
+      // A block `}` is still read as division (the limit documented above), so
+      // the regex's `'` opened a "string" that swallowed the rest of the line
+      // and `missing` disappeared. Declining to record it costs nothing: an
+      // unterminated string suppresses no false positive worth having.
+      // `closed` alone is not enough, and review finding 15 is why: with the
+      // same quote style on both, the regex's `'` opened the "string" and the
+      // id argument's own `'` closed it, so the span looked perfectly well
+      // formed and covered the call. `quotedFromARegex` is what actually
+      // distinguishes the case; `closed` stays because an unterminated span is
+      // untrustworthy for its own reasons (finding 14).
+      if (closed && !quotedFromARegex) {
+        // The interior, excluding the closing quote just appended.
+        stringSpans.push([spanStart, Math.max(spanStart, out.length - 1)]);
       }
       continue;
     }
@@ -524,7 +732,7 @@ export function stripComments(source) {
     out += c;
     i += 1;
   }
-  return out;
+  return { text: out, stringSpans };
 }
 
 /**
@@ -539,14 +747,18 @@ export function stripComments(source) {
  * a template literal containing `${...}` is skipped — the id is computed at
  * runtime and cannot be checked statically without guessing.
  */
-function lookupIdsIn(scriptSource) {
+function lookupIdsIn(scriptSource, stringSpans = []) {
   const ids = new Set();
-  const add = (raw) => {
-    if (raw && !raw.includes('${')) ids.add(raw);
+  // A match that *begins* inside a quoted string is prose about code, not
+  // code. The id argument is itself a string, so the test is where the call
+  // starts, never where the id sits.
+  const insideAString = (at) => stringSpans.some(([from, to]) => at >= from && at < to);
+  const add = (raw, at) => {
+    if (raw && !raw.includes('${') && !insideAString(at)) ids.add(raw);
   };
-  for (const m of scriptSource.matchAll(/getElementById\(\s*["'`]([^"'`]+)["'`]\s*\)/g)) add(m[1]);
-  for (const m of scriptSource.matchAll(/querySelector(?:All)?\(\s*["'`]#([\w:.-]+)["'`]\s*\)/g)) add(m[1]);
-  for (const m of scriptSource.matchAll(/(?<![\w$.])\$\(\s*["'`]([\w:.-]+)["'`]\s*\)/g)) add(m[1]);
+  for (const m of scriptSource.matchAll(/getElementById\(\s*["'`]([^"'`]+)["'`]\s*\)/g)) add(m[1], m.index);
+  for (const m of scriptSource.matchAll(/querySelector(?:All)?\(\s*["'`]#([\w:.-]+)["'`]\s*\)/g)) add(m[1], m.index);
+  for (const m of scriptSource.matchAll(/(?<![\w$.])\$\(\s*["'`]([\w:.-]+)["'`]\s*\)/g)) add(m[1], m.index);
   return ids;
 }
 
@@ -632,7 +844,11 @@ function naiveUncommented(source) {
  * there. This only guarantees the failures land on the safe side.
  */
 export function queriedIds(rawScriptSource) {
-  const careful = lookupIdsIn(stripComments(rawScriptSource));
+  const scanned = scanSource(rawScriptSource);
+  const careful = lookupIdsIn(scanned.text, scanned.stringSpans);
+  // The naive pass gets no span information on purpose: it is meant to be an
+  // independent opinion, and handing it the careful scanner's conclusions
+  // would make it agree by construction.
   const naive = lookupIdsIn(naiveUncommented(rawScriptSource));
   return new Set([...careful].filter((id) => naive.has(id)));
 }
