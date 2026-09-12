@@ -227,7 +227,85 @@ export function declaredIds(markup, scriptSource = '') {
 }
 
 /**
+ * Blank out comments in JavaScript source, preserving offsets and newlines.
+ *
+ * Why this exists. `queriedIds` below scans for lookup spellings with a regex,
+ * and a regex has no idea what a comment is. So a page that *documents* a
+ * selector -- "do not write `querySelector('#level-1.1.1')`, it throws" --
+ * gets that selector read back as a real lookup, and the page fails for
+ * carrying the comment that explains its own bug. Measured on
+ * `vpat-acr-generator` on 2026-09-11: the comment added in the same commit
+ * that fixed the defect was itself the only thing the checker flagged.
+ *
+ * That is precisely the failure mode `declaredIds` above names -- "a check
+ * that cries wolf is one the next session turns off" -- and it punishes
+ * exactly the comment most worth writing.
+ *
+ * Blanking rather than deleting keeps every other match's offset intact, and
+ * keeping the newlines keeps line numbers usable in any future finding.
+ *
+ * This is a scanner rather than a pair of regexes because `//` is ordinary
+ * text inside a string (`'https://example.com'`) and inside a regex literal,
+ * and stripping those would corrupt real source. It tracks the four states
+ * that can contain a `/` harmlessly: single quotes, double quotes, template
+ * literals, and regex literals.
+ */
+export function stripComments(source) {
+  let out = '';
+  let i = 0;
+  // What can legally precede a `/` that opens a regex literal. After a value
+  // (identifier, `)`, `]`, number) a `/` is division instead.
+  const regexAllowedBefore = /[([{;,:=!&|?+\-*~%^<>\n]|^|\breturn\b|\btypeof\b|\bcase\b/;
+  while (i < source.length) {
+    const c = source[i];
+    const next = source[i + 1];
+
+    if (c === '/' && next === '/') {
+      while (i < source.length && source[i] !== '\n') { out += ' '; i += 1; }
+      continue;
+    }
+    if (c === '/' && next === '*') {
+      const end = source.indexOf('*/', i + 2);
+      const stop = end === -1 ? source.length : end + 2;
+      for (; i < stop; i += 1) out += source[i] === '\n' ? '\n' : ' ';
+      continue;
+    }
+    if (c === '"' || c === "'" || c === '`') {
+      out += c; i += 1;
+      while (i < source.length) {
+        out += source[i];
+        if (source[i] === '\\') { i += 1; if (i < source.length) out += source[i]; i += 1; continue; }
+        if (source[i] === c) { i += 1; break; }
+        i += 1;
+      }
+      continue;
+    }
+    if (c === '/') {
+      // Division or a regex literal. Look back at the last meaningful char.
+      const before = out.replace(/\s+$/, '');
+      if (regexAllowedBefore.test(before.slice(-7)) || before === '') {
+        out += c; i += 1;
+        while (i < source.length) {
+          out += source[i];
+          if (source[i] === '\\') { i += 1; if (i < source.length) out += source[i]; i += 1; continue; }
+          if (source[i] === '/') { i += 1; break; }
+          if (source[i] === '\n') { i += 1; break; }
+          i += 1;
+        }
+        continue;
+      }
+    }
+    out += c;
+    i += 1;
+  }
+  return out;
+}
+
+/**
  * Ids the script asks the document for.
+ *
+ * Comments are blanked first (see `stripComments`): a selector quoted in prose
+ * is documentation, not a lookup, and reading it as one fails working pages.
  *
  * Covers the three lookup spellings used across the portfolio's pages:
  * `getElementById('x')`, `querySelector('#x')` and the one-character `$('x')`
@@ -235,7 +313,8 @@ export function declaredIds(markup, scriptSource = '') {
  * a template literal containing `${...}` is skipped — the id is computed at
  * runtime and cannot be checked statically without guessing.
  */
-export function queriedIds(scriptSource) {
+export function queriedIds(rawScriptSource) {
+  const scriptSource = stripComments(rawScriptSource);
   const ids = new Set();
   const add = (raw) => {
     if (raw && !raw.includes('${')) ids.add(raw);
