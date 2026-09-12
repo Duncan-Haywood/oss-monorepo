@@ -62,8 +62,16 @@ function makeStorage(writes) {
 // localStorage themselves. Rather than encode a convention nobody agreed to,
 // try the plausible shapes and let the control run below decide whether any of
 // them actually reached the code.
-function drive(module, navigatorValue, writes, eventNames) {
-  const storage = makeStorage(writes);
+// `storage` is a parameter so a caller can hand in a store that SURVIVES
+// between calls. This checker's runs are each self-contained, but
+// `optout-persistence.mjs` needs the same localStorage before and after a
+// simulated reload -- which is the whole property it tests -- and a driver
+// that always installs a fresh empty store silently defeats that: the flag
+// the module just wrote is invisible on the next call, so a correct module
+// reads as broken. Measured on `3pl-quote-normalizer`, which passes by hand
+// and failed here until this parameter existed.
+export function drive(module, navigatorValue, writes, eventNames, storage = null) {
+  storage = storage ?? makeStorage(writes);
   const previousNavigator = Object.getOwnPropertyDescriptor(globalThis, "navigator");
   const previousStorage = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
   const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
@@ -126,7 +134,7 @@ function argShapes(storage, eventNames) {
 // Some recorders only count events on an allowlist, so a generic probe name is
 // rejected and the module reads as undrivable. Its own source carries the names
 // it accepts: take the snake_case string literals and try those.
-function eventNamesFrom(path) {
+export function eventNamesFrom(path) {
   const source = readFileSync(path, "utf8");
   const found = new Set(["checked"]);
   for (const [, literal] of source.matchAll(/["'`]([a-z][a-z0-9]*(?:_[a-z0-9]+)+)["'`]/g)) {
