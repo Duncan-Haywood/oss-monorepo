@@ -855,6 +855,21 @@ test('not every semicolon or colon is a statement boundary', () => {
     ['missing'],
     "a `for` header's semicolon was read as a statement boundary",
   );
+  // 32. "Inside parentheses" is not the same as "in a `for` header", which is
+  // what the fix for 30 conflated. A callback or an IIFE keeps its calling
+  // parenthesis open across the entire function body, where a `;` really does
+  // end a statement. So the header must be the innermost paren, it must be a
+  // control-flow one, and no brace may have opened since.
+  for (const [src, want, label] of [
+    [`foo(function(){ a(); function f(){} /[/*]/.test(s); document.getElementById('missing'); });`, ['missing'], 'a callback body'],
+    [`(function(){ a(); function f(){} /[/*]/.test(s); document.getElementById('iife'); })();`, ['iife'], 'an IIFE body'],
+    // A function body opened *inside* the header ends the header's reach too --
+    // this one nobody reported; it falls out of the same rule.
+    [`for (let f = function(){ a(); function g(){} /[/*]/.test(s); document.getElementById('hdr'); }; ;) { break; }`, ['hdr'], 'a body inside a for header'],
+  ]) {
+    assert.deepEqual([...queriedIds(src)], want, `a semicolon in ${label} was read as a for-header delimiter`);
+  }
+
   // 31. A `:` outside an object literal is not automatically a label: it is
   // also a conditional's separator, which is expression position.
   assert.deepEqual(
@@ -897,6 +912,10 @@ test('not every semicolon or colon is a statement boundary', () => {
     [`outer: {} /a'/.test('a'); document.getElementById('missing');`, ['missing'], 'a block after a label'],
     [`switch(x){ case 1: {} /a'/.test('a'); document.getElementById('missing'); }`, ['missing'], 'a block after a case'],
     [`const n = ok ? {a:1} : {b:2}; n.a / 2; // document.getElementById('ghost')`, [], 'literals in both arms'],
+    // The object-literal half of the `:` rule needs a *nested* literal that is
+    // itself divided; `{a: {b: 1}}` alone passes with that half removed,
+    // because nothing there depends on the inner brace's kind.
+    [`const x = {k: {valueOf(){return 4}} / 2}; label:// document.getElementById('ghost')\n0;`, [], 'a divided literal as a property value'],
   ]) {
     assert.deepEqual([...queriedIds(src)], want, `${label} was misread after the tightening`);
   }
