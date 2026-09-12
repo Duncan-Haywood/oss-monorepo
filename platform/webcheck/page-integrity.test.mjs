@@ -483,6 +483,31 @@ test('a lookup written inside a string is prose, not code', () => {
     ['afterEOL'],
     'a string ended by a line terminator suppressed a later lookup',
   );
+
+  // Codex finding 15: `closed` alone is not enough. With the *same* quote
+  // style on both, the regex's `'` opened the "string" and the id argument's
+  // own `'` closed it, so the span looked perfectly well formed and covered
+  // the call. A quote sitting immediately after a slash is what actually
+  // distinguishes the case -- in valid JavaScript a string never directly
+  // follows a division slash.
+  assert.deepEqual(
+    [...queriedIds(`if (ok) {} /'/.test(x); document.getElementById('missing');`)],
+    ['missing'],
+    'a regex quote matching the id quote style suppressed a genuine lookup',
+  );
+
+  // And the ordinary strings that must keep producing spans, or finding 13
+  // comes back: a URL (which contains slashes) and two in a row.
+  assert.deepEqual(
+    [...queriedIds(`const u = 'https://example.com'; document.getElementById('u2');`)],
+    ['u2'],
+    'a URL in a string broke the scan',
+  );
+  assert.deepEqual(
+    [...queriedIds(`const a = 'x', b = 'y'; document.getElementById('two');`)],
+    ['two'],
+    'consecutive strings broke the scan',
+  );
 });
 
 test('a private member named like a keyword is not that keyword', () => {

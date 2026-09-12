@@ -497,6 +497,13 @@ export function scanSource(source) {
     }
     if (c === '`') { out += c; i += 1; stack.push({ type: 'template' }); continue; }
     if (c === '"' || c === "'") {
+      // A quote sitting immediately after a slash is the signature of a quote
+      // *inside a regex literal* that this scanner read as division -- `/'/`
+      // after a block `}`, the ambiguity documented above. In valid JavaScript
+      // a string never directly follows a division slash (`x /'abc'` is NaN),
+      // so this costs nothing and it is the only cheap way to tell the two
+      // apart without parsing.
+      const quotedFromARegex = out.endsWith('/');
       out += c;
       i += 1;
       const spanStart = out.length;
@@ -534,7 +541,13 @@ export function scanSource(source) {
       // the regex's `'` opened a "string" that swallowed the rest of the line
       // and `missing` disappeared. Declining to record it costs nothing: an
       // unterminated string suppresses no false positive worth having.
-      if (closed) {
+      // `closed` alone is not enough, and review finding 15 is why: with the
+      // same quote style on both, the regex's `'` opened the "string" and the
+      // id argument's own `'` closed it, so the span looked perfectly well
+      // formed and covered the call. `quotedFromARegex` is what actually
+      // distinguishes the case; `closed` stays because an unterminated span is
+      // untrustworthy for its own reasons (finding 14).
+      if (closed && !quotedFromARegex) {
         // The interior, excluding the closing quote just appended.
         stringSpans.push([spanStart, Math.max(spanStart, out.length - 1)]);
       }
