@@ -607,6 +607,9 @@ test('every position where a regex may start is classified', () => {
     // opposite answer.)
     ['class X {}', 'a class declaration'],
     ['function f(){}', 'a function declaration'],
+    ['const a = [...', 'a spread'],
+    ['do {} ', 'a do block'],
+    ['if (a) b(); else {}', 'an else block'],
   ]) {
     assert.deepEqual(
       [...queriedIds(probe(prefix))],
@@ -646,6 +649,11 @@ test('every position where a slash divides is classified', () => {
     // where the same syntax as a declaration closes into a block.
     ['const n = class { static [Symbol.toPrimitive]() { return 4 } }', 'a class expression as a value'],
     ['const n = function(){ return 4 }', 'a function expression as a value'],
+    // Review finding 22: `throw` is expression position, so the literal after
+    // it is a value. It reached the regex-start list and not the
+    // object-literal one, which is why the two are now derived from each other
+    // rather than maintained side by side.
+    ['function f(){ throw {valueOf(){return 4}}', 'an object literal after throw'],
   ]) {
     assert.deepEqual(
       [...queriedIds(probe(expr))],

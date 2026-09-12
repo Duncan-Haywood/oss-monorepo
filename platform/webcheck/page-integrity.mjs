@@ -420,7 +420,26 @@ export function scanSource(source) {
   // 14, 15 and 16 all were. So each `{` records which it opened, by the same
   // test JavaScript itself uses: a `{` in expression position is a literal,
   // anywhere else it is a block.
-  const OBJECT_LITERAL_AFTER_KEYWORD = /\b(return|typeof|case|in|of|delete|void|instanceof|new|yield|await)$/;
+  // Derived from the list above rather than written out again, because the two
+  // answer almost the same question -- "is this expression position?" -- and
+  // when they were maintained separately they drifted: `throw` reached the
+  // regex list and not this one, so `throw {…} / 2` read the literal as a
+  // block (review finding 22). Deriving it makes that drift impossible.
+  //
+  // The exclusions are the whole difference, and each is a real one:
+  //   do, else        take a *block*, so `do {}` is not a value
+  //   break,
+  //   continue,
+  //   debugger        cannot be followed by `{` at all
+  const BLOCK_NOT_LITERAL = new Set(['do', 'else', 'break', 'continue', 'debugger']);
+  const OBJECT_LITERAL_AFTER_KEYWORD = new RegExp(
+    `\\b(${REGEX_AFTER_KEYWORD.source
+      .replace(/^\\b\(/, '')
+      .replace(/\)\$$/, '')
+      .split('|')
+      .filter((word) => !BLOCK_NOT_LITERAL.has(word))
+      .join('|')})$`,
+  );
   const braces = [];
   let lastCloseWasBlock = true;
 
@@ -465,6 +484,10 @@ export function scanSource(source) {
     // REGEX_AFTER_KEYWORD above, where no division is possible either way.
     if (last === ')') return lastCloseWasCondition;
     if (last === '}') return lastCloseWasBlock;
+    // `...` spreads an expression, so a regex may follow it directly. The
+    // final character is a `.`, which on its own means a member access and
+    // would read as division -- the ellipsis has to be matched whole.
+    if (before.endsWith('...')) return true;
     if (REGEX_AFTER_PUNCT.has(last)) return true;
     return endsWithKeyword(before);
   }
