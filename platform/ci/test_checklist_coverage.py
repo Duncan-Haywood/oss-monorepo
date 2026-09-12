@@ -400,6 +400,51 @@ class NestedCheckout(unittest.TestCase):
         self.assertEqual(gaps, [])
         self.assertNotIn("sweepwt/portfolio/ledger", disk_dirs)
 
+    def test_one_repos_checkout_does_not_hide_another_repos_content(self):
+        """The cache must not outlive the scan.
+
+        Caught by an automated reviewer on #4646 after it merged. The first
+        version keyed a module-level `_cache={}` on the ancestor tuple alone,
+        so in a process that scans more than one root -- this suite does --
+        a `sweepwt` checkout in the first root made ordinary `sweepwt/**`
+        tests in a later root vanish, and reversing the order flipped which
+        repo got the wrong answer.
+
+        Silently dropping a directory from the scan is precisely what the
+        exclusion exists to prevent, so the fix for it reintroducing that
+        failure one layer down is worth a test of its own. Asserted in both
+        orders, because a cache bug that only shows up one way round is one a
+        single-order test will happily miss.
+        """
+        import tempfile
+
+        def build(root, nested):
+            d = root / "sweepwt" / "platform" / "newthing"
+            d.mkdir(parents=True)
+            (d / "x.test.mjs").write_text("")
+            if nested:
+                (root / "sweepwt" / ".git").write_text("gitdir: /elsewhere\n")
+            return root
+
+        for first_is_nested in (True, False):
+            with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
+                first = build(Path(a), nested=first_is_nested)
+                second = build(Path(b), nested=not first_is_nested)
+                cc.actual_test_mjs_dirs(first)          # poisons a shared cache
+                found = cc.actual_test_mjs_dirs(second)
+                if first_is_nested:
+                    self.assertIn(
+                        "sweepwt/platform/newthing", found,
+                        "a nested checkout in an earlier repo hid ordinary "
+                        "content in a later one",
+                    )
+                else:
+                    self.assertNotIn(
+                        "sweepwt/platform/newthing", found,
+                        "an earlier repo's ordinary content made a later "
+                        "repo's nested checkout get scanned",
+                    )
+
     def test_the_same_directory_outside_a_checkout_is_still_a_gap(self):
         # The exclusion must be about the nested checkout, not about the name:
         # an uncovered directory that merely sits deeper still has to report.

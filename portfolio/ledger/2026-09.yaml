@@ -29020,3 +29020,39 @@ entries:
         `connect_rejected` at the sandbox proxy. **Usage:** `never-measured`;
         `live_url_visitors` is `null` across every reading, never once a zero.
     mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Correction to the `portfolio` entry landed in #4645, recorded as a new
+        entry rather than by editing that one. An automated reviewer raised
+        both halves of this and both were right, and reconciling them is the
+        point: one finding said the entry attached outcomes from #4631, #4637,
+        #4640 and #4643 to a commit that repaired a single README count, which
+        AGENTS.md forbids -- an outcome "rides with the work it describes,
+        same commit, or same PR". The obvious fix, trimming that entry, was
+        pushed and was itself wrong: this README's first rule is "Append, do
+        not edit. Rewriting history to look better destroys the only signal
+        the router has", and the trim deleted real observations (a
+        browser-sweep finding, the PR processing, measured owner blockers)
+        that no other entry carries.
+      - >-
+        So the landed entry stands unedited and this entry carries the
+        correction. For the record: of the outcomes listed there, only the two
+        `gitops/ci/README.md` count assertions and the `gh-pages` republish
+        belong to #4645's own commit. The two guards described belong to
+        #4640, and the `vpat-acr-generator` repair belongs to #4643, which
+        shipped it independently and more fully -- #4645's branch carried none
+        of that code.
+      - >-
+        The reusable part is that the two rules can look opposed and are not.
+        "Attribute outcomes to the work that shipped them" governs what a new
+        entry may claim; "append, do not edit" governs what may be done to an
+        entry already landed. A misattribution is corrected forward, the same
+        way this repository corrects a wrong claim in `CLAUDE.md` -- by
+        writing the correction next to it and keeping the original visible,
+        which is why several sections of that file read as a record of
+        corrections rather than as a clean statement.
+    mrr_end: 0

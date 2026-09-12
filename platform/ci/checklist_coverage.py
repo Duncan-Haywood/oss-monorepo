@@ -174,8 +174,22 @@ def checklist_directories(block_text):
     return dirs
 
 
-def _in_nested_checkout(repo_root, rel, _cache={}):
-    """True if `rel` lives inside a git checkout nested under repo_root.
+def nested_checkout_filter(repo_root):
+    """Return `is_nested(rel)` for one scan of one repo_root.
+
+    A factory rather than a plain function with a cached default, because the
+    cache must not outlive the scan. It did: the first version keyed a
+    module-level `_cache={}` on the ancestor tuple alone, so in a process that
+    scans more than one root -- the test suite does, and so would any future
+    caller -- a `sweepwt` checkout in the first root made ordinary
+    `sweepwt/**` tests in a later root vanish from the scan. Reversing the
+    order flipped which repo got the wrong answer.
+
+    Caught by an automated reviewer on #4646 after it merged, and it deserved
+    catching: silently dropping a directory from the scan is precisely the
+    failure this whole exclusion exists to prevent, reintroduced by the fix
+    for it. A cache keyed on less than it depends on is the same defect as a
+    stale checklist line, one layer down.
 
     A `git worktree` added inside the repository -- which CLAUDE.md tells you
     to use, for a supersession check and to read `main` without disturbing
@@ -195,19 +209,25 @@ def _in_nested_checkout(repo_root, rel, _cache={}):
     submodule, a file for a linked worktree) rather than by name, so it also
     covers a stray clone someone left in the tree.
     """
-    for i in range(1, len(rel.parts)):
-        ancestor = rel.parts[:i]
-        if ancestor not in _cache:
-            _cache[ancestor] = (repo_root.joinpath(*ancestor) / ".git").exists()
-        if _cache[ancestor]:
-            return True
-    return False
+    cache = {}
+
+    def is_nested(rel):
+        for i in range(1, len(rel.parts)):
+            ancestor = rel.parts[:i]
+            if ancestor not in cache:
+                cache[ancestor] = (repo_root.joinpath(*ancestor) / ".git").exists()
+            if cache[ancestor]:
+                return True
+        return False
+
+    return is_nested
 
 
 def actual_test_mjs_dirs(repo_root):
     """Directories under repo_root holding a `*.test.mjs` file, as repo-root-relative
     POSIX paths, excluding ventures/*, node_modules, and dotdirs."""
     found = set()
+    is_nested = nested_checkout_filter(repo_root)
     for path in repo_root.rglob("*.test.mjs"):
         rel = path.relative_to(repo_root)
         parts = rel.parts
@@ -215,7 +235,7 @@ def actual_test_mjs_dirs(repo_root):
             continue
         if any(p.startswith(".") or p == "node_modules" for p in parts):
             continue
-        if _in_nested_checkout(repo_root, rel):
+        if is_nested(rel):
             continue
         found.add(rel.parent.as_posix())
     return found
@@ -231,6 +251,7 @@ def actual_test_py_dirs(repo_root):
     once in the checklist rather than twice in this file.
     """
     found = set()
+    is_nested = nested_checkout_filter(repo_root)
     for path in repo_root.rglob("*.py"):
         if not TEST_PY_RE.match(path.name):
             continue
@@ -238,7 +259,7 @@ def actual_test_py_dirs(repo_root):
         parts = rel.parts
         if any(p.startswith(".") or p in IGNORED_PARTS for p in parts):
             continue
-        if _in_nested_checkout(repo_root, rel):
+        if is_nested(rel):
             continue
         found.add(rel.parent.as_posix())
     return found
