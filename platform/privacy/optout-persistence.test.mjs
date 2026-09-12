@@ -13,6 +13,12 @@ import { join } from "node:path";
 
 import { checkModule, checkAll } from "./optout-persistence.mjs";
 
+// How many venture usage modules offer an in-page way to turn counting off,
+// measured 2026-09-12. Every one of them must keep the choice across a
+// reload, and the count itself is pinned -- see the catalogue test at the
+// bottom for why a lower bound is not enough.
+const SWITCHES_IN_THE_CATALOGUE = 93;
+
 let counter = 0;
 function fixture(source) {
   // A fresh directory per fixture: the checker imports by URL, and Node caches
@@ -303,11 +309,21 @@ test("every venture that offers the switch keeps it across a reload", async () =
     switched.length,
     "some module offering an opt-out was not verified",
   );
-  // And the sweep must keep finding the subjects it found before. Zero of
-  // zero passes vacuously, which is the shape this repository is worst at
-  // noticing -- but the sharper risk is the one measured here: discovery
-  // quietly narrowing, as the name allowlist did, and taking live controls
-  // out of the check while it stays green. 93 today; raise this with the
-  // catalogue, and never lower it without saying which switch went away.
-  assert.ok(switched.length >= 93, `only ${switched.length} modules offer a switch`);
+  // And the sweep must find exactly the subjects it found before. Not `>=`:
+  // a lower bound buys back the slack it was meant to remove the moment the
+  // catalogue grows past it. With a 94th switch added, a regression in
+  // `ltl-freight-class-estimator`'s `clearUsage()` -- a real opt-out that is
+  // found behaviourally and by nothing else -- would reclassify it as
+  // `no-switch`, leave 93 modules passing, and keep this assertion green.
+  //
+  // Equality makes an addition update the number deliberately, which is the
+  // point: the count is the claim about how much of the catalogue this guard
+  // covers, and a claim that can drift is not one. If this fails after you
+  // added a venture, raise it. If it fails and you added nothing, a switch
+  // stopped being a switch -- find out which before touching this line.
+  assert.equal(
+    switched.length,
+    SWITCHES_IN_THE_CATALOGUE,
+    "the set of modules offering an opt-out changed",
+  );
 });
