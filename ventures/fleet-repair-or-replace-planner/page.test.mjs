@@ -83,6 +83,7 @@ test("the explainer's worked figures match what the module actually computes", a
   // whitespace before matching rather than writing \s+ into every pattern.
   const html = page("is-it-cheaper-to-repair-or-replace-a-work-truck.html").replace(/\s+/g, " ");
   const { planRow, sampleRows } = await import("./calc.mjs");
+  const round2 = (v) => Math.round((v + Number.EPSILON) * 100) / 100;
   const [van3, excavator, van1] = sampleRows().map(planRow);
 
   assert.equal(van3.keepAnnualCost, 19000);
@@ -91,14 +92,18 @@ test("the explainer's worked figures match what the module actually computes", a
   assert.match(html, /\$6,287\.50 \/ yr/);
   assert.equal(van3.annualSaving, 12712.5);
   assert.match(html, /\$12,712\.50/);
-  assert.equal(van3.paybackYears, 2.95);
-  assert.match(html, /2\.95 years/);
-  assert.equal(van3.savingPerDollar, 0.34);
+  assert.equal(van3.operatingSaving, 17400);
+  assert.match(html, /\$17,400 \/ yr/);
+  assert.equal(van3.paybackYears, 2.16);
+  assert.match(html, /2\.16 years/);
+  // The ratio is kept unrounded for sorting, so the prose pins the rounded
+  // display value rather than the raw one.
+  assert.equal(round2(van3.savingPerDollar), 0.34);
   assert.match(html, /\$0\.34 a year per dollar/);
 
   assert.equal(excavator.annualSaving, 7600);
   assert.match(html, /\$7,600 a year on \$49,000/);
-  assert.equal(excavator.savingPerDollar, 0.16);
+  assert.equal(round2(excavator.savingPerDollar), 0.16);
   assert.match(html, /returns \$0\.16/);
 
   assert.equal(van1.keepAnnualCost, 2700);
@@ -123,4 +128,21 @@ test("index links one hop to the equipment-lease-buyout-calculator sibling", () 
     /href="\.\.\/equipment-lease-buyout-calculator\/"/,
     'index must link ../equipment-lease-buyout-calculator/ so crawlers reach it in one hop',
   );
+});
+
+
+// The explainer must teach the corrected payback rule, not just print the
+// corrected number — the wrong rule was the defect, and a reader who copies
+// the method onto their own fleet carries it forward.
+test("the explainer states that payback excludes the capital term", () => {
+  const html = page("is-it-cheaper-to-repair-or-replace-a-work-truck.html").replace(/\s+/g, " ");
+  assert.match(html, /charge the purchase for itself twice/);
+  assert.match(html, /\$37,500 ÷ \$17,400|\$37,500 &divide; \$17,400/);
+});
+
+test("the FAQ defines payback against the spend replacing stops", () => {
+  const html = page("index.html");
+  const matches = html.match(/annual repair and downtime spend that replacing stops/g) ?? [];
+  assert.equal(matches.length, 2, "the JSON-LD and the visible FAQ must agree");
+  assert.ok(!/Payback is the net capital divided by the annual saving/.test(html));
 });

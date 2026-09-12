@@ -48,8 +48,21 @@ replace = (replacement price - trade-in) / expected service years
 `replace` is an **equivalent annual cost** — the net capital that actually
 leaves the business, spread straight-line over the years of service it buys,
 plus what the new asset still costs to run. Replacing wins when `keep` is
-larger; the difference is the annual saving, and the net capital divided by
-that saving is the payback period.
+larger; the difference is the annual saving.
+
+Payback is a separate figure and a cash one:
+
+```
+payback = (replacement price - trade-in)
+            / (keep - the replacement's own repairs and downtime)
+```
+
+Its denominator is the spend replacing *stops*, **not** the annual saving
+above. The saving already has the capital spread through it, so dividing the
+capital by it would charge the purchase for itself twice — which is what this
+module did until the review on #4649 caught it (2.95 years reported against a
+true 2.16 on the worked example, and assets pushed across the three-year
+"strong case" threshold in the pessimistic direction).
 
 Across assets it then ranks by **annual saving per dollar of capital** and
 fills your stated budget in that order, reporting what deferring the rest

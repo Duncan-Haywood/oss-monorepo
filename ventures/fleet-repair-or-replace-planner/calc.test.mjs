@@ -43,19 +43,27 @@ test("the worked example reproduces the numbers by hand, to the cent", () => {
   const [van3, excavator, van1] = sampleRows().map(planRow);
 
   assert.equal(van3.annualSaving, 12712.5); // 19000 - 6287.5
-  assert.equal(van3.paybackYears, 2.95); // 37500 / 12712.5
+  assert.equal(van3.operatingSaving, 17400); // 19000 - (700 + 900)
+  assert.equal(van3.paybackYears, 2.16); // 37500 / 17400, NOT / 12712.5
   assert.equal(van3.recommendation, "replace");
 
   assert.equal(excavator.annualSaving, 7600); // 16000 - 8400
-  assert.equal(excavator.paybackYears, 6.45); // 49000 / 7600
+  assert.equal(excavator.operatingSaving, 12500); // 16000 - (1100 + 2400)
+  assert.equal(excavator.paybackYears, 3.92); // 49000 / 12500
   assert.equal(excavator.recommendation, "replace");
 
   // Pays less per year to keep than to replace: a newer van with real
   // trade-in value and a small repair bill is the case the planner has to be
   // willing to say "keep" about, or it is just a sales tool.
   assert.equal(van1.annualSaving, -1425); // 2700 - 4125
-  assert.equal(van1.paybackYears, null);
   assert.equal(van1.recommendation, "keep");
+  // Payback is still reported on a keep row, and reporting it is the point:
+  // 21000 / 1200 = 17.5 years against an 8-year service life says plainly why
+  // this one is a keep. It is `strong-payback` that is gated on the verdict,
+  // not the number itself.
+  assert.equal(van1.operatingSaving, 1200); // 2700 - (600 + 900)
+  assert.equal(van1.paybackYears, 17.5);
+  assert.ok(van1.paybackYears > van1.expectedLifeYears);
 });
 
 test("a blank expected life falls back to the documented default rather than dividing by zero", () => {
@@ -293,4 +301,74 @@ test("money never renders as a float artefact", () => {
     const decimals = String(row[key]).split(".")[1] ?? "";
     assert.ok(decimals.length <= 2, `${key} = ${row[key]} has more than 2 decimals`);
   }
+});
+
+
+// --- Regressions for the three findings on #4649 -------------------------
+
+test("payback divides capital by the spend it stops, not by the EAC saving", () => {
+  // The bug: `annualSaving` already has `annualisedCapital` subtracted, so
+  // `capitalNeeded / annualSaving` charges the purchase for itself twice. It
+  // reported 2.95 years on the shipped van where simple payback is 2.16, and
+  // it pushed assets across STRONG_PAYBACK_YEARS in the pessimistic direction.
+  const van = planRow(sampleRows()[0]);
+  assert.equal(van.capitalNeeded, 37500);
+  assert.equal(van.operatingSaving, 17400);
+  assert.equal(van.paybackYears, round(37500 / 17400));
+  assert.notEqual(van.paybackYears, round(37500 / van.annualSaving));
+  // And the denominator carries no capital term at all.
+  assert.equal(van.operatingSaving, van.keepAnnualCost - (van.annualRepairOnNew + van.downtimeCostOnNew));
+});
+
+test("an asset the EAC says to keep never gets a strong-payback note", () => {
+  // `operatingSaving` can be positive on a keep row (cheap trade-in, large
+  // purchase), so the threshold alone would contradict the verdict beside it.
+  const row = planRow({
+    name: "Nearly new",
+    annualRepairSpend: "9000",
+    replacementCost: "20000",
+    resaleValue: "0",
+    expectedLifeYears: "1",
+  });
+  assert.equal(row.recommendation, "keep");
+  assert.ok(row.paybackYears !== null && row.paybackYears <= STRONG_PAYBACK_YEARS);
+  assert.ok(!row.findings.some((f) => f.id === "strong-payback"));
+});
+
+test("two assets sharing a name are tracked separately in the plan", () => {
+  // Duplicate labels are ordinary in a fleet. Keying selection on the name
+  // ticked both rows when only one fitted the budget, collapsed the pair in
+  // the count, and exported a `keep` row as "in this year's plan".
+  const rows = [
+    { name: "Truck", annualRepairSpend: "9000", downtimeDays: "10", dailyLostRevenue: "500",
+      replacementCost: "30000", resaleValue: "5000", expectedLifeYears: "10" },
+    { name: "Truck", annualRepairSpend: "100", replacementCost: "60000", resaleValue: "0",
+      expectedLifeYears: "10" },
+  ];
+  const result = planFleet(rows, 25000);
+  assert.notEqual(result.rows[0].id, result.rows[1].id);
+  assert.equal(result.budget.selected.length, 1, "only the first Truck pays and fits");
+  assert.equal(result.budget.selected[0].id, result.rows[0].id);
+
+  const lines = toCsv(result).trim().split("\n");
+  assert.ok(lines[1].endsWith(",replace,yes"), lines[1]);
+  assert.ok(lines[2].endsWith(",keep,no"), lines[2]);
+});
+
+test("ranking uses the exact ratio, not one rounded to cents", () => {
+  // Codex's counter-example on #4649: rounding to cents collapses 0.011 and
+  // 0.014 to 0.01, the tie falls back to absolute saving, and the planner
+  // captures $990 instead of $1,260 on the same budget.
+  const rows = [
+    { name: "Big", annualRepairSpend: "990", replacementCost: "90000", resaleValue: "0", expectedLifeYears: "1000000" },
+    { name: "Small A", annualRepairSpend: "630", replacementCost: "45000", resaleValue: "0", expectedLifeYears: "1000000" },
+    { name: "Small B", annualRepairSpend: "630", replacementCost: "45000", resaleValue: "0", expectedLifeYears: "1000000" },
+  ];
+  const result = planFleet(rows, 90000);
+  assert.deepEqual(
+    result.budget.selected.map((r) => r.name).sort(),
+    ["Small A", "Small B"],
+    "the two better-returning assets must win the budget",
+  );
+  assert.equal(result.budget.annualSavingCaptured > 1200, true);
 });

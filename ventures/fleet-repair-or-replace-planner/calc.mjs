@@ -37,10 +37,28 @@
  *
  * Then, across assets:
  *
- *   annualSaving   = keep - replace          (positive means replacing wins)
- *   capitalNeeded  = replacementCost - resaleValue
- *   paybackYears   = capitalNeeded / annualSaving
- *   savingPerDollar = annualSaving / capitalNeeded
+ *   annualSaving     = keep - replace        (positive means replacing wins)
+ *   capitalNeeded    = replacementCost - resaleValue
+ *   operatingSaving  = keep - (annualRepairOnNew + downtime on the new asset)
+ *   paybackYears     = capitalNeeded / operatingSaving
+ *   savingPerDollar  = annualSaving / capitalNeeded
+ *
+ * **`paybackYears` divides by `operatingSaving`, not by `annualSaving`, and
+ * the difference is a bug this module shipped with** (corrected 2026-09-12,
+ * from a review finding on #4649). `annualSaving` has *already* had
+ * `annualisedCapital` subtracted from it, so dividing the capital outlay by it
+ * charges the purchase for itself twice — once as the numerator and again
+ * inside the denominator. On the shipped van that reported 2.95 years against
+ * a true simple payback of $37,500 / ($19,000 - $1,600) = 2.16, and, worse
+ * than being wrong by a margin, it pushed assets across the
+ * `STRONG_PAYBACK_YEARS` threshold in the pessimistic direction.
+ *
+ * Payback asks a cash question — how long until the money I laid out comes
+ * back — so its denominator is the cash the owner stops spending each year:
+ * the old asset's repairs and downtime, less what the new one still costs to
+ * run. The capital belongs in the numerator only. `annualSaving` stays the
+ * EAC comparison and stays what decides `recommendation` and the budget
+ * ranking, which is the question it does answer correctly.
  *
  * ## Budget selection is greedy, and says that it is
  *
@@ -91,7 +109,16 @@ export const ASSUMPTIONS = [
  * numeric field is treated as 0 rather than guessed at, and the findings say
  * when a zero is load-bearing enough to be worth filling in.
  */
-export function planRow(row = {}) {
+export function planRow(row = {}, index = null) {
+  // A stable identity that is NOT the name (added 2026-09-12, from a review
+  // finding on #4649). Two rows can legitimately both be called "Truck", and
+  // every downstream lookup that keyed on the name — the selected-set
+  // membership the table renders, the count beside it, and `toCsv`'s "in this
+  // year's plan" column — then marked both as selected when only one fitted
+  // the budget, and collapsed the pair to one in the count. A duplicate label
+  // in a fleet is ordinary, not a misuse, so the fix is an identity of its own
+  // rather than a uniqueness rule imposed on the owner's naming.
+  const id = index == null ? null : index;
   const name = String(row.name ?? "").trim() || "Untitled asset";
   const annualRepairSpend = nonNegNumber(row.annualRepairSpend);
   const downtimeDays = nonNegNumber(row.downtimeDays);
@@ -119,12 +146,28 @@ export function planRow(row = {}) {
   );
 
   const annualSaving = round2(keepAnnualCost - replaceAnnualCost);
+
+  // The cash the owner stops spending each year by replacing: the old asset's
+  // repairs and downtime, less what the new one still costs to run. No capital
+  // term — see the payback note in this module's header.
+  const operatingSaving = round2(
+    keepAnnualCost - (annualRepairOnNew + downtimeCostOnNew),
+  );
   const paybackYears =
-    annualSaving > 0 ? round2(capitalNeeded / annualSaving) : null;
+    operatingSaving > 0 && capitalNeeded > 0
+      ? round2(capitalNeeded / operatingSaving)
+      : null;
+
+  // Deliberately NOT rounded (corrected 2026-09-12, from a review finding on
+  // #4649). This value exists to sort by, and rounding to cents before sorting
+  // collapses materially different returns into a tie that then falls back to
+  // absolute saving — which picks the larger, worse-returning asset. A $90,000
+  // asset returning 0.011 and a $45,000 asset returning 0.014 both round to
+  // 0.01, and on a $90,000 budget the tie-break took the one capturing $990
+  // over two capturing $1,260, in direct contradiction of the ratio heuristic
+  // this module documents. Round at the point of display instead.
   const savingPerDollar =
-    capitalNeeded > 0 && annualSaving > 0
-      ? round2(annualSaving / capitalNeeded)
-      : 0;
+    capitalNeeded > 0 && annualSaving > 0 ? annualSaving / capitalNeeded : 0;
 
   const recommendation = annualSaving > 0 ? "replace" : "keep";
 
@@ -172,16 +215,25 @@ export function planRow(row = {}) {
     });
   }
 
-  if (paybackYears !== null && paybackYears <= STRONG_PAYBACK_YEARS) {
+  // Gated on the recommendation as well as the threshold: `operatingSaving`
+  // can be positive on an asset the EAC comparison says to keep (a cheap
+  // trade-in against a large purchase), and a "strong case" note beside a
+  // "keep" verdict would contradict the row it sits on.
+  if (
+    recommendation === "replace" &&
+    paybackYears !== null &&
+    paybackYears <= STRONG_PAYBACK_YEARS
+  ) {
     findings.push({
       id: "strong-payback",
       severity: "info",
       title: `${name}: capital pays back in ${paybackYears} year(s)`,
-      detail: `Replacing needs $${capitalNeeded.toFixed(2)} of capital and saves $${annualSaving.toFixed(2)} a year, so the outlay is recovered in about ${paybackYears} year(s) — inside the ${STRONG_PAYBACK_YEARS}-year mark this planner flags as a strong case. Confirm the quote and the trade-in before committing.`,
+      detail: `Replacing needs $${capitalNeeded.toFixed(2)} of capital and stops $${operatingSaving.toFixed(2)} a year of repair and downtime spend, so the outlay is recovered in about ${paybackYears} year(s) — inside the ${STRONG_PAYBACK_YEARS}-year mark this planner flags as a strong case. Confirm the quote and the trade-in before committing.`,
     });
   }
 
   return {
+    id,
     name,
     annualRepairSpend,
     downtimeDays,
@@ -198,6 +250,7 @@ export function planRow(row = {}) {
     downtimeCostOnNew,
     replaceAnnualCost,
     annualSaving,
+    operatingSaving,
     paybackYears,
     savingPerDollar,
     recommendation,
@@ -220,7 +273,8 @@ export function selectWithinBudget(rows, capitalBudget = 0) {
       (a, b) =>
         b.savingPerDollar - a.savingPerDollar ||
         b.annualSaving - a.annualSaving ||
-        a.name.localeCompare(b.name),
+        a.name.localeCompare(b.name) ||
+        (a.id ?? 0) - (b.id ?? 0),
     );
 
   const selected = [];
@@ -258,7 +312,7 @@ export function selectWithinBudget(rows, capitalBudget = 0) {
  * plan, unconditionally, for the reason given in this module's header.
  */
 export function planFleet(rows = [], capitalBudget = 0) {
-  const planned = (Array.isArray(rows) ? rows : []).map(planRow);
+  const planned = (Array.isArray(rows) ? rows : []).map((row, index) => planRow(row, index));
 
   const totals = planned.reduce(
     (sum, r) => ({
@@ -365,7 +419,9 @@ function csvField(value) {
 
 /** The plan as a CSV the owner can take to a lender, a partner, or their accountant. */
 export function toCsv(result) {
-  const chosen = new Set(result.budget.selected.map((r) => r.name));
+  // By id, never by name: two rows may share a label, and a name-keyed set
+  // would export a `keep` row as `yes` and collapse the pair in the count.
+  const chosen = new Set(result.budget.selected.map((r) => r.id));
   const lines = [CSV_HEADERS.join(",")];
   for (const r of result.rows) {
     lines.push(
@@ -386,7 +442,7 @@ export function toCsv(result) {
         r.annualSaving,
         r.paybackYears,
         r.recommendation,
-        chosen.has(r.name) ? "yes" : "no",
+        chosen.has(r.id) ? "yes" : "no",
       ].map(csvField).join(","),
     );
   }
