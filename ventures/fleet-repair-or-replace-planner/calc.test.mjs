@@ -415,3 +415,33 @@ test("an incomplete row can never reach the strong-payback note", () => {
   assert.equal(row.recommendation, "incomplete");
   assert.ok(!row.findings.some((f) => f.id === "strong-payback"));
 });
+
+test("the CSV carries enough columns to re-derive the replacement cost", () => {
+  // The export is what reaches a lender or an accountant; they get none of the
+  // findings, the page or the reasoning. Replacement downtime is a
+  // user-entered assumption feeding replaceAnnualCost, annualSaving and
+  // paybackYears, so leaving it out made all three unverifiable from the file.
+  const result = planFleet(sampleRows(), 40000);
+  const lines = toCsv(result).trim().split("\n");
+  const header = lines[0].split(",");
+  const row = lines[1].split(",");
+  assert.equal(header.length, row.length, "header and row must have equal width");
+  for (const column of ["Downtime days on replacement", "Downtime cost on replacement"]) {
+    assert.ok(header.includes(column), `missing column: ${column}`);
+  }
+  const value = (name) => Number(row[header.indexOf(name)]);
+  assert.equal(
+    round(
+      value("Annualised capital") +
+        value("Repairs on replacement") +
+        value("Downtime cost on replacement"),
+    ),
+    value("Annual cost of replacing"),
+    "the exported replacement cost must be reproducible from the exported columns",
+  );
+  // And the saving follows from the two costs the file already carries.
+  assert.equal(
+    round(value("Annual cost of keeping") - value("Annual cost of replacing")),
+    value("Annual saving"),
+  );
+});

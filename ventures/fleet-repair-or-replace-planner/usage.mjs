@@ -89,22 +89,46 @@ export function readUsage() {
 }
 
 /**
- * Turn counting off (or back on). Opting out both records the choice durably
- * and deletes what was already counted, in that order: if the write of the
- * flag fails, the counters are still cleared and the in-memory guard still
- * holds for this page view.
+ * Turn counting off (or back on).
+ *
+ * Opting out does two independent things, each in its own `try`, and the
+ * order matters (corrected 2026-09-12, from a review finding on #4649 — the
+ * previous version of this comment claimed the property the code did not
+ * have).
+ *
+ * Both writes used to share one `try`, with the flag written first. A
+ * `setItem` that throws — a full quota is the ordinary way — jumped straight
+ * to the catch, so `removeItem` never ran: the visitor clicked a switch
+ * advertised as permanent and got neither half of it. Their existing counters
+ * survived, no durable flag was written, and the next reload resumed counting
+ * on top of the data they had just asked to delete.
+ *
+ * So: delete the counters FIRST, and independently. If only one of the two
+ * can succeed, deleting the data is the half worth having — the visitor's
+ * existing record is gone even if the preference cannot be remembered. The
+ * in-memory guard still holds for this page view either way.
  */
 export function setUsageOptOut(value) {
   const off = Boolean(value);
   globalThis.__usageOptOut = off;
   if (typeof localStorage === "undefined") return;
-  try {
-    if (off) {
-      localStorage.setItem(OPT_OUT_KEY, "1");
+
+  if (off) {
+    try {
       localStorage.removeItem(KEY);
-    } else {
-      localStorage.removeItem(OPT_OUT_KEY);
+    } catch {
+      /* storage is optional; the in-memory guard still holds this page view */
     }
+    try {
+      localStorage.setItem(OPT_OUT_KEY, "1");
+    } catch {
+      /* the counters are already gone, which is the half that matters most */
+    }
+    return;
+  }
+
+  try {
+    localStorage.removeItem(OPT_OUT_KEY);
   } catch {
     /* storage is optional */
   }
