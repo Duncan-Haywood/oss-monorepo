@@ -215,7 +215,7 @@
     <p>Free and open source. If it stopped you from paying $10 for unused credits, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, priceForMargin, priceForProfit, compareEtsyPlus, comparePersonalization, personalizationNote, compareEtsyAds, etsyAdsNote, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareProductionPartner, productionPartnerNote, compareStarSeller, starSellerNote, compareShopSale, shopSaleNote, compareFreeShipping, freeShippingNote, compareEtsyLabels, etsyLabelsNote } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs'; import { formatOrderSummary } from './summary.mjs'; import { whereToSellUrl } from './to-where-to-sell.mjs';
+    import { calculateOrder, priceForMargin, priceForProfit, compareEtsyPlus, comparePersonalization, personalizationNote, compareEtsyAds, etsyAdsNote, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareProductionPartner, productionPartnerNote, compareStarSeller, starSellerNote, compareShopSale, shopSaleNote, compareFreeShipping, freeShippingNote, compareEtsyLabels, etsyLabelsNote } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs'; import { formatOrderSummary } from './summary.mjs'; import { whereToSellUrl } from './to-where-to-sell.mjs';
     const ids = FIELD_IDS;
     const INPUTS_KEY = 'etsy-profit-inputs';
     const field = id => document.getElementById(id);
@@ -727,6 +727,19 @@
     });
 
     update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

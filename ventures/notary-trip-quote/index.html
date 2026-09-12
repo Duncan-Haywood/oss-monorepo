@@ -154,7 +154,7 @@
   <div id="proposalDoc" class="pr-shell" hidden></div>
 <!-- proposal:end -->
 <footer><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br>Everything runs in your browser. Your figures are never uploaded. We count anonymous feature events in local storage only, with no cookies or analytics vendor. Counting is also disabled when the browser sends Do Not Track or Global Privacy Control. <button id="optout" type="button">Turn usage counting off</button></p><p><strong>Nothing leaves your browser.</strong> Every figure stays on this device. A share link encodes only the appointment details you choose into the address bar and is never sent to us.</p><p>Quoting a freelance translation project instead of a notary signing? The <a href="../translator-project-quote/">translator project quote calculator</a> prices word counts, fuzzy-match discounts, rush work, and QA &mdash; nothing uploaded.</p><p>Free and open source. If it helped you price the next signing with confidence, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
- <script type="module">import{calculateQuote,quoteResult,defaults}from './calc.mjs';import{recordUsage}from './usage.mjs';
+ <script type="module">import{calculateQuote,quoteResult,defaults}from './calc.mjs';import {recordUsage,readOptOut,writeOptOut} from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
       overlongTermsNote } from './proposal-terms.mjs';
@@ -420,4 +420,28 @@ el('worthHeading').textContent=q.offerEvaluated?'What the offer is worth per hou
     restoreCompany();
     refreshProposal();
 // proposal:end
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('optout');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
 </script></body></html>

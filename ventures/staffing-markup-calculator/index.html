@@ -224,7 +224,7 @@
 
   <script type="module">
     import { calculatePlacement, markupToMargin, ALL_INPUT_IDS } from './calc.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
     const el = (id) => document.getElementById(id);
@@ -463,6 +463,19 @@
     // pricing, and that event is the denominator of this venture's own usage
     // question.
     priceIt();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

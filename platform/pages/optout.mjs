@@ -145,17 +145,21 @@ const READ_CONTROL = () => {
   const buttons = [...document.querySelectorAll('button, input[type="button"]')];
   const textOf = (el) => (el.textContent || el.value || '').replace(/\s+/g, ' ').trim();
 
-  for (const el of boxes) if (named(el)) {
-    return { kind: 'checkbox', id: el.id || null, label: labelOf(el).slice(0, 80), state: String(el.checked) };
+  // A button's state is read from its *surroundings*, not only its own label.
+  // `locksmith-bid-calculator` leaves the button reading "Turn off local usage
+  // counting" and writes " Counting is off in this browser." into a sibling
+  // `#usageStatus`; reading the button alone called that no feedback at all,
+  // which would have accused a page that both persists the choice and shows
+  // it. A guard that accuses working pages is one that gets muted.
+  const around = (el) => (el.parentElement ?? el).textContent.replace(/\s+/g, ' ').trim();
+
+  const box = boxes.find(named) ?? boxes.find((el) => worded(labelOf(el)));
+  if (box) {
+    return { kind: 'checkbox', id: box.id || null, label: labelOf(box).slice(0, 80), own: String(box.checked), around: String(box.checked) };
   }
-  for (const el of buttons) if (named(el)) {
-    return { kind: 'button', id: el.id || null, label: textOf(el).slice(0, 80), state: textOf(el) };
-  }
-  for (const el of boxes) if (worded(labelOf(el))) {
-    return { kind: 'checkbox', id: el.id || null, label: labelOf(el).slice(0, 80), state: String(el.checked) };
-  }
-  for (const el of buttons) if (worded(textOf(el))) {
-    return { kind: 'button', id: el.id || null, label: textOf(el).slice(0, 80), state: textOf(el) };
+  const button = buttons.find(named) ?? buttons.find((el) => worded(textOf(el)));
+  if (button) {
+    return { kind: 'button', id: button.id || null, label: textOf(button).slice(0, 80), own: textOf(button), around: around(button) };
   }
   return null;
 };
@@ -165,9 +169,24 @@ const READ_CONTROL = () => {
 const READ_BY_ID = (id) => {
   const el = id ? document.getElementById(id) : null;
   if (!el) return null;
-  if (el.type === 'checkbox') return String(el.checked);
-  return (el.textContent || el.value || '').replace(/\s+/g, ' ').trim();
+  if (el.type === 'checkbox') return { own: String(el.checked), around: String(el.checked) };
+  const text = (node) => (node.textContent || node.value || '').replace(/\s+/g, ' ').trim();
+  return { own: text(el), around: text(el.parentElement ?? el) };
 };
+
+/** The part of two long strings that actually differs, for a readable report. */
+function brief(before, after) {
+  let head = 0;
+  while (head < before.length && head < after.length && before[head] === after[head]) head += 1;
+  let tail = 0;
+  while (
+    tail < before.length - head
+    && tail < after.length - head
+    && before[before.length - 1 - tail] === after[after.length - 1 - tail]
+  ) tail += 1;
+  const cut = (s) => s.slice(head, s.length - tail).slice(0, 60);
+  return { before: cut(before) || '(nothing)', after: cut(after) || '(nothing)' };
+}
 
 const browser = await playwright.chromium.launch(LAUNCH);
 const failures = [];
@@ -202,10 +221,16 @@ for (const rel of pages) {
     await page.evaluate((id) => document.getElementById(id).click(), found.id);
     await page.waitForTimeout(50);
     const changed = await page.evaluate(READ_BY_ID, found.id);
-    if (changed === found.state) {
+    // The narrow signal is preferred and the wide one is the fallback: read
+    // the control's own state if the click moved it, and its surroundings
+    // only if it did not. A page that answers in a sibling span still
+    // answers; a page whose surroundings carry a live figure is not turned
+    // into a failure by it, because the narrow reading wins wherever it works.
+    const field = changed.own !== found.own ? 'own' : changed.around !== found.around ? 'around' : null;
+    if (!field) {
       unverified.push({
         rel,
-        detail: `clicking ${found.id ? `#${found.id}` : found.label} changed nothing the visitor can see, `
+        detail: `clicking #${found.id} changed nothing the visitor can see, `
           + `so whether the choice is kept cannot be read from the page`,
       });
       continue;
@@ -214,11 +239,13 @@ for (const rel of pages) {
     await page.reload({ waitUntil: 'domcontentloaded', timeout: 20000 });
     const after = await page.evaluate(READ_BY_ID, found.id);
     checked += 1;
-    if (after !== changed) {
+    if (after[field] !== changed[field]) {
+      const diff = brief(changed[field], after[field]);
       failures.push({
         rel,
         control: `#${found.id}`,
-        detail: `${found.kind}: set to ${JSON.stringify(changed)}, came back ${JSON.stringify(after)} after a reload`,
+        detail: `${found.kind}: showed ${JSON.stringify(diff.before)} after the click, `
+          + `${JSON.stringify(diff.after)} after a reload`,
       });
     }
   } catch (error) {

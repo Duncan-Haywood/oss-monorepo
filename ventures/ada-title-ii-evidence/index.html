@@ -18,7 +18,7 @@
   <footer><p class="muted"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. It does not determine whether a site is compliant.</p>
   <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p><p class="muted">Local-only privacy: your JSON is never uploaded. We count only anonymous feature events in localStorage, with an opt-out. <a href="LICENSE">License</a></p><p class="support">Free and open source. If it helped you get ahead of the April 2027/2028 deadline, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p></footer>
   <script type="module">
-    import { buildReport, reportAsText } from './calc.mjs'; import { recordUsage } from './usage.mjs';
+    import { buildReport, reportAsText } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     let latest = null; const input = document.querySelector('#input'); const reportEl = document.querySelector('#report');
     document.querySelector('#generate').addEventListener('click', () => { try { latest = buildReport(JSON.parse(input.value)); reportEl.textContent = reportAsText(latest); document.querySelector('#stats').textContent = `${latest.counts.violations} violation rules (${latest.counts.requiredViolations} within WCAG 2.1 AA), ${latest.counts.nodes} affected nodes, ${latest.counts.passes} passing rules, ${latest.counts.incomplete} needing review`; document.querySelector('#error').textContent = ''; recordUsage(localStorage, document.querySelector('#optout').checked); } catch (error) {
       // A rejected input (invalid JSON, a document that isn't an axe-core
@@ -31,5 +31,29 @@
     } });
     document.querySelector('#download').addEventListener('click', () => { if (!latest) return; const blob = new Blob([reportAsText(latest)], { type: 'text/plain' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `ada-title-ii-evidence-${latest.date}.txt`; link.click(); URL.revokeObjectURL(link.href); recordUsage(localStorage, document.querySelector('#optout').checked, 'report_downloaded'); });
     document.querySelector('#copy').addEventListener('click', async () => { if (!latest) return; try { await navigator.clipboard.writeText(reportAsText(latest)); document.querySelector('#copy').textContent = 'Copied'; setTimeout(() => { document.querySelector('#copy').textContent = 'Copy record'; }, 1500); recordUsage(localStorage, document.querySelector('#optout').checked, 'report_copied'); } catch { document.querySelector('#error').textContent = 'Copy is unavailable. Use Download .txt instead.'; } });
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('optout');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
   </script>
 </body></html>

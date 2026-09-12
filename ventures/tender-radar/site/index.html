@@ -101,7 +101,7 @@ Clinic reroof,County,2026-09-04,roofing,140000,https://example.test/clinic</text
 </main>
 <script type="module">
 import {parseTenders, filterTenders, escapeHtml, safeUrl, toCsv, isUrgent, isClosed, daysUntil} from "./calc.mjs";
-import {record, enabled, setEnabled} from "./usage.mjs";
+import { record, enabled, setEnabled, readOptOut, writeOptOut } from "./usage.mjs";
 import {loadDraft, saveDraft, clearDraft} from "./draft.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -222,6 +222,30 @@ if (draft && typeof draft.csv === "string" && draft.csv.trim()) {
 }
 
 record("page_viewed");
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usage');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
 </script>
 </body>
 </html>

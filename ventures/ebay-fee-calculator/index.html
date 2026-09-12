@@ -828,7 +828,7 @@
   </footer>
   <script type="module">
     import { calculateOrder, calculateSourcingCeiling, calculateRepricingTable, calculatePromotedTable, maxAffordablePromotedRate, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, compareAuthenticity, authenticityNote, compareLocalPickup, localPickupNote, compareLotVsSingles, lotVsSinglesNote, compareStandardEnvelope, standardEnvelopeNote, compareCombinedShipping, combinedShippingNote, compareSellerInitiatedOffer, sellerInitiatedOfferNote, comparePromotedOffsite, promotedOffsiteNote, comparePromotedStandard, promotedStandardNote, comparePromotedAdvanced, promotedAdvancedNote, compareQuantityDiscount, quantityDiscountNote, compareSellerCoupon, sellerCouponNote, compareImmediatePayment, immediatePaymentNote, compareTopRatedPlus, topRatedPlusNote, compareManagedReturns, managedReturnsNote, compareGlobalShipping, globalShippingNote, compareStoreTiers, storeTiersNote, compareBestOffer, bestOfferNote, compareFreeShipping, freeShippingNote, compareInternational, internationalNote, comparePackageProtection, packageProtectionNote, compareEbayLabels, ebayLabelsNote, INPUT_FIELDS as ids } from './calc.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { repricingCsv } from './csv.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
     import { whereToSellUrl } from './to-where-to-sell.mjs';
@@ -1591,6 +1591,19 @@
     });
     restoreInputs();
     update();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

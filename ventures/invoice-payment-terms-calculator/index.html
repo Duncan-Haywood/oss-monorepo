@@ -197,7 +197,7 @@
       SCHEDULE_PRESETS, compareSchedules, depositForPeakExposure,
       depositSchedule, scheduleCopy, scheduleNote,
     } from './schedule.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     const ids = ['amount','invoiceDate','termsDays','annualLateRate','graceDays','monthlyBurn','outstanding','earlyPayDays','earlyPayDiscountPct','annualCarryRate','takeRatePct','factorFeePct','advancePct','reserveDays','payRun','payRunDay','payRunWeekday'];
     // Schedule inputs are collected separately so a change here never re-counts
@@ -443,6 +443,19 @@
     if (Object.keys(shared).length > 0) {
       $('shareStatus').textContent = 'Opened from a shared link — verify every number before relying on it.';
       recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'shared_link_opened');
+    }
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
     }
   </script>
 </body>

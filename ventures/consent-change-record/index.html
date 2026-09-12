@@ -23,7 +23,7 @@
   <section><h2>Common questions</h2><h3>Does this tell me whether my site is GDPR or CCPA compliant?</h3><p>No. It only reports observable differences between two trace exports you supply &mdash; requests added or removed and storage keys added or removed. The generated record says explicitly that it does not determine compliance; that judgment needs a person who knows your legal basis and traces from every relevant browser and region.</p><h3>What exactly gets compared &mdash; just requests and storage keys?</h3><p>Yes, and only what's in the trace JSON: each request's URL and method, and each storage entry's key. Cookie values, third-party pixels the trace didn't capture, in-memory state, and anything that happened outside the capture window are invisible to this comparison.</p><h3>Do the before and after traces have to be the same site?</h3><p>Yes, if both traces include a <code>site</code> field &mdash; the tool refuses to compare a before-trace from one site against an after-trace from another. Omit the field on either side and that check is skipped, so keeping <code>site</code> populated is what catches an accidental cross-site comparison.</p><h3>Do the traces I paste in get uploaded anywhere?</h3><p>No. Comparison happens entirely in this browser tab; nothing is sent anywhere. Prefer working from real captured traffic instead of hand-typed JSON? The <a href="tool/index.html">HAR before/after diff</a> takes raw DevTools exports the same way, locally.</p></section>
   <footer><p class="muted"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, medical, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. It does not determine whether a site is compliant.</p><p class="muted">Local-only privacy: traces never leave this browser. Counting honors Do Not Track and Global Privacy Control. <a href="LICENSE">License</a></p><p class="muted">Tracking changes to a public register instead of a cookie banner? <a href="../public-record-watch/">Public-Record Watch</a> compares two dated snapshots of a public register — licenses, permits, registrations — and reports what changed, entirely client-side.</p><p class="support">Free and open source. If it helped you document a consent change, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p></footer>
   <script type="module">
-    import { compareTraces, reportAsText } from './calc.mjs'; import { recordUsage } from './usage.mjs';
+    import { compareTraces, reportAsText } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     let latest = null; const report = document.querySelector('#report');
     document.querySelector('#compare').addEventListener('click', () => { try { latest = compareTraces(JSON.parse(document.querySelector('#before').value), JSON.parse(document.querySelector('#after').value)); report.textContent = reportAsText(latest); document.querySelector('#error').textContent = ''; recordUsage(localStorage, document.querySelector('#optout').checked); } catch (error) {
       // A rejected input (invalid JSON, a cross-site trace pair) must not leave
@@ -34,6 +34,30 @@
       latest = null; report.textContent = ''; document.querySelector('#error').textContent = error.message;
     } });
     document.querySelector('#download').addEventListener('click', () => { if (!latest) return; const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([reportAsText(latest)], {type:'text/plain'})); link.download = 'consent-change-record.txt'; link.click(); URL.revokeObjectURL(link.href); });
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('optout');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
   </script>
 </body>
 </html>

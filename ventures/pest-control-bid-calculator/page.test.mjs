@@ -7,7 +7,11 @@ const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 test('the static page contains its executable module and queried controls', () => {
   assert.match(page, /<script type="module">/);
   assert.match(page, /import \{ calculateBid, SERVICE_PRESETS \} from '\.\/calc\.mjs';/);
-  assert.match(page, /import \{ recordUsage \} from '\.\/usage\.mjs';/);
+  assert.match(page, /import \{ recordUsage, readOptOut, writeOptOut \} from '\.\/usage\.mjs';/);
+  // The page stores and restores the opt-out itself: the module takes the
+  // choice as an argument, so nothing else would remember it.
+  assert.match(page, /readOptOut\(localStorage\)/);
+  assert.match(page, /writeOptOut\(localStorage, /);
 
   for (const id of [
     'services',

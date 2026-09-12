@@ -423,7 +423,7 @@
   </footer>
   <script type="module">
     import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, compareShopPayInstallments, compareShippingLabels, compareOnlineVsPos, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
     import {
       encodeShareState, decodeShareState, decodeInputs,
       FIELD_IDS, ORDER_FIELDS as ids, PROMO_FIELDS as promoIds,
@@ -740,6 +740,30 @@
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, "handoff_where_to_sell");
     });
     update();
+
+    // Remember the visitor's usage-counting choice between visits, and
+    // show it on arrival. The control was read on every record call and
+    // never stored, so it came back in its default state and counting
+    // resumed -- a control that quietly stops working is worse than none,
+    // because the visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl && 'checked' in usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      } else if (usageControl) {
+        const paint = () => {
+          usageControl.textContent = readOptOut(localStorage)
+            ? 'Usage counting is off'
+            : 'Turn off local usage counting';
+        };
+        usageControl.addEventListener('click', () => {
+          writeOptOut(localStorage, !readOptOut(localStorage));
+          paint();
+        });
+        paint();
+      }
+    }
   </script>
 </body>
 </html>

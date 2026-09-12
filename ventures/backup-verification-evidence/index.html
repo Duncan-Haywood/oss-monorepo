@@ -115,7 +115,7 @@
   <script type="module">
     import { parseRunPayload, buildTrend, formatBytes, trendSummary, markdownTrend, DEFAULT_SHRINK_RATIO } from "./report.mjs";
     import { TREND_EXAMPLE_NIGHTS } from "./examples.mjs";
-    import { record, setUsageOptOut } from "./usage.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const status = document.querySelector("#status");
     const paste = document.querySelector("#paste");
@@ -274,6 +274,18 @@
       setUsageOptOut(true);
       document.querySelector("#optout").textContent = "Usage counting is off";
     });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+      }
+    }
   </script>
 </body>
 </html>

@@ -43,6 +43,10 @@ export function setUsageCountingEnabled(enabled) {
 }
 
 export function recordEvent(eventName) {
+  // The visitor's stored choice, consulted before anything else: the
+  // caller passes its own idea of it, and on most pages here that came
+  // from a control that had forgotten.
+  if (readOptOut()) return;
   if (!isUsageCountingEnabled()) return;
   try {
     const day = new Date().toISOString().slice(0, 10);
@@ -63,5 +67,32 @@ export function readLocalUsage() {
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
+  }
+}
+
+// The opt-out choice is kept in its own key, not in the counters:
+// opting out *removes* the counters, so a flag stored inside them would
+// be deleted by the very act it records. The recorder above consults it
+// directly, so the promise does not depend on a caller remembering to
+// pass the choice in.
+export function readOptOut(storage = globalThis.localStorage) {
+  try {
+    return storage?.getItem(`${STORAGE_KEY}-opt-out`) === "1";
+  } catch {
+    // A blocked or full store must never be read as consent.
+    return false;
+  }
+}
+
+export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+  if (!storage) return;
+  // Independent writes, counters first: sharing one try means a setItem
+  // that throws on a full quota skips the delete entirely, and the
+  // visitor gets neither half of what the control promised.
+  if (optedOut) {
+    try { storage.removeItem(STORAGE_KEY); } catch { /* storage is optional */ }
+    try { storage.setItem(`${STORAGE_KEY}-opt-out`, "1"); } catch { /* storage is optional */ }
+  } else {
+    try { storage.removeItem(`${STORAGE_KEY}-opt-out`); } catch { /* storage is optional */ }
   }
 }

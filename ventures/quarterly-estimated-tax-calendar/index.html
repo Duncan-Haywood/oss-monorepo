@@ -174,7 +174,7 @@
 
   <script type="module">
     import { computeSchedule, icsCalendar } from "./calc.mjs";
-    import { record, setUsageOptOut } from "./usage.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const els = {
@@ -296,6 +296,19 @@
       event.target.textContent = "Usage counting is off";
       event.target.disabled = true;
     });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
   </script>
 </body>
 </html>
