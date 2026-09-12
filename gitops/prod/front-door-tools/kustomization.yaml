@@ -40,8 +40,8 @@
 #   portfolio-front-tools-4: 124 files, 553008 bytes
 #   portfolio-front-tools-5: 132 files, 556321 bytes
 #   portfolio-front-tools-6: 134 files, 550817 bytes
-#   portfolio-front-tools-7: 124 files, 556665 bytes
-#   portfolio-front-tools-8: 113 files, 550354 bytes
+#   portfolio-front-tools-7: 123 files, 553862 bytes
+#   portfolio-front-tools-8: 114 files, 553672 bytes
 #   portfolio-front-tools-9: 115 files, 556538 bytes
 #   portfolio-front-tools-10: 123 files, 551213 bytes
 #   portfolio-front-tools-11: 123 files, 546838 bytes
@@ -1154,12 +1154,12 @@ configMapGenerator:
       - gig-driver-net-pay-calculator__usage.mjs.gz=gig-driver-net-pay-calculator__usage.mjs.gz
       - gig-driver-net-pay-calculator__vs-gridwise.html.gz=gig-driver-net-pay-calculator__vs-gridwise.html.gz
       - gravel-driveway-bid-calculator__calc.mjs.gz=gravel-driveway-bid-calculator__calc.mjs.gz
-      - gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz=gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz=gravel-driveway-bid-calculator__how-much-to-charge-for-a-gravel-driveway.html.gz
       - gravel-driveway-bid-calculator__index.html.gz=gravel-driveway-bid-calculator__index.html.gz
       - gravel-driveway-bid-calculator__usage.mjs.gz=gravel-driveway-bid-calculator__usage.mjs.gz
       - gravel-driveway-bid-calculator__vs-jobber.html.gz=gravel-driveway-bid-calculator__vs-jobber.html.gz
