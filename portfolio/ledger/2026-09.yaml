@@ -29318,8 +29318,14 @@ entries:
         viewports is a real result, and it is what confirmed the
         `vpat-acr-generator` repair held.
       - >-
-        No tooling change proposed: `_count_html` is already labelled as
-        context in its docstring and `browser_state.py` reports the field
-        without claiming coverage. The defect was in the prose written around
-        it, so the correction belongs in prose too.
+        Fixed in tooling as well as prose, and the tooling half is the one
+        that matters: `browser_state.py`'s report rendered the field as
+        `N pages`, which is what invited the claim. It now reads `N files`,
+        pinned by two tests that fail against the pre-fix renderer -- one
+        through `report()` on a full state fixture, one at source level
+        because that renderer's entry point has moved before. Correcting only
+        the prose would have left the trap armed for the next reader, since
+        the misreading was invited by the label rather than invented by the
+        reader. `_count_html` itself is unchanged: its docstring already
+        called the number context, and it was right.
     mrr_end: 0
