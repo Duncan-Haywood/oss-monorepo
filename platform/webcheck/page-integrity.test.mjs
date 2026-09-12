@@ -508,6 +508,27 @@ test('a lookup written inside a string is prose, not code', () => {
     ['two'],
     'consecutive strings broke the scan',
   );
+
+  // Codex finding 16, and the cause behind 14 and 15 as well. Each of those
+  // was patched at the quote; all three were really one thing -- a `}` read as
+  // division, which sent the scanner into a regex hunting for a string. Any
+  // quote anywhere in that regex then opened a span over the real lookup, so
+  // every guard written at the quote was defeated by moving the quote.
+  for (const [src, label] of [
+    [`if (ok) {} /a'/.test('a'); document.getElementById('missing');`, 'quote later in the regex'],
+    [`if (ok) {} /'/.test(x); document.getElementById('missing');`, 'matching quote styles'],
+    [`if (ok) {} /'/.test(x); document.getElementById("missing");`, 'differing quote styles'],
+  ]) {
+    assert.deepEqual([...queriedIds(src)], ['missing'], `a genuine lookup was suppressed: ${label}`);
+  }
+
+  // The other reading of `}` must not be broken by that: division after an
+  // object literal's member, and after a call, are both still division.
+  assert.deepEqual(
+    [...queriedIds(`const o = {}; o.x / 2; // document.getElementById('ghost')`)],
+    [],
+    'division after an object literal resurrected a comment',
+  );
 });
 
 test('a private member named like a keyword is not that keyword', () => {

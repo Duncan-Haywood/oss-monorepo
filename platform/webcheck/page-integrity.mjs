@@ -347,7 +347,15 @@ export function scanSource(source) {
   // automatic semicolon insertion, which is how `break\n/re/…` arises.
   const REGEX_AFTER_KEYWORD =
     /\b(return|throw|break|continue|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
-  const REGEX_AFTER_PUNCT = new Set([...'([{;,:=!&|?+-*/~%^<>']);
+  // `}` is here for a reason worth stating, because it was the cause behind
+  // three separate review findings. A `}` immediately before a `/` closes a
+  // *block*, and a regex may follow one: `if (ok) {} /re/.test(x)`. The other
+  // reading -- an object literal divided by something -- is not code anyone
+  // writes: `{a: 1} / 2` is NaN, and `f({}) / 2` ends in `)`, which the paren
+  // tracking below handles separately. Reading it as division sent the scanner
+  // into the regex looking for a string, and whatever quote it found there
+  // opened a span that swallowed real lookups (findings 14, 15, 16).
+  const REGEX_AFTER_PUNCT = new Set([...'([{};,:=!&|?+-*/~%^<>']);
 
   /**
    * True when `before` ends with one of those words used *as a keyword*.
@@ -497,12 +505,11 @@ export function scanSource(source) {
     }
     if (c === '`') { out += c; i += 1; stack.push({ type: 'template' }); continue; }
     if (c === '"' || c === "'") {
-      // A quote sitting immediately after a slash is the signature of a quote
-      // *inside a regex literal* that this scanner read as division -- `/'/`
-      // after a block `}`, the ambiguity documented above. In valid JavaScript
-      // a string never directly follows a division slash (`x /'abc'` is NaN),
-      // so this costs nothing and it is the only cheap way to tell the two
-      // apart without parsing.
+      // A quote sitting immediately after a slash still cannot be a string --
+      // `x /'abc'` is NaN -- so it came from a regex this scanner misread.
+      // With `}` now classified correctly above, the case that produced this
+      // is gone; it is kept because it costs nothing and the `/` ambiguity has
+      // more corners than the three that were reported.
       const quotedFromARegex = out.endsWith('/');
       out += c;
       i += 1;
