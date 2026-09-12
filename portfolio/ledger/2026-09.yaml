@@ -29479,4 +29479,66 @@ entries:
         per venture and page JS is exactly where this session already found a
         product shipping dead. That belongs in its own change, per venture,
         with the browser sweep to back it.
+      - >-
+        Third finding, and the worst of the five: **the checker found switches
+        by a hand-maintained list of five names**, inside a file whose stated
+        thesis is that names prove nothing. Five live controls wired to real
+        buttons were filed as `no-switch` and excluded from the check
+        entirely -- `clearAndDisable` (equipment-rental-break-even),
+        `writeOptOut` (delivery-app-margin-calculator),
+        `setUsageCountingEnabled` (mcp-supply-chain-watch), `disableUsage`
+        (card-processing-fee-audit), `setOptedOut` (no-show-fee-calculator).
+        A switch is now defined by what it does: an exported function which,
+        called, makes the recorder stop writing on this page. That needs no
+        list and rejects the near misses on behaviour -- `clearUsageLog()`
+        empties the counters and the recorder writes again, so it is a delete
+        button and not an opt-out. **The checked set went from 69 modules to
+        93**; all 24 newly visible controls already persisted correctly,
+        which is the uncomfortable part, because nothing would have said when
+        one of them stopped.
+      - >-
+        Fourth finding: which writes counted as *counters* was decided by
+        looking for "opt" or "off" in the key, so a module whose counter is
+        honestly named `coffee-usage` -- `c-o-f-f-e-e` contains `off` -- had
+        its resumed write filtered out and passed while broken. Counter keys
+        are now measured in the control run, and the filter that can turn a
+        fail into a pass excludes a key only when the switch demonstrably
+        wrote it and the recorder never does. That change put more weight on
+        "the recorder went quiet" as evidence, so a second control run now
+        asks whether the recorder writes *repeatably*: one that dedupes after
+        the first event falls silent on its own, and is reported rather than
+        passed.
+      - >-
+        Two modules surfaced from that as `undrivable` and were real findings:
+        `delivery-app-margin-calculator` and `where-to-sell-calculator` store
+        the choice durably but consult it only through the page, which reads
+        it into the checkbox on load and hands the checkbox back to
+        `recordUsage`. That works, and it made the promise depend on one line
+        of page wiring; both recorders now honour their own stored choice as
+        well.
+      - >-
+        Fifth finding: the catalogue count was pinned with `>=`, which buys
+        back its own slack the moment the catalogue grows -- with a 94th
+        switch added, a regression in `ltl-freight-class-estimator`'s
+        `clearUsage()` (a real opt-out that only behavioural discovery finds)
+        would reclassify it as `no-switch` and leave the suite green at 93.
+        It is now an equality against a named baseline. Five findings on one
+        change, all correct, and three of them the same shape: a margin left
+        where the check meets the catalogue.
+      - >-
+        Sixth finding, left for its own change and recorded here so it cannot
+        be lost: **the same broken promise exists one layer up, at page
+        level, and it is larger.** Where a page implements its opt-out by
+        passing a checkbox into `recordUsage(storage, optedOut, event)`
+        rather than through an exported setter, the module offers no switch,
+        this guard files it `no-switch`, and the checkbox resets on reload.
+        Confirmed on `vpat-acr-generator` (`#optout` read at index.html:112,
+        passed at 261/273/282/288, never assigned and never stored) and
+        `tree-service-bid-calculator` (identical shape). Measured scope: 172
+        `no-switch` modules, **220 pages carrying an opt-out control
+        anyway**. The honest test drives the page in a browser -- tick,
+        reload, is it still off -- which is `browser_checks.py` territory,
+        not a wider filter on a module-level importer, and inferring it from
+        page source is the static shortcut this file already got wrong five
+        times. Next change.
     mrr_end: 0
