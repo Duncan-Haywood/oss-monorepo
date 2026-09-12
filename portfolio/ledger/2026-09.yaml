@@ -29390,3 +29390,72 @@ entries:
         unchanged: its docstring already called the number context, and it
         was right.
     mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Restored a privacy promise across the catalogue: **37 of the 69
+        ventures that offer an in-page "turn usage counting off" switch did
+        not survive a reload**. They kept the choice only in
+        `globalThis.__usageOptOut`, which is a fresh realm on every page load,
+        so the visitor switched counting off, the counters were deleted, and
+        the next visit started counting again while offering the switch back.
+        A control that quietly stops working is worse than none, because the
+        visitor believes they have already used it and never looks again. All
+        37 fixed; all 69 now pass.
+      - >-
+        The guard is `platform/privacy/optout-persistence.mjs`, and it is
+        **behavioural rather than a grep** -- the same conclusion
+        `browser-signals.mjs` reached for the DNT/GPC promise, arrived at here
+        the hard way. Five static rules were tried against this question and
+        all five were wrong, always overcounting: `setItem(OPT_OUT...)` missed
+        `vendor-rate-break-even` (lowercase `optOutKey`); `getItem(...opt-out)`
+        missed `wash-and-fold-price-calculator` (key spelled `-usage-off`);
+        comparing setter bodies compared the setter and not the gate; and none
+        of them can see whether a stored value is ever branched on. The
+        counts those rules produced were 38, 39, 40, 42 and 69. The
+        behavioural answer is 37, and it is validated against four
+        known-correct modules and one known-broken one.
+      - >-
+        The check drives each module for real: count, opt out, then
+        **re-import in a fresh realm over the same storage** -- which is what
+        a reload is -- and ask whether it writes again. A control run first,
+        because silence from a recorder that was never reached is not
+        evidence. Its own suite pins six discriminations including the one
+        that defeats every static rule: a module that *stores* the flag and
+        never reads it is still a failure.
+      - >-
+        Reusing `browser-signals.mjs`'s driver rather than restating it turned
+        up a real bug in the reuse: `drive()` installed its own fresh storage
+        each call, so the flag the switch had just written was invisible to
+        the reload run and a correct module read as broken. Caught because the
+        first catalogue run reported 69 failures including two modules already
+        verified correct by hand. `drive()` now takes an optional
+        caller-supplied store; its own 52 tests still pass.
+      - >-
+        The fix itself is gate-shape independent, which matters because the
+        gates differ (`usageBlocked()`, an inline `||` chain, others) even
+        where the setters are identical: every *read* of the in-memory flag
+        becomes a helper consulting the durable key, while the assignment
+        stays as a same-page fast path. Writes are independent and
+        counters-first, per the finding on #4653 -- sharing one `try` means a
+        quota-full `setItem` skips the delete and the visitor gets neither
+        half.
+      - >-
+        Verified: the guard's own suite 7/7; the 38 changed ventures' suites
+        1732/1732; `platform/privacy` + `proposal` + `webcheck` 213/213;
+        `marketing` + `pages` 1257/1257; `gitops/tests` 581 passed / 1
+        skipped; `check_pages.mjs` 997 pages sound; `checklist_coverage`
+        clean. `regen.mjs` rewrote the mirror for the 38 modules.
+      - >-
+        Known limitation, deliberately not widened into this change: the
+        opt-out **button label** on those pages still does not reflect a
+        choice made on an earlier visit, so a returning visitor sees "turn
+        counting off" when it is already off. Counting is genuinely off --
+        the privacy behaviour is correct -- but the page-level wiring differs
+        per venture and page JS is exactly where this session already found a
+        product shipping dead. That belongs in its own change, per venture,
+        with the browser sweep to back it.
+    mrr_end: 0
