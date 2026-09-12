@@ -307,6 +307,173 @@ test('a regex after a condition is parsed as a regex, not merely survived', () =
   );
 });
 
+test('a regex after break or continue is not read as division', () => {
+  // Codex review on #4650, round 2. `break` and `continue` are restricted
+  // productions: a newline after them forces automatic semicolon insertion,
+  // so `break\n/re/` is two statements and that slash opens a regex. Read as
+  // division, the unescaped `/*` in the character class opens a bogus block
+  // comment and the real lookup after it disappears.
+  const brk = "while (false) { break\n/[/*]/.test('x'); } document.getElementById('missing');";
+  assert.deepEqual([...queriedIds(brk)], ['missing'], 'a real lookup was blanked after break');
+  const cont = "for (;;) { continue\n/[/*]/.test('y'); } document.getElementById('cont');";
+  assert.deepEqual([...queriedIds(cont)], ['cont'], 'a real lookup was blanked after continue');
+});
+
+test('a property named like a keyword is not treated as that keyword', () => {
+  // Codex review on #4652. Every word in REGEX_AFTER_KEYWORD is also a legal
+  // property name, and `obj.break / 2` is ordinary division. Matching the bare
+  // word read that slash as a regex opener, which ate the first slash of the
+  // following comment and left its text in the output -- the invented-lookup
+  // failure again, reached from the one direction not yet tried.
+  //
+  // Not only the three keywords added in the previous commit: `obj.return`
+  // and `obj?.delete` were misread by the original list too, so the guard is
+  // applied to the whole list.
+  for (const [src, label] of [
+    ["obj.break / 2; // document.getElementById('ghost')", 'break'],
+    ["obj.throw / 2; // document.getElementById('ghost')", 'throw'],
+    ["obj.continue / 2; // document.getElementById('ghost')", 'continue'],
+    ["obj.return / 2; // document.getElementById('ghost')", 'return'],
+    ["obj?.delete / 2; // document.getElementById('ghost')", 'optional-chained delete'],
+  ]) {
+    assert.deepEqual(
+      [...queriedIds(src)],
+      [],
+      `a property named \`${label}\` was read as the keyword, resurrecting a comment`,
+    );
+  }
+});
+
+test('a regex after a labelled break or continue is not read as division', () => {
+  // Codex finding 7. `break outer` is still a restricted production, so ASI
+  // applies, but the last token is the label -- which hid the keyword from the
+  // bare-word check entirely.
+  const brk = "outer: while (false) { break outer\n/[/*]/.test('x'); } document.getElementById('m7');";
+  assert.deepEqual([...queriedIds(brk)], ['m7'], 'a real lookup was blanked after a labelled break');
+  const cont = "outer: for(;;) { continue outer\n/[/*]/.test('x'); } document.getElementById('m7b');";
+  assert.deepEqual([...queriedIds(cont)], ['m7b'], 'a real lookup was blanked after a labelled continue');
+
+  // Codex finding 9. A label is a JavaScript identifier, and identifiers are
+  // Unicode -- `café:` is as valid as `outer:`. The first version of this fix
+  // used an ASCII-only character class, which silently stopped recognising the
+  // statement and put the slash back to division.
+  const accented = "café: while (false) { break café\n/[/*]/.test('x'); } document.getElementById('m9');";
+  assert.deepEqual([...queriedIds(accented)], ['m9'], 'an accented label was not recognised');
+  const cjk = "日本: for(;;) { continue 日本\n/[/*]/.test('y'); } document.getElementById('m9b');";
+  assert.deepEqual([...queriedIds(cjk)], ['m9b'], 'a non-Latin label was not recognised');
+});
+
+test('a private member named like a keyword is not that keyword', () => {
+  // Codex finding 8, and a gap in finding 6's own fix: `this.#break` leaves
+  // `#` as the character before the word, not `.`, so the dot guard missed it.
+  for (const src of [
+    "this.#break / 2; // document.getElementById('ghost')",
+    "this.#return / 2; // document.getElementById('ghost')",
+  ]) {
+    assert.deepEqual([...queriedIds(src)], [], 'a private member was read as a keyword');
+    // Asserted at the stripComments level too, and deliberately. Through
+    // `queriedIds` the cross-check below would mask this guard entirely --
+    // removing it fails no test, because the naive pass drops the id anyway.
+    // That is the cross-check working, but it would let the lexer silently rot.
+    assert.doesNotMatch(
+      stripComments(src),
+      /ghost/,
+      'the comment survived stripComments: a private member was read as a keyword',
+    );
+  }
+});
+
+test('a broken lexer can lose an id but can never invent one', () => {
+  // The safety property the cross-check exists for, stated as a test rather
+  // than as a claim in a docstring. Eight review findings landed on
+  // `stripComments`; four were the invented-lookup kind. Intersecting with an
+  // independent naive scan makes that direction structurally impossible, so it
+  // holds for the lexing bug nobody has found yet.
+  //
+  // This asserts the composition rather than simulating a broken lexer, which
+  // a unit test cannot do without rewriting the module: a comment that the
+  // careful pass somehow let through still has to survive the naive pass, and
+  // on an ordinary line comment it cannot.
+  const commented = "const x = a / 2; // document.getElementById('ghost')";
+  assert.deepEqual([...queriedIds(commented)], [], 'a commented-out lookup was reported');
+  assert.ok(
+    naiveDropsIt(commented, 'ghost'),
+    'the naive pass did not independently reject the commented-out lookup',
+  );
+});
+
+/** Does the deliberately naive reading also refuse to see `id`? */
+function naiveDropsIt(source, id) {
+  // Re-derived here rather than exported: the test should notice if the naive
+  // pass stops being an independent opinion, not inherit whatever it became.
+  const naive = source
+    .replace(/\/\*[\s\S]*?\*\//g, (t) => t.replace(/[^\n]/g, ' '))
+    .replace(/(^|[^:\\])(\/\/[^\n]*)/g, (w, b, c) => b + c.replace(/[^\n]/g, ' '));
+  return !naive.includes(id);
+}
+
+test('an id is only reported when both readings agree it is live', () => {
+  // The structural guard. `queriedIds` intersects the careful lexer with a
+  // deliberately naive comment scan, so a lexing bug can cost a finding but
+  // can never invent one -- the direction that matters for a gate over 995
+  // pages. Sabotaging stripComments to return its input unchanged is the
+  // strongest form of "the lexer is wrong": every comment survives it.
+  const commented = "const x = a / 2; // document.getElementById('ghost')";
+  assert.deepEqual(
+    [...queriedIds(commented)],
+    [],
+    'a commented-out lookup was reported',
+  );
+  // And the naive pass must not be so eager that it eats real code: the two
+  // exemptions it carries are a URL in a string and the escaped slashes of a
+  // URL-matching regex.
+  const url = 'const u = "https://example.com/x"; document.getElementById("real");';
+  assert.deepEqual([...queriedIds(url)], ['real'], 'a URL in a string blanked the line');
+  const rx = "if (ok) /https?:\\/\\//.test(url); document.getElementById('m3');";
+  assert.deepEqual([...queriedIds(rx)], ['m3'], 'an escaped-slash regex blanked the line');
+});
+
+test('a real keyword is still a keyword', () => {
+  // The other side of the same change: excluding member properties must not
+  // stop the genuine statement keywords from permitting a regex, or the two
+  // findings fixed in the previous commit come straight back.
+  const ret = "return /[/*]/.test(s); document.getElementById('m3');";
+  assert.deepEqual([...queriedIds(ret)], ['m3'], 'a real `return` stopped permitting a regex');
+});
+
+test('a regex used as a throw operand is not read as division', () => {
+  // Same round. `throw` can take a regex literal as its same-line operand and
+  // can never be followed by division, so a `/` after it is always a regex.
+  const src = "function fail() { throw /[/*]/; } document.getElementById('missing2');";
+  assert.deepEqual([...queriedIds(src)], ['missing2'], 'a real lookup was blanked after throw');
+});
+
+test('a newline alone does not make the next slash a regex', () => {
+  // The fix Codex proposed for the break/continue case was to treat a removed
+  // newline as a statement boundary. That would be wrong, and this pins why:
+  // a newline does *not* imply ASI when the next line can continue the
+  // expression, and `/` can. `const a = b` / newline / `/re/.test(c)` is the
+  // classic trap and really parses as two divisions. Treating it as a regex
+  // would swallow to the next slash and invent lookups -- the direction these
+  // guards exist to prevent. The keyword list is the correct mechanism,
+  // because after `break`/`continue`/`throw` no division is possible at all.
+  const src = "const a = b\n/re/.test(c); document.getElementById('asi');";
+  assert.deepEqual([...queriedIds(src)], ['asi'], 'the ASI-trap line was mis-parsed');
+
+  // And the case that shows the cost rather than merely the parse. Here the
+  // continued expression is a division with a comment after it. Read as a
+  // regex, the scan runs to the comment's first slash, the `//` pair is
+  // broken up, the comment text survives, and a lookup that exists only
+  // inside a comment is reported as live -- the exact false positive
+  // `stripComments` was added to remove.
+  const costly = "const a = b\n/ 2; // document.getElementById('ghost')\nconst c = 1;";
+  assert.deepEqual(
+    [...queriedIds(costly)],
+    [],
+    'treating a newline as a statement boundary resurrected a commented-out lookup',
+  );
+});
+
 test('division after a call is still division', () => {
   // The other side of the same change: fixing `if (ok) /re/` must not turn
   // every `)` into a regex opener, or `f(x) / 2` starts swallowing comments
