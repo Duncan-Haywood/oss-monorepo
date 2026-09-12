@@ -434,6 +434,39 @@ test('U+2028 and U+2029 do not end a quoted string', () => {
   }
 });
 
+test('a lookup written inside a string is prose, not code', () => {
+  // Codex finding 13 arrived at this from a strange direction -- a `//` and a
+  // U+2028 inside a string -- but the class is older and simpler than the
+  // reported case, and predates this whole sequence: `lookupIdsIn` matches
+  // textually, and text inside a string literal looks exactly like text
+  // outside one.
+  const plain = `const s = 'document.getElementById("ghost")';`;
+  assert.deepEqual([...queriedIds(plain)], [], 'a lookup quoted inside a string was reported as live');
+
+  // The reported shape: the naive pass used to blank through the separator and
+  // hide this by accident. Once it learned that U+2028 ends a line, both passes
+  // agreed and the intersection stopped filtering -- so the fix has to be in
+  // what counts as code, not in either pass's idea of a comment.
+  for (const sep of ['\u2028', '\u2029']) {
+    const src = `const s = 'a// prose${sep}document.getElementById("ghost")';`;
+    assert.deepEqual([...queriedIds(src)], [], 'lookup-shaped prose inside a string was reported');
+  }
+
+  // The distinction that makes this fixable: it is where the *call* sits, not
+  // where the id sits. The id is always a string -- that is the part worth
+  // keeping -- so blanking string contents wholesale would break every page.
+  assert.deepEqual(
+    [...queriedIds('document.getElementById("price").value;')],
+    ['price'],
+    'a genuine lookup stopped being found',
+  );
+  assert.deepEqual(
+    [...queriedIds(`const label = 'a string'; document.getElementById('real');`)],
+    ['real'],
+    'a preceding string swallowed a genuine lookup',
+  );
+});
+
 test('a private member named like a keyword is not that keyword', () => {
   // Codex finding 8, and a gap in finding 6's own fix: `this.#break` leaves
   // `#` as the character before the word, not `.`, so the dot guard missed it.

@@ -300,8 +300,30 @@ const LINE_TERMINATOR = /[\n\r\u2028\u2029]/;
 const isLineTerminator = (ch) => ch !== undefined && LINE_TERMINATOR.test(ch);
 
 export function stripComments(source) {
+  return scanSource(source).text;
+}
+
+/**
+ * `stripComments`, plus where the quoted-string contents were.
+ *
+ * `lookupIdsIn` matches `getElementById('x')` textually, and text inside a
+ * string literal looks exactly like text outside one. So
+ * `const s = 'document.getElementById("ghost")'` reported `ghost` as a live
+ * lookup -- prose about code, read as code. That predates everything in this
+ * sequence; review finding 13 arrived at it from a stranger direction (a `//`
+ * and a U+2028 inside the string) and is the same bug.
+ *
+ * It cannot be fixed by blanking string contents, because the id itself is a
+ * string: in `getElementById('price')`, `price` is exactly the part worth
+ * keeping. What distinguishes the two is where the *call* sits, not where the
+ * id sits -- so the scanner records each string's interior and `lookupIdsIn`
+ * drops any match that begins inside one.
+ */
+export function scanSource(source) {
   let out = '';
   let i = 0;
+  /** [start, end) of every quoted-string interior, in `out` coordinates. */
+  const stringSpans = [];
 
   // Where we are. Empty means plain code. A `template` entry means inside a
   // backtick literal's text, where a `//` is content and not a comment. A
@@ -477,6 +499,7 @@ export function stripComments(source) {
     if (c === '"' || c === "'") {
       out += c;
       i += 1;
+      const spanStart = out.length;
       while (i < source.length) {
         out += source[i];
         if (source[i] === '\\') {
@@ -496,6 +519,8 @@ export function stripComments(source) {
         if (source[i] === '\n' || source[i] === '\r') { i += 1; break; }
         i += 1;
       }
+      // The interior, excluding the closing quote just appended.
+      stringSpans.push([spanStart, Math.max(spanStart, out.length - 1)]);
       continue;
     }
     if (c === '/' && regexCanStartHere()) {
@@ -524,7 +549,7 @@ export function stripComments(source) {
     out += c;
     i += 1;
   }
-  return out;
+  return { text: out, stringSpans };
 }
 
 /**
@@ -539,14 +564,18 @@ export function stripComments(source) {
  * a template literal containing `${...}` is skipped — the id is computed at
  * runtime and cannot be checked statically without guessing.
  */
-function lookupIdsIn(scriptSource) {
+function lookupIdsIn(scriptSource, stringSpans = []) {
   const ids = new Set();
-  const add = (raw) => {
-    if (raw && !raw.includes('${')) ids.add(raw);
+  // A match that *begins* inside a quoted string is prose about code, not
+  // code. The id argument is itself a string, so the test is where the call
+  // starts, never where the id sits.
+  const insideAString = (at) => stringSpans.some(([from, to]) => at >= from && at < to);
+  const add = (raw, at) => {
+    if (raw && !raw.includes('${') && !insideAString(at)) ids.add(raw);
   };
-  for (const m of scriptSource.matchAll(/getElementById\(\s*["'`]([^"'`]+)["'`]\s*\)/g)) add(m[1]);
-  for (const m of scriptSource.matchAll(/querySelector(?:All)?\(\s*["'`]#([\w:.-]+)["'`]\s*\)/g)) add(m[1]);
-  for (const m of scriptSource.matchAll(/(?<![\w$.])\$\(\s*["'`]([\w:.-]+)["'`]\s*\)/g)) add(m[1]);
+  for (const m of scriptSource.matchAll(/getElementById\(\s*["'`]([^"'`]+)["'`]\s*\)/g)) add(m[1], m.index);
+  for (const m of scriptSource.matchAll(/querySelector(?:All)?\(\s*["'`]#([\w:.-]+)["'`]\s*\)/g)) add(m[1], m.index);
+  for (const m of scriptSource.matchAll(/(?<![\w$.])\$\(\s*["'`]([\w:.-]+)["'`]\s*\)/g)) add(m[1], m.index);
   return ids;
 }
 
@@ -632,7 +661,11 @@ function naiveUncommented(source) {
  * there. This only guarantees the failures land on the safe side.
  */
 export function queriedIds(rawScriptSource) {
-  const careful = lookupIdsIn(stripComments(rawScriptSource));
+  const scanned = scanSource(rawScriptSource);
+  const careful = lookupIdsIn(scanned.text, scanned.stringSpans);
+  // The naive pass gets no span information on purpose: it is meant to be an
+  // independent opinion, and handing it the careful scanner's conclusions
+  // would make it agree by construction.
   const naive = lookupIdsIn(naiveUncommented(rawScriptSource));
   return new Set([...careful].filter((id) => naive.has(id)));
 }
