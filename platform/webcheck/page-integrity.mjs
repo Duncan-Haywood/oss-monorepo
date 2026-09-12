@@ -291,7 +291,7 @@ export function stripComments(source) {
   const stack = [];
   const top = () => stack[stack.length - 1];
 
-  // After a value -- an identifier, `)`, `]`, a number, a string -- a `/` is
+  // After a value -- an identifier, `]`, a number, a string -- a `/` is
   // division. After an operator, a separator, or one of these keywords, it
   // opens a regex literal. Getting this backwards in the *division* direction
   // is the expensive one: the scanner then runs off looking for a closing
@@ -302,6 +302,15 @@ export function stripComments(source) {
     /\b(return|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
   const REGEX_AFTER_PUNCT = new Set([...'([{;,:=!&|?+-*/~%^<>']);
 
+  // `)` is the ambiguous one, and it is why this stack exists. A `/` after the
+  // `)` of `if (ok)` opens a regex; after the `)` of `f(x)` it is division.
+  // The difference is what the matching `(` belonged to, so each open paren
+  // records whether a control-flow keyword introduced it, and the matching
+  // close hands that answer back.
+  const CONTROL_FLOW_PAREN = /\b(if|while|for|switch|catch|with)\s*$/;
+  const parens = [];
+  let lastCloseWasCondition = false;
+
   function regexCanStartHere() {
     // `out` has comments already blanked to spaces, so trimming trailing
     // whitespace skips them -- a comment between a token and a `/` should not
@@ -310,6 +319,7 @@ export function stripComments(source) {
     if (before === '') return true;
     const last = before.slice(-1);
     if (last === '\n') return true;
+    if (last === ')') return lastCloseWasCondition;
     if (REGEX_AFTER_PUNCT.has(last)) return true;
     return REGEX_AFTER_KEYWORD.test(before);
   }
@@ -348,6 +358,33 @@ export function stripComments(source) {
         i += 1;
         continue;
       }
+    }
+
+    // Track what each `(` belongs to, so the matching `)` can say whether a
+    // `/` after it opens a regex (see CONTROL_FLOW_PAREN above).
+    if (c === '(') {
+      parens.push(CONTROL_FLOW_PAREN.test(out.replace(/\s+$/, '')));
+      out += c;
+      i += 1;
+      continue;
+    }
+    if (c === ')') {
+      lastCloseWasCondition = parens.pop() ?? false;
+      out += c;
+      i += 1;
+      continue;
+    }
+
+    // A bare `\` is a syntax error in real code, so meeting one here means the
+    // discrimination above already went wrong somewhere. Consuming it with the
+    // character it escapes keeps that mistake local: without this, the `\/` of
+    // a regex read as division pairs with the next `/` into a `//` that blanks
+    // the rest of the line, taking real lookups with it.
+    if (c === '\\') {
+      out += c;
+      i += 1;
+      if (i < source.length) { out += source[i]; i += 1; }
+      continue;
     }
 
     if (c === '/' && next === '/') {

@@ -264,6 +264,58 @@ test('a slash inside a regex character class does not end the regex', () => {
   assert.match(stripComments(src), /\/\[\/\]\//, 'the regex literal was mangled');
 });
 
+test('a regex after a control-flow condition is not read as division', () => {
+  // Codex review on #4650. `)` is ambiguous: a `/` after the `)` of `if (ok)`
+  // opens a regex, after the `)` of `f(x)` it is division. Classifying the
+  // first as division let the regex's own `\/` pair with the next slash into
+  // a `//`, which blanked the rest of the line and took a real lookup with it
+  // -- a false negative, and this repo's inline scripts are frequently one
+  // line, so "the rest of the line" can be the whole script.
+  const src = "if (ok) /https?:\\/\\//.test(url); document.getElementById('missing');";
+  assert.deepEqual([...queriedIds(src)], ['missing'], 'a real lookup was blanked away');
+});
+
+test('a misread regex cannot blank the rest of the line', () => {
+  // Pins the backslash guard *specifically*, and is the reason it exists as
+  // well as the `)` classifier. `}` closing a block also permits a regex
+  // after it, and telling a block `}` from an object-literal `}` needs more
+  // parsing than this scanner does -- so this case is still misread as
+  // division. The guard keeps that mistake local: `\/` is consumed with the
+  // character it escapes, so it cannot pair with the next slash into a `//`
+  // that blanks everything after it. Without the guard, the real lookup at
+  // the end of this line disappears.
+  const src = "function f(){} /a\\/\\//.test(s); document.getElementById('afterblock');";
+  assert.deepEqual(
+    [...queriedIds(src)],
+    ['afterblock'],
+    'a misread regex swallowed the rest of the line',
+  );
+});
+
+test('a regex after a condition is parsed as a regex, not merely survived', () => {
+  // Pins the paren tracking *specifically*. The escaped-slash case above is
+  // fixed by either mechanism -- the `)` classifier or the backslash guard --
+  // so it cannot tell which is doing the work, and a later reader deleting
+  // one of them would see the suite stay green. This case has no backslash
+  // to guard: read as division, the unescaped `/*` inside the character
+  // class opens a block comment and blanks everything after it.
+  const src = "if (ok) /[/*]/.test(s); document.getElementById('blockc');";
+  assert.deepEqual(
+    [...queriedIds(src)],
+    ['blockc'],
+    'the regex after the condition was read as division, blanking the rest',
+  );
+});
+
+test('division after a call is still division', () => {
+  // The other side of the same change: fixing `if (ok) /re/` must not turn
+  // every `)` into a regex opener, or `f(x) / 2` starts swallowing comments
+  // again -- the defect fixed one commit earlier.
+  const src = "const n = f(x) / 2; // document.getElementById('ghost')";
+  assert.deepEqual([...queriedIds(src)], [], 'a commented-out lookup was reported');
+  assert.match(stripComments(src), /const n = f\(x\) \/ 2;/, 'the division was mangled');
+});
+
 test('stripComments preserves length and line count', () => {
   // Offsets and line numbers stay usable for any future finding.
   const src = "a(); // gone\n/* also\ngone */ b();";
