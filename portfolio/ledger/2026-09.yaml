@@ -29375,14 +29375,18 @@ entries:
         viewports is a real result, and it is what confirmed the
         `vpat-acr-generator` repair held.
       - >-
-        Fixed in tooling as well as prose, and the tooling half is the one
-        that matters: `browser_state.py`'s report rendered the field as
-        `N pages`, which is what invited the claim. It now reads `N files`,
-        pinned by two tests that fail against the pre-fix renderer -- one
-        through `report()` on a full state fixture, one at source level
-        because that renderer's entry point has moved before. Correcting only
-        the prose would have left the trap armed for the next reader, since
-        the misreading was invited by the label rather than invented by the
-        reader. `_count_html` itself is unchanged: its docstring already
-        called the number context, and it was right.
+        Fixed in tooling as well as prose, and the tooling half took two
+        attempts. `browser_state.py` printed the count on each check's own
+        row -- `contrast ... 1022 pages` -- which is what invited the claim.
+        Renaming the unit to `files` was the first fix and a reviewer showed
+        it was not enough: `contrast ... 1022 files` still attributes the
+        number to contrast, because the attribution comes from the position,
+        not the noun. The count is now off the rows entirely and printed once
+        as `artifact at <commit>: N HTML files -- context, not any check's
+        coverage`, grouped by commit so a scoped `--only` reading is not
+        collapsed into a single number, which would be the same overstatement
+        one level up. Three tests pin it and all three fail against the
+        `files` version as well as the original. `_count_html` itself is
+        unchanged: its docstring already called the number context, and it
+        was right.
     mrr_end: 0

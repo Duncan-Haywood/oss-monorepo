@@ -617,24 +617,41 @@ def report(st: dict) -> str:
             continue
         when = reading.get("measured", "?")
         commit = (reading.get("commit") or "")[:8]
-        pages = reading.get("pages")
-        # "N files" rather than "N pages", and the distinction is not
-        # pedantic: this number is `browser_checks.py::_count_html`, the HTML
-        # file count of the built artifact, which that function's own
-        # docstring calls "only ever context" and explicitly does not derive
-        # from any check's scope. The checks cover different sets --
-        # `contrast.mjs` filters out every `404.html` and `offline.html`, so
-        # its axe total is always below the file count.
+        # No count on the row, deliberately. `reading["pages"]` is
+        # `browser_checks.py::_count_html` -- the HTML file count of the built
+        # artifact, which that function's own docstring calls "only ever
+        # context" and does not derive from any check's scope. The checks
+        # cover different sets: `contrast.mjs` filters out every `404.html`
+        # and `offline.html`, so its axe total is always below the file count.
         #
-        # Read as "pages", it invites a claim nobody measured. It did:
-        # #4651's ledger entry recorded "all 7 checks passing over 1022 pages
-        # at two viewports, with no WCAG A/AA violations" when contrast had
-        # actually covered 1020, and a reviewer had to catch it after the
-        # merge. Overstating accessibility evidence is the worst direction for
-        # this to go, because it is the kind of record someone relies on
-        # instead of re-measuring.
-        extra = f", {pages} files" if pages else ""
-        lines.append(f"  {mark}  {check:<10} {when} at {commit}{extra}")
+        # Printing it beside a check's name attributes it to that check,
+        # whatever noun follows. It did: #4651's ledger recorded "all 7 checks
+        # passing over 1022 pages ... with no WCAG A/AA violations" when
+        # contrast had covered 1020. Renaming it to "files" was the first
+        # attempt and was not enough -- `contrast ... 1022 files` still reads
+        # as contrast's number. The count is artifact-wide, so it belongs on
+        # one line about the artifact, below.
+        lines.append(f"  {mark}  {check:<10} {when} at {commit}")
+    # The artifact count, once, labelled as what it is. Grouped by commit
+    # rather than assumed common: a `--only` run records a scoped reading, so
+    # two checks can legitimately carry different counts, and collapsing that
+    # into one number would be the same overstatement one level up.
+    by_count = {}
+    for check in CHECKS:
+        reading = st[check]["reading"]
+        if not reading or not reading.get("pages"):
+            continue
+        key = (reading.get("pages"), (reading.get("commit") or "")[:8])
+        by_count.setdefault(key, []).append(check)
+    if by_count:
+        lines.append("")
+        for (pages, commit), checks in sorted(by_count.items()):
+            who = "" if len(checks) == len(CHECKS) else f" ({', '.join(checks)})"
+            lines.append(
+                f"  artifact at {commit}: {pages} HTML files{who} — context, not"
+                " any check's coverage; each check scopes its own set"
+            )
+
     stale = [c for c in CHECKS if st[c]["verdict"] in ("stale", "never", "unknown")]
     lines.append("")
     if not stale:
