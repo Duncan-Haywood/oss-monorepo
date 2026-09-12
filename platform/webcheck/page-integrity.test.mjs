@@ -836,6 +836,91 @@ test('statement position and expression position are different questions', () =>
   }
 });
 
+test('not every semicolon or colon is a statement boundary', () => {
+  // Codex findings 30 and 31, and both are regressions from the fix for 27/28
+  // in the round before — which named the statement/expression distinction and
+  // then drew the line in the wrong place for two tokens.
+  //
+  // Worth recording which direction the mistake ran, because this file's
+  // docstring says one is worse. Calling an expression position a *statement*
+  // one makes a `}` permit a regex, so a division is scanned as a regex, so a
+  // comment is swallowed and lookups are invented — the false-positive
+  // direction, the one that fails a sound page. So `inStatementPosition` has
+  // to be conservative: say "statement" only where that is certain.
+
+  // 30. The only place a `;` appears inside parentheses is a `for` header, and
+  // what follows one is still an expression.
+  assert.deepEqual(
+    [...queriedIds(`for (; function(){} / 2; ) { break; } const re=/a'/; document.getElementById('missing');`)],
+    ['missing'],
+    "a `for` header's semicolon was read as a statement boundary",
+  );
+  // 32. "Inside parentheses" is not the same as "in a `for` header", which is
+  // what the fix for 30 conflated. A callback or an IIFE keeps its calling
+  // parenthesis open across the entire function body, where a `;` really does
+  // end a statement. So the header must be the innermost paren, it must be a
+  // control-flow one, and no brace may have opened since.
+  for (const [src, want, label] of [
+    [`foo(function(){ a(); function f(){} /[/*]/.test(s); document.getElementById('missing'); });`, ['missing'], 'a callback body'],
+    [`(function(){ a(); function f(){} /[/*]/.test(s); document.getElementById('iife'); })();`, ['iife'], 'an IIFE body'],
+    // A function body opened *inside* the header ends the header's reach too --
+    // this one nobody reported; it falls out of the same rule.
+    [`for (let f = function(){ a(); function g(){} /[/*]/.test(s); document.getElementById('hdr'); }; ;) { break; }`, ['hdr'], 'a body inside a for header'],
+  ]) {
+    assert.deepEqual([...queriedIds(src)], want, `a semicolon in ${label} was read as a for-header delimiter`);
+  }
+
+  // 31. A `:` outside an object literal is not automatically a label: it is
+  // also a conditional's separator, which is expression position.
+  assert.deepEqual(
+    [...queriedIds(`const n = ok ? 4 : function(){} / 2; const re=/a'/; document.getElementById('missing');`)],
+    ['missing'],
+    "a conditional's colon was read as a label",
+  );
+  // A body inside one arm must not consume that arm's own colon. The colon
+  // inside has to be *unbalanced* for this to bite — a nested `a ? b : c`
+  // balances itself and passes with the brace scoping removed, so it proves
+  // nothing. A `case` label inside the arm is the shape that does.
+  assert.deepEqual(
+    [...queriedIds(`const n = ok ? function(){ switch(x){ case 1: break } } : function(){} / 2; const re=/a'/; document.getElementById('missing');`)],
+    ['missing'],
+    "a case label inside one arm consumed that arm's own colon",
+  );
+
+  // `?.` and `??` do not open a conditional, and the scanner excludes them.
+  // **No assertion here pins that, and this comment is the honest version of
+  // what would otherwise be a fixture that proves nothing.** Removing the
+  // exclusion fails no test, and it is not for want of trying: over-counting
+  // is harmless to the only consumer (`lastColonWasTernary` asks `> 0`, not
+  // `=== 1`), and every route to a stale count runs through a `;`, `{` or `}`,
+  // each of which resets or saves it. The exclusion stays because it makes the
+  // counter mean what its name says, and because it becomes load-bearing the
+  // moment someone removes one of those resets for looking redundant. These
+  // two shapes are asserted as non-regressions, not as proof of that branch.
+  for (const [src, label] of [
+    [`const v = a?.b ?? c; outer: {} /a'/.test('a'); document.getElementById('missing');`, 'optional chaining and nullish coalescing'],
+    [`const v = a ?? b; switch(x){ case 1: {} /a'/.test('a'); document.getElementById('missing'); }`, 'nullish coalescing before a case'],
+  ]) {
+    assert.deepEqual([...queriedIds(src)], ['missing'], `${label} broke a later label colon`);
+  }
+
+  // And the statement readings the previous round fixed all have to survive,
+  // or findings 26, 27 and 28 come back.
+  for (const [src, want, label] of [
+    [`; {} /a'/.test('a'); document.getElementById('missing');`, ['missing'], 'a block after `;`'],
+    [`'use strict'; function f(){} /a'/.test('a'); document.getElementById('missing');`, ['missing'], 'a declaration after `;`'],
+    [`outer: {} /a'/.test('a'); document.getElementById('missing');`, ['missing'], 'a block after a label'],
+    [`switch(x){ case 1: {} /a'/.test('a'); document.getElementById('missing'); }`, ['missing'], 'a block after a case'],
+    [`const n = ok ? {a:1} : {b:2}; n.a / 2; // document.getElementById('ghost')`, [], 'literals in both arms'],
+    // The object-literal half of the `:` rule needs a *nested* literal that is
+    // itself divided; `{a: {b: 1}}` alone passes with that half removed,
+    // because nothing there depends on the inner brace's kind.
+    [`const x = {k: {valueOf(){return 4}} / 2}; label:// document.getElementById('ghost')\n0;`, [], 'a divided literal as a property value'],
+  ]) {
+    assert.deepEqual([...queriedIds(src)], want, `${label} was misread after the tightening`);
+  }
+});
+
 test('a real keyword is still a keyword', () => {
   // The other side of the same change: excluding member properties must not
   // stop the genuine statement keywords from permitting a regex, or the two

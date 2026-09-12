@@ -463,6 +463,18 @@ export function scanSource(source) {
   );
   const braces = [];
   let lastCloseWasBlock = true;
+  /**
+   * Was the `:` we just passed a conditional's, rather than a label's?
+   *
+   * Recorded at the colon for the same reason `lastCloseWasBlock` is recorded
+   * at the brace: by the time the next token asks, the context that settles it
+   * has gone past. `ternaryDepth` counts conditionals whose `:` has not
+   * arrived; a `{` saves and clears it, because a function body inside one arm
+   * must not consume the arm's own colon.
+   */
+  let lastColonWasTernary = false;
+  let ternaryDepth = 0;
+  const ternaryStack = [];
 
   /**
    * Statement position, as distinct from expression position.
@@ -484,14 +496,42 @@ export function scanSource(source) {
    */
   function inStatementPosition(before) {
     if (before === '') return true;
-    // `${` opens a substitution, whose contents are an expression.
+    // `${` opens a substitution, whose contents are an expression. Its brace
+    // never reaches the `{` handler, so the stack cannot answer for it.
     if (before.endsWith('${')) return false;
     const last = before.slice(-1);
-    if (last === ';' || last === '{') return true;
-    // `:` is the one mark carrying both readings. Between a key and its value
-    // it is expression position; ending a label or a `case` it is statement
-    // position. The brace stack already knows which of the two we are in.
-    if (last === ':') return braces[braces.length - 1] !== true;
+    // A `;` ends a statement -- unless it is a `for` header's delimiter, the
+    // only place a `;` appears inside parentheses and where what follows is
+    // still an expression (review finding 30).
+    //
+    // "Inside parentheses" is not the same as "in a `for` header", which is
+    // what review finding 32 then caught: a callback or an IIFE keeps its
+    // calling parenthesis open across the whole function body, and a `;` in
+    // there really does end a statement. What separates the two is the brace:
+    // a header reaches only its own nesting level, so a `{` opened since the
+    // paren -- a callback body, or a function body written inside the header
+    // itself -- ends that reach.
+    //
+    // It deliberately does *not* also require a control-flow paren, though
+    // `CONTROL_FLOW_PAREN` is right there and the first draft did. With no
+    // brace opened since, a `;` inside parentheses can only be a `for`
+    // header's in valid JavaScript, so the extra condition changed no test,
+    // no probe and no page -- and on *invalid* input, which this scanner does
+    // meet, it pushes the wrong way: it would make such a `;` read as a
+    // statement boundary, the direction that invents lookups. An unexercised
+    // condition that also picks the riskier default is worth less than none.
+    if (last === ';') {
+      const paren = parens[parens.length - 1];
+      return !(paren && braces.length === paren.bracesAtOpen);
+    }
+    // A `{` opens statement position only when it opened a block. After an
+    // object literal's `{` we are in its body, which is expression territory.
+    if (last === '{') return braces[braces.length - 1] !== true;
+    // `:` carries three readings, not two. Between a key and its value, and
+    // as a conditional's separator, it is expression position; ending a label
+    // or a `case` it is statement position. The brace stack answers the first
+    // and `lastColonWasTernary` the second (review finding 31).
+    if (last === ':') return !lastColonWasTernary && braces[braces.length - 1] !== true;
     return false;
   }
 
@@ -613,13 +653,50 @@ export function scanSource(source) {
     // Track what each `(` belongs to, so the matching `)` can say whether a
     // `/` after it opens a regex (see CONTROL_FLOW_PAREN above).
     if (c === '(') {
-      parens.push(CONTROL_FLOW_PAREN.test(out.replace(/\s+$/, '')));
+      // `bracesAtOpen` is what makes "am I in a `for` header?" answerable: a
+      // header reaches only as far as its own nesting level, so a `{` opened
+      // inside it ends that reach (review finding 32).
+      parens.push({
+        control: CONTROL_FLOW_PAREN.test(out.replace(/\s+$/, '')),
+        bracesAtOpen: braces.length,
+      });
       out += c;
       i += 1;
       continue;
     }
     if (c === ')') {
-      lastCloseWasCondition = parens.pop() ?? false;
+      lastCloseWasCondition = parens.pop()?.control ?? false;
+      out += c;
+      i += 1;
+      continue;
+    }
+
+    // Conditionals, so a later `:` can say which kind it is. `?.` is optional
+    // chaining and `??` is nullish coalescing; neither opens one.
+    if (c === '?' && next !== '.' && next !== '?' && out.slice(-1) !== '?') {
+      ternaryDepth += 1;
+      out += c;
+      i += 1;
+      continue;
+    }
+    if (c === ':') {
+      lastColonWasTernary = ternaryDepth > 0;
+      if (ternaryDepth > 0) ternaryDepth -= 1;
+      out += c;
+      i += 1;
+      continue;
+    }
+    if (c === ';' && !inStatementPosition(out.replace(/\s+$/, '') + ';')) {
+      // Inside a `for` header: the delimiter is not a statement boundary, so
+      // leave the conditional count alone (`for (a ? b : c; ; )`).
+      out += c;
+      i += 1;
+      continue;
+    }
+    if (c === ';') {
+      // A statement boundary ends any conditional still counted open, which
+      // can only mean the scan mis-paired a `?` somewhere.
+      ternaryDepth = 0;
       out += c;
       i += 1;
       continue;
@@ -642,6 +719,9 @@ export function scanSource(source) {
         && last !== '}'
         && (REGEX_AFTER_PUNCT.has(last) || OBJECT_LITERAL_AFTER_KEYWORD.test(before));
       braces.push(literal || opensAnExpressionBody(before));
+      // A body inside one arm of a conditional must not eat the arm's colon.
+      ternaryStack.push(ternaryDepth);
+      ternaryDepth = 0;
       out += c;
       i += 1;
       continue;
@@ -651,6 +731,7 @@ export function scanSource(source) {
       // fragment can close a brace it never opened, and a block is the reading
       // that keeps a following regex scannable.
       lastCloseWasBlock = !(braces.pop() ?? false);
+      ternaryDepth = ternaryStack.pop() ?? 0;
       out += c;
       i += 1;
       continue;
