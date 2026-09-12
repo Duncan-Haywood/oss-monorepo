@@ -14,7 +14,7 @@
 // fails with the real file rather than a hand-written approximation of it.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { checkPageIntegrity, parsePage, declaredIds, queriedIds } from './page-integrity.mjs';
+import { checkPageIntegrity, parsePage, declaredIds, queriedIds, stripComments } from './page-integrity.mjs';
 import { readHistoryBlob, isShallowClone } from './history-blob.mjs';
 
 const REPO = new URL('../../', import.meta.url).pathname;
@@ -193,6 +193,43 @@ test('parsePage keeps only markup a browser would still parse', () => {
   assert.ok(declaredIds(markup).has('notes'), 'the textarea open tag carries a real id');
   assert.ok(!declaredIds(markup).has('ghost'), 'markup inside a textarea is text, not an element');
   assert.equal(scripts.length, 1);
+});
+
+test('queriedIds ignores a selector that only appears in a comment', () => {
+  // The defect this closes: a page that documents a selector in order to warn
+  // the next reader off it got that selector read back as a real lookup, and
+  // failed for carrying the comment explaining its own bug. Measured on
+  // vpat-acr-generator, 2026-09-11.
+  const src = `
+    // Do not write querySelector('#level-1.1.1') -- the dots are class
+    // separators and it throws SyntaxError.
+    /* Nor getElementById('ghost-block-comment'). */
+    const real = document.getElementById('actually-looked-up');
+  `;
+  assert.deepEqual([...queriedIds(src)], ['actually-looked-up']);
+});
+
+test('stripComments leaves strings, template literals and regexes alone', () => {
+  // `//` is ordinary text inside all three, and a naive strip corrupts source.
+  const src = [
+    "const url = 'https://example.com/a//b';",
+    'const t = `see https://example.com/#anchor`;',
+    "const re = /https:\\/\\/[^ ]+/g;",
+    'const d = total / count / 2; // trailing comment',
+  ].join('\n');
+  const out = stripComments(src);
+  assert.match(out, /https:\/\/example\.com\/a\/\/b/, 'a URL in a string was mangled');
+  assert.match(out, /see https:\/\/example\.com\/#anchor/, 'a URL in a template was mangled');
+  assert.match(out, /const d = total \/ count \/ 2;/, 'division was treated as a regex');
+  assert.doesNotMatch(out, /trailing comment/, 'the trailing comment survived');
+});
+
+test('stripComments preserves length and line count', () => {
+  // Offsets and line numbers stay usable for any future finding.
+  const src = "a(); // gone\n/* also\ngone */ b();";
+  const out = stripComments(src);
+  assert.equal(out.length, src.length, 'offsets shifted');
+  assert.equal(out.split('\n').length, src.split('\n').length, 'line count changed');
 });
 
 test('queriedIds ignores unrelated $ calls', () => {
