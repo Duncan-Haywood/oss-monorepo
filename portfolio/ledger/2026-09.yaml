@@ -28938,85 +28938,22 @@ entries:
     human_hours: 0
     outcomes:
       - >-
-        Drained the open-PR queue, which held two PRs. #4631 was `dirty`
-        against a `main` that moved four times during the repair: resolved the
-        generated mirror through the repo's own `resolve-mirror-merge.sh` and
-        `regen.mjs` rather than picking a side, took `main`'s superseded
-        mirrored-tool counts, kept both sessions' ledger entries, and
-        integrated *a second session's concurrent repair of the same branch*
-        by merge rather than force-push — checking entry-by-entry first that
-        its ledger held nothing this side lacked (453 entries there, all
-        present among the 457 here). Every push was a fast-forward. #4637 was
-        reviewed and merged after local verification (marketing+pages
-        1255/1255, venture 37/37, privacy+webcheck 82/82, gitops 581 passed /
-        1 skipped, clauses clean across all 4 pages); it names a real
-        third-party product and carries a not-affiliated clause, a trademark
-        acknowledgement and a no-warranty note.
-      - >-
-        Shipped two guards for the same silent-failure family (#4640). First:
-        `yaml.safe_load` resolves a duplicated mapping key by taking the last
-        and saying nothing, so a ledger file that repeats a key parses clean,
-        validates clean, and discards a value. Found one on `main` while
-        resolving #4631; writing the check found two more. All three benign —
-        each duplicate held the value it shadowed — but the same shape with an
-        `outcomes:` key would discard a whole session's record while every
-        validator stayed green, and ledger conflicts are resolved by hand here
-        several times an hour. Second: `run_workflow_locally.py --tree` reads
-        the checkout as it stands and takes 40+ minutes, so running it in the
-        background while working makes it lie. Measured on myself — a sweep
-        reported the apex tool mirror stale; it was not, another PR's branch
-        had been checked out mid-sweep, and the identical step passed 260/260
-        on an untouched worktree at the same commit. It now fingerprints the
-        checkout before and after and fails when it moved. Both guards were
-        proved to fail before being trusted.
-      - >-
-        Ran the first full-catalogue browser sweep since 89b7dbe7 (all 7
-        checks, 1018 pages, ~45 minutes) and it found a dead product:
-        `vpat-acr-generator`, graduated hours earlier in #4632, threw
-        `pageerror: Failed to execute 'querySelector' on 'Document':
-        '#level-1.1.1' is not a valid selector` — a WCAG criterion id contains
-        dots, which parse as class selectors, so `querySelector` throws rather
-        than returning null and every button on the page was dead. The same
-        page carried 100 critical axe `select-name` violations. **A concurrent
-        session shipped the repair first (#4643), independently and more
-        fully**, so this branch carries none of it: their `page.test.mjs`
-        guards both defects and more. Recorded here because the finding is the
-        reusable part — the venture's logic was always correct and all 18 of
-        its unit tests passed, because they import `calc.mjs` and never load
-        the page. `browser_checks.py --checks sweep` is the only check in this
-        tree that asks whether a tool answers at all, and it had never been
-        run against that venture. A venture can pass every test it has and be
-        a dead product.
-      - >-
-        Deployed: refreshed the `gh-pages` snapshot, which had fallen behind
-        `main` by three merges including a venture graduation, so the live
-        catalogue was missing a product. `pages_state.py --require-current`
-        exits 0 and GitHub's managed builder served the push
-        (`gh-pages` at 3a31cd15, built from 777dc72a).
-      - >-
-        Fixed forward two red assertions on `main`, confirmed pre-existing by
-        running them in a detached worktree at `origin/main`:
+        Fixed two assertions that were red on `main`:
         `test_readme_runs_on_count_matches_reality` and
         `test_sync_readme_counts_repairs_drift_and_is_idempotent`. #4643 added
         `1099k-reconciliation-worksheet-ci.yml` without running
-        `gitops/ci/sync_readme_counts.py`, so the README claimed 361 of 363
-        `runs-on` lines across 323 workflows when the tree holds 362 of 364
-        across 324. Regenerated with the repo's own tool, not edited by hand.
+        `gitops/ci/sync_readme_counts.py`, so `gitops/ci/README.md` claimed
+        361 of 363 `runs-on` lines across 323 workflows while the tree held
+        362 of 364 across 324. Regenerated with the repo's own tool rather
+        than edited by hand, which is what the second assertion checks.
+        Confirmed pre-existing by running the suite in a detached worktree at
+        `origin/main` with none of this branch's changes present; Actions is
+        starved (`ci_starvation.py --run 34655853152`: `runner_id: 0`, 3s, no
+        step executed), so no check said so.
       - >-
-        Owner-blocked, each measured this session rather than inherited.
-        **Hetzner/Codex:** `DRY_RUN=1 WITH_CODEX_HOST=1
-        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1
-        bootstrap/restore-cluster.sh` prints a complete plan for all three
-        extras and stops at `cannot SSH to control-plane root@89.167.29.39`.
-        The Codex host governor — which spends a ChatGPT plan's included quota
-        via `CODEX_AUTH_JSON` and runs `worker.sh` against
-        `gitops/agents/workers/mandate.md`, itself already a mirror of the
-        portfolio's own operating mandate including the PR-drain floor — is
-        built, tested and ready to install. Blocker is
-        `hetzner-ssh-key-is-a-public-key` (#3184, queued 23+ days). No
-        duplicate ask added. **IndexNow:** still `never` for all 1008 live
-        URLs; verified the egress limit directly rather than inheriting it —
-        `api.indexnow.org`, `www.bing.com` and `duncan-haywood.github.io` all
-        `connect_rejected` at the sandbox proxy. **Usage:** `never-measured`;
-        `live_url_visitors` is `null` across every reading, never once a zero.
+        Republished the `gh-pages` snapshot, which had fallen behind `main` by
+        three merges including a venture graduation, so the live catalogue was
+        missing a product. `gh-pages` at 3a31cd15 built from 777dc72a;
+        `pages_state.py --require-current` exits 0. Recorded here because a
+        publish is a shipping action with no commit of its own.
     mrr_end: 0
