@@ -406,6 +406,34 @@ test('all four ECMAScript line terminators end a line', () => {
   }
 });
 
+test('U+2028 and U+2029 do not end a quoted string', () => {
+  // Codex finding 12, and a defect I introduced with the previous commit's
+  // sweeping fix: `isLineTerminator` was applied to the string-literal scan
+  // too. Since ES2019 subsumed JSON, U+2028 and U+2029 are *legal inside a
+  // quoted string* -- they stopped ending one, while still ending a comment,
+  // a regex literal and a statement. Ending the string early made a later
+  // `//` in that same string read as a comment.
+  //
+  // Asserted on `stripComments` rather than `queriedIds`, and the reason is
+  // worth knowing: `queriedIds` drops this lookup anyway, because the naive
+  // pass has no idea what a string is and blanks from the `//`. That is the
+  // cross-check's documented cost, not this bug, and it would mask the
+  // regression completely.
+  for (const sep of ['\u2028', '\u2029']) {
+    const src = `const s = 'a${sep}// still string'; document.getElementById('ghost')`;
+    assert.ok(
+      stripComments(src).includes("getElementById('ghost')"),
+      `${escape(sep)} ended a quoted string, so a later // read as a comment`,
+    );
+  }
+
+  // LF and CR do still end one -- the exclusion must not go the other way.
+  for (const sep of ['\n', '\r']) {
+    const src = `const s = 'unterminated${sep}document.getElementById('real');`;
+    assert.deepEqual([...queriedIds(src)], ['real'], 'LF/CR stopped ending a quoted string');
+  }
+});
+
 test('a private member named like a keyword is not that keyword', () => {
   // Codex finding 8, and a gap in finding 6's own fix: `this.#break` leaves
   // `#` as the character before the word, not `.`, so the dot guard missed it.

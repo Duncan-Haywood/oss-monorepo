@@ -486,7 +486,14 @@ export function stripComments(source) {
           continue;
         }
         if (source[i] === c) { i += 1; break; }
-        if (isLineTerminator(source[i])) { i += 1; break; }
+        // Not `isLineTerminator`, and the difference is a real one. Since
+        // ES2019 subsumed JSON, U+2028 and U+2029 are *legal inside a quoted
+        // string* -- they stopped terminating one, while still terminating a
+        // comment, a regex literal and a statement. Treating them as ending a
+        // string here closed it early, so a `//` later in that same string
+        // read as a comment and swallowed a real lookup after it. Only LF and
+        // CR end a quoted string.
+        if (source[i] === '\n' || source[i] === '\r') { i += 1; break; }
         i += 1;
       }
       continue;
