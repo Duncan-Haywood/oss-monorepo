@@ -223,6 +223,7 @@ $('copy').addEventListener('click', async () => {
   // A few ventures import this file under `node --test`, with no DOM or a
   // stub one. Remembering a preference must not be what breaks that.
   if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document.getElementById !== 'function') return;
   const usageControl = document.getElementById('usage');
   if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
   try {
