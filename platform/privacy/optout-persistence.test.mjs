@@ -82,6 +82,86 @@ export function record(event) {
 }
 `;
 
+// Clearing the counters is not switching them off, and a checker that took
+// any storage change for a switch would confuse the two. The recorder starts
+// again immediately, which is exactly how the behavioural test tells them
+// apart.
+const CLEARS_BUT_DOES_NOT_DISABLE = `
+const KEY = "fixture-usage";
+export function record(event) {
+  if (typeof localStorage === "undefined") return;
+  localStorage.setItem(KEY, String((Number(localStorage.getItem(KEY)) || 0) + 1));
+}
+export function clearUsageLog() {
+  if (typeof localStorage !== "undefined") localStorage.removeItem(KEY);
+}
+`;
+
+// A live control whose name is in no allowlist -- this one is real, from
+// equipment-rental-break-even, wired to a "clear usage" button. The first
+// draft of the checker filed it as \`no-switch\` and would have stayed green
+// through any regression in it.
+const UNLISTED_NAME = `
+const KEY = "fixture-usage";
+export function record(event) {
+  if (typeof localStorage === "undefined" || globalThis.__usageOptOut) return;
+  localStorage.setItem(KEY, String((Number(localStorage.getItem(KEY)) || 0) + 1));
+}
+export function clearAndDisable() {
+  globalThis.__usageOptOut = true;
+  if (typeof localStorage !== "undefined") localStorage.removeItem(KEY);
+}
+`;
+
+// And a name that hints at nothing at all, to prove the discovery is not the
+// old allowlist with more entries in it. Nothing about "hush" says opt-out;
+// what identifies it is that the recorder goes quiet when it is called.
+const UNHINTED_NAME = `
+const KEY = "fixture-usage";
+const OFF = "fixture-usage-off";
+function silenced() {
+  if (globalThis.__usageOptOut) return true;
+  try { return localStorage.getItem(OFF) === "1"; } catch { return false; }
+}
+export function record(event) {
+  if (typeof localStorage === "undefined" || silenced()) return;
+  localStorage.setItem(KEY, String((Number(localStorage.getItem(KEY)) || 0) + 1));
+}
+export function hush() {
+  globalThis.__usageOptOut = true;
+  localStorage.removeItem(KEY);
+  localStorage.setItem(OFF, "1");
+}
+`;
+
+// A counter key that honestly contains "off". An earlier draft decided which
+// writes were counters by looking for "opt" or "off" in the key, so this
+// module -- broken in exactly the way the FORGETS fixture is -- passed.
+const COUNTER_NAMED_LIKE_A_FLAG = `
+const KEY = "coffee-usage";
+export function record(event) {
+  if (typeof localStorage === "undefined" || globalThis.__usageOptOut) return;
+  localStorage.setItem(KEY, String((Number(localStorage.getItem(KEY)) || 0) + 1));
+}
+export function setUsageOptOut(value) {
+  globalThis.__usageOptOut = Boolean(value);
+  if (value && typeof localStorage !== "undefined") localStorage.removeItem(KEY);
+}
+`;
+
+// A recorder that writes once and then dedupes. It falls silent on its own,
+// so "the recorder went quiet" stops being evidence of anything and every
+// export would look like a switch.
+const RECORDS_ONCE = `
+const KEY = "fixture-usage";
+export function record(event) {
+  if (typeof localStorage === "undefined") return;
+  if (localStorage.getItem(KEY)) return;
+  localStorage.setItem(KEY, "1");
+}
+export function setUsageOptOut(value) { globalThis.__usageOptOut = Boolean(value); }
+`;
+
 // The inverted spelling: the argument means "enabled", so turning counting off
 // is toggleUsage(false). A checker that only tried `true` would call this
 // broken.
@@ -141,6 +221,46 @@ test("an enabled-style switch is understood", async () => {
   assert.match(result.via, /toggleUsage/);
 });
 
+test("clearing the counters is not switching them off", async () => {
+  // The recorder starts again on the next call, so this is a delete button,
+  // not an opt-out. A checker that read any storage change as a switch would
+  // then "verify" a promise the module never made.
+  const result = await statusOf(CLEARS_BUT_DOES_NOT_DISABLE);
+  assert.equal(result.status, "no-switch", JSON.stringify(result));
+});
+
+test("a switch whose name is in no allowlist is still checked", async () => {
+  // `clearAndDisable` is real, and the first draft of this checker filed it
+  // and four siblings as no-switch -- so a regression in any of them left CI
+  // green. This is that defect, committed by the guard against it.
+  const result = await statusOf(UNLISTED_NAME);
+  assert.equal(result.status, "fail", JSON.stringify(result));
+  assert.match(result.switch, /clearAndDisable/);
+});
+
+test("a switch whose name hints at nothing is found by what it does", async () => {
+  const result = await statusOf(UNHINTED_NAME);
+  assert.equal(result.status, "pass", JSON.stringify(result));
+  assert.match(result.via, /hush/);
+});
+
+test("a counter key that contains \"off\" is still a counter", async () => {
+  // `coffee-usage`. Deciding which writes were counters by looking for "opt"
+  // or "off" in the key passed this module, which is broken in exactly the
+  // way FORGETS is. Counter keys are now measured in the control run.
+  const result = await statusOf(COUNTER_NAMED_LIKE_A_FLAG);
+  assert.equal(result.status, "fail", JSON.stringify(result));
+  assert.deepEqual(result.keys, ["coffee-usage"]);
+});
+
+test("a recorder that falls silent on its own is not read as an opt-out", async () => {
+  // Silence is the evidence this whole check runs on, so it is worth nothing
+  // from a recorder that goes quiet unprompted. Reported, never passed.
+  const result = await statusOf(RECORDS_ONCE);
+  assert.equal(result.status, "undrivable", JSON.stringify(result));
+  assert.match(result.detail, /repeatab/);
+});
+
 test("a module the driver cannot reach is reported, not passed", async () => {
   // Silence from a recorder that never ran is not evidence of anything. This
   // is the same control the browser-signals checker keeps, for the same
@@ -152,9 +272,11 @@ test("a module the driver cannot reach is reported, not passed", async () => {
 });
 
 test("every venture that offers the switch keeps it across a reload", async () => {
-  // The catalogue-wide assertion. 2026-09-12: 37 of the 69 ventures offering
-  // a switch failed this, all of them keeping the choice only in
+  // The catalogue-wide assertion. 2026-09-12: 37 of the 69 ventures then
+  // visible failed this, all of them keeping the choice only in
   // `globalThis.__usageOptOut`. Fixed in the same change that added this.
+  // Behavioural switch discovery then raised the visible set from 69 to 93 --
+  // 24 controls the first draft's name allowlist had filed as `no-switch`.
   const results = await checkAll();
 
   // `undrivable` counts as broken here, and the reason is the point. It means
@@ -181,7 +303,11 @@ test("every venture that offers the switch keeps it across a reload", async () =
     switched.length,
     "some module offering an opt-out was not verified",
   );
-  // And the sweep must have found subjects at all: zero of zero passes
-  // vacuously, which is the shape this repository is worst at noticing.
-  assert.ok(switched.length >= 60, `only ${switched.length} modules offer a switch`);
+  // And the sweep must keep finding the subjects it found before. Zero of
+  // zero passes vacuously, which is the shape this repository is worst at
+  // noticing -- but the sharper risk is the one measured here: discovery
+  // quietly narrowing, as the name allowlist did, and taking live controls
+  // out of the check while it stays green. 93 today; raise this with the
+  // catalogue, and never lower it without saying which switch went away.
+  assert.ok(switched.length >= 93, `only ${switched.length} modules offer a switch`);
 });

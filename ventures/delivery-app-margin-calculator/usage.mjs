@@ -13,7 +13,12 @@ function honorsBrowserSignal() {
 }
 
 export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = "comparison_calculated") {
-  if (optedOut || !storage || honorsBrowserSignal()) return;
+  // The stored choice is consulted here as well as passed in. The page reads
+  // it into the checkbox on load and hands the checkbox back, which works —
+  // but it makes the promise depend on one line of page wiring, and a caller
+  // that forgets the second argument would count a visitor who opted out.
+  // The module now honours its own record of the choice either way.
+  if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   try {
     const today = new Date().toISOString().slice(0, 10);
     const current = JSON.parse(storage.getItem(KEY) || "{}");

@@ -32,6 +32,22 @@
 // then re-imported in a fresh realm with the same storage, which is what a
 // reload is — and asked whether it writes again.
 //
+// **The switch itself is discovered the same way, and the first draft of this
+// file got that wrong.** It carried a five-name allowlist
+// (`setUsageOptOut|setOptOut|toggleUsage|setUsageEnabled|optOut`) and filed
+// everything else as `no-switch`, which silently excluded at least five live
+// controls wired to real buttons — `clearAndDisable`, `writeOptOut`,
+// `setUsageCountingEnabled`, `disableUsage`, `setOptedOut`. A persistence
+// regression in any of them would have left CI green. That is the same defect
+// this file exists to catch, committed by the file itself: a hand-maintained
+// list of names, in a checker whose entire thesis is that names prove nothing.
+//
+// So a switch is now **defined by what it does**: an exported function which,
+// called, makes the recorder stop writing on this page. That definition needs
+// no list, cannot go stale, and rejects the near misses on their behaviour —
+// a `clearUsageLog()` empties the counters and the recorder writes again, so
+// it is not a switch.
+//
 // It reuses `drive` and `eventNamesFrom` from `browser-signals.mjs` rather
 // than restating them: those encode which call shapes the catalogue's
 // recorders actually accept, and a copied constant is how this repository has
@@ -44,24 +60,46 @@ import { drive, eventNamesFrom, findUsageModules } from "./browser-signals.mjs";
 
 const REPO_ROOT = new URL("../../", import.meta.url).pathname;
 
-// Names the catalogue uses for "turn counting off". A module offering none of
-// them makes no in-page promise -- it honours DNT/GPC only, which is a
-// different and defensible design -- and is not this checker's business.
-const SWITCH = /^(setUsageOptOut|setOptOut|toggleUsage|setUsageEnabled|optOut)$/i;
+// The names `drive` itself calls. They are the recorder, so they are never the
+// switch, and calling them here would just add counter writes.
+const RECORDER_NAME = /^(record|count|create)/i;
 
-function findSwitch(module) {
-  for (const [name, value] of Object.entries(module)) {
-    if (typeof value === "function" && SWITCH.test(name)) return [name, value];
-  }
-  return null;
+// This is NOT how switches are found — that is behavioural, below. It decides
+// something different and narrower: when no exported function turns counting
+// off, is that because the module offers nothing (out of scope, `no-switch`)
+// or because it offers something this driver could not work (`undrivable`, a
+// failure)? Getting that backwards is what the allowlist did, so the fallback
+// here is deliberately the loud one.
+const PROMISES_A_SWITCH = /(opt.?out|opted|disable|enable|toggle|counting|tracking)/i;
+
+function switchCandidates(module) {
+  const candidates = Object.entries(module).filter(
+    ([name, value]) => typeof value === "function" && !RECORDER_NAME.test(name),
+  );
+  // Plainly-named controls first, so a module that has one is never diagnosed
+  // through some unrelated export that happens to silence the recorder.
+  return candidates.sort(
+    (a, b) => Number(PROMISES_A_SWITCH.test(b[0])) - Number(PROMISES_A_SWITCH.test(a[0])),
+  );
 }
 
-// Turning counting *off* is spelled differently depending on whether the
-// argument means "opted out" or "enabled": `setUsageOptOut(true)` and
-// `toggleUsage(false)` are the same request. Both are tried, and the check
-// only cares that at least one of them silences the recorder.
-function offArguments(name) {
-  return /enabled|toggle/i.test(name) ? [[false], [true]] : [[true], [false]];
+const STORE = Symbol("the driver's storage");
+
+// Turning counting *off* is spelled at least four ways in this catalogue, and
+// the argument means opposite things in two of them: `setUsageOptOut(true)`,
+// `toggleUsage(false)`, `disableUsage()` and `writeOptOut(storage, true)` are
+// all the same request. Every shape is tried and the behavioural test below
+// decides which one actually did it — so a wrong-direction call
+// (`setUsageCountingEnabled(true)`) simply fails to silence and is discarded,
+// rather than needing to be recognised.
+const OFF_SHAPES = [[], [true], [false], [STORE, true], [STORE, false]];
+
+function fill(args, storage) {
+  return args.map((arg) => (arg === STORE ? storage : arg));
+}
+
+function describe(name, args) {
+  return `${name}(${args.map((a) => (a === STORE ? "storage" : String(a))).join(", ")})`;
 }
 
 /**
@@ -97,12 +135,18 @@ export async function checkModule(path) {
   const name = relative(REPO_ROOT, path);
   const url = pathToFileURL(path).href;
   const first = await import(url);
-
-  const found = findSwitch(first);
-  if (!found) return { name, status: "no-switch" };
-  const [switchName, switchFn] = found;
-
   const eventNames = eventNamesFrom(path);
+  const candidates = switchCandidates(first);
+  const promised = candidates.filter(([n]) => PROMISES_A_SWITCH.test(n)).map(([n]) => n);
+
+  // Nothing this driver can call, so nothing to conclude either way. A module
+  // whose exports do not even claim a switch is out of scope; one that claims
+  // a switch we cannot reach is an unverified promise, which is a failure.
+  const unverifiable = (detail) =>
+    promised.length > 0
+      ? { name, status: "undrivable", detail: `${detail} (exports ${promised.join(", ")})` }
+      : { name, status: "no-switch" };
+
   const values = new Map();
 
   // Control: the recorder must actually write before we can conclude anything
@@ -114,39 +158,85 @@ export async function checkModule(path) {
     delete globalThis.__usageOptOut;
     drive(first, {}, control, eventNames, storage);
   });
-  if (control.length === 0) return { name, status: "undrivable" };
+  // Which keys ARE the counters is measured, never guessed. An earlier draft
+  // asked whether the key contained "opt" or "off", which passes a module
+  // whose counter is honestly named `coffee-usage`: the resumed write is
+  // filtered out and the broken switch reads as green.
+  const counterKeys = new Set(control);
+  if (counterKeys.size === 0) return unverifiable("no exported recorder wrote with nothing switched off");
 
-  for (const args of offArguments(switchName)) {
+  // Second control, on the storage the first one left behind. The switch test
+  // below reads "the recorder went quiet" as evidence, so a recorder that goes
+  // quiet on its own -- one that records an event once and then dedupes --
+  // would make every candidate look like a switch. Ask before relying on it.
+  const repeat = [];
+  withStorage(values, repeat, (storage) => {
+    delete globalThis.__usageOptOut;
+    drive(first, {}, repeat, eventNames, storage);
+  });
+  if (!repeat.some((key) => counterKeys.has(key))) {
+    return unverifiable("the recorder does not write repeatably, so silence proves nothing");
+  }
+  // The page state a visitor would be switching off from: counted already.
+  const baseline = new Map(values);
+  const restoreBaseline = () => {
     values.clear();
-    let accepted = true;
-    withStorage(values, [], () => {
-      delete globalThis.__usageOptOut;
-      try { switchFn(...args); } catch { accepted = false; }
-    });
-    if (!accepted) continue;
+    for (const [key, value] of baseline) values.set(key, value);
+    delete globalThis.__usageOptOut;
+  };
 
-    // The reload. A fresh module realm -- which is what drops an in-memory
-    // flag -- over the storage the switch just wrote to. The cache-buster is
-    // the only way to get a second realm in one process.
-    const reloaded = await import(`${url}?optout-reload=${reloadCounter++}`);
-    const after = [];
-    withStorage(values, after, (storage) => {
-      delete globalThis.__usageOptOut;
-      drive(reloaded, {}, after, eventNames, storage);
-    });
+  for (const [switchName, switchFn] of candidates) {
+    for (const shape of OFF_SHAPES) {
+      restoreBaseline();
+      const switchWrites = [];
+      let accepted = true;
+      withStorage(values, switchWrites, (storage) => {
+        try { switchFn(...fill(shape, storage)); } catch { accepted = false; }
+      });
+      if (!accepted) continue;
 
-    const countersWritten = after.filter((key) => !/opt|off/i.test(key));
-    if (countersWritten.length === 0) {
-      return { name, status: "pass", via: `${switchName}(${args[0]})` };
+      // Is this a switch at all? Only if the recorder stops writing here and
+      // now -- same realm, in-memory flag intact. A call that leaves counting
+      // on was the wrong function, or the wrong direction, and neither is
+      // this check's business.
+      const samePage = [];
+      withStorage(values, samePage, (storage) => {
+        drive(first, {}, samePage, eventNames, storage);
+      });
+      if (samePage.some((key) => counterKeys.has(key))) continue;
+
+      // The reload. A fresh module realm -- which is what drops an in-memory
+      // flag -- over the storage the switch just wrote to. The cache-buster is
+      // the only way to get a second realm in one process.
+      const reloaded = await import(`${url}?optout-reload=${reloadCounter++}`);
+      const after = [];
+      withStorage(values, after, (storage) => {
+        delete globalThis.__usageOptOut;
+        drive(reloaded, {}, after, eventNames, storage);
+      });
+
+      // A write after the reload is the switch's own bookkeeping only if the
+      // switch demonstrably wrote that key and the recorder never does.
+      // Anything else counts as counting: this filter is what turns a fail
+      // into a pass, so it stays conservative in that direction.
+      const flagKeys = new Set(switchWrites);
+      const resumed = after.filter((key) => counterKeys.has(key) || !flagKeys.has(key));
+      if (resumed.length === 0) {
+        return { name, status: "pass", via: describe(switchName, shape) };
+      }
+      return {
+        name,
+        status: "fail",
+        switch: switchName,
+        keys: [...new Set(resumed)],
+        detail:
+          `counting resumed after a reload (wrote ${[...new Set(resumed)].join(", ")}), ` +
+          `so the advertised switch does not survive a visit`,
+      };
     }
   }
 
-  return {
-    name,
-    status: "fail",
-    switch: switchName,
-    detail: "counting resumed after a reload, so the advertised switch does not survive a visit",
-  };
+  return unverifiable("no exported function turned counting off");
 }
 
 export async function checkAll(root) {
