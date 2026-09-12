@@ -596,6 +596,17 @@ test('every position where a regex may start is classified', () => {
     ['a ||', 'a logical operator'],
     [';', 'a semicolon'],
     ['', 'the start of input'],
+    // Module grammar. The first version of this enumeration covered only
+    // script grammar and still said "no gaps" -- review finding 20 was an
+    // `export default` it did not reach, and pointed that out explicitly.
+    // These pages are served as `type="module"`, so this half is not optional.
+    ['export default', 'export default'],
+    ['export const a =', 'an export initialiser'],
+    // A declaration's `}` closes a block, so a regex may follow it. (The
+    // *expression* forms are in the division enumeration below -- same brace,
+    // opposite answer.)
+    ['class X {}', 'a class declaration'],
+    ['function f(){}', 'a function declaration'],
   ]) {
     assert.deepEqual(
       [...queriedIds(probe(prefix))],
@@ -606,12 +617,21 @@ test('every position where a regex may start is classified', () => {
 });
 
 test('every position where a slash divides is classified', () => {
-  // The other direction, enumerated the same way. Here the probe is a division
+  // The other direction, enumerated the same way. The probe is a division
   // followed by a comment: read as a regex, the scan runs to the comment's own
   // slash, the `//` pair is broken up and the comment's text survives -- so a
   // misclassification shows up as ['ghost'], a lookup that exists only inside
   // a comment.
-  const probe = (expr) => `${expr} / 2; // document.getElementById('ghost')`;
+  //
+  // The comment is introduced as `label://`, and that detail is load-bearing.
+  // With a plain `// …` the naive cross-check pass blanks it correctly and the
+  // intersection hides the lexer's mistake -- the first version of this test
+  // did exactly that and passed with the `}`-tracking removed, proving
+  // nothing. `label:` puts the colon where a URL scheme's would be, which is
+  // the documented hole in the naive pass, so this probe reaches the lexer.
+  // Same trap as the `#` guard and the ES2019 string case: a test that passes
+  // is not proof the branch under it works.
+  const probe = (expr) => `${expr} / 2; label:// document.getElementById('ghost')\n0;`;
 
   for (const [expr, label] of [
     ['const a = b', 'an identifier'],
@@ -622,6 +642,10 @@ test('every position where a slash divides is classified', () => {
     ['obj.break', 'a property named like a keyword'],
     ['this.#break', 'a private member named like a keyword'],
     ['const n = {valueOf(){return 4}}', 'an object literal as a value'],
+    // Review finding 19: a class or function *expression* closes into a value,
+    // where the same syntax as a declaration closes into a block.
+    ['const n = class { static [Symbol.toPrimitive]() { return 4 } }', 'a class expression as a value'],
+    ['const n = function(){ return 4 }', 'a function expression as a value'],
   ]) {
     assert.deepEqual(
       [...queriedIds(probe(expr))],

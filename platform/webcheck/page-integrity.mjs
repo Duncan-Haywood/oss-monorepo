@@ -346,7 +346,7 @@ export function scanSource(source) {
   // `continue` are also the restricted productions where a newline forces
   // automatic semicolon insertion, which is how `break\n/re/…` arises.
   const REGEX_AFTER_KEYWORD =
-    /\b(return|throw|break|continue|debugger|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
+    /\b(return|throw|break|continue|debugger|default|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
   // `}` is here for a reason worth stating, because it was the cause behind
   // three separate review findings. A `}` immediately before a `/` closes a
   // *block*, and a regex may follow one: `if (ok) {} /re/.test(x)`. The other
@@ -423,6 +423,28 @@ export function scanSource(source) {
   const OBJECT_LITERAL_AFTER_KEYWORD = /\b(return|typeof|case|in|of|delete|void|instanceof|new|yield|await)$/;
   const braces = [];
   let lastCloseWasBlock = true;
+
+  /**
+   * Is this `{` the body of a class or function *expression*?
+   *
+   * A declaration's `}` closes a block, so a regex may follow it
+   * (`function f(){} /re/.test(x)`). An expression's `}` closes a **value**,
+   * so a `/` after it divides (`const n = function(){ return 4 } / 2`). Same
+   * brace, opposite answers, exactly like the object-literal case above --
+   * which is the whole reason `braces` exists.
+   *
+   * Finds the nearest preceding `class`/`function` with no `{`, `}` or `;`
+   * between it and here (so it really is this brace's head), then asks the
+   * same expression-position question of the keyword itself.
+   */
+  function opensAnExpressionBody(before) {
+    const head = before.match(/\b(class|function)\b[^{};]*$/);
+    if (!head) return false;
+    const upto = before.slice(0, before.length - head[0].length).replace(/\s+$/, '');
+    if (upto === '') return false;
+    const prev = upto.slice(-1);
+    return REGEX_AFTER_PUNCT.has(prev) || OBJECT_LITERAL_AFTER_KEYWORD.test(upto);
+  }
 
   function regexCanStartHere() {
     // `out` has comments already blanked to spaces, so trimming trailing
@@ -506,12 +528,13 @@ export function scanSource(source) {
     if (c === '{') {
       const before = out.replace(/\s+$/, '');
       const last = before.slice(-1);
+      // An object literal: a `{` sitting in expression position.
       const literal =
         before !== ''
         && last !== ')'
         && last !== '}'
         && (REGEX_AFTER_PUNCT.has(last) || OBJECT_LITERAL_AFTER_KEYWORD.test(before));
-      braces.push(literal);
+      braces.push(literal || opensAnExpressionBody(before));
       out += c;
       i += 1;
       continue;
