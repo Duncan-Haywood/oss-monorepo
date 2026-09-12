@@ -363,6 +363,27 @@ test('a regex after a labelled break or continue is not read as division', () =>
   assert.deepEqual([...queriedIds(cjk)], ['m9b'], 'a non-Latin label was not recognised');
 });
 
+test('a newline between break and a name means it is not a label', () => {
+  // Codex finding 10. `break` and `continue` are restricted productions, so
+  // JavaScript forbids a line terminator before the label. `break\nouter` is
+  // `break;` then the expression `outer`, and the slash after it is division.
+  // Matching across the newline claimed `outer` as a label, made the slash a
+  // regex opener, and let it swallow the comment.
+  //
+  // This one also got past the cross-check, which is why it matters more than
+  // its badge suggests: the comment is introduced as `label://`, whose colon
+  // sits exactly where a URL scheme's would, so the naive pass exempts it and
+  // agrees with the mistaken lexer. Both readings wrong together is the one
+  // way an invented lookup still survives -- see the note on `queriedIds`.
+  const src = "while(false){break\nouter / 2; label:// document.getElementById('ghost')\n;}";
+  assert.deepEqual([...queriedIds(src)], [], 'a commented-out lookup was reported');
+
+  // The genuine labelled statement must keep working: no newline, so it is a
+  // real label and the slash after it really does open a regex.
+  const real = "outer: while (false) { break outer\n/[/*]/.test('x'); } document.getElementById('m7');";
+  assert.deepEqual([...queriedIds(real)], ['m7'], 'a real labelled break stopped being recognised');
+});
+
 test('a private member named like a keyword is not that keyword', () => {
   // Codex finding 8, and a gap in finding 6's own fix: `this.#break` leaves
   // `#` as the character before the word, not `.`, so the dot guard missed it.
