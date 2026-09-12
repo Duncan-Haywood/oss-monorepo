@@ -40,7 +40,7 @@ export function recordUsage(storage = globalThis.localStorage, optedOut = false,
 // pass the choice in.
 export function readOptOut(storage = globalThis.localStorage) {
   try {
-    return storage?.getItem(`${key}-opt-out`) === '1';
+    return storage?.getItem('cleaning-dilution-usage-opt-out') === '1';
   } catch {
     // A blocked or full store must never be read as consent.
     return false;
@@ -53,9 +53,9 @@ export function writeOptOut(storage = globalThis.localStorage, optedOut = false)
   // that throws on a full quota skips the delete entirely, and the
   // visitor gets neither half of what the control promised.
   if (optedOut) {
-    try { storage.removeItem(key); } catch { /* storage is optional */ }
-    try { storage.setItem(`${key}-opt-out`, '1'); } catch { /* storage is optional */ }
+    try { storage.removeItem('cleaning-dilution-usage'); } catch { /* storage is optional */ }
+    try { storage.setItem('cleaning-dilution-usage-opt-out', '1'); } catch { /* storage is optional */ }
   } else {
-    try { storage.removeItem(`${key}-opt-out`); } catch { /* storage is optional */ }
+    try { storage.removeItem('cleaning-dilution-usage-opt-out'); } catch { /* storage is optional */ }
   }
 }
