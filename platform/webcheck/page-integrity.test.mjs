@@ -790,6 +790,52 @@ test('the fourth review round: template text, extends, async, and case labels', 
   );
 });
 
+test('statement position and expression position are different questions', () => {
+  // Codex findings 27, 28 and 29 -- the fifth round, and the first where the
+  // three findings turned out to be one defect rather than three tokens.
+  //
+  // `REGEX_AFTER_PUNCT` was answering two questions. It is the right set for
+  // "may a `/` open a regex here?", which is true in statement *and*
+  // expression position. It is the wrong set for "does this `{` open an object
+  // literal?" and "is this `function` an expression?", which are true only in
+  // expression position -- and `;` and `{` are in it.
+  //
+  // Finding 26 (`case 1: {}`) was the first token of this same defect. It got
+  // its own guard; 27 and 28 are what that guard did not generalise to.
+
+  // 27. A bare block after a statement boundary.
+  assert.deepEqual(
+    [...queriedIds(`; {} /a'/.test('a'); document.getElementById('missing');`)],
+    ['missing'],
+    'a block after `;` was read as an object literal',
+  );
+  // 28. A declaration is still a declaration when a statement precedes it.
+  assert.deepEqual(
+    [...queriedIds(`'use strict'; function f(){} /a'/.test('a'); document.getElementById('missing');`)],
+    ['missing'],
+    'a declaration after `;` was read as a function expression',
+  );
+  // 29. Braces inside a `${...}` must take part in the same tracking. The
+  // substitution's own depth counting used to consume them.
+  assert.deepEqual(
+    [...queriedIds('const s = `${({valueOf(){return 4}} / 2, 0)}`; label:// document.getElementById(\'ghost\')\n0;')],
+    [],
+    'an object literal divided inside a substitution resurrected a comment',
+  );
+
+  // The expression-position readings all have to survive the narrowing, or
+  // findings 17, 19 and 25 come straight back.
+  for (const [src, want, label] of [
+    [`const n = {valueOf(){return 4}} / 2; label:// document.getElementById('ghost')\n0;`, [], 'a divided object literal'],
+    [`const n = function(){ return 4 } / 2; label:// document.getElementById('ghost')\n0;`, [], 'a divided function expression'],
+    [`const o = {a: {b: 1}}; o.a / 2; // document.getElementById('ghost')`, [], 'a nested object literal'],
+    ['const s = `${{a: 1}.a}`; document.getElementById(\'sub\');', ['sub'], 'a literal directly inside a substitution'],
+    [`export default function(){} / 2; label:// document.getElementById('ghost')\n0;`, [], '`export default` takes an expression'],
+  ]) {
+    assert.deepEqual([...queriedIds(src)], want, `${label} was misread after the narrowing`);
+  }
+});
+
 test('a real keyword is still a keyword', () => {
   // The other side of the same change: excluding member properties must not
   // stop the genuine statement keywords from permitting a regex, or the two
