@@ -324,7 +324,10 @@ export function stripComments(source) {
     // statement is still a restricted production, so ASI applies and a slash
     // on the next line opens a regex. Checked before the bare-keyword match,
     // because the label hides the keyword from it.
-    const labelled = before.match(/\b(break|continue)\s+[A-Za-z_$][\w$]*$/);
+    // The label is a JavaScript identifier, which is Unicode -- `café:` is as
+    // valid as `outer:`. An ASCII-only class here silently stopped recognising
+    // the statement, which put the slash back to division and blanked the line.
+    const labelled = before.match(/\b(break|continue)\s+[\p{ID_Start}$_][\p{ID_Continue}$]*$/u);
     if (labelled) {
       const head = before.slice(0, before.length - labelled[0].length).replace(/\s+$/, '');
       return !head.endsWith('.') && !head.endsWith('#');

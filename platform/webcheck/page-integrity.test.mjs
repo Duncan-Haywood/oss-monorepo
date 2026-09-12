@@ -352,6 +352,15 @@ test('a regex after a labelled break or continue is not read as division', () =>
   assert.deepEqual([...queriedIds(brk)], ['m7'], 'a real lookup was blanked after a labelled break');
   const cont = "outer: for(;;) { continue outer\n/[/*]/.test('x'); } document.getElementById('m7b');";
   assert.deepEqual([...queriedIds(cont)], ['m7b'], 'a real lookup was blanked after a labelled continue');
+
+  // Codex finding 9. A label is a JavaScript identifier, and identifiers are
+  // Unicode -- `café:` is as valid as `outer:`. The first version of this fix
+  // used an ASCII-only character class, which silently stopped recognising the
+  // statement and put the slash back to division.
+  const accented = "café: while (false) { break café\n/[/*]/.test('x'); } document.getElementById('m9');";
+  assert.deepEqual([...queriedIds(accented)], ['m9'], 'an accented label was not recognised');
+  const cjk = "日本: for(;;) { continue 日本\n/[/*]/.test('y'); } document.getElementById('m9b');";
+  assert.deepEqual([...queriedIds(cjk)], ['m9b'], 'a non-Latin label was not recognised');
 });
 
 test('a private member named like a keyword is not that keyword', () => {
