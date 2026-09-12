@@ -172,6 +172,31 @@ reporting the tree green with `gitops/tests` unrun and spending the session
 rediscovering a one-line workaround, and this file already knows which one gets
 picked.
 
+**Keep the `python3 -m` in front of it, and do not "simplify" it to bare
+`pytest` (measured 2026-09-11).** Every pytest line in this checklist is
+spelled `python3 -m pytest`, and that is load-bearing rather than habit. In
+this web session `pytest` on `PATH` was `/root/.local/bin/pytest` — a `uv
+tool install`, whose shebang points at its own isolated interpreter
+(`/root/.local/share/uv/tools/pytest/bin/python`) that does not have the
+repository's dependencies. So the two spellings disagree, on the same suite,
+in the same shell, minutes apart:
+
+```
+python3 -m pytest gitops/tests -q   # 581 passed, 1 skipped
+pytest gitops/tests -v              # UNRUN: `yaml` is not installed here
+```
+
+`python3 -m pytest` resolves against `/usr/local/bin/python3`, which has
+`yaml` 6.0.1 and everything else. It matters beyond this checklist because
+`hetzner-gitops-ci.yml`'s own `gitops / pytest` step invokes bare `pytest`,
+so `run_workflow_locally.py` reports that step `UNRUN` while the identical
+suite passes 581/1 under the checklist spelling. That is the tool being
+honest — it cannot know the module is importable under a *different*
+interpreter — but a session reading only the sweep concludes `gitops/tests`
+never ran, and a session reading only the checklist concludes it did. Both
+are right about what they ran. Run the `python3 -m` form and say which
+spelling you used.
+
 **`pip install pytest` is not the whole barrier, and the rest of it has been
 invisible since it was written (added 2026-09-10).** That parenthesis warns
 about the run that fails loudly. The run that *succeeds* needs two more lines:
