@@ -465,6 +465,37 @@ export function scanSource(source) {
   let lastCloseWasBlock = true;
 
   /**
+   * Statement position, as distinct from expression position.
+   *
+   * **Two different questions have been sharing `REGEX_AFTER_PUNCT`, and that
+   * is what review findings 26, 27 and 28 each found one token of.** That set
+   * answers *"may a `/` here open a regex?"*, and the answer is yes in both
+   * kinds of position, which is exactly why it is the right set for that
+   * question and the wrong one for the other two this scanner asks:
+   *
+   *     does a `{` here open an object literal?   only in expression position
+   *     is this `function` an expression?         only in expression position
+   *
+   * `;` and `{` are in `REGEX_AFTER_PUNCT` because a regex may follow either,
+   * but both end a statement -- so `; {}` is a *block* and
+   * `'use strict'; function f(){}` is a *declaration*. Patching them one
+   * reported token at a time is what produced findings 26, 27 and 28; naming
+   * the distinction answers all three and whatever the fourth would have been.
+   */
+  function inStatementPosition(before) {
+    if (before === '') return true;
+    // `${` opens a substitution, whose contents are an expression.
+    if (before.endsWith('${')) return false;
+    const last = before.slice(-1);
+    if (last === ';' || last === '{') return true;
+    // `:` is the one mark carrying both readings. Between a key and its value
+    // it is expression position; ending a label or a `case` it is statement
+    // position. The brace stack already knows which of the two we are in.
+    if (last === ':') return braces[braces.length - 1] !== true;
+    return false;
+  }
+
+  /**
    * Is this `{` the body of a class or function *expression*?
    *
    * A declaration's `}` closes a block, so a regex may follow it
@@ -488,7 +519,7 @@ export function scanSource(source) {
       // the body look like a declaration's block.
       .replace(/\basync$/, '')
       .replace(/\s+$/, '');
-    if (upto === '') return false;
+    if (inStatementPosition(upto)) return false;
     const prev = upto.slice(-1);
     return REGEX_AFTER_PUNCT.has(prev) || OBJECT_LITERAL_AFTER_KEYWORD.test(upto);
   }
@@ -557,9 +588,16 @@ export function scanSource(source) {
     }
 
     // --- ordinary code (including inside a ${...}) ----------------------
+    // A `${...}` needs its own brace *depth* so the substitution knows which
+    // `}` ends it. Review finding 29: an earlier revision consumed every
+    // nested brace here and returned, so braces inside a substitution never
+    // reached the block-vs-literal tracking below and `lastCloseWasBlock` went
+    // stale -- `` `${({valueOf(){return 4}} / 2, 0)}` `` then read its division
+    // as a regex. Depth is counted here and the brace itself falls through;
+    // only the `}` that closes the substitution is consumed.
     if (top()?.type === 'subst') {
-      if (c === '{') { top().depth += 1; out += c; i += 1; continue; }
-      if (c === '}') {
+      if (c === '{') top().depth += 1;
+      else if (c === '}') {
         if (top().depth === 0) {
           stack.pop();
           out += c;
@@ -569,9 +607,6 @@ export function scanSource(source) {
           continue;
         }
         top().depth -= 1;
-        out += c;
-        i += 1;
-        continue;
       }
     }
 
@@ -598,19 +633,13 @@ export function scanSource(source) {
     if (c === '{') {
       const before = out.replace(/\s+$/, '');
       const last = before.slice(-1);
-      // An object literal: a `{` sitting in expression position.
-      // A `:` is the one punctuation mark with both readings. Inside an object
-      // literal it separates a key from its value, so `{a: {` opens a nested
-      // literal. At statement level it ends a label or a `case`, so
-      // `case 1: {` opens a *block*. The brace stack already knows which we
-      // are in.
-      const insideALiteral = braces[braces.length - 1] === true;
-      const colonOpensAValue = last !== ':' || insideALiteral;
+      // An object literal: a `{` sitting in expression position. See
+      // `inStatementPosition` for why `REGEX_AFTER_PUNCT` alone cannot decide
+      // this -- `;` and `{` are in it and both end a statement.
       const literal =
-        before !== ''
+        !inStatementPosition(before)
         && last !== ')'
         && last !== '}'
-        && colonOpensAValue
         && (REGEX_AFTER_PUNCT.has(last) || OBJECT_LITERAL_AFTER_KEYWORD.test(before));
       braces.push(literal || opensAnExpressionBody(before));
       out += c;
