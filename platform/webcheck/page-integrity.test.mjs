@@ -549,6 +549,88 @@ test('a lookup written inside a string is prose, not code', () => {
   );
 });
 
+test('every position where a regex may start is classified', () => {
+  // The lesson of this whole review sequence, turned into a check.
+  //
+  // `throw`, `break`, `continue` and `debugger` were each added to the
+  // classifier one at a time, as each was reported -- four rounds for one
+  // question nobody had asked in full: *where, in ECMAScript, does a `/` open
+  // a regex rather than divide?* Enumerating the grammar answers it once.
+  // CLAUDE.md records the same lesson twice already, against the front-door
+  // mirror and platform/proposal.
+  //
+  // The probe is a regex containing `/*`. As a regex it is inert; misread as
+  // division, its `/*` opens a block comment that swallows the lookup after
+  // it -- so a position this scanner gets wrong shows up as [] rather than
+  // ['x'], with no need to hand-craft a failure per case.
+  const probe = (prefix) => `${prefix} /[/*]/.test('a'); document.getElementById('x');`;
+
+  for (const [prefix, label] of [
+    ['return', 'return'],
+    ['throw', 'throw'],
+    ['debugger\n', 'debugger then ASI'],
+    ['while(1){break\n', 'break then ASI'],
+    ['for(;;){continue\n', 'continue then ASI'],
+    ['outer: while(1){break outer\n', 'a labelled break'],
+    ['do', 'do'],
+    ['if (a) b(); else', 'else'],
+    ['typeof', 'typeof'],
+    ['void', 'void'],
+    ['delete', 'delete'],
+    ['x instanceof', 'instanceof'],
+    ['new', 'new'],
+    ['function* g(){ yield', 'yield'],
+    ['async function a(){ await', 'await'],
+    ['switch (x) { case 1:', 'a case label'],
+    ['switch (x) { default:', 'a default label'],
+    ['const f = (x) =>', 'an arrow body'],
+    ['if (ok)', 'an if condition'],
+    ['while (ok)', 'a while condition'],
+    ['for (;;)', 'a for header'],
+    ['if (ok) {}', 'a closing block'],
+    ['try {} finally {}', 'a finally block'],
+    ['const a = [', 'an array literal'],
+    ['f(', 'a call argument'],
+    ['x =', 'an assignment'],
+    ['a ?', 'a ternary'],
+    ['a ||', 'a logical operator'],
+    [';', 'a semicolon'],
+    ['', 'the start of input'],
+  ]) {
+    assert.deepEqual(
+      [...queriedIds(probe(prefix))],
+      ['x'],
+      `a regex after ${label} was read as division, swallowing the lookup`,
+    );
+  }
+});
+
+test('every position where a slash divides is classified', () => {
+  // The other direction, enumerated the same way. Here the probe is a division
+  // followed by a comment: read as a regex, the scan runs to the comment's own
+  // slash, the `//` pair is broken up and the comment's text survives -- so a
+  // misclassification shows up as ['ghost'], a lookup that exists only inside
+  // a comment.
+  const probe = (expr) => `${expr} / 2; // document.getElementById('ghost')`;
+
+  for (const [expr, label] of [
+    ['const a = b', 'an identifier'],
+    ['const a = f(x)', 'a call result'],
+    ['const a = arr[0]', 'an index'],
+    ['const a = 4', 'a number'],
+    ['const o = {}; o.x', 'a member'],
+    ['obj.break', 'a property named like a keyword'],
+    ['this.#break', 'a private member named like a keyword'],
+    ['const n = {valueOf(){return 4}}', 'an object literal as a value'],
+  ]) {
+    assert.deepEqual(
+      [...queriedIds(probe(expr))],
+      [],
+      `division after ${label} was read as a regex, resurrecting a comment`,
+    );
+  }
+});
+
 test('a private member named like a keyword is not that keyword', () => {
   // Codex finding 8, and a gap in finding 6's own fix: `this.#break` leaves
   // `#` as the character before the word, not `.`, so the dot guard missed it.
