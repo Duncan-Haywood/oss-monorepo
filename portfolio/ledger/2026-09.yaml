@@ -29450,6 +29450,27 @@ entries:
         skipped; `check_pages.mjs` 997 pages sound; `checklist_coverage`
         clean. `regen.mjs` rewrote the mirror for the 38 modules.
       - >-
+        Two review findings before merge, both correct, and the first is
+        pointed: **the new suite was run by no workflow.**
+        `portfolio-validate.yml` named `browser-signals.test.mjs` and
+        `inline-signals.test.mjs` individually, so `CLAUDE.md`'s local list
+        ran the new one for every session and CI ran it nowhere -- a guard
+        nobody runs, shipped in the same change as a guard. The workflow's own
+        comment had predicted exactly this ("it would have run *nowhere* in
+        CI without being named here -- the same defect being fixed, one layer
+        up") and I walked into it anyway. Fixed by **globbing**
+        `platform/privacy/*.test.mjs` rather than adding a third hardcoded
+        line: a hand-maintained filename list in the directory whose purpose
+        is catching unchecked promises will lose the next file too.
+      - >-
+        Second finding: `undrivable` was excluded from the catalogue
+        assertion's failure set, and a `>= 60` threshold allowed nine of the
+        69 to become unverifiable while the suite stayed green -- directly
+        contradicting the unit test one screen above asserting that an
+        unreachable recorder is never silently accepted. `undrivable` now
+        fails, and the count must equal the number of modules offering a
+        switch, with no slack.
+      - >-
         Known limitation, deliberately not widened into this change: the
         opt-out **button label** on those pages still does not reflect a
         choice made on an earlier visit, so a returning visitor sees "turn

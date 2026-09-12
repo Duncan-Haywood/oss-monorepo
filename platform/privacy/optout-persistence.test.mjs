@@ -156,15 +156,32 @@ test("every venture that offers the switch keeps it across a reload", async () =
   // a switch failed this, all of them keeping the choice only in
   // `globalThis.__usageOptOut`. Fixed in the same change that added this.
   const results = await checkAll();
-  const broken = results.filter((r) => r.status === "fail" || r.status === "error");
+
+  // `undrivable` counts as broken here, and the reason is the point. It means
+  // the module offers a switch (or `no-switch` would have returned first) and
+  // the driver could not reach its recorder -- so nothing was verified. The
+  // unit test above insists an unreachable recorder is never silently
+  // accepted; excluding it here would grant exactly that at catalogue scale.
+  // A venture changing to a signature the driver cannot call would otherwise
+  // drop out of the check while CI stayed green.
+  const broken = results.filter((r) => r.status !== "pass" && r.status !== "no-switch");
   assert.deepEqual(
-    broken.map((r) => `${r.name}: ${r.detail ?? r.error}`),
+    broken.map((r) => `${r.name} [${r.status}]: ${r.detail ?? r.error ?? "not verified"}`),
     [],
-    "an advertised usage opt-out does not survive a reload",
+    "an advertised usage opt-out is unverified or does not survive a reload",
   );
-  // Guards against the sweep silently finding nothing to check.
-  assert.ok(
-    results.filter((r) => r.status === "pass").length >= 60,
-    `only ${results.filter((r) => r.status === "pass").length} modules were driven`,
+
+  // Every module offering a switch must have been driven -- no slack, because
+  // slack is where a silently-dropped module hides. An earlier draft allowed
+  // `>= 60` of today's 69, which would have let nine become unverifiable
+  // without failing.
+  const switched = results.filter((r) => r.status !== "no-switch");
+  assert.equal(
+    results.filter((r) => r.status === "pass").length,
+    switched.length,
+    "some module offering an opt-out was not verified",
   );
+  // And the sweep must have found subjects at all: zero of zero passes
+  // vacuously, which is the shape this repository is worst at noticing.
+  assert.ok(switched.length >= 60, `only ${switched.length} modules offer a switch`);
 });
