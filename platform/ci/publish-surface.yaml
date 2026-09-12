@@ -395,6 +395,9 @@ workflows:
 - workflow: flat-roof-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: fleet-repair-or-replace-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: flooring-bid-calculator-ci.yml
   classification: none
   publishes: []

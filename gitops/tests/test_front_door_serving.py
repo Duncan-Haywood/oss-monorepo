@@ -457,6 +457,32 @@ def test_the_front_page_and_its_well_known_documents_are_served(front_door: str)
     assert catalog["tools"], "/catalog.json served no tools"
     assert catalog["served_here"] == len(catalog["tools"])
 
+    # And again as a client that sent `Accept-Encoding: identity`, which is the
+    # assertion that actually guards how this file is stored (added 2026-09-12,
+    # when `catalog.json` became a gz-only key to get the ConfigMap back under
+    # the etcd object budget).
+    #
+    # Every assertion above passes with `gzip_static on;` and no `gunzip on;`.
+    # That configuration serves the stored `.gz` to a client that asked for
+    # gzip and 404s every client that did not -- and for a machine-readable
+    # catalogue the second group is the common one, because a scripted fetch
+    # frequently sends no encoding header at all. So the config could be wrong
+    # in the one way that matters, for the one audience this document exists
+    # for, with a green suite. `always` plus `gunzip on` is what makes this
+    # pass, and nothing else here would have noticed its absence.
+    status, headers, identity_body = _get(front_door + "/catalog.json", gzip_ok=False)
+    assert status == 200, (
+        f"/catalog.json returned {status} to a client sending Accept-Encoding: identity. "
+        "A gz-only key needs `gzip_static always` (not plain `on`) plus `gunzip on`, and no "
+        "`try_files` -- try_files stats the uncompressed name, which is not on disk."
+    )
+    assert headers.get("Content-Encoding") != "gzip", (
+        "nginx returned gzip to a client that did not accept it -- `gunzip on` is missing"
+    )
+    assert json.loads(identity_body) == catalog, (
+        "the inflated body differs from the gzip-encoded one"
+    )
+
 
 def test_every_category_page_is_served_at_the_url_it_claims(front_door: str) -> None:
     # The category pages are the one part of the apex whose URL and whose
