@@ -384,6 +384,28 @@ test('a newline between break and a name means it is not a label', () => {
   assert.deepEqual([...queriedIds(real)], ['m7'], 'a real labelled break stopped being recognised');
 });
 
+test('all four ECMAScript line terminators end a line', () => {
+  // Codex finding 11 named the label half. The comment half was not reported
+  // and is the same cause pointing the other way, so both are pinned here.
+  //
+  // `\n` is the one everybody remembers. A lone `\r`, U+2028 and U+2029
+  // terminate a line just as definitively, and every place in the scanner that
+  // asks "is the line over?" has to agree.
+  for (const [name, t] of [['LF', '\n'], ['CR', '\r'], ['LS', '\u2028'], ['PS', '\u2029']]) {
+    // Label direction: the separator is a restricted-production boundary, so
+    // `outer` is an expression and the slash after it is division. Treating
+    // the separator as ordinary space made it a label, opened a regex, and
+    // swallowed the comment -- an invented lookup.
+    const laballed = `while(false){break${t}outer / 2; label:// document.getElementById('ghost')${t};}`;
+    assert.deepEqual([...queriedIds(laballed)], [], `${name} was not treated as a line terminator (label)`);
+
+    // Comment direction: a line comment ends at the terminator. Not ending
+    // there swallowed the rest of the file and every lookup in it.
+    const commented = `// a comment${t}document.getElementById('real');`;
+    assert.deepEqual([...queriedIds(commented)], ['real'], `${name} did not end a line comment`);
+  }
+});
+
 test('a private member named like a keyword is not that keyword', () => {
   // Codex finding 8, and a gap in finding 6's own fix: `this.#break` leaves
   // `#` as the character before the word, not `.`, so the dot guard missed it.

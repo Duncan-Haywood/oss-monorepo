@@ -279,6 +279,26 @@ export function declaredIds(markup, scriptSource = '') {
  * happened to close the bogus regex before the comment began. One operand
  * fewer and it would have caught this.
  */
+/**
+ * ECMAScript has four line terminators, not one.
+ *
+ * `\n` is the one everybody remembers; `\r` (a lone CR, without a following
+ * LF), U+2028 LINE SEPARATOR and U+2029 PARAGRAPH SEPARATOR terminate a line
+ * just as definitively. Every place in this file that asks "is the line over?"
+ * has to agree, and before this was shared they did not:
+ *
+ *   - a `//` comment ended only at `\n`, so one terminated by any of the
+ *     other three swallowed the rest of the file and every lookup in it;
+ *   - the label check treated the other three as ordinary space, so
+ *     `break\router` read `outer` as a label and let the following slash
+ *     open a regex, which then ate a comment -- an invented lookup.
+ *
+ * Opposite directions, one cause. Defined once here so a future reader
+ * changing the set changes it everywhere.
+ */
+const LINE_TERMINATOR = /[\n\r\u2028\u2029]/;
+const isLineTerminator = (ch) => ch !== undefined && LINE_TERMINATOR.test(ch);
+
 export function stripComments(source) {
   let out = '';
   let i = 0;
@@ -334,7 +354,7 @@ export function stripComments(source) {
     // the newline claimed `outer` as a label, made the slash a regex opener,
     // and let it swallow a comment -- an invented lookup.
     const labelled = before.match(
-      /\b(break|continue)[^\S\n]+[\p{ID_Start}$_][\p{ID_Continue}$]*$/u,
+      /\b(break|continue)[^\S\n\r\u2028\u2029]+[\p{ID_Start}$_][\p{ID_Continue}$]*$/u,
     );
     if (labelled) {
       const head = before.slice(0, before.length - labelled[0].length).replace(/\s+$/, '');
@@ -444,13 +464,13 @@ export function stripComments(source) {
     }
 
     if (c === '/' && next === '/') {
-      while (i < source.length && source[i] !== '\n') { out += ' '; i += 1; }
+      while (i < source.length && !isLineTerminator(source[i])) { out += ' '; i += 1; }
       continue;
     }
     if (c === '/' && next === '*') {
       const end = source.indexOf('*/', i + 2);
       const stop = end === -1 ? source.length : end + 2;
-      for (; i < stop; i += 1) out += source[i] === '\n' ? '\n' : ' ';
+      for (; i < stop; i += 1) out += isLineTerminator(source[i]) ? source[i] : ' ';
       continue;
     }
     if (c === '`') { out += c; i += 1; stack.push({ type: 'template' }); continue; }
@@ -466,7 +486,7 @@ export function stripComments(source) {
           continue;
         }
         if (source[i] === c) { i += 1; break; }
-        if (source[i] === '\n') { i += 1; break; }
+        if (isLineTerminator(source[i])) { i += 1; break; }
         i += 1;
       }
       continue;
@@ -488,7 +508,7 @@ export function stripComments(source) {
         if (r === '[') inClass = true;
         else if (r === ']') inClass = false;
         else if (r === '/' && !inClass) { i += 1; break; }
-        else if (r === '\n') { i += 1; break; }
+        else if (isLineTerminator(r)) { i += 1; break; }
         i += 1;
       }
       continue;
@@ -549,10 +569,10 @@ function lookupIdsIn(scriptSource) {
  * something.
  */
 function naiveUncommented(source) {
-  const blank = (text) => text.replace(/[^\n]/g, ' ');
+  const blank = (text) => text.replace(/[^\n\r\u2028\u2029]/g, ' ');
   return source
     .replace(/\/\*[\s\S]*?\*\//g, blank)
-    .replace(/(^|[^:\\])(\/\/[^\n]*)/g, (whole, before, comment) => before + blank(comment));
+    .replace(/(^|[^:\\])(\/\/[^\n\r\u2028\u2029]*)/g, (whole, before, comment) => before + blank(comment));
 }
 
 /**
