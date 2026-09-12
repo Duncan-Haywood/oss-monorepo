@@ -10,8 +10,14 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-import { checkSource, checkAll, optOutUsage, resolveKey, describe } from "./one-opt-out.mjs";
+import {
+  checkSource, checkAll, optOutUsage, resolveKey, describe,
+  checkPage, checkAllPages, checkOrder, checkAllPageOrders, describeOrder,
+} from "./one-opt-out.mjs";
 
 const ONE_KEY = `
 const KEY = "widget-usage";
@@ -120,6 +126,88 @@ test("an unresolvable key expression is kept as written, so two of them are two 
   assert.equal(resolveKey("someFn()", {}), "someFn()");
   assert.equal(resolveKey("`${MISSING}-opt-out`", {}), "${MISSING}-opt-out");
   assert.equal(resolveKey("`${KEY}-opt-out`", { KEY: "w" }), "w-opt-out");
+});
+
+// --- the page layer -------------------------------------------------------
+
+test("a page's script and the modules it loads are read as one unit", () => {
+  // Three of the instances were `<script src="app.mjs">` pages: the second key
+  // was in the module and the first was in the page, or the other way round,
+  // and neither file on its own looked wrong. Reading only inline scripts
+  // reported the whole catalogue clean while three pages carried two flags.
+  const dir = mkdtempSync(join(tmpdir(), "one-opt-out-page-"));
+  try {
+    writeFileSync(join(dir, "app.mjs"), `
+      const usagePreference = 'widget-usage-preference';
+      localStorage.setItem(usagePreference, '1');
+      localStorage.setItem('widget-disable', '1');
+    `);
+    writeFileSync(join(dir, "index.html"), `<script type="module" src="app.mjs"></script>`);
+    const result = checkPage(join(dir, "index.html"));
+    assert.equal(result.status, "two-keys", JSON.stringify(result));
+    assert.deepEqual(result.keys, ["widget-disable", "widget-usage-preference"]);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("inline JSON-LD is data, and its strings are not storage keys", () => {
+  const dir = mkdtempSync(join(tmpdir(), "one-opt-out-jsonld-"));
+  try {
+    writeFileSync(join(dir, "index.html"), `
+      <script type="application/ld+json">{"text":"localStorage.getItem('other-opt-out')"}</script>
+      <script type="module">localStorage.getItem('widget-opt-out') === '1';</script>
+    `);
+    const result = checkPage(join(dir, "index.html"));
+    assert.equal(result.status, "pass", JSON.stringify(result));
+    assert.deepEqual(result.keys, ["widget-opt-out"]);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("the restore must come before anything that counts", () => {
+  // cut-list-optimizer and cash-runway-planner had exactly one key and still
+  // lied: the restore was appended below the startup work, so a shared link
+  // replayed and a page_viewed recorded while the control still showed its
+  // default. One key is not enough if it is read too late.
+  const late = `
+    recordUsage('share-opens');
+    const usagePreference = 'widget-usage-preference';
+  `;
+  const early = `
+    const usagePreference = 'widget-usage-preference';
+    recordUsage('share-opens');
+  `;
+  const flagged = checkOrder(late);
+  assert.equal(flagged.status, "records-first");
+  assert.equal(flagged.call, "recordUsage(");
+  assert.equal(checkOrder(early).status, "pass");
+  // A script with no restore is not this check's business, and must not read
+  // as a pass either -- "nothing to check" and "checked and fine" are
+  // different answers.
+  assert.equal(checkOrder("recordUsage('x');").status, "no-restore");
+});
+
+test("every page restores the control before it counts, and spells it one way", () => {
+  // 2026-09-12: 3 pages carried two keys and 11 restored too late, every one
+  // of them from the page-level half of this change. The two assertions are
+  // separate because they are separate failures -- one flag read at the wrong
+  // time is as wrong as two flags.
+  const keys = checkAllPages();
+  assert.deepEqual(
+    keys.filter((r) => r.status !== "pass" && r.status !== "no-opt-out").map(describe), []);
+
+  const order = checkAllPageOrders();
+  assert.deepEqual(
+    order.filter((r) => r.status === "records-first").map(describeOrder), []);
+
+  // And both must be reaching the catalogue rather than an empty list.
+  assert.ok(keys.length > 900, `expected every venture page, read ${keys.length}`);
+  assert.ok(
+    keys.filter((r) => r.status === "pass").length > 300,
+    "most pages do offer a control; if this drops, discovery broke, not the pages",
+  );
+  assert.ok(
+    order.filter((r) => r.status === "pass").length > 10,
+    "the ordering check must have pages to be about",
+  );
 });
 
 test("every venture usage module spells the opt-out exactly one way", () => {

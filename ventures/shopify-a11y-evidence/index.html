@@ -18,20 +18,6 @@
   <footer><p class="muted"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. It does not determine whether a site is compliant.</p>
   <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p><p class="muted">Local-only privacy: your JSON is never uploaded. We count only anonymous feature events in localStorage, with an opt-out. <a href="LICENSE">License</a></p><p class="support">Free and open source. If it caught an accessibility gap before a customer did, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p></footer>
   <script type="module">
-    import { buildReport, reportAsText } from './calc.mjs'; import { recordUsage } from './usage.mjs';
-    let latest = null; const input = document.querySelector('#input'); const reportEl = document.querySelector('#report');
-    document.querySelector('#generate').addEventListener('click', () => { try { latest = buildReport(JSON.parse(input.value)); reportEl.textContent = reportAsText(latest); document.querySelector('#stats').textContent = `${latest.counts.violations} violation rules, ${latest.counts.nodes} affected nodes, ${latest.counts.passes} passing rules, ${latest.counts.incomplete} needing review`; document.querySelector('#error').textContent = ''; recordUsage(localStorage, document.querySelector('#optout').checked); } catch (error) {
-      // A rejected input (invalid JSON, a document that isn't an axe-core
-      // export) must not leave the last valid evidence record on screen next
-      // to a small error line -- that reads as if the stale report and stats
-      // still describe the JSON now pasted in. Null out `latest` so
-      // Download/Copy can't ship a report for a scan that no longer matches
-      // the textarea, and clear the stale report and stats.
-      latest = null; reportEl.textContent = ''; document.querySelector('#stats').textContent = ''; document.querySelector('#error').textContent = error.message;
-    } });
-    document.querySelector('#download').addEventListener('click', () => { if (!latest) return; const blob = new Blob([reportAsText(latest)], { type: 'text/plain' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `accessibility-evidence-${latest.date}.txt`; link.click(); URL.revokeObjectURL(link.href); });
-    document.querySelector('#copy').addEventListener('click', async () => { if (!latest) return; try { await navigator.clipboard.writeText(reportAsText(latest)); document.querySelector('#copy').textContent = 'Copied'; setTimeout(() => { document.querySelector('#copy').textContent = 'Copy record'; }, 1500); recordUsage(localStorage, document.querySelector('#optout').checked, 'report_copied'); } catch { document.querySelector('#error').textContent = 'Copy is unavailable. Use Download .txt instead.'; } });
-  
     // Remember the visitor's usage-counting choice between visits. The
     // control gates the counter correctly and was never stored, so it came
     // back in its default state and the choice was silently undone -- a
@@ -39,6 +25,11 @@
     // visitor believes they have already used it. Polarity-agnostic on
     // purpose: this page's control may mean "count me" or "do not", and
     // what has to survive is whichever the visitor chose.
+    // It runs first in this script, before anything is recorded or a shared
+    // link is replayed. A restore that runs afterwards is too late: the
+    // control is still in its default state while the startup events go
+    // through, so a visitor who opted out has a visit counted anyway and a
+    // visitor who opted in loses one.
     (() => {
       const usagePreference = 'shopify-a11y-evidence-usage-preference';
       // A few ventures import this file under `node --test`, with no DOM or a
@@ -56,5 +47,19 @@
         catch { /* as above */ }
       });
     })();
+    import { buildReport, reportAsText } from './calc.mjs'; import { recordUsage } from './usage.mjs';
+    let latest = null; const input = document.querySelector('#input'); const reportEl = document.querySelector('#report');
+    document.querySelector('#generate').addEventListener('click', () => { try { latest = buildReport(JSON.parse(input.value)); reportEl.textContent = reportAsText(latest); document.querySelector('#stats').textContent = `${latest.counts.violations} violation rules, ${latest.counts.nodes} affected nodes, ${latest.counts.passes} passing rules, ${latest.counts.incomplete} needing review`; document.querySelector('#error').textContent = ''; recordUsage(localStorage, document.querySelector('#optout').checked); } catch (error) {
+      // A rejected input (invalid JSON, a document that isn't an axe-core
+      // export) must not leave the last valid evidence record on screen next
+      // to a small error line -- that reads as if the stale report and stats
+      // still describe the JSON now pasted in. Null out `latest` so
+      // Download/Copy can't ship a report for a scan that no longer matches
+      // the textarea, and clear the stale report and stats.
+      latest = null; reportEl.textContent = ''; document.querySelector('#stats').textContent = ''; document.querySelector('#error').textContent = error.message;
+    } });
+    document.querySelector('#download').addEventListener('click', () => { if (!latest) return; const blob = new Blob([reportAsText(latest)], { type: 'text/plain' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `accessibility-evidence-${latest.date}.txt`; link.click(); URL.revokeObjectURL(link.href); });
+    document.querySelector('#copy').addEventListener('click', async () => { if (!latest) return; try { await navigator.clipboard.writeText(reportAsText(latest)); document.querySelector('#copy').textContent = 'Copied'; setTimeout(() => { document.querySelector('#copy').textContent = 'Copy record'; }, 1500); recordUsage(localStorage, document.querySelector('#optout').checked, 'report_copied'); } catch { document.querySelector('#error').textContent = 'Copy is unavailable. Use Download .txt instead.'; } });
+  
 </script>
 </body></html>

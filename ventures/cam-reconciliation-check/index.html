@@ -38,7 +38,36 @@
 <p><a href="./vs-appfolio.html">This calculator vs. AppFolio CAM reconciliation</a> &mdash; when a free five-field worksheet is the right tool and when a configured property-management platform is.</p>
 </section>
 </main>
-<script type="module">import {parseInputs,reconcile,reviewItems,reviewRecord,summary} from './calc.mjs';import {FIELD_IDS,decodeInputs,shareUrl} from './share.mjs';const $=id=>document.getElementById(id);let result;
+<script type="module">    // Remember the visitor's usage-counting choice between visits. The
+    // control gates the counter correctly and was never stored, so it came
+    // back in its default state and the choice was silently undone -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it. Polarity-agnostic on
+    // purpose: this page's control may mean "count me" or "do not", and
+    // what has to survive is whichever the visitor chose.
+    // It runs first in this script, before anything is recorded or a shared
+    // link is replayed. A restore that runs afterwards is too late: the
+    // control is still in its default state while the startup events go
+    // through, so a visitor who opted out has a visit counted anyway and a
+    // visitor who opted in loses one.
+    (() => {
+      const usagePreference = 'cam-reconciliation-check-usage-preference';
+      // A few ventures import this file under `node --test`, with no DOM or a
+      // stub one. Remembering a preference must not be what breaks that.
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document.getElementById !== 'function') return;
+      const usageControl = document.getElementById('usage');
+      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
+import {parseInputs,reconcile,reviewItems,reviewRecord,summary} from './calc.mjs';import {FIELD_IDS,decodeInputs,shareUrl} from './share.mjs';const $=id=>document.getElementById(id);let result;
 // The one list of input ids, imported rather than restated. A field that
 // exists on the page but not in FIELD_IDS would be read by the calculation
 // and silently dropped from every share link.
@@ -79,29 +108,5 @@ if(Object.keys(incoming).length>0){
   setLinkStatus('Opened from a shared link. Every figure below came from the sender — change any of them to check it against your own records.');
   $('form').requestSubmit();
 }
-    // Remember the visitor's usage-counting choice between visits. The
-    // control gates the counter correctly and was never stored, so it came
-    // back in its default state and the choice was silently undone -- a
-    // control that quietly stops working is worse than none, because the
-    // visitor believes they have already used it. Polarity-agnostic on
-    // purpose: this page's control may mean "count me" or "do not", and
-    // what has to survive is whichever the visitor chose.
-    (() => {
-      const usagePreference = 'cam-reconciliation-check-usage-preference';
-      // A few ventures import this file under `node --test`, with no DOM or a
-      // stub one. Remembering a preference must not be what breaks that.
-      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
-  if (typeof document.getElementById !== 'function') return;
-      const usageControl = document.getElementById('usage');
-      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
-      try {
-        const saved = localStorage.getItem(usagePreference);
-        if (saved !== null) usageControl.checked = saved === '1';
-      } catch { /* a browser refusing site data simply does not remember */ }
-      usageControl.addEventListener('change', () => {
-        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
-        catch { /* as above */ }
-      });
-    })();
 </script>
 </body></html>

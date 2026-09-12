@@ -12,7 +12,11 @@ const USAGE_KEY = "shopify-permission-drift-usage";
 // it records. Kept here rather than only in `globalThis.__usageOptOut`, which
 // is a fresh realm on every page load -- the visitor switched counting off and
 // the next visit started counting again while offering the switch back.
-const USAGE_OPT_OUT = "shopify-permission-drift-usage-opt-out";
+// The venture already had this key, in `site/usage.mjs`, for the checker
+// page's own counter. One venture, one opt-out: a visitor who switches
+// counting off on either page has switched it off, and two keys would mean
+// doing it twice without being told so.
+const USAGE_OPT_OUT = "shopify-permission-drift:usage-opt-out";
 
 export const EXAMPLE_INSTALLATIONS = {
   data: {

@@ -22,6 +22,35 @@
 <section class="card notice"><strong>Important boundary:</strong> This is an evidence organizer and drafting aid, not legal, financial, or payment-dispute advice. It does not predict a bank's decision or prove that a transaction was authorized. Review every fact and submit through the payment processor's deadline and process. The deadline reminder is arithmetic only and does not determine an extension or filing requirement.</section>
 </main><footer><p><strong>Privacy:</strong> Everything runs locally. Order details and notes are never uploaded. Anonymous feature events are stored only in this browser, with an opt-out below. Do Not Track and Global Privacy Control keep counting off automatically.</p><label><input id="optout" type="checkbox"> Don't count my usage</label><p id="usage" class="muted"></p><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or payment advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>Working out what card acceptance actually costs you, rather than fighting one disputed charge? The <a href="../card-processing-fee-audit/">card processing fee audit</a> splits a merchant statement into network interchange you cannot negotiate and processor markup you can &mdash; nothing uploaded.</p><p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
 <script type="module">
+    // Remember the visitor's usage-counting choice between visits. The
+    // control gates the counter correctly and was never stored, so it came
+    // back in its default state and the choice was silently undone -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it. Polarity-agnostic on
+    // purpose: this page's control may mean "count me" or "do not", and
+    // what has to survive is whichever the visitor chose.
+    // It runs first in this script, before anything is recorded or a shared
+    // link is replayed. A restore that runs afterwards is too late: the
+    // control is still in its default state while the startup events go
+    // through, so a visitor who opted out has a visit counted anyway and a
+    // visitor who opted in loses one.
+    (() => {
+      const usagePreference = 'chargeback-evidence-packet-usage-preference';
+      // A few ventures import this file under `node --test`, with no DOM or a
+      // stub one. Remembering a preference must not be what breaks that.
+      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document.getElementById !== 'function') return;
+      const usageControl = document.getElementById('optout');
+      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
+      try {
+        const saved = localStorage.getItem(usagePreference);
+        if (saved !== null) usageControl.checked = saved === '1';
+      } catch { /* a browser refusing site data simply does not remember */ }
+      usageControl.addEventListener('change', () => {
+        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
+        catch { /* as above */ }
+      });
+    })();
 import {EVIDENCE_KEYS,buildPacket,buildWorkingNotes,labelFor,rulesFor,safeFileStem} from './packet.mjs';
 const key='chargeback-packet-events'; const draftKey='chargeback-packet-draft'; const privacySignal=navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true; const getEvents=()=>JSON.parse(localStorage.getItem(key)||'[]');
 function event(name){if(!document.querySelector('#optout').checked&&!privacySignal){const e=getEvents();e.push(name);localStorage.setItem(key,JSON.stringify(e.slice(-100)));}renderUsage()}
@@ -83,28 +112,4 @@ document.querySelector('#build').onclick=()=>{
   document.querySelector('#output').scrollIntoView({behavior:'smooth'});
 };
 
-    // Remember the visitor's usage-counting choice between visits. The
-    // control gates the counter correctly and was never stored, so it came
-    // back in its default state and the choice was silently undone -- a
-    // control that quietly stops working is worse than none, because the
-    // visitor believes they have already used it. Polarity-agnostic on
-    // purpose: this page's control may mean "count me" or "do not", and
-    // what has to survive is whichever the visitor chose.
-    (() => {
-      const usagePreference = 'chargeback-evidence-packet-usage-preference';
-      // A few ventures import this file under `node --test`, with no DOM or a
-      // stub one. Remembering a preference must not be what breaks that.
-      if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
-  if (typeof document.getElementById !== 'function') return;
-      const usageControl = document.getElementById('optout');
-      if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
-      try {
-        const saved = localStorage.getItem(usagePreference);
-        if (saved !== null) usageControl.checked = saved === '1';
-      } catch { /* a browser refusing site data simply does not remember */ }
-      usageControl.addEventListener('change', () => {
-        try { localStorage.setItem(usagePreference, usageControl.checked ? '1' : '0'); }
-        catch { /* as above */ }
-      });
-    })();
 </script></body></html>
