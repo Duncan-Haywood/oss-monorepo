@@ -465,6 +465,24 @@ test('a lookup written inside a string is prose, not code', () => {
     ['real'],
     'a preceding string swallowed a genuine lookup',
   );
+
+  // Codex finding 14. A span is only trusted when the string met its closing
+  // quote. Unterminated means this scanner mistook something else for a quote
+  // and then ran to the end of the line or file, over whatever real code lay
+  // between -- and since a span exists to *suppress* a finding, trusting a
+  // misparse loses one. Here a block `}` is still read as division (a
+  // documented limit), so the regex's `'` opened a "string" that swallowed the
+  // rest of the line.
+  assert.deepEqual(
+    [...queriedIds(`if (ok) {} /'/.test(x); document.getElementById("missing");`)],
+    ['missing'],
+    'an unterminated string span swallowed a genuine lookup',
+  );
+  assert.deepEqual(
+    [...queriedIds("const s = 'unterminated\ndocument.getElementById('afterEOL');")],
+    ['afterEOL'],
+    'a string ended by a line terminator suppressed a later lookup',
+  );
 });
 
 test('a private member named like a keyword is not that keyword', () => {

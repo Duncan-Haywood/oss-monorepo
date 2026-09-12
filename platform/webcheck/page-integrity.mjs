@@ -500,6 +500,7 @@ export function scanSource(source) {
       out += c;
       i += 1;
       const spanStart = out.length;
+      let closed = false;
       while (i < source.length) {
         out += source[i];
         if (source[i] === '\\') {
@@ -508,7 +509,7 @@ export function scanSource(source) {
           i += 1;
           continue;
         }
-        if (source[i] === c) { i += 1; break; }
+        if (source[i] === c) { i += 1; closed = true; break; }
         // Not `isLineTerminator`, and the difference is a real one. Since
         // ES2019 subsumed JSON, U+2028 and U+2029 are *legal inside a quoted
         // string* -- they stopped terminating one, while still terminating a
@@ -519,8 +520,24 @@ export function scanSource(source) {
         if (source[i] === '\n' || source[i] === '\r') { i += 1; break; }
         i += 1;
       }
-      // The interior, excluding the closing quote just appended.
-      stringSpans.push([spanStart, Math.max(spanStart, out.length - 1)]);
+      // Only a string that actually met its closing quote is recorded.
+      //
+      // An unterminated one means this scanner took a `'` for a quote that was
+      // something else, and the only thing it can do then is run to the end of
+      // the line or the file -- over however much real code lies between.
+      // Since a span's whole job is to *suppress* a finding, trusting a
+      // misparse here loses one. Review finding 14 is exactly that:
+      //
+      //     if (ok) {} /'/.test(x); document.getElementById("missing");
+      //
+      // A block `}` is still read as division (the limit documented above), so
+      // the regex's `'` opened a "string" that swallowed the rest of the line
+      // and `missing` disappeared. Declining to record it costs nothing: an
+      // unterminated string suppresses no false positive worth having.
+      if (closed) {
+        // The interior, excluding the closing quote just appended.
+        stringSpans.push([spanStart, Math.max(spanStart, out.length - 1)]);
+      }
       continue;
     }
     if (c === '/' && regexCanStartHere()) {
