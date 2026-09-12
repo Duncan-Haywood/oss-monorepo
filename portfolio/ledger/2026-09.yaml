@@ -29282,3 +29282,44 @@ entries:
         catalogue passed" would be worse than none. Both outcomes are the
         tool behaving correctly.
     mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Correction to the browser-reading entry landed in #4651, appended
+        rather than edited. That entry said all 7 checks passed "over 1022
+        pages at two viewports, with no WCAG A/AA violations". **1022 is the
+        artifact size, not the accessibility coverage**, and stating it that
+        way overstates the evidence. A reviewer caught it after the merge and
+        was right; both halves verified against the code rather than taken on
+        the citation.
+      - >-
+        What was actually measured, from the run's own output: `contrast` --
+        the axe pass, and the only one of the seven that produces WCAG
+        evidence -- checked **1020** pages at two viewports with 0 violations.
+        `sideways` checked 1021 at 360px. The 1022 in the reading's `pages`
+        field comes from `browser_checks.py::_count_html`, whose own docstring
+        says it counts HTML files in the built artifact and is "only ever
+        context", explicitly not derived from any check's scope.
+        `platform/pages/contrast.mjs:121` filters `404.html` and
+        `offline.html` out on purpose -- they are host-served and the offline
+        page is styled against a background it never gets in a browser -- so
+        the axe total is necessarily below the file count.
+      - >-
+        Worth keeping because of which direction the error ran. This is the
+        shape CLAUDE.md records against itself repeatedly: a correct reading
+        of one artifact (`_count_html` returned 1022) restated as a stronger
+        claim about a different thing (1022 pages received a WCAG run).
+        Accessibility evidence is a bad place for that, because it is the kind
+        of record someone may later rely on rather than re-measure. The
+        reading itself stands and stays useful -- 1020 pages clean at two
+        viewports is a real result, and it is what confirmed the
+        `vpat-acr-generator` repair held.
+      - >-
+        No tooling change proposed: `_count_html` is already labelled as
+        context in its docstring and `browser_state.py` reports the field
+        without claiming coverage. The defect was in the prose written around
+        it, so the correction belongs in prose too.
+    mrr_end: 0

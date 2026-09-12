@@ -11,6 +11,7 @@ as a healthy one.
 import json
 import os
 import tempfile
+import pathlib
 import unittest
 from unittest import mock
 
@@ -575,6 +576,47 @@ class ChangedSlugsTreesTest(unittest.TestCase):
 
     def test_a_path_with_no_file_segment_is_ignored(self):
         self.assertEqual(self._diff("1" * 40, "2" * 40, "loose-file"), set())
+
+
+class PagesFieldIsLabelledAsFiles(unittest.TestCase):
+    """The count is artifact size, and the report must not imply coverage.
+
+    `browser_checks.py::_count_html` counts HTML files in the built artifact
+    and its own docstring calls the number "only ever context", explicitly not
+    derived from any check's scope. The checks cover different sets --
+    `contrast.mjs` filters out every `404.html` and `offline.html`.
+
+    Rendered as "N pages" it invited a claim nobody measured, and did: #4651's
+    ledger entry recorded "all 7 checks passing over 1022 pages at two
+    viewports, with no WCAG A/AA violations" when contrast had covered 1020.
+    A reviewer caught it after the merge. Overstating accessibility evidence
+    is the worst direction for this to go, so the label is pinned.
+    """
+
+    def test_the_report_says_files_not_pages(self):
+        state = {
+            c: {
+                "verdict": "current",
+                "reading": {
+                    "measured": "2026-09-12",
+                    "commit": "d4970cdd" + "0" * 32,
+                    "pages": 1022,
+                    "result": "pass",
+                },
+            }
+            for c in browser_state.CHECKS
+        }
+        text = browser_state.report(state)
+        self.assertIn("1022 files", text)
+        self.assertNotIn("1022 pages", text)
+
+    def test_the_source_does_not_render_the_count_as_pages(self):
+        # Source-level, because the renderer's exact entry point has moved
+        # before and a guard that silently stops inspecting anything is worse
+        # than none.
+        src = pathlib.Path(browser_state.__file__).read_text()
+        self.assertIn('f", {pages} files"', src)
+        self.assertNotIn('f", {pages} pages"', src)
 
 
 if __name__ == "__main__":

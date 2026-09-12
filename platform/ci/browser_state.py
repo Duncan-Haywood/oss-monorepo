@@ -618,7 +618,22 @@ def report(st: dict) -> str:
         when = reading.get("measured", "?")
         commit = (reading.get("commit") or "")[:8]
         pages = reading.get("pages")
-        extra = f", {pages} pages" if pages else ""
+        # "N files" rather than "N pages", and the distinction is not
+        # pedantic: this number is `browser_checks.py::_count_html`, the HTML
+        # file count of the built artifact, which that function's own
+        # docstring calls "only ever context" and explicitly does not derive
+        # from any check's scope. The checks cover different sets --
+        # `contrast.mjs` filters out every `404.html` and `offline.html`, so
+        # its axe total is always below the file count.
+        #
+        # Read as "pages", it invites a claim nobody measured. It did:
+        # #4651's ledger entry recorded "all 7 checks passing over 1022 pages
+        # at two viewports, with no WCAG A/AA violations" when contrast had
+        # actually covered 1020, and a reviewer had to catch it after the
+        # merge. Overstating accessibility evidence is the worst direction for
+        # this to go, because it is the kind of record someone relies on
+        # instead of re-measuring.
+        extra = f", {pages} files" if pages else ""
         lines.append(f"  {mark}  {check:<10} {when} at {commit}{extra}")
     stale = [c for c in CHECKS if st[c]["verdict"] in ("stale", "never", "unknown")]
     lines.append("")
