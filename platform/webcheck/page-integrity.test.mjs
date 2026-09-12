@@ -224,6 +224,46 @@ test('stripComments leaves strings, template literals and regexes alone', () => 
   assert.doesNotMatch(out, /trailing comment/, 'the trailing comment survived');
 });
 
+test('a division slash does not swallow the comment after it', () => {
+  // Codex review on #4648. The first version's regex-vs-division test carried
+  // an `^` alternative, which matches at position 0 of every string, so it was
+  // unconditionally true and every `/` was read as opening a regex literal.
+  // The scanner then consumed the comment's own `//` as the closing slash and
+  // left the comment text in the output, so `queriedIds` reported an id that
+  // appears nowhere but a comment.
+  //
+  // One operand, not two: `total / count / 2` passes even when broken,
+  // because the second division slash closes the bogus regex before the
+  // comment starts. That is why the original suite missed this.
+  const src = "const x = a / 2; // document.getElementById('ghost')";
+  assert.deepEqual([...queriedIds(src)], [], 'a commented-out lookup was reported');
+  assert.doesNotMatch(stripComments(src), /ghost/, 'the comment survived the scan');
+  assert.match(stripComments(src), /const x = a \/ 2;/, 'the division was mangled');
+});
+
+test('a comment inside a template substitution is stripped', () => {
+  // Codex review on #4648. Template *text* is content and must survive, but
+  // `${...}` is ordinary code and takes comments. Treating the whole backtick
+  // literal as opaque skipped them.
+  const src = 'const x = `${1 // document.getElementById("ghost2")\n}`;';
+  assert.deepEqual([...queriedIds(src)], [], 'a lookup commented out inside ${} was reported');
+});
+
+test('template text itself is never treated as code', () => {
+  // The other direction of the same change: a `//` in template text is
+  // content, and a real lookup written beside it must still be found.
+  const src = 'const s = `see https://example.com/#x`; document.getElementById("real");';
+  const out = stripComments(src);
+  assert.match(out, /see https:\/\/example\.com\/#x/, 'template text was blanked');
+  assert.deepEqual([...queriedIds(src)], ['real']);
+});
+
+test('a slash inside a regex character class does not end the regex', () => {
+  const src = 'const re = /[/]/; // document.getElementById("ghost3")';
+  assert.deepEqual([...queriedIds(src)], [], 'a commented-out lookup was reported');
+  assert.match(stripComments(src), /\/\[\/\]\//, 'the regex literal was mangled');
+});
+
 test('stripComments preserves length and line count', () => {
   // Offsets and line numbers stay usable for any future finding.
   const src = "a(); // gone\n/* also\ngone */ b();";
