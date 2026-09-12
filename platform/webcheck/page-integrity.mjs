@@ -246,19 +246,146 @@ export function declaredIds(markup, scriptSource = '') {
  *
  * This is a scanner rather than a pair of regexes because `//` is ordinary
  * text inside a string (`'https://example.com'`) and inside a regex literal,
- * and stripping those would corrupt real source. It tracks the four states
- * that can contain a `/` harmlessly: single quotes, double quotes, template
- * literals, and regex literals.
+ * and stripping those would corrupt real source. It tracks the states that
+ * can contain a `/` harmlessly: single quotes, double quotes, template
+ * literal text, regex literals (character classes included, where `/` is a
+ * literal slash), and `${...}` substitutions, which are ordinary code again
+ * and so *do* take comments.
+ *
+ * **Two defects the first version shipped with, both found by review and both
+ * pinned in the tests below (fixed 2026-09-12).** They are worth naming,
+ * because both made this function silently do the opposite of its job.
+ *
+ * First, the "can a regex start here?" test was `/…|^|…/`, and the `^`
+ * alternative matches at position 0 of every string — so `.test()` was
+ * unconditionally true and *every* `/` was read as opening a regex literal.
+ * On `const x = a / 2; // getElementById('ghost')` the scanner took the
+ * division slash as an opener, ran forward for a closing one, consumed the
+ * comment's own `//` as that closer, and left the comment text in the output.
+ * `queriedIds` then reported `ghost` as a live lookup — exactly the false
+ * positive this function exists to remove. The discrimination now reads the
+ * last meaningful character, and the direction of the remaining risk is
+ * deliberate: mistaking a regex for division blanks a little real code and
+ * can only *lose* an id, while mistaking division for a regex resurrects
+ * comments and invents them.
+ *
+ * Second, a backtick literal was treated as opaque all the way to its closing
+ * backtick, which skipped comments inside `${...}`. Template *text* must stay
+ * untouched, but a substitution is code and is now scanned as code.
+ *
+ * The lesson for anyone editing this: a test that passes is not proof the
+ * branch under it works. The original suite asserted division survived, on
+ * `total / count / 2`, and passed — because the *second* division slash
+ * happened to close the bogus regex before the comment began. One operand
+ * fewer and it would have caught this.
  */
 export function stripComments(source) {
   let out = '';
   let i = 0;
-  // What can legally precede a `/` that opens a regex literal. After a value
-  // (identifier, `)`, `]`, number) a `/` is division instead.
-  const regexAllowedBefore = /[([{;,:=!&|?+\-*~%^<>\n]|^|\breturn\b|\btypeof\b|\bcase\b/;
+
+  // Where we are. Empty means plain code. A `template` entry means inside a
+  // backtick literal's text, where a `//` is content and not a comment. A
+  // `subst` entry means inside a `${...}` inside one, which is ordinary code
+  // again and *does* take comments -- `depth` counts the braces opened since,
+  // so an object literal inside a substitution does not end it early.
+  const stack = [];
+  const top = () => stack[stack.length - 1];
+
+  // After a value -- an identifier, `]`, a number, a string -- a `/` is
+  // division. After an operator, a separator, or one of these keywords, it
+  // opens a regex literal. Getting this backwards in the *division* direction
+  // is the expensive one: the scanner then runs off looking for a closing
+  // slash, swallows whatever lies between, and a comment caught inside it
+  // survives into the output -- which is the defect this whole function
+  // exists to prevent.
+  const REGEX_AFTER_KEYWORD =
+    /\b(return|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
+  const REGEX_AFTER_PUNCT = new Set([...'([{;,:=!&|?+-*/~%^<>']);
+
+  // `)` is the ambiguous one, and it is why this stack exists. A `/` after the
+  // `)` of `if (ok)` opens a regex; after the `)` of `f(x)` it is division.
+  // The difference is what the matching `(` belonged to, so each open paren
+  // records whether a control-flow keyword introduced it, and the matching
+  // close hands that answer back.
+  const CONTROL_FLOW_PAREN = /\b(if|while|for|switch|catch|with)\s*$/;
+  const parens = [];
+  let lastCloseWasCondition = false;
+
+  function regexCanStartHere() {
+    // `out` has comments already blanked to spaces, so trimming trailing
+    // whitespace skips them -- a comment between a token and a `/` should not
+    // change what that `/` means.
+    const before = out.replace(/\s+$/, '');
+    if (before === '') return true;
+    const last = before.slice(-1);
+    if (last === '\n') return true;
+    if (last === ')') return lastCloseWasCondition;
+    if (REGEX_AFTER_PUNCT.has(last)) return true;
+    return REGEX_AFTER_KEYWORD.test(before);
+  }
+
   while (i < source.length) {
     const c = source[i];
     const next = source[i + 1];
+
+    // --- inside a template literal's text -------------------------------
+    if (top()?.type === 'template') {
+      if (c === '\\') {
+        out += c;
+        i += 1;
+        if (i < source.length) { out += source[i]; i += 1; }
+        continue;
+      }
+      if (c === '`') { out += c; i += 1; stack.pop(); continue; }
+      if (c === '$' && next === '{') {
+        out += '${';
+        i += 2;
+        stack.push({ type: 'subst', depth: 0 });
+        continue;
+      }
+      out += c;
+      i += 1;
+      continue;
+    }
+
+    // --- ordinary code (including inside a ${...}) ----------------------
+    if (top()?.type === 'subst') {
+      if (c === '{') { top().depth += 1; out += c; i += 1; continue; }
+      if (c === '}') {
+        if (top().depth === 0) { stack.pop(); out += c; i += 1; continue; }
+        top().depth -= 1;
+        out += c;
+        i += 1;
+        continue;
+      }
+    }
+
+    // Track what each `(` belongs to, so the matching `)` can say whether a
+    // `/` after it opens a regex (see CONTROL_FLOW_PAREN above).
+    if (c === '(') {
+      parens.push(CONTROL_FLOW_PAREN.test(out.replace(/\s+$/, '')));
+      out += c;
+      i += 1;
+      continue;
+    }
+    if (c === ')') {
+      lastCloseWasCondition = parens.pop() ?? false;
+      out += c;
+      i += 1;
+      continue;
+    }
+
+    // A bare `\` is a syntax error in real code, so meeting one here means the
+    // discrimination above already went wrong somewhere. Consuming it with the
+    // character it escapes keeps that mistake local: without this, the `\/` of
+    // a regex read as division pairs with the next `/` into a `//` that blanks
+    // the rest of the line, taking real lookups with it.
+    if (c === '\\') {
+      out += c;
+      i += 1;
+      if (i < source.length) { out += source[i]; i += 1; }
+      continue;
+    }
 
     if (c === '/' && next === '/') {
       while (i < source.length && source[i] !== '\n') { out += ' '; i += 1; }
@@ -270,31 +397,47 @@ export function stripComments(source) {
       for (; i < stop; i += 1) out += source[i] === '\n' ? '\n' : ' ';
       continue;
     }
-    if (c === '"' || c === "'" || c === '`') {
-      out += c; i += 1;
+    if (c === '`') { out += c; i += 1; stack.push({ type: 'template' }); continue; }
+    if (c === '"' || c === "'") {
+      out += c;
+      i += 1;
       while (i < source.length) {
         out += source[i];
-        if (source[i] === '\\') { i += 1; if (i < source.length) out += source[i]; i += 1; continue; }
+        if (source[i] === '\\') {
+          i += 1;
+          if (i < source.length) out += source[i];
+          i += 1;
+          continue;
+        }
         if (source[i] === c) { i += 1; break; }
+        if (source[i] === '\n') { i += 1; break; }
         i += 1;
       }
       continue;
     }
-    if (c === '/') {
-      // Division or a regex literal. Look back at the last meaningful char.
-      const before = out.replace(/\s+$/, '');
-      if (regexAllowedBefore.test(before.slice(-7)) || before === '') {
-        out += c; i += 1;
-        while (i < source.length) {
-          out += source[i];
-          if (source[i] === '\\') { i += 1; if (i < source.length) out += source[i]; i += 1; continue; }
-          if (source[i] === '/') { i += 1; break; }
-          if (source[i] === '\n') { i += 1; break; }
+    if (c === '/' && regexCanStartHere()) {
+      out += c;
+      i += 1;
+      let inClass = false;
+      while (i < source.length) {
+        const r = source[i];
+        out += r;
+        if (r === '\\') {
           i += 1;
+          if (i < source.length) out += source[i];
+          i += 1;
+          continue;
         }
-        continue;
+        // A `/` inside a character class is a literal slash, not the end.
+        if (r === '[') inClass = true;
+        else if (r === ']') inClass = false;
+        else if (r === '/' && !inClass) { i += 1; break; }
+        else if (r === '\n') { i += 1; break; }
+        i += 1;
       }
+      continue;
     }
+
     out += c;
     i += 1;
   }
