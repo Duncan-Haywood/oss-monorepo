@@ -529,6 +529,24 @@ test('a lookup written inside a string is prose, not code', () => {
     [],
     'division after an object literal resurrected a comment',
   );
+
+  // Codex finding 17. `}` has both readings, and the previous fix took the
+  // block one for all of them -- which was right for 14/15/16 and wrong here.
+  // An object literal used directly as a division operand is a *value*, so the
+  // `/` after it really is division. Each `{` now records which it opened.
+  assert.deepEqual(
+    [...queriedIds(`const n = {valueOf(){return 4}} / 2; label:// document.getElementById('ghost')\n0;`)],
+    [],
+    'a divided object literal was read as a block, resurrecting a comment',
+  );
+
+  // Codex finding 18: `debugger` is a statement, so ASI applies and a regex
+  // may follow it. It can never be followed by division.
+  assert.deepEqual(
+    [...queriedIds(`debugger\n/a'/.test('a'); document.getElementById('missing');`)],
+    ['missing'],
+    'a regex after `debugger` was read as division',
+  );
 });
 
 test('a private member named like a keyword is not that keyword', () => {

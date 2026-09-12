@@ -346,7 +346,7 @@ export function scanSource(source) {
   // `continue` are also the restricted productions where a newline forces
   // automatic semicolon insertion, which is how `break\n/re/…` arises.
   const REGEX_AFTER_KEYWORD =
-    /\b(return|throw|break|continue|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
+    /\b(return|throw|break|continue|debugger|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
   // `}` is here for a reason worth stating, because it was the cause behind
   // three separate review findings. A `}` immediately before a `/` closes a
   // *block*, and a regex may follow one: `if (ok) {} /re/.test(x)`. The other
@@ -355,7 +355,7 @@ export function scanSource(source) {
   // tracking below handles separately. Reading it as division sent the scanner
   // into the regex looking for a string, and whatever quote it found there
   // opened a span that swallowed real lookups (findings 14, 15, 16).
-  const REGEX_AFTER_PUNCT = new Set([...'([{};,:=!&|?+-*/~%^<>']);
+  const REGEX_AFTER_PUNCT = new Set([...'([{;,:=!&|?+-*/~%^<>']);
 
   /**
    * True when `before` ends with one of those words used *as a keyword*.
@@ -408,6 +408,22 @@ export function scanSource(source) {
   const parens = [];
   let lastCloseWasCondition = false;
 
+  // `}` has the same two readings as `)`, and needs the same treatment. It
+  // closes a *block* -- after which a regex may start -- or an *object
+  // literal*, which is a value, after which a `/` is division:
+  //
+  //     if (ok) {} /re/.test(x)              block:   regex
+  //     const n = {valueOf(){return 4}} / 2  literal: division
+  //
+  // Treating every `}` as a block (the previous revision) misreads the second;
+  // treating every one as a literal misreads the first, which is what findings
+  // 14, 15 and 16 all were. So each `{` records which it opened, by the same
+  // test JavaScript itself uses: a `{` in expression position is a literal,
+  // anywhere else it is a block.
+  const OBJECT_LITERAL_AFTER_KEYWORD = /\b(return|typeof|case|in|of|delete|void|instanceof|new|yield|await)$/;
+  const braces = [];
+  let lastCloseWasBlock = true;
+
   function regexCanStartHere() {
     // `out` has comments already blanked to spaces, so trimming trailing
     // whitespace skips them -- a comment between a token and a `/` should not
@@ -426,6 +442,7 @@ export function scanSource(source) {
     // *do* matter are the restricted-production keywords, handled in
     // REGEX_AFTER_KEYWORD above, where no division is possible either way.
     if (last === ')') return lastCloseWasCondition;
+    if (last === '}') return lastCloseWasBlock;
     if (REGEX_AFTER_PUNCT.has(last)) return true;
     return endsWithKeyword(before);
   }
@@ -476,6 +493,34 @@ export function scanSource(source) {
     }
     if (c === ')') {
       lastCloseWasCondition = parens.pop() ?? false;
+      out += c;
+      i += 1;
+      continue;
+    }
+
+    // And the same for `{`, so the matching `}` can say whether it closed a
+    // block or an object literal. A `{` in *expression* position -- after an
+    // operator, a separator, an open bracket, `return` and friends -- opens a
+    // literal; anywhere else it opens a block. That is the same question
+    // `regexCanStartHere` answers about `/`, so it is answered the same way.
+    if (c === '{') {
+      const before = out.replace(/\s+$/, '');
+      const last = before.slice(-1);
+      const literal =
+        before !== ''
+        && last !== ')'
+        && last !== '}'
+        && (REGEX_AFTER_PUNCT.has(last) || OBJECT_LITERAL_AFTER_KEYWORD.test(before));
+      braces.push(literal);
+      out += c;
+      i += 1;
+      continue;
+    }
+    if (c === '}') {
+      // Default to `true` (a block) when the stack is empty: an inline script
+      // fragment can close a brace it never opened, and a block is the reading
+      // that keeps a following regex scannable.
+      lastCloseWasBlock = !(braces.pop() ?? false);
       out += c;
       i += 1;
       continue;
