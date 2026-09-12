@@ -7,6 +7,12 @@
 
 const REQUIRED = ["captured_at", "api_version", "source", "authorization_state", "apps"];
 const USAGE_KEY = "shopify-permission-drift-usage";
+// The opt-out lives in its own key, not in the counters: opting out *removes*
+// the counters, so a flag stored inside them would be deleted by the very act
+// it records. Kept here rather than only in `globalThis.__usageOptOut`, which
+// is a fresh realm on every page load -- the visitor switched counting off and
+// the next visit started counting again while offering the switch back.
+const USAGE_OPT_OUT = "shopify-permission-drift-usage-opt-out";
 
 export const EXAMPLE_INSTALLATIONS = {
   data: {
@@ -372,7 +378,7 @@ export function captureSummary(inventory) {
 }
 
 export function recordCaptureUsage(event, storage = globalThis.localStorage, optOut = false) {
-  if (optOut || !storage) return;
+  if (optOut || !storage || usageOptedOut(storage)) return;
   let current = {};
   try {
     current = JSON.parse(storage.getItem(USAGE_KEY) || "{}");
@@ -388,13 +394,27 @@ export function recordCaptureUsage(event, storage = globalThis.localStorage, opt
   }
 }
 
+/** Whether counting is switched off, including on a later visit. */
+export function usageOptedOut(storage = globalThis.localStorage) {
+  if (globalThis.__usageOptOut) return true;
+  try {
+    return storage?.getItem(USAGE_OPT_OUT) === "1";
+  } catch {
+    // A blocked or full store must never be read as consent.
+    return false;
+  }
+}
+
 export function setUsageOptOut(value, storage = globalThis.localStorage) {
-  globalThis.__usageOptOut = Boolean(value);
-  if (value && storage) {
-    try {
-      storage.removeItem(USAGE_KEY);
-    } catch {
-      /* storage is optional */
-    }
+  const off = Boolean(value);
+  globalThis.__usageOptOut = off;
+  if (!storage) return;
+  // Independent writes, counters first: sharing one try means a setItem that
+  // throws on a full quota skips the delete, and the visitor gets neither half.
+  if (off) {
+    try { storage.removeItem(USAGE_KEY); } catch { /* storage is optional */ }
+    try { storage.setItem(USAGE_OPT_OUT, "1"); } catch { /* storage is optional */ }
+  } else {
+    try { storage.removeItem(USAGE_OPT_OUT); } catch { /* storage is optional */ }
   }
 }

@@ -106,7 +106,7 @@
   </footer>
   <script type="module">
     import { estimateFreightClass } from './calc.mjs';
-    import { recordUsage, clearUsage } from './usage.mjs';
+    import { recordUsage, clearUsage, usageAllowed } from './usage.mjs';
     import { encodeInputs, decodeInputs, NUMBER_FIELD_IDS as ids } from './share.mjs';
     import { leverText } from './levers.mjs';
     const value = id => document.getElementById(id).value;
@@ -174,7 +174,11 @@
       catch { document.getElementById('status').textContent = 'Copy is unavailable in this browser.'; }
     });
     document.getElementById('reset').addEventListener('click', () => { [['length',48],['width',40],['height',36],['weight',500],['pieces',1]].forEach(([id, val]) => { document.getElementById(id).value = val; }); countedSignature = ''; update(false); });
-    document.getElementById('clearUsage').addEventListener('click', () => { clearUsage(); document.getElementById('status').textContent = 'Local usage count cleared.'; });
+    const paintUsage = () => { document.getElementById('clearUsage').textContent = usageAllowed() ? 'Clear local usage count' : 'Local usage counting is off'; };
+    document.getElementById('clearUsage').addEventListener('click', () => { clearUsage(); document.getElementById('status').textContent = 'Local usage count cleared.'; paintUsage(); });
+    // Say so on arrival too: the choice survives in the module, and the
+    // control said nothing about it until the visitor clicked again.
+    paintUsage();
     document.getElementById('share').addEventListener('click', async () => {
       history.replaceState(null, '', `${location.pathname}#${encodeInputs(currentInputs())}`);
       try { await navigator.clipboard.writeText(location.href); document.getElementById('status').textContent = 'Link copied — it reopens this page with the same numbers.'; }
