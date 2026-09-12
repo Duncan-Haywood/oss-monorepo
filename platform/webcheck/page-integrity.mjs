@@ -307,6 +307,26 @@ export function stripComments(source) {
     /\b(return|throw|break|continue|typeof|case|in|of|delete|void|instanceof|new|do|else|yield|await)$/;
   const REGEX_AFTER_PUNCT = new Set([...'([{;,:=!&|?+-*/~%^<>']);
 
+  /**
+   * True when `before` ends with one of those words used *as a keyword*.
+   *
+   * Every one of them is also a legal property name, and `obj.break / 2` is
+   * ordinary division. Matching the bare word there reads the division slash
+   * as a regex opener, which then eats the first slash of any following
+   * comment and leaves the comment's text in the output -- the invented-lookup
+   * failure this function exists to prevent, arrived at from the one direction
+   * that had not been tried yet. Applies to the whole list rather than the
+   * three most recently added: `obj.return` and `obj?.delete` were misread by
+   * the original list too.
+   */
+  function endsWithKeyword(before) {
+    const match = before.match(REGEX_AFTER_KEYWORD);
+    if (!match) return false;
+    const head = before.slice(0, before.length - match[0].length).replace(/\s+$/, '');
+    // `.` covers `?.` as well, since both end in a dot.
+    return !head.endsWith('.');
+  }
+
   // `)` is the ambiguous one, and it is why this stack exists. A `/` after the
   // `)` of `if (ok)` opens a regex; after the `)` of `f(x)` it is division.
   // The difference is what the matching `(` belonged to, so each open paren
@@ -335,7 +355,7 @@ export function stripComments(source) {
     // REGEX_AFTER_KEYWORD above, where no division is possible either way.
     if (last === ')') return lastCloseWasCondition;
     if (REGEX_AFTER_PUNCT.has(last)) return true;
-    return REGEX_AFTER_KEYWORD.test(before);
+    return endsWithKeyword(before);
   }
 
   while (i < source.length) {

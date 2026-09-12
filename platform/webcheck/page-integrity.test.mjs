@@ -319,6 +319,39 @@ test('a regex after break or continue is not read as division', () => {
   assert.deepEqual([...queriedIds(cont)], ['cont'], 'a real lookup was blanked after continue');
 });
 
+test('a property named like a keyword is not treated as that keyword', () => {
+  // Codex review on #4652. Every word in REGEX_AFTER_KEYWORD is also a legal
+  // property name, and `obj.break / 2` is ordinary division. Matching the bare
+  // word read that slash as a regex opener, which ate the first slash of the
+  // following comment and left its text in the output -- the invented-lookup
+  // failure again, reached from the one direction not yet tried.
+  //
+  // Not only the three keywords added in the previous commit: `obj.return`
+  // and `obj?.delete` were misread by the original list too, so the guard is
+  // applied to the whole list.
+  for (const [src, label] of [
+    ["obj.break / 2; // document.getElementById('ghost')", 'break'],
+    ["obj.throw / 2; // document.getElementById('ghost')", 'throw'],
+    ["obj.continue / 2; // document.getElementById('ghost')", 'continue'],
+    ["obj.return / 2; // document.getElementById('ghost')", 'return'],
+    ["obj?.delete / 2; // document.getElementById('ghost')", 'optional-chained delete'],
+  ]) {
+    assert.deepEqual(
+      [...queriedIds(src)],
+      [],
+      `a property named \`${label}\` was read as the keyword, resurrecting a comment`,
+    );
+  }
+});
+
+test('a real keyword is still a keyword', () => {
+  // The other side of the same change: excluding member properties must not
+  // stop the genuine statement keywords from permitting a regex, or the two
+  // findings fixed in the previous commit come straight back.
+  const ret = "return /[/*]/.test(s); document.getElementById('m3');";
+  assert.deepEqual([...queriedIds(ret)], ['m3'], 'a real `return` stopped permitting a regex');
+});
+
 test('a regex used as a throw operand is not read as division', () => {
   // Same round. `throw` can take a regex literal as its same-line operand and
   // can never be followed by division, so a `/` after it is always a regex.
