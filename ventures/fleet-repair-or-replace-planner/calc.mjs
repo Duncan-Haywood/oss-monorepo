@@ -169,7 +169,29 @@ export function planRow(row = {}, index = null) {
   const savingPerDollar =
     capitalNeeded > 0 && annualSaving > 0 ? annualSaving / capitalNeeded : 0;
 
-  const recommendation = annualSaving > 0 ? "replace" : "keep";
+  // A row whose capital cannot be trusted must not carry a verdict at all
+  // (added 2026-09-12, from a review finding on #4649). Two ways that happens,
+  // and both used to produce `replace`:
+  //
+  //   - no replacement cost entered. Capital is then 0, so replacing looks
+  //     free, the row always "wins", the budget selector takes it at $0, and
+  //     its entire keep cost is reported as captured annual saving. The
+  //     `missing-replacement-cost` finding warned about it, but a warning
+  //     beside a table, a summary and a CSV all presenting an impossible quote
+  //     as this year's plan is not enough -- nobody reads the warning to mean
+  //     "and disregard the row".
+  //   - a trade-in worth more than the replacement. `capitalNeeded` is floored
+  //     at 0 there, which lands in exactly the same place.
+  //
+  // So the verdict becomes `incomplete`, which `selectWithinBudget` never
+  // picks, and the row asks for the missing figure instead of pretending to
+  // answer. `keep` and `replace` both mean "the arithmetic ran"; this does not.
+  const dataComplete = replacementCost > 0 && rawCapitalNeeded >= 0;
+  const recommendation = !dataComplete
+    ? "incomplete"
+    : annualSaving > 0
+      ? "replace"
+      : "keep";
 
   const findings = [];
 
@@ -251,6 +273,7 @@ export function planRow(row = {}, index = null) {
     replaceAnnualCost,
     annualSaving,
     operatingSaving,
+    dataComplete,
     paybackYears,
     savingPerDollar,
     recommendation,

@@ -29213,4 +29213,33 @@ entries:
         their own fleet would have carried the bug forward. Each finding now
         has a regression test written against the review's own
         counter-example.
+      - >-
+        A second Codex round on the fix raised two more, both real, both fixed
+        in the same PR. A blank replacement cost -- which the required HTML
+        input permits -- still produced a `replace` verdict, was taken by the
+        budget selector at $0 capital, and had its entire keep cost reported as
+        captured annual saving. The `missing-replacement-cost` finding warned
+        about it and that was not enough: a warning beside a table, a summary
+        and a CSV all presenting an impossible quote as this year's plan does
+        not read as "disregard the row". There is now an `incomplete` verdict
+        that `selectWithinBudget` never picks, covering both ways capital
+        becomes untrustworthy (no quote, and a trade-in worth more than the
+        replacement, which floors capital to zero and lands in the same place).
+      - >-
+        **The second one is fleet-wide and is NOT fixed beyond this venture.**
+        The per-venture `usage.mjs` opt-out was stored only in a `globalThis`
+        flag, so it lived in one JavaScript realm: reload the page and there is
+        a new realm, no marker, a switch that has reset itself to "off", and
+        counting resumed. AGENTS.md requires usage counting be "visible and
+        switch-off-able", and a switch that unswitches itself on every
+        navigation is neither. Measured across the tree: **39 ventures carry
+        this shape and only 3 persist the flag**, so ~36 live products state a
+        privacy control in their footer that does not survive a visit. This
+        venture now stores the opt-out under its own key (separate from the
+        counters, so "delete my data" can never be the thing that re-enables
+        collection), reads it back on load, paints the button from the stored
+        state, and has seven assertions including a realm-reload regression.
+        Fixing the other 36 is a follow-up, deliberately out of this PR's
+        scope; the hub's own `pf-site.js` already does it correctly with
+        `portfolio-hub-optout`, so the convention to copy exists.
     mrr_end: 0

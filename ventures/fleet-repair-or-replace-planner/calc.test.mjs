@@ -372,3 +372,46 @@ test("ranking uses the exact ratio, not one rounded to cents", () => {
   );
   assert.equal(result.budget.annualSavingCaptured > 1200, true);
 });
+
+test("a row with no replacement cost gets no verdict and is never selected", () => {
+  // The finding alone was not enough: the table, the summary and the CSV all
+  // presented an impossible $0 quote as this year's plan, and the budget
+  // selector took it for free while reporting its whole keep cost as captured.
+  const result = planFleet(
+    [{ name: "No quote", annualRepairSpend: "8000", downtimeDays: "5", dailyLostRevenue: "900", replacementCost: "" }],
+    0,
+  );
+  const row = result.rows[0];
+  assert.equal(row.dataComplete, false);
+  assert.equal(row.recommendation, "incomplete");
+  assert.equal(result.budget.selected.length, 0);
+  assert.equal(result.budget.annualSavingCaptured, 0);
+  assert.ok(ids(result).includes("missing-replacement-cost"));
+  assert.ok(toCsv(result).trim().split("\n")[1].endsWith(",incomplete,no"));
+});
+
+test("a trade-in worth more than the replacement is incomplete too, not a free win", () => {
+  // capitalNeeded is floored at 0 there, which lands in the same place as a
+  // missing quote: zero capital makes replacing look free.
+  const result = planFleet(
+    [{ name: "Bad trade", annualRepairSpend: "5000", replacementCost: "4000", resaleValue: "40000" }],
+    0,
+  );
+  assert.equal(result.rows[0].recommendation, "incomplete");
+  assert.equal(result.budget.selected.length, 0);
+  assert.ok(ids(result).includes("resale-exceeds-replacement"));
+});
+
+test("a complete row still gets a real verdict", () => {
+  const [van3, , van1] = sampleRows().map(planRow);
+  assert.equal(van3.dataComplete, true);
+  assert.equal(van3.recommendation, "replace");
+  assert.equal(van1.dataComplete, true);
+  assert.equal(van1.recommendation, "keep");
+});
+
+test("an incomplete row can never reach the strong-payback note", () => {
+  const row = planRow({ name: "No quote", annualRepairSpend: "50000", replacementCost: "" });
+  assert.equal(row.recommendation, "incomplete");
+  assert.ok(!row.findings.some((f) => f.id === "strong-payback"));
+});

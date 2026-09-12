@@ -114,6 +114,13 @@ accounts, cookies, or analytics vendors. Anonymous feature events
 `example_loaded`) are counted only in your own browser's local storage and can
 be deleted from the page. Do Not Track and Global Privacy Control are honoured.
 
+**The opt-out persists.** It is stored under its own key, separate from the
+counters, and read back on every visit — so turning counting off stays off
+after a reload, and clearing your counters never silently turns collection
+back on. (The shape this venture started from kept that flag in memory only,
+which meant the switch reset itself on every navigation; see `usage.mjs` for
+the note, and the PR for the fleet-wide version of the same defect.)
+
 ## Disclaimer
 
 > **No warranty.** This tool is provided free and as-is, without warranty of

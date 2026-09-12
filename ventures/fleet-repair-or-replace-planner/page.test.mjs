@@ -146,3 +146,20 @@ test("the FAQ defines payback against the spend replacing stops", () => {
   assert.equal(matches.length, 2, "the JSON-LD and the visible FAQ must agree");
   assert.ok(!/Payback is the net capital divided by the annual saving/.test(html));
 });
+
+test("the page reflects a stored opt-out on load, not only after a click", () => {
+  // A control that reads "Turn usage counting off" to someone who already
+  // turned it off tells them their choice was forgotten — which is what the
+  // in-memory-only opt-out actually did on every reload.
+  const html = page("index.html");
+  assert.match(html, /import \{ record, setUsageOptOut, isOptedOut \} from "\.\/usage\.mjs"/);
+  assert.match(html, /function paintOptout\(\)/);
+  assert.match(html, /paintOptout\(\);\s*<\/script>|paintOptout\(\);/);
+  assert.match(html, /the choice is remembered across visits/);
+});
+
+test("the incomplete verdict has a style of its own", () => {
+  // Without it an `incomplete` row renders as an unstyled pill and reads like
+  // a third kind of recommendation rather than an unanswered row.
+  assert.match(page("index.html"), /\.verdict\.incomplete \{/);
+});
