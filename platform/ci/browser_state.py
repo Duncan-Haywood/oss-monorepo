@@ -190,10 +190,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 STATE = os.path.join(HERE, "browser_state.json")
 
-# The seven checks browser_checks.py knows about. Duplicated as a literal
+# The eight checks browser_checks.py knows about. Duplicated as a literal
 # rather than imported so that reading the state file never triggers the
-# environment probing browser_checks.py does at import time.
-CHECKS = ("sideways", "presets", "roundtrip", "highlight", "contrast", "sweep", "journey")
+# environment probing browser_checks.py does at import time -- and kept honest
+# by `test_browser_checks.Registry.test_every_enumeration_of_the_checks_agrees`,
+# because a duplicated constant with no guard is how this repository has twice
+# shipped a rule that went stale on one side.
+CHECKS = ("sideways", "presets", "roundtrip", "highlight", "contrast", "optout", "sweep", "journey")
 
 # A commit touching any of these can change what a browser sees. See the
 # module docstring for why this is a literal list and not a heuristic.

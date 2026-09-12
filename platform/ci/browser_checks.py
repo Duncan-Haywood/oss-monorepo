@@ -152,7 +152,7 @@ PAGES = os.path.join(REPO_ROOT, "platform", "pages")
 # with twenty to forty numeric fields where the message said "check the
 # highlighted input" and nothing was highlighted. A check nobody runs is the
 # same gate-that-never-opens this file's exit-code handling exists to stop.
-CHECKS = ("sideways", "presets", "roundtrip", "highlight", "contrast", "sweep", "journey")
+CHECKS = ("sideways", "presets", "roundtrip", "highlight", "contrast", "optout", "sweep", "journey")
 
 SENTINEL_NAME = ".browser-checks-sentinel"
 
