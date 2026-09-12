@@ -29271,6 +29271,35 @@ entries:
         evidence about the code. Four rounds, eight real findings, every one
         verified before changing anything and every one carrying a regression
         test built from the reviewer's own counter-example.
+      - >-
+        **Correction to this entry's own fleet-wide number, measured properly
+        (2026-09-12).** The note above says "39 ventures carry this shape and
+        only 3 persist the flag", and that figure -- which also went out in a
+        comment on #4649 and in #4653's body -- came from a single narrow grep
+        for `globalThis.__usageOptOut`. It is wrong in both halves. Measured by
+        shape instead of by one identifier, across all 245 `ventures/*/usage.mjs`:
+        **46 ventures export an opt-out setter (`setUsageOptOut` or
+        `disableUsage`), 4 of them persist it and 42 do not.** So the defect is
+        wider than reported, not narrower, and the "3 that do it right" was 4.
+      - >-
+        The remaining 199 ventures export no opt-out setter from `usage.mjs` at
+        all, and that is a DIFFERENT question which this entry deliberately does
+        not answer: 166 of their pages never mention an opt-out (which may be
+        correct if they count nothing), and 33 do mention one, of which a crude
+        scan finds 6 persisting a flag in the page itself. Those 27 are a
+        candidate gap, not a measured one -- the scan looks for an `optout`-ish
+        key by name and would miss a differently-named one. Worth its own look
+        before anyone acts on that number, which is exactly the caution the
+        first figure in this entry failed to take.
+      - >-
+        The reusable lesson, and it is the third instance in this one entry: a
+        number produced by one grep and then restated as a fact about the fleet
+        is the same error as a comment asserting a property the code beneath it
+        lacks, and as a consistency test passing because both sides were wrong
+        together. Each time the fix was to go and measure the thing itself
+        rather than a proxy for it -- which CLAUDE.md already says at length
+        about manifest-derived claims, and which cost nothing here except the
+        embarrassment of having published a figure twice before checking it.
     mrr_end: 0
 
   - venture: portfolio
