@@ -105,3 +105,43 @@ test("Do Not Track and Global Privacy Control are honoured without a click", asy
     }
   }
 });
+
+// The visitor clicked a switch advertised as permanent. If only one of the two
+// writes can succeed, deleting their existing data is the half worth having.
+test("a failed opt-out flag write still clears the counters", async () => {
+  const store = new Map([["fleet-repair-or-replace-planner-usage", '{"row_added":3}']]);
+  globalThis.localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem() { throw new Error("QuotaExceededError"); },
+    removeItem: (k) => void store.delete(k),
+  };
+  const usage = await freshRealm();
+  usage.setUsageOptOut(true); // must not throw
+  assert.equal(
+    store.has("fleet-repair-or-replace-planner-usage"),
+    false,
+    "counters must be deleted even though the flag could not be stored",
+  );
+  // And the in-memory guard still holds for this page view.
+  usage.record("row_added");
+  assert.deepEqual(usage.readUsage(), {});
+});
+
+test("a failed counter delete still attempts to store the opt-out flag", async () => {
+  const store = new Map();
+  globalThis.localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => void store.set(k, String(v)),
+    removeItem(k) {
+      if (k === "fleet-repair-or-replace-planner-usage") throw new Error("SecurityError");
+      store.delete(k);
+    },
+  };
+  const usage = await freshRealm();
+  usage.setUsageOptOut(true);
+  assert.equal(
+    store.get("fleet-repair-or-replace-planner-optout"),
+    "1",
+    "the two writes must be independent, not share a try",
+  );
+});

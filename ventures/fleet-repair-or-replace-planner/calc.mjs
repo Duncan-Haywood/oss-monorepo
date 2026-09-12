@@ -428,6 +428,13 @@ const CSV_HEADERS = [
   "Expected life (years)",
   "Annualised capital",
   "Repairs on replacement",
+  // The replacement's downtime is a user-entered assumption that feeds
+  // `replaceAnnualCost`, `annualSaving` and `paybackYears` alike. Without
+  // these two columns none of those three can be re-derived from the export,
+  // and this CSV exists to be handed to a lender or an accountant -- who get
+  // the findings, the page and the reasoning none of, only these columns.
+  "Downtime days on replacement",
+  "Downtime cost on replacement",
   "Annual cost of replacing",
   "Annual saving",
   "Payback (years)",
@@ -461,6 +468,8 @@ export function toCsv(result) {
         r.expectedLifeYears,
         r.annualisedCapital,
         r.annualRepairOnNew,
+        r.downtimeDaysOnNew,
+        r.downtimeCostOnNew,
         r.replaceAnnualCost,
         r.annualSaving,
         r.paybackYears,

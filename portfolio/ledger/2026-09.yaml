@@ -29243,6 +29243,34 @@ entries:
         Fixing the other 36 is a follow-up, deliberately out of this PR's
         scope; the hub's own `pf-site.js` already does it correctly with
         `portfolio-hub-optout`, so the convention to copy exists.
+      - >-
+        A third review round found two more, both real, both fixed. The
+        opt-out's two storage writes shared one `try` with the flag written
+        first, so a `setItem` that throws (a full quota is the ordinary way)
+        jumped to the catch before `removeItem` ran: the visitor clicked a
+        switch advertised as permanent and got neither half -- counters intact,
+        no durable flag, counting resumed on the next reload on top of the data
+        they had just asked to delete. Each write is now independent and the
+        counters go first, because if only one half can succeed, deleting the
+        data is the half worth having. And the CSV omitted
+        `downtimeDaysOnNew`/`downtimeCostOnNew`, so the exported
+        `replaceAnnualCost`, `annualSaving` and `paybackYears` could not be
+        re-derived from the file -- which matters precisely because the export
+        is what reaches a lender or an accountant, who get the findings, the
+        page and the reasoning none of. Both columns added, with a test that
+        reconstructs the replacement cost from the exported columns alone.
+      - >-
+        Worth recording about the third round specifically: the first finding
+        was that a doc comment I had just written claimed a property the code
+        did not have -- "if the write of the flag fails, the counters are still
+        cleared" was false under the ordering directly beneath it. That is the
+        same failure this entry already notes one level up, where
+        `page.test.mjs` passed the payback bug because page and module agreed
+        while both were wrong. A comment is an assertion with no test behind
+        it, and writing one confidently next to the code it describes is not
+        evidence about the code. Four rounds, eight real findings, every one
+        verified before changing anything and every one carrying a regression
+        test built from the reviewer's own counter-example.
     mrr_end: 0
 
   - venture: portfolio
