@@ -71,3 +71,20 @@ test("the statement is served from the last calculated settlement, and Clear dro
 test("copying the statement is counted as its own usage event", () => {
   assert.match(page("index.html"), /record\("statement_copied"\)/);
 });
+
+// --- Deposit interest --------------------------------------------------------
+
+test("the deposit calculator offers an optional interest rate and days held", () => {
+  const html = page("index.html");
+  assert.match(html, /id="interest-rate"/);
+  assert.match(html, /id="interest-days"/);
+  assert.match(html, /computeDepositInterest/);
+});
+
+test("Clear resets the interest fields along with the deposit and deductions", () => {
+  const html = page("index.html");
+  const clearBlock = html.slice(html.indexOf('$("#clear-deposit")'));
+  const body = clearBlock.slice(0, clearBlock.indexOf("});"));
+  assert.match(body, /depositEls\.interestRate\.value = "";/);
+  assert.match(body, /depositEls\.interestDays\.value = "";/);
+});
