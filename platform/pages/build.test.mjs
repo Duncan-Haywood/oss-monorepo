@@ -1310,6 +1310,17 @@ test('tools that belong to a named category are not left in the catch-all', () =
   // it in "More free tools" hid it from every seller already reading the
   // marketplace section that names it.
   assert.equal(categoryFor('whatnot-seller-payout').id, 'marketplace');
+  // The three #4680 filed out of the catch-all on 2026-09-13. Pinned here a
+  // commit later than the placements themselves — #4677 and #4680 were both
+  // racing the bound below during an Actions starvation window, and the pin is
+  // the half that is easy to leave for afterwards precisely because
+  // `build.mjs` alone already makes the section pages come out right. It is
+  // also the half that lasts: a placement with no assertion is one regex edit
+  // from silently dropping its venture back into "More free tools", which is
+  // the section a visitor reads last, and nothing would go red.
+  assert.equal(categoryFor('food-truck-event-margin-calculator').id, 'services');
+  assert.equal(categoryFor('childcare-tuition-calculator').id, 'services');
+  assert.equal(categoryFor('security-deposit-return-calculator').id, 'backoffice');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
   assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');
@@ -4342,19 +4353,31 @@ test('the catch-all holds only what no section claims', async () => {
   // wrong, because nobody was looking at the aggregate. Prefer listing the
   // catch-all to reasoning about the one venture in front of you.
   //
-  // Briefly grew past this bound on 2026-09-13 when `caption-quality-check`
-  // merged (#4672) with nothing catching it -- CI was reading starved, and
-  // the venture's own graduation PR touched neither this file nor
-  // `build.mjs`'s category rules. Found via a git-stash A/B test by an
-  // unrelated venture PR (`court-reporter-transcript-calculator`) and fixed
-  // forward the same day, independently, in two places: #4677 filed
-  // `caption-quality-check` into `ci` and `security-deposit-return-
-  // calculator` into `backoffice`, and the `court-reporter-transcript-
-  // calculator` PR filed `childcare-tuition-calculator` and
-  // `food-truck-event-margin-calculator` into `services` in the same
-  // window. The bound never needed raising -- the two members left today
-  // (`ai-engineering-academy`, `menu-engineering-calculator`) share no axis
-  // with each other, so this is the fallback working as designed.
+  // 6 -> 2 by placement across 2026-09-12/13, and the bound is deliberately
+  // left at 5. Worth recording how it went, because the guard did its job and
+  // still nearly did not get acted on. It fired at six and was red on `main`
+  // for two days: Actions has been starved since 2026-09-04, so nothing ran
+  // it, and two sessions each classified the failure as "pre-existing and
+  // unrelated" after an honest git-stash A/B against their own change (this
+  // venture's own PR, `court-reporter-transcript-calculator`, was a third).
+  // All readings were correct; none fixed it alone. It took a session
+  // treating a red `main` as its own problem — which is what CLAUDE.md's
+  // `run_workflow_locally.py --tree` line exists to force.
+  //
+  // Then three sessions answered it at once, and the aggregate came out right
+  // anyway: #4677 filed `caption-quality-check` under `ci`, and #4680 filed
+  // `food-truck-event-margin-calculator` and `childcare-tuition-calculator`
+  // into `services` and `security-deposit-return-calculator` into
+  // `backoffice`. Every one of those is a section that already wanted the
+  // venture — none was a stretch made to hit a number — and the two left here
+  // (an electronics-calculator hub and a restaurant menu-engineering
+  // classifier) share no axis with each other or with any named section, so
+  // they are the fallback working rather than a gap.
+  //
+  // The bound stays at 5 with two members. That is the point of the exercise:
+  // a guard sitting permanently one arrival from firing is what produced the
+  // 8 -> 9 raises above, and headroom is what lets the next genuinely
+  // unclassifiable venture land without an argument.
   assert.ok(
     more.items.length <= 5,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
