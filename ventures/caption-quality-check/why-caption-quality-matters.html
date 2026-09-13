@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Why Caption Quality Is a Different Question From Caption Presence</title>
+  <meta name="description" content="WCAG 1.2.2 and Section 508 require that captions exist. Neither grades whether the captions are actually readable -- reading speed, line length, duration, and timing quietly decide whether a caption track works for the audience it exists for. Here is where the commonly-used thresholds come from and how to check them.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./why-caption-quality-matters.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Why Caption Quality Matters">
+  <meta property="og:description" content="A caption track can pass every existence check -- it parses, plays, and syncs -- and still fail a deaf or hard-of-hearing viewer if it moves too fast, crowds too many lines, or flickers past. Here is why, and how to check it mechanically.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't an auto-generated caption track already \"good enough\" if it's accurate?","acceptedAnswer":{"@type":"Answer","text":"Accuracy and readability are two different properties, and an automatic speech-recognition system optimizes for accuracy, not for the pacing a human reads at. It breaks cues on pauses in the audio, not on a target reading speed — so a fast talker can produce a caption block dense enough to be technically correct and still impossible to finish reading before the next cue replaces it. The transcription can be word-for-word right and the caption track can still fail its own audience."}},{"@type":"Question","name":"Who actually checks caption quality today?","acceptedAnswer":{"@type":"Answer","text":"Usually nobody, mechanically. A video platform's own upload validator checks that a caption file parses and that timestamps are well-formed — it has no opinion on whether a cue is readable in the time given. A human style-guide reviewer at a large broadcaster or streaming platform checks this by eye, cue by cue, which is exactly the kind of repetitive check a deterministic tool should be doing before a human ever looks at the file."}},{"@type":"Question","name":"Does a longer duration always fix a reading-speed problem?","acceptedAnswer":{"@type":"Answer","text":"Only up to a point, and it trades one problem for another. Stretching a cue's duration lowers its characters-per-second, but a cue left on screen for too long (past the commonly-used ~7-second ceiling) invites re-reading and desyncs the viewer's attention from the picture — especially if the dialogue underneath has already moved on. The better fix, when a line is genuinely too dense, is usually to shorten the wording rather than to stretch the timing."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px 18px 64px; line-height: 1.6; }
+    a { color: #17604a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 4.8vw, 2.4rem); line-height: 1.1; color: #17324a; margin: .3rem 0; }
+    h2 { color: #17324a; margin-top: 1.8rem; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 2rem; border-top: 1px solid #d5dbe3; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Caption Quality Checker</a></p>
+  <h1>Why caption quality is a different question from caption presence</h1>
+  <p>
+    WCAG Success Criterion 1.2.2 requires captions for prerecorded audio content. Section 508 and a
+    growing list of state and international accessibility rules point back to the same requirement.
+    None of them grade the captions once they exist. A track can satisfy every "does it have
+    captions" check in existence and still be unreadable to the person it was made for.
+  </p>
+
+  <h2>Presence is a checkbox. Readability is arithmetic.</h2>
+  <p>
+    A caption file passes "presence" the moment it parses, syncs to the video, and displays
+    something. None of that says whether a viewer can actually read a given cue before it changes.
+    That is a function of exactly two numbers — how many characters are on screen, and for how long
+    — and a caption track can fail it while being a perfectly accurate transcription of the audio.
+  </p>
+
+  <h2>Why automatic captions make this worse, not better</h2>
+  <p>
+    Automatic speech recognition optimizes for transcription accuracy: getting the words right. It
+    has no model of how fast a human reads. It breaks caption blocks on pauses in the audio track,
+    not on a target character count, so a dense, fast-talking passage produces a caption block that
+    is word-for-word correct and reads at a speed nobody can follow. The rise of auto-captioning has
+    made "does it exist" trivially easy and "is it readable" no more solved than before — if
+    anything, the gap between the two questions has gotten wider, not narrower.
+  </p>
+
+  <h2>Where the specific numbers come from</h2>
+  <p>
+    There is no single legal reading-speed limit the way there is a legal blood-alcohol limit. What
+    exists instead is a convergent set of numbers across several independently-published caption
+    style guides — Netflix's public Timed Text Style Guide and the BBC's Subtitle Guidelines both
+    publish figures in the same neighborhood: a reading-speed ceiling in the high teens to low
+    twenties of characters per second, a two-line maximum per cue, and minimum/maximum on-screen
+    durations in roughly the same range. None of these guides has legal force outside its own
+    platform's contracts. They are cited here as commonly-used industry defaults, not as one
+    controlling standard — which is also why every threshold in this tool is configurable.
+  </p>
+
+  <h2>The trade-off a longer duration doesn't escape</h2>
+  <p>
+    Stretching a cue's on-screen time lowers its characters-per-second reading speed, and it is the
+    first fix most people reach for. It has a ceiling: a cue left on screen too long (past a
+    commonly-used ceiling around seven seconds) invites the viewer to re-read it, and by then the
+    dialogue and the picture have both moved on — the caption stops matching what is happening on
+    screen. When a line is genuinely too dense to read in a reasonable time, the more durable fix is
+    usually to shorten the wording, not to hold the cue open longer.
+  </p>
+
+  <h2>Checking this mechanically rather than by eye</h2>
+  <p>
+    Reading speed, line length, lines per cue, minimum/maximum duration, overlaps, and gaps are all
+    mechanically computable from the timestamps and text a caption file already contains — no
+    judgment call, no audio needed. <a href="./">Caption Quality Checker</a> runs those checks: paste
+    an SRT or WebVTT file, or run the CLI against a file on disk and wire it into CI as a regression
+    gate on every future upload.
+  </p>
+
+  <h2>Common questions</h2>
+  <h3>Isn't an auto-generated caption track already "good enough" if it's accurate?</h3>
+  <p>Accuracy and readability are two different properties, and an automatic speech-recognition system optimizes for accuracy, not for the pacing a human reads at. It breaks cues on pauses in the audio, not on a target reading speed — so a fast talker can produce a caption block dense enough to be technically correct and still impossible to finish reading before the next cue replaces it. The transcription can be word-for-word right and the caption track can still fail its own audience.</p>
+  <h3>Who actually checks caption quality today?</h3>
+  <p>Usually nobody, mechanically. A video platform's own upload validator checks that a caption file parses and that timestamps are well-formed — it has no opinion on whether a cue is readable in the time given. A human style-guide reviewer at a large broadcaster or streaming platform checks this by eye, cue by cue, which is exactly the kind of repetitive check a deterministic tool should be doing before a human ever looks at the file.</p>
+  <h3>Does a longer duration always fix a reading-speed problem?</h3>
+  <p>Only up to a point, and it trades one problem for another. Stretching a cue's duration lowers its characters-per-second, but a cue left on screen for too long (past the commonly-used ~7-second ceiling) invites re-reading and desyncs the viewer's attention from the picture — especially if the dialogue underneath has already moved on. The better fix, when a line is genuinely too dense, is usually to shorten the wording rather than to stretch the timing.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it documents are provided free and as-is, without warranty of any kind, express or implied. Nothing here is legal, accessibility-compliance, or broadcast-standards advice. <a href="./">Caption Quality Checker</a> reports whether the caption file you provided satisfies specific, mechanically checkable, commonly-used thresholds — nothing more, and not a certification of WCAG, Section 508, FCC, or any other standard's compliance. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, get the CLI from the repo and run it yourself.</p>
+    <p class="support">Free and open source. If this caught a caption problem before your viewers did, the code is under an MIT licence &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

@@ -11859,3 +11859,72 @@ ventures:
       reviewer still makes the actual call. Getting more submissions
       through review faster is strictly better for the developer as the
       tool scales, never worse.
+  - slug: caption-quality-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Reading speed, line length, lines
+      per cue, duration, overlaps, and gaps are all exact arithmetic on a
+      cue's own timestamps and text against a configurable threshold -- a
+      factual, deterministic comparison, not a model judgment, and it never
+      claims a certification against WCAG, Section 508, FCC, or any single
+      controlling standard.
+    basis: >-
+      Screened 2026-09-13 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool, but in a
+      domain this portfolio had not yet touched -- caption/subtitle
+      accessibility quality -- rather than a 281st <trade>-bid-calculator
+      or a 39th SEO/security -check. duplicate_check.py scored every
+      existing venture, screened-out row, and pipeline candidate below 0.14
+      against the final description, well under the 0.45 flag bar; nothing
+      in screened-out.md or the existing venture set reads caption/subtitle
+      files. Autonomous ops 10 / gross margin 10: both the CLI and the
+      browser page parse only a local file or pasted text with no network
+      request at all in either mode, so serving one more user costs a
+      static file.
+      Distribution 5: video creators, course producers, and accessibility
+      reviewers asking "why are my captions too fast" or wanting to QC an
+      SRT/VTT file before upload is a real, named search-term and forum
+      anchor (r/VideoEditing, r/Twitch, creator-education forums), and paid
+      caption-QC review already exists inside commercial captioning
+      services (3Play Media, Verbit, Rev), which is evidence of real
+      willingness to pay for this exact check rather than invented demand
+      -- scored a point below hreflang-reciprocity-check's 6 because the
+      strongest named competitor evidence here is paid-tier services
+      bundling this as a feature, not a dedicated free by-name competitor
+      tool for this specific check.
+      Time to revenue 6, defensibility 3: donations-only; a transparent
+      threshold checker over publicly-published caption style-guide
+      numbers is easy to reimplement once the rule is known, same as this
+      portfolio's other deterministic checkers, so defensibility rests on
+      being first, the CI-usable CLI, the paste-based zero-network browser
+      mode, and this portfolio's disclaimer/usage conventions rather than
+      on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool never touches a third party's infrastructure or data
+      at all -- both surfaces process only a file the visitor already has
+      (pasted text, or a local path the CLI's own invoker names), so there
+      is no network request, no scraped data, and no third-party exposure
+      of any kind. Every page states plainly that a clean result is
+      evidence against specific, commonly-used, configurable thresholds,
+      never a certification of WCAG, Section 508, FCC, or any other
+      standard's compliance, and that it does not replace a human review
+      of transcription accuracy or translation quality -- no advice-of-
+      record, no compliance warranty. Ethical robustness: no revenue model
+      conditions the tool's accuracy on over- or under-flagging a cue, so a
+      false positive and a false negative cost the operator the same
+      nothing; a visitor who fixes a flagged cue gets a strictly more
+      readable caption track, which is better for the deaf/hard-of-hearing
+      viewers the check exists for as the tool is used more, never worse.
