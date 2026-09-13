@@ -29638,6 +29638,49 @@ entries:
         `gitops/tests` 581 passed 1 skipped; `portfolio/ledger` + `scoring` +
         `router` + `usage` 374 passed; `checklist_coverage` clean.
     mrr_end: 0
+  - venture: reverb-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked this venture over its co-leader `where-to-sell-calculator`
+        (`allocate.py` ranked both merit 7.00, "Explore" tasks needing
+        customer-contact evidence no agent session can manufacture) after
+        reading both in full: both are already unusually mature (103-177
+        passing tests, full `SoftwareApplication`/`FAQPage` JSON-LD,
+        disclaimers, sponsor links, `launched.json` and `llms.txt` entries,
+        clean `clauses.mjs` runs), so the work was finding the one concrete
+        gap each still had rather than a green-field build.
+      - >-
+        Found: `index.html` was missing `<meta name="robots">`, `<link
+        rel="canonical">` and a favicon, and every page in the venture --
+        `index.html` plus all 9 `should-i-*`/`vs-*` companion pages -- was
+        missing `og:type`. The sibling venture's own `index.html` already
+        carries all four, and this venture's own companion pages already
+        carried robots/canonical (a `page.test.mjs` comment excused
+        `index.html` from that convention as "the app shell", which stopped
+        holding up once the sibling counterexample existed for the same
+        page shape).
+      - >-
+        Fixed all of it and tightened `page.test.mjs`: replaced the stale
+        exemption comment, added a test asserting `index.html` itself
+        carries robots/canonical/favicon/og:type, and folded an `og:type`
+        assertion into the existing "every published page carries Open
+        Graph tags" test so the gap cannot silently return on either page
+        shape.
+      - >-
+        Verified: `ventures/reverb-fee-calculator` 104/104 (up from 103,
+        net one added og:type/canonical/favicon test replacing the removed
+        exemption); `platform/marketing` + `platform/pages` 1257/1257;
+        `platform/ci` 25/25 `unittest` modules + `agent_review` 21/21;
+        `gitops/tests` 557 passed / 25 skipped (regen.mjs refreshed the 9
+        `gitops/prod/front-door-tools/reverb-fee-calculator__*.html.gz`
+        mirror shards + `kustomization.yaml` checksums for this venture;
+        skips are the pre-existing nginx/ssh-key environmental class this
+        change did not touch); `portfolio/ledger`+`scoring`+`router`+
+        `usage`+`pipeline`+`infra/tests` 446 passed; `checklist_coverage.py`
+        clean.
+    mrr_end: 0
   - venture: obsidian-plugin-review-check
     agent_spend_usd: null
     human_hours: 0
