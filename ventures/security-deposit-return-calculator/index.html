@@ -9,9 +9,9 @@
   <meta property="og:description" content="Itemize security deposit deductions to see the refund or balance due, and calculate prorated rent for a partial move-in or move-out month. Entirely client-side.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Security Deposit Refund & Prorated Rent Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a security deposit refund or balance owed from a deposit amount and an itemized list of deductions, copies the result out as a plain-text itemized statement to send to the other party to the lease, and calculates prorated rent for a partial move-in or move-out month from monthly rent, days in the month, and days occupied. Entirely client-side; nothing is uploaded.","featureList":"Itemized security deposit deduction totals, refund or balance owed, copy a plain-text itemized statement to email the other party, prorated rent for a partial first or last month"}
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Security Deposit Refund & Prorated Rent Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates a security deposit refund or balance owed from a deposit amount and an itemized list of deductions, optionally adds interest for jurisdictions that require it, copies the result out as a plain-text itemized statement to send to the other party to the lease, and calculates prorated rent for a partial move-in or move-out month from monthly rent, days in the month, and days occupied. Entirely client-side; nothing is uploaded.","featureList":"Itemized security deposit deduction totals, refund or balance owed, optional deposit interest for jurisdictions that require it, copy a plain-text itemized statement to email the other party, prorated rent for a partial first or last month"}
   </script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you calculate a security deposit refund?","acceptedAnswer":{"@type":"Answer","text":"Add up every itemized deduction (unpaid rent, cleaning, repairs, or other charges) and subtract the total from the deposit amount. If the deductions are less than the deposit, the difference is the refund due. If deductions exceed the deposit, the difference is a balance owed instead."}},{"@type":"Question","name":"What is prorated rent and how is it calculated?","acceptedAnswer":{"@type":"Answer","text":"Prorated rent covers a partial month, usually the first or last month of a lease. It is calculated as a daily rate (monthly rent divided by the number of days in that month) multiplied by the number of days actually occupied."}},{"@type":"Question","name":"Can a landlord deduct for normal wear and tear?","acceptedAnswer":{"@type":"Answer","text":"Most landlord-tenant frameworks distinguish normal wear and tear (ordinary aging from everyday use, generally not deductible) from actual damage beyond normal use (generally deductible) — but the exact definition, itemization deadline, and any deposit limits vary by state and by the lease itself. Check your local law and lease before finalizing a number."}},{"@type":"Question","name":"Is this legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator only totals the numbers you enter — it does not determine what is legally deductible, does not know your state's rules or deadlines, and is not a substitute for reviewing your lease or consulting a qualified professional."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you calculate a security deposit refund?","acceptedAnswer":{"@type":"Answer","text":"Add up every itemized deduction (unpaid rent, cleaning, repairs, or other charges) and subtract the total from the deposit amount. If the deductions are less than the deposit, the difference is the refund due. If deductions exceed the deposit, the difference is a balance owed instead."}},{"@type":"Question","name":"What is prorated rent and how is it calculated?","acceptedAnswer":{"@type":"Answer","text":"Prorated rent covers a partial month, usually the first or last month of a lease. It is calculated as a daily rate (monthly rent divided by the number of days in that month) multiplied by the number of days actually occupied."}},{"@type":"Question","name":"Can a landlord deduct for normal wear and tear?","acceptedAnswer":{"@type":"Answer","text":"Most landlord-tenant frameworks distinguish normal wear and tear (ordinary aging from everyday use, generally not deductible) from actual damage beyond normal use (generally deductible) — but the exact definition, itemization deadline, and any deposit limits vary by state and by the lease itself. Check your local law and lease before finalizing a number."}},{"@type":"Question","name":"Does this calculator include interest on the deposit?","acceptedAnswer":{"@type":"Answer","text":"Only if you enter a rate. Some states and cities require a landlord to pay interest on a held deposit (for example New York for buildings with six or more units, Massachusetts, New Jersey, Connecticut, and Maryland), at a rate the jurisdiction sets and that changes over time. This calculator does not know whether your jurisdiction requires it or what the current rate is — enter the rate that applies to you and how many days the deposit was held, and it adds the accrued interest to the refund. Leave the rate blank if none applies."}},{"@type":"Question","name":"Is this legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator only totals the numbers you enter — it does not determine what is legally deductible, does not know your state's rules or deadlines, and is not a substitute for reviewing your lease or consulting a qualified professional."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -69,7 +69,20 @@
         <label for="deposit-amount">Deposit amount ($)</label>
         <input type="number" id="deposit-amount" min="0" step="0.01" placeholder="e.g. 1500">
       </div>
+      <div>
+        <label for="interest-rate">Required interest rate, if any (%/year)</label>
+        <input type="number" id="interest-rate" min="0" step="0.01" placeholder="e.g. 1 — leave blank if none">
+      </div>
+      <div>
+        <label for="interest-days">Days deposit was held</label>
+        <input type="number" id="interest-days" min="0" step="1" placeholder="e.g. 365">
+      </div>
     </div>
+    <p class="note">Some states and cities require a landlord to pay interest on a
+    held deposit (for example New York for buildings with six or more units,
+    Massachusetts, New Jersey, Connecticut, and Maryland) — check your own
+    jurisdiction and lease. Leave the rate blank if none applies; if one does,
+    enter the rate it sets and this adds the accrued interest to the refund.</p>
     <h3>Itemized deductions</h3>
     <div id="deduction-rows"></div>
     <p><button type="button" class="secondary small" id="add-deduction">+ Add deduction</button></p>
@@ -149,6 +162,8 @@
     <p>Prorated rent covers a partial month, usually the first or last month of a lease. It is calculated as a daily rate (monthly rent divided by the number of days in that month) multiplied by the number of days actually occupied.</p>
     <h3>Can a landlord deduct for normal wear and tear?</h3>
     <p>Most landlord-tenant frameworks distinguish normal wear and tear (ordinary aging from everyday use, generally not deductible) from actual damage beyond normal use (generally deductible) — but the exact definition, itemization deadline, and any deposit limits vary by state and by the lease itself. Check your local law and lease before finalizing a number.</p>
+    <h3>Does this calculator include interest on the deposit?</h3>
+    <p>Only if you enter a rate. Some states and cities require a landlord to pay interest on a held deposit (for example New York for buildings with six or more units, Massachusetts, New Jersey, Connecticut, and Maryland), at a rate the jurisdiction sets and that changes over time. This calculator does not know whether your jurisdiction requires it or what the current rate is — enter the rate that applies to you and how many days the deposit was held, and it adds the accrued interest to the refund. Leave the rate blank if none applies.</p>
     <h3>Can I copy the itemization out to send to the other party?</h3>
     <p>Yes. After you calculate the refund, &ldquo;Copy itemized statement&rdquo; puts the deposit, every named deduction and its amount, the total, and the refund or balance owed on your clipboard as plain text — ready to paste into an email, a letter, or a message. It is the same arithmetic shown on this page, so the copy can never disagree with the table. The note saying this is arithmetic and not a legal determination of what may be deducted is copied along with it, because the person receiving the statement never sees this page. If your browser blocks clipboard access, the statement appears in a text box you can select and copy instead.</p>
     <h3>Is this legal advice?</h3>
@@ -165,7 +180,7 @@
   </footer>
 
   <script type="module">
-    import { computeProratedRent, computeDepositSettlement, formatItemizedStatement } from "./calculator.mjs";
+    import { computeProratedRent, computeDepositSettlement, computeDepositInterest, formatItemizedStatement } from "./calculator.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -192,6 +207,7 @@
 
     const depositEls = {
       amount: $("#deposit-amount"), rows: $("#deduction-rows"),
+      interestRate: $("#interest-rate"), interestDays: $("#interest-days"),
       status: $("#deposit-status"), report: $("#deposit-report"),
       stats: $("#deposit-stats"), body: $("#deduction-body"), findings: $("#deposit-findings"),
       copyStatus: $("#copy-statement-status"), fallback: $("#statement-fallback"), textarea: $("#statement-text"),
@@ -226,7 +242,12 @@
     function runDepositCalculate() {
       const depositAmount = Number(depositEls.amount.value);
       const deductions = readDeductions();
-      const result = computeDepositSettlement({ depositAmount, deductions });
+      const interestResult = computeDepositInterest({
+        depositAmount,
+        annualRatePercent: Number(depositEls.interestRate.value),
+        daysHeld: Number(depositEls.interestDays.value),
+      });
+      const result = computeDepositSettlement({ depositAmount, deductions, depositInterest: interestResult.interestAmount });
 
       depositEls.body.innerHTML = result.lineItems
         .map((d) => `<tr><td>${d.description || "(no description)"}</td><td>${money(d.amount)}</td></tr>`)
@@ -234,8 +255,9 @@
       const summaryRow = result.balanceOwed > 0
         ? `<strong>Balance owed: <span class="price owed">${money(result.balanceOwed)}</span></strong>`
         : `<strong>Refund due: <span class="price">${money(result.refundDue)}</span></strong>`;
-      depositEls.stats.innerHTML = `Total deductions: ${money(result.totalDeductions)} of ${money(Number(depositAmount) || 0)} deposit. ${summaryRow}`;
-      renderFindings(depositEls.findings, result.findings);
+      const interestNote = result.depositInterest > 0 ? ` plus ${money(result.depositInterest)} interest` : "";
+      depositEls.stats.innerHTML = `Total deductions: ${money(result.totalDeductions)} of ${money(Number(depositAmount) || 0)} deposit${interestNote}. ${summaryRow}`;
+      renderFindings(depositEls.findings, [...interestResult.findings, ...result.findings]);
       lastSettlement = { settlement: result, depositAmount: Number(depositAmount) || 0 };
       depositEls.fallback.hidden = true;
       depositEls.copyStatus.textContent = COPY_HINT;
@@ -293,6 +315,8 @@
 
     $("#clear-deposit").addEventListener("click", () => {
       depositEls.amount.value = "";
+      depositEls.interestRate.value = "";
+      depositEls.interestDays.value = "";
       depositEls.rows.innerHTML = "";
       depositEls.report.hidden = true;
       // Drop the held settlement with the inputs that produced it, so a copy
