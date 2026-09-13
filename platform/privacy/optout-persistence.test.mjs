@@ -28,7 +28,10 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // its sibling ventures -- missed by #4665's fix for this same venture's
 // other CI gap (the missing venture-scores.yaml row), which didn't touch
 // this file, so main stayed red here until now.
-const SWITCHES_IN_THE_CATALOGUE = 255;
+// 255 -> 256 on 2026-09-13, when `caption-quality-check` shipped with a
+// `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
+// redirect-chain-check and its siblings.
+const SWITCHES_IN_THE_CATALOGUE = 256;
 
 let counter = 0;
 function fixture(source) {

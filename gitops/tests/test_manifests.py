@@ -1610,7 +1610,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # free CLI + browser tool for Obsidian community-plugin developers, with a
     # static `index.html` from its first commit, same shape as the rest of
     # this running count.
-    total = 270  # `infra/OWNER_CHECKLIST.md`'s own "N of the 270 tools" wording.
+    # 271 since 2026-09-13, when `caption-quality-check` graduated — a free
+    # CLI + browser tool checking SRT/WebVTT caption files for reading speed,
+    # line length, and timing problems against commonly-used caption
+    # style-guide thresholds, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    total = 271  # `infra/OWNER_CHECKLIST.md`'s own "N of the 271 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
