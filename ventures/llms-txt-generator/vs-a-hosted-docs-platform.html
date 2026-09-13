@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This generator vs. a hosted docs platform's built-in llms.txt feature | llms.txt Generator</title>
+<meta name="description" content="Several documentation hosting platforms now generate an llms.txt automatically as one feature of migrating your whole docs site to them. This free tool builds and validates the same spec-compliant file from docs you already have, hosted anywhere, with no migration and no recurring cost.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-a-hosted-docs-platform.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This generator vs. a hosted docs platform's built-in llms.txt feature">
+<meta property="og:description" content="Some doc-hosting vendors auto-generate llms.txt once your docs live on their platform. This free tool builds and validates the same file from docs you already have, hosted anywhere, for free.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this generator or switch to a hosted docs platform that builds llms.txt automatically?","acceptedAnswer":{"@type":"Answer","text":"Depends why you would be switching. Moving your whole documentation site to a new host is a large decision — pricing, migration effort, and lock-in to that platform's authoring format — that should be justified by more than one file. If you already publish docs, on any host or none at all, and just need a correctly structured llms.txt today, paste your existing sitemap.xml or a short page list into this generator for free — no migration required."}},{"@type":"Question","name":"Does this tool keep my llms.txt updated automatically the way a hosted platform would?","acceptedAnswer":{"@type":"Answer","text":"Not on its own — the browser tool is a point-in-time build. A hosted docs platform that owns your whole publishing pipeline can regenerate the file the moment a page is added or removed, because it controls every step. This tool gets you the same automatic-on-deploy behavior a different way: wire the CLI's --dir or --sitemap mode into your own build or deploy script, and it regenerates on every push without migrating anything."}},{"@type":"Question","name":"What does this generator's validator check that a hosted platform's built-in generator gets right automatically?","acceptedAnswer":{"@type":"Answer","text":"The structural shape the llmstxt.org convention actually requires: an H1 title, an optional blockquote summary, and Markdown link bullets grouped under \"## Section\" headings. A hosted platform's own generator gets this right by construction, since it controls the whole pipeline end to end. This tool checks the same shape explicitly instead, because it doesn't control your pipeline — you can paste any llms.txt, from any source, into the validator tab and get the identical structural check."}},{"@type":"Question","name":"Why not just migrate to a docs platform that includes this feature?","acceptedAnswer":{"@type":"Answer","text":"Proportionality. Moving your documentation hosting to gain one auto-generated file is a large move if that file is the only feature you actually want, and it ties the file's freshness to staying on that vendor's platform going forward. This generator produces the identical structural file today, from documentation hosted wherever it already lives, at no cost and with nothing to migrate."}}]}</script>
+<style>
+:root{font:16px/1.6 system-ui,sans-serif;color:#1b1f2a;background:#f2f4f7}
+body{max-width:820px;margin:auto;padding:32px 18px 48px}
+a{color:#17604a;overflow-wrap:anywhere}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.08em;color:#17604a;margin:0 0 6px}
+header{margin:1rem 0}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.1;margin:.3rem 0;max-width:28ch;letter-spacing:-.02em;color:#17324a}
+.lede{font-size:1.05rem;max-width:66ch;color:#4d5a6a}
+p{line-height:1.6}
+section.card{background:#fff;border:1px solid #d5dbe3;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #17324a10;margin:1rem 0}
+h2{margin-top:0;color:#17324a}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e3e9ef;vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#4d5a6a}
+.fine,.note{font-size:.88rem;color:#4d5a6a}
+footer{color:#4d5a6a;font-size:.86rem;margin-top:28px;border-top:1px solid #d5dbe3;padding-top:16px}
+footer p{margin:.6rem 0}
+@media (max-width:820px){body{padding:20px 14px 40px}}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; llms.txt Generator</a></p>
+<header>
+<h1>This generator vs. a hosted docs platform's built-in llms.txt feature</h1>
+<p class="lede">Several documentation hosting platforms now generate an llms.txt automatically, as one feature of moving your whole docs site onto their platform. This free tool builds and validates the same spec-compliant file from docs you already have &mdash; hosted anywhere &mdash; with no migration and no recurring cost.</p>
+</header>
+<section class="card">
+<h2>What each one is for</h2>
+<p>
+  <strong>A hosted documentation platform</strong> that auto-generates
+  llms.txt does so as one bundled feature of its whole pipeline: your
+  content lives on that platform, and because it controls every step from
+  authoring to publishing, it can regenerate the file automatically the
+  moment a page changes. That convenience comes with the platform's own
+  pricing, its own authoring format, and a migration of docs that may
+  already live somewhere else.
+</p>
+<p>
+  <strong>This generator</strong> does not need your docs to live
+  anywhere in particular. Paste a short page list, paste a
+  <code>sitemap.xml</code> you already publish, or point the CLI at a
+  local Markdown tree, and it produces a correctly structured llms.txt
+  &mdash; plus a validator, in the same tool, for one you already have.
+  Nothing is uploaded, there is no account, and nothing about your
+  documentation has to move.
+</p>
+<p>
+  It exists because the two are answering different questions. "Where
+  should our documentation be hosted" is a real decision with real
+  tradeoffs that has nothing to do with one file. "Do we have a
+  spec-correct llms.txt today" is a much narrower question, and this tool
+  answers it for free without requiring the first decision at all. See
+  <a href="./what-is-llms-txt.html">what llms.txt is, and whether you need
+  one</a> for the background.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Do we need a correctly structured llms.txt today?</td><td>This generator &mdash; free, in your browser, no account, no migration.</td></tr>
+<tr><td>Is our existing llms.txt actually valid?</td><td>This generator's <a href="./#mode-check">validate tab</a>.</td></tr>
+<tr><td>Should we move our whole docs site to a new host?</td><td>A separate, larger decision this tool does not evaluate.</td></tr>
+<tr><td>Do we want the file regenerated automatically on every deploy?</td><td>Wire <code>cli.mjs</code>'s <code>--dir</code> or <code>--sitemap</code> mode into your own build script &mdash; no migration needed for that either.</td></tr>
+<tr><td>Is anything we paste in uploaded anywhere?</td><td>No. Everything runs in this browser tab; the CLI reads local files or a sitemap URL you name.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  This generator is a formatting and validation tool, not a documentation
+  host. It does not publish, store, or serve your documentation, and it
+  does not evaluate which hosting platform is the right choice for your
+  team.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, building and validating run in your browser, and nothing you paste is uploaded anywhere.</p>
+</section>
+<section class="card">
+<h2>Common questions</h2>
+<h3>Should I use this generator or switch to a hosted docs platform that builds llms.txt automatically?</h3>
+<p>Depends why you would be switching. Moving your whole documentation site to a new host is a large decision &mdash; pricing, migration effort, and lock-in to that platform's authoring format &mdash; that should be justified by more than one file. If you already publish docs, on any host or none at all, and just need a correctly structured llms.txt today, paste your existing sitemap.xml or a short page list into this generator for free &mdash; no migration required.</p>
+<h3>Does this tool keep my llms.txt updated automatically the way a hosted platform would?</h3>
+<p>Not on its own &mdash; the browser tool is a point-in-time build. A hosted docs platform that owns your whole publishing pipeline can regenerate the file the moment a page is added or removed, because it controls every step. This tool gets you the same automatic-on-deploy behavior a different way: wire the CLI's --dir or --sitemap mode into your own build or deploy script, and it regenerates on every push without migrating anything.</p>
+<h3>What does this generator's validator check that a hosted platform's built-in generator gets right automatically?</h3>
+<p>The structural shape the llmstxt.org convention actually requires: an H1 title, an optional blockquote summary, and Markdown link bullets grouped under "## Section" headings. A hosted platform's own generator gets this right by construction, since it controls the whole pipeline end to end. This tool checks the same shape explicitly instead, because it doesn't control your pipeline &mdash; you can paste any llms.txt, from any source, into the validator tab and get the identical structural check.</p>
+<h3>Why not just migrate to a docs platform that includes this feature?</h3>
+<p>Proportionality. Moving your documentation hosting to gain one auto-generated file is a large move if that file is the only feature you actually want, and it ties the file's freshness to staying on that vendor's platform going forward. This generator produces the identical structural file today, from documentation hosted wherever it already lives, at no cost and with nothing to migrate.</p>
+<p class="note">
+  Open the <a href="./">llms.txt Generator</a>, or read <a href="./what-is-llms-txt.html">what llms.txt is, and whether you need one</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not technical, legal, or SEO advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> The hosted browser page is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+<p><strong>Nothing you paste leaves your browser.</strong> This page describes hosted documentation platforms and their built-in llms.txt features in general terms; it is not affiliated with, endorsed by, or sponsored by any specific documentation platform or vendor, and it does not name or evaluate any specific one.</p>
+<p class="support">Free and open source. If it saved you some formatting, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
