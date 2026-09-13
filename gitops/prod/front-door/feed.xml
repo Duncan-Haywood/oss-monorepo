@@ -13,7 +13,7 @@
     <id>tag:marisstella.dev,2026:tool/caption-quality-check</id>
     <published>2026-09-13T00:00:00Z</published>
     <updated>2026-09-13T00:00:00Z</updated>
-    <category term="More free tools"/>
+    <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste an SRT or WebVTT caption file and check it against commonly-used caption style-guide thresholds -- reading speed (characters per second), line length, lines per cue, minimum/maximum duration, overlapping cues, and too-short gaps between cues. A zero-dependency CLI runs the same checks in your own CI. Nothing uploaded.</summary>
   </entry>
   <entry>

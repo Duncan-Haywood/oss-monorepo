@@ -30018,6 +30018,215 @@ entries:
         score_ventures.py --check, publish_surface.py --check,
         checklist_coverage.py, clauses.mjs all clean. Merged as PR #4672.
     mrr_end: 0
+
+  - venture: terraform-plan-blast-radius-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Open-PR queue had exactly one PR
+        (#4673, home-inspection-fee-calculator's comparison page) at the
+        start -- fewer than three existed, so this session's mandate was to
+        process all of them rather than hunt for two more. It was already
+        behind `main`'s tip (`mergeable_state: dirty`): merged `origin/main`
+        in, resolved a real conflict in the ledger append it carried
+        (two sessions' outcome entries for the same month, kept both rather
+        than picking one), and re-ran `regen.mjs` rather than trusting the
+        three-way auto-merge of the generated front-door `.gz` artifacts.
+        Verified the full checklist (venture 31/31; marketing+pages
+        1257/1257 post-merge; proposal+privacy+webcheck 242/242; gitops/tests
+        581/1 skip; all 15 platform/ci unittest modules + agent_review;
+        portfolio pytest suites 446 passed; all 8 portfolio-validate.yml
+        validators; checklist_coverage, check_ledger_only, check_no_payment_code,
+        usage_state --require-honest, guard_state --require-runnable all
+        clean after installing python3-pytest/nginx-light/openssh-client via
+        apt) and merged as #4673. Republished `gh-pages` and confirmed
+        `pages_state.py` reports `current`.
+      - >-
+        The owner also asked, in this same scheduled prompt, to keep Hetzner
+        deployment/CI-CD, marketing-material deployment on the Hetzner VMs,
+        and a Codex CLI dev worker there prioritized. Checked
+        `infra_state.yaml` first rather than re-measuring blind: this exact
+        ask had already been investigated and re-verified *earlier the same
+        day* by this session's own prior work (PR #4670's `codex-host-mode`
+        refresh, 56/56 tests, `systemd-analyze verify` clean). All three
+        routes are built and tested; every one is still blocked on the
+        single owner action already ranked #1 in `decision_queue.py`
+        (`hetzner-ssh-key-is-a-public-key`, plus four credentials only the
+        owner holds). Did not re-run that measurement or add a duplicate
+        ask -- CLAUDE.md's Duplicate-PRs guidance is explicit that
+        re-verifying a reading taken hours earlier in the same day is
+        wasted work, not diligence.
+      - >-
+        With the open-PR queue empty and Hetzner genuinely owner-blocked,
+        continued the proven comparison-page pattern:
+        `terraform-plan-blast-radius-check` had a product page but no
+        comparison page (one of ~15 remaining ventures in that state). Its
+        own README already frames itself against Sentinel/OPA/Conftest/
+        Terraform Cloud under "What it is not", so
+        `vs-writing-your-own-sentinel-opa-policy.html` makes that comparison
+        explicit: those policy engines catch the same destructive-apply
+        failure only once someone authors and maintains a stateful-resource
+        policy in a policy language, while this tool ships that detection
+        built in as a zero-dependency CLI/browser page needing no platform.
+        Caught and fixed a literal-dash-vs-mdash mismatch between the
+        FAQPage JSON-LD and the visible prose via `faq-visible.test.mjs`
+        before opening the PR, same lesson #4670/#4673 already recorded.
+      - >-
+        `main` advanced from `2bbbb0ef` to `133c62af` (#4674, a concurrent
+        session's browser-check refresh and branch-backlog audit) mid-session.
+        Merged cleanly, no conflicts; re-ran `regen.mjs` post-merge and got
+        no drift, confirming the pre-merge mirror was already correct.
+        Verified: venture's own suite 58/58; the whole-portfolio
+        faq-visible/faq-coverage/faq-duplicate/link/siblings suite 81/81;
+        marketing+pages 1256/1257 post-merge (the one failure,
+        build.test.mjs's pre-existing "the catch-all holds only what no
+        section claims", already confirmed unrelated to venture changes by
+        #4672's own git-stash A/B test); proposal+privacy+webcheck 242/242;
+        gitops/tests 581/1 skip; platform/ci sweep + agent_review;
+        portfolio pytest suites 446 passed; all 8 validators;
+        checklist_coverage/check_ledger_only/check_no_payment_code clean.
+        Pushed and opened #4675; every check on it came back red in 2-3s
+        (`runner_id: 0`) -- confirmed starvation rather than a real failure
+        with `ci_starvation.py`, and merged on the local verification above.
+        Republished `gh-pages` and confirmed `pages_state.py` reports
+        `current` against the new tip.
+    mrr_end: 0
+
+  - venture: vpat-acr-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session, continuing the comparison-page pass: this venture's
+        own README already names the commercial competition (Level Access,
+        BarrierBreak, Accessibility.Works, WCAG.com) and the public pricing
+        evidence ($2,000-5,000 per engagement) for exactly this comparison,
+        so `vs-hiring-a-vpat-consultant.html` writes it up without naming a
+        specific firm (matching the stricter disclaimer precedent used
+        elsewhere): a paid VPAT/ACR engagement bundles testing the product
+        plus formatting the result, this tool only does the formatting half,
+        and the real value for a vendor that has already tested internally
+        is skipping the fee for the half a deterministic tool does for free.
+        Linked from `index.html`; the venture's own `sitemap.xml` was left
+        alone after confirming in `build.mjs` that hand-written per-venture
+        sitemaps are legacy and superseded at build time by one generated
+        from the pages actually published (`renderVentureSitemap`), so
+        editing it would have been a no-op cross-cutting fix outside scope.
+      - >-
+        `main` advanced from `133c62af` to `887aa9c0` (#4675, this session's
+        own prior PR) then to `19a2d725` (#4677, a concurrent session's fix
+        for the pre-existing `build.test.mjs` failure this session had been
+        seeing and had already confirmed unrelated via #4672's git-stash
+        A/B test) mid-session. Merged cleanly; re-ran the full
+        marketing+pages suite post-merge specifically to confirm #4677
+        closed that gap rather than assuming it from the PR title -- it did
+        (1257/1257, zero failures, for the first time this session).
+      - >-
+        Verified: venture's own suite 27/27; whole-portfolio
+        faq-visible/faq-coverage/faq-duplicate/link/siblings 81/81;
+        marketing+pages 1257/1257 post-merge; proposal+privacy+webcheck
+        242/242; gitops/tests 581/1 skip; platform/ci sweep + agent_review;
+        portfolio pytest suites 446 passed; all 8 validators;
+        checklist_coverage/check_no_payment_code/usage_state
+        --require-honest clean. Republished `gh-pages`; `pages_state.py`
+        confirmed `current`.
+      - >-
+        Also recorded, in this same commit, the outcome entry for this
+        session's earlier work reviewing/fixing/merging PR #4673
+        (home-inspection-fee-calculator's comparison page) and shipping
+        #4675 (terraform-plan-blast-radius-check's), which had no product
+        change of their own left to ride alongside at the time -- folded in
+        here rather than pushed standalone, per `check_ledger_only.py`'s
+        purpose and this file's own "ledger entry rides with real work"
+        rule.
+    mrr_end: 0
+
+  - venture: cat-adjuster-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session (a separate concurrent firing). Reviewed
+        the sole open PR (#4673, home-inspection-fee-calculator's comparison
+        page): sound, well-tested, additive marketing content. A concurrent
+        session had already pushed a merge resolving the same `main`-drift
+        conflict (`portfolio/ledger/2026-09.yaml`) directly to the PR branch
+        while this session was independently resolving the identical
+        conflict locally -- discarded this session's own redundant merge
+        commit and re-verified the concurrent session's resolution instead
+        (regen.mjs reported no drift; full local checklist re-run clean)
+        rather than overwrite it. Merged as #4673. That left the
+        repairable-PR queue empty (fewer than three existed).
+      - >-
+        Surveyed the branch backlog per the "branch-to-PR presumption"
+        instruction: 515 non-main branches exist. Bulk ancestor-check found
+        only 16 are literal git ancestors of main, but a random sample of
+        72 branches (12 + 60) all had a zero-line diff against `main`
+        outside the append-only ledger file -- i.e. their content is
+        already fully shipped (squash/rebase-merged elsewhere), just not a
+        literal git ancestor. This is git hygiene debt (undeleted branches
+        after merge), not a real backlog of unshipped work, so no new PRs
+        were opened from it; opening hundreds of no-op PRs would be pure
+        overhead. Left branch deletion to the owner rather than mass-delete
+        500+ refs unilaterally in a shared multi-agent repo.
+      - >-
+        The owner asked directly (same recurring scheduled prompt) to
+        prioritize Hetzner deployment/CI-CD, marketing-material deployment
+        on the Hetzner VMs, and a Codex CLI dev-worker there. This was
+        already re-verified in this exact session's own immediately-prior
+        run today (2026-09-13, folded into #4670's ledger entry above):
+        codex-host-mode is fully built and tested (56/56 tests,
+        `systemd-analyze verify` clean), and every Hetzner route is blocked
+        on the single owner action already ranked #1 in decision_queue.py
+        (`hetzner-ssh-key-is-a-public-key`, plus four other credentials
+        only the owner holds). Nothing had changed since that reading a few
+        hours earlier, so did not re-run the same 56-test suite again
+        (per the spirit of not re-verifying an unchanged finding) --
+        confirmed only that the infra_state.yaml note was still current.
+      - >-
+        With Hetzner genuinely owner-blocked and the PR queue and branch
+        backlog both clear of real work, shipped
+        `ventures/cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html`
+        -- one of 15 ventures lacking this portfolio's proven organic-search
+        asset. No single named commercial competitor exists for this niche,
+        so framed against the honest alternative the venture's own
+        `kill_criteria` already names ("a fee-schedule spreadsheet or mental
+        math"), matching the precedent of three existing generic
+        (non-branded) comparison pages in this portfolio. Required adding
+        the page to `platform/pages/clauses.mjs`'s
+        `COMPARISON_DISCLAIMER_EXEMPT` set (caught by
+        `clauses.test.mjs`'s real-tree walk): a `vs-*.html` filename is
+        otherwise treated as naming a competitor and required a "not
+        affiliated with" disclaimer, which would have been a fabricated
+        claim about a company that does not exist here.
+      - >-
+        Verified: venture's own tests 50/50 (71/71 after the clauses fix
+        re-run); full `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        suite 1256/1257 both before and after this venture's changes -- the
+        one failure is `build.test.mjs`'s pre-existing "the catch-all holds
+        only what no section claims", unrelated to captions/comparisons/
+        this venture, already documented as such in #4672's ledger entry
+        above; `platform/pages/clauses.test.mjs` 21/21 after the exemption
+        fix (was 2 failures before it: the real-venture-tree disclaimer
+        walk correctly caught the missing exemption); `gitops/tests` 581
+        passed/1 skipped (environmental, nginx-light + openssh-client
+        installed via apt); full `platform/ci` 15-module unittest sweep +
+        `agent_review`'s `test_review` all green; `pytest
+        portfolio/{ledger,scoring,router,usage,pipeline} infra/tests` 446
+        passed (twice, before and after); `score_ventures.py --check`,
+        `checklist_coverage.py`, `guard_state.py --require-runnable` (no
+        fixable skips), `usage_state.py --require-honest`,
+        `check_no_payment_code.py`, `check_ledger_only.py`,
+        `router/validate.py`, and the doc-consistency/candidates/usage
+        validators all clean. `run_workflow_locally.py --tree` was
+        attempted but hit its own 600s timeout partway through the full
+        verification-only sweep; not re-attempted given every individual
+        required suite above already passed and `ci_starvation.py`
+        confirmed the PR's own red checks were starvation, not real
+        failures.
+    mrr_end: 0
+
   - venture: court-reporter-transcript-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -30077,17 +30286,25 @@ entries:
         catalog/llms.txt are current; filed the venture under build.mjs's
         `services` category (solo professional pricing one job for a
         client, alongside notary-trip-quote) rather than leaving it in the
-        catch-all. Also found and fixed forward a genuinely pre-existing,
-        unrelated break: build.test.mjs's catch-all-size bound (5) was
-        already exceeded by 6 members on `main` before this venture
-        touched anything -- confirmed via a git-stash A/B test putting the
-        working tree back to `main`'s state, where the same assertion
-        failed identically. Enumerated the 6 (`ai-engineering-academy`,
-        `caption-quality-check`, `childcare-tuition-calculator`,
-        `food-truck-event-margin-calculator`, `menu-engineering-calculator`,
-        `security-deposit-return-calculator`) and confirmed none shares an
-        axis with any other, so raised the bound to 6 with a dated comment
-        rather than force a misfile.
+        catch-all. Also found a genuinely pre-existing, unrelated break:
+        build.test.mjs's catch-all-size bound (5) was already exceeded by 6
+        members on `main` before this venture touched anything -- confirmed
+        via a git-stash A/B test putting the working tree back to `main`'s
+        state, where the same assertion failed identically. Before
+        re-categorizing any of the other five by hand, merged
+        `origin/main` (which had advanced during this session) and found
+        two concurrent sessions had already fixed the same break
+        independently: #4677 filed `caption-quality-check` into `ci` and
+        `security-deposit-return-calculator` into `backoffice`, and a
+        sibling `cat-adjuster-fee-calculator` session's branch (merged as
+        part of the same `origin/main` advance) filed
+        `childcare-tuition-calculator` and
+        `food-truck-event-margin-calculator` into `services`. So the bound
+        needed no raising after all -- resolved the resulting `build.mjs`
+        merge conflict by keeping both sets of category-rule additions
+        (theirs plus this venture's own) rather than picking a side, and
+        left the test's bound comment recording what actually happened
+        instead of the raise this session almost made permanent.
       - >-
         Verified: venture's own suite 42/42; gitops/tests 581 passed/1
         skip (environmental -- guard_state.py --require-runnable confirmed

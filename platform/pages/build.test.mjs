@@ -4342,27 +4342,21 @@ test('the catch-all holds only what no section claims', async () => {
   // wrong, because nobody was looking at the aggregate. Prefer listing the
   // catch-all to reasoning about the one venture in front of you.
   //
-  // Raised 5 -> 6 on 2026-09-13. `caption-quality-check` merged (#4672) and
-  // pushed the catch-all past the bound with nothing catching it -- CI was
-  // reading starved, and the venture's own graduation PR touched neither
-  // this file nor `build.mjs`'s category rules. Found and fixed forward by
-  // an unrelated venture PR that happened to run this suite. Enumerated
-  // rather than assumed coherent: the six members today
-  // (`ai-engineering-academy`, `caption-quality-check`,
-  // `childcare-tuition-calculator`, `food-truck-event-margin-calculator`,
-  // `menu-engineering-calculator`, `security-deposit-return-calculator`)
-  // share no axis with each other -- a video-caption accessibility checker,
-  // a daycare billing calculator, a food-truck margin tool, a restaurant
-  // menu-pricing classifier, a landlord-tenant deposit calculator, and an
-  // electronics-calculator hub, for five different audiences. Forcing any
-  // one into `ci`, `services`, or `evidence` to stay under the old bound
-  // would misfile it for the reader browsing that section, which is the
-  // exact mistake the `evidence` section's own history (two ventures filed
-  // there by slug rather than by keyword) already warns against. This is
-  // the fallback working as designed, per the comment above, not a taxonomy
-  // gap to close today; lower it back if any pair here grows a shared axis.
+  // Briefly grew past this bound on 2026-09-13 when `caption-quality-check`
+  // merged (#4672) with nothing catching it -- CI was reading starved, and
+  // the venture's own graduation PR touched neither this file nor
+  // `build.mjs`'s category rules. Found via a git-stash A/B test by an
+  // unrelated venture PR (`court-reporter-transcript-calculator`) and fixed
+  // forward the same day, independently, in two places: #4677 filed
+  // `caption-quality-check` into `ci` and `security-deposit-return-
+  // calculator` into `backoffice`, and the `court-reporter-transcript-
+  // calculator` PR filed `childcare-tuition-calculator` and
+  // `food-truck-event-margin-calculator` into `services` in the same
+  // window. The bound never needed raising -- the two members left today
+  // (`ai-engineering-academy`, `menu-engineering-calculator`) share no axis
+  // with each other, so this is the fallback working as designed.
   assert.ok(
-    more.items.length <= 6,
+    more.items.length <= 5,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
   );
 });
