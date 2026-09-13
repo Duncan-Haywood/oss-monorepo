@@ -1615,7 +1615,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # line length, and timing problems against commonly-used caption
     # style-guide thresholds, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 271  # `infra/OWNER_CHECKLIST.md`'s own "N of the 271 tools" wording.
+    # 272 since 2026-09-13, when `court-reporter-transcript-calculator`
+    # graduated — a freelance court reporter deposition-invoice and
+    # agency-offer calculator, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    total = 272  # `infra/OWNER_CHECKLIST.md`'s own "N of the 272 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

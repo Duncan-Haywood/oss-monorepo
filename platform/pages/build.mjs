@@ -531,8 +531,20 @@ const CATEGORY_RULES = [
     // equipment cost into a price for one booking against a flat headline
     // rate that hides the real cost. Neither is a trade bid (nothing priced
     // by area or a site visit) and neither is a marketplace fee.
+    //
+    // `court-reporter-transcript-calculator` joined 2026-09-13, filed here on
+    // its first commit rather than after a spell in the catch-all — which is
+    // what `build.test.mjs`'s catch-all bound is for. A freelance court
+    // reporter turning page count, turnaround speed, travel, and add-on fees
+    // into a deposition invoice total is the same job as `notary-trip-quote`
+    // and `translator-project-quote` — a solo professional pricing one job
+    // for a client — just billed per page with a turnaround multiplier
+    // instead of a flat trip or per-word fee. Not `trades` (nothing priced
+    // by area or a site visit) and not a back-office reconciliation (the
+    // number is invoiced for the job just done, not reconciled against a
+    // prior statement).
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript)/.test(
         slug,
       ),
   },
