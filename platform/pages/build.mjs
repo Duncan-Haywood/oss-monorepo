@@ -1166,8 +1166,24 @@ const CATEGORY_RULES = [
     // family pattern, and landing it here rather than the catch-all is also
     // what keeps that catch-all inside the bound `build.test.mjs` puts on
     // it.
+    //
+    // `caption-quality-check` joined 2026-09-13, in the same graduation
+    // commit, and sat in the catch-all because nothing above names its slug
+    // or a caption-specific prefix. Same shape as every other entry in this
+    // category: a browser-local checker plus a matching zero-dependency CLI
+    // ("the CLI runs the same checks in your own CI"), run against a file the
+    // developer already has (an SRT/WebVTT caption track instead of a
+    // manifest or workflow file), reporting mechanically-verifiable
+    // threshold violations rather than a determination -- its own FAQ says
+    // this almost word for word: "Treat a clean report as evidence that the
+    // mechanical thresholds are met, not as a substitute for reviewing the
+    // captions yourself." That is this category's disclaimer posture, not
+    // `evidence`'s: nothing here is a compliance record of a decision made,
+    // it is a CI gate a maintainer wires into their own pipeline. Landing it
+    // here rather than the catch-all is also what keeps that catch-all
+    // inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
         slug,
       ),
   },
