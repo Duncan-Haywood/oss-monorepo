@@ -4342,18 +4342,30 @@ test('the catch-all holds only what no section claims', async () => {
   // wrong, because nobody was looking at the aggregate. Prefer listing the
   // catch-all to reasoning about the one venture in front of you.
   //
-  // Fired again 2026-09-13 at 6, and the bound is deliberately NOT raised --
-  // the answer was `food-service` in build.mjs, the third named section to
-  // come out of this guard. `caption-quality-check` was the arrival that
-  // tripped it, and judging that one venture would have produced another
-  // raise, because a caption checker is not a cluster on its own. Listing the
-  // six instead showed `menu-engineering-calculator` and
-  // `food-truck-event-margin-calculator` sharing an axis with
-  // `pour-cost-calculator`, which had been sitting in `services` for want of
-  // anywhere better: food and drink priced per item or per event. That left
-  // four genuinely unrelated tools here (electronics teaching calculators, a
-  // caption file checker, daycare tuition, a security deposit refund), which
-  // is the fallback working rather than a taxonomy gap.
+  // Fired again 2026-09-13 at 6, and the bound was not raised then either.
+  // Two sessions answered it in the same window, differently, and both landed
+  // — so the record here is worth keeping straight, because the two halves
+  // are easy to mistake for one decision:
+  //
+  //   - #4677 restored the bound, by filing `caption-quality-check` (the
+  //     arrival that tripped it) under `ci` rather than leaving it here. That
+  //     alone took the catch-all back to 5.
+  //   - `food-service` in build.mjs came out of listing the six rather than
+  //     judging the arrival, and is NOT what fixed the bound. Two of the six
+  //     (`menu-engineering-calculator`, `food-truck-event-margin-calculator`)
+  //     shared an axis with `pour-cost-calculator`, which had been sitting in
+  //     `services` for want of anywhere better: food and drink priced per item
+  //     or per event.
+  //
+  // So this guard is not the argument for that section — a reader checking
+  // later should weigh it on the axis and on `pour-cost-calculator` having a
+  // home that fits, not on a bound that something else had already restored.
+  // What the guard did do is make someone enumerate, which is the whole point
+  // of it and is how the cluster was found at all.
+  //
+  // Between them the catch-all is 3: electronics teaching calculators, daycare
+  // tuition, a security deposit refund. Genuinely unrelated to each other,
+  // which is the fallback working rather than a taxonomy gap.
   assert.ok(
     more.items.length <= 5,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,

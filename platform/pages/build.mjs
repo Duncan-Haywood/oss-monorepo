@@ -422,12 +422,20 @@ const CATEGORY_RULES = [
     accent: '#6b2f3a',
     blurb:
       'What a plate, a pour, or a booked event actually earns once food cost, waste, and the hours behind it are in the arithmetic — for the operators who sell food and drink rather than a job at someone else\'s property.',
-    // Added 2026-09-13, because the catch-all guard asked for it: `More free
-    // tools` had reached 6 against a bound of 5. Following that test's own
+    // Added 2026-09-13. The catch-all guard in `build.test.mjs` is what
+    // prompted it -- `More free tools` had reached 6 against a bound of 5 --
+    // but this section is NOT what fixed that, and the distinction matters for
+    // anyone weighing whether to keep it. #4677 restored the bound
+    // independently in the same window by filing `caption-quality-check` (the
+    // arrival that tripped it) under `ci`.
+    //
+    // What the guard actually bought was the enumeration. Following its own
     // instruction -- "Prefer listing the catch-all to reasoning about the one
-    // venture in front of you" -- the six were enumerated rather than judging
-    // `caption-quality-check` (the arrival that tripped it) on its own, and
-    // the cluster was already there.
+    // venture in front of you" -- the six were listed rather than judging the
+    // arrival, and the cluster turned out to be already there, two of it
+    // sitting in the catch-all and one of it filed under `services` for want
+    // of anywhere better. So judge this section on the axis below and on
+    // `pour-cost-calculator` having a home that fits, not on a bound.
     //
     // The axis is what is being sold: food and drink, priced per item or per
     // event, where the cost side is ingredients and prep hours. That is a
@@ -458,13 +466,27 @@ const CATEGORY_RULES = [
     // needs one line here -- which the catch-all bound will ask for anyway.
     //
     // Smallest named section at three members (`logistics` is next at seven),
-    // and kept anyway. The bound's history is the argument: it was raised
-    // 8 -> 9 twice by sessions each correctly noting their own venture was not
-    // a cluster on its own, and lowering it back to 5 is what finally produced
-    // `solo-earner`. Raising it again here would repeat precisely the mistake
-    // that test's comment was written to stop, and a three-tool hub that
-    // answers "restaurant menu pricing" is worth more to a searcher than a
-    // sixth row in "Everything else".
+    // and the honest case for it has to stand without the bound, since #4677
+    // already satisfied that. Two things carry it:
+    //
+    // `pour-cost-calculator` gains a home that fits. It was in `services`,
+    // which prices "a visit, a route, a booking, or a licence", and a pour cost
+    // is none of those -- so one of these three was already mis-filed
+    // regardless of what the catch-all did.
+    //
+    // And a hub that answers "restaurant menu pricing" or "bar pour cost" is
+    // worth more to a searcher than three rows spread across "Everything else"
+    // and a service-business page they have no reason to open. This catalogue's
+    // measured problem is enumeration, not content (`pages_state.py`'s
+    // `indexing` row: sitemap auto-discovery cannot happen from a project-Pages
+    // subpath), so a named hub on a high-intent phrase is the cheap half of
+    // that.
+    //
+    // The risk in the other direction is real and worth naming: a section this
+    // small is one venture away from looking arbitrary, and food/bev is a wide
+    // enough niche that it should grow rather than sit at three. If it has not
+    // gained a fourth member in a few months, fold it back into `services`
+    // rather than defending it.
     test: (slug) => [
       'menu-engineering-calculator',
       'food-truck-event-margin-calculator',
