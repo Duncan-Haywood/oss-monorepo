@@ -227,6 +227,11 @@ test('every published page carries Open Graph tags', () => {
     const source = readFileSync(new URL(page, dir), 'utf8');
     assert.match(source, /<meta property="og:title" content="[^"]+">/, `${page} is missing og:title`);
     assert.match(source, /<meta property="og:description" content="[^"]+">/, `${page} is missing og:description`);
+    // og:type was missing on every page in this venture (index.html and all
+    // nine "should-i-..."/"vs-..." pages) while the sibling
+    // where-to-sell-calculator venture carried it everywhere — a fleet
+    // consistency gap rather than a deliberate omission.
+    assert.match(source, /<meta property="og:type" content="website">/, `${page} is missing og:type`);
   }
 });
 
@@ -244,9 +249,8 @@ test('the result panel is announced to screen readers when it updates', () => {
 });
 
 test('every worked-example sub-page carries a robots meta and a matching canonical link', () => {
-  // index.html is the app shell and does not follow this convention; every
-  // "should-i-..." doc page does, and should-i-take-this-reverb-offer.html
-  // shipped without either while its five siblings had both.
+  // should-i-take-this-reverb-offer.html once shipped without either while
+  // its five siblings had both.
   const dir = new URL('./', import.meta.url);
   const pages = readdirSync(dir).filter((name) => name.endsWith('.html') && name !== 'index.html');
   for (const page of pages) {
@@ -254,6 +258,20 @@ test('every worked-example sub-page carries a robots meta and a matching canonic
     assert.match(source, /<meta name="robots" content="index, follow">/, `${page} is missing a robots meta tag`);
     assert.match(source, new RegExp(`<link rel="canonical" href="${page.replace('.', '\\.')}"`), `${page} is missing (or has a mismatched) canonical link`);
   }
+});
+
+// index.html used to be exempted from the check above as "the app shell",
+// but where-to-sell-calculator/index.html — the same "app shell" shape —
+// already carries a robots meta, a canonical link and a favicon on its own
+// index.html, so the exemption was an inconsistency rather than a rule:
+// the tool's own landing page is the one page in the venture most worth
+// having a canonical URL, since the share-link feature appends a URL
+// fragment to this exact page.
+test('index.html itself carries a robots meta, a canonical link, a favicon, and og:type', () => {
+  assert.match(html, /<meta name="robots" content="index, follow">/, 'index.html is missing a robots meta tag');
+  assert.match(html, /<link rel="canonical" href="\.">/, 'index.html is missing (or has a mismatched) canonical link');
+  assert.match(html, /<link rel="icon" href="data:image\/svg\+xml,/, 'index.html is missing a favicon');
+  assert.match(html, /<meta property="og:type" content="website">/, 'index.html is missing og:type');
 });
 
 // where-to-sell-calculator already hands a Reverb comparison into this page;
