@@ -29812,3 +29812,84 @@ entries:
         highlight-style promise, which is a legitimate skip per the check's
         own message, not a failure.
     mrr_end: 0
+
+  - venture: brand-deal-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Open-PR queue had exactly one PR
+        (#4668) at the start. Reviewing it found both defects it fixed
+        (missing venture-scores.yaml row, stale SWITCHES_IN_THE_CATALOGUE
+        count) had already landed on main via #4665 and #4667 while it was
+        in flight -- merging it would have reverted #4665's
+        `distribution: 6`/`composite: 6.167` back to `distribution: 5`/
+        `composite: 6.0`. Closed with the superseding commits named, per
+        CLAUDE.md's Duplicate PRs guidance for a branch main has moved past;
+        `supersede_check.py` still reported NOT SUPERSEDED because its
+        line-level scan doesn't match differing prose/values, which is the
+        "STALE DRAFT SUSPECTED" shape the same section describes. That left
+        the repairable-PR queue empty (fewer than three existed).
+      - >-
+        The owner also asked directly, in this same session, to prioritize
+        Hetzner deployment/CI-CD, marketing-material deployment on the
+        Hetzner VMs, and a Codex CLI dev worker there. Investigated first:
+        all three are already built and tested
+        (`bootstrap/restore-cluster.sh` with `WITH_CODEX_HOST=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1`, and
+        `gitops/agents/host/` for the Codex worker specifically), and every
+        one is blocked on the single owner action already ranked #1 in
+        decision_queue.py (`hetzner-ssh-key-is-a-public-key`, plus four
+        other credentials only the owner holds). Re-verified codex-host-mode
+        is still installable (56/56 tests, up from 45; `systemd-analyze
+        verify` clean on both units) and refreshed the reading in
+        `portfolio/ledger/infra_state.yaml` rather than re-adding a
+        duplicate owner ask or attempting an action no agent session can
+        perform.
+      - >-
+        With Hetzner genuinely owner-blocked, confirmed the GitHub Pages
+        route was already current (`pages_state.py`), then shipped
+        `ventures/brand-deal-rate-calculator/vs-marketplace-rate-estimator.html`
+        -- one of 24 ventures (now 23) still missing this portfolio's proven
+        organic-search asset. Framed against the generic marketplace/
+        rate-estimator role (Intellifluence/Klear/HypeAuditor-style tools),
+        not a named company, matching the disclaimer pattern already used
+        elsewhere. Caught a real defect during verification:
+        `faq-visible.test.mjs` flagged the FAQPage JSON-LD using literal
+        `--` where the visible prose used an em dash; fixed by matching the
+        JSON-LD text to the visible copy exactly.
+      - >-
+        `main` advanced from `11c5f170` to `3967916c1` (#4669) mid-session
+        with the identical fix to a mirror-staleness defect
+        (security-deposit-return-calculator's mirror missing its own
+        already-merged computeDepositInterest feature) that this session's
+        own first `regen.mjs` run had independently found. Merged
+        `origin/main` (clean, no conflicts) and re-ran `regen.mjs`, which
+        reported nothing left to rewrite -- confirming #4669 fully covered
+        it.
+      - >-
+        Verified: venture's own tests 32/32; full
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs` suite
+        1331/1331 post-merge (1257/1257 pre-merge); `platform/proposal` +
+        `platform/privacy` + `platform/webcheck` 242/242; `gitops/tests`
+        581 passed/1 skipped (ENVIRONMENTAL); full `platform/ci` unittest
+        sweep + `agent_review`'s `test_review` all OK; `pytest
+        portfolio/{ledger,scoring,router,usage,pipeline} infra/tests`
+        446 passed; `score_ventures.py --check`, `checklist_coverage.py`,
+        `guard_state.py --require-runnable` (no fixable skips, after
+        installing nginx-light + openssh-client + python3-pytest via apt),
+        `usage_state.py --require-honest`, `check_no_payment_code.py`,
+        `check_ledger_only.py`, and the doc-consistency/candidates/usage/
+        sensitivity validators all clean.
+      - >-
+        Merged as #4670 (all 11 PR checks read `runner_id: 0` --
+        `ci_starvation.py --run` confirmed starvation on every one, not a
+        real failure). Deployed: `gh-pages` refreshed via
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+        against the merge tip (`7b3e1628`); `pages_state.py` reports
+        `current`. IndexNow submission attempted and 403'd at this
+        sandbox's egress proxy (`api.indexnow.org` not allowlisted) --
+        not fatal, the site itself is already published; needs an Actions
+        runner or the Hetzner box under host mode to actually reach
+        IndexNow, both still blocked on the same SSH-key ask above.
+    mrr_end: 0
