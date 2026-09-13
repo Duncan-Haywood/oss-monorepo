@@ -37,18 +37,17 @@
 #   portfolio-front-tools-1: 107 files, 557054 bytes
 #   portfolio-front-tools-2: 148 files, 556493 bytes
 #   portfolio-front-tools-3: 138 files, 556667 bytes
-#   portfolio-front-tools-4: 123 files, 553642 bytes
-#   portfolio-front-tools-5: 135 files, 555773 bytes
-#   portfolio-front-tools-6: 130 files, 553344 bytes
-#   portfolio-front-tools-7: 120 files, 543397 bytes
-#   portfolio-front-tools-8: 112 files, 556203 bytes
-#   portfolio-front-tools-9: 112 files, 541795 bytes
-#   portfolio-front-tools-10: 120 files, 555365 bytes
-#   portfolio-front-tools-11: 127 files, 551560 bytes
-#   portfolio-front-tools-12: 101 files, 554035 bytes
-#   portfolio-front-tools-13: 113 files, 555151 bytes
-#   portfolio-front-tools-14: 59 files, 295063 bytes
-#   portfolio-front-tools-15: 52 files, 266139 bytes
+#   portfolio-front-tools-4: 123 files, 553600 bytes
+#   portfolio-front-tools-5: 135 files, 555918 bytes
+#   portfolio-front-tools-6: 130 files, 553372 bytes
+#   portfolio-front-tools-7: 120 files, 543271 bytes
+#   portfolio-front-tools-8: 112 files, 556260 bytes
+#   portfolio-front-tools-9: 112 files, 541781 bytes
+#   portfolio-front-tools-10: 120 files, 555297 bytes
+#   portfolio-front-tools-11: 128 files, 557016 bytes
+#   portfolio-front-tools-12: 102 files, 556604 bytes
+#   portfolio-front-tools-13: 113 files, 553089 bytes
+#   portfolio-front-tools-14: 109 files, 555211 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1631,12 +1630,12 @@ configMapGenerator:
       - security-headers-check__usage.mjs.gz=security-headers-check__usage.mjs.gz
       - security-headers-check__vs-securityheaders.html.gz=security-headers-check__vs-securityheaders.html.gz
       - self-storage-rate-increase-calculator__calc.mjs.gz=self-storage-rate-increase-calculator__calc.mjs.gz
+      - self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz=self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz=self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz
       - self-storage-rate-increase-calculator__index.html.gz=self-storage-rate-increase-calculator__index.html.gz
       - self-storage-rate-increase-calculator__usage.mjs.gz=self-storage-rate-increase-calculator__usage.mjs.gz
       - self-storage-rate-increase-calculator__vs-sitelink.html.gz=self-storage-rate-increase-calculator__vs-sitelink.html.gz
@@ -1737,13 +1736,13 @@ configMapGenerator:
       - sod-install-bid-calculator__index.html.gz=sod-install-bid-calculator__index.html.gz
       - sod-install-bid-calculator__usage.mjs.gz=sod-install-bid-calculator__usage.mjs.gz
       - sod-install-bid-calculator__vs-aspire.html.gz=sod-install-bid-calculator__vs-aspire.html.gz
+      - soffit-fascia-bid-calculator__calc.mjs.gz=soffit-fascia-bid-calculator__calc.mjs.gz
+      - soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz=soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - soffit-fascia-bid-calculator__calc.mjs.gz=soffit-fascia-bid-calculator__calc.mjs.gz
-      - soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz=soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz
       - soffit-fascia-bid-calculator__index.html.gz=soffit-fascia-bid-calculator__index.html.gz
       - soffit-fascia-bid-calculator__usage.mjs.gz=soffit-fascia-bid-calculator__usage.mjs.gz
       - soffit-fascia-bid-calculator__vs-jobber.html.gz=soffit-fascia-bid-calculator__vs-jobber.html.gz
@@ -1855,13 +1854,13 @@ configMapGenerator:
       - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz
       - vending-machine-route-margin__vs-cantaloupe.html.gz=vending-machine-route-margin__vs-cantaloupe.html.gz
       - vending-machine-route-margin__vs-vendsoft.html.gz=vending-machine-route-margin__vs-vendsoft.html.gz
+      - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
+      - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
-      - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
       - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
       - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
@@ -1919,11 +1918,6 @@ configMapGenerator:
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
       - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
       - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
-  - name: portfolio-front-tools-15
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - well-pump-bid-calculator__vs-servicetitan.html.gz=well-pump-bid-calculator__vs-servicetitan.html.gz
       - whatnot-seller-payout__calc.mjs.gz=whatnot-seller-payout__calc.mjs.gz
       - whatnot-seller-payout__how-much-does-whatnot-take.html.gz=whatnot-seller-payout__how-much-does-whatnot-take.html.gz
