@@ -29894,6 +29894,67 @@ entries:
         IndexNow, both still blocked on the same SSH-key ask above.
     mrr_end: 0
 
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `browser_state.py` reported every browser/accessibility check STALE
+        against `main` (last recorded 2026-09-12 at `dea00546`; several
+        merges landed since, including a new venture). Installed Playwright
+        1.56.0 + axe-core per AGENTS.md and ran a full, unfiltered
+        `browser_checks.py --record` sweep to refresh it, since a stale
+        recorded reading is what let real defects (48 critical axe `label`
+        violations, 2026-09-06) sit unnoticed for this catalogue's entire
+        life before anyone ran the checks by hand.
+      - >-
+        The sweep found one real, reproducible failure: `roundtrip` reported
+        `1099k-reconciliation-worksheet: the copied link carries no bid`.
+        Traced it to a structural mismatch between the probe's assumption
+        (fill the visible fields, click share, compare those same fields on
+        the other side) and this venture's actual UI: its "Copy share link"
+        button encodes an in-memory row *list*, built only when the separate
+        "Add platform" form is submitted -- filling that form's number
+        fields, as the probe does, changes nothing the link carries. The
+        tool's own response (`share.mjs`'s `encodeRows([])` correctly
+        returning `''`, surfaced to the visitor as "Nothing entered yet --
+        the link would open blank") is honest, correct behaviour, not a
+        dropped field.
+      - >-
+        Wrote a fix (a documented `ROW_LIST_VENTURES` skip), then found
+        while merging `main` before pushing that a concurrent session had
+        landed a better one minutes earlier as PR #4671
+        (`a6ddba601`): rather than skipping the venture, it generically
+        detects an add-then-share form (any `<form>` containing the edited
+        number-field ids with a submit control), submits it, and re-reads
+        the share link -- so this shape gets real round-trip coverage
+        instead of a documented gap. Deferred to it: took `origin/main`'s
+        `roundtrip.mjs` as-is over this session's own draft. Verified their
+        fix directly rather than assuming it: merged `main`, ran `node
+        platform/pages/roundtrip.mjs 1099k-reconciliation-worksheet`
+        against a freshly built dist -- passes, real submit-and-compare, no
+        failure and no skip.
+      - >-
+        Also surveyed the branch/PR backlog before this, per this session's
+        mandate: 0 open PRs. 509 remote branches; 301 have zero commits
+        ahead of `origin/main` (trivially superseded, no PR needed). Ran
+        `portfolio/ledger/supersede_check.py` (after `git fetch
+        --unshallow`, since the clone starts shallow and a shallow diff
+        against these branches is meaningless per this file's own warning)
+        against all 208 branches with unique commits: every one resolved to
+        SUPERSEDED (including by identical-merge proof) or, for the several
+        flagged NOT SUPERSEDED, a confirmed STALE DRAFT -- `main` already
+        has a later, fuller version of the same file in every case checked
+        (e.g. `marketing/locksmith-bid-calculator-vs-jobber`'s index.html
+        links 1 comparison page where `main`'s now links 3;
+        `atm-route-margin`'s and several `agent/claude/issue-*` branches'
+        only unmatched lines were stale generated mirror byte-counts in
+        `gitops/prod/front-door-tools/kustomization.yaml`). No branch
+        surveyed carried real, unshipped product work; none needed a PR
+        opened under the branch-to-PR presumption's own exemption for
+        branches proven to add nothing beyond their target.
+    mrr_end: 0
+
   - venture: caption-quality-check
     agent_spend_usd: null
     human_hours: 0
