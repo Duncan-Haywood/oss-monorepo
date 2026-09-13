@@ -1,0 +1,105 @@
+name: obsidian-plugin-review-check
+description: >-
+  Free, browser-local and CLI checker for Obsidian plugin developers:
+  cross-checks a plugin's manifest.json against versions.json (a missing
+  entry for the current version is a documented, easy-to-miss
+  release-blocking mistake, since the two live in separate files with
+  nothing forcing them to move together), flags manifest fields left as the
+  obsidian-sample-plugin template's own placeholder values (id
+  "sample-plugin", name "Sample Plugin", author "Your Name"), and scans
+  JavaScript/TypeScript source for innerHTML/outerHTML/insertAdjacentHTML
+  assignments (the cross-site-scripting pattern Obsidian's own developer
+  guidelines name explicitly) plus informational notes on direct
+  document/window event listeners that skip the Component API's
+  auto-cleanup (registerDomEvent) and leftover console.log calls -- the
+  patterns behind common Obsidian community-plugin review delays.
+stage: prototype
+owner: duncan
+
+# Not a pipeline candidate write-up, and not a trade-bid calculator or a
+# 39th generic "-check" scanner: same "cross-check a platform's own
+# review-gating manifest/metadata against actual source usage" archetype as
+# ventures/wordpress-plugin-review-check and
+# ventures/chrome-extension-permission-check -- a shape this pipeline has
+# already used twice for a different platform each time, per
+# portfolio/pipeline/README.md's "archetype itself" section (2026-09-07,
+# 2026-09-11): the novelty test is a named distribution channel and a named
+# first visitor, not merely a new archetype.
+#
+# duplicate_check.py scored every existing venture, screened-out.md row, and
+# pipeline candidate below 0.16 for "Obsidian community plugin review
+# checker: static-analysis CLI + browser tool scanning an Obsidian plugin's
+# manifest.json, versions.json, and source for the most common documented
+# Obsidian plugin review rejection reasons" -- the closest matches were the
+# other two platform review checkers above (0.14-0.16), well below the 0.45
+# review bar, and for a different platform (Obsidian community plugins, not
+# WordPress.org or the Chrome Web Store).
+#
+# Gates (screened this session against portfolio/pipeline/README.md):
+#   liability_containment: the product only reports pattern-matches against
+#     Obsidian's own published developer documentation (manifest field
+#     names, the versions.json mechanism, the innerHTML/outerHTML security
+#     guidance) -- evidence, never a determination that a submission will be
+#     approved, and every page says so. No advice-of-record, no compliance
+#     warranty, no scraped data (the tool reads only the files a visitor
+#     selects, or a path the CLI's own invoker names).
+#   ethical_robustness: no revenue model conditions the tool's accuracy on
+#     over- or under-flagging; a false negative and a false positive cost
+#     the same nothing (the reviewer still makes the actual call), so there
+#     is no direction this business is incentivized to be wrong in. Getting
+#     more submissions through review faster is strictly better for the
+#     developer as the tool scales, not worse.
+
+hypotheses:
+  - claim: >-
+      Plugin developers preparing an obsidianmd/obsidian-releases submission
+      or a version update, who hit a stalled review or want to catch a
+      missing versions.json entry, a leftover sample-plugin placeholder, or
+      an innerHTML pattern before submitting, will search specific terms
+      ("obsidian plugin versions.json missing entry", "obsidian plugin
+      review guidelines", "obsidian sample plugin id not changed", "obsidian
+      plugin innerHTML security") and find this tool, since no existing free
+      tool cross-checks manifest.json against versions.json and scans for
+      these specific patterns at once.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      r/ObsidianMD on Reddit, the official Obsidian Discord's plugin-
+      development channels, and the obsidianmd/obsidian-releases GitHub
+      repository's own pull-request review comments (every community-plugin
+      submission is a PR there, reviewed by volunteer maintainers who
+      routinely link back to the published plugin guidelines when they find
+      exactly these issues) carry real, recurring volume of developers
+      asking why a submission stalled or was flagged.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer who gets a clean report will wire the CLI into their own
+      pre-submission or pre-release workflow as a gate, producing return
+      usage without any action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Obsidian materially changes the manifest.json/versions.json release
+    mechanism or its DOM-safety guidance such that the detection approach
+    here no longer maps to a real review cause.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/obsidian-plugin-review-check/
+  analytics: null

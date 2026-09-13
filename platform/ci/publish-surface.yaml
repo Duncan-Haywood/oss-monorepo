@@ -602,6 +602,9 @@ workflows:
 - workflow: npm-reachability-triage-ci.yml
   classification: none
   publishes: []
+- workflow: obsidian-plugin-review-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: oidc-trust-policy-check-ci.yml
   classification: none
   publishes: []

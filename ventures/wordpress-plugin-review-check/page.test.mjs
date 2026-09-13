@@ -90,11 +90,11 @@ test('index links to the stable-tag-mismatch doc page, and the doc page links ba
   assert.match(docHtml, /href="index\.html"/);
 });
 
-// Closest siblings: both cross-check a platform-review-gating manifest/header
-// against actual API/output usage in source, for a different platform.
-// Without a crawlable link here, a crawler entering on this tool never
-// reaches either sibling in one hop.
-test('index links one hop to the chrome-extension-permission-check and ios-privacy-manifest-check siblings', () => {
+// Closest siblings: all three cross-check a platform-review-gating
+// manifest/header against actual API/output usage in source, for a
+// different platform. Without a crawlable link here, a crawler entering on
+// this tool never reaches any of them in one hop.
+test('index links one hop to the chrome-extension-permission-check, ios-privacy-manifest-check, and obsidian-plugin-review-check siblings', () => {
   assert.match(
     html,
     /href="\.\.\/chrome-extension-permission-check\/"/,
@@ -104,6 +104,11 @@ test('index links one hop to the chrome-extension-permission-check and ios-priva
     html,
     /href="\.\.\/ios-privacy-manifest-check\/"/,
     'index must link ../ios-privacy-manifest-check/ so crawlers reach it in one hop',
+  );
+  assert.match(
+    html,
+    /href="\.\.\/obsidian-plugin-review-check\/"/,
+    'index must link ../obsidian-plugin-review-check/ so crawlers reach it in one hop',
   );
 });
 
