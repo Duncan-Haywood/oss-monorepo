@@ -30336,6 +30336,86 @@ entries:
         failures.
     mrr_end: 0
 
+  - venture: cat-adjuster-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, product-first mandate, running
+        concurrently with the session above. Open-PR queue was empty on
+        arrival: the one PR present at session start (#4673) was
+        independently repaired (a real merge conflict in
+        portfolio/ledger/2026-09.yaml) and merged by a concurrent session
+        while this one was verifying the same resolution -- confirmed via
+        pull_request_read (merged_at 06:24:33Z) rather than pushed a
+        redundant duplicate. A separate concurrent session's own
+        branch-backlog audit (#4674) had already run supersede_check.py
+        against all 208 remote branches carrying commits ahead of main and
+        found every one SUPERSEDED or STALE DRAFT -- no unshipped work in
+        the backlog, so the branch-to-PR conversion phase needed no further
+        action either.
+      - >-
+        The owner also asked directly to prioritize Hetzner deployment/
+        CI-CD, marketing-material deployment on the Hetzner VMs, and a
+        Codex CLI dev worker there running a similar autonomous prompt.
+        Checked `decision_queue.py`: all three are already built and fully
+        tested (bootstrap/restore-cluster.sh with WITH_CODEX_HOST=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1, and
+        gitops/agents/host/ for the Codex worker specifically), and every
+        one is blocked on the single owner-held credential ranked #1
+        (hetzner-ssh-key-is-a-public-key -- the installed public key has no
+        matching private key on file anywhere an agent session can reach).
+        Did not re-add a duplicate ask; flagged it to the owner directly
+        instead of leaving it buried in ledger prose, since this session
+        was scheduled and no one was watching the transcript live.
+      - >-
+        With Hetzner genuinely owner-blocked and the PR/branch backlog
+        already drained, independently picked the same venture
+        (cat-adjuster-fee-calculator) as the concurrent session above and
+        shipped a second comparison page,
+        `vs-the-headline-per-claim-rate.html`, framed against the generic
+        practice of judging a deployment offer by its headline per-claim
+        rate alone -- a different query intent from the concurrent
+        session's `vs-spreadsheet-comparison.html`. Discovered the
+        collision only at push time, after both pages were already
+        written and verified. Kept both rather than discarding either:
+        this portfolio already has ventures with more than one comparison
+        page targeting different angles (3pl-quote-normalizer has both
+        `vs-extensiv.html` and `vs-shipbob.html`), so two pages on
+        different long-tail queries for the same venture is precedented,
+        additive SEO surface, not redundant work. Caught the same
+        em-dash-vs-literal-"--" FAQPage JSON-LD mismatch #4670/#4672/#4675
+        all hit; fixed by matching the JSON-LD text to the rendered
+        em-dash exactly. Used the "not affiliated with" clause phrase
+        (matching #4673's generic-category voice) rather than the
+        concurrent session's `COMPARISON_DISCLAIMER_EXEMPT` entry --
+        both satisfy `clauses.mjs`, and the concurrent session's edit to
+        that shared list is kept as-is rather than duplicated.
+      - >-
+        `main` advanced from `133c62af` through `ebd29851a` (#4678-#4680)
+        to `cc1e29d62` (#4682, the concurrent session's own
+        cat-adjuster-fee-calculator page, plus #4683) mid-session, across
+        two separate merges. Each carried a real conflict in the generated
+        front-door mirror and a ledger-append conflict at the same anchor;
+        resolved the mirror both times with
+        `platform/marketing/resolve-mirror-merge.sh` per its own header
+        (taking `origin/main`'s copy of the handful of generated files the
+        script itself doesn't cover, then re-running `regen.mjs` an extra
+        time until the full suite came back clean), and kept every ledger
+        entry from both sides rather than picking one.
+      - >-
+        Verified post-merge: venture's own tests (both pages) passing;
+        full `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        suite 1257/1257 (zero failures); `platform/proposal` +
+        `platform/privacy` + `platform/webcheck` 242/242; `gitops/tests`
+        581 passed/1 skipped (ENVIRONMENTAL); `router/validate.py` (279
+        ventures), `score_ventures.py --check`, `checklist_coverage.py`,
+        `check_no_payment_code.py`, `guard_state.py --require-runnable`
+        (no fixable skips), `usage_state.py --require-honest`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_usage.py`, `publish_surface.py --check` all clean.
+    mrr_end: 0
+
   - venture: llms-txt-generator
     agent_spend_usd: null
     human_hours: 0
