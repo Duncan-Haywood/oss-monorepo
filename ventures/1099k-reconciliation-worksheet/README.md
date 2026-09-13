@@ -37,7 +37,12 @@ experience discussed every filing season across seller communities (see
 Open [`index.html`](index.html), add a row per 1099-K you received (or
 click **Load an example**), and see the reconciled result update per row
 and combined across every platform. Export the worksheet as a CSV to keep
-or hand to whoever prepares your return.
+or hand to whoever prepares your return, or click **Copy share link** to
+hand the whole worksheet — every platform row, not just the totals — to a
+tax preparer, bookkeeper, or spouse as a URL that reopens with the same
+rows filled in. Opening a shared link replaces whatever is saved in that
+browser, since the recipient is looking at someone else's worksheet, not
+resuming their own.
 
 ## What it calculates
 
@@ -57,6 +62,14 @@ All in [`calc.mjs`](calc.mjs), pure functions with no dependencies:
   mistaken for a completed determination.
 - **`toCsv`** — the reconciled worksheet as an exportable CSV.
 
+[`share.mjs`](share.mjs) encodes the row list into a URL fragment for the
+**Copy share link** button, and decodes one back on load. Unlike this
+portfolio's fixed-field share modules, the row count here is unbounded, so
+the whole array rides as one JSON payload rather than as indexed query
+fields — each row is still independently validated and coerced the same
+way `reconcileRow` treats its own input, capped at 25 rows against a
+pathologically long crafted link.
+
 Every output is a **reconciliation worksheet to verify, never a filed
 amount or a determination of the filer's actual tax liability** — the
 user remains the filer and the decision-maker.
@@ -74,11 +87,14 @@ changes what this tool does.
 ## Privacy
 
 Everything runs in your browser. The numbers you enter are **never
-uploaded** — there is no server component at all. Anonymous feature events
-(`row_added`, `row_removed`, `csv_exported`, `example_loaded`) are counted
-in `localStorage` only, never transmitted, never tied to your identity. Do
-Not Track and Global Privacy Control are honoured, and a button on the page
-turns counting off entirely.
+uploaded** — there is no server component at all. A shared link encodes
+your rows into this page's own URL fragment, which is never included in
+any network request, so nothing leaves your browser when you share it.
+Anonymous feature events (`row_added`, `row_removed`, `csv_exported`,
+`example_loaded`, `link_copied`) are counted in `localStorage` only, never
+transmitted, never tied to your identity. Do Not Track and Global Privacy
+Control are honoured, and a button on the page turns counting off
+entirely.
 
 ## Development
 

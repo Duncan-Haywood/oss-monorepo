@@ -26,11 +26,18 @@ test("the page carries every field reconcileRow accepts, and imports calc.mjs co
   const html = page("index.html");
   for (const id of [
     "f-platform", "f-box1a", "f-refunds", "f-salesTax", "f-fees", "f-cogs", "f-shipping",
-    "load-example", "clear", "export-csv", "optout",
+    "load-example", "clear", "export-csv", "optout", "copy-link", "share-status",
   ]) {
     assert.match(html, new RegExp(`id="${id}"`), `missing #${id}`);
   }
   assert.match(html, /import \{ reconcileAll, toCsv, sampleRows \} from "\.\/calc\.mjs"/);
+  assert.match(html, /import \{ encodeRows, decodeRows \} from "\.\/share\.mjs"/);
+});
+
+test("a shared link's row data never leaves the browser, and the promise names the event", () => {
+  const html = page("index.html");
+  assert.match(html, /encodes your rows into this page's own URL fragment/);
+  assert.match(html, /link_copied/);
 });
 
 test("the explainer page links back to the worksheet and carries the disclaimer", () => {
