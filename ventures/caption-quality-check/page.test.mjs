@@ -137,3 +137,30 @@ test('the docs page explains the commonly-cited style guides by name', async () 
   assert.match(html, /Netflix/);
   assert.match(html, /BBC/);
 });
+
+const VS_PAGE = 'vs-professional-caption-qc-review.html';
+
+test('the comparison page carries valid FAQPage JSON-LD matching its visible questions', async () => {
+  const html = await read(VS_PAGE);
+  const blocks = jsonLdBlocks(html).map((b) => JSON.parse(b));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const q of faq.mainEntity) {
+    assert.ok(html.includes(q.name), `question "${q.name}" not found as visible text`);
+    assert.ok(html.includes(q.acceptedAnswer.text), `answer to "${q.name}" not found as visible text`);
+  }
+});
+
+test('the comparison page carries the no-warranty clause, links back to the tool, and does not claim affiliation', async () => {
+  const html = await read(VS_PAGE);
+  assert.match(html, /No warranty/);
+  assert.match(html, /provided free and as-is, without warranty/);
+  assert.match(html, /href="\.\/">/);
+  assert.match(html, /not affiliated with, endorsed by, or sponsored by any specific captioning vendor/);
+});
+
+test('the comparison page is reachable from the sitemap and linked from index or the docs page', async () => {
+  const sitemap = await read('sitemap.xml');
+  assert.match(sitemap, new RegExp(VS_PAGE.replace(/\./g, '\\.')));
+});
