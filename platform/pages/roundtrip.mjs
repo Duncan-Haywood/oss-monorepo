@@ -225,7 +225,16 @@ function perturbNumber({ value, min, max, step }) {
   // Seven steps up is far enough to be visible in an answer and small enough to
   // stay inside a sane max; the fallback covers a field left blank.
   let next = start + size * 7;
-  const ceiling = Number(max);
+  // An absent `max` reads as `''` off the DOM, and `Number('')` is **0**, not
+  // NaN -- so this line used to treat "no maximum" as "maximum zero" and send
+  // every unbounded field *down* seven steps instead of up, where the floor
+  // below then pinned it to `min + step`. Measured 2026-09-13 on
+  // `1099k-reconciliation-worksheet`, whose six money fields declare
+  // `min="0" step="0.01"` and no max: all of them perturbed to `0.01`
+  // regardless of their default, and a field already sitting at `0.01` was
+  // therefore never changed at all -- so a link that dropped it round-tripped
+  // clean. The guard was a seventh of the size its own comment describes.
+  const ceiling = max === '' || max === null || max === undefined ? NaN : Number(max);
   if (Number.isFinite(ceiling) && next > ceiling) next = start - size * 7;
   const floor = Number.isFinite(Number(min)) ? Number(min) : 0;
   if (next < floor) next = floor + size;
@@ -299,6 +308,40 @@ async function openTool(browser, slug, hash = '') {
   page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`); });
   await page.goto(`${BASE}/${slug}/${hash}`, { waitUntil: 'networkidle' });
   return { context, page, errors };
+}
+
+/**
+ * Commit the form a worksheet stages its next row in, returning whether one landed.
+ *
+ * `label` fills any still-empty required text field, and is what distinguishes
+ * one committed row from the next in the comparison the caller then makes.
+ *
+ * Success is measured from the page rather than assumed from the click: a
+ * submit the browser refuses on validation leaves the state untouched, and
+ * reporting that as "submitted" sends the caller on to compare a worksheet
+ * against a link neither of them ever had anything to put in -- a confusing
+ * verdict in place of an honest one.
+ */
+async function submitStagedRow(page, editedIds, label) {
+  return await page.evaluate(({ ids, text }) => {
+    const countRows = () => document.querySelectorAll('table tbody tr').length;
+    for (const form of document.querySelectorAll('form')) {
+      const submit = form.querySelector('button[type="submit"], input[type="submit"]');
+      if (!submit) continue;
+      if (![...form.elements].some((el) => ids.includes(el.id))) continue;
+      for (const input of form.querySelectorAll('input[required]')) {
+        if (input.value) continue;
+        input.value = text;
+        // A page that recalculates as you type listens for this; setting
+        // `.value` alone is invisible to it.
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      const rowsBefore = countRows();
+      submit.click();
+      return countRows() > rowsBefore;
+    }
+    return false;
+  }, { ids: editedIds, text: label });
 }
 
 /**
@@ -397,31 +440,35 @@ async function roundTrip(browser, slug) {
     // a link that already carries something never reaches it — so it can
     // only turn a hard failure into a real reading, never mask one.
     if (typeof link === 'string' && marks.length === 0) {
-      const editedIds = numbers.filter((f) => !NOT_IN_A_LINK.has(f.id) && !f.id.includes('${')).map((f) => f.id);
-      const submitted = await page.evaluate((ids) => {
-        const countRows = () => document.querySelectorAll('table tbody tr').length;
-        for (const form of document.querySelectorAll('form')) {
-          const submit = form.querySelector('button[type="submit"], input[type="submit"]');
-          if (!submit) continue;
-          if (![...form.elements].some((el) => ids.includes(el.id))) continue;
-          for (const input of form.querySelectorAll('input[required]')) {
-            if (input.value) continue;
-            input.value = 'Sample';
-            // A page that recalculates as you type listens for this; setting
-            // `.value` alone is invisible to it.
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-          }
-          const rowsBefore = countRows();
-          submit.click();
-          // Measured from the page, not assumed from the click: a submit the
-          // browser refuses on validation leaves the state untouched, and
-          // reporting that as "submitted" sends the caller on to compare a
-          // worksheet against a link neither of them ever had anything to put
-          // in -- a confusing verdict in place of an honest one.
-          return countRows() > rowsBefore;
+      const editable = numbers.filter((f) => !NOT_IN_A_LINK.has(f.id) && !f.id.includes('${'));
+      const editedIds = editable.map((f) => f.id);
+      const submitted = await submitStagedRow(page, editedIds, 'Sample');
+
+      // A second row, and it is not belt-and-braces -- with one row the
+      // comparison below cannot see the two failures its own comment claims.
+      // A link that serialises only the first row, or reverses the order of
+      // the rest, round-trips a single row perfectly. Codex caught exactly
+      // that on #4683: the check was real but narrower than it read, which is
+      // the same "claims more than it measures" defect that PR fixed in
+      // `usage_state.py`, committed in the same diff.
+      //
+      // The label is what makes ordering visible ('Sample' vs 'Sample 2'
+      // occupy the row's own text column, so a reversal shows up even where a
+      // field's max pins both rows to the same figure), and stepping the
+      // numbers a second time keeps the two rows distinguishable on the
+      // figures as well. A page that caps its row list, or refuses the second
+      // submit for any other reason, still gets the one-row check it had
+      // before -- weaker, but never a false failure.
+      if (submitted) {
+        for (const field of editable) {
+          const first = perturbNumber(field);
+          try {
+            await page.fill(cssId(field.id), perturbNumber({ ...field, value: first }), { timeout: 2000 });
+          } catch { /* a field the layout hides at this width */ }
         }
-        return false;
-      }, editedIds);
+        await submitStagedRow(page, editedIds, 'Sample 2');
+      }
+
       if (submitted) {
         // No `.hero-number` on these worksheets; the rollup a visitor would
         // actually compare lives in `#stats` instead. Only read it here,
