@@ -38,9 +38,9 @@
 #   portfolio-front-tools-2: 148 files, 556489 bytes
 #   portfolio-front-tools-3: 138 files, 556696 bytes
 #   portfolio-front-tools-4: 123 files, 553583 bytes
-#   portfolio-front-tools-5: 135 files, 555828 bytes
-#   portfolio-front-tools-6: 130 files, 553376 bytes
-#   portfolio-front-tools-7: 120 files, 543298 bytes
+#   portfolio-front-tools-5: 134 files, 553193 bytes
+#   portfolio-front-tools-6: 131 files, 555993 bytes
+#   portfolio-front-tools-7: 121 files, 547410 bytes
 #   portfolio-front-tools-8: 112 files, 556245 bytes
 #   portfolio-front-tools-9: 112 files, 541749 bytes
 #   portfolio-front-tools-10: 120 files, 555377 bytes
@@ -787,6 +787,7 @@ configMapGenerator:
       - cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz=cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz
       - cat-adjuster-fee-calculator__share.mjs.gz=cat-adjuster-fee-calculator__share.mjs.gz
       - cat-adjuster-fee-calculator__usage.mjs.gz=cat-adjuster-fee-calculator__usage.mjs.gz
+      - cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz=cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz
       - certified-payroll-calculator__calc.mjs.gz=certified-payroll-calculator__calc.mjs.gz
       - certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz=certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz
       - certified-payroll-calculator__index.html.gz=certified-payroll-calculator__index.html.gz
@@ -878,13 +879,13 @@ configMapGenerator:
       - crown-molding-bid-calculator__index.html.gz=crown-molding-bid-calculator__index.html.gz
       - crown-molding-bid-calculator__should-i-charge-8-a-foot-for-crown-molding.html.gz=crown-molding-bid-calculator__should-i-charge-8-a-foot-for-crown-molding.html.gz
       - crown-molding-bid-calculator__usage.mjs.gz=crown-molding-bid-calculator__usage.mjs.gz
-      - crown-molding-bid-calculator__vs-jobber.html.gz=crown-molding-bid-calculator__vs-jobber.html.gz
-      - custom-farm-rate-calculator__calc.mjs.gz=custom-farm-rate-calculator__calc.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - crown-molding-bid-calculator__vs-jobber.html.gz=crown-molding-bid-calculator__vs-jobber.html.gz
+      - custom-farm-rate-calculator__calc.mjs.gz=custom-farm-rate-calculator__calc.mjs.gz
       - custom-farm-rate-calculator__index.html.gz=custom-farm-rate-calculator__index.html.gz
       - custom-farm-rate-calculator__usage.mjs.gz=custom-farm-rate-calculator__usage.mjs.gz
       - custom-farm-rate-calculator__vs-survey-rates.html.gz=custom-farm-rate-calculator__vs-survey-rates.html.gz
@@ -1014,12 +1015,12 @@ configMapGenerator:
       - electrical-panel-upgrade-bid-calculator__index.html.gz=electrical-panel-upgrade-bid-calculator__index.html.gz
       - electrical-panel-upgrade-bid-calculator__share.mjs.gz=electrical-panel-upgrade-bid-calculator__share.mjs.gz
       - electrical-panel-upgrade-bid-calculator__usage.mjs.gz=electrical-panel-upgrade-bid-calculator__usage.mjs.gz
-      - electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz=electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz=electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz
       - email-auth-check__analyze.mjs.gz=email-auth-check__analyze.mjs.gz
       - email-auth-check__cli.mjs.gz=email-auth-check__cli.mjs.gz
       - email-auth-check__how-to-fix-spf-too-many-dns-lookups.html.gz=email-auth-check__how-to-fix-spf-too-many-dns-lookups.html.gz
