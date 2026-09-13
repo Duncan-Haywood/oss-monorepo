@@ -1121,8 +1121,25 @@ const CATEGORY_RULES = [
     // is a family rather than a coincidence. Same audience as the rest of
     // this category: a platform engineer hardening their own pipeline. They
     // cross-link each other as Related.
+    //
+    // `obsidian-plugin-review-check` joined 2026-09-13. Same shape as
+    // `chrome-extension-permission-check` and `wordpress-plugin-review-check`
+    // right above it -- a browser-local checker plus a matching CLI, run by
+    // a developer against their own manifest and source files they already
+    // have, cross-checking a review-gating field (manifest.json's version
+    // against versions.json) plus a security pattern
+    // (innerHTML/outerHTML/insertAdjacentHTML) -- just for an Obsidian
+    // community-plugin submission instead of a Chrome/WordPress/iOS/npm/
+    // Actions artifact. It cross-links `chrome-extension-permission-check`
+    // and `wordpress-plugin-review-check` as Related (same "cross-check a
+    // platform-review-gating manifest against real source" question, a
+    // fourth platform). Listed by exact slug rather than a new prefix, the
+    // same way its neighbors above are: one tool does not earn a whole
+    // family pattern, and landing it here rather than the catch-all is also
+    // what keeps that catch-all inside the bound `build.test.mjs` puts on
+    // it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
         slug,
       ),
   },

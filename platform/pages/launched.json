@@ -166,6 +166,7 @@
     "notary-trip-quote": "2026-08-26",
     "npm-deployment-evidence": "2026-08-26",
     "npm-lifecycle-script-check": "2026-09-07",
+    "obsidian-plugin-review-check": "2026-09-13",
     "oidc-trust-policy-check": "2026-09-10",
     "owner-operator-cpm-calculator": "2026-08-26",
     "package-exports-drift-check": "2026-09-09",
