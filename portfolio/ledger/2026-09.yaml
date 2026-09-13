@@ -29894,6 +29894,67 @@ entries:
         IndexNow, both still blocked on the same SSH-key ask above.
     mrr_end: 0
 
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `browser_state.py` reported every browser/accessibility check STALE
+        against `main` (last recorded 2026-09-12 at `dea00546`; several
+        merges landed since, including a new venture). Installed Playwright
+        1.56.0 + axe-core per AGENTS.md and ran a full, unfiltered
+        `browser_checks.py --record` sweep to refresh it, since a stale
+        recorded reading is what let real defects (48 critical axe `label`
+        violations, 2026-09-06) sit unnoticed for this catalogue's entire
+        life before anyone ran the checks by hand.
+      - >-
+        The sweep found one real, reproducible failure: `roundtrip` reported
+        `1099k-reconciliation-worksheet: the copied link carries no bid`.
+        Traced it to a structural mismatch between the probe's assumption
+        (fill the visible fields, click share, compare those same fields on
+        the other side) and this venture's actual UI: its "Copy share link"
+        button encodes an in-memory row *list*, built only when the separate
+        "Add platform" form is submitted -- filling that form's number
+        fields, as the probe does, changes nothing the link carries. The
+        tool's own response (`share.mjs`'s `encodeRows([])` correctly
+        returning `''`, surfaced to the visitor as "Nothing entered yet --
+        the link would open blank") is honest, correct behaviour, not a
+        dropped field.
+      - >-
+        Wrote a fix (a documented `ROW_LIST_VENTURES` skip), then found
+        while merging `main` before pushing that a concurrent session had
+        landed a better one minutes earlier as PR #4671
+        (`a6ddba601`): rather than skipping the venture, it generically
+        detects an add-then-share form (any `<form>` containing the edited
+        number-field ids with a submit control), submits it, and re-reads
+        the share link -- so this shape gets real round-trip coverage
+        instead of a documented gap. Deferred to it: took `origin/main`'s
+        `roundtrip.mjs` as-is over this session's own draft. Verified their
+        fix directly rather than assuming it: merged `main`, ran `node
+        platform/pages/roundtrip.mjs 1099k-reconciliation-worksheet`
+        against a freshly built dist -- passes, real submit-and-compare, no
+        failure and no skip.
+      - >-
+        Also surveyed the branch/PR backlog before this, per this session's
+        mandate: 0 open PRs. 509 remote branches; 301 have zero commits
+        ahead of `origin/main` (trivially superseded, no PR needed). Ran
+        `portfolio/ledger/supersede_check.py` (after `git fetch
+        --unshallow`, since the clone starts shallow and a shallow diff
+        against these branches is meaningless per this file's own warning)
+        against all 208 branches with unique commits: every one resolved to
+        SUPERSEDED (including by identical-merge proof) or, for the several
+        flagged NOT SUPERSEDED, a confirmed STALE DRAFT -- `main` already
+        has a later, fuller version of the same file in every case checked
+        (e.g. `marketing/locksmith-bid-calculator-vs-jobber`'s index.html
+        links 1 comparison page where `main`'s now links 3;
+        `atm-route-margin`'s and several `agent/claude/issue-*` branches'
+        only unmatched lines were stale generated mirror byte-counts in
+        `gitops/prod/front-door-tools/kustomization.yaml`). No branch
+        surveyed carried real, unshipped product work; none needed a PR
+        opened under the branch-to-PR presumption's own exemption for
+        branches proven to add nothing beyond their target.
+    mrr_end: 0
+
   - venture: caption-quality-check
     agent_spend_usd: null
     human_hours: 0
@@ -29956,4 +30017,127 @@ entries:
         platform/webcheck 59/59; router/validate.py (279 ventures),
         score_ventures.py --check, publish_surface.py --check,
         checklist_coverage.py, clauses.mjs all clean. Merged as PR #4672.
+    mrr_end: 0
+
+  - venture: terraform-plan-blast-radius-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Open-PR queue had exactly one PR
+        (#4673, home-inspection-fee-calculator's comparison page) at the
+        start -- fewer than three existed, so this session's mandate was to
+        process all of them rather than hunt for two more. It was already
+        behind `main`'s tip (`mergeable_state: dirty`): merged `origin/main`
+        in, resolved a real conflict in the ledger append it carried
+        (two sessions' outcome entries for the same month, kept both rather
+        than picking one), and re-ran `regen.mjs` rather than trusting the
+        three-way auto-merge of the generated front-door `.gz` artifacts.
+        Verified the full checklist (venture 31/31; marketing+pages
+        1257/1257 post-merge; proposal+privacy+webcheck 242/242; gitops/tests
+        581/1 skip; all 15 platform/ci unittest modules + agent_review;
+        portfolio pytest suites 446 passed; all 8 portfolio-validate.yml
+        validators; checklist_coverage, check_ledger_only, check_no_payment_code,
+        usage_state --require-honest, guard_state --require-runnable all
+        clean after installing python3-pytest/nginx-light/openssh-client via
+        apt) and merged as #4673. Republished `gh-pages` and confirmed
+        `pages_state.py` reports `current`.
+      - >-
+        The owner also asked, in this same scheduled prompt, to keep Hetzner
+        deployment/CI-CD, marketing-material deployment on the Hetzner VMs,
+        and a Codex CLI dev worker there prioritized. Checked
+        `infra_state.yaml` first rather than re-measuring blind: this exact
+        ask had already been investigated and re-verified *earlier the same
+        day* by this session's own prior work (PR #4670's `codex-host-mode`
+        refresh, 56/56 tests, `systemd-analyze verify` clean). All three
+        routes are built and tested; every one is still blocked on the
+        single owner action already ranked #1 in `decision_queue.py`
+        (`hetzner-ssh-key-is-a-public-key`, plus four credentials only the
+        owner holds). Did not re-run that measurement or add a duplicate
+        ask -- CLAUDE.md's Duplicate-PRs guidance is explicit that
+        re-verifying a reading taken hours earlier in the same day is
+        wasted work, not diligence.
+      - >-
+        With the open-PR queue empty and Hetzner genuinely owner-blocked,
+        continued the proven comparison-page pattern:
+        `terraform-plan-blast-radius-check` had a product page but no
+        comparison page (one of ~15 remaining ventures in that state). Its
+        own README already frames itself against Sentinel/OPA/Conftest/
+        Terraform Cloud under "What it is not", so
+        `vs-writing-your-own-sentinel-opa-policy.html` makes that comparison
+        explicit: those policy engines catch the same destructive-apply
+        failure only once someone authors and maintains a stateful-resource
+        policy in a policy language, while this tool ships that detection
+        built in as a zero-dependency CLI/browser page needing no platform.
+        Caught and fixed a literal-dash-vs-mdash mismatch between the
+        FAQPage JSON-LD and the visible prose via `faq-visible.test.mjs`
+        before opening the PR, same lesson #4670/#4673 already recorded.
+      - >-
+        `main` advanced from `2bbbb0ef` to `133c62af` (#4674, a concurrent
+        session's browser-check refresh and branch-backlog audit) mid-session.
+        Merged cleanly, no conflicts; re-ran `regen.mjs` post-merge and got
+        no drift, confirming the pre-merge mirror was already correct.
+        Verified: venture's own suite 58/58; the whole-portfolio
+        faq-visible/faq-coverage/faq-duplicate/link/siblings suite 81/81;
+        marketing+pages 1256/1257 post-merge (the one failure,
+        build.test.mjs's pre-existing "the catch-all holds only what no
+        section claims", already confirmed unrelated to venture changes by
+        #4672's own git-stash A/B test); proposal+privacy+webcheck 242/242;
+        gitops/tests 581/1 skip; platform/ci sweep + agent_review;
+        portfolio pytest suites 446 passed; all 8 validators;
+        checklist_coverage/check_ledger_only/check_no_payment_code clean.
+        Pushed and opened #4675; every check on it came back red in 2-3s
+        (`runner_id: 0`) -- confirmed starvation rather than a real failure
+        with `ci_starvation.py`, and merged on the local verification above.
+        Republished `gh-pages` and confirmed `pages_state.py` reports
+        `current` against the new tip.
+    mrr_end: 0
+
+  - venture: vpat-acr-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session, continuing the comparison-page pass: this venture's
+        own README already names the commercial competition (Level Access,
+        BarrierBreak, Accessibility.Works, WCAG.com) and the public pricing
+        evidence ($2,000-5,000 per engagement) for exactly this comparison,
+        so `vs-hiring-a-vpat-consultant.html` writes it up without naming a
+        specific firm (matching the stricter disclaimer precedent used
+        elsewhere): a paid VPAT/ACR engagement bundles testing the product
+        plus formatting the result, this tool only does the formatting half,
+        and the real value for a vendor that has already tested internally
+        is skipping the fee for the half a deterministic tool does for free.
+        Linked from `index.html`; the venture's own `sitemap.xml` was left
+        alone after confirming in `build.mjs` that hand-written per-venture
+        sitemaps are legacy and superseded at build time by one generated
+        from the pages actually published (`renderVentureSitemap`), so
+        editing it would have been a no-op cross-cutting fix outside scope.
+      - >-
+        `main` advanced from `133c62af` to `887aa9c0` (#4675, this session's
+        own prior PR) then to `19a2d725` (#4677, a concurrent session's fix
+        for the pre-existing `build.test.mjs` failure this session had been
+        seeing and had already confirmed unrelated via #4672's git-stash
+        A/B test) mid-session. Merged cleanly; re-ran the full
+        marketing+pages suite post-merge specifically to confirm #4677
+        closed that gap rather than assuming it from the PR title -- it did
+        (1257/1257, zero failures, for the first time this session).
+      - >-
+        Verified: venture's own suite 27/27; whole-portfolio
+        faq-visible/faq-coverage/faq-duplicate/link/siblings 81/81;
+        marketing+pages 1257/1257 post-merge; proposal+privacy+webcheck
+        242/242; gitops/tests 581/1 skip; platform/ci sweep + agent_review;
+        portfolio pytest suites 446 passed; all 8 validators;
+        checklist_coverage/check_no_payment_code/usage_state
+        --require-honest clean. Republished `gh-pages`; `pages_state.py`
+        confirmed `current`.
+      - >-
+        Also recorded, in this same commit, the outcome entry for this
+        session's earlier work reviewing/fixing/merging PR #4673
+        (home-inspection-fee-calculator's comparison page) and shipping
+        #4675 (terraform-plan-blast-radius-check's), which had no product
+        change of their own left to ride alongside at the time -- folded in
+        here rather than pushed standalone, per `check_ledger_only.py`'s
+        purpose and this file's own "ledger entry rides with real work"
+        rule.
     mrr_end: 0

@@ -10,48 +10,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "e0d26b9b2d8bc33b2a0cf09bf2a823f04ffa26c5",
-      "measured": "2026-09-11",
-      "pages": 967,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "6a092fe8951a7ccc8da62b0a1b660ee6065f66cc",
-        "platform/pages": "db7632e331340c673be5642d76f0fa6127e3b767",
-        "ventures": "db98d583118bc641cade7490afb1e22e87c88322"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "fc651da218026568c864d1cbdd58ded53145ad94",
-      "measured": "2026-09-11",
-      "pages": 969,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "6a092fe8951a7ccc8da62b0a1b660ee6065f66cc",
-        "platform/pages": "db7632e331340c673be5642d76f0fa6127e3b767",
-        "ventures": "6a1128e9afba85ac46e5992223ccd00e21f604a7"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "58c54769a81148213ec1f244b4ec87a878b374f9",
       "measured": "2026-09-11",
       "pages": 975,
@@ -409,6 +367,51 @@
         "platform/marketing": "305f16fd074673d55e48b2e5d127d18a91a667b5",
         "platform/pages": "024fa56cfcc60bd190d0084f2c2d8e597cac2c01",
         "ventures": "d4251afa5ea45baaad38c3dd94884f46f067a48d"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "9f783a72494be988ca2c643ccfa19ac244665ccb",
+      "measured": "2026-09-13",
+      "pages": 1029,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "305f16fd074673d55e48b2e5d127d18a91a667b5",
+        "platform/pages": "bde61b132e6444cdca9beccccd09e8b798de7c7a",
+        "ventures": "b89b757707a0e98ffbfbbaac4980277314fd791c"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "887aa9c0c65f66e10ebb26f4b54981dbdb21fb5a",
+      "measured": "2026-09-13",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "home-inspection-fee-calculator",
+        "terraform-plan-blast-radius-check"
+      ],
+      "surface": {
+        "platform/marketing": "305f16fd074673d55e48b2e5d127d18a91a667b5",
+        "platform/pages": "bde61b132e6444cdca9beccccd09e8b798de7c7a",
+        "ventures": "202da0a27465ccb3fbafae486b10c65f4075cbb5"
       }
     }
   ]
