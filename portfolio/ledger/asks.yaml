@@ -1461,8 +1461,12 @@ decisions:
       fetches `robots.txt` from the *host* root -- which belongs to the
       owner's separate user-level Pages site. So the `Sitemap:` line this
       build writes has never been read by anything, and
-      `portfolio/usage/usage.yaml` records zero visitors across all 200
-      products. At an origin root the file the build publishes is the file
+      `portfolio/usage/usage.yaml` carries no visitor reading at all for any of
+      the 200 products -- every one of its `live_url_visitors` entries is
+      `null`, and not one is a measured zero. Never-measured is not the same as
+      measured-zero: the first is evidence about nothing and licenses going to
+      get a reading, the second would be evidence against the products
+      themselves. At an origin root the file the build publishes is the file
       crawlers read. This is the same defect `platform/ci/pages_state.py`
       reports as its `indexing` row; that row names two owner fixes and this
       is the cheaper, more permanent one -- Search Console submission is

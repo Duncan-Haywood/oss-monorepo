@@ -30250,3 +30250,224 @@ entries:
         re-run for this diff per the "touches markup a user types into"
         trigger in CLAUDE.md -- it does not apply here.
     mrr_end: 0
+
+  - venture: cat-adjuster-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session (a separate concurrent firing). Reviewed
+        the sole open PR (#4673, home-inspection-fee-calculator's comparison
+        page): sound, well-tested, additive marketing content. A concurrent
+        session had already pushed a merge resolving the same `main`-drift
+        conflict (`portfolio/ledger/2026-09.yaml`) directly to the PR branch
+        while this session was independently resolving the identical
+        conflict locally -- discarded this session's own redundant merge
+        commit and re-verified the concurrent session's resolution instead
+        (regen.mjs reported no drift; full local checklist re-run clean)
+        rather than overwrite it. Merged as #4673. That left the
+        repairable-PR queue empty (fewer than three existed).
+      - >-
+        Surveyed the branch backlog per the "branch-to-PR presumption"
+        instruction: 515 non-main branches exist. Bulk ancestor-check found
+        only 16 are literal git ancestors of main, but a random sample of
+        72 branches (12 + 60) all had a zero-line diff against `main`
+        outside the append-only ledger file -- i.e. their content is
+        already fully shipped (squash/rebase-merged elsewhere), just not a
+        literal git ancestor. This is git hygiene debt (undeleted branches
+        after merge), not a real backlog of unshipped work, so no new PRs
+        were opened from it; opening hundreds of no-op PRs would be pure
+        overhead. Left branch deletion to the owner rather than mass-delete
+        500+ refs unilaterally in a shared multi-agent repo.
+      - >-
+        The owner asked directly (same recurring scheduled prompt) to
+        prioritize Hetzner deployment/CI-CD, marketing-material deployment
+        on the Hetzner VMs, and a Codex CLI dev-worker there. This was
+        already re-verified in this exact session's own immediately-prior
+        run today (2026-09-13, folded into #4670's ledger entry above):
+        codex-host-mode is fully built and tested (56/56 tests,
+        `systemd-analyze verify` clean), and every Hetzner route is blocked
+        on the single owner action already ranked #1 in decision_queue.py
+        (`hetzner-ssh-key-is-a-public-key`, plus four other credentials
+        only the owner holds). Nothing had changed since that reading a few
+        hours earlier, so did not re-run the same 56-test suite again
+        (per the spirit of not re-verifying an unchanged finding) --
+        confirmed only that the infra_state.yaml note was still current.
+      - >-
+        With Hetzner genuinely owner-blocked and the PR queue and branch
+        backlog both clear of real work, shipped
+        `ventures/cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html`
+        -- one of 15 ventures lacking this portfolio's proven organic-search
+        asset. No single named commercial competitor exists for this niche,
+        so framed against the honest alternative the venture's own
+        `kill_criteria` already names ("a fee-schedule spreadsheet or mental
+        math"), matching the precedent of three existing generic
+        (non-branded) comparison pages in this portfolio. Required adding
+        the page to `platform/pages/clauses.mjs`'s
+        `COMPARISON_DISCLAIMER_EXEMPT` set (caught by
+        `clauses.test.mjs`'s real-tree walk): a `vs-*.html` filename is
+        otherwise treated as naming a competitor and required a "not
+        affiliated with" disclaimer, which would have been a fabricated
+        claim about a company that does not exist here.
+      - >-
+        Verified: venture's own tests 50/50 (71/71 after the clauses fix
+        re-run); full `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        suite 1256/1257 both before and after this venture's changes -- the
+        one failure is `build.test.mjs`'s pre-existing "the catch-all holds
+        only what no section claims", unrelated to captions/comparisons/
+        this venture, already documented as such in #4672's ledger entry
+        above; `platform/pages/clauses.test.mjs` 21/21 after the exemption
+        fix (was 2 failures before it: the real-venture-tree disclaimer
+        walk correctly caught the missing exemption); `gitops/tests` 581
+        passed/1 skipped (environmental, nginx-light + openssh-client
+        installed via apt); full `platform/ci` 15-module unittest sweep +
+        `agent_review`'s `test_review` all green; `pytest
+        portfolio/{ledger,scoring,router,usage,pipeline} infra/tests` 446
+        passed (twice, before and after); `score_ventures.py --check`,
+        `checklist_coverage.py`, `guard_state.py --require-runnable` (no
+        fixable skips), `usage_state.py --require-honest`,
+        `check_no_payment_code.py`, `check_ledger_only.py`,
+        `router/validate.py`, and the doc-consistency/candidates/usage
+        validators all clean. `run_workflow_locally.py --tree` was
+        attempted but hit its own 600s timeout partway through the full
+        verification-only sweep; not re-attempted given every individual
+        required suite above already passed and `ci_starvation.py`
+        confirmed the PR's own red checks were starvation, not real
+        failures.
+    mrr_end: 0
+
+  - venture: llms-txt-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-a-hosted-docs-platform.html`, a comparison page laying
+        out the honest tradeoff between this free generator and the doc-
+        hosting vendors that auto-generate llms.txt as a bundled feature of
+        migrating your whole docs site onto their platform -- both sides
+        of the comparison are grounded in the venture's own `VENTURE.yaml`
+        write-up, which already names "hosted generators from doc-tooling
+        vendors" as the category this fleet's own duplicate-check reasoned
+        about. Followed the stricter no-brand-name precedent
+        (`vpat-acr-generator/vs-hiring-a-vpat-consultant.html`,
+        `home-inspection-fee-calculator/vs-franchise-fee-schedule.html`):
+        describes the paid alternative as a generic category, names no
+        specific vendor, and its footer's "not affiliated with, endorsed
+        by, or sponsored by any specific documentation platform or vendor"
+        line satisfies `platform/pages/clauses.mjs`'s trademark-disclaimer
+        check directly, with no need to add it to
+        `COMPARISON_DISCLAIMER_EXEMPT`. Linked one hop from `index.html`.
+      - >-
+        Chose this venture over the other 30 ventures under `ventures/`
+        with no `vs-*.html` yet: most of the rest are non-static apps
+        (Next.js, Python packages, a Swift watchface, CLIs) the comparison-
+        page pattern does not fit, or lack a README-attested paid-
+        alternative category to compare against honestly.
+      - >-
+        Verified: venture's own suite 43/43;
+        `faq-visible`/`faq-coverage`/`faq-duplicate`/`link`/`siblings`
+        (whole-portfolio sweeps) 81/81; `checklist_coverage.py` clean;
+        `clauses.mjs` reports the venture's 3 published pages carry their
+        required clauses. No open or recently-merged PR duplicated this
+        (checked `list_pull_requests` state:open — none — and
+        `search_pull_requests` for `llms-txt-generator` /
+        `vscode-extension-drift-check` / `codeowners-shadow-check`, the
+        other candidates considered — all prior PRs on those slugs already
+        merged and closed, nothing in flight).
+    mrr_end: 0
+
+  - venture: court-reporter-transcript-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, browser-only calculator for freelance
+        court reporters and deposition stenographers -- turns page count,
+        turnaround speed, travel, certified copies, exhibits, rough draft
+        and realtime into a deposition transcript invoice total and an
+        effective hourly rate (with a copyable plain-text invoice
+        summary), plus a separate agency-offer check that turns an
+        agency's flat per-page offer into an effective hourly rate against
+        a reporter's own target. Screened per pipeline/README.md's
+        "archetype itself" section: not another <trade>-bid-calculator
+        (141/281) or SEO/security -checker (38+/281) -- a
+        professional-services niche this portfolio had not touched, with a
+        billing shape (a flat appearance fee stacked on a per-page rate
+        that itself multiplies by turnaround speed) distinct from every
+        existing venture here. `duplicate_check.py` scored the final
+        description below 0.13 against every existing venture, pipeline
+        candidate, screened-out row, and ai-first-markets idea, well under
+        the 0.45 bar -- after two adjacent niches were checked and set
+        aside first: a mobile-notary income-planning angle scored 0.26
+        against the existing notary-trip-quote venture (same audience,
+        thinner variant of its existing per-job quote), and an
+        AI-crawler-access checker scored 0.49 against the existing
+        ai-crawler-access-check venture. Named channel: r/courtreporting
+        and NCRA (National Court Reporters Association) member forums both
+        see recurring "how much should I charge for a rush transcript" and
+        "is this agency offer worth taking" threads, with real search
+        volume ("court reporter transcript rate calculator", "deposition
+        transcript pricing").
+      - >-
+        Full PRODUCT_PLAYBOOK.md slice: calculator.mjs (pure arithmetic,
+        no dependencies, 19 tests covering both calculators, negative/
+        non-finite input handling, and the plain-text invoice-summary
+        renderer), usage.mjs opt-out-capable local counter (8 tests),
+        index.html with both calculators, disclaimers, privacy line,
+        sponsor link, FAQPage + SoftwareApplication JSON-LD verified
+        character-for-character against the visible FAQ prose, and a
+        reciprocal sibling link to notary-trip-quote (15 page tests) --
+        42/42 venture tests pass. VENTURE.yaml with scored hypotheses
+        (gates: liability_containment 8, ethical_robustness 8);
+        venture-scores.yaml row (composite 5.833, both gates pass);
+        .github/workflows/court-reporter-transcript-calculator-ci.yml
+        recorded in publish-surface.yaml.
+      - >-
+        Cross-cutting fixes this shipment required, all pre-existing gaps
+        exposed by adding the 281st mirrored tool rather than defects this
+        venture introduced: mirrored-tool-count prose 271->272 in
+        infra/OWNER_CHECKLIST.md (x3), aggregate.py, default.conf,
+        test_manifests.py's pinned total; gitops/ci/README.md's
+        runs-on-switch count via sync_readme_counts.py (my new venture's
+        CI workflow added a job); platform/privacy/optout-persistence.
+        test.mjs's pinned SWITCHES_IN_THE_CATALOGUE 256->257; ran
+        launched.mjs --write and regen.mjs so the mirror/front-door/feed/
+        catalog/llms.txt are current; filed the venture under build.mjs's
+        `services` category (solo professional pricing one job for a
+        client, alongside notary-trip-quote) rather than leaving it in the
+        catch-all. Also found a genuinely pre-existing, unrelated break:
+        build.test.mjs's catch-all-size bound (5) was already exceeded by 6
+        members on `main` before this venture touched anything -- confirmed
+        via a git-stash A/B test putting the working tree back to `main`'s
+        state, where the same assertion failed identically. Before
+        re-categorizing any of the other five by hand, merged
+        `origin/main` (which had advanced during this session) and found
+        two concurrent sessions had already fixed the same break
+        independently: #4677 filed `caption-quality-check` into `ci` and
+        `security-deposit-return-calculator` into `backoffice`, and a
+        sibling `cat-adjuster-fee-calculator` session's branch (merged as
+        part of the same `origin/main` advance) filed
+        `childcare-tuition-calculator` and
+        `food-truck-event-margin-calculator` into `services`. So the bound
+        needed no raising after all -- resolved the resulting `build.mjs`
+        merge conflict by keeping both sets of category-rule additions
+        (theirs plus this venture's own) rather than picking a side, and
+        left the test's bound comment recording what actually happened
+        instead of the raise this session almost made permanent.
+      - >-
+        Verified: venture's own suite 42/42; gitops/tests 581 passed/1
+        skip (environmental -- guard_state.py --require-runnable confirmed
+        no fixable skips after installing nginx-light/openssh-client);
+        platform/ci's 25 unittest modules (932 tests) + agent_review 21/21
+        all green; portfolio/{ledger,scoring,router,usage,pipeline} +
+        infra/tests 446 passed; platform/marketing + platform/pages full
+        suite 1257/1257 (after the catch-all-bound and mirrored-count
+        fixes above); platform/proposal 101/101, platform/privacy 82/82,
+        platform/webcheck 59/59; router/validate.py (280 ventures),
+        score_ventures.py --check, publish_surface.py --check (--write
+        run for the new workflow), checklist_coverage.py,
+        validate_candidates.py, validate_doc_consistency.py,
+        validate_probe_index.py, score_sensitivity.py, validate_usage.py,
+        check_no_payment_code.py, clauses.mjs all clean. Merged as PR
+        #4689.
+    mrr_end: 0

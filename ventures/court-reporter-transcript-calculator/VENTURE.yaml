@@ -1,0 +1,97 @@
+name: court-reporter-transcript-calculator
+description: Free browser calculator for freelance court reporters and deposition stenographers -- turns page count, turnaround speed, travel, certified copies, exhibits, rough draft, and realtime into a deposition transcript invoice total and an effective hourly rate, with a plain-text copyable invoice summary, plus a separate check on whether an agency's flat per-page offer meets a reporter's own target hourly rate once travel and production time are counted. Entirely client-side.
+stage: prototype
+
+owner: duncan
+
+# Screened, not written up in portfolio/pipeline/candidates.yaml: freelance
+# court reporting / deposition transcription, a niche this portfolio does not
+# otherwise serve. The closest existing venture, notary-trip-quote, prices a
+# mobile notary's flat per-appointment travel/printing/waiting quote -- a
+# completely different billing shape (one flat trip fee) from a court
+# reporter's, which stacks a flat appearance fee on top of a per-page
+# transcript rate that itself multiplies by turnaround speed, plus separate
+# per-page copy and exhibit fees. Built the same session per
+# portfolio/pipeline/README.md's archetype-saturation note: 281 ventures
+# exist, most a <trade>-bid-calculator or a marketplace-fee calculator, so
+# this session weighed a professional-services niche with a genuinely
+# different pricing structure (per-page, turnaround-multiplied billing) over
+# a 282nd trade-route or marketplace-fee calculator.
+#
+# python3 portfolio/pipeline/duplicate_check.py against "Freelance court
+# reporter and deposition stenographer transcript pricing calculator:
+# per-page rates, appearance fee, rush/expedite multipliers, and
+# exhibit/rough-draft add-ons, invoiced per job to law firms" scored nothing
+# >= 0.13 against any existing venture, pipeline candidate, screened-out row,
+# or ai-first-markets idea (top match: home-inspection-fee-calculator at
+# 0.13, word overlap on "fee calculator" only). Two adjacent-sounding niches
+# were checked and rejected first: "mobile notary per-appointment pricing"
+# scored 0.26 against the existing notary-trip-quote venture (same audience,
+# overlapping shape -- a different niche was picked instead of a product
+# line, since the appointment-income-planning angle considered was a thin
+# variant of notary-trip-quote's own per-job quote, not a distinct
+# business); "AI crawler access checker" scored 0.49 against the existing
+# ai-crawler-access-check venture and was dropped outright.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates,
+# both need >= 5):
+#   liability_containment: 8 -- both calculators only total numbers the
+#     reporter already has (a page count, a per-page rate, a turnaround
+#     multiplier, flat fees, travel miles, and hours worked) and report an
+#     invoice total, an effective hourly rate, or an agency-offer
+#     comparison. Neither asserts what any court's official transcript-rate
+#     schedule requires, what a specific agency contract obligates, or what
+#     a client legally owes -- the footer, FAQ, and the calculator's own
+#     "jurisdiction-note" finding all say so explicitly, and every
+#     turnaround multiplier defaults to an editable, clearly-labelled
+#     illustrative value rather than a number presented as authoritative.
+#     Being wrong costs the reporter a number to double-check before
+#     sending an invoice, not a filing or a third party's money.
+#   ethical_robustness: 8 -- deterministic arithmetic, no dark patterns, no
+#     data collected server-side, does not get worse for users as traffic
+#     grows, and is symmetric in the sense that nothing in either
+#     calculator's output is one-sided: the invoice calculator serves the
+#     reporter deciding what to bill, and the agency-offer check exists
+#     specifically to protect the reporter from underpricing their own time
+#     -- it does not shade toward the outcome that benefits an operator,
+#     because there is no operator on the other side of this tool.
+#
+# Distribution: r/courtreporting (an active subreddit for working and
+# student reporters) and NCRA (National Court Reporters Association) member
+# forums and Facebook groups both see recurring "how much should I charge
+# for a rush transcript" and "is this agency offer worth taking" threads --
+# freelance per-page billing with turnaround multipliers is exactly the kind
+# of ad-hoc arithmetic under a deadline this portfolio's other calculators
+# already target in other trades. Search phrases with real, recurring
+# volume: "court reporter transcript rate calculator", "deposition
+# transcript pricing", "court reporter invoice calculator", "how much do
+# court reporters charge per page". Distinct from every existing venture in
+# this portfolio: no other tool here prices per-page professional-services
+# work with a turnaround-speed multiplier stacked on a flat appearance fee.
+hypotheses:
+  - claim: A freelance court reporter pricing a deposition transcript will use this to turn a page count, turnaround tier, and add-on fees into an invoice total and a plain-text summary faster than a spreadsheet, especially for a rush job whose turnaround multiplier is easy to get wrong under a deadline.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A reporter offered a flat per-page rate through a court reporting agency will use the agency offer check to see the effective hourly rate before accepting, and will decline or renegotiate an assignment that pays below their own target rate once travel and production time are counted.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or subreddit-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/court-reporter-transcript-calculator/
+  analytics: null

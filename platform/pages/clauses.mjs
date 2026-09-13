@@ -98,6 +98,10 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // percentage of the increase they win. The page names no specific company
   // and its own footer says so explicitly.
   'dental-ppo-writeoff-calculator/vs-ppo-fee-negotiators.html',
+  // Compares against "a spreadsheet or mental math" -- a method every
+  // adjuster already has, not a company or product this could be mistaken
+  // for.
+  'cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
