@@ -11783,3 +11783,67 @@ ventures:
       no revenue tied to the recommendation, only an unrelated optional
       donation link. Every disclosure it raises pushes toward re-checking
       a figure that would overstate the case for spending.
+
+  - slug: obsidian-plugin-review-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether manifest.json's version
+      has a matching key in versions.json, whether a field still holds the
+      obsidian-sample-plugin template's own placeholder ("sample-plugin",
+      "Sample Plugin", "Your Name"), and whether a line assigns to
+      innerHTML/outerHTML/insertAdjacentHTML are each decided by comparing
+      against fixed key names and a fixed list of sink names -- a factual,
+      deterministic comparison, not a model judgment. It never claims an
+      obsidianmd/obsidian-releases review determination.
+    basis: >-
+      Graduated 2026-09-13 (#4663). Third instance of the
+      "cross-check a platform's own review-gating manifest against actual
+      source usage" archetype, after wordpress-plugin-review-check and
+      chrome-extension-permission-check, for a platform disjoint from
+      both. duplicate_check.py scored those two nearest matches at
+      0.14-0.16 against the final description, well under the 0.45 review
+      bar.
+      Autonomous ops 10 / gross margin 10: the browser page parses only
+      files the visitor selects locally and the CLI reads only paths its
+      invoker names, so serving one more user costs a static file and
+      needs no human review of any output -- the same basis as both
+      sibling checkers.
+      Distribution 5, and this is the dimension that separates it from
+      wordpress-plugin-review-check's 7. The failure mode is as specific
+      and as easy to hit (manifest.json and versions.json are separate
+      files with nothing forcing them to move together), the search
+      phrases are as concrete ("obsidian plugin versions.json missing
+      entry", "obsidian sample plugin id not changed"), and the forums are
+      named and active (r/ObsidianMD, the official Discord's plugin-dev
+      channels, and obsidian-releases' own submission PR reviews, where
+      volunteer maintainers link the guidelines when they find exactly
+      these issues). What is smaller is the denominator: Obsidian's
+      community-plugin developer base is a niche inside a single desktop
+      app, not WordPress's share of the web or the Chrome Web Store's
+      extension ecosystem, so the same conversion rate reaches far fewer
+      people. Scored on audience size, not on intent quality.
+      Time to revenue 6, defensibility 4: donations-only, and a
+      transparent pattern-matcher over a documented manifest format is
+      easy to reimplement, so defensibility rests on being first and
+      correct for this exact cross-check rather than on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: read-only and defensive -- it reports which versions.json
+      entry is absent for the current manifest version, which fields still
+      hold template placeholders, and which lines assign to an HTML sink,
+      never a claim that a submission will be approved or rejected. The
+      source scan is a line-level heuristic and both the README and the
+      page say so, so a pattern it has no mapping for is not silently
+      reported as absent.

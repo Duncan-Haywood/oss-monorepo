@@ -14,7 +14,7 @@ import { join } from "node:path";
 import { checkModule, checkAll } from "./optout-persistence.mjs";
 
 // How many venture usage modules offer an in-page way to turn counting off,
-// measured 2026-09-12. Every one of them must keep the choice across a
+// measured 2026-09-13. Every one of them must keep the choice across a
 // reload, and the count itself is pinned -- see the catalogue test at the
 // bottom for why a lower bound is not enough.
 //
@@ -23,7 +23,15 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // recorder itself consults. That last jump is the point of the pinned count
 // rather than an embarrassment to it: a number that moves by 161 is a claim
 // worth restating deliberately, and the assertion made me restate it.
-const SWITCHES_IN_THE_CATALOGUE = 254;
+//
+// 254 -> 255 on 2026-09-13: `ventures/obsidian-plugin-review-check` was
+// graduated in #4663 with a working switch (`writeOptOut(storage, true)`,
+// verified `pass`), so this is the deliberate raise the assertion below asks
+// for -- a new venture, not a switch that stopped being one. It is worth
+// noting which way this guard fired: the venture's own opt-out was correct,
+// and what had gone stale was the claim about how much of the catalogue the
+// guard covers. That is the failure mode the equality exists to catch.
+const SWITCHES_IN_THE_CATALOGUE = 255;
 
 let counter = 0;
 function fixture(source) {
