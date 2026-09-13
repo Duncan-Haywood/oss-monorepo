@@ -30018,3 +30018,61 @@ entries:
         score_ventures.py --check, publish_surface.py --check,
         checklist_coverage.py, clauses.mjs all clean. Merged as PR #4672.
     mrr_end: 0
+
+  - venture: cat-adjuster-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, product-first mandate. Open-PR queue
+        was empty on arrival: the one PR present at session start (#4673)
+        was independently repaired (a real merge conflict in
+        portfolio/ledger/2026-09.yaml, two sessions appending different
+        entries at the same anchor) and merged by a concurrent session
+        while this one was verifying the same resolution -- confirmed via
+        pull_request_read (merged_at 06:24:33Z) rather than pushed a
+        redundant duplicate. A separate concurrent session's own
+        branch-backlog audit (#4674, landed moments later) had already run
+        supersede_check.py against all 208 remote branches carrying commits
+        ahead of main and found every one SUPERSEDED or STALE DRAFT -- no
+        unshipped product work in the backlog, so the branch-to-PR
+        conversion phase needed no further action either.
+      - >-
+        The owner also asked directly to prioritize Hetzner deployment/
+        CI-CD, marketing-material deployment on the Hetzner VMs, and a
+        Codex CLI dev worker there running a similar autonomous prompt.
+        Checked `decision_queue.py`: all three are already built and fully
+        tested (bootstrap/restore-cluster.sh with WITH_CODEX_HOST=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1, and
+        gitops/agents/host/ for the Codex worker specifically), and every
+        one is blocked on the single owner-held credential ranked #1
+        (hetzner-ssh-key-is-a-public-key -- the installed public key has no
+        matching private key on file anywhere an agent session can reach).
+        Did not re-add a duplicate ask; flagged it to the owner directly
+        instead of leaving it buried in ledger prose, since this session
+        was scheduled and no one was watching the transcript live.
+      - >-
+        With Hetzner genuinely owner-blocked and the PR/branch backlog
+        already drained by concurrent sessions, shipped a comparison page
+        for cat-adjuster-fee-calculator (one of 23 ventures with a product
+        page but no comparison page) -- framed against the generic
+        practice of judging a deployment offer by its headline per-claim
+        rate alone, naming no specific IA firm (this niche has no single
+        named incumbent the way home-inspection franchises do). Caught the
+        same em-dash-vs-literal-"--" FAQPage JSON-LD mismatch #4670 and
+        #4672 both hit; fixed by matching the JSON-LD text to the rendered
+        em-dash exactly rather than the other way around.
+      - >-
+        Verified: venture's own tests 50/50; full
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs suite
+        1256/1257 (the one failure, build.test.mjs's "the catch-all holds
+        only what no section claims", confirmed pre-existing on a clean
+        origin/main checkout via a separate git worktree, unrelated to this
+        change); platform/proposal + platform/privacy + platform/webcheck
+        242/242; gitops/tests 581 passed/1 skipped (ENVIRONMENTAL);
+        router/validate.py (279 ventures), score_ventures.py --check (280
+        scores), checklist_coverage.py, check_no_payment_code.py all clean.
+        regen.mjs run twice (once after adding the page, once after fixing
+        the em-dash/disclaimer defects) so the committed mirror reflects
+        the final content.
+    mrr_end: 0
