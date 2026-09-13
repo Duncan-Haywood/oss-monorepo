@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 269 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 270 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-09-12T00:00:00Z</updated>
+  <updated>2026-09-13T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>Obsidian Plugin Review Checker — Manifest, versions.json &amp; Security Patterns</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/obsidian-plugin-review-check/"/>
+    <id>tag:marisstella.dev,2026:tool/obsidian-plugin-review-check</id>
+    <published>2026-09-13T00:00:00Z</published>
+    <updated>2026-09-13T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free, browser-local checker for Obsidian plugin developers: cross-checks manifest.json against versions.json, flags leftover sample-plugin template placeholder values, and scans source for innerHTML/outerHTML/insertAdjacentHTML -- the patterns behind common Obsidian community plugin review delays. Nothing is uploaded.</summary>
+  </entry>
   <entry>
     <title>Repair or Replace? Work Truck &amp; Equipment Planner for Small Fleets</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fleet-repair-or-replace-planner/"/>
@@ -357,14 +366,5 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Price an existing-customer rate increase (ECRI) at your storage facility: what one induced move-out really costs once the unit re-rents at street rate, and the move-out rate at which the increase stops paying. Free, private, nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Social Preview Checker — Open Graph, Twitter Card, LinkedIn link previews</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/social-preview-check/"/>
-    <id>tag:marisstella.dev,2026:tool/social-preview-check</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter&#39;s large-image card, and the twitter:image -&gt; og:image fallback chain. Also check any image URL&#39;s real pixel dimensions right in this page. Nothing uploaded.</summary>
   </entry>
 </feed>

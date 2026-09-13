@@ -29681,3 +29681,134 @@ entries:
         `usage`+`pipeline`+`infra/tests` 446 passed; `checklist_coverage.py`
         clean.
     mrr_end: 0
+  - venture: obsidian-plugin-review-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/obsidian-plugin-review-check`, a
+        free, zero-network CLI + browser tool for Obsidian community-plugin
+        developers preparing an `obsidianmd/obsidian-releases` submission or
+        version update. Fourth instance of this portfolio's
+        "cross-check a platform's own review-gating manifest against actual
+        source usage" archetype (`ios-privacy-manifest-check`,
+        `chrome-extension-permission-check`, `wordpress-plugin-review-check`
+        came first), for a fourth platform: cross-checks `manifest.json`'s
+        `version` against `versions.json` (Obsidian's release-visibility
+        mechanism -- a missing entry is one of the easiest release-blocking
+        mistakes to introduce, since the two files live separately with
+        nothing forcing them to move together), flags manifest fields left
+        as the official `obsidian-sample-plugin` template's own placeholder
+        values (`id: "sample-plugin"`, `name: "Sample Plugin"`,
+        `author: "Your Name"`), flags missing required manifest fields (`id`,
+        `name`, `version`, `minAppVersion`, `description`, `author` --
+        `authorUrl`/`fundingUrl`/`isDesktopOnly` reported but not blocking),
+        and scans JS/TS source for `innerHTML`/`outerHTML` assignment and
+        `insertAdjacentHTML` calls -- the cross-site-scripting pattern
+        Obsidian's own developer guidelines name explicitly, recommending
+        the DOM API or `createEl`/`createSpan`/`createDiv` instead. Two
+        informational-only notes (never block the pass/fail result): a
+        direct `document`/`window.addEventListener` call that skips the
+        `Component` API's auto-cleanup (`registerDomEvent`), and a leftover
+        `console.log`. Every blocking/informational split, and the
+        evidence-not-a-determination framing, mirrors
+        `wordpress-plugin-review-check`'s. Ships the standard
+        disclaimer/privacy/sponsor-link copy (plus a
+        not-affiliated-with-Obsidian-or-Dynalist-Inc. trademark line,
+        matching the pattern the three sibling checkers already use for
+        Google/Apple/the WordPress Foundation), a secondary doc page on the
+        missing-`versions.json`-entry failure mode with HowTo/FAQPage
+        JSON-LD, usage counting (opt-out persists via the same
+        `usageOptOut`-checkbox pattern `wordpress-plugin-review-check`
+        already uses correctly), LICENSE, and 53 tests (`scan.test.mjs`,
+        `check.test.mjs`, `usage.test.mjs`, `page.test.mjs`).
+      - >-
+        Screened per `portfolio/pipeline/README.md`'s "archetype itself"
+        section (a developer CLI/checker matching an established
+        four-platform pattern, not a 280th `<trade>-bid-calculator` or a
+        39th generic `-check` scanner) and
+        `python3 portfolio/pipeline/duplicate_check.py` (closest match
+        `wordpress-plugin-review-check` at 0.16, `chrome-extension-
+        permission-check` at 0.14, both well under the 0.45 flag bar).
+        Both liability/ethics gates clear with room: `liability_containment`
+        -- the product only reports pattern-matches against Obsidian's own
+        published developer documentation, evidence never a determination,
+        no advice-of-record, no scraped data (reads only files a visitor
+        selects or a path the CLI's own invoker names); `ethical_robustness`
+        -- no revenue model conditions accuracy on over- or under-flagging,
+        so there is no direction this business is incentivized to be wrong
+        in, and getting more submissions through review faster is strictly
+        better for the developer as the tool scales. First-visitor channel
+        named per `DIRECTION.md`'s graduation condition: developers hitting
+        a stalled review or searching the exact terminology ("obsidian
+        plugin versions.json missing entry", "obsidian plugin review
+        guidelines", "obsidian sample plugin id not changed"), plus
+        r/ObsidianMD on Reddit, the official Obsidian Discord's
+        plugin-development channels, and the
+        `obsidianmd/obsidian-releases` GitHub repository's own
+        pull-request review comments (every community-plugin submission is
+        a PR there) -- named channels, not yet measured traffic.
+      - >-
+        Wiring: `node platform/marketing/regen.mjs` (both generators);
+        `node platform/pages/launched.mjs --write` (270 tools, 1 added).
+        The new venture matched no existing category rule and would have
+        pushed the catch-all ("More free tools") to 6, past the 5-tool bound
+        `build.test.mjs` enforces -- added it to the `ci` category's
+        exact-slug list in `platform/pages/build.mjs`, following the exact
+        precedent `wordpress-plugin-review-check`'s own graduation recorded.
+        `platform/pages/siblings.mjs --check` then flagged the new venture
+        itself as a crawlable orphan (budget 0, "nearest sibling:
+        wordpress-plugin-review-check") -- closed by adding a reciprocal
+        footer link and a `page.test.mjs` assertion on each side
+        (`ventures/wordpress-plugin-review-check/index.html` +
+        `page.test.mjs`, and the new venture's own footer links back to
+        both `wordpress-plugin-review-check` and
+        `chrome-extension-permission-check`). Re-verified after both fixes:
+        `siblings.mjs --check` 0 orphans, `build.test.mjs` catch-all at 5.
+        `validate_workflows.py` then flagged the 4 new test files running in
+        no workflow -- added `.github/workflows/obsidian-plugin-review-
+        check-ci.yml` (copied `wordpress-plugin-review-check-ci.yml`'s
+        shape) and recorded it with `publish_surface.py --write`
+        (classified `none`, matching every sibling test-only venture
+        workflow).
+      - >-
+        A second full run of `platform/marketing/*.test.mjs` +
+        `platform/pages/*.test.mjs` (1257/1257, after the wiring fixes
+        above) found a fourth, real defect the pre-fix run's 3 failures had
+        masked: `faq-visible.test.mjs` caught the new venture's own FAQPage
+        JSON-LD text paraphrased differently from the visible `<h3>`/`<p>`
+        copy on three points (the source-upload answer said "files or
+        folder" in JSON-LD vs "folder" on the page; the approval question
+        omitted "for the community plugin list" on the page; the
+        does-a-clean-report-mean-approval answer dropped the
+        `registerDomEvent` clause from the visible copy). Fixed by making
+        the visible text match the JSON-LD verbatim -- exactly the
+        JSON-LD/visible-copy drift `DIRECTION.md` and CLAUDE.md record
+        costing live product before (#3256-3258's mismatched `FAQPage`).
+      - >-
+        Verified after that fix: this venture's own suite 53/53 (includes
+        the sibling-link assertion added alongside the orphan fix);
+        `wordpress-plugin-review-check`'s own suite 64/64 after its
+        reciprocal-link edit;
+        `faq-visible.test.mjs` and this venture's `page.test.mjs` both green
+        standalone; a second full `platform/marketing/*.test.mjs` +
+        `platform/pages/*.test.mjs` run, 1257/1257 (the run before this fix
+        showed 1 real failure -- the FAQPage mismatch above -- after the
+        prior run's 3 orphan/category failures were already fixed); full
+        `build.test.mjs` standalone, 284/284, 0 `not ok`;
+        `siblings.test.mjs` standalone 14/14; `clauses.mjs` clean on both
+        touched ventures; `checklist_coverage.py`, `check_no_payment_code.py`,
+        `portfolio/router/validate.py` (278 ventures),
+        `pipeline/validate_candidates.py`,
+        `pipeline/validate_doc_consistency.py`, `validate_workflows.py`,
+        `publish_surface.py --check` all clean.
+        `platform/ci/browser_state.py` reported every check current against
+        `main` (this change is uncommitted, so it cannot yet reflect it) --
+        ran `browser_checks.py --only obsidian-plugin-review-check` directly
+        instead (Playwright 1.56.0 + axe-core installed per AGENTS.md):
+        7 of 8 checks ran and passed (sideways, presets, roundtrip, contrast
+        -- 2 pages/2 viewports, 0 WCAG A/AA violations --, optout, sweep,
+        journey/sitemap); `highlight` did not run because this tool makes no
+        highlight-style promise, which is a legitimate skip per the check's
+        own message, not a failure.
+    mrr_end: 0

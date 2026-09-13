@@ -1606,7 +1606,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # a repair-versus-replace planner for a small trade fleet, with a static
     # `index.html` from its first commit, so it entered the mirror and the
     # total together like the rest of this running count.
-    total = 269  # `infra/OWNER_CHECKLIST.md`'s own "N of the 269 tools" wording.
+    # 270 since 2026-09-13, when `obsidian-plugin-review-check` graduated — a
+    # free CLI + browser tool for Obsidian community-plugin developers, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    total = 270  # `infra/OWNER_CHECKLIST.md`'s own "N of the 270 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
