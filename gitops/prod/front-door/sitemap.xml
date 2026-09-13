@@ -562,6 +562,9 @@
     <loc>https://marisstella.dev/tools/cache-control-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/cache-control-check/vs-curl.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/cache-control-check/why-isnt-my-cdn-caching-this.html</loc>
   </url>
   <url>
@@ -1805,6 +1808,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/llms-txt-generator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/llms-txt-generator/vs-a-hosted-docs-platform.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/llms-txt-generator/what-is-llms-txt.html</loc>

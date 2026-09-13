@@ -30266,3 +30266,96 @@ entries:
         other candidates considered — all prior PRs on those slugs already
         merged and closed, nothing in flight).
     mrr_end: 0
+
+  - venture: caption-quality-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Drained the PR queue first per this
+        session's mandate: exactly one PR was open (#4673,
+        `home-inspection-fee-calculator`'s comparison page) -- fewer than
+        the 3-PR quota, so processed it fully. Found a real merge conflict
+        in `portfolio/ledger/2026-09.yaml` (two sessions' outcome entries
+        needed combining, not picking one side) and resolved it; ran the
+        full checklist (`gitops/tests` 581/1, `platform/ci`'s 15-module
+        unittest sweep + `agent_review`, `portfolio/{ledger,scoring,router,
+        usage,pipeline}` + `infra/tests` 446 passed, all 8
+        `portfolio-validate.yml` validators, `run_workflow_locally.py
+        --for-changes` and `--tree`), and settled the generated mirror
+        after a `git stash`/re-run A/B confirmed `regen.mjs`'s output was
+        stable. A concurrent session merged #4673 with a byte-for-byte
+        identical resolution while this session was still verifying it --
+        confirmed via `git diff` against the pushed branch before pushing
+        anything, so nothing was duplicated.
+      - >-
+        Sampled 13 of this repo's several hundred accumulated stale
+        branches (the mandate's branch-to-PR presumption) rather than
+        auditing all of them, since a concurrent session's own exhaustive
+        pass had just landed in #4674 (208 branches with unique commits,
+        all resolved SUPERSEDED or STALE DRAFT via `supersede_check.py`
+        after `git fetch --unshallow`). Every one of the 13 sampled here
+        was independently confirmed superseded -- each branch's content
+        (a venture, a comparison page, a sibling link) already existed on
+        `main` under the identical filename, with `main`'s copy the fuller
+        or later version in every case checked (e.g. `atm-route-margin`'s
+        branch predates the shareable-link feature `main` now has). No
+        unshipped work found; did not re-run the full 208-branch sweep
+        `main` already had.
+      - >-
+        With the PR queue and branch backlog both empty of repairable
+        work, `session_gate.py` read PROCEED (meta-work share 24%, build-
+        now pipeline empty) and `portfolio/DIRECTION.md` pointed at the
+        comparison-page backlog. Shipped
+        `ventures/caption-quality-check/vs-professional-caption-qc-review.html`
+        -- this venture (graduated #4672) had none yet. Framed generically
+        against "a paid captioning vendor's QC pass" rather than naming
+        3Play Media/Verbit/Rev (all three named in this venture's own
+        VENTURE.yaml as evidence of willingness to pay), since none of
+        their internal QC processes are fully publicly documented --
+        matching the stricter no-brand-name convention used for
+        `home-inspection-fee-calculator`'s franchise-fee-schedule page
+        rather than the named-competitor convention used for
+        `vs-httpstatus-io.html`, where the competitor is a single,
+        simple, publicly self-described product.
+      - >-
+        Caught a real defect during verification rather than after:
+        `faq-visible.test.mjs` flagged the FAQPage JSON-LD using a literal
+        `--` where the visible prose used `&mdash;` -- the same mismatch
+        class #4670's ledger entry already recorded. Fixed by using the
+        literal em-dash character in the JSON-LD text so it matches the
+        visible copy after entity decoding.
+      - >-
+        `main` advanced twice while this PR was in flight (#4679
+        `vpat-acr-generator`'s comparison page, #4680 a `build.mjs`
+        catch-all refactor; then again to `cc1e29d6` before merge).
+        Resolved the resulting sequential-shard mirror conflicts with
+        `platform/marketing/resolve-mirror-merge.sh` per its own header,
+        took `origin/main`'s copy of the two conflicting binary files as a
+        base, and learned mid-session that the merge script alone does not
+        settle `catalog.json.gz`/`compare.html.gz`/`llms.txt` -- a direct
+        `regen.mjs` run after it found 3 more files to rewrite, caught by
+        running the full suite a second time rather than trusting the
+        script's own internal tests (which only cover the mirror
+        directory) as sufficient.
+      - >-
+        Verified: venture's own suite 67/67 (up from 64);
+        `platform/marketing` + `platform/pages` full suite 1257/1257,
+        run three times (pre-merge, post-first-merge, post-final-regen)
+        because of the two `main` advances; `checklist_coverage.py`,
+        `score_ventures.py --check` (280 ventures),
+        `router/validate.py` (279 ventures), `guard_state.py
+        --require-runnable`, `usage_state.py --require-honest`,
+        `check_ledger_only.py` all clean.
+      - >-
+        Merged as #4686 (all 21 PR checks read `runner_id: 0` across two
+        job groups -- `ci_starvation.py --run` confirmed starvation on
+        both, not a real failure). Deployed:
+        `CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh` against the merge tip
+        (`da9021c2`); `pages_state.py --require-current` reports
+        `current`. IndexNow submission 403'd at this sandbox's egress
+        proxy (`api.indexnow.org` not allowlisted), same known limitation
+        as prior sessions -- needs an Actions runner or the Hetzner host
+        mode to actually reach it.
+    mrr_end: 0
