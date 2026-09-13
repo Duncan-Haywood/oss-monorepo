@@ -514,8 +514,25 @@ const CATEGORY_RULES = [
     // professional turning time, travel, and materials/add-ons into a
     // customer-facing price, not a trade bid (nothing priced by area of
     // construction work done to the site) and not a marketplace fee.
+    //
+    // `childcare-tuition-calculator` and `food-truck-event-margin-calculator`
+    // moved out of the catch-all here on 2026-09-13, per the same test
+    // (`the catch-all holds only what no section claims`) that caught
+    // `certified-payroll-calculator` and `home-inspection-fee-calculator`
+    // above. `childcare-tuition-calculator` turns a classroom's own
+    // child:staff ratio, staffing cost, and overhead into the tuition rate
+    // it needs to charge — the same job as `pour-cost-calculator` (turning a
+    // bar's own ingredient and labor cost into a menu price), just for a
+    // recurring seat instead of a drink. `food-truck-event-margin-calculator`
+    // prices one private event, catering, or festival booking from prep
+    // time, travel, staff labor, fuel, and a one-off permit fee — the exact
+    // shape `photo-booth-event-quote` and `bounce-house-rental-calculator`
+    // already hold: a solo or small operator turning travel, labor, and
+    // equipment cost into a price for one booking against a flat headline
+    // rate that hides the real cost. Neither is a trade bid (nothing priced
+    // by area or a site visit) and neither is a marketplace fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin)/.test(
         slug,
       ),
   },
@@ -652,7 +669,18 @@ const CATEGORY_RULES = [
       // single machine. Named here rather than left in the catch-all, where
       // an owner reading "the break-even behind a price change" would never
       // have found the page that ranks which van to replace first.
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff)/.test(slug),
+      //
+      // `security-deposit-return-calculator` moved out of the catch-all here
+      // on 2026-09-13, per the same test (`the catch-all holds only what no
+      // section claims`) that caught `fleet-repair-or-replace-planner` above.
+      // It itemizes a security deposit's deductions into a refund or balance
+      // due, and prorates rent for a partial month -- arithmetic that happens
+      // once a tenancy already ended or began, not a price quoted before the
+      // work, which is what puts it here rather than in `services`. The same
+      // "after the fact" axis as `card-processing-fee-audit` (splitting a
+      // processor's bill after the sale) and `cam-reconciliation-check` (a
+      // landlord's own statement), just for a move-out deposit instead.
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|self-storage-rate-increase|seller-net-sheet|appointment-deposit|equipment-lease-buyout|fleet-repair-or-replace-planner|card-processing-fee-audit|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|dental-ppo-writeoff|security-deposit-return)/.test(slug),
   },
   {
     id: 'ci',
@@ -1138,8 +1166,24 @@ const CATEGORY_RULES = [
     // family pattern, and landing it here rather than the catch-all is also
     // what keeps that catch-all inside the bound `build.test.mjs` puts on
     // it.
+    //
+    // `caption-quality-check` joined 2026-09-13, in the same graduation
+    // commit, and sat in the catch-all because nothing above names its slug
+    // or a caption-specific prefix. Same shape as every other entry in this
+    // category: a browser-local checker plus a matching zero-dependency CLI
+    // ("the CLI runs the same checks in your own CI"), run against a file the
+    // developer already has (an SRT/WebVTT caption track instead of a
+    // manifest or workflow file), reporting mechanically-verifiable
+    // threshold violations rather than a determination -- its own FAQ says
+    // this almost word for word: "Treat a clean report as evidence that the
+    // mechanical thresholds are met, not as a substitute for reviewing the
+    // captions yourself." That is this category's disclaimer posture, not
+    // `evidence`'s: nothing here is a compliance record of a decision made,
+    // it is a CI gate a maintainer wires into their own pipeline. Landing it
+    // here rather than the catch-all is also what keeps that catch-all
+    // inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
         slug,
       ),
   },
