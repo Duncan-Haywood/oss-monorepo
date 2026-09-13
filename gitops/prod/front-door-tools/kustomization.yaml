@@ -38,11 +38,11 @@
 #   portfolio-front-tools-2: 148 files, 556489 bytes
 #   portfolio-front-tools-3: 138 files, 556696 bytes
 #   portfolio-front-tools-4: 123 files, 553583 bytes
-#   portfolio-front-tools-5: 134 files, 553131 bytes
-#   portfolio-front-tools-6: 131 files, 555993 bytes
+#   portfolio-front-tools-5: 134 files, 556126 bytes
+#   portfolio-front-tools-6: 132 files, 557011 bytes
 #   portfolio-front-tools-7: 121 files, 547410 bytes
 #   portfolio-front-tools-8: 112 files, 556245 bytes
-#   portfolio-front-tools-9: 112 files, 541749 bytes
+#   portfolio-front-tools-9: 113 files, 546069 bytes
 #   portfolio-front-tools-10: 120 files, 555377 bytes
 #   portfolio-front-tools-11: 127 files, 551583 bytes
 #   portfolio-front-tools-12: 101 files, 553982 bytes
@@ -762,6 +762,7 @@ configMapGenerator:
       - caption-quality-check__engine.mjs.gz=caption-quality-check__engine.mjs.gz
       - caption-quality-check__index.html.gz=caption-quality-check__index.html.gz
       - caption-quality-check__usage.mjs.gz=caption-quality-check__usage.mjs.gz
+      - caption-quality-check__vs-professional-caption-qc-review.html.gz=caption-quality-check__vs-professional-caption-qc-review.html.gz
       - caption-quality-check__why-caption-quality-matters.html.gz=caption-quality-check__why-caption-quality-matters.html.gz
       - card-processing-fee-audit__calc.mjs.gz=card-processing-fee-audit__calc.mjs.gz
       - card-processing-fee-audit__index.html.gz=card-processing-fee-audit__index.html.gz
@@ -878,12 +879,12 @@ configMapGenerator:
       - crown-molding-bid-calculator__how-much-to-charge-to-install-crown-molding.html.gz=crown-molding-bid-calculator__how-much-to-charge-to-install-crown-molding.html.gz
       - crown-molding-bid-calculator__index.html.gz=crown-molding-bid-calculator__index.html.gz
       - crown-molding-bid-calculator__should-i-charge-8-a-foot-for-crown-molding.html.gz=crown-molding-bid-calculator__should-i-charge-8-a-foot-for-crown-molding.html.gz
-      - crown-molding-bid-calculator__usage.mjs.gz=crown-molding-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - crown-molding-bid-calculator__usage.mjs.gz=crown-molding-bid-calculator__usage.mjs.gz
       - crown-molding-bid-calculator__vs-jobber.html.gz=crown-molding-bid-calculator__vs-jobber.html.gz
       - custom-farm-rate-calculator__calc.mjs.gz=custom-farm-rate-calculator__calc.mjs.gz
       - custom-farm-rate-calculator__index.html.gz=custom-farm-rate-calculator__index.html.gz
@@ -1341,6 +1342,7 @@ configMapGenerator:
       - llms-txt-generator__generator.mjs.gz=llms-txt-generator__generator.mjs.gz
       - llms-txt-generator__index.html.gz=llms-txt-generator__index.html.gz
       - llms-txt-generator__usage.mjs.gz=llms-txt-generator__usage.mjs.gz
+      - llms-txt-generator__vs-a-hosted-docs-platform.html.gz=llms-txt-generator__vs-a-hosted-docs-platform.html.gz
       - llms-txt-generator__what-is-llms-txt.html.gz=llms-txt-generator__what-is-llms-txt.html.gz
       - locksmith-bid-calculator__calc.mjs.gz=locksmith-bid-calculator__calc.mjs.gz
       - locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz=locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz
