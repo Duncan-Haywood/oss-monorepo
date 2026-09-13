@@ -150,15 +150,21 @@ const NOT_IN_A_LINK = new Set(['usageOptOut', 'optOut', 'pf-bid-name', 'remember
 
 // A page can collect one new item's fields in a form the page itself resets
 // (`form.reset()`) the instant a submission commits it to the state a share
-// link actually reads — `1099k-reconciliation-worksheet`'s `#row-form` is
-// the first of these to also carry a share link. These ids still need
-// editing, same as any other number field, so a submission has real data to
-// add; they are excluded only from the dropped-field comparison below,
-// because the reopened link's own add-form is *meant* to come back at its
-// reset default, not to match whatever the sender was mid-typing.
-const RESET_ON_SUBMIT = new Set([
-  'f-platform', 'f-box1a', 'f-refunds', 'f-salesTax', 'f-fees', 'f-cogs', 'f-shipping',
-]);
+// link actually reads — `1099k-reconciliation-worksheet`'s `#row-form` is the
+// first of these to also carry a share link. Those fields are *meant* to come
+// back at their reset defaults rather than matching whatever the sender was
+// mid-typing, so comparing them against the reopened page would report a
+// dropped field on a link that carried everything.
+//
+// This was a hand-kept `RESET_ON_SUBMIT` set naming that venture's seven ids
+// until 2026-09-13. It worked, and it was the same shape as the two defects
+// at the top of this file: a list beside the thing it describes, correct on
+// the day it was written, silently wrong for the next worksheet that spells
+// its fields differently — the failure this file already records paying for
+// twice, and `CLAUDE.md` a further three times. The fix needs no list at all:
+// the commit branch below re-reads the sender's fields *after* the submit, so
+// both sides are at their defaults and match for the same reason the visitor's
+// would. Nothing to maintain, and a new worksheet is covered on arrival.
 
 /**
  * The proposal's prose terms, typed by this probe rather than left at default.
@@ -268,6 +274,23 @@ const READ_FIELDS = () => {
 /** The figure the tool leads with, if it has one. */
 const READ_HERO = () => document.querySelector('.hero-number')?.textContent?.trim() ?? '';
 
+/**
+ * The committed rows a worksheet renders, as text.
+ *
+ * Only read in the branch that just committed a staged row, never for the 190
+ * tools whose form *is* their state — a table full of a page's own worked
+ * example is not a finding.
+ *
+ * The `#stats` rollup that branch also compares is a real assertion but a lossy
+ * one: two rows that swap places, or a pair of offsetting errors, leave the
+ * same combined total. The rows are what the link actually serializes, so a
+ * per-row drop is only visible here.
+ */
+const READ_ROWS = () => [...document.querySelectorAll('table tbody tr')]
+  .map((tr) => [...tr.cells].map((cell) => cell.textContent.trim()).filter(Boolean).join(' | '))
+  .filter(Boolean)
+  .join('\n');
+
 async function openTool(browser, slug, hash = '') {
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -343,7 +366,8 @@ async function roundTrip(browser, slug) {
       try { await page.fill(cssId(id), text, { timeout: 2000 }); } catch { /* hidden at this width */ }
     }
 
-    const before = await page.evaluate(READ_FIELDS);
+    let before = await page.evaluate(READ_FIELDS);
+    let stagedRows = null;
     let beforeHero = await page.evaluate(READ_HERO);
     await page.click(control);
     // A copy handler may await the clipboard write; give the microtask a turn.
@@ -375,15 +399,26 @@ async function roundTrip(browser, slug) {
     if (typeof link === 'string' && marks.length === 0) {
       const editedIds = numbers.filter((f) => !NOT_IN_A_LINK.has(f.id) && !f.id.includes('${')).map((f) => f.id);
       const submitted = await page.evaluate((ids) => {
+        const countRows = () => document.querySelectorAll('table tbody tr').length;
         for (const form of document.querySelectorAll('form')) {
           const submit = form.querySelector('button[type="submit"], input[type="submit"]');
           if (!submit) continue;
           if (![...form.elements].some((el) => ids.includes(el.id))) continue;
           for (const input of form.querySelectorAll('input[required]')) {
-            if (!input.value) input.value = 'Sample';
+            if (input.value) continue;
+            input.value = 'Sample';
+            // A page that recalculates as you type listens for this; setting
+            // `.value` alone is invisible to it.
+            input.dispatchEvent(new Event('input', { bubbles: true }));
           }
+          const rowsBefore = countRows();
           submit.click();
-          return true;
+          // Measured from the page, not assumed from the click: a submit the
+          // browser refuses on validation leaves the state untouched, and
+          // reporting that as "submitted" sends the caller on to compare a
+          // worksheet against a link neither of them ever had anything to put
+          // in -- a confusing verdict in place of an honest one.
+          return countRows() > rowsBefore;
         }
         return false;
       }, editedIds);
@@ -395,6 +430,18 @@ async function roundTrip(browser, slug) {
         if (!beforeHero) {
           beforeHero = await page.evaluate(() => document.getElementById('stats')?.textContent?.trim() ?? '');
         }
+        // The committed rows, which are what the link actually serializes on
+        // this shape. The `#stats` rollup above is a real assertion but a
+        // lossy one: two rows that swap places, or a pair of offsetting
+        // errors, leave the same combined total. Comparing the rows
+        // themselves is what makes a per-row drop visible.
+        stagedRows = await page.evaluate(READ_ROWS);
+        // The form reset when it committed, so the sender's own fields are at
+        // their defaults now — exactly where the recipient's will be. Re-read
+        // them rather than keeping the mid-typing values, which is what makes
+        // a hand-kept list of this venture's field ids unnecessary: the next
+        // worksheet with different ids is covered without editing anything.
+        before = await page.evaluate(READ_FIELDS);
         await page.click(control);
         await page.waitForTimeout(120);
         link = await page.evaluate(() => window.__pfCopied);
@@ -421,6 +468,7 @@ async function roundTrip(browser, slug) {
 
     const second = await openTool(browser, slug, link.slice(marker));
     const after = await second.page.evaluate(READ_FIELDS);
+    const afterRows = stagedRows === null ? null : await second.page.evaluate(READ_ROWS);
     let afterHero = await second.page.evaluate(READ_HERO);
     if (!afterHero && beforeHero) {
       afterHero = await second.page.evaluate(() => document.getElementById('stats')?.textContent?.trim() ?? '');
@@ -456,10 +504,24 @@ async function roundTrip(browser, slug) {
     const presetHandback = (id) => selectIds.has(id) && HANDBACK_VALUES.has(after[id]);
 
     const dropped = Object.keys(before)
-      .filter((id) => !NOT_IN_A_LINK.has(id) && !RESET_ON_SUBMIT.has(id) && id in after && !sameValue(before[id], after[id]))
+      .filter((id) => !NOT_IN_A_LINK.has(id) && id in after && !sameValue(before[id], after[id]))
       .filter((id) => !presetHandback(id))
       .map((id) => `${id} ${short(before[id])}→${short(after[id])}`);
     const pageErrors = [...errors, ...second.errors];
+
+    if (stagedRows !== null && stagedRows !== afterRows) {
+      // Point at the first row that changed rather than clipping both sides to
+      // forty characters, which on a wide worksheet renders the sent and the
+      // received copy as the same truncated prefix — a finding that reads like
+      // a false positive is one nobody acts on.
+      const sent = stagedRows.split('\n');
+      const got = (afterRows ?? '').split('\n').filter(Boolean);
+      const at = sent.findIndex((row, index) => row !== got[index]);
+      const detail = sent.length !== got.length
+        ? `the link carried ${got.length} of ${sent.length} committed row(s)`
+        : `row ${at + 1} changed in the link:\n      sent ${sent[at]}\n      got  ${got[at] ?? '(nothing)'}`;
+      return { slug, status: 'fail', detail: `the committed rows did not survive the link — ${detail}` };
+    }
 
     if (dropped.length === 0 && beforeHero === afterHero && pageErrors.length === 0) {
       return { slug, status: 'ok', detail: `${Object.keys(before).length} fields, headline ${beforeHero || 'n/a'}` };
