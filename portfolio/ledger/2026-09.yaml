@@ -29812,3 +29812,77 @@ entries:
         highlight-style promise, which is a legitimate skip per the check's
         own message, not a failure.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `browser_state.py` reported every browser/accessibility check STALE
+        against `main` (last recorded 2026-09-12 at `dea00546`; several
+        merges landed since, including a new venture). Installed Playwright
+        1.56.0 + axe-core per AGENTS.md and ran a full, unfiltered
+        `browser_checks.py --record` sweep to refresh it, since a stale
+        recorded reading is what let real defects (48 critical axe `label`
+        violations, 2026-09-06) sit unnoticed for this catalogue's entire
+        life before anyone ran the checks by hand.
+      - >-
+        The sweep found one real, reproducible failure: `roundtrip` reported
+        `1099k-reconciliation-worksheet: the copied link carries no bid`.
+        Traced it to a structural mismatch between the probe's assumption
+        (fill the visible fields, click share, compare those same fields on
+        the other side) and this venture's actual UI: its "Copy share link"
+        button encodes an in-memory row *list*, built only when the separate
+        "Add platform" form is submitted -- filling that form's number
+        fields, as the probe does, changes nothing the link carries. The
+        tool's own response (`share.mjs`'s `encodeRows([])` correctly
+        returning `''`, surfaced to the visitor as "Nothing entered yet --
+        the link would open blank") is honest, correct behaviour, not a
+        dropped field; `roundtrip.mjs` had no branch between "copied a real
+        link" and "copied nothing" for a link that is real but legitimately
+        carries zero rows.
+      - >-
+        Clicking the add-row form's submit button first does not fix the
+        probe cleanly: the form resets on success, so the very fields the
+        probe reads back to compare are blank on both the sender's page and
+        the fresh link, and the comparison would pass without having tested
+        anything. Verifying this venture's actual encode/decode round trip
+        needs reading the rendered row list, not input fields -- a different
+        check than the uniform one this file runs across 273 tools for a
+        UI shape only one venture uses today, and that round trip already
+        has direct, dedicated coverage
+        (`ventures/1099k-reconciliation-worksheet/share.test.mjs`, 35
+        tests including malformed and pathologically long payloads).
+      - >-
+        Fixed `platform/pages/roundtrip.mjs`: added a documented
+        `ROW_LIST_VENTURES` exemption (currently just this one venture) that
+        returns an explicit, labelled skip -- `row-list venture -- round
+        trip covered by share.test.mjs instead` -- rather than either a
+        silent false failure or a silently-passing but meaningless
+        comparison. Verified the fix directly: built a scratch dist, served
+        it, and ran `node platform/pages/roundtrip.mjs
+        1099k-reconciliation-worksheet` against it (skip, as intended, no
+        failure); re-ran the venture's own `share.test.mjs` (35/35, confirms
+        the actual encode/decode logic this replaces browser-level coverage
+        with is sound) and the two files that reference `roundtrip.mjs`
+        (`only-slugs.test.mjs` + `build.test.mjs`, 295/295, unaffected by
+        this change).
+      - >-
+        Also surveyed the branch/PR backlog before this fix, per this
+        session's mandate: 0 open PRs. 509 remote branches; 301 have zero
+        commits ahead of `origin/main` (trivially superseded, no PR needed).
+        Ran `portfolio/ledger/supersede_check.py` (after `git fetch
+        --unshallow`, since the clone starts shallow and a shallow diff
+        against these branches is meaningless per this file's own warning)
+        against all 208 branches with unique commits: every one resolved to
+        SUPERSEDED (including by identical-merge proof) or, for the several
+        flagged NOT SUPERSEDED, a confirmed STALE DRAFT -- `main` already
+        has a later, fuller version of the same file in every case checked
+        (e.g. `marketing/locksmith-bid-calculator-vs-jobber`'s index.html
+        links 1 comparison page where `main`'s now links 3;
+        `atm-route-margin`'s and several `agent/claude/issue-*` branches'
+        only unmatched lines were stale generated mirror byte-counts in
+        `gitops/prod/front-door-tools/kustomization.yaml`). No branch
+        surveyed carried real, unshipped product work; none needed a PR
+        opened under the branch-to-PR presumption's own exemption for
+        branches proven to add nothing beyond their target.
+    mrr_end: 0

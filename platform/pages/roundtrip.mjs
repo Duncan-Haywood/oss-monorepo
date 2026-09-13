@@ -148,6 +148,32 @@ const COPY_CONTROLS = ['button#copyShare', 'button#copyLink', 'button#shareLink'
 // excluded from the link by the page, correctly, so both are excluded here.
 const NOT_IN_A_LINK = new Set(['usageOptOut', 'optOut', 'pf-bid-name', 'remember']);
 
+// Ventures whose shareable state is a *list* built by submitting a separate
+// "add one row" form, not the persistent field values every other tool here
+// carries straight into its link. This probe's whole strategy — fill the
+// visible number fields, click share, compare those same fields on the other
+// side — assumes filling a field is enough to change what gets shared. Here
+// it is not: filling `1099k-reconciliation-worksheet`'s add-row inputs does
+// nothing to the row list until "Add platform" is clicked, so the probe finds
+// nothing queued to share, and the tool's own honest "Nothing entered yet —
+// the link would open blank" (real behaviour, not a bug) reads as a dropped
+// bid: `share.mjs`'s `encodeRows([])` correctly returns `''`, which trips the
+// `marks.length === 0` branch below as a hard failure rather than a skip.
+//
+// Clicking the add-row submit first does not fix this cleanly either: the
+// form resets on success (`form.reset()`), so the *fields* this probe reads
+// back to compare are blank on both the sender's page and the fresh link —
+// they would compare equal without the comparison having tested anything.
+// Verifying the actual encode/decode round trip for this shape needs reading
+// the rendered row list, not the input fields, which is a different check
+// than the one this file runs uniformly across 273 tools for one architecture
+// used by a single venture today. That round trip already has direct
+// coverage — `ventures/1099k-reconciliation-worksheet/share.test.mjs`
+// exercises `encodeRows`/`decodeRows` against real, malformed, and
+// pathologically long payloads — so this is a documented skip, not an
+// unverified gap.
+const ROW_LIST_VENTURES = new Set(['1099k-reconciliation-worksheet']);
+
 /**
  * The proposal's prose terms, typed by this probe rather than left at default.
  *
@@ -273,6 +299,9 @@ async function openTool(browser, slug, hash = '') {
  * does not end the sweep.
  */
 async function roundTrip(browser, slug) {
+  if (ROW_LIST_VENTURES.has(slug)) {
+    return { slug, status: 'skip', detail: 'row-list venture — round trip covered by share.test.mjs instead' };
+  }
   const { context, page, errors } = await openTool(browser, slug);
   try {
     const control = await page.evaluate((controls) => {
