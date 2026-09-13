@@ -30226,3 +30226,43 @@ entries:
         confirmed the PR's own red checks were starvation, not real
         failures.
     mrr_end: 0
+
+  - venture: llms-txt-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-a-hosted-docs-platform.html`, a comparison page laying
+        out the honest tradeoff between this free generator and the doc-
+        hosting vendors that auto-generate llms.txt as a bundled feature of
+        migrating your whole docs site onto their platform -- both sides
+        of the comparison are grounded in the venture's own `VENTURE.yaml`
+        write-up, which already names "hosted generators from doc-tooling
+        vendors" as the category this fleet's own duplicate-check reasoned
+        about. Followed the stricter no-brand-name precedent
+        (`vpat-acr-generator/vs-hiring-a-vpat-consultant.html`,
+        `home-inspection-fee-calculator/vs-franchise-fee-schedule.html`):
+        describes the paid alternative as a generic category, names no
+        specific vendor, and its footer's "not affiliated with, endorsed
+        by, or sponsored by any specific documentation platform or vendor"
+        line satisfies `platform/pages/clauses.mjs`'s trademark-disclaimer
+        check directly, with no need to add it to
+        `COMPARISON_DISCLAIMER_EXEMPT`. Linked one hop from `index.html`.
+      - >-
+        Chose this venture over the other 30 ventures under `ventures/`
+        with no `vs-*.html` yet: most of the rest are non-static apps
+        (Next.js, Python packages, a Swift watchface, CLIs) the comparison-
+        page pattern does not fit, or lack a README-attested paid-
+        alternative category to compare against honestly.
+      - >-
+        Verified: venture's own suite 43/43;
+        `faq-visible`/`faq-coverage`/`faq-duplicate`/`link`/`siblings`
+        (whole-portfolio sweeps) 81/81; `checklist_coverage.py` clean;
+        `clauses.mjs` reports the venture's 3 published pages carry their
+        required clauses. No open or recently-merged PR duplicated this
+        (checked `list_pull_requests` state:open — none — and
+        `search_pull_requests` for `llms-txt-generator` /
+        `vscode-extension-drift-check` / `codeowners-shadow-check`, the
+        other candidates considered — all prior PRs on those slugs already
+        merged and closed, nothing in flight).
+    mrr_end: 0
