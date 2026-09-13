@@ -148,6 +148,18 @@ const COPY_CONTROLS = ['button#copyShare', 'button#copyLink', 'button#shareLink'
 // excluded from the link by the page, correctly, so both are excluded here.
 const NOT_IN_A_LINK = new Set(['usageOptOut', 'optOut', 'pf-bid-name', 'remember']);
 
+// A page can collect one new item's fields in a form the page itself resets
+// (`form.reset()`) the instant a submission commits it to the state a share
+// link actually reads — `1099k-reconciliation-worksheet`'s `#row-form` is
+// the first of these to also carry a share link. These ids still need
+// editing, same as any other number field, so a submission has real data to
+// add; they are excluded only from the dropped-field comparison below,
+// because the reopened link's own add-form is *meant* to come back at its
+// reset default, not to match whatever the sender was mid-typing.
+const RESET_ON_SUBMIT = new Set([
+  'f-platform', 'f-box1a', 'f-refunds', 'f-salesTax', 'f-fees', 'f-cogs', 'f-shipping',
+]);
+
 /**
  * The proposal's prose terms, typed by this probe rather than left at default.
  *
@@ -332,15 +344,63 @@ async function roundTrip(browser, slug) {
     }
 
     const before = await page.evaluate(READ_FIELDS);
-    const beforeHero = await page.evaluate(READ_HERO);
+    let beforeHero = await page.evaluate(READ_HERO);
     await page.click(control);
     // A copy handler may await the clipboard write; give the microtask a turn.
     await page.waitForTimeout(120);
-    const link = await page.evaluate(() => window.__pfCopied);
+    let link = await page.evaluate(() => window.__pfCopied);
     const refusal = await page.evaluate(() =>
       document.getElementById('shareStatus')?.textContent
       ?? document.getElementById('pf-link-note')?.textContent
       ?? document.getElementById('status')?.textContent ?? '');
+
+    const marksOf = (value) => (typeof value === 'string'
+      ? [value.indexOf('?'), value.indexOf('#')].filter((at) => at >= 0)
+      : []);
+    let marks = marksOf(link);
+
+    // A worksheet can collect one item's fields in its own form and require
+    // an explicit "Add" submission before the item joins the state the
+    // share link reads — filling that form's number fields, above, edits a
+    // field the link never looks at, so it comes back empty. Found
+    // 2026-09-13 on `1099k-reconciliation-worksheet`'s `#row-form`, the
+    // first page to pair that shape with a share link: this probe reported
+    // "carries no bid", which reads like a dropped-everything failure, but
+    // the page's own share button already says the honest thing in this
+    // exact state ("Nothing entered yet — the link would open blank") — the
+    // form just needed submitting first, the way a visitor adding a
+    // platform actually would before sharing. Scoped to this branch only —
+    // a link that already carries something never reaches it — so it can
+    // only turn a hard failure into a real reading, never mask one.
+    if (typeof link === 'string' && marks.length === 0) {
+      const editedIds = numbers.filter((f) => !NOT_IN_A_LINK.has(f.id) && !f.id.includes('${')).map((f) => f.id);
+      const submitted = await page.evaluate((ids) => {
+        for (const form of document.querySelectorAll('form')) {
+          const submit = form.querySelector('button[type="submit"], input[type="submit"]');
+          if (!submit) continue;
+          if (![...form.elements].some((el) => ids.includes(el.id))) continue;
+          for (const input of form.querySelectorAll('input[required]')) {
+            if (!input.value) input.value = 'Sample';
+          }
+          submit.click();
+          return true;
+        }
+        return false;
+      }, editedIds);
+      if (submitted) {
+        // No `.hero-number` on these worksheets; the rollup a visitor would
+        // actually compare lives in `#stats` instead. Only read it here,
+        // in the branch that just proved a submit was needed — everywhere
+        // else this stays exactly the empty string it always was.
+        if (!beforeHero) {
+          beforeHero = await page.evaluate(() => document.getElementById('stats')?.textContent?.trim() ?? '');
+        }
+        await page.click(control);
+        await page.waitForTimeout(120);
+        link = await page.evaluate(() => window.__pfCopied);
+        marks = marksOf(link);
+      }
+    }
     await context.close();
 
     if (!link || typeof link !== 'string') {
@@ -356,13 +416,15 @@ async function roundTrip(browser, slug) {
     // own wording. Preferring `#` there reopened the tool with the terms and
     // none of the bid, and this probe reported 33 dropped fields and a moved
     // headline on a link a person would have pasted whole.
-    const marks = [link.indexOf('?'), link.indexOf('#')].filter((at) => at >= 0);
     if (marks.length === 0) return { slug, status: 'fail', detail: 'the copied link carries no bid' };
     const marker = Math.min(...marks);
 
     const second = await openTool(browser, slug, link.slice(marker));
     const after = await second.page.evaluate(READ_FIELDS);
-    const afterHero = await second.page.evaluate(READ_HERO);
+    let afterHero = await second.page.evaluate(READ_HERO);
+    if (!afterHero && beforeHero) {
+      afterHero = await second.page.evaluate(() => document.getElementById('stats')?.textContent?.trim() ?? '');
+    }
     await second.context.close();
 
     // One line per field, whatever the field holds: a proposal scope box runs
@@ -394,7 +456,7 @@ async function roundTrip(browser, slug) {
     const presetHandback = (id) => selectIds.has(id) && HANDBACK_VALUES.has(after[id]);
 
     const dropped = Object.keys(before)
-      .filter((id) => !NOT_IN_A_LINK.has(id) && id in after && !sameValue(before[id], after[id]))
+      .filter((id) => !NOT_IN_A_LINK.has(id) && !RESET_ON_SUBMIT.has(id) && id in after && !sameValue(before[id], after[id]))
       .filter((id) => !presetHandback(id))
       .map((id) => `${id} ${short(before[id])}→${short(after[id])}`);
     const pageErrors = [...errors, ...second.errors];
