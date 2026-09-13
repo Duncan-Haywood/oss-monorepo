@@ -1282,7 +1282,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 9, 'the eight named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 10, 'the nine named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -4341,6 +4341,19 @@ test('the catch-all holds only what no section claims', async () => {
   // correct ("my venture is not a cluster on its own") and the aggregate was
   // wrong, because nobody was looking at the aggregate. Prefer listing the
   // catch-all to reasoning about the one venture in front of you.
+  //
+  // Fired again 2026-09-13 at 6, and the bound is deliberately NOT raised --
+  // the answer was `food-service` in build.mjs, the third named section to
+  // come out of this guard. `caption-quality-check` was the arrival that
+  // tripped it, and judging that one venture would have produced another
+  // raise, because a caption checker is not a cluster on its own. Listing the
+  // six instead showed `menu-engineering-calculator` and
+  // `food-truck-event-margin-calculator` sharing an axis with
+  // `pour-cost-calculator`, which had been sitting in `services` for want of
+  // anywhere better: food and drink priced per item or per event. That left
+  // four genuinely unrelated tools here (electronics teaching calculators, a
+  // caption file checker, daycare tuition, a security deposit refund), which
+  // is the fallback working rather than a taxonomy gap.
   assert.ok(
     more.items.length <= 5,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,

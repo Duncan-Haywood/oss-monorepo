@@ -602,6 +602,7 @@ export const WHY_CATEGORY_WORD = {
   logistics: 'logistics',
   ci: 'ci',
   'solo-earner': 'solo-earner',
+  'food-service': 'food-service',
   more: 'more',
 };
 
