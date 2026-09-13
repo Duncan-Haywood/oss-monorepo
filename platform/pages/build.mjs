@@ -514,8 +514,27 @@ const CATEGORY_RULES = [
     // professional turning time, travel, and materials/add-ons into a
     // customer-facing price, not a trade bid (nothing priced by area of
     // construction work done to the site) and not a marketplace fee.
+    // `food-truck-event-margin-calculator` and `childcare-tuition-calculator`
+    // joined 2026-09-13, moved out of the catch-all rather than filed here on
+    // arrival. #4677 had just cleared the same guard by filing
+    // `caption-quality-check` under `ci`, which took the catch-all from six to
+    // exactly the bound — correct, and it left zero headroom, so the next
+    // venture to land anywhere unclaimed would have fired it again. These two
+    // are the rest of that answer, and neither is a stretch to fit the count:
+    // the food truck prices one private event, catering or festival booking
+    // out of prep time, travel, staff labour and a one-off special-event
+    // permit fee, which is `photo-booth-event-quote` and `bounce-house-rental`
+    // above with a kitchen attached; and the childcare provider prices a
+    // classroom seat out of its own child:staff ratio, staffing cost and
+    // overhead, then reads what an empty seat costs at each occupancy level —
+    // the same utilisation-against-fixed-cost arithmetic as
+    // `booth-rent-vs-commission` and the route members here. Neither is a
+    // trade bid (nothing is priced by area of construction work), a
+    // marketplace fee schedule, or a back-office reconciliation. Both slugs
+    // start with a word no prefix in this list would have guessed, which is
+    // the only reason either sat in the catch-all at all.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|food-truck-event|childcare-tuition)/.test(
         slug,
       ),
   },

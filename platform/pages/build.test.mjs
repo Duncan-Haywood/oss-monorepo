@@ -1310,6 +1310,14 @@ test('tools that belong to a named category are not left in the catch-all', () =
   // it in "More free tools" hid it from every seller already reading the
   // marketplace section that names it.
   assert.equal(categoryFor('whatnot-seller-payout').id, 'marketplace');
+  // These two left the catch-all on 2026-09-13, the day after #4677 cleared
+  // the bound by one. Pinned for the same reason as every line above: each sat
+  // in "More free tools" only because its slug started with a word no prefix
+  // rule guessed, not because no section wanted it — a food truck quoting one
+  // event and a daycare pricing a classroom seat are both this section's
+  // stated job.
+  assert.equal(categoryFor('food-truck-event-margin-calculator').id, 'services');
+  assert.equal(categoryFor('childcare-tuition-calculator').id, 'services');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
   assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');
@@ -4341,6 +4349,26 @@ test('the catch-all holds only what no section claims', async () => {
   // correct ("my venture is not a cluster on its own") and the aggregate was
   // wrong, because nobody was looking at the aggregate. Prefer listing the
   // catch-all to reasoning about the one venture in front of you.
+  //
+  // 5 -> 3 by placement on 2026-09-13, and the bound is deliberately left at
+  // 5. It had fired at six the day before; #4677 answered by filing
+  // `caption-quality-check` under `ci`, which is a defensible home for a
+  // checker with a CLI and which restored the bound — at exactly the bound,
+  // with no headroom, so the next venture landing anywhere unclaimed would
+  // have fired it again on arrival. Listing the remaining five (what the
+  // paragraph above asks for) showed two of them already had a named section
+  // wanting them: `food-truck-event-margin-calculator` and
+  // `childcare-tuition-calculator` -> `services`, both pinned in "tools that
+  // belong to a named category are not left in the catch-all" above with the
+  // reasoning in `build.mjs` beside the rule. The three that remain — an
+  // electronics-calculator hub, a restaurant menu-engineering classifier and a
+  // landlord/tenant deposit settlement — share no axis with each other or with
+  // any named section, so they are the fallback working rather than a gap.
+  //
+  // Keeping the bound at 5 with three members is the point of the exercise: a
+  // guard that sits permanently one arrival from firing produces raises, which
+  // is the failure the paragraph above describes. Two free slots is what lets
+  // the next genuinely-unclassifiable venture land without an argument.
   assert.ok(
     more.items.length <= 5,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
