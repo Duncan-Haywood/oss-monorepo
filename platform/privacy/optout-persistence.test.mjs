@@ -23,7 +23,12 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // recorder itself consults. That last jump is the point of the pinned count
 // rather than an embarrassment to it: a number that moves by 161 is a claim
 // worth restating deliberately, and the assertion made me restate it.
-const SWITCHES_IN_THE_CATALOGUE = 254;
+// 254 -> 255 on 2026-09-13, when `obsidian-plugin-review-check` (#4663)
+// merged with a `usage.mjs` opt-out following the same working pattern as
+// its sibling ventures -- missed by #4665's fix for this same venture's
+// other CI gap (the missing venture-scores.yaml row), which didn't touch
+// this file, so main stayed red here until now.
+const SWITCHES_IN_THE_CATALOGUE = 255;
 
 let counter = 0;
 function fixture(source) {
