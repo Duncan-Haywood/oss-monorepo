@@ -11783,3 +11783,79 @@ ventures:
       no revenue tied to the recommendation, only an unrelated optional
       donation link. Every disclosure it raises pushes toward re-checking
       a figure that would overstate the case for spending.
+
+  - slug: obsidian-plugin-review-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.167
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether versions.json carries an
+      entry for manifest.json's current version, whether a manifest field
+      still reads the obsidian-sample-plugin template's own placeholder
+      value (id "sample-plugin", name "Sample Plugin", author "Your
+      Name"), and whether source assigns innerHTML/outerHTML/
+      insertAdjacentHTML are all decided by pattern matching against
+      fixed field names and a fixed list of DOM APIs -- a factual,
+      deterministic comparison, not a model judgment, and it never claims
+      an obsidianmd/obsidian-releases review determination.
+    basis: >-
+      Graduated 2026-09-12 per portfolio/pipeline/README.md's "archetype
+      itself" section: the third instance of the "cross-check a
+      platform's own review-gating manifest/metadata against actual
+      source usage" shape, after chrome-extension-permission-check and
+      wordpress-plugin-review-check, for a third platform (Obsidian
+      community plugins) with disjoint audience, terminology
+      (manifest.json/versions.json, the Component API's registerDomEvent
+      auto-cleanup), and rejection reasons from either. duplicate_check.py
+      scored every existing venture, screened-out.md row, and pipeline
+      candidate below 0.16 against the final description -- the closest
+      matches were the other two platform-review checkers, well under the
+      0.45 review bar.
+      Autonomous ops 10 / gross margin 10: the browser page parses only
+      files a visitor selects and the CLI reads only a path its own
+      invoker names, so serving one more user or one more repo costs a
+      static file and needs no human review of any output.
+      Distribution 6, a point below chrome-extension-permission-check and
+      wordpress-plugin-review-check's 7: Obsidian's plugin-developer base
+      is real but smaller than either the Chrome Web Store's or
+      WordPress.org's, the same niche-platform-developer-population
+      reasoning that scored ios-privacy-manifest-check a 6. Named,
+      active channels exist regardless -- r/ObsidianMD, the official
+      Obsidian Discord's plugin-development channels, and the
+      obsidianmd/obsidian-releases GitHub repository's own PR review
+      comments, where every community-plugin submission is reviewed by
+      volunteer maintainers who routinely link back to the published
+      plugin guidelines on exactly these issues.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      pattern-matcher is easy to reimplement, so defensibility rests on
+      being first and correct for this exact manifest/versions cross-check
+      plus the two source-pattern checks, rather than on any moat --
+      matching both sibling checkers' scores on these two dimensions
+      exactly, since the underlying economics (no transaction, no lead
+      capture, static analysis only) are identical across all three.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass on both, per the reasoning already recorded in this venture's
+      own VENTURE.yaml. Liability containment: the product only reports
+      pattern-matches against Obsidian's own published developer
+      documentation (manifest field names, the versions.json mechanism,
+      the innerHTML/outerHTML security guidance) -- evidence, never a
+      determination that a submission will be approved, and every page
+      says so. No advice-of-record, no compliance warranty, no scraped
+      data; the tool reads only the files a visitor selects or a path the
+      CLI's own invoker names. Ethical robustness: no revenue model
+      conditions the tool's accuracy on over- or under-flagging, so a
+      false negative and a false positive cost the same nothing -- the
+      reviewer still makes the actual call. Getting more submissions
+      through review faster is strictly better for the developer as the
+      tool scales, never worse.
