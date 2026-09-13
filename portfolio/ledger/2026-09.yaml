@@ -30142,6 +30142,115 @@ entries:
         rule.
     mrr_end: 0
 
+  - venture: fleet-repair-or-replace-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Open-PR queue had exactly one PR
+        (#4679, vpat-acr-generator's comparison page) at the start -- fewer
+        than three existed, so per the mandate's own rule this session's job
+        was to process all of them rather than hunt for two more. Reviewed
+        it: `mergeable_state: unstable` with every check red in 2-4s
+        (`runner_id: 0`); confirmed starvation with `ci_starvation.py`
+        rather than assuming it, then verified locally in an isolated
+        worktree (venture suite 27/27, faq-visible/faq-coverage/
+        faq-duplicate/link/siblings 81/81, full marketing+pages 1257/1257,
+        check_ledger_only clean) before merging as #4679.
+      - >-
+        Checked the branch-to-PR presumption before starting new work.
+        `git branch -r` listed 520 remote branches; the clone was shallow,
+        so the first raw `rev-list` reading (thousands of commits "ahead")
+        was the shallow-clone artifact CLAUDE.md already warns about, not
+        real divergence -- unshallowed first (`git fetch --unshallow`,
+        then all branches locally) before trusting any comparison. Of 519
+        non-main branches, 213 carry commits `main` genuinely lacks.
+        Sampled 10 of the highest-value candidates (by commits-ahead,
+        including both branches whose names directly matched this
+        session's other mandate -- `agent/deploy-cicd-ledger-2868` and
+        `agent/marketing-distribution-gutter-guard-vs-jobnimbus`) against
+        `search_pull_requests(head:<branch>)`: all 10 already had one or
+        more closed PRs from prior sessions' triage passes, explicitly
+        titled `[stale]`/`[triage]`/"superseded"/"already shipped as #N".
+        Concluded the 213-branch backlog is not neglected work -- it is
+        already fully triaged, just not deleted -- and that opening ~200
+        more `[triage]` PRs to re-derive the same verdicts would itself be
+        the wasted duplicate effort CLAUDE.md's Duplicate-PRs section warns
+        against, not diligence. Did not open new triage PRs for the
+        remainder; a future session auditing this backlog should sample
+        first rather than assume it is unprocessed.
+      - >-
+        The owner also asked, in this same scheduled prompt, to prioritize
+        Hetzner deployment/CI-CD, marketing-material deployment on the
+        Hetzner VMs, and standing up Codex CLI there to consume its
+        included dev-work quota. Checked `infra_state.yaml` and
+        `decision_queue.py` rather than re-measuring blind: all three routes
+        (self-hosted CI runner, the Codex dev-host, and the cluster serving
+        `marisstella.dev`) are already built and tested (per #4670's
+        `codex-host-mode` refresh earlier the same day) and every one is
+        still blocked on the single owner-only credential ranked #1 in the
+        decision queue for 9 days running -- `hetzner-ssh-key-is-a-public-key`
+        -- which needs the owner's own machine (a web/agent session's egress
+        proxy cannot reach `:22` regardless of which key it holds). Did not
+        re-run that measurement or add a duplicate ask.
+      - >-
+        With the PR queue empty, the branch backlog confirmed
+        already-triaged, and Hetzner genuinely owner-blocked, continued the
+        proven comparison-page pattern for a venture that had none:
+        `fleet-repair-or-replace-planner`'s own VENTURE.yaml already frames
+        its competition as "equipment dealers, fleet-leasing companies and
+        fleet-management SaaS vendors, all of whom... gate the multi-asset
+        version behind a demo or a subscription" -- but names no specific
+        product and no public pricing was verified this session, so
+        `vs-fleet-management-software.html` compares against the generic
+        category (paid fleet management/maintenance software: continuous
+        per-vehicle tracking, work orders, inspections, telematics) rather
+        than inventing a named-firm claim, matching the stricter disclaimer
+        precedent used on `vpat-acr-generator` and
+        `dental-ppo-writeoff-calculator`'s own generic comparisons. The real
+        tradeoff: that category tracks fleets continuously for a recurring
+        fee; this planner answers one narrower, free, occasional question --
+        which assets pay to replace this year, ranked against a capital
+        budget -- and the two are complementary rather than competing.
+      - >-
+        Caught two defects before opening a PR, both instances of failure
+        modes this file already records: (1) the JSON-LD `FAQPage` text used
+        literal `--` where the visible prose used `&mdash;`, the same
+        literal-dash-vs-mdash mismatch #4670/#4673/#4675/#4679 each
+        independently caught -- fixed by writing real em-dash characters
+        into the JSON-LD rather than the escape sequence. (2)
+        `clauses.test.mjs` failed both `every ... page carries the clause`
+        assertions: a `vs-<competitor>`-shaped filename requires the literal
+        phrase "not affiliated with" (`platform/pages/clauses.mjs`'s
+        `NOT_AFFILIATED` pattern), which the first footer draft's paraphrase
+        ("does not name, evaluate, or claim affiliation with") did not
+        literally contain -- fixed by rewording the footer to state it
+        directly rather than adding a special-case exemption, since the page
+        is a genuine vs-page and the disclaimer is simply true as stated.
+        Re-ran `node platform/marketing/regen.mjs` after each content edit
+        (a stale mirror is a false-negative source this file has recorded
+        before) and the whole-portfolio suites after that.
+      - >-
+        Verified: venture's own suite 60/60; whole-portfolio
+        faq-visible/faq-coverage/faq-duplicate/link/siblings 81/81 (0 after
+        the two fixes above, re-confirmed 81/81 clean); marketing+pages
+        1257/1257 post-regen; proposal+privacy+webcheck 242/242;
+        `platform/ci`'s 21-module unittest sweep + `agent_review`'s
+        `test_review`; `gitops/tests` 581 passed/1 skipped (installed
+        `python3-pytest`/`nginx-light`/`openssh-client` via `apt-get update
+        && apt-get install`, the documented pip-timeout workaround);
+        `portfolio/{ledger,scoring,router,usage,pipeline} infra/tests` 446
+        passed; all 8 `portfolio-validate.yml` validators individually;
+        `checklist_coverage.py`, `check_ledger_only.py`,
+        `check_no_payment_code.py`, `usage_state.py --require-honest`, and
+        `guard_state.py --require-runnable` (1 ENVIRONMENTAL skip, 0
+        fixable) all clean. No new form input was added by this change (a
+        static comparison page, no `<input>`/`<form>`), so the browser-check
+        sweep's staleness (recorded separately, dated the same day) was not
+        re-run for this diff per the "touches markup a user types into"
+        trigger in CLAUDE.md -- it does not apply here.
+    mrr_end: 0
+
   - venture: cat-adjuster-fee-calculator
     agent_spend_usd: null
     human_hours: 0
