@@ -31,7 +31,7 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // 255 -> 256 on 2026-09-13, when `caption-quality-check` shipped with a
 // `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
 // redirect-chain-check and its siblings.
-const SWITCHES_IN_THE_CATALOGUE = 256;
+const SWITCHES_IN_THE_CATALOGUE = 257;
 
 let counter = 0;
 function fixture(source) {
