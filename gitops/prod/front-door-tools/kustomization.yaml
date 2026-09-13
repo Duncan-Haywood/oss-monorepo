@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 123 files, 553583 bytes
 #   portfolio-front-tools-5: 134 files, 551815 bytes
 #   portfolio-front-tools-6: 130 files, 553376 bytes
-#   portfolio-front-tools-7: 120 files, 543298 bytes
+#   portfolio-front-tools-7: 121 files, 547167 bytes
 #   portfolio-front-tools-8: 112 files, 556245 bytes
 #   portfolio-front-tools-9: 112 files, 541749 bytes
 #   portfolio-front-tools-10: 120 files, 555377 bytes
@@ -1103,6 +1103,7 @@ configMapGenerator:
       - fleet-repair-or-replace-planner__index.html.gz=fleet-repair-or-replace-planner__index.html.gz
       - fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz=fleet-repair-or-replace-planner__is-it-cheaper-to-repair-or-replace-a-work-truck.html.gz
       - fleet-repair-or-replace-planner__usage.mjs.gz=fleet-repair-or-replace-planner__usage.mjs.gz
+      - fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz=fleet-repair-or-replace-planner__vs-fleet-management-software.html.gz
       - flooring-bid-calculator__calc.mjs.gz=flooring-bid-calculator__calc.mjs.gz
       - flooring-bid-calculator__how-much-to-charge.html.gz=flooring-bid-calculator__how-much-to-charge.html.gz
       - flooring-bid-calculator__index.html.gz=flooring-bid-calculator__index.html.gz
