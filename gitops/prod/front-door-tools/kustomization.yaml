@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 148 files, 556489 bytes
 #   portfolio-front-tools-3: 138 files, 556696 bytes
 #   portfolio-front-tools-4: 123 files, 553583 bytes
-#   portfolio-front-tools-5: 134 files, 551815 bytes
+#   portfolio-front-tools-5: 135 files, 555909 bytes
 #   portfolio-front-tools-6: 130 files, 553376 bytes
 #   portfolio-front-tools-7: 120 files, 543298 bytes
 #   portfolio-front-tools-8: 112 files, 556245 bytes
@@ -786,6 +786,7 @@ configMapGenerator:
       - cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz=cat-adjuster-fee-calculator__is-this-cat-adjuster-fee-schedule-worth-it.html.gz
       - cat-adjuster-fee-calculator__share.mjs.gz=cat-adjuster-fee-calculator__share.mjs.gz
       - cat-adjuster-fee-calculator__usage.mjs.gz=cat-adjuster-fee-calculator__usage.mjs.gz
+      - cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz=cat-adjuster-fee-calculator__vs-spreadsheet-comparison.html.gz
       - certified-payroll-calculator__calc.mjs.gz=certified-payroll-calculator__calc.mjs.gz
       - certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz=certified-payroll-calculator__does-overtime-include-fringe-benefits-on-certified-payroll.html.gz
       - certified-payroll-calculator__index.html.gz=certified-payroll-calculator__index.html.gz
