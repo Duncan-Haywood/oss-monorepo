@@ -45,3 +45,16 @@ test("page carries the no-warranty clause and a working sponsor link", () => {
   assert.match(page, /no warranty/i);
   assert.match(page, /github\.com\/sponsors\/Duncan-Haywood/);
 });
+
+// Closest cross-cutting sibling for a Title II remediation plan that
+// includes video/course content: caption quality is a separate,
+// unenforced question from WCAG 1.2.2 captions merely existing. Without an
+// explicit one-hop link, a crawler landing here has no path to that tool.
+test("index links one hop to the caption-quality-check sibling", () => {
+  assert.match(
+    page,
+    /href="\.\.\/caption-quality-check\/"/,
+    "index must link ../caption-quality-check/ so crawlers reach the caption checker in one hop",
+  );
+  assert.match(page, /Caption Quality Checker/);
+});

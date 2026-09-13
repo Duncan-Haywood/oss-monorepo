@@ -179,6 +179,9 @@ workflows:
 - workflow: canonical-tag-check-ci.yml
   classification: none
   publishes: []
+- workflow: caption-quality-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: card-processing-fee-audit-ci.yml
   classification: none
   publishes: []
