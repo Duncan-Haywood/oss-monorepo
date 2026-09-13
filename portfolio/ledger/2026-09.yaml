@@ -29812,3 +29812,66 @@ entries:
         highlight-style promise, which is a legitimate skip per the check's
         own message, not a failure.
     mrr_end: 0
+  - venture: caption-quality-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, zero-dependency CLI + browser tool
+        checking an SRT/WebVTT caption file's cues against commonly-used
+        caption style-guide thresholds (reading speed in characters/second,
+        min/max duration, line length, lines per cue, overlapping cues,
+        too-short gaps, invalid/out-of-order timing, empty cues) --
+        readability, a separate and unenforced question from whether
+        captions merely exist under WCAG 1.2.2 / Section 508. Screened per
+        pipeline/README.md's "archetype itself" section: not another
+        <trade>-bid-calculator (141/280) or SEO/security -checker (38+/280)
+        -- a checker, but in a domain (caption/subtitle accessibility) the
+        portfolio had not touched. `duplicate_check.py` scored every
+        existing venture, screened-out row, and pipeline candidate below
+        0.14 against the final description, well under the 0.45 bar. Named
+        channel: video creators/course producers/accessibility reviewers
+        asking "why are my captions too fast" (r/VideoEditing, r/Twitch,
+        creator forums); paid caption-QC review already sold inside 3Play
+        Media/Verbit/Rev's commercial captioning services is evidence of
+        real willingness to pay for this exact check.
+      - >-
+        Full PRODUCT_PLAYBOOK.md slice: engine.mjs (pure parsing/
+        classification, 29 tests), check.mjs CLI (8 tests), usage.mjs
+        opt-out-capable local counter (9 tests), index.html +
+        why-caption-quality-matters.html with disclaimers/privacy line/
+        sponsor link/JSON-LD (18 page tests) -- 64/64 venture tests pass.
+        VENTURE.yaml with scored hypotheses; venture-scores.yaml row
+        (composite 5.833, both gates pass); .github/workflows/
+        caption-quality-check-ci.yml recorded in publish-surface.yaml.
+      - >-
+        Cross-cutting fixes this shipment required: mirrored-tool-count
+        prose 270->271 in infra/OWNER_CHECKLIST.md (x3), aggregate.py,
+        default.conf (x2), and test_manifests.py's pinned total;
+        gitops/ci/README.md's runs-on-switch count via
+        sync_readme_counts.py; platform/privacy/optout-persistence.test.mjs's
+        pinned SWITCHES_IN_THE_CATALOGUE 255->256; closed the crawlable-
+        orphan this venture introduced with a reciprocal link + test to
+        ada-title-ii-evidence; fixed an em-dash vs "--" mismatch between
+        this venture's FAQPage JSON-LD and its visible prose
+        (faq-visible.test.mjs); ran launched.mjs --write and regen.mjs
+        (twice) so the mirror/front-door/feed/catalog/llms.txt are current;
+        merged origin/main (advanced by an unrelated PR touching the same
+        generated mirror artifacts) and re-ran regen.mjs to reconcile
+        rather than hand-merging binary .gz conflicts.
+      - >-
+        Verified (Actions starved this session, per ci_starvation.py):
+        venture's own suite 64/64; gitops/tests 581 passed/1 skip
+        (environmental -- guard_state.py --require-runnable confirmed no
+        fixable skips after installing nginx-light/openssh-client);
+        platform/ci's 15 unittest modules + agent_review 21/21 all green;
+        portfolio/{ledger,scoring,router,usage,pipeline} + infra/tests 446
+        passed; platform/marketing 262/262; platform/pages full suite
+        994/995 (the one failure, build.test.mjs's "the catch-all holds
+        only what no section claims", confirmed pre-existing and unrelated
+        via a git-stash A/B test against the tree before this venture's
+        changes); platform/proposal 101/101, platform/privacy 82/82,
+        platform/webcheck 59/59; router/validate.py (279 ventures),
+        score_ventures.py --check, publish_surface.py --check,
+        checklist_coverage.py, clauses.mjs all clean. Merged as PR #4672.
+    mrr_end: 0
