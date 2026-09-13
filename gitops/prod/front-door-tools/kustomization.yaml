@@ -47,7 +47,7 @@
 #   portfolio-front-tools-11: 127 files, 551560 bytes
 #   portfolio-front-tools-12: 101 files, 554035 bytes
 #   portfolio-front-tools-13: 113 files, 555151 bytes
-#   portfolio-front-tools-14: 59 files, 295063 bytes
+#   portfolio-front-tools-14: 60 files, 299195 bytes
 #   portfolio-front-tools-15: 52 files, 266139 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1874,6 +1874,7 @@ configMapGenerator:
       - vpat-acr-generator__calc.mjs.gz=vpat-acr-generator__calc.mjs.gz
       - vpat-acr-generator__index.html.gz=vpat-acr-generator__index.html.gz
       - vpat-acr-generator__usage.mjs.gz=vpat-acr-generator__usage.mjs.gz
+      - vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz=vpat-acr-generator__vs-hiring-a-vpat-consultant.html.gz
       - vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz=vpat-acr-generator__why-procurement-rejects-a-vpat.html.gz
       - vscode-extension-drift-check__cli.mjs.gz=vscode-extension-drift-check__cli.mjs.gz
       - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
