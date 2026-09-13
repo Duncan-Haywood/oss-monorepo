@@ -4358,9 +4358,10 @@ test('the catch-all holds only what no section claims', async () => {
   // still nearly did not get acted on. It fired at six and was red on `main`
   // for two days: Actions has been starved since 2026-09-04, so nothing ran
   // it, and two sessions each classified the failure as "pre-existing and
-  // unrelated" after an honest git-stash A/B against their own change. Both
-  // readings were correct; neither fixed it. It took a session treating a red
-  // `main` as its own problem — which is what CLAUDE.md's
+  // unrelated" after an honest git-stash A/B against their own change (this
+  // venture's own PR, `court-reporter-transcript-calculator`, was a third).
+  // All readings were correct; none fixed it alone. It took a session
+  // treating a red `main` as its own problem — which is what CLAUDE.md's
   // `run_workflow_locally.py --tree` line exists to force.
   //
   // Then three sessions answered it at once, and the aggregate came out right

@@ -30266,3 +30266,99 @@ entries:
         other candidates considered — all prior PRs on those slugs already
         merged and closed, nothing in flight).
     mrr_end: 0
+
+  - venture: court-reporter-transcript-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, browser-only calculator for freelance
+        court reporters and deposition stenographers -- turns page count,
+        turnaround speed, travel, certified copies, exhibits, rough draft
+        and realtime into a deposition transcript invoice total and an
+        effective hourly rate (with a copyable plain-text invoice
+        summary), plus a separate agency-offer check that turns an
+        agency's flat per-page offer into an effective hourly rate against
+        a reporter's own target. Screened per pipeline/README.md's
+        "archetype itself" section: not another <trade>-bid-calculator
+        (141/281) or SEO/security -checker (38+/281) -- a
+        professional-services niche this portfolio had not touched, with a
+        billing shape (a flat appearance fee stacked on a per-page rate
+        that itself multiplies by turnaround speed) distinct from every
+        existing venture here. `duplicate_check.py` scored the final
+        description below 0.13 against every existing venture, pipeline
+        candidate, screened-out row, and ai-first-markets idea, well under
+        the 0.45 bar -- after two adjacent niches were checked and set
+        aside first: a mobile-notary income-planning angle scored 0.26
+        against the existing notary-trip-quote venture (same audience,
+        thinner variant of its existing per-job quote), and an
+        AI-crawler-access checker scored 0.49 against the existing
+        ai-crawler-access-check venture. Named channel: r/courtreporting
+        and NCRA (National Court Reporters Association) member forums both
+        see recurring "how much should I charge for a rush transcript" and
+        "is this agency offer worth taking" threads, with real search
+        volume ("court reporter transcript rate calculator", "deposition
+        transcript pricing").
+      - >-
+        Full PRODUCT_PLAYBOOK.md slice: calculator.mjs (pure arithmetic,
+        no dependencies, 19 tests covering both calculators, negative/
+        non-finite input handling, and the plain-text invoice-summary
+        renderer), usage.mjs opt-out-capable local counter (8 tests),
+        index.html with both calculators, disclaimers, privacy line,
+        sponsor link, FAQPage + SoftwareApplication JSON-LD verified
+        character-for-character against the visible FAQ prose, and a
+        reciprocal sibling link to notary-trip-quote (15 page tests) --
+        42/42 venture tests pass. VENTURE.yaml with scored hypotheses
+        (gates: liability_containment 8, ethical_robustness 8);
+        venture-scores.yaml row (composite 5.833, both gates pass);
+        .github/workflows/court-reporter-transcript-calculator-ci.yml
+        recorded in publish-surface.yaml.
+      - >-
+        Cross-cutting fixes this shipment required, all pre-existing gaps
+        exposed by adding the 281st mirrored tool rather than defects this
+        venture introduced: mirrored-tool-count prose 271->272 in
+        infra/OWNER_CHECKLIST.md (x3), aggregate.py, default.conf,
+        test_manifests.py's pinned total; gitops/ci/README.md's
+        runs-on-switch count via sync_readme_counts.py (my new venture's
+        CI workflow added a job); platform/privacy/optout-persistence.
+        test.mjs's pinned SWITCHES_IN_THE_CATALOGUE 256->257; ran
+        launched.mjs --write and regen.mjs so the mirror/front-door/feed/
+        catalog/llms.txt are current; filed the venture under build.mjs's
+        `services` category (solo professional pricing one job for a
+        client, alongside notary-trip-quote) rather than leaving it in the
+        catch-all. Also found a genuinely pre-existing, unrelated break:
+        build.test.mjs's catch-all-size bound (5) was already exceeded by 6
+        members on `main` before this venture touched anything -- confirmed
+        via a git-stash A/B test putting the working tree back to `main`'s
+        state, where the same assertion failed identically. Before
+        re-categorizing any of the other five by hand, merged
+        `origin/main` (which had advanced during this session) and found
+        two concurrent sessions had already fixed the same break
+        independently: #4677 filed `caption-quality-check` into `ci` and
+        `security-deposit-return-calculator` into `backoffice`, and a
+        sibling `cat-adjuster-fee-calculator` session's branch (merged as
+        part of the same `origin/main` advance) filed
+        `childcare-tuition-calculator` and
+        `food-truck-event-margin-calculator` into `services`. So the bound
+        needed no raising after all -- resolved the resulting `build.mjs`
+        merge conflict by keeping both sets of category-rule additions
+        (theirs plus this venture's own) rather than picking a side, and
+        left the test's bound comment recording what actually happened
+        instead of the raise this session almost made permanent.
+      - >-
+        Verified: venture's own suite 42/42; gitops/tests 581 passed/1
+        skip (environmental -- guard_state.py --require-runnable confirmed
+        no fixable skips after installing nginx-light/openssh-client);
+        platform/ci's 25 unittest modules (932 tests) + agent_review 21/21
+        all green; portfolio/{ledger,scoring,router,usage,pipeline} +
+        infra/tests 446 passed; platform/marketing + platform/pages full
+        suite 1257/1257 (after the catch-all-bound and mirrored-count
+        fixes above); platform/proposal 101/101, platform/privacy 82/82,
+        platform/webcheck 59/59; router/validate.py (280 ventures),
+        score_ventures.py --check, publish_surface.py --check (--write
+        run for the new workflow), checklist_coverage.py,
+        validate_candidates.py, validate_doc_consistency.py,
+        validate_probe_index.py, score_sensitivity.py, validate_usage.py,
+        check_no_payment_code.py, clauses.mjs all clean. Merged as PR
+        #4689.
+    mrr_end: 0
