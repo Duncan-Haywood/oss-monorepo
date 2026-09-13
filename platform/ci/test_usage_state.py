@@ -135,6 +135,26 @@ class ClaimScanning(unittest.TestCase):
             (ledger / "2026-09.yaml").write_text("note: records zero observed users\n")
             self.assertEqual(state.find_claims(root), [])
 
+    def test_asks_yaml_is_scanned_even_though_it_lives_in_the_ledger(self):
+        """The live queue is not history, and it is the surface the owner reads.
+
+        Measured 2026-09-13: the `pages-custom-domain` ask said "`usage.yaml`
+        records zero visitors across all 200 products" and this check reported
+        `claims honest`, because the exclusion was written against the ledger
+        *directory* rather than against dated history. `decision_queue.py`
+        renders `asks.yaml` as present-tense fact on every run, so an overclaim
+        there reaches the owner in the one place whose purpose is deciding
+        which product deserves the next hour -- and it inverts the decision,
+        because "records zero" is evidence against a product where "never
+        measured" is evidence about nothing.
+        """
+        hits = self._scan(
+            "unlocks: usage.yaml records zero visitors across all 200 products.\n",
+            name="portfolio/ledger/asks.yaml",
+        )
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0][0], "portfolio/ledger/asks.yaml")
+
 
 class Verdict(unittest.TestCase):
     """`honest` needs BOTH halves, so the gate opens from either side."""

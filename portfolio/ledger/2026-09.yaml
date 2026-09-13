@@ -30147,19 +30147,104 @@ entries:
     human_hours: 0
     outcomes:
       - >-
-        Scheduled autonomous session, product-first mandate. Open-PR queue
-        was empty on arrival: the one PR present at session start (#4673)
-        was independently repaired (a real merge conflict in
-        portfolio/ledger/2026-09.yaml, two sessions appending different
-        entries at the same anchor) and merged by a concurrent session
+        Scheduled autonomous session (a separate concurrent firing). Reviewed
+        the sole open PR (#4673, home-inspection-fee-calculator's comparison
+        page): sound, well-tested, additive marketing content. A concurrent
+        session had already pushed a merge resolving the same `main`-drift
+        conflict (`portfolio/ledger/2026-09.yaml`) directly to the PR branch
+        while this session was independently resolving the identical
+        conflict locally -- discarded this session's own redundant merge
+        commit and re-verified the concurrent session's resolution instead
+        (regen.mjs reported no drift; full local checklist re-run clean)
+        rather than overwrite it. Merged as #4673. That left the
+        repairable-PR queue empty (fewer than three existed).
+      - >-
+        Surveyed the branch backlog per the "branch-to-PR presumption"
+        instruction: 515 non-main branches exist. Bulk ancestor-check found
+        only 16 are literal git ancestors of main, but a random sample of
+        72 branches (12 + 60) all had a zero-line diff against `main`
+        outside the append-only ledger file -- i.e. their content is
+        already fully shipped (squash/rebase-merged elsewhere), just not a
+        literal git ancestor. This is git hygiene debt (undeleted branches
+        after merge), not a real backlog of unshipped work, so no new PRs
+        were opened from it; opening hundreds of no-op PRs would be pure
+        overhead. Left branch deletion to the owner rather than mass-delete
+        500+ refs unilaterally in a shared multi-agent repo.
+      - >-
+        The owner asked directly (same recurring scheduled prompt) to
+        prioritize Hetzner deployment/CI-CD, marketing-material deployment
+        on the Hetzner VMs, and a Codex CLI dev-worker there. This was
+        already re-verified in this exact session's own immediately-prior
+        run today (2026-09-13, folded into #4670's ledger entry above):
+        codex-host-mode is fully built and tested (56/56 tests,
+        `systemd-analyze verify` clean), and every Hetzner route is blocked
+        on the single owner action already ranked #1 in decision_queue.py
+        (`hetzner-ssh-key-is-a-public-key`, plus four other credentials
+        only the owner holds). Nothing had changed since that reading a few
+        hours earlier, so did not re-run the same 56-test suite again
+        (per the spirit of not re-verifying an unchanged finding) --
+        confirmed only that the infra_state.yaml note was still current.
+      - >-
+        With Hetzner genuinely owner-blocked and the PR queue and branch
+        backlog both clear of real work, shipped
+        `ventures/cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html`
+        -- one of 15 ventures lacking this portfolio's proven organic-search
+        asset. No single named commercial competitor exists for this niche,
+        so framed against the honest alternative the venture's own
+        `kill_criteria` already names ("a fee-schedule spreadsheet or mental
+        math"), matching the precedent of three existing generic
+        (non-branded) comparison pages in this portfolio. Required adding
+        the page to `platform/pages/clauses.mjs`'s
+        `COMPARISON_DISCLAIMER_EXEMPT` set (caught by
+        `clauses.test.mjs`'s real-tree walk): a `vs-*.html` filename is
+        otherwise treated as naming a competitor and required a "not
+        affiliated with" disclaimer, which would have been a fabricated
+        claim about a company that does not exist here.
+      - >-
+        Verified: venture's own tests 50/50 (71/71 after the clauses fix
+        re-run); full `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        suite 1256/1257 both before and after this venture's changes -- the
+        one failure is `build.test.mjs`'s pre-existing "the catch-all holds
+        only what no section claims", unrelated to captions/comparisons/
+        this venture, already documented as such in #4672's ledger entry
+        above; `platform/pages/clauses.test.mjs` 21/21 after the exemption
+        fix (was 2 failures before it: the real-venture-tree disclaimer
+        walk correctly caught the missing exemption); `gitops/tests` 581
+        passed/1 skipped (environmental, nginx-light + openssh-client
+        installed via apt); full `platform/ci` 15-module unittest sweep +
+        `agent_review`'s `test_review` all green; `pytest
+        portfolio/{ledger,scoring,router,usage,pipeline} infra/tests` 446
+        passed (twice, before and after); `score_ventures.py --check`,
+        `checklist_coverage.py`, `guard_state.py --require-runnable` (no
+        fixable skips), `usage_state.py --require-honest`,
+        `check_no_payment_code.py`, `check_ledger_only.py`,
+        `router/validate.py`, and the doc-consistency/candidates/usage
+        validators all clean. `run_workflow_locally.py --tree` was
+        attempted but hit its own 600s timeout partway through the full
+        verification-only sweep; not re-attempted given every individual
+        required suite above already passed and `ci_starvation.py`
+        confirmed the PR's own red checks were starvation, not real
+        failures.
+    mrr_end: 0
+
+  - venture: cat-adjuster-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, product-first mandate, running
+        concurrently with the session above. Open-PR queue was empty on
+        arrival: the one PR present at session start (#4673) was
+        independently repaired (a real merge conflict in
+        portfolio/ledger/2026-09.yaml) and merged by a concurrent session
         while this one was verifying the same resolution -- confirmed via
         pull_request_read (merged_at 06:24:33Z) rather than pushed a
         redundant duplicate. A separate concurrent session's own
-        branch-backlog audit (#4674, landed moments later) had already run
-        supersede_check.py against all 208 remote branches carrying commits
-        ahead of main and found every one SUPERSEDED or STALE DRAFT -- no
-        unshipped product work in the backlog, so the branch-to-PR
-        conversion phase needed no further action either.
+        branch-backlog audit (#4674) had already run supersede_check.py
+        against all 208 remote branches carrying commits ahead of main and
+        found every one SUPERSEDED or STALE DRAFT -- no unshipped work in
+        the backlog, so the branch-to-PR conversion phase needed no further
+        action either.
       - >-
         The owner also asked directly to prioritize Hetzner deployment/
         CI-CD, marketing-material deployment on the Hetzner VMs, and a
@@ -30176,43 +30261,48 @@ entries:
         was scheduled and no one was watching the transcript live.
       - >-
         With Hetzner genuinely owner-blocked and the PR/branch backlog
-        already drained by concurrent sessions, shipped a comparison page
-        for cat-adjuster-fee-calculator (one of 22 ventures with a product
-        page but no comparison page after #4679's vpat-acr-generator page
-        landed mid-session) -- framed against the generic practice of
-        judging a deployment offer by its headline per-claim rate alone,
-        naming no specific IA firm (this niche has no single named
-        incumbent the way home-inspection franchises do). Caught the same
+        already drained, independently picked the same venture
+        (cat-adjuster-fee-calculator) as the concurrent session above and
+        shipped a second comparison page,
+        `vs-the-headline-per-claim-rate.html`, framed against the generic
+        practice of judging a deployment offer by its headline per-claim
+        rate alone -- a different query intent from the concurrent
+        session's `vs-spreadsheet-comparison.html`. Discovered the
+        collision only at push time, after both pages were already
+        written and verified. Kept both rather than discarding either:
+        this portfolio already has ventures with more than one comparison
+        page targeting different angles (3pl-quote-normalizer has both
+        `vs-extensiv.html` and `vs-shipbob.html`), so two pages on
+        different long-tail queries for the same venture is precedented,
+        additive SEO surface, not redundant work. Caught the same
         em-dash-vs-literal-"--" FAQPage JSON-LD mismatch #4670/#4672/#4675
         all hit; fixed by matching the JSON-LD text to the rendered
-        em-dash exactly rather than the other way around. Also needed the
-        "not affiliated with" clause text since the page's vs- filename
-        triggers clauses.mjs's trademark-disclaimer check regardless of
-        content, matching the generic-category voice #4673's own
-        comparison page already uses.
+        em-dash exactly. Used the "not affiliated with" clause phrase
+        (matching #4673's generic-category voice) rather than the
+        concurrent session's `COMPARISON_DISCLAIMER_EXEMPT` entry --
+        both satisfy `clauses.mjs`, and the concurrent session's edit to
+        that shared list is kept as-is rather than duplicated.
       - >-
-        `main` advanced from `133c62af` to `ebd29851a` (#4678-#4680, three
-        concurrent sessions' work: a browser-sweep record,
-        vpat-acr-generator's own comparison page, and the fix for the
-        pre-existing build.test.mjs catch-all failure this session had
-        independently confirmed via a separate git worktree A/B test)
-        mid-session. Merged with a real conflict in the front-door mirror
-        (kustomization.yaml plus three generated .gz/.txt artifacts, both
-        sides having shifted the mirror by adding a page) and a second
-        ledger-append conflict at the same anchor as before -- resolved the
-        mirror with `platform/marketing/resolve-mirror-merge.sh` per its
-        own header, took `origin/main`'s copy of the three other generated
-        files, then re-ran `regen.mjs`; kept both ledger entries.
+        `main` advanced from `133c62af` through `ebd29851a` (#4678-#4680)
+        to `cc1e29d62` (#4682, the concurrent session's own
+        cat-adjuster-fee-calculator page, plus #4683) mid-session, across
+        two separate merges. Each carried a real conflict in the generated
+        front-door mirror and a ledger-append conflict at the same anchor;
+        resolved the mirror both times with
+        `platform/marketing/resolve-mirror-merge.sh` per its own header
+        (taking `origin/main`'s copy of the handful of generated files the
+        script itself doesn't cover, then re-running `regen.mjs` an extra
+        time until the full suite came back clean), and kept every ledger
+        entry from both sides rather than picking one.
       - >-
-        Verified post-merge: venture's own tests 50/50; full
-        platform/marketing/*.test.mjs platform/pages/*.test.mjs suite
-        1257/1257 (zero failures -- #4680 closed the catch-all gap this
-        session had been seeing all along); platform/proposal +
-        platform/privacy + platform/webcheck 242/242; gitops/tests 581
-        passed/1 skipped (ENVIRONMENTAL); router/validate.py (279
-        ventures), score_ventures.py --check, checklist_coverage.py,
-        check_no_payment_code.py, guard_state.py --require-runnable (no
-        fixable skips), usage_state.py --require-honest,
-        validate_doc_consistency.py, validate_candidates.py,
-        validate_usage.py, publish_surface.py --check all clean.
+        Verified post-merge: venture's own tests (both pages) passing;
+        full `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        suite 1257/1257 (zero failures); `platform/proposal` +
+        `platform/privacy` + `platform/webcheck` 242/242; `gitops/tests`
+        581 passed/1 skipped (ENVIRONMENTAL); `router/validate.py` (279
+        ventures), `score_ventures.py --check`, `checklist_coverage.py`,
+        `check_no_payment_code.py`, `guard_state.py --require-runnable`
+        (no fixable skips), `usage_state.py --require-honest`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_usage.py`, `publish_surface.py --check` all clean.
     mrr_end: 0
