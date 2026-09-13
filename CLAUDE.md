@@ -980,6 +980,51 @@ Without it there is no merge base with `main`, so `git merge` refuses with
 of files. That is the clone, not the branch — do not read it as a conflict
 or as a reason to close anything.
 
+**And `git fetch --unshallow` on its own is not proof you are out of that
+state (measured 2026-09-13).** If you fetched one branch by name earlier in
+the session — `git fetch origin main`, which every session here does to read
+the tip — that ref is deepened to exactly one commit and a later bare
+`--unshallow` **does not go back for it**. The repository then reports itself
+complete while `main` alone is a stump:
+
+```
+git rev-parse --is-shallow-repository   # false
+ls .git/shallow                         # absent
+git rev-list --count origin/main        # 1      <-- the whole history
+git rev-list --max-parents=0 origin/main   # main's own TIP, as a root commit
+```
+
+So the remedy this paragraph prescribes reports success and leaves the exact
+symptom it warns about, which is worse than the plain shallow case: there,
+`is-shallow-repository` tells you. Both readings then point somewhere wrong,
+and neither looks like a clone artifact:
+
+- `git merge origin/main` → `refusing to merge unrelated histories`, and
+  `git merge-base origin/main <branch>` is empty. That reads as *`main` has
+  been rebuilt or force-pushed*, which is a much more alarming conclusion
+  than the truth and invites archaeology into a non-problem. (This session
+  reached it, briefly.)
+- `git rev-list --count origin/main..<branch>` reports ~7,100 for **every**
+  branch, because the counted range is the branch's entire history. A sweep
+  of all 506 then says every branch carries thousands of unique commits —
+  which argues equally for mass PR creation and for dismissing the whole set,
+  and is the same "thousands of files" misreading one level up.
+
+The fix is to name the ref: `git fetch --unshallow origin main`. Measured the
+same minute, that took `main` from 1 commit to 7,177 and 11 roots, and the
+branch sweep from "506 branches, ~7,100 commits each" to **207 with commits
+not on `main`, 299 fully contained** — which is a number you can act on.
+
+Check the count, never the flag. `git rev-list --count origin/main` in the
+hundreds or more is the cheap assertion; `1` means you are in this state
+whatever `is-shallow-repository` says.
+
+Note what this does *not* touch, because it is the reason the error above was
+caught rather than acted on: anything reading file **content** at a ref is
+unaffected. `git show origin/main:<path>` and `supersede_check.py` were both
+correct throughout — only history-shaped questions (merge base, commit
+counts, `git merge`) were wrong. If the two disagree, trust the content.
+
 On 2026-08-24 between 17:24 and 17:25, two sessions closed finished,
 tested features minutes apart — #1006 ("superseded by the merged eBay
 calculator follow-up work") and #1016 ("already represented on main"). In
