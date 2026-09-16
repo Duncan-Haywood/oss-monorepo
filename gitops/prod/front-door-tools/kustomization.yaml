@@ -47,7 +47,7 @@
 #   portfolio-front-tools-11: 124 files, 555288 bytes
 #   portfolio-front-tools-12: 104 files, 556714 bytes
 #   portfolio-front-tools-13: 112 files, 555104 bytes
-#   portfolio-front-tools-14: 70 files, 343580 bytes
+#   portfolio-front-tools-14: 71 files, 348070 bytes
 #   portfolio-front-tools-15: 52 files, 266110 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1893,6 +1893,7 @@ configMapGenerator:
       - vscode-extension-drift-check__engine.mjs.gz=vscode-extension-drift-check__engine.mjs.gz
       - vscode-extension-drift-check__index.html.gz=vscode-extension-drift-check__index.html.gz
       - vscode-extension-drift-check__usage.mjs.gz=vscode-extension-drift-check__usage.mjs.gz
+      - vscode-extension-drift-check__vs-vscan.html.gz=vscode-extension-drift-check__vs-vscan.html.gz
       - vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz=vscode-extension-drift-check__why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html.gz
       - walk-in-shower-bid-calculator__calc.mjs.gz=walk-in-shower-bid-calculator__calc.mjs.gz
       - walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz=walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz
