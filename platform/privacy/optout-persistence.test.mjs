@@ -103,7 +103,11 @@ const RELATIVE_SELF = relative(
 // `setUsageOptOut`/`usageOptedOut` switch (opts out of the
 // `check_run`/`example_loaded` counters), same discovery method as the rest
 // of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 267;
+// 267 -> 268 on 2026-09-16, when `sbom-diff-check` graduated with its own
+// `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `diff_run`/`example_loaded` counters), same discovery method as the rest
+// of this running count.
+const SWITCHES_IN_THE_CATALOGUE = 268;
 
 let counter = 0;
 function fixture(source) {

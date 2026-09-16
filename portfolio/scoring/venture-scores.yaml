@@ -12523,6 +12523,7 @@ ventures:
       per-use fee, so the tool has no incentive to over- or under-report the
       schedule-capacity finding, and it gets strictly more useful to an
       artist the more bookings they check against it.
+
   - slug: sql-migration-lock-check
     scores:
       ai_leverage: 1
@@ -12586,3 +12587,59 @@ ventures:
       count. Every page states plainly that a clean result means these named
       checks found nothing -- not a database review, and not a guarantee
       that a migration will not cause downtime or data loss.
+
+  - slug: sbom-diff-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 3
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic structural comparison of two already-parsed package
+      lists (name + version). There is nothing to infer: a package is
+      present in one document, the other, or both at a different version.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page in the same
+      shape as docker-base-image-pin-check and license-drift-check, not a
+      292nd <trade>-bid-calculator. duplicate_check.py scored the closest
+      existing venture (license-drift-check, which diffs a raw npm/pip/
+      cargo/go dependency tree's declared licenses between two snapshots)
+      at 0.16 against a draft description that included a license-change
+      feature; that feature was dropped from scope entirely to keep the two
+      unambiguously separate, re-scoring at 0.11. Top score overall 0.16,
+      well under the 0.45 flag bar.
+      Autonomous ops 10 / gross margin 10: the browser page parses two
+      pasted SBOM documents and diffs them entirely client-side (nothing
+      uploaded, nothing fetched), and the CLI reads only local files it is
+      pointed at, so serving one more user costs a static file and needs no
+      human review of any output.
+      Distribution 3, below docker-base-image-pin-check's 5: the audience is
+      narrower than "any developer with a Dockerfile" -- it is teams that
+      already generate an SBOM (container scanning, SLSA/supply-chain
+      compliance evidence), a smaller and more specialized population than
+      every Dockerfile maintainer, with no search-volume tool queried to
+      confirm magnitude.
+      Time to revenue 6, defensibility 3: donations-only; a structural diff
+      over two already-standardized document formats is easy to reimplement
+      in an afternoon, so defensibility rests on the specific
+      metadata-noise framing (why a raw diff fails here) and this
+      portfolio's disclaimer/usage conventions, not on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only structural comparison of two SBOM documents the
+      user already has or pastes in -- no network call of its own, no
+      vulnerability database query, no data leaving the browser. It makes
+      no claim about whether any package or version is safe, vulnerable, or
+      appropriately licensed; both pages' footers and FAQs state this
+      plainly. Ethically: donations-only with no per-use fee, so the tool
+      has no incentive to over- or under-report a change, and it gets
+      strictly more useful the more builds a team compares against it.

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SBOM Diff Check — What Changed Between Two CycloneDX or SPDX Builds?</title>
+  <meta name="description" content="Paste two CycloneDX or SPDX SBOM JSON files and see exactly which packages were added, removed, or changed version between two builds. Free, runs in your browser, nothing uploaded.">
+  <meta property="og:title" content="What changed between two SBOMs?">
+  <meta property="og:description" content="A raw diff of two SBOM files is mostly timestamp and serial-number noise. Paste your before and after CycloneDX or SPDX documents and get the added, removed, and version-changed packages -- nothing else.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"SBOM Diff Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compares two CycloneDX or SPDX SBOM (Software Bill of Materials) JSON documents and reports which packages were added, removed, or changed version between two builds. Runs entirely in the browser or as a zero-dependency CLI; nothing is uploaded and it makes no network calls of its own."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just run diff on the two SBOM files?","acceptedAnswer":{"@type":"Answer","text":"Both CycloneDX and SPDX documents carry a serial number, a generation timestamp, and tool metadata that differ on every single run even when the package list is byte-for-byte identical. A line-based diff shows all of that noise before it shows you the one package that actually changed. This tool reads only the package name and version from each document and ignores everything else, so the output is the change itself, not the noise around it."}},{"@type":"Question","name":"Does this tell me if a new or updated package is vulnerable?","acceptedAnswer":{"@type":"Answer","text":"No. This is a structural comparison only — it reports that a package is new, gone, or at a different version, and nothing about whether any version is safe, vulnerable, or appropriately licensed. It makes no network calls of any kind, so it never queries a vulnerability database on your behalf."}},{"@type":"Question","name":"Does it upload my SBOM anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Both files you paste are read in this browser and never leave your device. An SBOM can reveal your entire internal dependency tree, including proprietary or unreleased component names, so this page makes no network requests of its own — pasting is the only way it sees anything."}},{"@type":"Question","name":"What if the two files are in different formats — one CycloneDX, one SPDX?","acceptedAnswer":{"@type":"Answer","text":"That still works. Only each package's name and version are compared, and both formats expose those two fields, so a CycloneDX document can be diffed against an SPDX document from an earlier build with no conversion step."}},{"@type":"Question","name":"What about a package that appears twice with different versions in the same build?","acceptedAnswer":{"@type":"Answer","text":"Handled directly: packages are matched by name, and the set of versions recorded under that name is compared rather than assuming exactly one. A monorepo pulling in two versions of the same library through different paths is reported as a version gained or lost, not silently collapsed to one or crashed on."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+    label { display: block; font-size: .82rem; font-weight: 700; color: #17324a; margin-bottom: 4px; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #17604a; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.changed { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 10px 0 20px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+    .pill.added { background: #dcefe4; color: #14532d; }
+    .pill.removed { background: #fde8e8; color: #9a3412; }
+    .pill.changed { background: #fef3c7; color: #92400e; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SBOM DIFF CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>What changed between two SBOMs?</h1>
+    <p>A CycloneDX or SPDX SBOM (Software Bill of Materials) from <code>syft</code>, <code>docker sbom</code>, <code>trivy</code>, or <code>cdxgen</code> records every package in a build. Paste the SBOM from before and after a change and this page reports exactly which packages were added, removed, or changed version — nothing else, and nothing about vulnerabilities or licenses.</p>
+    <p class="note">Nothing is uploaded. Both files you paste are read in this browser and never leave your device, and this tool makes no network calls of its own.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste both SBOM documents</h2>
+    <p class="note">CycloneDX and SPDX JSON are both understood, and you can mix formats (one of each) — only each package's name and version are compared.</p>
+    <div class="two-col">
+      <div>
+        <label for="old-sbom">Before (older build)</label>
+        <textarea id="old-sbom" spellcheck="false" placeholder="Paste the earlier SBOM JSON here"></textarea>
+      </div>
+      <div>
+        <label for="new-sbom">After (newer build)</label>
+        <textarea id="new-sbom" spellcheck="false" placeholder="Paste the newer SBOM JSON here"></textarea>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check">Diff</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste a before and after SBOM above and click Diff.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>Change</th><th>Package</th><th>Before</th><th>After</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 sbom_diff.py old.json new.json                  # human-readable
+python3 sbom_diff.py old.json new.json --format json     # machine-readable
+python3 sbom_diff.py old.json new.json --fail-on-change  # exit 2 if anything differs</code></pre>
+    <p class="note">Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/sbom-diff-check/sbom_diff.py" rel="noopener">sbom_diff.py from the repo</a> — stdlib only, nothing to install, no network calls. Wire <code>--fail-on-change</code> into your own CI to catch an unexpected dependency drift before it merges.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why not just run <code>diff</code> on the two SBOM files?</h3>
+    <p>Both CycloneDX and SPDX documents carry a serial number, a generation timestamp, and tool metadata that differ on every single run even when the package list is byte-for-byte identical. A line-based diff shows all of that noise before it shows you the one package that actually changed. This tool reads only the package name and version from each document and ignores everything else, so the output is the change itself, not the noise around it.</p>
+    <h3>Does this tell me if a new or updated package is vulnerable?</h3>
+    <p>No. This is a structural comparison only — it reports that a package is new, gone, or at a different version, and nothing about whether any version is safe, vulnerable, or appropriately licensed. It makes no network calls of any kind, so it never queries a vulnerability database on your behalf.</p>
+    <h3>Does it upload my SBOM anywhere?</h3>
+    <p>No. Both files you paste are read in this browser and never leave your device. An SBOM can reveal your entire internal dependency tree, including proprietary or unreleased component names, so this page makes no network requests of its own — pasting is the only way it sees anything.</p>
+    <h3>What if the two files are in different formats — one CycloneDX, one SPDX?</h3>
+    <p>That still works. Only each package's name and version are compared, and both formats expose those two fields, so a CycloneDX document can be diffed against an SPDX document from an earlier build with no conversion step.</p>
+    <h3>What about a package that appears twice with different versions in the same build?</h3>
+    <p>Handled directly: packages are matched by name, and the set of versions recorded under that name is compared rather than assuming exactly one. A monorepo pulling in two versions of the same library through different paths is reported as a version gained or lost, not silently collapsed to one or crashed on.</p>
+    <p>More: <a href="vs-diffing-the-raw-json-files.html">how this compares to diffing the raw SBOM JSON files by hand</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not a security audit, a vulnerability scan, or a compliance attestation, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/sbom-diff-check/sbom_diff.py" rel="noopener">sbom_diff.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. Both SBOMs you paste are never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>diff_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Checking one build's manifest rather than diffing two: <a href="../docker-base-image-pin-check/">Docker Base Image Pin Check</a> asks whether a Dockerfile's base image is pinned to a content digest, and <a href="../license-drift-check/">License Drift Check</a> diffs a raw npm/pip/cargo/go dependency tree's declared licenses between two snapshots rather than a standardized SBOM document — three different slices of the same "what does this build actually contain, and did it change" question.</p>
+    <p class="support">Free and open source. If this saved you from writing a one-off SBOM diff script, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseSbom, diffComponents, hasAnyChange, summaryLine } from "./diff.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      oldSbom: $("#old-sbom"), newSbom: $("#new-sbom"), status: $("#status"),
+      reportCard: $("#report-card"), verdict: $("#verdict"), rows: $("#rows"),
+    };
+
+    const EXAMPLE_OLD = {
+      bomFormat: "CycloneDX",
+      specVersion: "1.5",
+      components: [
+        { type: "library", name: "lodash", version: "4.17.20", purl: "pkg:npm/lodash@4.17.20" },
+        { type: "library", name: "left-pad", version: "1.3.0", purl: "pkg:npm/left-pad@1.3.0" },
+        { type: "library", name: "express", version: "4.18.0", purl: "pkg:npm/express@4.18.0" },
+      ],
+    };
+    const EXAMPLE_NEW = {
+      bomFormat: "CycloneDX",
+      specVersion: "1.5",
+      components: [
+        { type: "library", name: "lodash", version: "4.17.21", purl: "pkg:npm/lodash@4.17.21" },
+        { type: "library", name: "express", version: "4.18.0", purl: "pkg:npm/express@4.18.0" },
+        { type: "library", name: "chalk", version: "5.3.0", purl: "pkg:npm/chalk@5.3.0" },
+      ],
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function renderRows(diff) {
+      const rows = [];
+      for (const a of diff.added) {
+        rows.push(`<tr><td><span class="pill added">added</span></td><td><code>${escapeHtml(a.name)}</code></td><td class="note">—</td><td><code>${escapeHtml(a.version || "(none)")}</code></td></tr>`);
+      }
+      for (const r of diff.removed) {
+        rows.push(`<tr><td><span class="pill removed">removed</span></td><td><code>${escapeHtml(r.name)}</code></td><td><code>${escapeHtml(r.version || "(none)")}</code></td><td class="note">—</td></tr>`);
+      }
+      for (const v of diff.versionChanged) {
+        const from = v.from.map((x) => escapeHtml(x || "(none)")).join(", ");
+        const to = v.to.map((x) => escapeHtml(x || "(none)")).join(", ");
+        rows.push(`<tr><td><span class="pill changed">changed</span></td><td><code>${escapeHtml(v.name)}</code></td><td><code>${from}</code></td><td><code>${to}</code></td></tr>`);
+      }
+      els.rows.innerHTML = rows.join("");
+    }
+
+    function runDiff(oldText, newText) {
+      if (!oldText.trim() || !newText.trim()) {
+        els.status.innerHTML = `<span class="error">Paste both a before and an after SBOM first.</span>`;
+        return;
+      }
+      let oldParsed, newParsed;
+      try {
+        oldParsed = parseSbom(oldText, "before");
+        newParsed = parseSbom(newText, "after");
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const diff = diffComponents(oldParsed.components, newParsed.components);
+      const changed = hasAnyChange(diff);
+      els.verdict.className = `verdict ${changed ? "changed" : ""}`;
+      els.verdict.textContent = summaryLine(diff, oldParsed.components.length, newParsed.components.length);
+      renderRows(diff);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("diff_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", () => runDiff(els.oldSbom.value, els.newSbom.value));
+
+    $("#load-example").addEventListener("click", () => {
+      els.oldSbom.value = JSON.stringify(EXAMPLE_OLD, null, 2);
+      els.newSbom.value = JSON.stringify(EXAMPLE_NEW, null, 2);
+      runDiff(els.oldSbom.value, els.newSbom.value);
+      record("example_loaded");
+      els.status.textContent = "Worked example: chalk added, left-pad removed, lodash bumped 4.17.20 -> 4.17.21.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.oldSbom.value = "";
+      els.newSbom.value = "";
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste a before and after SBOM above and click Diff.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it -- but the button came back saying "turn
+    // counting off", which tells the visitor their click did not take. A
+    // control that appears not to have worked is one the visitor clicks
+    // again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

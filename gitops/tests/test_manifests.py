@@ -1680,7 +1680,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # and `SET NOT NULL` judged against a validated `CHECK` earlier in the
     # file), with a static `index.html` from its first commit, same shape as
     # the rest of this running count.
-    total = 282  # `infra/OWNER_CHECKLIST.md`'s own "N of the 282 tools" wording.
+    # 283 since 2026-09-16, when `sbom-diff-check` graduated — a
+    # zero-dependency CLI + no-upload browser tool comparing two CycloneDX
+    # or SPDX SBOM documents and reporting added, removed, and
+    # version-changed packages between two builds, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    total = 283  # `infra/OWNER_CHECKLIST.md`'s own "N of the 283 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
