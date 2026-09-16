@@ -504,6 +504,22 @@ jobs:
       - name: Clause-checker unit tests
         run: node --test platform/pages/clauses.test.mjs
 
+      # Sibling of the check above, budgeting the class of page that check
+      # exempts. Three sessions built a comparison page for
+      # `overtime-pay-calculator` on 2026-09-16, the afternoon it shipped, each
+      # after an honest overlap check that was clean when it ran -- the
+      # collisions landed in the window between reading open PRs and pushing.
+      # This reads the tree instead, so it cannot be raced, and it budgets only
+      # the generic-method page ("vs. a spreadsheet", "vs. doing it by hand"),
+      # of which there is one real angle per tool. Comparisons against distinct
+      # named products are unbudgeted; see the module header for why a naive
+      # per-venture count gets that backwards.
+      - name: No venture accumulates duplicate generic-method comparison pages
+        run: node platform/pages/surface-budget.mjs --check
+
+      - name: Surface-budget unit tests
+        run: node --test platform/pages/surface-budget.test.mjs
+
       # The FAQ backlog was drained by six concurrent sessions on 2026-08-30,
       # each appending a "Common questions" section to whichever ventures its
       # own snapshot reported as missing. Two snapshots overlapped by five

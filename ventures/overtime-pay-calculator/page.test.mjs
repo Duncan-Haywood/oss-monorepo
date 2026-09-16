@@ -105,61 +105,6 @@ test("index links one hop to the certified-payroll-calculator sibling", () => {
   assert.match(html, /certified payroll calculator/i);
 });
 
-// The comparison page is this venture's organic-discovery surface: it targets
-// the "blended overtime rate calculator" / "two different pay rates" query
-// directly, so a crawler that never reaches it is a channel that does not
-// exist. These assertions are the same shape the other vs-* pages carry.
-test("index links to the single-rate comparison page", () => {
-  assert.match(page("index.html"), /href="\.\/vs-single-rate-calculator\.html"/);
-});
-
-test("the comparison page links back to the calculator and its FAQPage JSON-LD matches the visible text", () => {
-  const vs = page("vs-single-rate-calculator.html");
-  assert.match(vs, /href="\.\/"/);
-  const blocks = [...vs.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) =>
-    JSON.parse(m[1]),
-  );
-  const faq = blocks.find((b) => b["@type"] === "FAQPage");
-  assert.ok(faq, "missing FAQPage JSON-LD on the comparison page");
-  assert.ok(faq.mainEntity.length >= 3);
-  // The visible copy uses HTML entities where the JSON-LD carries literal
-  // unicode; decode the two this page actually uses before comparing, the
-  // same normalization the index page's own FAQ test does.
-  const visible = vs.replace(/&mdash;/g, "—").replace(/&amp;/g, "&");
-  for (const { name, acceptedAnswer } of faq.mainEntity) {
-    assert.ok(visible.includes(name), `question not found verbatim: ${name}`);
-    assert.ok(
-      visible.includes(acceptedAnswer.text),
-      `answer not found verbatim for: ${name}`,
-    );
-  }
-});
-
-test("the comparison page carries the disclaimers and is listed in the venture sitemap", () => {
-  const vs = page("vs-single-rate-calculator.html");
-  assert.match(vs, /No warranty/);
-  assert.match(vs, /Nothing leaves your browser/);
-  // It compares against a category of tool rather than a named competitor,
-  // which is the basis for its clauses.mjs exemption -- so the page has to
-  // keep saying so.
-  assert.match(vs, /names no specific product/i);
-  assert.match(page("sitemap.xml"), /vs-single-rate-calculator\.html/);
-});
-
-test("the comparison page does not repeat a question the index page already answers", () => {
-  const faqOf = (name) => {
-    const html = page(name);
-    const block = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
-      .map((m) => JSON.parse(m[1]))
-      .find((b) => b["@type"] === "FAQPage");
-    return new Set(block.mainEntity.map((q) => q.name));
-  };
-  const overlap = [...faqOf("vs-single-rate-calculator.html")].filter((q) =>
-    faqOf("index.html").has(q),
-  );
-  assert.deepEqual(overlap, [], `duplicated FAQ question(s): ${overlap.join(", ")}`);
-});
-
 test("index links to the vs-doing-it-by-hand comparison page", () => {
   assert.match(page("index.html"), /href="\.\/vs-doing-it-by-hand\.html"/);
 });
