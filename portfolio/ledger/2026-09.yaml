@@ -30848,3 +30848,80 @@ entries:
         --check` (281 ventures), `router/validate.py` (280 ventures) all
         clean.
     mrr_end: 0
+
+  - venture: codeowners-shadow-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Drained the PR queue first per this
+        session's mandate: exactly one PR was open (#4691,
+        `cache-control-check`'s comparison page). Fetched a full
+        (unshallow) clone, checked it out, merged current `origin/main`
+        into it, and resolved the resulting conflicts -- the generated
+        mirror (`platform/marketing/resolve-mirror-merge.sh`, then a
+        direct `node platform/marketing/regen.mjs` run afterward since the
+        script alone left `catalog.json.gz`/`compare.html.gz`/`llms.txt`
+        stale, matching the exact gap this repo's own convention already
+        documents) and a real ledger conflict where two sessions'
+        outcome entries for different ventures (`caption-quality-check`
+        and `court-reporter-transcript-calculator`) had collided into one
+        YAML block and needed splitting into two entries, not picking a
+        side. Ran the full verification checklist afterward (venture
+        suite, `platform/marketing`+`platform/pages` 1257/1257,
+        `platform/proposal`+`platform/privacy`+`platform/webcheck`
+        242/242, `gitops/tests` 581/1 skip, `platform/ci`'s 25-module
+        unittest sweep + `agent_review` 21/21, `portfolio/{ledger,scoring,
+        router,usage,pipeline}`+`infra/tests` 446 passed, all 8
+        `portfolio-validate.yml` validators, `run_workflow_locally.py
+        --for-changes` and `--tree`) before attempting to push -- and on
+        push found a concurrent session had already merged the PR with a
+        byte-for-byte identical tree (`git diff <my-merge-commit>
+        origin/claude/hopeful-cray-z4o97o` was empty), confirming nothing
+        was lost or duplicated. Pages snapshot was already `current`
+        against the resulting `main` tip and IndexNow announcement is
+        blocked only by this sandbox's documented egress limitation
+        (`api.indexnow.org` 403s at the proxy) -- no action possible
+        here, no new owner ask needed since the workflow-side fix is
+        already in place per this file's IndexNow section.
+      - >-
+        With the queue empty, checked for a second open PR before
+        starting product work (per this repo's duplicate-PR guidance) and
+        found #4698 (`ai-coding-plan-cost-calculator`'s comparison page),
+        already claimed and in progress by a different concurrent
+        session with a detailed PR body -- left it alone rather than
+        duplicating effort.
+      - >-
+        Continued the comparison-page backlog (the dominant recent work
+        pattern, per #4693/#4690/#4686 and this session's own reading of
+        `session_gate.py`, which reported PROCEED with an empty
+        build-now pipeline). `codeowners-shadow-check` was one of the
+        ventures still without a `vs-*.html` page. Its own README already
+        states the distinction worth writing up -- "GitHub's own
+        CODEOWNERS syntax highlighting ... does not resolve every pattern
+        against every file and compare winners -- that's the one thing
+        this tool does" -- so shipped
+        `ventures/codeowners-shadow-check/vs-reading-codeowners-by-eye.html`
+        against "reading the CODEOWNERS file by eye", the generic method
+        every maintainer already has (same exemption shape as
+        `cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html`).
+        The page also explains why it differs from GitHub's own syntax
+        checker specifically, and carries the "not affiliated with ...
+        GitHub" line since GitHub itself is named as a comparison point
+        in that explanation, satisfying `clauses.mjs`'s `NOT_AFFILIATED`
+        check directly rather than needing a new
+        `COMPARISON_DISCLAIMER_EXEMPT` entry. Linked from `index.html`,
+        added to the venture's `sitemap.xml`, and added FAQ-visibility,
+        clause, and sitemap tests to `page.test.mjs` matching the
+        existing `vs-curl.html` test convention on `cache-control-check`.
+      - >-
+        Verified: venture's own suite 63/63 (up from 58);
+        `node platform/pages/clauses.mjs --slug codeowners-shadow-check`
+        clean; `platform/marketing`+`platform/pages` full suite
+        1257/1257, run twice (first run found the expected 7 generated-
+        mirror mismatches for the new page, fixed with `regen.mjs`,
+        clean on the second run); `checklist_coverage.py`,
+        `router/validate.py` (280 ventures), `score_ventures.py --check`
+        (281 ventures), `publish_surface.py --check`,
+        `check_no_payment_code.py` all clean.
+    mrr_end: 0

@@ -140,6 +140,38 @@ function extractConst(name) {
   return Function(`"use strict"; return (${match[1]});`)();
 }
 
+const vsReadingByEyeDoc = readFileSync(join(HERE, 'vs-reading-codeowners-by-eye.html'), 'utf8');
+
+test('the index page links to the reading-by-eye comparison page', () => {
+  assert.match(html, /href="vs-reading-codeowners-by-eye\.html"/);
+});
+
+test('the comparison page links back to the tool and carries valid FAQPage JSON-LD matching visible text', () => {
+  assert.match(vsReadingByEyeDoc, /href="index\.html"/);
+  const faq = jsonLdBlocks(vsReadingByEyeDoc).map((b) => JSON.parse(b)).find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(vsReadingByEyeDoc.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(vsReadingByEyeDoc.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test('the comparison page carries the no-warranty clause and the authorisation caution', () => {
+  assert.match(vsReadingByEyeDoc, /No warranty/);
+  assert.match(vsReadingByEyeDoc, /provided free and as-is, without warranty/);
+  assert.match(vsReadingByEyeDoc, /authoris(?:ed|ation)/i);
+});
+
+test('the comparison page carries the not-affiliated clause for the GitHub mention', () => {
+  assert.match(vsReadingByEyeDoc, /not affiliated with/i);
+});
+
+test('the comparison page is listed in the venture sitemap', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /vs-reading-codeowners-by-eye\.html/);
+});
+
 test('the bundled worked example demonstrates a shadowed rule, matching codeowners.test.mjs', () => {
   const example = extractConst('EXAMPLE');
   assert.equal(typeof example.codeowners, 'string');
