@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 133 files, 555787 bytes
 #   portfolio-front-tools-1: 106 files, 554012 bytes
 #   portfolio-front-tools-2: 148 files, 556146 bytes
-#   portfolio-front-tools-3: 139 files, 555940 bytes
+#   portfolio-front-tools-3: 139 files, 556232 bytes
 #   portfolio-front-tools-4: 121 files, 544247 bytes
 #   portfolio-front-tools-5: 135 files, 556779 bytes
 #   portfolio-front-tools-6: 131 files, 553731 bytes
@@ -534,6 +534,7 @@ configMapGenerator:
       - 1099k-reconciliation-worksheet__index.html.gz=1099k-reconciliation-worksheet__index.html.gz
       - 1099k-reconciliation-worksheet__share.mjs.gz=1099k-reconciliation-worksheet__share.mjs.gz
       - 1099k-reconciliation-worksheet__usage.mjs.gz=1099k-reconciliation-worksheet__usage.mjs.gz
+      - 1099k-reconciliation-worksheet__vs-spreadsheet-comparison.html.gz=1099k-reconciliation-worksheet__vs-spreadsheet-comparison.html.gz
       - 1099k-reconciliation-worksheet__why-is-my-1099-k-higher-than-what-i-actually-made.html.gz=1099k-reconciliation-worksheet__why-is-my-1099-k-higher-than-what-i-actually-made.html.gz
       - 3d-print-price-calculator__LICENSE.gz=3d-print-price-calculator__LICENSE.gz
       - 3d-print-price-calculator__calc.mjs.gz=3d-print-price-calculator__calc.mjs.gz
@@ -593,7 +594,6 @@ configMapGenerator:
       - ai-coding-plan-cost-calculator__how-ai-coding-plan-pricing-works.html.gz=ai-coding-plan-cost-calculator__how-ai-coding-plan-pricing-works.html.gz
       - ai-coding-plan-cost-calculator__index.html.gz=ai-coding-plan-cost-calculator__index.html.gz
       - ai-coding-plan-cost-calculator__usage.mjs.gz=ai-coding-plan-cost-calculator__usage.mjs.gz
-      - ai-coding-plan-cost-calculator__vs-doing-the-math-yourself.html.gz=ai-coding-plan-cost-calculator__vs-doing-the-math-yourself.html.gz
       - ai-crawler-access-check__audit.mjs.gz=ai-crawler-access-check__audit.mjs.gz
       - ai-crawler-access-check__cli.mjs.gz=ai-crawler-access-check__cli.mjs.gz
       - ai-crawler-access-check__how-to-block-or-allow-ai-crawlers.html.gz=ai-crawler-access-check__how-to-block-or-allow-ai-crawlers.html.gz
