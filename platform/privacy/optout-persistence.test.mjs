@@ -107,7 +107,11 @@ const RELATIVE_SELF = relative(
 // `setUsageOptOut`/`usageOptedOut` switch (opts out of the
 // `diff_run`/`example_loaded` counters), same discovery method as the rest
 // of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 268;
+// 268 -> 269 on 2026-09-16, when `backflow-test-fee-calculator` graduated
+// with its own `setUsageOptOut`/`usageOptedOut` switch (the same
+// `record`/`readUsage` pattern `overtime-pay-calculator` uses), same
+// discovery method as the rest of this running count.
+const SWITCHES_IN_THE_CATALOGUE = 269;
 
 let counter = 0;
 function fixture(source) {
