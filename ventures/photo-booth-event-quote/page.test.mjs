@@ -96,6 +96,17 @@ test('index links one hop to the booth-rent-vs-commission sibling', () => {
   );
 });
 
+// photo-addon-pricing-calculator (added 2026-09-16) has no other inbound
+// sibling link on its first commit, per siblings.mjs's orphan budget of 0 --
+// this link is what keeps it from landing as an orphan.
+test('index links one hop to the photo-addon-pricing-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/photo-addon-pricing-calculator\/"/,
+    'index must link ../photo-addon-pricing-calculator/ so crawlers reach the photo add-on pricing calculator in one hop',
+  );
+});
+
 
 // The share link is the only thing on this page that leaves the browser, and
 // three separate claims have to stay true together: the button exists, the
