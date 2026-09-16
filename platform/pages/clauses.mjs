@@ -102,6 +102,10 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // adjuster already has, not a company or product this could be mistaken
   // for.
   'cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html',
+  // Compares against "a spreadsheet or a guess under a deadline" -- a
+  // method every reporter already has, not a company or product this could
+  // be mistaken for.
+  'court-reporter-transcript-calculator/vs-spreadsheet-or-guessing.html',
   // Compares against reconciling a 1099-K by hand in a spreadsheet -- a
   // method every marketplace seller already has, not a company or product
   // this could be mistaken for. Same reasoning as the cat-adjuster page
