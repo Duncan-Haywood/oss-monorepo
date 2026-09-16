@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 148 files, 556146 bytes
 #   portfolio-front-tools-3: 139 files, 556897 bytes
 #   portfolio-front-tools-4: 122 files, 547408 bytes
-#   portfolio-front-tools-5: 136 files, 547862 bytes
+#   portfolio-front-tools-5: 137 files, 552264 bytes
 #   portfolio-front-tools-6: 125 files, 555870 bytes
 #   portfolio-front-tools-7: 123 files, 552339 bytes
 #   portfolio-front-tools-8: 114 files, 556304 bytes
@@ -820,6 +820,7 @@ configMapGenerator:
       - codeowners-shadow-check__codeowners.mjs.gz=codeowners-shadow-check__codeowners.mjs.gz
       - codeowners-shadow-check__index.html.gz=codeowners-shadow-check__index.html.gz
       - codeowners-shadow-check__usage.mjs.gz=codeowners-shadow-check__usage.mjs.gz
+      - codeowners-shadow-check__vs-reading-codeowners-by-eye.html.gz=codeowners-shadow-check__vs-reading-codeowners-by-eye.html.gz
       - codeowners-shadow-check__why-codeowners-review-stops-being-required.html.gz=codeowners-shadow-check__why-codeowners-review-stops-being-required.html.gz
       - concrete-lifting-bid-calculator__calc.mjs.gz=concrete-lifting-bid-calculator__calc.mjs.gz
       - concrete-lifting-bid-calculator__how-much-to-charge-for-concrete-lifting.html.gz=concrete-lifting-bid-calculator__how-much-to-charge-for-concrete-lifting.html.gz
