@@ -11928,3 +11928,67 @@ ventures:
       nothing; a visitor who fixes a flagged cue gets a strictly more
       readable caption track, which is better for the deaf/hard-of-hearing
       viewers the check exists for as the tool is used more, never worse.
+  - slug: court-reporter-transcript-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. A deposition invoice total, an effective hourly
+      rate, and an agency-offer comparison are all exact arithmetic on
+      page counts, per-page rates, turnaround multipliers, flat fees, and
+      hours the reporter already has -- there is no inference step, only a
+      sum and a division.
+    basis: >-
+      Screened 2026-09-13 per portfolio/pipeline/README.md's "archetype
+      itself" section: freelance court reporting / deposition
+      transcription, a professional-services niche this portfolio had not
+      yet touched, with a billing shape (a flat appearance fee stacked on a
+      per-page rate that itself multiplies by turnaround speed) distinct
+      from every existing trade-bid or marketplace-fee calculator here.
+      duplicate_check.py scored the final description below 0.13 against
+      every existing venture, pipeline candidate, screened-out row, and
+      ai-first-markets idea -- well under the 0.45 flag bar -- after two
+      adjacent niches were checked and set aside: a mobile-notary
+      income-planning angle scored 0.26 against the existing
+      notary-trip-quote venture (same audience, thinner variant of its
+      existing per-job quote) and an AI-crawler-access checker scored 0.49
+      against the existing ai-crawler-access-check venture. Autonomous ops
+      10 / gross margin 10: entirely client-side, no server component, zero
+      marginal cost per visitor.
+      Distribution 6: r/courtreporting and NCRA (National Court Reporters
+      Association) member forums both see recurring "how much should I
+      charge for a rush transcript" and "is this agency offer worth taking"
+      threads -- a predictable, recurring pricing question with real search
+      volume ("court reporter transcript rate calculator", "deposition
+      transcript pricing"), the same shape of evidence this portfolio's
+      other trade calculators use, in a professional-services niche none of
+      them have entered.
+      Time to revenue 5, defensibility 3: donations-only; the per-page,
+      turnaround-multiplied billing arithmetic is easy to reimplement once
+      known, so defensibility rests on being first and on this portfolio's
+      disclaimer/usage conventions rather than on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Both calculators only total numbers the reporter already has
+      (page count, per-page rate, turnaround multiplier, flat fees, travel
+      miles, hours) and report an invoice total, an hourly rate, or an
+      offer comparison -- neither asserts what any court's official
+      transcript-rate schedule requires, what a specific agency contract
+      obligates, or what a client legally owes, and every turnaround
+      multiplier defaults to an editable, clearly-labelled illustrative
+      value rather than an authoritative one. Being wrong costs the
+      reporter a number to double-check, not a filing. Ethically:
+      deterministic arithmetic, no dark patterns, no data collected
+      server-side, and nothing in either calculator shades toward an
+      operator's interest -- the agency-offer check exists specifically to
+      protect the reporter's own time from an underpriced assignment.
