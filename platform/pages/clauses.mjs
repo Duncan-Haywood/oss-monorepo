@@ -161,6 +161,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company's product this could be mistaken for. The page's own footer
   // says so explicitly ("names no specific product").
   'sbom-diff-check/vs-diffing-the-raw-json-files.html',
+  // Compares against "opening the instructions file and checking every link
+  // and script reference by hand" -- a generic manual habit every developer
+  // and reviewer already has access to, not a company or product this could
+  // be mistaken for. Same reasoning as the other manual-method pages above.
+  'agent-instructions-drift-check/vs-checking-it-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
