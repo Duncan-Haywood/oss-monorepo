@@ -120,3 +120,29 @@ test('index links one hop to the cash-runway-planner sibling', () => {
   );
   assert.match(html, /cash runway planner/i);
 });
+
+test('index links to the vs-spreadsheet comparison page', () => {
+  assert.match(html, /href="\.\/vs-spreadsheet\.html"/);
+});
+
+test('the comparison page links back to the calculator and carries valid FAQPage JSON-LD matching visible text', () => {
+  const vsPage = readFileSync(new URL('./vs-spreadsheet.html', import.meta.url), 'utf8');
+  assert.match(vsPage, /href="\.\/"/);
+  const blocks = [...vsPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const parsed = blocks.map((b) => JSON.parse(b));
+  const faq = parsed.find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(vsPage.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(vsPage.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test('the comparison page carries the no-warranty clause and is listed in the venture sitemap', () => {
+  const vsPage = readFileSync(new URL('./vs-spreadsheet.html', import.meta.url), 'utf8');
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /Nothing leaves your browser/);
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /vs-spreadsheet\.html/);
+});

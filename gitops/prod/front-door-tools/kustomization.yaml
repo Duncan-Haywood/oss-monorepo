@@ -41,7 +41,7 @@
 #   portfolio-front-tools-5: 137 files, 554324 bytes
 #   portfolio-front-tools-6: 117 files, 541321 bytes
 #   portfolio-front-tools-7: 133 files, 556967 bytes
-#   portfolio-front-tools-8: 111 files, 551760 bytes
+#   portfolio-front-tools-8: 112 files, 555440 bytes
 #   portfolio-front-tools-9: 112 files, 556651 bytes
 #   portfolio-front-tools-10: 124 files, 556595 bytes
 #   portfolio-front-tools-11: 128 files, 555124 bytes
@@ -1224,6 +1224,7 @@ configMapGenerator:
       - hoa-reserve-fund-calculator__calc.mjs.gz=hoa-reserve-fund-calculator__calc.mjs.gz
       - hoa-reserve-fund-calculator__index.html.gz=hoa-reserve-fund-calculator__index.html.gz
       - hoa-reserve-fund-calculator__usage.mjs.gz=hoa-reserve-fund-calculator__usage.mjs.gz
+      - hoa-reserve-fund-calculator__vs-spreadsheet.html.gz=hoa-reserve-fund-calculator__vs-spreadsheet.html.gz
       - holiday-light-bid-calculator__calc.mjs.gz=holiday-light-bid-calculator__calc.mjs.gz
       - holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz=holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz
       - holiday-light-bid-calculator__index.html.gz=holiday-light-bid-calculator__index.html.gz

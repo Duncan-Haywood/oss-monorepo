@@ -130,6 +130,10 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // not a company or product this could be mistaken for. Same reasoning as
   // the other manual-method pages above.
   'ai-engineering-academy/resistor-calculator/vs-reading-the-color-code-by-eye.html',
+  // Compares against "a spreadsheet" -- a generic method every HOA board
+  // treasurer already has, not a company or product this could be mistaken
+  // for. Same reasoning as the other vs-spreadsheet pages above.
+  'hoa-reserve-fund-calculator/vs-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
