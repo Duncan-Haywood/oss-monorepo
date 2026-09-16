@@ -75,20 +75,15 @@ const RELATIVE_SELF = relative(
 // local and record only an event name and a day -- but the opt-out is the
 // visitor's own control over even that, and it has to survive a reload to
 // mean anything.
-// 261 -> 262 on 2026-09-16, for `agent-instructions-drift-check` (#4745), the
-// last of the five ventures that graduated since the count was 257 and the
-// only one whose merge did not carry the bump. Found red on `main`, not on the
-// branch that fixed it.
-//
-// The arithmetic is recorded because the failure message asks for it and this
-// is the case it warns is *not* a free bump. Measured at 48f8b2887, the commit
-// that last set the number: 268 modules, 257 switches, constant 257 -- correct
-// then. At HEAD: 273 modules, 262 switches. Five `ventures/*/usage.mjs` were
-// added in between, all five report `pass`, and 257 + 5 = 262 exactly. So the
-// rise is fully accounted for by additions and no module silently stopped
-// being a switch, which is the reading that would have meant leaving this line
-// alone and going to find the venture that lost its opt-out instead.
-const SWITCHES_IN_THE_CATALOGUE = 262;
+// 261 -> 262 on 2026-09-16, when `agent-instructions-drift-check` graduated
+// with a `setUsageOptOut`/`usageOptedOut` switch -- named differently from
+// the `readOptOut`/`writeOptOut` siblings but discovered the same way
+// (behaviourally: does the switch's state survive a reload), which is the
+// point of not using a name allowlist here.
+// 262 -> 263 on 2026-09-16, when `hoa-reserve-fund-calculator` graduated
+// with its own `toggleUsage`/`usageAllowed` opt-out switch, same discovery
+// method as the rest of this running count.
+const SWITCHES_IN_THE_CATALOGUE = 263;
 
 let counter = 0;
 function fixture(source) {

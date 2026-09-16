@@ -1386,6 +1386,29 @@ candidates:
     mitigation: Keep the parsing and classification deterministic and conservative -- a stream this tool cannot decode (an unsupported filter, an encrypted PDF) is reported as "could not be checked" rather than guessed at as clean; the approximate image/alt-text count is disclosed as document-wide and approximate, never a confirmed per-image match; never claim a full PDF/UA or Section 508 conformance audit; lean on the no-upload and CLI-batch-scan differentiation explicitly rather than competing on checklist breadth against the five established free competitors (PDFix, PDF Audit, Free PDF Checker, axesCheck, PAC); measure real user reports and organic traffic before investing further, given the more crowded field behind this candidate's low defensibility score.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: hoa-reserve-fund-calculator
+    name: HOA reserve fund calculator
+    doc: candidates/hoa-reserve-fund-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-16
+    initiated_path: ventures/hoa-reserve-fund-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.5
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and disclosed as a planning estimate from the board's own assumptions, not the state-mandated reserve study (Florida SB 4-D / SIRS and similar) or a substitute for a licensed reserve specialist -- both the FAQ and footer disclaimer say so by name; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
   - slug: agent-instructions-drift-check
     name: Agent instructions drift check
     doc: candidates/agent-instructions-drift-check.md

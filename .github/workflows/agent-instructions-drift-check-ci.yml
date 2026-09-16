@@ -1,19 +1,27 @@
 name: agent-instructions-drift-check CI
 
-# Zero-dependency CLI/browser tool: `engine.mjs` holds the drift rules shared
-# by both entry points, `cli.mjs` is the command-line entry point, and
-# `page.test.mjs` covers the two pages' structure, disclaimers and usage
-# wiring. Keep all three covered independently of the portfolio-wide
-# validation workflow, which only checks published pages and does not run
-# venture unit tests.
+# Zero-dependency CLI/browser tool: `engine.mjs` is the shared drift rule set
+# (dangling file references, `npm run` scripts absent from `package.json`, and
+# the bare-`pytest`/bare-`mypy` interpreter-mismatch footguns); `cli.mjs` is
+# the CLI entry point; `page.test.mjs` covers the tool page and the explainer's
+# structure and disclaimers. Keep all three covered independently of the
+# portfolio-wide validation workflow, which only checks published pages and
+# does not run venture unit tests.
 #
-# This file was missing when the venture landed in #4745, which is the exact
-# hole `validate_workflows.py` exists to catch: its three suites ran on a
-# contributor's machine and in no workflow, so `main` was red on
-# `test_the_real_venture_tree_has_every_test_file_running_somewhere` from that
-# merge until this file. Same merge also missed the opt-out count bump in
-# `platform/privacy/optout-persistence.test.mjs`; both were found by running
-# the checklist rather than by anything that asks.
+# Without this file `validate_workflows.py` fails, and it did: the venture
+# landed in #4745 with three `*.test.mjs` files and no workflow filtering on
+# its path, so those assertions ran only on a contributor's machine. That
+# turned `main` red on three `portfolio-validate.yml` steps at once (the
+# validator, its own unit test, and — separately — the privacy switch count),
+# and with Actions starved nothing surfaced it until a `--tree` sweep asked.
+# Same hole `security-txt-check-ci.yml`, `sitemap-lastmod-freshness-check-ci.yml`
+# and `cors-misconfig-check-ci.yml` already document.
+#
+# One thing worth noting because it is this venture's own subject matter: the
+# repo this tool checks is supplied as input and every test builds its own
+# fixture tree, so the suite does not depend on the checkout it runs in. A
+# drift checker whose own tests drifted with the repository would be a poor
+# advertisement.
 on:
   pull_request:
     paths:

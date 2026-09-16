@@ -467,6 +467,9 @@ workflows:
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
+- workflow: hoa-reserve-fund-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: holiday-light-bid-calculator-ci.yml
   classification: none
   publishes: []
