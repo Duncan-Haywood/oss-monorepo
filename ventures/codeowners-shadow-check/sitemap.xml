@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://example.invalid/codeowners-shadow-check/</loc></url>
+<url><loc>https://example.invalid/codeowners-shadow-check/why-codeowners-review-stops-being-required.html</loc></url>
+<url><loc>https://example.invalid/codeowners-shadow-check/vs-reviewing-codeowners-by-eye.html</loc></url>
 </urlset>

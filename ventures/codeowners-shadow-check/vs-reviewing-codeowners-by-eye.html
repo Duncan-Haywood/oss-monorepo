@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CODEOWNERS Shadow Checker vs. reviewing CODEOWNERS by eye</title>
+<meta name="description" content="Reading a CODEOWNERS file top to bottom looks like enough to catch a shadowed rule. It is not, because last-match-wins means the rule that decides ownership can be nowhere near the rule you are looking at. This free tool resolves every file against every rule the way GitHub actually does, instead of asking a reviewer to hold that resolution in their head.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/codeowners-shadow-check/vs-reviewing-codeowners-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="CODEOWNERS Shadow Checker vs. reviewing CODEOWNERS by eye">
+<meta property="og:description" content="A reviewer reading CODEOWNERS top to bottom can check every pattern is syntactically sane. They cannot hold last-match-wins resolution for every file in their head at once. This tool resolves it exactly, against the file list you give it.">
+<meta property="og:url" content="https://example.invalid/codeowners-shadow-check/vs-reviewing-codeowners-by-eye.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't reading the CODEOWNERS file enough to catch a shadowed rule?","acceptedAnswer":{"@type":"Answer","text":"It catches an obviously wrong pattern or a typo’d username, because those are visible on the line itself. A shadowed rule is not visible on its own line at all — you have to notice that some other rule, possibly dozens of lines away or added in a completely different pull request months later, matches the same files and sits after it. That is a resolution problem across the whole file, not a reading problem on one line, and it gets harder exactly as the file grows past what a reviewer can hold in their head at once."}},{"@type":"Question","name":"When is reviewing CODEOWNERS by eye actually the right call?","acceptedAnswer":{"@type":"Answer","text":"For a small file — a handful of rules, a handful of owners — where a reviewer can trace every pattern against the files that matter without missing an interaction. It is also the only option when there is no representative file list to check against yet, such as reviewing a brand-new CODEOWNERS file's syntax before any files exist to resolve it against. This tool needs a file list to be useful; eyeballing the file does not."}},{"@type":"Question","name":"What does eyeballing the file miss that this tool catches?","acceptedAnswer":{"@type":"Answer","text":"The interaction between rules, specifically. A reviewer can confirm each individual pattern looks correct and each owner is a real handle. What is much harder to do by eye is resolve, for every file that actually exists in the repository, which single rule GitHub's last-match-wins logic would pick — and then notice that one particular earlier rule never wins that resolution for any file at all. This tool does exactly that resolution, against the file list you paste or the CLI reads from git, and names the dead rule directly instead of leaving a reviewer to reconstruct it."}},{"@type":"Question","name":"Does this replace reviewing a CODEOWNERS change in a pull request?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not built to. A human reviewer still decides whether the ownership a rule assigns is the ownership you actually want — whether @payments-team should review that path, whether a new broad rule is intentional. This tool answers a narrower, mechanical question underneath that judgment call: given the rules as written, does every rule you kept actually win ownership of something, or is one of them dead weight a later rule already overrides. Both are worth doing; they are not the same task."}}]}</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; line-height: 1.55; }
+  a { overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); line-height: 1.15; margin: 0.3rem 0; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.4rem 0.55rem; text-align: left; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+  .note { font-size: 0.88rem; opacity: 0.85; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; font-size: 0.85rem; opacity: 0.85; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; CODEOWNERS Shadow Checker</a></p>
+<h1>CODEOWNERS Shadow Checker vs. reviewing CODEOWNERS by eye</h1>
+<p>
+  <strong>Reading CODEOWNERS top to bottom</strong> is how most teams catch
+  a shadowed rule today, because it is the only tool most reviewers reach
+  for. It works well for a syntax mistake &mdash; a pattern missing its
+  leading slash, an owner that is not a real handle &mdash; because those
+  are visible on the single line you are looking at. It works badly for a
+  shadowed rule, because last-match-wins resolution is a property of the
+  <em>whole file against a real path</em>, not of any one line, and a rule
+  added far below &mdash; possibly in an entirely different pull request,
+  months later &mdash; can silently take over a pattern near the top
+  without anything about that top line changing.
+</p>
+<div class="card">
+  <h2>What each approach actually does</h2>
+  <p>
+    A reviewer eyeballing the file can confirm every pattern parses and
+    every owner looks like a real team or handle. What they cannot easily
+    do is resolve, for every path that actually exists in the repository,
+    exactly which rule GitHub's last-match-wins logic would pick &mdash;
+    that requires checking each file against every pattern below it too,
+    for every file, which is exactly the kind of exhaustive cross-check a
+    reviewer skimming a diff does not have time to run by hand.
+  </p>
+  <p>
+    <strong>CODEOWNERS Shadow Checker</strong> runs that exhaustive
+    cross-check instead of asking a reviewer to hold it in their head. Paste
+    the file and a file list (or let the CLI pull both from
+    <code>git ls-files</code>), and it resolves every file the same way
+    GitHub does, then names every rule that never actually wins ownership
+    of anything in that list because a later, broader rule always overrides
+    it.
+  </p>
+  <table>
+    <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Does this pattern's syntax look right, and is the owner a real handle or team?</td>
+        <td>A reviewer reading the diff &mdash; that is a one-line check this tool does not add value to.</td>
+      </tr>
+      <tr>
+        <td>Given the rules as written, does every rule still win ownership of something in my repository?</td>
+        <td>CODEOWNERS Shadow Checker &mdash; it resolves last-match-wins against your real file list and names any rule that never wins.</td>
+      </tr>
+      <tr>
+        <td>Should this path actually be owned by this team, as a matter of policy?</td>
+        <td>A human reviewer &mdash; this tool has no opinion on who <em>should</em> own a path, only on which rule GitHub's resolution actually picks.</td>
+      </tr>
+      <tr>
+        <td>I don't have a representative file list yet, just a new CODEOWNERS file.</td>
+        <td>Review by eye for now &mdash; this tool needs a file list to resolve anything against.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">Nothing is uploaded either way: the browser tool parses pasted text locally, and the CLI reads only files already on your machine.</p>
+</div>
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Isn't reading the CODEOWNERS file enough to catch a shadowed rule?</h3>
+  <p>It catches an obviously wrong pattern or a typo&rsquo;d username, because those are visible on the line itself. A shadowed rule is not visible on its own line at all &mdash; you have to notice that some other rule, possibly dozens of lines away or added in a completely different pull request months later, matches the same files and sits after it. That is a resolution problem across the whole file, not a reading problem on one line, and it gets harder exactly as the file grows past what a reviewer can hold in their head at once.</p>
+  <h3>When is reviewing CODEOWNERS by eye actually the right call?</h3>
+  <p>For a small file &mdash; a handful of rules, a handful of owners &mdash; where a reviewer can trace every pattern against the files that matter without missing an interaction. It is also the only option when there is no representative file list to check against yet, such as reviewing a brand-new CODEOWNERS file's syntax before any files exist to resolve it against. This tool needs a file list to be useful; eyeballing the file does not.</p>
+  <h3>What does eyeballing the file miss that this tool catches?</h3>
+  <p>The interaction between rules, specifically. A reviewer can confirm each individual pattern looks correct and each owner is a real handle. What is much harder to do by eye is resolve, for every file that actually exists in the repository, which single rule GitHub's last-match-wins logic would pick &mdash; and then notice that one particular earlier rule never wins that resolution for any file at all. This tool does exactly that resolution, against the file list you paste or the CLI reads from git, and names the dead rule directly instead of leaving a reviewer to reconstruct it.</p>
+  <h3>Does this replace reviewing a CODEOWNERS change in a pull request?</h3>
+  <p>No, and it is not built to. A human reviewer still decides whether the ownership a rule assigns is the ownership you actually want &mdash; whether @payments-team should review that path, whether a new broad rule is intentional. This tool answers a narrower, mechanical question underneath that judgment call: given the rules as written, does every rule you kept actually win ownership of something, or is one of them dead weight a later rule already overrides. Both are worth doing; they are not the same task.</p>
+  <p class="note">
+    Try it yourself: <a href="./">load the worked example</a>, or read
+    <a href="why-codeowners-review-stops-being-required.html">why a CODEOWNERS review requirement can silently stop firing</a>.
+  </p>
+</section>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or compliance advice, and it does not replace a qualified review of your repository's access controls. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI reads files on your own machine and never makes a network request; the page only parses text you paste into it locally.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

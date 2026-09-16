@@ -140,6 +140,34 @@ function extractConst(name) {
   return Function(`"use strict"; return (${match[1]});`)();
 }
 
+test('index links to the comparison page', () => {
+  assert.match(html, /href="vs-reviewing-codeowners-by-eye\.html"/);
+});
+
+test('the comparison page links back to the tool and carries valid FAQPage JSON-LD matching visible text', () => {
+  const vsHtml = readFileSync(join(HERE, 'vs-reviewing-codeowners-by-eye.html'), 'utf8');
+  assert.match(vsHtml, /href="index\.html"/);
+  const blocks = jsonLdBlocks(vsHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(vsHtml.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(vsHtml.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test('the comparison page carries the no-warranty clause', () => {
+  const vsHtml = readFileSync(join(HERE, 'vs-reviewing-codeowners-by-eye.html'), 'utf8');
+  assert.match(vsHtml, /No warranty/);
+  assert.match(vsHtml, /provided free and as-is, without warranty/);
+});
+
+test('the comparison page is listed in the venture sitemap', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /vs-reviewing-codeowners-by-eye\.html/);
+});
+
 test('the bundled worked example demonstrates a shadowed rule, matching codeowners.test.mjs', () => {
   const example = extractConst('EXAMPLE');
   assert.equal(typeof example.codeowners, 'string');
