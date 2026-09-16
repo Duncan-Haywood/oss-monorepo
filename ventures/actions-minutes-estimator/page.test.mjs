@@ -2,9 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const PAGES = ['index.html', 'how-github-actions-minutes-are-billed.html'];
+const PAGES = ['index.html', 'how-github-actions-minutes-are-billed.html', 'vs-billing-page.html'];
 
 const read = (file) => readFile(new URL(`./${file}`, import.meta.url), 'utf8');
+
+function jsonLdBlocks(source) {
+  const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
+  const blocks = [];
+  let m;
+  while ((m = re.exec(source)) !== null) blocks.push(m[1]);
+  return blocks;
+}
 
 test('every page carries the no-warranty clause', async () => {
   for (const file of PAGES) {
@@ -65,6 +73,33 @@ test('the page imports the same estimator the CLI runs', async () => {
   const page = await read('index.html');
   assert.match(page, /from "\.\/estimate\.mjs"/);
   assert.match(page, /from "\.\/usage\.mjs"/);
+});
+
+test('index links to the billing-page comparison, and the comparison links back', async () => {
+  assert.match(await read('index.html'), /href="vs-billing-page\.html"/);
+  assert.match(await read('vs-billing-page.html'), /href="\.\/"/);
+});
+
+test('the comparison page carries valid FAQPage JSON-LD matching its visible text', async () => {
+  const page = await read('vs-billing-page.html');
+  const faq = jsonLdBlocks(page).map((b) => JSON.parse(b)).find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(page.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(page.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test('the comparison page keeps the GitHub trademark disclaimer and the sponsor link', async () => {
+  const page = await read('vs-billing-page.html');
+  assert.match(page, /Not affiliated with GitHub/i);
+  assert.match(page, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('the comparison page is listed in the venture sitemap', async () => {
+  const sitemap = await read('sitemap.xml');
+  assert.match(sitemap, /vs-billing-page\.html/);
 });
 
 test('every usage event the footer names is one the page actually records', async () => {
