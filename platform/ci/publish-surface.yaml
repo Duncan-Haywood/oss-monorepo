@@ -902,6 +902,9 @@ workflows:
 - workflow: spray-foam-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: sql-migration-lock-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: sri-check-ci.yml
   classification: none
   publishes: []

@@ -89,6 +89,15 @@
     <summary type="text">Free tool: paste a security.txt and check it against RFC 9116 — a missing or expired Expires field (the one that silently makes your whole file stale), a Contact that isn&#39;t a URI, a plain-http Contact, a PGP key pasted where an Encryption URI belongs, a duplicated Expires or Preferred-Languages, the British spelling of Acknowledgments, and a signed file with no Canonical. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>SQL Migration Lock Check — Will This Migration Take Your Database Down?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sql-migration-lock-check/"/>
+    <id>tag:marisstella.dev,2026:tool/sql-migration-lock-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a PostgreSQL migration and find every statement that can lock the table and stall your app: CREATE INDEX without CONCURRENTLY, ALTER COLUMN TYPE, SET NOT NULL, a foreign key without NOT VALID, and a missing lock_timeout that turns a millisecond change into an outage. Free, runs in your browser, nothing uploaded, no database connection.</summary>
+  </entry>
+  <entry>
     <title>Caption Quality Checker — SRT &amp; WebVTT Reading Speed, Line Length &amp; Timing</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/caption-quality-check/"/>
     <id>tag:marisstella.dev,2026:tool/caption-quality-check</id>
