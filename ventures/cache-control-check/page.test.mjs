@@ -154,6 +154,34 @@ function extractConst(name) {
   return Function(`"use strict"; return (${match[1]});`)();
 }
 
+const vsCurlDoc = readFileSync(join(HERE, 'vs-curl.html'), 'utf8');
+
+test('the index page links to the curl comparison page', () => {
+  assert.match(html, /href="vs-curl\.html"/);
+});
+
+test('the comparison page links back to the tool and carries valid FAQPage JSON-LD matching visible text', () => {
+  assert.match(vsCurlDoc, /href="index\.html"/);
+  const faq = jsonLdBlocks(vsCurlDoc).map((b) => JSON.parse(b)).find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(vsCurlDoc.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(vsCurlDoc.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test('the comparison page carries the no-warranty clause and the authorisation caution', () => {
+  assert.match(vsCurlDoc, /No warranty/);
+  assert.match(vsCurlDoc, /provided free and as-is, without warranty/);
+  assert.match(vsCurlDoc, /authoris(?:ed|ation)/i);
+});
+
+test('the comparison page is listed in the venture sitemap', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /vs-curl\.html/);
+});
+
 test('the bundled worked example is valid input for buildReport and produces danger findings', () => {
   const example = extractConst('EXAMPLE');
   assert.equal(typeof example.target, 'string');

@@ -1321,6 +1321,10 @@ test('tools that belong to a named category are not left in the catch-all', () =
   assert.equal(categoryFor('food-truck-event-margin-calculator').id, 'food-service');
   assert.equal(categoryFor('menu-engineering-calculator').id, 'food-service');
   assert.equal(categoryFor('pour-cost-calculator').id, 'food-service');
+  // `childcare-tuition-calculator` stayed in `services` — it prices a seat,
+  // not a plate, so `food-service`'s three did not pull it in with them.
+  assert.equal(categoryFor('childcare-tuition-calculator').id, 'services');
+  assert.equal(categoryFor('security-deposit-return-calculator').id, 'backoffice');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
   assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');

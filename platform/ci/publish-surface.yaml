@@ -260,6 +260,9 @@ workflows:
 - workflow: countertop-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: court-reporter-transcript-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: coverage-drop-check-ci.yml
   classification: none
   publishes: []
@@ -645,6 +648,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: payment-reconciliation-workbench-ci.yml
+  classification: none
+  publishes: []
+- workflow: pdf-accessibility-tag-check-ci.yml
   classification: none
   publishes: []
 - workflow: pergola-bid-calculator-ci.yml

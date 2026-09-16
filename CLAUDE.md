@@ -1002,22 +1002,17 @@ and neither looks like a clone artifact:
 - `git merge origin/main` → `refusing to merge unrelated histories`, and
   `git merge-base origin/main <branch>` is empty. That reads as *`main` has
   been rebuilt or force-pushed*, which is a much more alarming conclusion
-  than the truth and invites archaeology into a non-problem. (This session
-  reached it, briefly.)
+  than the truth and invites archaeology into a non-problem.
 - `git rev-list --count origin/main..<branch>` reports ~7,100 for **every**
   branch, because the counted range is the branch's entire history. A sweep
-  of all 506 then says every branch carries thousands of unique commits —
+  of all branches then says every one carries thousands of unique commits —
   which argues equally for mass PR creation and for dismissing the whole set,
   and is the same "thousands of files" misreading one level up.
 
-The fix is to name the ref: `git fetch --unshallow origin main`. Measured the
-same minute, that took `main` from 1 commit to 7,177 and 11 roots, and the
-branch sweep from "506 branches, ~7,100 commits each" to **207 with commits
-not on `main`, 299 fully contained** — which is a number you can act on.
-
-Check the count, never the flag. `git rev-list --count origin/main` in the
-hundreds or more is the cheap assertion; `1` means you are in this state
-whatever `is-shallow-repository` says.
+The fix is to name the ref: `git fetch --unshallow origin main`. Check the
+count, never the flag. `git rev-list --count origin/main` in the hundreds or
+more is the cheap assertion; `1` means you are in this state whatever
+`is-shallow-repository` says.
 
 Note what this does *not* touch, because it is the reason the error above was
 caught rather than acted on: anything reading file **content** at a ref is

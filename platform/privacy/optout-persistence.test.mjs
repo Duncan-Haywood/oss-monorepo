@@ -31,7 +31,10 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // 255 -> 256 on 2026-09-13, when `caption-quality-check` shipped with a
 // `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
 // redirect-chain-check and its siblings.
-const SWITCHES_IN_THE_CATALOGUE = 256;
+// 257 -> 258 on 2026-09-16, when `pdf-accessibility-tag-check` graduated
+// with a `usage.mjs` copying the same `readOptOut`/`writeOptOut` pattern
+// (via cors-misconfig-check's usage.mjs, keyed under its own storage name).
+const SWITCHES_IN_THE_CATALOGUE = 258;
 
 let counter = 0;
 function fixture(source) {
