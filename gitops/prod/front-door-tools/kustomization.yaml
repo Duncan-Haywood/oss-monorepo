@@ -42,8 +42,8 @@
 #   portfolio-front-tools-6: 121 files, 555097 bytes
 #   portfolio-front-tools-7: 129 files, 557016 bytes
 #   portfolio-front-tools-8: 114 files, 556328 bytes
-#   portfolio-front-tools-9: 114 files, 555003 bytes
-#   portfolio-front-tools-10: 121 files, 554428 bytes
+#   portfolio-front-tools-9: 113 files, 555242 bytes
+#   portfolio-front-tools-10: 122 files, 556565 bytes
 #   portfolio-front-tools-11: 132 files, 554965 bytes
 #   portfolio-front-tools-12: 102 files, 554774 bytes
 #   portfolio-front-tools-13: 112 files, 554616 bytes
@@ -1378,12 +1378,12 @@ configMapGenerator:
       - marketplace-fee-compare__usage.mjs.gz=marketplace-fee-compare__usage.mjs.gz
       - marketplace-fee-compare__vs-sellerboard.html.gz=marketplace-fee-compare__vs-sellerboard.html.gz
       - marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz=marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz
-      - mcp-supply-chain-watch__compare.mjs.gz=mcp-supply-chain-watch__compare.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - mcp-supply-chain-watch__compare.mjs.gz=mcp-supply-chain-watch__compare.mjs.gz
       - mcp-supply-chain-watch__index.html.gz=mcp-supply-chain-watch__index.html.gz
       - mcp-supply-chain-watch__usage.mjs.gz=mcp-supply-chain-watch__usage.mjs.gz
       - mcp-supply-chain-watch__vs-snyk.html.gz=mcp-supply-chain-watch__vs-snyk.html.gz
