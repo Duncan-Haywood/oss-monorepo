@@ -6170,3 +6170,30 @@ products:
           Named channel to watch: r/tax, r/Etsyseller, r/eBay, r/Flipping,
           r/reselling, r/Mercari around filing season (Jan-Apr), where "why
           is my 1099-K higher than what I made" is a recurring thread.
+  - slug: pdf-accessibility-tag-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and no-upload browser tool that reads a PDF's
+          own tag structure, title, language, image alt text, form-field
+          labels, and text-layer presence against PDF/UA and Section 508.
+          `live_url_visitors` is null and not zero, deliberately -- GitHub
+          Pages exposes no server-side analytics and the local counter is
+          opt-in and off by default, so nobody has measured yet. Named
+          channel to watch: government and university webmasters/
+          accessibility-services staff searching "PDF accessibility
+          checker" / "PDF/UA checker online" ahead of ADA Title II's April
+          2027/2028 deadlines and HHS's May 2026 Section 504 deadline. The
+          reading worth watching is `check_run` against `example_loaded` --
+          a visitor who only ever loads the worked example has not brought
+          their own PDF to it -- and whether the CLI (not just the browser
+          page) sees repeat use from a document-library batch scan, which
+          is this venture's actual differentiation against five established
+          upload-required, single-file competitors.
