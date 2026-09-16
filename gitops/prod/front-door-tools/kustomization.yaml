@@ -33,22 +33,22 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555785 bytes
-#   portfolio-front-tools-1: 106 files, 554509 bytes
-#   portfolio-front-tools-2: 148 files, 556379 bytes
-#   portfolio-front-tools-3: 139 files, 552738 bytes
-#   portfolio-front-tools-4: 122 files, 553173 bytes
-#   portfolio-front-tools-5: 137 files, 553141 bytes
-#   portfolio-front-tools-6: 121 files, 556641 bytes
-#   portfolio-front-tools-7: 133 files, 554119 bytes
-#   portfolio-front-tools-8: 111 files, 554397 bytes
-#   portfolio-front-tools-9: 113 files, 551068 bytes
-#   portfolio-front-tools-10: 122 files, 555609 bytes
-#   portfolio-front-tools-11: 129 files, 556250 bytes
-#   portfolio-front-tools-12: 104 files, 551729 bytes
-#   portfolio-front-tools-13: 110 files, 552147 bytes
-#   portfolio-front-tools-14: 112 files, 544031 bytes
-#   portfolio-front-tools-15: 55 files, 284030 bytes
+#   portfolio-front-tools-0: 133 files, 555791 bytes
+#   portfolio-front-tools-1: 106 files, 554519 bytes
+#   portfolio-front-tools-2: 148 files, 556389 bytes
+#   portfolio-front-tools-3: 139 files, 552716 bytes
+#   portfolio-front-tools-4: 122 files, 553176 bytes
+#   portfolio-front-tools-5: 137 files, 553020 bytes
+#   portfolio-front-tools-6: 121 files, 556661 bytes
+#   portfolio-front-tools-7: 133 files, 554069 bytes
+#   portfolio-front-tools-8: 111 files, 554402 bytes
+#   portfolio-front-tools-9: 113 files, 551171 bytes
+#   portfolio-front-tools-10: 122 files, 555626 bytes
+#   portfolio-front-tools-11: 129 files, 556231 bytes
+#   portfolio-front-tools-12: 104 files, 551709 bytes
+#   portfolio-front-tools-13: 110 files, 555080 bytes
+#   portfolio-front-tools-14: 113 files, 547036 bytes
+#   portfolio-front-tools-15: 61 files, 315028 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1823,6 +1823,13 @@ configMapGenerator:
       - spray-foam-bid-calculator__share.mjs.gz=spray-foam-bid-calculator__share.mjs.gz
       - spray-foam-bid-calculator__usage.mjs.gz=spray-foam-bid-calculator__usage.mjs.gz
       - spray-foam-bid-calculator__vs-jobber.html.gz=spray-foam-bid-calculator__vs-jobber.html.gz
+      - sql-migration-lock-check__check.mjs.gz=sql-migration-lock-check__check.mjs.gz
+      - sql-migration-lock-check__engine.mjs.gz=sql-migration-lock-check__engine.mjs.gz
+      - sql-migration-lock-check__index.html.gz=sql-migration-lock-check__index.html.gz
+      - sql-migration-lock-check__sql.mjs.gz=sql-migration-lock-check__sql.mjs.gz
+      - sql-migration-lock-check__usage.mjs.gz=sql-migration-lock-check__usage.mjs.gz
+      - sql-migration-lock-check__vs-squawk.html.gz=sql-migration-lock-check__vs-squawk.html.gz
+      - sql-migration-lock-check__why-your-migration-locked-the-table.html.gz=sql-migration-lock-check__why-your-migration-locked-the-table.html.gz
       - sri-check__index.html.gz=sri-check__index.html.gz
       - sri-check__sri.mjs.gz=sri-check__sri.mjs.gz
       - sri-check__usage.mjs.gz=sri-check__usage.mjs.gz
@@ -1857,6 +1864,11 @@ configMapGenerator:
       - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
       - stucco-repair-bid-calculator__share.mjs.gz=stucco-repair-bid-calculator__share.mjs.gz
       - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
+  - name: portfolio-front-tools-14
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - stucco-repair-bid-calculator__vs-jobber.html.gz=stucco-repair-bid-calculator__vs-jobber.html.gz
       - sump-pump-bid-calculator__calc.mjs.gz=sump-pump-bid-calculator__calc.mjs.gz
       - sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz=sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz
@@ -1864,11 +1876,6 @@ configMapGenerator:
       - sump-pump-bid-calculator__share.mjs.gz=sump-pump-bid-calculator__share.mjs.gz
       - sump-pump-bid-calculator__usage.mjs.gz=sump-pump-bid-calculator__usage.mjs.gz
       - sump-pump-bid-calculator__vs-servicetitan.html.gz=sump-pump-bid-calculator__vs-servicetitan.html.gz
-  - name: portfolio-front-tools-14
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
       - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
       - sunroom-bid-calculator__index.html.gz=sunroom-bid-calculator__index.html.gz
@@ -1975,17 +1982,17 @@ configMapGenerator:
       - water-heater-bid-calculator__vs-servicetitan.html.gz=water-heater-bid-calculator__vs-servicetitan.html.gz
       - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
       - water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz=water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz
+  - name: portfolio-front-tools-15
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - water-softener-bid-calculator__index.html.gz=water-softener-bid-calculator__index.html.gz
       - water-softener-bid-calculator__share.mjs.gz=water-softener-bid-calculator__share.mjs.gz
       - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
       - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
       - well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz=well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz
-  - name: portfolio-front-tools-15
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
       - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
       - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
