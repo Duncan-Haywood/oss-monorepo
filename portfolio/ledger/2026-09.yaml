@@ -30738,3 +30738,112 @@ entries:
         overtaken is the force-push race CLAUDE.md records taking a
         just-shipped venture off the live site on 2026-09-06.
     mrr_end: 0
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, branch `claude/quirky-hopper-5c3e4c`.
+        PR queue at start: exactly one open PR (#4691,
+        `cache-control-check`'s vs-curl comparison page) -- fewer than the
+        3-PR quota, so processed it fully rather than skipping to new work.
+        It had gone `dirty` (merge conflict) against two other sessions'
+        concurrent comparison-page and mirror-count merges. Resolved: the
+        generated `gitops/prod/front-door-tools`/`front-door` binaries and
+        `kustomization.yaml` by taking `origin/main`'s copy and re-running
+        `regen.mjs` (the documented pattern for this exact conflict shape),
+        and a `portfolio/ledger/2026-09.yaml` conflict by keeping both
+        sessions' venture entries as separate rows rather than picking a
+        side. Verified `platform/marketing`+`platform/pages` 1257/1257,
+        `checklist_coverage.py`, `score_ventures.py --check` (281
+        ventures), `router/validate.py` (280 ventures), all clean;
+        `ci_starvation.py --run` confirmed all 21 PR checks were
+        `runner_id: 0` (starved), not a real failure. Merged as #4691
+        (squash -- this repo disallows merge commits).
+      - >-
+        Sampled 15 of the most recently-updated remote branches (of ~522
+        total) for the mandate's branch-to-PR presumption, since a prior
+        session's exhaustive #4674 sweep (208 branches) had already run
+        days earlier and this session's budget did not cover a second
+        full pass. All 15 confirmed SUPERSEDED via `supersede_check.py`
+        (several with the RENAME SUSPECTED note, all reading "closing
+        drops no content"). No unshipped work found; did not claim the
+        full 522-branch backlog was cleared.
+      - >-
+        Refreshed the published GitHub Pages snapshot after the #4691
+        merge (`session_gate.py` flagged it stale): `CONFIRM=publish-
+        pages-branch PUSH=1 ./platform/pages/publish-branch.sh` against
+        `origin/main` at `e223221d`; `pages_state.py --require-current`
+        confirmed `current`. `indexnow_state.py` still reports `never`
+        submitted -- same known limitation as prior sessions, this
+        sandbox's egress proxy 403s `api.indexnow.org`.
+      - >-
+        Shipped `ventures/court-reporter-transcript-calculator/vs-
+        spreadsheet-or-guessing.html` -- this venture (merged the same
+        day as #4689) had no comparison page yet. Its own README already
+        states the exact framing worth writing up ("in seconds instead of
+        a spreadsheet or a guess under a deadline"), so followed the
+        `cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html`
+        precedent: compares against the generic method every reporter
+        already has, not a named company or product, so added it to
+        `clauses.mjs`'s `COMPARISON_DISCLAIMER_EXEMPT` allowlist
+        alongside that precedent rather than writing a not-affiliated
+        clause for a party that does not exist.
+      - >-
+        Caught and fixed a real defect during verification, the same
+        mismatch class CLAUDE.md's #4670/#4686 entries already recorded:
+        `faq-visible.test.mjs` flagged the new page's FAQPage JSON-LD
+        using a literal `--` where the visible prose used `&mdash;` --
+        fixed by substituting the literal em-dash character into the
+        JSON-LD text so it matches the visible copy after entity
+        decoding, verified with a standalone JSON.parse check plus the
+        full suite re-run.
+      - >-
+        Verified: venture's own suite 52/52 (up from 42, after the FAQ
+        JSON-LD fix); `platform/marketing`+`platform/pages` full suite
+        1257/1257, run three times (once caught the missing mirror
+        regen for the new page via `front-door-tools.test.mjs`, once
+        caught the JSON-LD mismatch via `faq-visible.test.mjs`, clean on
+        the third); `checklist_coverage.py`, `score_ventures.py --check`
+        (281 ventures), `router/validate.py` (280 ventures) all clean.
+    mrr_end: 0
+  - venture: ios-privacy-manifest-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session, continuing the comparison-page backlog after #4697.
+        Shipped `ventures/ios-privacy-manifest-check/vs-waiting-for-app-
+        review.html` -- this venture had no `vs-*.html` page yet. Its own
+        README already names the two generic alternatives worth writing
+        up ("used to mean either guessing from Apple's documentation or
+        waiting for App Review to reject the build and tell you"), so
+        wrote the page against both. Unlike the two prior comparison
+        pages this session shipped, no `clauses.mjs` allowlist edit was
+        needed: the venture already carries a "Not affiliated with,
+        endorsed by, or sponsored by Apple Inc." line for its own footer,
+        and the new page reuses the same wording, so the existing
+        `NOT_AFFILIATED` regex matches without a new exemption entry.
+      - >-
+        While a different session (concurrent, unrelated to this one) was
+        independently building a near-identical comparison page for
+        `court-reporter-transcript-calculator` at the same time as
+        #4697, discovered as PR #4695 shortly after #4697 merged. Ran
+        `supersede_check.py 4695`, which correctly reported STALE DRAFT
+        SUSPECTED rather than a clean SUPERSEDED verdict (it cannot tell
+        "duplicate work" from "superseded draft" on its own); read both
+        diffs by hand and confirmed they were substantively equivalent in
+        scope, quality, and precedent used. Closed #4695 with a comment
+        naming the merged #4697 file it duplicates, rather than shipping
+        two near-duplicate `vs-*` pages for the same tool.
+      - >-
+        Verified: venture's own suite 48/48 (up from 42);
+        `platform/pages/clauses.test.mjs` 21/21 with no edit needed;
+        `platform/marketing`+`platform/pages` full suite 1257/1257, clean
+        on the first run (no em-dash/literal-dash JSON-LD mismatch this
+        time, since the page uses literal `--` consistently in both the
+        JSON-LD and the visible prose, matching this venture's own
+        existing style); `checklist_coverage.py`, `score_ventures.py
+        --check` (281 ventures), `router/validate.py` (280 ventures) all
+        clean.
+    mrr_end: 0
