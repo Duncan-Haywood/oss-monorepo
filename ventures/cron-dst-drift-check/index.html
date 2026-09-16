@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cron DST Drift Check — Will This Schedule Skip, Double-Fire, or Drift?</title>
+  <meta name="description" content="Paste a cron expression and an IANA timezone and see every upcoming run that falls in a spring-forward gap (never happens) or a fall-back overlap (happens twice), plus a separate check for how a fixed-UTC-only scheduler (GitHub Actions' schedule: cron included) drifts an hour twice a year against your intended local time. Free, deterministic, runs entirely in your browser.">
+  <meta property="og:title" content="Will your cron job survive daylight saving?">
+  <meta property="og:description" content="A deterministic DST-drift checker for cron expressions: spring-forward skips, fall-back double-fires, and the fixed-UTC-cron drift that quietly shifts a scheduled job by an hour twice a year. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Cron DST Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes a cron expression's upcoming run times as real local wall-clock instants in a chosen IANA timezone, flagging any occurrence that falls in a spring-forward gap (the local time never happens) or a fall-back overlap (the local time happens twice). Also computes how a fixed-UTC-only scheduler such as GitHub Actions' schedule: cron drifts against a target local time across the year's DST segments. Runs entirely in the browser or as a zero-dependency Node CLI."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a cron job skip or double-fire around daylight saving?","acceptedAnswer":{"@type":"Answer","text":"A cron expression that names a wall-clock time (like 02:30) in a timezone that observes DST is naming a local time that, twice a year, either does not exist (spring forward: clocks jump from 02:00 straight to 03:00, so 02:30 never happens that day) or happens twice (fall back: 01:00-01:59 occurs twice). Cron implementations do not agree on what to do then — some skip the run entirely, some fire once, some fire twice — so this tool reports the ambiguity rather than guessing which scheduler you run."}},{"@type":"Question","name":"Why does a schedule drift an hour twice a year even without a skip or double-fire?","acceptedAnswer":{"@type":"Answer","text":"Many schedulers — GitHub Actions' own schedule: cron among them, by its own documentation — always interpret the expression in UTC, with no timezone field at all. A single UTC cron expression cannot hit the same local wall-clock time year-round in any zone that observes DST: it is exactly right for half the year and off by the DST offset, almost always one hour, for the other half. That is not a skip or a double-fire, just a job that quietly runs an hour early or late for months at a time."}},{"@type":"Question","name":"Does this tool know what my actual cron daemon or scheduler will do?","acceptedAnswer":{"@type":"Answer","text":"No, and it does not claim to. Different cron implementations genuinely disagree on spring-forward and fall-back behavior. This tool computes the two facts that are true regardless of implementation — whether a named local time exists uniquely, doesn't exist, or exists twice on a given date — and leaves the scheduler-specific behavior to your own scheduler's documentation."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is computed in your browser using the standard Intl timezone database your browser already ships, and nothing you type is sent anywhere. The CLI makes no network call either — it is pure Intl/Date arithmetic."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    input[type=text], input[type=number] { box-sizing: border-box; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px ui-monospace, monospace; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.skipped { background: #fde8e8; color: #7f1d1d; }
+    .pill.ambiguous { background: #fef3c7; color: #78350f; }
+    .pill.normal { background: #e6f4ea; color: #14532d; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    .field-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    .field-row > div { flex: 1 1 160px; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CRON DST DRIFT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Will your cron job survive daylight saving?</h1>
+    <p>Paste a cron expression and an IANA timezone and see every upcoming run that falls in a <strong>spring-forward gap</strong> (the local time never happens) or a <strong>fall-back overlap</strong> (the local time happens twice) — plus a second check for the quieter failure: a scheduler that only understands UTC (GitHub Actions' own <code>schedule:</code> cron included) silently drifting an hour twice a year against the local time you actually meant.</p>
+    <p class="note">Nothing is uploaded. Every computation runs in this browser using the Intl timezone database your browser already ships.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Check a schedule for DST-skip / DST-overlap risk</h2>
+    <div class="field-row">
+      <div>
+        <label for="cron-input">Cron expression (5 fields: minute hour dom month dow)</label>
+        <input type="text" id="cron-input" value="30 2 * * *" style="width:100%">
+      </div>
+      <div>
+        <label for="cron-tz-input">IANA timezone</label>
+        <input type="text" id="cron-tz-input" value="America/New_York" list="tz-list" style="width:100%">
+        <datalist id="tz-list">
+          <option value="America/New_York"><option value="America/Chicago"><option value="America/Denver">
+          <option value="America/Los_Angeles"><option value="America/Sao_Paulo"><option value="Europe/London">
+          <option value="Europe/Paris"><option value="Europe/Berlin"><option value="Australia/Sydney">
+          <option value="Asia/Tokyo"><option value="Asia/Kolkata"><option value="UTC">
+        </datalist>
+      </div>
+      <div>
+        <label for="cron-count-input">How many upcoming runs</label>
+        <input type="number" id="cron-count-input" value="8" min="1" max="50" style="width:100%">
+      </div>
+      <div>
+        <label for="cron-from-input">Starting from (optional, ISO UTC)</label>
+        <input type="text" id="cron-from-input" placeholder="defaults to now" style="width:100%">
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check-schedule">Check schedule</button>
+      <button type="button" class="secondary" id="load-schedule-example">Load worked example (crosses a spring-forward gap)</button>
+    </p>
+    <p class="note" id="schedule-status"></p>
+    <div id="schedule-report" hidden aria-live="polite">
+      <p id="schedule-summary"></p>
+      <table id="schedule-table">
+        <thead><tr><th>Status</th><th>Local time</th><th>UTC instant</th></tr></thead>
+        <tbody id="schedule-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Check a fixed-UTC-only scheduler for drift</h2>
+    <p class="note">For a scheduler with no timezone field — a plain <code>crontab</code> on a UTC host, or GitHub Actions' <code>schedule:</code> cron, which its own docs say always runs in UTC — a single expression cannot hold a local wall-clock time steady across a DST-observing zone. This shows what UTC time you actually need per segment of the year, and the drift between them.</p>
+    <div class="field-row">
+      <div>
+        <label for="drift-time-input">Target local time (HH:MM)</label>
+        <input type="text" id="drift-time-input" value="09:00" style="width:100%">
+      </div>
+      <div>
+        <label for="drift-tz-input">IANA timezone</label>
+        <input type="text" id="drift-tz-input" value="America/New_York" list="tz-list" style="width:100%">
+      </div>
+      <div>
+        <label for="drift-year-input">Year</label>
+        <input type="number" id="drift-year-input" style="width:100%">
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check-drift">Check drift</button>
+      <button type="button" class="secondary" id="load-drift-example">Load worked example (GitHub Actions style)</button>
+    </p>
+    <div id="drift-report" hidden aria-live="polite">
+      <p id="drift-summary"></p>
+      <table id="drift-table" hidden>
+        <thead><tr><th>From (local calendar date)</th><th>UTC offset in effect</th><th>UTC clock time needed</th></tr></thead>
+        <tbody id="drift-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in CI before a deploy?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd">node cli.mjs next "30 2 * * *" --tz America/New_York
+node cli.mjs next "30 2 * * *" --tz America/New_York --count 5 --from 2027-03-13T00:00:00Z --json
+node cli.mjs drift 09:00 --tz America/New_York
+node cli.mjs drift 09:00 --tz America/New_York --year 2027 --json</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install, no network call ever. Both subcommands exit 1 when they find DST risk, so either works as a one-line CI check before a new scheduled job ships.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked</h2>
+    <table>
+      <thead><tr><th>Check</th><th>How</th></tr></thead>
+      <tbody>
+        <tr><td>Spring-forward skip</td><td>A cron occurrence's local wall-clock time (e.g. 02:30) does not exist on that calendar date in the chosen timezone, because clocks jumped forward past it</td></tr>
+        <tr><td>Fall-back overlap</td><td>A cron occurrence's local wall-clock time occurs twice on that calendar date, because clocks were set back through it — both real UTC instants are reported</td></tr>
+        <tr><td>Fixed-UTC-cron drift</td><td>A target local time is converted to UTC once per DST segment of the year; more than one distinct UTC clock time means a single fixed-UTC schedule cannot hold the local time steady</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Numeric cron fields only in v0 — no named months or weekdays (<code>JAN</code>, <code>MON</code>). Day-of-month and day-of-week follow the standard cron rule: when <em>both</em> are restricted (neither is <code>*</code>), a date matches either one, not both — the single most common cron misreading. See <a href="why-cron-jobs-break-across-dst.html">why this happens, and this checker's own named limits</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does a cron job skip or double-fire around daylight saving?</h3>
+    <p>A cron expression that names a wall-clock time (like 02:30) in a timezone that observes DST is naming a local time that, twice a year, either does not exist (spring forward: clocks jump from 02:00 straight to 03:00, so 02:30 never happens that day) or happens twice (fall back: 01:00-01:59 occurs twice). Cron implementations do not agree on what to do then — some skip the run entirely, some fire once, some fire twice — so this tool reports the ambiguity rather than guessing which scheduler you run.</p>
+    <h3>Why does a schedule drift an hour twice a year even without a skip or double-fire?</h3>
+    <p>Many schedulers — GitHub Actions' own <code>schedule:</code> cron among them, by its own documentation — always interpret the expression in UTC, with no timezone field at all. A single UTC cron expression cannot hit the same local wall-clock time year-round in any zone that observes DST: it is exactly right for half the year and off by the DST offset, almost always one hour, for the other half. That is not a skip or a double-fire, just a job that quietly runs an hour early or late for months at a time.</p>
+    <h3>Does this tool know what my actual cron daemon or scheduler will do?</h3>
+    <p>No, and it does not claim to. Different cron implementations genuinely disagree on spring-forward and fall-back behavior. This tool computes the two facts that are true regardless of implementation — whether a named local time exists uniquely, doesn't exist, or exists twice on a given date — and leaves the scheduler-specific behavior to your own scheduler's documentation.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. Everything is computed in your browser using the standard Intl timezone database your browser already ships, and nothing you type is sent anywhere. The CLI makes no network call either — it is pure Intl/Date arithmetic.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace testing your actual scheduler's real behavior around a DST transition. It reports whether a named local time exists, doesn't exist, or exists twice, and what UTC time a fixed-UTC schedule needs per DST segment — nothing more, and it does not know what your specific cron daemon or scheduler does with a skipped or ambiguous occurrence. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. Nothing you type is ever uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>schedule_checked</code>, <code>drift_checked</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass on the same repo: <a href="../agent-instructions-drift-check/">Agent Instructions Drift Check</a> and <a href="../security-txt-check/">security.txt Check</a> are the same deterministic, no-upload, zero-dependency shape applied to a different pair of things that quietly drift apart.</p>
+    <p class="support">Free and open source. If this saved you a bad on-call morning, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { nextRuns, summarizeRuns, utcOffsetDrift, formatOffset } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const pad2 = (n) => String(n).padStart(2, "0");
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    const yearInput = $("#drift-year-input");
+    yearInput.value = new Date().getUTCFullYear();
+
+    function renderSchedule() {
+      const cron = $("#cron-input").value.trim();
+      const tz = $("#cron-tz-input").value.trim();
+      const count = Math.max(1, Math.min(50, parseInt($("#cron-count-input").value, 10) || 8));
+      const fromRaw = $("#cron-from-input").value.trim();
+      const status = $("#schedule-status");
+      const report = $("#schedule-report");
+      status.textContent = "";
+      let result;
+      try {
+        const from = fromRaw ? new Date(fromRaw) : new Date();
+        if (fromRaw && Number.isNaN(from.getTime())) throw new Error(`Unparseable "Starting from" date: "${fromRaw}"`);
+        result = nextRuns(cron, tz, { count, from });
+      } catch (err) {
+        status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        report.hidden = true;
+        return;
+      }
+      const { status: s, text } = summarizeRuns(result);
+      $("#schedule-summary").innerHTML = `<span class="${s === "clean" ? "ok" : "changed"}">${escapeHtml(text)}</span>`;
+
+      const rows = [];
+      for (const occ of result.occurrences) {
+        const l = occ.local;
+        rows.push({
+          kind: occ.ambiguous ? "ambiguous" : "normal",
+          local: `${l.year}-${pad2(l.month)}-${pad2(l.day)} ${pad2(l.hour)}:${pad2(l.minute)}`,
+          utc: new Date(occ.utc).toISOString(),
+        });
+      }
+      for (const f of result.flagged.filter((f) => f.kind === "skipped")) {
+        const l = f.local;
+        rows.push({ kind: "skipped", local: `${l.year}-${pad2(l.month)}-${pad2(l.day)} ${pad2(l.hour)}:${pad2(l.minute)}`, utc: "never happens" });
+      }
+      rows.sort((a, b) => a.local.localeCompare(b.local));
+      $("#schedule-rows").innerHTML = rows.map((r) => `<tr>
+        <td><span class="pill ${r.kind}">${r.kind}</span></td>
+        <td><code>${escapeHtml(r.local)}</code></td>
+        <td><code>${escapeHtml(r.utc)}</code></td>
+      </tr>`).join("");
+      report.hidden = false;
+      record("schedule_checked");
+    }
+
+    function renderDrift() {
+      const m = /^(\d{1,2}):(\d{2})$/.exec($("#drift-time-input").value.trim());
+      const tz = $("#drift-tz-input").value.trim();
+      const year = parseInt(yearInput.value, 10) || new Date().getUTCFullYear();
+      const report = $("#drift-report");
+      if (!m) {
+        $("#drift-summary").innerHTML = `<span class="error">Expected HH:MM, e.g. 09:00.</span>`;
+        report.hidden = false;
+        $("#drift-table").hidden = true;
+        return;
+      }
+      const hour = parseInt(m[1], 10);
+      const minute = parseInt(m[2], 10);
+      let drift;
+      try {
+        drift = utcOffsetDrift(hour, minute, tz, year);
+      } catch (err) {
+        $("#drift-summary").innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        report.hidden = false;
+        $("#drift-table").hidden = true;
+        return;
+      }
+      if (!drift.observesDst) {
+        $("#drift-summary").innerHTML = `<span class="ok">${escapeHtml(tz)} does not observe DST in ${year} -- one fixed UTC time works year-round.</span>`;
+        $("#drift-table").hidden = true;
+      } else {
+        $("#drift-summary").innerHTML = `<span class="changed">${escapeHtml(tz)} observes DST -- a single fixed UTC cron cannot hold ${pad2(hour)}:${pad2(minute)} local steady. Drift: ${drift.driftMinutes} minutes.</span>`;
+        $("#drift-rows").innerHTML = drift.segments.map((seg) => `<tr>
+          <td>${year}-${pad2(seg.startMonth)}-${pad2(seg.startDay)}</td>
+          <td>${escapeHtml(formatOffset(seg.offsetMinutes))}</td>
+          <td><code>${pad2(seg.utcHour)}:${pad2(seg.utcMinute)}</code>${seg.utcDayShift ? ` (${seg.utcDayShift > 0 ? "+" : ""}${seg.utcDayShift}d)` : ""}</td>
+        </tr>`).join("");
+        $("#drift-table").hidden = false;
+      }
+      report.hidden = false;
+      record("drift_checked");
+    }
+
+    $("#check-schedule").addEventListener("click", renderSchedule);
+    $("#check-drift").addEventListener("click", renderDrift);
+
+    // A fixed, literal date rather than "now" so the worked example reliably
+    // crosses a real spring-forward transition (2027-03-14 in
+    // America/New_York) instead of just listing the next 5 ordinary days --
+    // this venture's own page.test.mjs extracts this constant and runs it
+    // through the real engine to prove the example actually demonstrates
+    // drift (PRODUCT_PLAYBOOK.md §5e, "prove it on a worked example").
+    const EXAMPLE_CRON = "30 2 * * *";
+    const EXAMPLE_TZ = "America/New_York";
+    const EXAMPLE_FROM = "2027-03-12T00:00:00Z";
+
+    $("#load-schedule-example").addEventListener("click", () => {
+      $("#cron-input").value = EXAMPLE_CRON;
+      $("#cron-tz-input").value = EXAMPLE_TZ;
+      $("#cron-count-input").value = 5;
+      $("#cron-from-input").value = EXAMPLE_FROM;
+      renderSchedule();
+      record("example_loaded");
+    });
+
+    $("#load-drift-example").addEventListener("click", () => {
+      $("#drift-time-input").value = "09:00";
+      $("#drift-tz-input").value = "America/New_York";
+      yearInput.value = 2027;
+      renderDrift();
+      record("example_loaded");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>
