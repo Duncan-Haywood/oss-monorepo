@@ -901,6 +901,12 @@
     <loc>https://marisstella.dev/tools/crawl-space-encapsulation-bid-calculator/vs-quoteiq.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/cron-dst-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cron-dst-drift-check/why-cron-jobs-break-across-dst.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/crown-molding-bid-calculator/</loc>
   </url>
   <url>
@@ -2063,6 +2069,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/oidc-trust-policy-check/vs-wiz.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/overtime-pay-calculator/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/owner-operator-cpm-calculator/</loc>
