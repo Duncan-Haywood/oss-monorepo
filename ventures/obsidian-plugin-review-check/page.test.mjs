@@ -169,3 +169,24 @@ test('the bundled worked example exercises every report status this tool can sho
   assert.equal(consoleLog.length, 1);
   assert.equal(report.ok, false, 'an example with real issues must not report ok');
 });
+
+test('index links to the vs-eslint-plugin-obsidianmd comparison page', () => {
+  assert.match(html, /href="vs-eslint-plugin-obsidianmd\.html"/);
+});
+
+test('the eslint-plugin-obsidianmd comparison page carries the no-warranty clause, the not-affiliated clause, links back, and its FAQ JSON-LD matches visible text', () => {
+  const page = readFileSync(join(HERE, 'vs-eslint-plugin-obsidianmd.html'), 'utf8');
+  assert.match(page, /No warranty/);
+  assert.match(page, /provided free and as-is, without warranty/);
+  assert.match(page, /Not affiliated with, endorsed by, or sponsored by Obsidian/);
+  assert.match(page, /href="\.\/"/);
+  const blocks = jsonLdBlocks(page).map((b) => JSON.parse(b));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the vs-eslint-plugin-obsidianmd page');
+  assert.ok(faq.mainEntity.length >= 3);
+});
+
+test('the vs-eslint-plugin-obsidianmd page is listed in the venture sitemap', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /vs-eslint-plugin-obsidianmd\.html/);
+});

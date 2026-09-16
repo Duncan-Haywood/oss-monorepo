@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This checker vs. eslint-plugin-obsidianmd | Obsidian Plugin Review Checker</title>
+  <meta name="description" content="eslint-plugin-obsidianmd is Obsidian's own official ESLint plugin -- 40+ rules that need an npm install, a TypeScript project, and a flat-config setup with a parserOptions.projectService block. This tool is a zero-install browser page and stdlib-only CLI that also checks the one thing the lint plugin's own docs never mention: whether manifest.json's version has a matching versions.json entry. Not affiliated with Obsidian or Dynalist Inc.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-eslint-plugin-obsidianmd.html">
+  <meta property="og:title" content="This checker vs. eslint-plugin-obsidianmd">
+  <meta property="og:description" content="eslint-plugin-obsidianmd needs npm, ESLint, and a TypeScript project. This tool is zero-install and also checks the one thing the lint plugin's docs never mention: a manifest version with no matching versions.json entry.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does eslint-plugin-obsidianmd already check versions.json?","acceptedAnswer":{"@type":"Answer","text":"Its own README and rule list, as published on GitHub, describe validating manifest.json's structure and dozens of source-level rules (forbidden elements, style-assignment XSS risks, Node.js imports, unchecked type casts, view-reference memory leaks, UI sentence case), but do not describe a rule that reads versions.json or cross-checks it against the current manifest version. This tool's versions.json check is the one thing in this comparison it does not cover."}},{"@type":"Question","name":"Should I use this tool or eslint-plugin-obsidianmd?","acceptedAnswer":{"@type":"Answer","text":"Different jobs and different moments: eslint-plugin-obsidianmd is an ESLint plugin -- install it, add it to your flat config with a parserOptions.projectService block pointed at a real TypeScript project, and its 40+ rules run as part of your normal lint pass, catching far more than this tool's three source-level checks (unsafe innerHTML/outerHTML/insertAdjacentHTML, direct global listeners, leftover console.log). This tool needs no npm install, no TypeScript project, and no config file -- open the page or run one CLI script -- and it is the one that reads manifest.json against versions.json, the release-mechanism check neither tool's docs credit the other with. A plugin team can reasonably run both: the lint plugin in day-to-day development, this tool as a fast pre-submission pass or CI gate that needs no project setup."}},{"@type":"Question","name":"Is this page affiliated with Obsidian or Dynalist Inc.?","acceptedAnswer":{"@type":"Answer","text":"No. This page is not affiliated with, endorsed by, or sponsored by Obsidian or Dynalist Inc. eslint-plugin-obsidianmd is Obsidian's own official project, named here only to describe what it does and does not cover, based on its public GitHub repository and README."}}]}</script>
+  <style>
+    :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+    body { max-width: 860px; margin: 0 auto; padding: 1.5rem; line-height: 1.5; }
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.15rem; }
+    h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+    .card { border: 1px solid #ccc; border-radius: 10px; padding: 1.2rem; margin: 1rem 0; }
+    .note, footer { font-size: 0.85rem; color: #666; }
+    table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; font-size: 0.9rem; }
+    footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #ccc; }
+    footer p { margin: 0.6rem 0; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; Obsidian Plugin Review Checker</a></p>
+  <h1>This checker vs. eslint-plugin-obsidianmd</h1>
+  <p class="note">Different setups, and one check neither tool shares: eslint-plugin-obsidianmd is Obsidian's own official ESLint plugin -- install, configure a TypeScript project, and run it as part of your normal lint pass. This tool needs no install at all, and it is the one that cross-checks <code>manifest.json</code>'s version against <code>versions.json</code>.</p>
+
+  <section class="card">
+    <h2>What each tool is for</h2>
+    <p>
+      <strong>eslint-plugin-obsidianmd</strong> (<code>obsidianmd/eslint-plugin</code> on GitHub, published to
+      npm) is Obsidian's own official linting plugin. Its documented setup is an
+      <code>npm install</code> of ESLint and the plugin, then a flat-config
+      <code>eslint.config.js</code> with a required <code>parserOptions</code> block --
+      its own README states this block is needed because the recommended
+      config includes type-checked rules that read your actual TypeScript
+      project. In exchange for that setup it covers a lot: 40+ rules across
+      manifest-structure validation, forbidden-element and style-assignment
+      XSS prevention, banned Node.js module imports, unchecked type casts,
+      view-reference memory-leak patterns, and UI sentence-case conventions.
+    </p>
+    <p>
+      This tool does none of that setup and none of that rule breadth. It is
+      a static page you open (or a Node CLI with no dependencies) that reads
+      three inputs -- <code>manifest.json</code>, <code>versions.json</code>,
+      and your source files -- and reports six specific, narrow checks:
+      missing required manifest fields, leftover sample-plugin template
+      placeholders, a manifest version with no matching
+      <code>versions.json</code> entry, unsafe
+      <code>innerHTML</code>/<code>outerHTML</code>/<code>insertAdjacentHTML</code>
+      usage, direct global listeners, and leftover
+      <code>console.log</code> calls. The versions.json check is the one this
+      comparison turns on: eslint-plugin-obsidianmd's published rule list
+      validates <code>manifest.json</code>'s own structure but its docs do
+      not describe a rule that reads <code>versions.json</code> at all --
+      that file governs which installed Obsidian versions can see a release,
+      a release-mechanism question a source linter has no reason to touch.
+    </p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>I want my day-to-day lint pass to catch Obsidian-specific API misuse across 40+ rule categories.</td><td>eslint-plugin-obsidianmd -- that is what it is built for, inside your existing ESLint setup.</td></tr>
+          <tr><td>Does my manifest.json version have a matching versions.json entry?</td><td>This tool -- the one check in this comparison the lint plugin's own docs do not describe.</td></tr>
+          <tr><td>I don't have a TypeScript project set up, or just want a quick pre-submission pass.</td><td>This tool -- open the page or run <code>node check.mjs .</code>, no install, no config file.</td></tr>
+          <tr><td>I want sentence-case UI-string linting, memory-leak rules, or banned-import checks.</td><td>eslint-plugin-obsidianmd -- this tool's three source checks are narrower on purpose.</td></tr>
+          <tr><td>I want a CI gate with zero project setup, just a script.</td><td>This tool -- <code>node check.mjs .</code> exits non-zero on any check it fails.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A plugin team can reasonably run both: eslint-plugin-obsidianmd in
+      normal development for its rule breadth, and this tool as a fast,
+      setup-free pass before submission -- or in a CI job that has no
+      TypeScript project to point a linter at -- specifically for the
+      versions.json cross-check neither tool's own documentation credits the
+      other with. This page makes no claim about eslint-plugin-obsidianmd's
+      rule accuracy either way -- it only describes its publicly documented
+      setup and rule coverage, and states what this tool does differently.
+      Neither tool's clean result is a guarantee of review approval.
+    </p>
+    <p class="note">This tool needs no account and no sign-in: it is a static page, the scan runs in your browser (or as a stdlib-only CLI), and both keep working with the network off.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does eslint-plugin-obsidianmd already check versions.json?</h3>
+    <p>Its own README and rule list, as published on GitHub, describe validating <code>manifest.json</code>'s structure and dozens of source-level rules (forbidden elements, style-assignment XSS risks, Node.js imports, unchecked type casts, view-reference memory leaks, UI sentence case), but do not describe a rule that reads <code>versions.json</code> or cross-checks it against the current manifest version. This tool's versions.json check is the one thing in this comparison it does not cover.</p>
+    <h3>Should I use this tool or eslint-plugin-obsidianmd?</h3>
+    <p>Different jobs and different moments: eslint-plugin-obsidianmd is an ESLint plugin -- install it, add it to your flat config with a <code>parserOptions.projectService</code> block pointed at a real TypeScript project, and its 40+ rules run as part of your normal lint pass, catching far more than this tool's three source-level checks (unsafe innerHTML/outerHTML/insertAdjacentHTML, direct global listeners, leftover console.log). This tool needs no npm install, no TypeScript project, and no config file -- open the page or run one CLI script -- and it is the one that reads manifest.json against versions.json, the release-mechanism check neither tool's docs credit the other with. A plugin team can reasonably run both: the lint plugin in day-to-day development, this tool as a fast pre-submission pass or CI gate that needs no project setup.</p>
+    <h3>Is this page affiliated with Obsidian or Dynalist Inc.?</h3>
+    <p>No. This page is not affiliated with, endorsed by, or sponsored by Obsidian or Dynalist Inc. eslint-plugin-obsidianmd is Obsidian's own official project, named here only to describe what it does and does not cover, based on its public GitHub repository and README.</p>
+    <p class="note">Open <a href="./">Obsidian Plugin Review Checker</a> to scan your own plugin folder, or read <a href="versions-json-missing-entry.html">fixing a missing versions.json entry</a> for the mechanism this tool checks that eslint-plugin-obsidianmd does not.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or security advice, and it does not replace Obsidian's own plugin-review process or a qualified linting/security review. It is not a guarantee that an unflagged plugin will be approved, or that a flagged one is unsafe. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you select, or that a URL will keep working. Do not use it as a system of record. If a tool needs to survive, get <a href="check.mjs" rel="noopener">check.mjs</a> and run it yourself.</p>
+    <p class="note">Nothing leaves your browser: the folder you select is read locally with the File API and never uploaded, and the CLI never makes a network call. We count only anonymous feature events in localStorage, with an opt-out. This page makes no live comparison against eslint-plugin-obsidianmd -- it is a static page describing its publicly documented facts.</p>
+    <p>Not affiliated with, endorsed by, or sponsored by Obsidian or Dynalist Inc. Obsidian is a product of Dynalist Inc., named here only to describe what this tool checks.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> -- <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
