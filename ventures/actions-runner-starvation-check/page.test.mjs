@@ -2,6 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+function jsonLdBlocks(source) {
+  const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
+  const blocks = [];
+  let m;
+  while ((m = re.exec(source)) !== null) blocks.push(m[1]);
+  return blocks;
+}
+
 // The docs page answers the search phrase a starved-CI visitor actually types.
 // It already linked back to the tool; the index shipped without a crawlable
 // link the other way, so a visitor (or crawler) on the tool never reached it.
@@ -59,4 +67,34 @@ test('index links one hop to the actions-minutes-estimator sibling', async () =>
     /href="\.\.\/actions-minutes-estimator\/"/,
     'index must link ../actions-minutes-estimator/ so crawlers reach it in one hop',
   );
+});
+
+test('index links to the re-running-the-job comparison page, and it links back', async () => {
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(index, /href="vs-rerunning-the-job\.html"/);
+  const page = await readFile(new URL('./vs-rerunning-the-job.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\/"/);
+});
+
+test('the comparison page carries valid FAQPage JSON-LD matching its visible text', async () => {
+  const page = await readFile(new URL('./vs-rerunning-the-job.html', import.meta.url), 'utf8');
+  const faq = jsonLdBlocks(page).map((b) => JSON.parse(b)).find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(page.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(page.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test('the comparison page carries the no-warranty clause and the privacy line', async () => {
+  const page = await readFile(new URL('./vs-rerunning-the-job.html', import.meta.url), 'utf8');
+  assert.match(page, /No warranty/);
+  assert.match(page, /provided free and as-is, without warranty/);
+  assert.match(page, /nothing you paste is uploaded/i);
+});
+
+test('the comparison page is listed in the venture sitemap', async () => {
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /vs-rerunning-the-job\.html/);
 });
