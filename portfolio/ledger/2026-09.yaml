@@ -31150,3 +31150,74 @@ entries:
         the exact defect class CLAUDE.md already records costing live
         product -- fixed before merging, not after.
     mrr_end: 0
+  - venture: agent-instructions-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, screened this session per the "direction setting"
+        intake gate (portfolio/DIRECTION.md already told this brief not to
+        restate strategy again -- see session_gate.py's PROCEED verdict and
+        the owner's standing preference for a new venture). Screened
+        against portfolio/pipeline/screened-out.md and the liability/
+        ethical gates in portfolio/pipeline/README.md (composite 6.5, floor
+        1 ai_leverage, liability_containment 9, ethical_robustness 9 --
+        both clear the 5 gate by a wide margin). Deliberately not a
+        202nd `<trade>-bid-calculator` and not a 39th generic
+        misconfiguration checker (portfolio/pipeline/README.md flags both
+        shapes as needing a new angle, not just a new niche): this checks a
+        new object entirely, an AI-coding-agent instruction file
+        (AGENTS.md/CLAUDE.md/.cursorrules/copilot-instructions.md), for
+        drift against the repo it describes.
+      - >-
+        Shipped a zero-dependency Node CLI (cli.mjs) and a no-upload
+        browser page (index.html, with an optional local folder picker
+        that reads file *names* only, never contents or uploads), sharing
+        one parsing/diff engine (engine.mjs): markdown-link/inline-code
+        file-reference extraction, npm run/test/start script-reference
+        extraction against package.json, and fenced-code-block detection
+        of the interpreter-mismatch shell footgun (bare pytest/mypy
+        instead of python3 -m) that this repo's own CLAUDE.md documents
+        costing real sessions time on 2026-09-11 and 2026-09-12.
+      - >-
+        Named channel: developers who have adopted the fast-growing,
+        multi-vendor AGENTS.md convention (Codex, Claude Code, Cursor's
+        .cursorrules, Copilot's copilot-instructions.md all read one as of
+        2025-2026) searching for a way to validate it -- GitHub/npm search,
+        r/ChatGPTCoding, r/cursor, r/ClaudeAI, Hacker News agent-tooling
+        threads -- and any repo wiring cli.mjs into its own CI.
+        duplicate_check.py scored the closest existing venture
+        (docker-base-image-pin-check) at 0.10 against the final
+        description, well under the 0.45 flag bar; a hand grep of every
+        VENTURE.yaml and screened-out.md for "agent"/"AGENTS.md"/
+        "CLAUDE.md"/"instruction" found only unrelated senses of "agent"
+        (real-estate-agent-photo-app, ubuntu-agent-server) and a
+        differently-shaped screened-out row (a hosted telemetry-monitoring
+        platform, not a static linter).
+      - >-
+        Ran the CLI against this repo's own real, current AGENTS.md during
+        graduation (not a fabricated demo) and it found one live broken
+        reference (`usage/usage.yaml`, missing its `portfolio/` prefix) --
+        direct, non-fabricated proof the tool works on the exact class of
+        document that inspired it.
+      - >-
+        VENTURE.yaml, portfolio/pipeline/candidates.yaml +
+        candidates/agent-instructions-drift-check.md +
+        portfolio/pipeline/README.md's table (renumbered, inserted by
+        composite rather than appended out of order),
+        portfolio/scoring/venture-scores.yaml, and
+        portfolio/usage/usage.yaml's baseline row all added/updated in the
+        same PR as the code, per the graduation process. Ran
+        platform/marketing/regen.mjs and platform/pages/launched.mjs
+        --write so the venture is mirrored and enters the Atom feed.
+      - >-
+        Verified: venture's own suite 73/73 (32 engine, 12 CLI including a
+        dogfood test against this repo's own AGENTS.md, 9 page); CLI run
+        manually against a temp fixture and against this repo's own
+        AGENTS.md; router/validate.py 284 valid; clauses.mjs clean;
+        check_no_payment_code.py clean; checklist_coverage.py clean;
+        validate_doc_consistency.py + validate_candidates.py both clean
+        (43 candidates); usage/validate_usage.py clean (256 products);
+        score_ventures.py --check clean (285 ventures). No payment code
+        introduced.
+    mrr_end: 0

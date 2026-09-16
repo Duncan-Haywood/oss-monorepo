@@ -1633,7 +1633,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # an independent wedding/event photographer's package add-on pricing
     # calculator, with a static `index.html` from its first commit, same
     # shape as the rest of this running count.
-    total = 275  # `infra/OWNER_CHECKLIST.md`'s own "N of the 275 tools" wording.
+    # 276 since 2026-09-16, when `agent-instructions-drift-check` graduated —
+    # a zero-dependency CLI + no-upload browser tool checking an AI-coding-
+    # agent instruction file (AGENTS.md/CLAUDE.md) for broken file
+    # references, undefined npm scripts, and known interpreter-mismatch
+    # shell footguns, with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    total = 276  # `infra/OWNER_CHECKLIST.md`'s own "N of the 276 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
