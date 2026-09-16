@@ -411,10 +411,28 @@ async function roundTrip(browser, slug) {
 
     let before = await page.evaluate(READ_FIELDS);
     let stagedRows = null;
-    let beforeHero = await page.evaluate(READ_HERO);
+    let beforeHero = '';
     await page.click(control);
     // A copy handler may await the clipboard write; give the microtask a turn.
     await page.waitForTimeout(120);
+    // Read the headline *after* the click, not before it, because the click is
+    // the moment the sender is looking at. Most tools here recalculate as you
+    // type, so the two readings are identical and this changes nothing. A page
+    // whose price renders only on submit is the exception, and the fix such a
+    // page is supposed to carry is to submit from its own copy handler:
+    // `forestry-mulching-bid-calculator` calls `form.requestSubmit()` there,
+    // citing this file, precisely so the sender sees the figure they are
+    // sending. Sampling before the click read the `—` placeholder that fix
+    // exists to replace, and reported `headline — → $10,506.34` against a link
+    // that had dropped nothing — 0 fields differed. A probe that reports a
+    // known-benign failure is a probe whose next real one goes unread, which is
+    // why this is corrected here rather than annotated in the venture.
+    //
+    // It masks nothing: the invariant is still "what the sender sees when they
+    // copy" against "what the recipient's page computes", so a copy handler
+    // that blanks or corrupts the headline still fails, and a link that drops a
+    // field is compared field-by-field regardless of any headline.
+    beforeHero = await page.evaluate(READ_HERO);
     let link = await page.evaluate(() => window.__pfCopied);
     const refusal = await page.evaluate(() =>
       document.getElementById('shareStatus')?.textContent
