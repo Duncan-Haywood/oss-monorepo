@@ -31538,3 +31538,61 @@ entries:
         `platform/webcheck` 59/59; `platform/ci`'s full unittest sweep with no
         failures; `checklist_coverage.py` clean on both axes.
     mrr_end: 0
+  - venture: overtime-pay-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a new venture per `session_gate.py`'s PROCEED
+        verdict and `portfolio/DIRECTION.md`'s 2026-09-06 owner direction
+        (new ventures rank first when no in-progress venture work exists and
+        the build-now pipeline is empty). Free browser calculator for hourly
+        overtime pay: standard single-rate time-and-a-half, plus the FLSA
+        weighted-average ("blended rate") method (29 CFR 778.115) for a
+        workweek worked at two or more different pay rates -- the case
+        payroll admins most often get wrong by hand, because the overtime
+        premium is half the blended rate, not the full rate.
+        `duplicate_check.py` scored nothing >= 0.16 against any existing
+        venture, pipeline candidate, or screened-out row; not in
+        `screened-out.md`. Entirely client-side, zero marginal cost, no
+        key/account required. Closed a crawlable-orphan pair with
+        `certified-payroll-calculator` (reciprocal footer links, both sides
+        tested) -- this venture graduated with no sibling linking to it, and
+        the orphan budget in `platform/pages/siblings-budget.json` is 0.
+      - >-
+        Concurrency note: 2 other sessions each merged a new venture to
+        `main` while this one was in progress (`agent-instructions-drift-check`,
+        `hoa-reserve-fund-calculator`), each independently bumping the same
+        generated/tracked totals this venture also touches (mirrored-tool
+        count in 4 places, the `platform/privacy` opt-out-switch pin,
+        `gitops/ci/README.md`'s runs-on count, `venture-scores.yaml`,
+        `usage.yaml`). Re-fetched `origin/main`, merged, and resolved by
+        taking the generated `gitops/prod/front-door*` mirror wholesale from
+        `origin/main` and re-running `regen.mjs` on top rather than hand
+        merging binary/generated diffs, and by hand for the prose/data
+        conflicts (appending this venture's entry after the concurrent
+        sessions' entries in each running-count comment and each YAML file,
+        landing on 279 total mirrored tools).
+      - >-
+        Verified locally: venture's own suite 74/74 (with
+        certified-payroll-calculator's new sibling-link tests); full
+        `platform/marketing` + `platform/pages` suite 1260/1260 (post-merge
+        rerun, clean); `platform/privacy` + `platform/webcheck` 142/142;
+        `platform/proposal` 243/243; `gitops/tests` 581 passed/1 skipped;
+        `platform/ci`'s 25-module unittest sweep + `agent_review` 21/21;
+        `portfolio/{ledger,scoring,router,usage,pipeline}` + `infra/tests`
+        446 passed; all 8 `portfolio-validate.yml` validators
+        (`router/validate.py`, `front-door-tools.mjs --headroom`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_probe_index.py`, `score_sensitivity.py`,
+        `score_ventures.py --check`, `validate_usage.py`) individually
+        clean on the finished (post-merge) tree; scoped browser checks
+        (`sweep`, `contrast`, `sideways`) against both touched ventures all
+        pass, after fixing a WCAG-adjacent sideways-scroll defect the check
+        itself caught (a 4-column rate-input row too wide at 360px, fixed
+        with a mobile grid-area stack) and a `money()` formatter signing a
+        negative inside the currency symbol (`platform/ci`'s
+        `check_money_sign` guard). `node platform/marketing/regen.mjs` run
+        (twice, once before and once after the `origin/main` merge) and its
+        rewrites committed.
+    mrr_end: 0
