@@ -16,3 +16,9 @@ Thumbs.db
 next-env.d.ts
 out/
 *.tsbuildinfo
+
+# The CLI's baseline store. It holds the URLs someone watches and the text of
+# those pages -- a record of which vendors a practitioner is watching and when.
+# That belongs on their disk and nowhere else, so it is ignored by default
+# rather than left to be noticed in a diff.
+vendor-watch-baselines.json
