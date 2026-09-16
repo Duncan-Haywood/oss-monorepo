@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. a single-rate overtime calculator — Overtime Pay Calculator</title>
+<meta name="description" content="Most free overtime calculators take one hourly rate and multiply everything past 40 hours by 1.5. For a week worked at two different pay rates that answer is wrong. This free calculator does the FLSA weighted-average method too, and shows the arithmetic.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-single-rate-calculator.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a single-rate overtime calculator">
+<meta property="og:description" content="A single-rate calculator is right for a week worked at one rate and wrong for a week worked at two. The FLSA weighted-average method is a different formula, and the part people get backwards is that the premium is half the blended rate.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What happens if I put a week with two pay rates into a single-rate calculator?","acceptedAnswer":{"@type":"Answer","text":"You have to pick one rate to type in, and every choice is wrong in a predictable direction. Entering the higher rate overstates the overtime owed; entering the lower rate understates it; averaging the two rates without weighting them by hours is only correct in the rare case where the hours happen to be equal. The federal rule is not an average of the rates at all — it is total straight-time pay divided by total hours, which moves with the hours as well as the rates."}},{"@type":"Question","name":"Is the weighted-average method just multiplying the blended rate by 1.5?","acceptedAnswer":{"@type":"Answer","text":"No, and this is the step most hand-built spreadsheets get backwards. The straight-time pay you already summed across every rate includes the overtime hours, so those hours have been paid once at straight time already. What is still owed is the premium, which is half the blended rate per overtime hour. Multiplying the blended rate by 1.5 and applying it to the overtime hours pays part of that straight time twice and overstates the total."}},{"@type":"Question","name":"Why does a calculator help here when the formula is only three steps?","acceptedAnswer":{"@type":"Answer","text":"Because the three steps are easy to state and easy to get wrong under time pressure, and nothing in a payroll system flags the error. A blended rate is recomputed from scratch every week the mix of hours changes, so it is not a number you set once and reuse. Typing the rates and hours in and reading the breakdown takes seconds and shows each intermediate figure, which is what makes the result checkable rather than just plausible."}},{"@type":"Question","name":"Does this replace a payroll system or a single-rate calculator I already use?","acceptedAnswer":{"@type":"Answer","text":"It does not replace a payroll system, which handles taxes, deductions, filings and records this tool never touches. It does replace the single-rate calculator for the two-rate case, because it covers the single-rate case as well — the standard time-and-a-half calculator is on the same page. Treat the result as arithmetic you can check, not as a determination of what is owed."}},{"@type":"Question","name":"Is anything I type into either calculator uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Both calculators run entirely in your browser. There is no account, no server-side storage, and no pay rate, hour count or employee detail is ever sent anywhere. Refreshing the page clears what you entered, by design."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #1f4a5d; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3630; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. a single-rate overtime calculator</h1>
+<p class="lede">Nearly every free overtime calculator on the web asks for one hourly rate and the hours worked, multiplies everything past 40 by 1.5, and shows a total. For a week worked at one rate that is exactly right, and you do not need anything more. For a week worked at two rates &mdash; a warehouse shift and a front-desk shift, a weekday rate and a weekend rate, two job codes at one employer &mdash; there is no single rate to type in, and the federal rule is a different formula rather than the same one with a different number in it.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A single-rate calculator</strong> answers the common case correctly and quickly. Its limit is structural rather than a quality problem: it has one rate field, so a week with two rates has to be flattened into one number before it can be entered, and there is no choice of number that gives the right answer.</p>
+<p><strong>This calculator</strong> does the single-rate case on the same page, and adds the FLSA weighted-average method (29 CFR 778.115) for the two-rate case: add a row per distinct pay rate with its hours, and it sums straight-time pay across every rate, divides by total hours for the blended regular rate, and adds half that rate per overtime hour as the premium. It shows each of those figures rather than only the total, so the arithmetic can be checked against your own pay policy.</p>
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>One hourly rate, over 40 hours &mdash; what is the total?</td><td>Either one. A single-rate calculator handles this fine, and so does the standard calculator on this page.</td></tr>
+<tr><td>Two or more pay rates in the same workweek &mdash; what is the regular rate?</td><td>This calculator's blended-rate figure: total straight-time pay divided by total hours, not an average of the rates.</td></tr>
+<tr><td>How much of the total is the overtime premium?</td><td>This calculator, which reports the premium as its own line &mdash; half the blended rate per overtime hour.</td></tr>
+<tr><td>Can I paste the arithmetic into a pay record or an email?</td><td>This calculator's <strong>Copy breakdown</strong>, which puts every rate, the blended rate, the premium and the total on the clipboard as plain text, with the disclaimer attached.</td></tr>
+<tr><td>Does my state require more than the federal minimum?</td><td>Neither tool can answer this. Several states require daily overtime or double-time; check your state's rule and your own pay policy.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No. This calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What happens if I put a week with two pay rates into a single-rate calculator?</h3>
+<p>You have to pick one rate to type in, and every choice is wrong in a predictable direction. Entering the higher rate overstates the overtime owed; entering the lower rate understates it; averaging the two rates without weighting them by hours is only correct in the rare case where the hours happen to be equal. The federal rule is not an average of the rates at all &mdash; it is total straight-time pay divided by total hours, which moves with the hours as well as the rates.</p>
+<h3>Is the weighted-average method just multiplying the blended rate by 1.5?</h3>
+<p>No, and this is the step most hand-built spreadsheets get backwards. The straight-time pay you already summed across every rate includes the overtime hours, so those hours have been paid once at straight time already. What is still owed is the premium, which is half the blended rate per overtime hour. Multiplying the blended rate by 1.5 and applying it to the overtime hours pays part of that straight time twice and overstates the total.</p>
+<h3>Why does a calculator help here when the formula is only three steps?</h3>
+<p>Because the three steps are easy to state and easy to get wrong under time pressure, and nothing in a payroll system flags the error. A blended rate is recomputed from scratch every week the mix of hours changes, so it is not a number you set once and reuse. Typing the rates and hours in and reading the breakdown takes seconds and shows each intermediate figure, which is what makes the result checkable rather than just plausible.</p>
+<h3>Does this replace a payroll system or a single-rate calculator I already use?</h3>
+<p>It does not replace a payroll system, which handles taxes, deductions, filings and records this tool never touches. It does replace the single-rate calculator for the two-rate case, because it covers the single-rate case as well &mdash; the standard time-and-a-half calculator is on the same page. Treat the result as arithmetic you can check, not as a determination of what is owed.</p>
+<h3>Is anything I type into either calculator uploaded?</h3>
+<p>No. Both calculators run entirely in your browser. There is no account, no server-side storage, and no pay rate, hour count or employee detail is ever sent anywhere. Refreshing the page clears what you entered, by design.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply a published federal formula to numbers you supply. They are provided free and as-is, without warranty of any kind, express or implied, and they are not legal, tax, or payroll advice. <strong>You are responsible for verifying anything here against your state's overtime rules, your own pay policy, and where required a qualified professional.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>This page names no specific product.</strong> "A single-rate overtime calculator" describes a category of free tool, and the method behind it, rather than any one company's calculator.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>

@@ -134,6 +134,11 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
   'hoa-reserve-fund-calculator/vs-spreadsheet.html',
+  // Compares against "a single-rate overtime calculator" -- the shape of
+  // nearly every free overtime calculator on the web, and the manual method
+  // behind it, not a company or product this could be mistaken for. The
+  // page's own footer says so explicitly ("names no specific product").
+  'overtime-pay-calculator/vs-single-rate-calculator.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
