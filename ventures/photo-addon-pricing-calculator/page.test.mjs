@@ -207,3 +207,47 @@ test('index links one hop to the commercial-photo-license-calculator sibling', (
     'index must link ../commercial-photo-license-calculator/ so a crawler reaches that tool in one hop',
   );
 });
+
+// --- vs-pricing-by-comparing-to-other-studios.html ------------------------
+
+const comparisonHtml = readFileSync(
+  new URL('./vs-pricing-by-comparing-to-other-studios.html', import.meta.url),
+  'utf8',
+);
+
+test('index links to the comparison page, and it links back', () => {
+  assert.match(html, /href="vs-pricing-by-comparing-to-other-studios\.html"/);
+  assert.match(comparisonHtml, /href="\.\/"/);
+});
+
+test('the comparison page carries valid FAQPage JSON-LD matching its visible copy verbatim', () => {
+  const match = comparisonHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(match, 'expected a JSON-LD block on the comparison page');
+  const faq = JSON.parse(match[1]);
+  assert.equal(faq['@type'], 'FAQPage');
+  assert.ok(faq.mainEntity.length >= 4);
+  for (const q of faq.mainEntity) {
+    assert.ok(
+      comparisonHtml.includes(q.acceptedAnswer.text),
+      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
+    );
+  }
+});
+
+test('the comparison page carries the no-warranty disclaimer and sponsor/license links', () => {
+  assert.match(comparisonHtml, /No warranty\.<\/strong> This tool is provided free and as-is/);
+  assert.match(comparisonHtml, /not legal or business advice/);
+  assert.match(comparisonHtml, /href="LICENSE"/);
+  assert.match(comparisonHtml, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('the comparison page states the no-upload claim', () => {
+  assert.match(comparisonHtml, /Nothing leaves your browser/);
+});
+
+test('the comparison page names no other studio or product by name', () => {
+  // It compares against a generic pricing method ("what other studios
+  // charge"), not a named competitor -- so it is exempt from the
+  // not-affiliated clause in clauses.mjs, and must stay that way.
+  assert.doesNotMatch(comparisonHtml, /Not affiliated with/);
+});
