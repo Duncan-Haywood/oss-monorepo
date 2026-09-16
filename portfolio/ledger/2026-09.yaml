@@ -31538,3 +31538,78 @@ entries:
         `platform/webcheck` 59/59; `platform/ci`'s full unittest sweep with no
         failures; `checklist_coverage.py` clean on both axes.
     mrr_end: 0
+  - venture: court-reporter-transcript-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Salvaged PR #4747 instead of merging or closing it. The branch added
+        `vs-spreadsheet-comparison.html`, a second comparison page for this
+        venture against the same alternative (a spreadsheet or mental math)
+        that `main` already serves as `vs-spreadsheet-or-guessing.html`.
+        `supersede_check.py 4747` returned NOT SUPERSEDED (59 lines absent
+        from base) but flagged STALE DRAFT SUSPECTED on 6 of 7 files, which
+        is exactly the shape CLAUDE.md says not to merge on the line scan
+        alone: merging it would have published two pages competing for the
+        same query on the same site, and regressed the mirror to older byte
+        counts.
+      - >-
+        Read the pairs rather than the verdict. Most of the branch's prose
+        was an earlier draft of what `main` already says better, but three
+        things were genuinely new, and those were ported into the page
+        `main` actually serves: the agency-offer-divided-by-every-hour angle
+        (now a fifth FAQ, the one point the shipped page's FAQ never made),
+        the concrete turnaround tiers the multiplier moves between
+        (ordinary, expedited, daily, same-day), and the same division stated
+        in the "what each approach does" prose. No new URL, no duplicate.
+      - >-
+        Fixed a test that could never fail. Both FAQ tests here asserted
+        `html.includes(answer.acceptedAnswer.text)` against the whole file,
+        and the JSON-LD block is part of that file, so every answer
+        trivially "appeared" and the test could not catch JSON-LD diverging
+        from visible prose -- the precise condition Google's structured-data
+        policy penalises. `assertFaqMatchesVisibleProse` now strips the
+        JSON-LD block, strips tags, decodes the entities the markup uses
+        (`&mdash;`) but the JSON spells literally, and compares on
+        normalised whitespace; it also checks question text, not just
+        answers. Proved by mutation: editing the visible prose alone turns
+        it red, and it is green again once reverted.
+      - >-
+        Then went looking for where else it was copied to, rather than
+        leaving that as a follow-up nobody runs. `grep -rl
+        'html.includes(q.acceptedAnswer.text)'` found three more sites: a
+        third assertion in this venture's own file (the explainer page,
+        missed on the first pass because it was formatted differently) and
+        two in `ventures/caption-quality-check/page.test.mjs` -- one of them
+        the test named `every FAQPage question on every page is also present
+        as visible text`, which is the intent stated in the title and not
+        delivered by the body. All four assertions now compare against
+        stripped, entity-decoded visible prose. Both ventures' pages turned
+        out to be genuinely correct, which is the good outcome: the markup
+        was never wrong, it just was not being checked. Proved by mutation
+        on each venture separately -- altering one visible `<h3>` on
+        `caption-quality-check`'s comparison page, JSON-LD untouched, turns
+        it red naming the question, green again on revert.
+      - >-
+        Concurrency, recorded because it changed what this branch carries.
+        Two reds found on `main` while verifying -- the opt-out switch count
+        pinned at 261 against a catalogue of 262, and
+        `agent-instructions-drift-check` (#4745) having landed with three
+        test files that ran in no workflow at all -- were both fixed here
+        and then, on the re-merge before pushing, found already fixed on
+        `main` by a concurrent session that had gone further (count now 263,
+        for `hoa-reserve-fund-calculator`). Their versions were taken and
+        mine dropped rather than forced: the reds are closed either way, and
+        the arithmetic this branch did on the count (257 at 48f8b2887, five
+        `usage.mjs` added since, all five `pass`, 257 + 5 = 262) agreed with
+        theirs, which is the reassuring outcome rather than a wasted one.
+      - >-
+        Verified: `node --test ventures/court-reporter-transcript-calculator/*.test.mjs`
+        52 passed / 0 failed with the strengthened assertions in place.
+        Platform node suites 1503 passed / 0 failed. `gitops/tests` 581
+        passed / 1 skipped and `portfolio/*`+`infra/tests` 446 passed, both
+        via `python3 -m pytest` (the spelling CLAUDE.md pins -- bare
+        `pytest` here is a `uv` shim without the repo's deps). All 20
+        `platform/ci` unittest modules OK, `agent_review` OK. `regen.mjs`
+        re-run and its rewrites committed.
+    mrr_end: 0
