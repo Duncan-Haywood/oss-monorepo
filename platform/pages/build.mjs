@@ -417,6 +417,83 @@ const CATEGORY_RULES = [
     test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate)/.test(slug),
   },
   {
+    id: 'food-service',
+    title: 'Restaurant, bar & food truck pricing',
+    accent: '#6b2f3a',
+    blurb:
+      'What a plate, a pour, or a booked event actually earns once food cost, waste, and the hours behind it are in the arithmetic — for the operators who sell food and drink rather than a job at someone else\'s property.',
+    // Added 2026-09-13. The catch-all guard in `build.test.mjs` is what
+    // prompted it -- `More free tools` had reached 6 against a bound of 5 --
+    // but this section is NOT what fixed that, and the distinction matters for
+    // anyone weighing whether to keep it. #4677 restored the bound
+    // independently in the same window by filing `caption-quality-check` (the
+    // arrival that tripped it) under `ci`.
+    //
+    // What the guard actually bought was the enumeration. Following its own
+    // instruction -- "Prefer listing the catch-all to reasoning about the one
+    // venture in front of you" -- the six were listed rather than judging the
+    // arrival, and the cluster turned out to be already there, two of it
+    // sitting in the catch-all and one of it filed under `services` for want
+    // of anywhere better. So judge this section on the axis below and on
+    // `pour-cost-calculator` having a home that fits, not on a bound.
+    //
+    // The axis is what is being sold: food and drink, priced per item or per
+    // event, where the cost side is ingredients and prep hours. That is a
+    // different question from every named section above:
+    //
+    //   - `trades` bids a job at the customer's property. `hood-cleaning-bid-
+    //     calculator` cleans a restaurant's hood and is deliberately NOT moved
+    //     here -- it is a trade pricing its own visit, and the restaurant is
+    //     its customer, not its operator.
+    //   - `services` prices "a visit, a route, a booking, or a licence".
+    //   - `marketplace` is someone else's storefront and fee schedule.
+    //   - `solo-earner` is one individual's own labour or audience.
+    //
+    // `pour-cost-calculator` moves here out of `services`, and that is the
+    // part worth justifying rather than assuming. A bar working out the pour
+    // cost on a spirit is not pricing a visit, a route, a booking or a licence
+    // -- it was in `services` because nothing fitted better, which is the same
+    // condition the catch-all exists to express, one section over. A reader
+    // who found the menu tool is plausibly the same person who wants the pour
+    // cost; a reader of `dog-walking-route-pricing` is not.
+    //
+    // An exact slug list rather than a prefix family, for the reason
+    // `solo-earner` records: these three are named for three unrelated things
+    // and no prefix catches them without stealing from a section above. A
+    // `food` prefix would not catch `menu-engineering-calculator` or
+    // `pour-cost-calculator` at all, and a `menu` or `pour` prefix claims
+    // nothing a fourth member would inherit. The cost is that a fourth member
+    // needs one line here -- which the catch-all bound will ask for anyway.
+    //
+    // Smallest named section at three members (`logistics` is next at seven),
+    // and the honest case for it has to stand without the bound, since #4677
+    // already satisfied that. Two things carry it:
+    //
+    // `pour-cost-calculator` gains a home that fits. It was in `services`,
+    // which prices "a visit, a route, a booking, or a licence", and a pour cost
+    // is none of those -- so one of these three was already mis-filed
+    // regardless of what the catch-all did.
+    //
+    // And a hub that answers "restaurant menu pricing" or "bar pour cost" is
+    // worth more to a searcher than three rows spread across "Everything else"
+    // and a service-business page they have no reason to open. This catalogue's
+    // measured problem is enumeration, not content (`pages_state.py`'s
+    // `indexing` row: sitemap auto-discovery cannot happen from a project-Pages
+    // subpath), so a named hub on a high-intent phrase is the cheap half of
+    // that.
+    //
+    // The risk in the other direction is real and worth naming: a section this
+    // small is one venture away from looking arbitrary, and food/bev is a wide
+    // enough niche that it should grow rather than sit at three. If it has not
+    // gained a fourth member in a few months, fold it back into `services`
+    // rather than defending it.
+    test: (slug) => [
+      'menu-engineering-calculator',
+      'food-truck-event-margin-calculator',
+      'pour-cost-calculator',
+    ].includes(slug),
+  },
+  {
     id: 'services',
     title: 'Service business pricing & quotes',
     accent: '#1d4a5c',
@@ -1960,6 +2037,14 @@ const CATEGORY_PAGE_COPY = {
     intro:
       'Winning the work and getting paid for it are two different problems. These tools cover the second one: when the cash actually arrives, what a payment term costs you, and what a price change has to earn before it breaks even.',
     audience: 'small-business owners and operators',
+  },
+  'food-service': {
+    title: 'Free menu, pour cost and food truck pricing calculators',
+    description:
+      'Free pricing tools for restaurants, bars and food trucks. Work out a menu item\'s margin, a spirit\'s pour cost, or whether a booked event covers its own prep.',
+    intro:
+      'Food and drink is priced per item, and the cost side is the part that moves: an ingredient price that changed last week, waste nobody logged, and the prep hours that never make it onto the plate cost. These tools put those in the arithmetic, so a menu price or an event quote is a margin you can point at rather than a guess with a multiplier on it.',
+    audience: 'restaurant, bar and food truck operators',
   },
   services: {
     title: 'Free pricing calculators for service businesses',

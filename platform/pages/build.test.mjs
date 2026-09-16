@@ -1282,7 +1282,7 @@ test('categories route each slug shape somewhere sensible', () => {
 });
 
 test('every category names a distinct share-card file and accent colour', () => {
-  assert.equal(ALL_CATEGORIES.length, 9, 'the eight named sections plus the catch-all');
+  assert.equal(ALL_CATEGORIES.length, 10, 'the nine named sections plus the catch-all');
   const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
   assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
   const accents = ALL_CATEGORIES.map((category) => category.accent);
@@ -1310,15 +1310,19 @@ test('tools that belong to a named category are not left in the catch-all', () =
   // it in "More free tools" hid it from every seller already reading the
   // marketplace section that names it.
   assert.equal(categoryFor('whatnot-seller-payout').id, 'marketplace');
-  // The three #4680 filed out of the catch-all on 2026-09-13. Pinned here a
-  // commit later than the placements themselves — #4677 and #4680 were both
-  // racing the bound below during an Actions starvation window, and the pin is
-  // the half that is easy to leave for afterwards precisely because
-  // `build.mjs` alone already makes the section pages come out right. It is
-  // also the half that lasts: a placement with no assertion is one regex edit
-  // from silently dropping its venture back into "More free tools", which is
-  // the section a visitor reads last, and nothing would go red.
-  assert.equal(categoryFor('food-truck-event-margin-calculator').id, 'services');
+  // `food-service`'s three, pinned with the section that introduces them.
+  // `pour-cost-calculator` is the one that matters here: it is the only member
+  // that came from a named section rather than the catch-all, having sat in
+  // `services` for want of anywhere better, so it is the placement a later
+  // reader is most likely to undo by widening the `services` prefix list back
+  // over it. The other two are the ordinary case — a placement with no
+  // assertion is one regex edit from dropping its venture back into "More free
+  // tools", the section a visitor reads last, with nothing going red.
+  assert.equal(categoryFor('food-truck-event-margin-calculator').id, 'food-service');
+  assert.equal(categoryFor('menu-engineering-calculator').id, 'food-service');
+  assert.equal(categoryFor('pour-cost-calculator').id, 'food-service');
+  // `childcare-tuition-calculator` stayed in `services` — it prices a seat,
+  // not a plate, so `food-service`'s three did not pull it in with them.
   assert.equal(categoryFor('childcare-tuition-calculator').id, 'services');
   assert.equal(categoryFor('security-deposit-return-calculator').id, 'backoffice');
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
@@ -4353,31 +4357,49 @@ test('the catch-all holds only what no section claims', async () => {
   // wrong, because nobody was looking at the aggregate. Prefer listing the
   // catch-all to reasoning about the one venture in front of you.
   //
-  // 6 -> 2 by placement across 2026-09-12/13, and the bound is deliberately
-  // left at 5. Worth recording how it went, because the guard did its job and
-  // still nearly did not get acted on. It fired at six and was red on `main`
-  // for two days: Actions has been starved since 2026-09-04, so nothing ran
-  // it, and two sessions each classified the failure as "pre-existing and
-  // unrelated" after an honest git-stash A/B against their own change (this
-  // venture's own PR, `court-reporter-transcript-calculator`, was a third).
-  // All readings were correct; none fixed it alone. It took a session
-  // treating a red `main` as its own problem — which is what CLAUDE.md's
-  // `run_workflow_locally.py --tree` line exists to force.
+  // Fired again 2026-09-13 at 6, and the bound was not raised then either.
+  // Two sessions answered it in the same window, differently, and both landed
+  // — so the record here is worth keeping straight, because the two halves
+  // are easy to mistake for one decision:
   //
-  // Then three sessions answered it at once, and the aggregate came out right
-  // anyway: #4677 filed `caption-quality-check` under `ci`, and #4680 filed
-  // `food-truck-event-margin-calculator` and `childcare-tuition-calculator`
-  // into `services` and `security-deposit-return-calculator` into
-  // `backoffice`. Every one of those is a section that already wanted the
-  // venture — none was a stretch made to hit a number — and the two left here
-  // (an electronics-calculator hub and a restaurant menu-engineering
-  // classifier) share no axis with each other or with any named section, so
-  // they are the fallback working rather than a gap.
+  //   - #4677 restored the bound, by filing `caption-quality-check` (the
+  //     arrival that tripped it) under `ci` rather than leaving it here. That
+  //     alone took the catch-all back to 5.
+  //   - `food-service` in build.mjs came out of listing the six rather than
+  //     judging the arrival, and is NOT what fixed the bound. Two of the six
+  //     (`menu-engineering-calculator`, `food-truck-event-margin-calculator`)
+  //     shared an axis with `pour-cost-calculator`, which had been sitting in
+  //     `services` for want of anywhere better: food and drink priced per item
+  //     or per event.
   //
-  // The bound stays at 5 with two members. That is the point of the exercise:
-  // a guard sitting permanently one arrival from firing is what produced the
-  // 8 -> 9 raises above, and headroom is what lets the next genuinely
-  // unclassifiable venture land without an argument.
+  // So this guard is not the argument for that section — a reader checking
+  // later should weigh it on the axis and on `pour-cost-calculator` having a
+  // home that fits, not on a bound that something else had already restored.
+  // What the guard did do is make someone enumerate, which is the whole point
+  // of it and is how the cluster was found at all.
+  //
+  // Between them the catch-all was 3: electronics teaching calculators,
+  // daycare tuition, a security deposit refund.
+  //
+  // It is 1 as merged, and the difference is a third session in the same
+  // window. #4680 also enumerated, and filed the other two out from under
+  // this branch while it was in flight — daycare tuition to `services` (a
+  // small operator pricing a booking from its own ratio and overhead), the
+  // security deposit refund to `backoffice` (a reconciliation after the
+  // tenancy ended, the same axis as `card-processing-fee-audit`). Both are
+  // right, neither overlaps `food-service`, and this branch was merged onto
+  // them rather than around them.
+  //
+  // So the catch-all now holds `ai-engineering-academy` alone — a hub of
+  // electronics teaching calculators, which is genuinely unlike every named
+  // section here. Four free slots under the bound, which is the most headroom
+  // it has had, and the right state for it: the fallback exists so a new
+  // venture can land without an argument about taxonomy on its first commit.
+  //
+  // Worth noting what three concurrent sessions did NOT do. None raised the
+  // bound. Each enumerated, found a different true thing, and the aggregate
+  // came out coherent — which is the behaviour the paragraph above asks for,
+  // arrived at independently three times.
   assert.ok(
     more.items.length <= 5,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
