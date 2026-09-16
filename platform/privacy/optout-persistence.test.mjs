@@ -31,16 +31,33 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // 255 -> 256 on 2026-09-13, when `caption-quality-check` shipped with a
 // `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
 // redirect-chain-check and its siblings.
+// 256 -> 257 on 2026-09-11 (missed at the time), when
+// `process-server-fee-calculator` graduated with a `usage.mjs` opt-out
+// following the same `readOptOut`/`writeOptOut` pattern as its siblings --
+// its own PR touched venture-scores.yaml, publish-surface.yaml and the
+// front-door mirror but not this file, so main stayed red here by one until
+// this comment was written, same shape as the obsidian-plugin-review-check
+// miss above.
 // 257 -> 258 on 2026-09-16, when `pdf-accessibility-tag-check` graduated
 // with a `usage.mjs` copying the same `readOptOut`/`writeOptOut` pattern
 // (via cors-misconfig-check's usage.mjs, keyed under its own storage name).
 // 258 -> 259 on 2026-09-16, when `process-server-fee-calculator` (#4720)
-// merged with a `toggleUsage()` opt-out following the same working pattern
-// as its sibling ventures -- this file was not touched by that PR, so main
-// stayed red here until a later session (adding this venture's own
-// `vs-servemanager.html` comparison page) noticed while running the
-// checklist.
-const SWITCHES_IN_THE_CATALOGUE = 259;
+// graduated with a `usage.mjs` opt-out. That merge left `main` red here --
+// the same shape as the 254 -> 255 entry above, and for the same reason: the
+// venture's own suite is green, and nothing in a new venture's diff points at
+// this file. Found by a session that merged `main` into its branch and re-ran
+// the checklist, not by CI, which is starved.
+// One thing that entry is worth keeping separate from the others: it is the
+// first addition here that does NOT copy the `readOptOut`/`writeOptOut` pair.
+// It spells the same switch `usageAllowed`/`toggleUsage`, persisting an
+// `...-usage-opt-out` key in `localStorage`. Behavioural discovery found it
+// regardless, which is the argument for behavioural discovery -- the name
+// allowlist this file started with would have filed it `no-switch` and left a
+// real opt-out unverified while the count still read as full coverage.
+// 259 -> 260 on 2026-09-16, when `photo-addon-pricing-calculator` graduated
+// with a `usage.mjs` opt-out following the same `readOptOut`/`writeOptOut`
+// pattern as its siblings.
+const SWITCHES_IN_THE_CATALOGUE = 260;
 
 let counter = 0;
 function fixture(source) {
