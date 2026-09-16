@@ -1619,7 +1619,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # graduated — a freelance court reporter deposition-invoice and
     # agency-offer calculator, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 272  # `infra/OWNER_CHECKLIST.md`'s own "N of the 272 tools" wording.
+    # 273 since 2026-09-16, when `pdf-accessibility-tag-check` graduated — a
+    # zero-dependency CLI + no-upload browser tool checking a PDF's own tag
+    # structure, title, language, alt text, and form-field labels against
+    # PDF/UA and Section 508, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    total = 273  # `infra/OWNER_CHECKLIST.md`'s own "N of the 273 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

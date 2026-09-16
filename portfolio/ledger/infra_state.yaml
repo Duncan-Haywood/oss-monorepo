@@ -322,6 +322,24 @@ readings:
       (`HETZNERSSHKEY`, `ARGOCD_REPO_TOKEN`, `SITE_GH_TOKEN`,
       `CODEX_AUTH_JSON`, `RUNNER_TOKEN`). Nothing for an agent session to do
       here but keep the reading current.
+      Re-measured 2026-09-16, on the same owner ask repeated verbatim
+      (Hetzner CI/CD, marketing materials deployed on the boxes, and the
+      Codex CLI running dev work against the plan's included quota): still
+      clean -- 56/56 tests, and `systemd-analyze verify` exits 0 printing
+      nothing on both units. The recovery dry run was rehearsed too, which
+      the 09-13 reading did not do: `DRY_RUN=1 WITH_CODEX_HOST=1
+      WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1
+      bootstrap/restore-cluster.sh` prints the no-SSH half correctly (all
+      three extras resolved to a box, each naming the credential standing
+      behind it) and then exits 1 at the SSH gate on both hosts, exactly as
+      documented. So the route is not merely unit-tested -- the owner's
+      one-shot recovery was executed as far as a session can take it, and
+      the first thing it cannot do is the first thing it needs.
+      One more thing was checked rather than assumed, because the third ask
+      is about the *prompt* and not only the install:
+      `gitops/agents/workers/mandate.md` already carries the product-first
+      mandate this account runs on, including the three-PR drain floor, in
+      sync. Nothing to port.
       Re-measured again 2026-09-16, prompted by the same owner ask repeating
       verbatim (Hetzner CI/CD, marketing-material deployment, this Codex
       dev-worker route) three days after the 2026-09-13 reading above: still
