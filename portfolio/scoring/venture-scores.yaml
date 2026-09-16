@@ -11682,6 +11682,54 @@ ventures:
       bonded, or registered in a jurisdiction, or whether an affidavit of
       service will hold up in court. The tool never touches a live case or
       anyone else's data. Nothing entered leaves the browser.
+  - slug: photo-addon-pricing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model -- shoot/cull/edit
+      time valued at a target hourly rate, gear depreciation/wear, and a
+      break-even price derivation -- and it is arithmetic an independent
+      photographer has to be able to re-derive when deciding whether an
+      add-on is worth offering.
+    basis: >-
+      Graduated and scored 2026-09-16, in the same change, per
+      `score_ventures.py --check`. Same two-layer shape as this portfolio's
+      other solo-professional pricing calculators
+      (`process-server-fee-calculator`, `photo-booth-event-quote`), scored
+      the same way, applied to a genuinely different decision: an independent
+      wedding/event photographer deciding whether a specific package add-on
+      is worth offering or repricing, not whether a single job or client is
+      worth taking. Defensibility 3: the arithmetic is transparent and
+      reproducible, as it has to be, and the shoot/cull/edit-hours-vs-target-
+      rate shape generalizes readily to other creative-services add-on
+      pricing, same as the process-server calculator's own attempts/mileage
+      shape generalizes to other route-billing add-ons. Distribution 5:
+      "how much to charge for a second shooter" and "extra hour wedding
+      photography price" are narrow, low-competition search terms, and
+      r/WeddingPhotography, r/photography's business-side threads, the
+      Fstoppers "Business" forum, SLR Lounge, and PPA (Professional
+      Photographers of America) member forums are named, active communities
+      that already discuss add-on pricing -- comparable in size to the
+      CAT-adjuster and process-server forums this portfolio has already
+      scored 5-6, and volume is unmeasured either way.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the photographer's own figures,
+      never legal or contract advice, tax guidance, or a determination that
+      any specific price is fair or enforceable under a client contract. The
+      tool never touches a live booking or anyone else's data. Nothing
+      entered leaves the browser.
   - slug: 1099k-reconciliation-worksheet
     scores:
       ai_leverage: 1

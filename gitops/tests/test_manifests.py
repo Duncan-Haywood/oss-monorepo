@@ -1629,7 +1629,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # structure, title, language, alt text, and form-field labels against
     # PDF/UA and Section 508, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 274  # `infra/OWNER_CHECKLIST.md`'s own "N of the 274 tools" wording.
+    # 275 since 2026-09-16, when `photo-addon-pricing-calculator` graduated —
+    # an independent wedding/event photographer's package add-on pricing
+    # calculator, with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    total = 275  # `infra/OWNER_CHECKLIST.md`'s own "N of the 275 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

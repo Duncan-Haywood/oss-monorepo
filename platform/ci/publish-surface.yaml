@@ -662,6 +662,9 @@ workflows:
 - workflow: pet-grooming-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: photo-addon-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: photo-booth-event-quote-ci.yml
   classification: none
   publishes: []

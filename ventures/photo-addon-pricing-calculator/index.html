@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo Package Add-On Pricing Calculator</title>
+<meta name="description" content="Free calculator for independent wedding and event photographers: find real net profit for one package add-on -- an extra hour, a second shooter, an album upgrade, an engagement session -- after your own shoot/cull/edit time, gear wear, and any subcontractor or physical-goods cost, then compare two or three add-ons by effective hourly rate.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Photo Package Add-On Pricing Calculator">
+<meta property="og:description" content="A flat $300-for-an-extra-hour add-on reads well until the culling and editing hours it generates come out of it. Find real per-add-on profit and compare add-on options by effective hourly rate, not headline price.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Photo Package Add-On Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds true net profit for one independent wedding or event photographer's package add-on after the photographer's own shoot/cull/edit time, gear wear, and any second-shooter or physical-goods cost, then ranks several add-on options by net profit and effective hourly rate."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a flat add-on price not tell me whether it's worth offering?","acceptedAnswer":{"@type":"Answer","text":"Because the flat price is usually set by comparing to what other studios charge, not by counting what the add-on actually costs. Culling and editing an extra hour of coverage, or a second shooter's entire take, routinely runs to one to two times the shoot hours that produced it -- time that never shows up on an invoice the way a subcontractor payment does, but is just as real."}},{"@type":"Question","name":"Does this tool write my client contract or tell me what to charge?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator only prices your own add-on economics from numbers you supply. It does not do tax planning, business-entity formation, or contract review, and it does not replace a signed client contract, your own liability or gear insurance, or your accountant."}},{"@type":"Question","name":"Why does my own time count as a cost when no cash actually changes hands?","acceptedAnswer":{"@type":"Answer","text":"Because your target hourly rate is what you have decided your time is worth, and an add-on that pays less than that rate is quietly cutting your own pay to take it. Counting only cash costs like a second shooter's fee or an album vendor's bill -- and not your own culling and editing hours -- is the most common way an add-on's real profit gets overstated."}},{"@type":"Question","name":"Does anything about my add-on or comparison rows get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the add-on rows you type into the comparison table are never saved anywhere -- they exist only in the page while it is open. The add-on inputs above are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#131b2e;background:#eef1f8}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #c7d0e8;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a123008;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #dbe1f2;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1f3ca3;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #a9b6e0;border-radius:8px;font:inherit;background:#fbfcff}.result{background:#101a45;color:#fff;border-color:#101a45;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4a5578}.result .note{color:#c7d0f2}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#1f3ca3}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #a9b6e0;background:#fff;cursor:pointer;color:#131b2e}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR INDEPENDENT WEDDING &amp; EVENT PHOTOGRAPHERS</p><h1>A flat add-on price can still be a losing job.</h1><p class="lede">Charging $300 for an extra hour reads fine right up until the culling and editing hours it generates, the gear wear, and any second-shooter payout come out of it. This free calculator finds real net profit for one add-on, then lets you compare two or three options by what they actually pay per hour of your own time — not their headline price.</p></header>
+
+<main class="layout">
+<section><h2>Price one add-on</h2>
+<fieldset><legend>Your time</legend><div class="fields">
+<label>Your target hourly rate ($)<input id="targetHourlyRate" type="number" min="0" step="1" value="75"></label>
+<label>Extra shoot hours<input id="shootHours" type="number" min="0" step="0.25" value="1"></label>
+<label>Culling hours this add-on generates<input id="cullHours" type="number" min="0" step="0.25" value="0.5"></label>
+<label>Editing hours this add-on generates<input id="editHours" type="number" min="0" step="0.25" value="1.5"></label>
+</div></fieldset>
+<fieldset><legend>Other costs</legend><div class="fields">
+<label>Second shooter / subcontractor cost ($)<input id="secondShooterCost" type="number" min="0" step="1" value="0"></label>
+<label>Album/print/physical-goods cost ($)<input id="albumPrintCost" type="number" min="0" step="1" value="0"></label>
+<label>Gear depreciation/wear allowance ($)<input id="gearWearAllowance" type="number" min="0" step="1" value="5"></label>
+</div></fieldset>
+<fieldset><legend>Price</legend><div class="fields">
+<label>Price you're considering charging ($)<input id="price" type="number" min="0" step="1" value="300"></label>
+</div></fieldset>
+<p id="draftStatus" class="note" role="status">Your add-on inputs above are saved locally in this browser so you don't retype them next time. A shareable link puts the same numbers in the URL fragment — nothing is uploaded. Your comparison rows below are never saved.</p>
+<div class="actions">
+<button type="button" id="copyLink">Copy shareable link</button>
+<button type="button" id="reset">Reset to defaults</button>
+<span id="linkStatus" class="note" role="status"></span>
+</div>
+</section>
+
+<section class="result" aria-live="polite"><h2>Profit for this add-on</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="profit" class="big">$0.00</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Gross revenue</dt><dd id="revenueOut"></dd>
+<dt>Your labor cost (at target rate)</dt><dd id="laborOut"></dd>
+<dt>Second shooter + goods cost</dt><dd id="otherCostOut"></dd>
+<dt>Total cost</dt><dd id="totalCostOut"></dd>
+<dt>Profit margin</dt><dd id="marginOut"></dd>
+<dt>Break-even price</dt><dd id="breakEvenOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not do tax planning, business-entity formation, or contract review, and it does not replace a signed client contract, your own liability or gear insurance, or your accountant.</p>
+</section>
+</main>
+
+<section><h2>Compare add-ons</h2><p class="note">For each add-on option, run it through the calculator above with that option's numbers and enter the resulting net profit and effective hourly rate here. Blank or zero rows are ignored. Nothing you type here is saved or uploaded — refreshing the page clears it.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Add-on</th><th>Net profit ($)</th><th>Effective hourly rate ($/hr)</th></tr></thead><tbody id="addonRows">
+<tr><td><input class="addonName" data-row="1" aria-label="Add-on 1 name" type="text" value="Extra hour of coverage"></td><td><input class="addonProfit" data-row="1" aria-label="Add-on 1 net profit in dollars" type="number" step="1" value="70.00"></td><td><input class="addonRate" data-row="1" aria-label="Add-on 1 effective hourly rate in dollars per hour" type="number" step="0.01" value="23.33"></td></tr>
+<tr><td><input class="addonName" data-row="2" aria-label="Add-on 2 name" type="text" value="Second shooter"></td><td><input class="addonProfit" data-row="2" aria-label="Add-on 2 net profit in dollars" type="number" step="1" value="-72.50"></td><td><input class="addonRate" data-row="2" aria-label="Add-on 2 effective hourly rate in dollars per hour" type="number" step="0.01" value="-20.71"></td></tr>
+<tr><td><input class="addonName" data-row="3" aria-label="Add-on 3 name" type="text" value=""></td><td><input class="addonProfit" data-row="3" aria-label="Add-on 3 net profit in dollars" type="number" step="1" value=""></td><td><input class="addonRate" data-row="3" aria-label="Add-on 3 effective hourly rate in dollars per hour" type="number" step="0.01" value=""></td></tr>
+<tr><td><input class="addonName" data-row="4" aria-label="Add-on 4 name" type="text" value=""></td><td><input class="addonProfit" data-row="4" aria-label="Add-on 4 net profit in dollars" type="number" step="1" value=""></td><td><input class="addonRate" data-row="4" aria-label="Add-on 4 effective hourly rate in dollars per hour" type="number" step="0.01" value=""></td></tr>
+</tbody></table></div>
+<p id="addonErrors" class="err" role="alert" hidden></p>
+<dl>
+<dt>Add-ons compared</dt><dd id="addonCount"></dd>
+<dt>Best add-on</dt><dd id="addonBest"></dd>
+<dt>Worst add-on</dt><dd id="addonWorst"></dd>
+<dt>Spread between them</dt><dd id="addonSpread"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. Your add-on inputs (time, second-shooter and gear costs, price) are saved locally on this device so you don't retype them next time — <strong>Reset to defaults</strong> clears them, and <strong>Copy shareable link</strong> puts them in a URL fragment your browser never sends anywhere. Your comparison rows are a different promise: they are never saved anywhere, and closing or refreshing the tab clears them. There is no account. We count only anonymous local feature events (<code>addon-priced</code>, <code>addons-compared</code>, <code>link-copied</code>, <code>reset</code>) so we can tell whether the calculator gets used — no add-on names, prices, or figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Add-on looks fine on paper — is it actually worth it?</h2>
+<p>A $450 second-shooter add-on can pay less than the extra hour it took to charge for it, once the culling, editing, and subcontractor fee are netted out. <a href="is-a-second-shooter-worth-it.html">Is a second shooter worth it?</a> works through the arithmetic on a real underpriced add-on next to a solid one.</p>
+</section>
+
+<section><h2>Common questions</h2>
+<h3>Why does a flat add-on price not tell me whether it's worth offering?</h3><p>Because the flat price is usually set by comparing to what other studios charge, not by counting what the add-on actually costs. Culling and editing an extra hour of coverage, or a second shooter's entire take, routinely runs to one to two times the shoot hours that produced it -- time that never shows up on an invoice the way a subcontractor payment does, but is just as real.</p>
+<h3>Does this tool write my client contract or tell me what to charge?</h3><p>No. This calculator only prices your own add-on economics from numbers you supply. It does not do tax planning, business-entity formation, or contract review, and it does not replace a signed client contract, your own liability or gear insurance, or your accountant.</p>
+<h3>Why does my own time count as a cost when no cash actually changes hands?</h3><p>Because your target hourly rate is what you have decided your time is worth, and an add-on that pays less than that rate is quietly cutting your own pay to take it. Counting only cash costs like a second shooter's fee or an album vendor's bill -- and not your own culling and editing hours -- is the most common way an add-on's real profit gets overstated.</p>
+<h3>Does anything about my add-on or comparison rows get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the add-on rows you type into the comparison table are never saved anywhere -- they exist only in the page while it is open. The add-on inputs above are different: those are saved locally on this device, so you don't retype them, and a shareable link can carry them to another device. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not do tax planning, business-entity formation, or contract review &mdash; verify all of that independently. It does not audit your books or replace your own liability or gear insurance, your signed client contract, or your accountant.</p><p>MIT licensed. If it helped you decide which add-on to offer, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p><p>Pricing a one-off photo booth booking instead of a package add-on? The <a href="../photo-booth-event-quote/">photo booth event quote calculator</a> prices setup, travel, attendant labor, and print cost before you confirm a booking. Quoting a commercial licensing scope instead of an add-on? The <a href="../commercial-photo-license-calculator/">commercial photography licensing calculator</a> separates the creative fee from usage rights across term, territory, exclusivity, and channel — nothing uploaded either way.</p></footer>
+
+<script type="module">
+import { calculate, rankAddOns, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues } from './share.mjs';
+const el = id => document.getElementById(id);
+const safe = fn => { try { return fn(); } catch { return undefined; } };
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const ADDON_IDS = Object.keys(DEFAULTS);
+const DRAFT_KEY = 'photo-addon-pricing-calculator-addon-draft';
+const ADDON_ROWS = 4;
+let counted = false;
+let addonsCounted = false;
+
+function addonInputs() { return Object.fromEntries(ADDON_IDS.map(id => [id, el(id).value])); }
+
+// Captured before any restore below runs — this is what "Reset to defaults"
+// puts back, and it is deliberately the page's own shipped values rather
+// than a restatement of calc.mjs's DEFAULTS (the two are asserted equal by
+// share.test.mjs, not by this script).
+const DEFAULT_ADDON_INPUTS = addonInputs();
+
+function applyAddonInputs(values) {
+  for (const id of ADDON_IDS) {
+    if (values[id] !== undefined) el(id).value = values[id];
+  }
+}
+
+function persistAddon() {
+  safe(() => localStorage.setItem(DRAFT_KEY, JSON.stringify(addonInputs())));
+}
+
+function updateAddon(count = false) {
+  try {
+    const r = calculate(addonInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('profit').hidden = false;
+    el('profit').textContent = money(r.netProfit);
+    el('rateLine').textContent = r.effectiveHourlyRate === null
+      ? 'no photographer time entered'
+      : `about ${money(r.effectiveHourlyRate)}/hr above your target rate`;
+    el('revenueOut').textContent = money(r.grossRevenue);
+    el('laborOut').textContent = money(r.laborCost);
+    el('otherCostOut').textContent = money(r.secondShooterCost + r.albumPrintCost + r.gearWearAllowance);
+    el('totalCostOut').textContent = money(r.totalCost);
+    el('marginOut').textContent = r.profitMarginPct === null ? '—' : `${r.profitMarginPct.toFixed(1)}%`;
+    el('breakEvenOut').textContent = money(r.breakEvenPrice);
+    if (count && !counted) { recordEvent('addon-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('profit').hidden = true;
+    for (const id of ['rateLine', 'revenueOut', 'laborOut', 'otherCostOut', 'totalCostOut', 'marginOut', 'breakEvenOut']) el(id).textContent = '';
+  }
+}
+
+function updateAddons(count = false) {
+  try {
+    const addons = [];
+    for (let row = 1; row <= ADDON_ROWS; row++) {
+      const nameEl = document.querySelector(`.addonName[data-row="${row}"]`);
+      const profitEl = document.querySelector(`.addonProfit[data-row="${row}"]`);
+      const rateEl = document.querySelector(`.addonRate[data-row="${row}"]`);
+      const profit = parseFloat(profitEl.value);
+      const rate = parseFloat(rateEl.value);
+      if (!Number.isFinite(profit) && !Number.isFinite(rate)) continue;
+      if (profit === 0 && rate === 0) continue;
+      addons.push({
+        name: nameEl.value || `Add-on ${row}`,
+        netProfit: Number.isFinite(profit) ? profit : 0,
+        effectiveHourlyRate: Number.isFinite(rate) ? rate : 0,
+      });
+    }
+    const ranked = rankAddOns(addons);
+    el('addonErrors').hidden = true; el('addonErrors').textContent = '';
+    el('addonCount').textContent = String(ranked.optionCount);
+    el('addonBest').textContent = ranked.best ? `${ranked.best.name} (${money(ranked.best.effectiveHourlyRate)}/hr)` : '—';
+    el('addonWorst').textContent = ranked.worst ? `${ranked.worst.name} (${money(ranked.worst.effectiveHourlyRate)}/hr)` : '—';
+    el('addonSpread').textContent = `${money(ranked.spread)}/hr`;
+    if (count && !addonsCounted) { recordEvent('addons-compared'); addonsCounted = true; }
+  } catch (e) {
+    el('addonErrors').textContent = e.message; el('addonErrors').hidden = false;
+    for (const id of ['addonCount', 'addonBest', 'addonWorst', 'addonSpread']) el(id).textContent = '';
+  }
+}
+
+ADDON_IDS.forEach(id => el(id).addEventListener('input', () => { updateAddon(true); persistAddon(); }));
+document.querySelectorAll('.addonProfit, .addonRate, .addonName').forEach(input => input.addEventListener('input', () => updateAddons(true)));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs(addonInputs());
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = ' Link copied.';
+  } catch {
+    el('linkStatus').textContent = ' Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link-copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyAddonInputs(DEFAULT_ADDON_INPUTS);
+  safe(() => localStorage.removeItem(DRAFT_KEY));
+  history.replaceState(null, '', location.pathname);
+  updateAddon(false);
+  el('linkStatus').textContent = ' Reset to defaults.';
+  recordEvent('reset');
+});
+
+// A shared link wins over a local draft so the recipient always sees the
+// sender's numbers. `formValues` -- not a plain object spread -- is what
+// makes that true: it writes every add-on field, so one the link omitted is
+// cleared rather than left showing the recipient's own saved draft.
+(() => {
+  const saved = safe(() => JSON.parse(localStorage.getItem(DRAFT_KEY) || '{}')) || {};
+  if (Object.keys(saved).length) applyAddonInputs(saved);
+  const fromLink = decodeInputs(location.hash || location.search);
+  const hasLink = Object.keys(fromLink).length > 0;
+  if (hasLink) applyAddonInputs(formValues(fromLink));
+  if (hasLink || Object.keys(saved).length) {
+    el('draftStatus').textContent = hasLink
+      ? 'Opened a shared add-on. Review the numbers before you use it.'
+      : 'Restored your last add-on from this browser. Your comparison rows are never saved.';
+  }
+})();
+
+updateAddon(false);
+updateAddons(false);
+</script>
+</body></html>

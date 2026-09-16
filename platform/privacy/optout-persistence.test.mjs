@@ -31,6 +31,13 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // 255 -> 256 on 2026-09-13, when `caption-quality-check` shipped with a
 // `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
 // redirect-chain-check and its siblings.
+// 256 -> 257 on 2026-09-11 (missed at the time), when
+// `process-server-fee-calculator` graduated with a `usage.mjs` opt-out
+// following the same `readOptOut`/`writeOptOut` pattern as its siblings --
+// its own PR touched venture-scores.yaml, publish-surface.yaml and the
+// front-door mirror but not this file, so main stayed red here by one until
+// this comment was written, same shape as the obsidian-plugin-review-check
+// miss above.
 // 257 -> 258 on 2026-09-16, when `pdf-accessibility-tag-check` graduated
 // with a `usage.mjs` copying the same `readOptOut`/`writeOptOut` pattern
 // (via cors-misconfig-check's usage.mjs, keyed under its own storage name).
@@ -47,7 +54,10 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // regardless, which is the argument for behavioural discovery -- the name
 // allowlist this file started with would have filed it `no-switch` and left a
 // real opt-out unverified while the count still read as full coverage.
-const SWITCHES_IN_THE_CATALOGUE = 259;
+// 259 -> 260 on 2026-09-16, when `photo-addon-pricing-calculator` graduated
+// with a `usage.mjs` opt-out following the same `readOptOut`/`writeOptOut`
+// pattern as its siblings.
+const SWITCHES_IN_THE_CATALOGUE = 260;
 
 let counter = 0;
 function fixture(source) {
