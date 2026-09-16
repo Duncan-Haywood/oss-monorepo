@@ -138,6 +138,11 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // bridal artist already knows, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
   'bridal-hair-makeup-pricing-calculator/vs-flat-day-rate.html',
+  // Compares against "doing the blended-rate arithmetic by hand or in a
+  // spreadsheet" -- a generic method every payroll admin already has, not a
+  // company or product this could be mistaken for. Same reasoning as the
+  // other vs-spreadsheet / by-hand pages above.
+  'overtime-pay-calculator/vs-doing-it-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

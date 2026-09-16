@@ -41,14 +41,14 @@
 #   portfolio-front-tools-5: 137 files, 553141 bytes
 #   portfolio-front-tools-6: 121 files, 556641 bytes
 #   portfolio-front-tools-7: 133 files, 554119 bytes
-#   portfolio-front-tools-8: 111 files, 554395 bytes
+#   portfolio-front-tools-8: 111 files, 554397 bytes
 #   portfolio-front-tools-9: 113 files, 551068 bytes
-#   portfolio-front-tools-10: 122 files, 555807 bytes
-#   portfolio-front-tools-11: 129 files, 554464 bytes
-#   portfolio-front-tools-12: 103 files, 554093 bytes
-#   portfolio-front-tools-13: 111 files, 553449 bytes
-#   portfolio-front-tools-14: 113 files, 553153 bytes
-#   portfolio-front-tools-15: 52 files, 266053 bytes
+#   portfolio-front-tools-10: 122 files, 555880 bytes
+#   portfolio-front-tools-11: 129 files, 553700 bytes
+#   portfolio-front-tools-12: 103 files, 550704 bytes
+#   portfolio-front-tools-13: 110 files, 552147 bytes
+#   portfolio-front-tools-14: 112 files, 544031 bytes
+#   portfolio-front-tools-15: 55 files, 284030 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1477,6 +1477,7 @@ configMapGenerator:
       - overtime-pay-calculator__calc.mjs.gz=overtime-pay-calculator__calc.mjs.gz
       - overtime-pay-calculator__index.html.gz=overtime-pay-calculator__index.html.gz
       - overtime-pay-calculator__usage.mjs.gz=overtime-pay-calculator__usage.mjs.gz
+      - overtime-pay-calculator__vs-doing-it-by-hand.html.gz=overtime-pay-calculator__vs-doing-it-by-hand.html.gz
       - package-exports-drift-check__cli.mjs.gz=package-exports-drift-check__cli.mjs.gz
       - package-exports-drift-check__engine.mjs.gz=package-exports-drift-check__engine.mjs.gz
       - package-exports-drift-check__index.html.gz=package-exports-drift-check__index.html.gz
@@ -1505,12 +1506,12 @@ configMapGenerator:
       - payment-reconciliation-workbench__reconcile.mjs.gz=payment-reconciliation-workbench__reconcile.mjs.gz
       - payment-reconciliation-workbench__usage.mjs.gz=payment-reconciliation-workbench__usage.mjs.gz
       - payment-reconciliation-workbench__vs-synder.html.gz=payment-reconciliation-workbench__vs-synder.html.gz
-      - payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz=payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz=payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz
       - pdf-accessibility-tag-check__engine.mjs.gz=pdf-accessibility-tag-check__engine.mjs.gz
       - pdf-accessibility-tag-check__index.html.gz=pdf-accessibility-tag-check__index.html.gz
       - pdf-accessibility-tag-check__inflate-browser.mjs.gz=pdf-accessibility-tag-check__inflate-browser.mjs.gz
@@ -1639,12 +1640,12 @@ configMapGenerator:
       - radon-mitigation-bid-calculator__index.html.gz=radon-mitigation-bid-calculator__index.html.gz
       - radon-mitigation-bid-calculator__share.mjs.gz=radon-mitigation-bid-calculator__share.mjs.gz
       - radon-mitigation-bid-calculator__usage.mjs.gz=radon-mitigation-bid-calculator__usage.mjs.gz
-      - radon-mitigation-bid-calculator__vs-oneradon.html.gz=radon-mitigation-bid-calculator__vs-oneradon.html.gz
   - name: portfolio-front-tools-12
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - radon-mitigation-bid-calculator__vs-oneradon.html.gz=radon-mitigation-bid-calculator__vs-oneradon.html.gz
       - real-estate-agent-photo-app__index.html.gz=real-estate-agent-photo-app__index.html.gz
       - real-estate-agent-photo-app__photo-spec.mjs.gz=real-estate-agent-photo-app__photo-spec.mjs.gz
       - real-estate-agent-photo-app__report.mjs.gz=real-estate-agent-photo-app__report.mjs.gz
@@ -1747,12 +1748,12 @@ configMapGenerator:
       - shopify-fee-calculator__should-i-offer-local-delivery-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-local-delivery-on-shopify.html.gz
       - shopify-fee-calculator__should-i-offer-pickup-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-pickup-on-shopify.html.gz
       - shopify-fee-calculator__should-i-offer-shop-pay-installments.html.gz=shopify-fee-calculator__should-i-offer-shop-pay-installments.html.gz
-      - shopify-fee-calculator__should-i-offer-store-credit-instead-of-a-refund.html.gz=shopify-fee-calculator__should-i-offer-store-credit-instead-of-a-refund.html.gz
   - name: portfolio-front-tools-13
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__should-i-offer-store-credit-instead-of-a-refund.html.gz=shopify-fee-calculator__should-i-offer-store-credit-instead-of-a-refund.html.gz
       - shopify-fee-calculator__should-i-offer-subscriptions-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-subscriptions-on-shopify.html.gz
       - shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz=shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz
       - shopify-fee-calculator__should-i-sell-gift-cards-on-shopify.html.gz=shopify-fee-calculator__should-i-sell-gift-cards-on-shopify.html.gz
@@ -1862,13 +1863,13 @@ configMapGenerator:
       - sump-pump-bid-calculator__share.mjs.gz=sump-pump-bid-calculator__share.mjs.gz
       - sump-pump-bid-calculator__usage.mjs.gz=sump-pump-bid-calculator__usage.mjs.gz
       - sump-pump-bid-calculator__vs-servicetitan.html.gz=sump-pump-bid-calculator__vs-servicetitan.html.gz
-      - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
-      - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
   - name: portfolio-front-tools-14
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
+      - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
       - sunroom-bid-calculator__index.html.gz=sunroom-bid-calculator__index.html.gz
       - sunroom-bid-calculator__usage.mjs.gz=sunroom-bid-calculator__usage.mjs.gz
       - sunroom-bid-calculator__vs-jobber.html.gz=sunroom-bid-calculator__vs-jobber.html.gz
@@ -1979,14 +1980,14 @@ configMapGenerator:
       - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
       - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
       - well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz=well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz
-      - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
-      - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
-      - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-15
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
+      - well-pump-bid-calculator__share.mjs.gz=well-pump-bid-calculator__share.mjs.gz
+      - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
       - well-pump-bid-calculator__vs-servicetitan.html.gz=well-pump-bid-calculator__vs-servicetitan.html.gz
       - whatnot-seller-payout__calc.mjs.gz=whatnot-seller-payout__calc.mjs.gz
       - whatnot-seller-payout__how-much-does-whatnot-take.html.gz=whatnot-seller-payout__how-much-does-whatnot-take.html.gz
