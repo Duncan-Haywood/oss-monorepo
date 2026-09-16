@@ -30712,3 +30712,43 @@ entries:
         the third); `checklist_coverage.py`, `score_ventures.py --check`
         (281 ventures), `router/validate.py` (280 ventures) all clean.
     mrr_end: 0
+  - venture: ios-privacy-manifest-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session, continuing the comparison-page backlog after #4697.
+        Shipped `ventures/ios-privacy-manifest-check/vs-waiting-for-app-
+        review.html` -- this venture had no `vs-*.html` page yet. Its own
+        README already names the two generic alternatives worth writing
+        up ("used to mean either guessing from Apple's documentation or
+        waiting for App Review to reject the build and tell you"), so
+        wrote the page against both. Unlike the two prior comparison
+        pages this session shipped, no `clauses.mjs` allowlist edit was
+        needed: the venture already carries a "Not affiliated with,
+        endorsed by, or sponsored by Apple Inc." line for its own footer,
+        and the new page reuses the same wording, so the existing
+        `NOT_AFFILIATED` regex matches without a new exemption entry.
+      - >-
+        While a different session (concurrent, unrelated to this one) was
+        independently building a near-identical comparison page for
+        `court-reporter-transcript-calculator` at the same time as
+        #4697, discovered as PR #4695 shortly after #4697 merged. Ran
+        `supersede_check.py 4695`, which correctly reported STALE DRAFT
+        SUSPECTED rather than a clean SUPERSEDED verdict (it cannot tell
+        "duplicate work" from "superseded draft" on its own); read both
+        diffs by hand and confirmed they were substantively equivalent in
+        scope, quality, and precedent used. Closed #4695 with a comment
+        naming the merged #4697 file it duplicates, rather than shipping
+        two near-duplicate `vs-*` pages for the same tool.
+      - >-
+        Verified: venture's own suite 48/48 (up from 42);
+        `platform/pages/clauses.test.mjs` 21/21 with no edit needed;
+        `platform/marketing`+`platform/pages` full suite 1257/1257, clean
+        on the first run (no em-dash/literal-dash JSON-LD mismatch this
+        time, since the page uses literal `--` consistently in both the
+        JSON-LD and the visible prose, matching this venture's own
+        existing style); `checklist_coverage.py`, `score_ventures.py
+        --check` (281 ventures), `router/validate.py` (280 ventures) all
+        clean.
+    mrr_end: 0
