@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. doing the math yourself — AI Coding Plan Cost Calculator</title>
+<meta name="description" content="Blog posts already work out 'is Claude Max/Cursor/Copilot worth it' by hand, from one account's own token counts. This free calculator runs the same subscription-vs-API arithmetic — cache reads priced separately from fresh input and output — from your own numbers instead of someone else's account.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-doing-the-math-yourself.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. doing the math yourself">
+<meta property="og:description" content="Several blog posts already hand-compute 'is my AI coding plan worth it' from their own account's token counts. This free tool runs the same arithmetic from your numbers, with cache-read and cache-write tokens priced separately.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just read one of the blog posts that already worked this out?","acceptedAnswer":{"@type":"Answer","text":"Those posts are real and useful as a sanity check — several report figures like ten billion tokens across eight months of Claude Code usage costing $15,000 on the API against an $800 subscription bill, with cache reads above 90% of the total. But every one of those numbers comes from one specific account's usage. Your seat count, your usage tier, and your cache-read share are almost certainly different, and none of those posts let you substitute your own numbers — they report what happened to someone else."}},{"@type":"Question","name":"Can I just scale a blog post's numbers to my own usage?","acceptedAnswer":{"@type":"Answer","text":"Only roughly, and it is easy to get wrong in a way that favors the wrong answer. The ratio between subscription and API cost is not linear in total tokens — it depends on how your usage splits across fresh input, output, cache write, and cache read, and cache reads are typically billed at a small fraction of the fresh-input rate. Scaling someone else's total by your rough usage multiple ignores that split entirely, which is exactly the shortcut this calculator exists to skip."}},{"@type":"Question","name":"What does doing this by hand actually involve?","acceptedAnswer":{"@type":"Answer","text":"Opening your plan's pricing page for the monthly price, opening the vendor's separate API pricing page for four different per-token rates, estimating your own fresh input, output, cache write, and cache read tokens, and multiplying each rate by its token count before summing and comparing to the subscription price — then redoing all of it if you want to know how much your usage would need to change to flip the answer. It is arithmetic anyone can do; it is also easy to drop a rate, use last month's price, or skip the break-even step because it takes another round of multiplication by hand."}},{"@type":"Question","name":"Is this calculator's answer more trustworthy than my own spreadsheet?","acceptedAnswer":{"@type":"Answer","text":"Not automatically — it runs the same arithmetic you could run yourself, with the same dated default rates you should still verify against the vendor's current pricing page. What it changes is friction: the four-rate, cache-split arithmetic is filled in for you and the break-even usage level is computed rather than left as a second calculation, so there is one less place to drop a term or forget a step."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #17604a; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3630; }
+  .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #55606f; }
+  .note, footer { font-size: .86rem; color: #55606f; }
+  footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. doing the math yourself</h1>
+<p class="lede">Several blog posts already answer "is my AI coding plan worth it?" by hand, from one account's own token counts — one reports ten billion tokens across eight months of Claude Code usage that would have cost $15,000 on the API against an $800 subscription bill, with cache reads above 90% of the total. That arithmetic is real and worth reading. It is also not your arithmetic.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A blog post or forum thread working the numbers by hand</strong> reports one account's result: a specific seat count, a specific usage tier, a specific cache-read share, computed once and published. Reading a few of these gives a useful sense of the shape of the answer — subscriptions tend to win big for heavy, cache-heavy usage — but no two accounts split their tokens the same way, and none of these posts let you swap in your own numbers.</p>
+<p><strong>This calculator</strong> runs the identical subscription-vs-API arithmetic — fresh input, output, cache write, and cache read priced separately, because cache reads are typically billed at a fraction of the fresh-input rate and dominate real agentic-coding usage — from the usage and rates you enter, and reports the break-even point where the two would swap places.</p>
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What does this generally look like for a heavy coding-agent user?</td><td>The published write-ups — a useful sanity check before you dig into your own numbers.</td></tr>
+<tr><td>Is <em>my</em> plan cheaper than the API, given my own usage?</td><td>This calculator — your numbers, not a published account's.</td></tr>
+<tr><td>How much would my usage need to change to flip the answer?</td><td>This calculator's break-even figure, computed rather than a second round of hand arithmetic.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table>
+<p class="note">Not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, GitHub, Microsoft, or OpenAI. Each is a trademark of its respective owner, named here only to describe the plans this calculator compares.</p>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>Why not just read one of the blog posts that already worked this out?</h3>
+<p>Those posts are real and useful as a sanity check — several report figures like ten billion tokens across eight months of Claude Code usage costing $15,000 on the API against an $800 subscription bill, with cache reads above 90% of the total. But every one of those numbers comes from one specific account's usage. Your seat count, your usage tier, and your cache-read share are almost certainly different, and none of those posts let you substitute your own numbers — they report what happened to someone else.</p>
+<h3>Can I just scale a blog post's numbers to my own usage?</h3>
+<p>Only roughly, and it is easy to get wrong in a way that favors the wrong answer. The ratio between subscription and API cost is not linear in total tokens — it depends on how your usage splits across fresh input, output, cache write, and cache read, and cache reads are typically billed at a small fraction of the fresh-input rate. Scaling someone else's total by your rough usage multiple ignores that split entirely, which is exactly the shortcut this calculator exists to skip.</p>
+<h3>What does doing this by hand actually involve?</h3>
+<p>Opening your plan's pricing page for the monthly price, opening the vendor's separate API pricing page for four different per-token rates, estimating your own fresh input, output, cache write, and cache read tokens, and multiplying each rate by its token count before summing and comparing to the subscription price — then redoing all of it if you want to know how much your usage would need to change to flip the answer. It is arithmetic anyone can do; it is also easy to drop a rate, use last month's price, or skip the break-even step because it takes another round of multiplication by hand.</p>
+<h3>Is this calculator's answer more trustworthy than my own spreadsheet?</h3>
+<p>Not automatically — it runs the same arithmetic you could run yourself, with the same dated default rates you should still verify against the vendor's current pricing page. What it changes is friction: the four-rate, cache-split arithmetic is filled in for you and the break-even usage level is computed rather than left as a second calculation, so there is one less place to drop a term or forget a step.</p>
+<p class="note">Want the reasoning behind the cache-read split first? Read <a href="./how-ai-coding-plan-pricing-works.html">how AI coding plan pricing actually works</a>.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator produce estimates from numbers you supply and from dated default rates — they are not financial advice and not a quote from any vendor. <strong>You are responsible for verifying anything here against the vendor's own current pricing page before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>
