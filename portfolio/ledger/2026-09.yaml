@@ -30643,3 +30643,98 @@ entries:
         check_no_payment_code.py, clauses.mjs all clean. Merged as PR
         #4689.
     mrr_end: 0
+  - venture: court-reporter-transcript-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed the catalogue's last content gap. `guide-coverage.mjs`
+        reported exactly one of 272 published surfaces with no page beside
+        its entry page -- this one -- so it was the only venture with no
+        organic entry point for the question a buyer types before they know
+        the tool exists. Added
+        `what-is-a-good-per-page-rate-for-a-court-reporter.html`, answering
+        the question freelance reporters actually ask when an agency emails
+        an offer, and answering it honestly: a per-page rate cannot say, and
+        the division that can is the one `computeAgencyOfferCheck` already
+        performs. Coverage is now 272/272.
+      - >-
+        The page's worked figures are the venture's own calculator output,
+        not invented illustration, and a test pins them to it. Identical
+        $4.50/page + $75 appearance offers on 120 pages pay $615 either way
+        but $68.33/h over 9 hours against $111.82/h over 5.5 -- one clears
+        an $85 target, the other misses by $16.67. A third example carries
+        the counter-intuitive half: 60 pages at $6.25 (a 39% higher rate)
+        totals $475, $140 less, and returns $86.36/h. Pinning them matters
+        because a prose page has a failure mode a calculator does not -- its
+        numbers can go silently wrong when the logic behind them changes,
+        and nothing else in the tree would notice.
+      - >-
+        Linked from index.html above the footer rather than appended to an
+        FAQ answer, deliberately: `page.test.mjs` compares FAQPage JSON-LD
+        against the visible prose verbatim, so editing an answer to carry
+        the link would have broken the match. The link is what makes the
+        page reachable at all -- `pages_state.py` measures that the
+        published site is served from a GitHub Pages *subpath*, where
+        crawlers read a `robots.txt` belonging to someone else's site and
+        sitemap auto-discovery therefore cannot happen. A crawl path is the
+        only route to a new page on this origin. Verified the whole site
+        still has one: a BFS from `index.html` over the built artifact
+        reaches 1037 of 1039 pages, the two exceptions being `404.html` and
+        `offline.html`, which are unlinked by design.
+      - >-
+        Verified: venture suite 47/47 (up from 42); platform/marketing +
+        platform/pages 1257/1257 after `regen.mjs` (which the new page
+        required -- 5 mirror tests fail until it runs, exactly as CLAUDE.md
+        documents); platform/proposal + platform/privacy + platform/webcheck
+        242/242 with zero skips (the two history-pinned `page-integrity`
+        tests ran, since the clone was unshallowed); gitops/tests 557
+        passed/25 skipped, then `guard_state.py --require-runnable` exit 0
+        after installing nginx-light + openssh-client, leaving one genuinely
+        environmental skip; all 20 `platform/ci` unittest modules and
+        `agent_review` OK; portfolio/{ledger,scoring,router,usage,pipeline}
+        + infra/tests 446 passed; `checklist_coverage.py` clean;
+        `browser_checks.py --record` over the whole catalogue.
+      - >-
+        Ran the full browser sweep, stale since 2026-09-13 and the check
+        CLAUDE.md records sessions habitually skipping over one npm install.
+        `contrast` is the one worth naming: 1037 pages at two viewports,
+        **no WCAG A/AA violations** -- the check that found 48 critical axe
+        `label` failures across three live products when it was first run on
+        2026-09-06 now comes back clean over a catalogue six times the size.
+        `sideways` 1038 pages with no horizontal scroll at 360px; `optout`
+        334 pages all remembering the visitor's choice; `presets`,
+        `roundtrip`, `highlight` clean.
+      - >-
+        Re-measured three infra readings rather than inheriting them, on the
+        owner's repeated ask for Hetzner CI/CD, marketing deployment and the
+        Codex dev worker. Actions runners: still starved --
+        `ci_starvation.py --run 35095456643` names `runner_id: 0` on all ten
+        runs the #4691 merge triggered, five days unmoved and consistent
+        with a 2026-10-01 allowance reset. Codex host mode: 56/56 tests,
+        `systemd-analyze verify` exit 0, and the owner's one-shot recovery
+        rehearsed as far as a session can take it (`DRY_RUN=1` with all
+        three `WITH_*` flags resolves every extra and credential, then exits
+        1 at the SSH gate exactly as documented) -- installable, still
+        blocked on nothing but `hetzner-ssh-key-is-a-public-key`. Session
+        egress: `api.indexnow.org`, `www.bing.com` and
+        `duncan-haywood.github.io` all `403 to CONNECT`.
+      - >-
+        The largest ongoing product cost of the Actions outage, stated
+        because nothing in the tree says it: 1037 published URLs have been
+        announced to no search engine, ever. `indexnow.mjs --ref
+        origin/gh-pages` dry-runs correctly -- right origin, right host,
+        right `keyLocation` on the subpath, 1037 URLs from catalog.json and
+        273 sitemaps -- so the submission is built and verified and merely
+        has nowhere to send from. Both routes with egress are down
+        (`publish-pages-branch.yml` has starved on all 60 completed runs;
+        the box needs SSH). It fires by itself the moment a runner returns.
+        No new owner ask: this is downstream of the two already queued.
+      - >-
+        Did not re-publish `gh-pages`. `pages_state.py` read `stale` at the
+        start of this session and `current` an hour later -- a concurrent
+        session published e223221d while this work was in progress. Left it
+        alone deliberately: publishing from a checkout that has since been
+        overtaken is the force-push race CLAUDE.md records taking a
+        just-shipped venture off the live site on 2026-09-06.
+    mrr_end: 0
