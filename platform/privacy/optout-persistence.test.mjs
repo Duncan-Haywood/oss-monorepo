@@ -9,9 +9,19 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { checkModule, checkAll } from "./optout-persistence.mjs";
+
+// This file's own repo-relative path, so the catalogue test's failure message
+// can quote a runnable `git log` rather than a path typed out by hand -- the
+// kind of restatement that survives a rename and then sends the next reader
+// to a file that is not there.
+const RELATIVE_SELF = relative(
+  join(fileURLToPath(new URL(".", import.meta.url)), "..", ".."),
+  fileURLToPath(import.meta.url),
+);
 
 // How many venture usage modules offer an in-page way to turn counting off,
 // measured 2026-09-12. Every one of them must keep the choice across a
@@ -394,9 +404,25 @@ test("every venture that offers the switch keeps it across a reload", async () =
   // covers, and a claim that can drift is not one. If this fails after you
   // added a venture, raise it. If it fails and you added nothing, a switch
   // stopped being a switch -- find out which before touching this line.
+  //
+  // The message names the repair because the bare number does not. Five
+  // ventures have now graduated without bumping this line, and #4667 was a
+  // whole PR spent rediscovering that a count moving up by one after a
+  // venture addition is a one-line edit. The archaeology is what costs, not
+  // the fix -- and a failure that has to be re-derived every time is one that
+  // eventually gets waved through. The comment block above records *what*
+  // happened each time; this records *how to find out* which it was.
   assert.equal(
     switched.length,
     SWITCHES_IN_THE_CATALOGUE,
-    "the set of modules offering an opt-out changed",
+    `the set of modules offering an opt-out changed: found ${switched.length}, ` +
+      `this file pins ${SWITCHES_IN_THE_CATALOGUE}. Name what moved before ` +
+      `editing the constant:\n` +
+      `  git log -1 --format=%h -G'SWITCHES_IN_THE_CATALOGUE = [0-9]' -- ${RELATIVE_SELF}\n` +
+      `  git diff --name-status <that-commit> HEAD -- 'ventures/*/usage.mjs' 'ventures/*/usage.js'\n` +
+      `One 'A' line per unit of increase is a venture graduating: raise the ` +
+      `constant and note it above. Anything else -- a decrease, or a rise no ` +
+      `addition accounts for -- means a switch stopped being a switch, and ` +
+      `the constant is not what needs changing.`,
   );
 });
