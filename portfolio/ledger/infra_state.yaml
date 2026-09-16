@@ -273,7 +273,7 @@ readings:
     # which is `hetzner-ssh-key-is-a-public-key`. What it is *not* downstream
     # of is the two rows that have blocked everything else all week.
     verdict: up
-    measured: "2026-09-13"
+    measured: "2026-09-16"
     # No run id: verified in a session sandbox, not from a dispatch, because
     # a dispatch is precisely what this route does not need. The commands
     # below reproduce it anywhere with bash, python3 and systemd-analyze.
@@ -304,6 +304,22 @@ readings:
       (`HETZNERSSHKEY`, `ARGOCD_REPO_TOKEN`, `SITE_GH_TOKEN`,
       `CODEX_AUTH_JSON`, `RUNNER_TOKEN`). Nothing for an agent session to do
       here but keep the reading current.
+      Re-measured again 2026-09-16, prompted by the same owner ask repeating
+      verbatim (Hetzner CI/CD, marketing-material deployment, this Codex
+      dev-worker route) three days after the 2026-09-13 reading above: still
+      clean (56/56 tests, `systemd-analyze verify` silent on both units).
+      Re-checked `agent-session-egress` from inside this session rather than
+      trusting its 2026-09-06 reading unchanged: `$HTTPS_PROXY/__agentproxy/
+      status` still shows live `403 to CONNECT` rejections for
+      non-allowlisted hosts, and `cat < /dev/null > /dev/tcp/89.167.29.39/22`
+      still times out rather than connecting -- the blocker holds. One
+      correction to that older reading: this image now ships an `ssh` binary
+      at `/usr/bin/ssh` (it did not on 2026-09-06), but the transport is still
+      blocked before a client binary would matter, so the verdict is
+      unchanged. The ask repeating is not evidence anything changed here; it
+      is evidence the owner has not yet run `bootstrap/restore-cluster.sh`
+      with the flags above from a machine that holds the five credentials.
+      That action is still the entire remaining gap.
     note: >-
       Added 2026-09-05. The Codex worker's dev capacity had exactly two
       schedulers and both are down: the k3s CronJob (`k3s-cluster` below) and,
