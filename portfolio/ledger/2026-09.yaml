@@ -31150,6 +31150,77 @@ entries:
         the exact defect class CLAUDE.md already records costing live
         product -- fixed before merging, not after.
     mrr_end: 0
+  - venture: agent-instructions-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, screened this session per the "direction setting"
+        intake gate (portfolio/DIRECTION.md already told this brief not to
+        restate strategy again -- see session_gate.py's PROCEED verdict and
+        the owner's standing preference for a new venture). Screened
+        against portfolio/pipeline/screened-out.md and the liability/
+        ethical gates in portfolio/pipeline/README.md (composite 6.5, floor
+        1 ai_leverage, liability_containment 9, ethical_robustness 9 --
+        both clear the 5 gate by a wide margin). Deliberately not a
+        202nd `<trade>-bid-calculator` and not a 39th generic
+        misconfiguration checker (portfolio/pipeline/README.md flags both
+        shapes as needing a new angle, not just a new niche): this checks a
+        new object entirely, an AI-coding-agent instruction file
+        (AGENTS.md/CLAUDE.md/.cursorrules/copilot-instructions.md), for
+        drift against the repo it describes.
+      - >-
+        Shipped a zero-dependency Node CLI (cli.mjs) and a no-upload
+        browser page (index.html, with an optional local folder picker
+        that reads file *names* only, never contents or uploads), sharing
+        one parsing/diff engine (engine.mjs): markdown-link/inline-code
+        file-reference extraction, npm run/test/start script-reference
+        extraction against package.json, and fenced-code-block detection
+        of the interpreter-mismatch shell footgun (bare pytest/mypy
+        instead of python3 -m) that this repo's own CLAUDE.md documents
+        costing real sessions time on 2026-09-11 and 2026-09-12.
+      - >-
+        Named channel: developers who have adopted the fast-growing,
+        multi-vendor AGENTS.md convention (Codex, Claude Code, Cursor's
+        .cursorrules, Copilot's copilot-instructions.md all read one as of
+        2025-2026) searching for a way to validate it -- GitHub/npm search,
+        r/ChatGPTCoding, r/cursor, r/ClaudeAI, Hacker News agent-tooling
+        threads -- and any repo wiring cli.mjs into its own CI.
+        duplicate_check.py scored the closest existing venture
+        (docker-base-image-pin-check) at 0.10 against the final
+        description, well under the 0.45 flag bar; a hand grep of every
+        VENTURE.yaml and screened-out.md for "agent"/"AGENTS.md"/
+        "CLAUDE.md"/"instruction" found only unrelated senses of "agent"
+        (real-estate-agent-photo-app, ubuntu-agent-server) and a
+        differently-shaped screened-out row (a hosted telemetry-monitoring
+        platform, not a static linter).
+      - >-
+        Ran the CLI against this repo's own real, current AGENTS.md during
+        graduation (not a fabricated demo) and it found one live broken
+        reference (`usage/usage.yaml`, missing its `portfolio/` prefix) --
+        direct, non-fabricated proof the tool works on the exact class of
+        document that inspired it.
+      - >-
+        VENTURE.yaml, portfolio/pipeline/candidates.yaml +
+        candidates/agent-instructions-drift-check.md +
+        portfolio/pipeline/README.md's table (renumbered, inserted by
+        composite rather than appended out of order),
+        portfolio/scoring/venture-scores.yaml, and
+        portfolio/usage/usage.yaml's baseline row all added/updated in the
+        same PR as the code, per the graduation process. Ran
+        platform/marketing/regen.mjs and platform/pages/launched.mjs
+        --write so the venture is mirrored and enters the Atom feed.
+      - >-
+        Verified: venture's own suite 73/73 (32 engine, 12 CLI including a
+        dogfood test against this repo's own AGENTS.md, 9 page); CLI run
+        manually against a temp fixture and against this repo's own
+        AGENTS.md; router/validate.py 284 valid; clauses.mjs clean;
+        check_no_payment_code.py clean; checklist_coverage.py clean;
+        validate_doc_consistency.py + validate_candidates.py both clean
+        (43 candidates); usage/validate_usage.py clean (256 products);
+        score_ventures.py --check clean (285 ventures). No payment code
+        introduced.
+    mrr_end: 0
   - venture: ai-engineering-academy
     agent_spend_usd: null
     human_hours: 0
@@ -31322,4 +31393,54 @@ entries:
         bare by design; and editing the price rebuilds the pointer to
         `price=99`, proving the links track the item rather than the
         load-time defaults.
+    mrr_end: 0
+  - venture: forestry-mulching-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real, live share-link defect surfaced by the whole-catalogue
+        `browser_checks.py --record` sweep (run because `browser_state.py`
+        reported all 8 checks stale): `roundtrip` failed on this venture with
+        `dropped 1: proposalScope`. `proposalScope` is a customer-facing scope
+        of work, auto-suggested from the job's own numbers unless the visitor
+        hand-edits it (`dataset.edited`), and is deliberately not carried in
+        the share-link payload itself -- the recipient's page is meant to
+        regenerate it from the numbers the link *does* carry, the same design
+        `garage-door-bid-calculator`'s share.mjs documents and
+        `platform/pages/roundtrip.mjs`'s own `PROSE_FIELDS` comment states as
+        intentional. The bug: the incoming-link restore loop sets every
+        field's `.value` directly, which never dispatches input/change, so the
+        page's one scope-regeneration call (at page-load, against the form's
+        *default* figures) never re-fires against the sender's actual
+        restored figures -- a recipient opening a shared link saw a scope of
+        work naming a different acreage and density than the job the sender
+        priced, under a headline that otherwise matched to the cent. Fixed by
+        calling the existing `refreshProposal()` (which runs `suggestScope`)
+        once the incoming fields are set. Also had the "Copy a link to this
+        job" button submit the form first, since this venture (unlike most
+        sibling bid calculators) only computes its headline price on submit,
+        not live on input -- so a sender who shared before ever calculating
+        was sharing a job priced they had never themselves seen priced.
+      - >-
+        Verified: `node --test ventures/forestry-mulching-bid-calculator/*.test.mjs`
+        133/133 (includes a new regression test asserting the incoming-link
+        handler calls `refreshProposal()`). Re-ran the actual browser check
+        that found the bug -- `node platform/pages/build.mjs
+        --out=platform/pages/dist` then `PLAYWRIGHT=.../playwright/index.js
+        node platform/pages/roundtrip.mjs forestry-mulching-bid-calculator` --
+        confirmed `proposalScope` no longer appears in the dropped-field list.
+        One residual note remains in that check's output, `headline — →
+        $10,506.34`: not a real drop (nothing was lost -- the sender's page
+        legitimately never computed a price before the probe copied the
+        link, since this form is submit-gated by design, unlike siblings that
+        recompute live on every keystroke), so the check still exits 1 on
+        this venture for a reason unrelated to the fix. Left the submit-gated
+        design alone rather than reworking this venture's calculation UX to
+        chase a green run on a check whose own file already special-cases an
+        analogous shape (`1099k-reconciliation-worksheet`'s reset-on-submit
+        form) rather than forcing the product to match the probe.
+        `python3 platform/ci/checklist_coverage.py` and
+        `python3 portfolio/ledger/check_ledger_only.py` both clean on the
+        rest of this diff.
     mrr_end: 0
