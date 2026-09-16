@@ -31444,3 +31444,97 @@ entries:
         `python3 portfolio/ledger/check_ledger_only.py` both clean on the
         rest of this diff.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `main` was red on three of `portfolio-validate.yml`'s 67 steps, with
+        Actions starved fleet-wide so CI could not surface any of it. Found by
+        `run_workflow_locally.py --tree`, the one line in CLAUDE.md's
+        checklist that asks whether `main` is green rather than whether a diff
+        is sound. Fourth instance of the shape that file already records three
+        times: a correct, current guard red on `main`, found by a session that
+        happened to look rather than by anything that asks.
+      - >-
+        One root cause, three symptoms. #4745 graduated
+        `agent-instructions-drift-check` without two things the repo's own
+        guards require: no workflow filtered on its path and ran
+        `node --test`, so its 41 assertions executed nowhere but a
+        contributor's machine (`validate_workflows.py` failed by design and
+        its own unit test failed beside it); and its `usage.mjs` was a 262nd
+        opt-out switch while `platform/privacy` still pinned 261.
+      - >-
+        Two of those three were fixed by someone else, and the useful part of
+        this entry is that this session did not ship over the top of them.
+        A concurrent session had #4750 open carrying exactly the
+        `SWITCHES_IN_THE_CATALOGUE` 261 -> 262 bump -- minimal, correctly
+        reasoned, and arguably better worded than the version already
+        committed here. Per the mandate's "prefer finishing someone else's
+        sound PR over starting a competing one", #4750 was verified
+        independently (merged onto current `main` in a scratch branch: clean
+        merge, 6 insertions, `platform/privacy` 83/83) and merged, and this
+        branch was then rebuilt to carry only the part still missing from
+        `main` -- the CI workflow. The duplicate constant hunk was dropped
+        rather than merged, which is what would otherwise have produced a
+        guaranteed conflict on that exact line.
+      - >-
+        Also closed #4749, which was a duplicate of this session's own
+        already-merged #4746 sitting on the same designated branch name.
+        Proven before closing rather than asserted, as CLAUDE.md requires:
+        `supersede_check.py 4749` exits 0 with `SUPERSEDED -- adds nothing
+        origin/main does not already have`, corroborated by
+        `git diff --name-only origin/main <head>` returning 0 files. Worth
+        recording why it existed at all, since the shape will recur in a fleet
+        this concurrent: squash-merging #4746 landed its content under a new
+        sha and deleted the branch, the branch was then recreated from the old
+        pre-squash commit, and merging `main` back in brought its tree to
+        parity with `main` -- so the history reads unmerged while the content
+        is fully landed.
+      - >-
+        Shipped here: `.github/workflows/agent-instructions-drift-check-ci.yml`,
+        copied from the `security-txt-check` sibling and recorded in
+        `publish-surface.yaml` with classification `none` / `publishes: []`,
+        confirmed by `--check`. It runs `node --test` under `contents: read`
+        and pushes nothing, so it is not the unattended automation CLAUDE.md's
+        Automation rule gates. The venture's 41 tests were passing the whole
+        time; they were simply running nowhere, which is the defect.
+      - >-
+        Two process traps measured in this session, both cheap to hit again.
+        First, `run_workflow_locally.py` voided its own verdict with
+        `UNSTABLE CHECKOUT: HEAD moved from b77dd7ce5 to ea69d5f75 while the
+        sweep ran` -- correctly, because the tree was reset and
+        `publish-branch.sh` run over the top mid-flight. A tool refusing to
+        stand behind a reading taken across two trees is the same principle as
+        its `UNRUN` classification, and the response is to re-run on a settled
+        checkout, never to report either result. **Commit first, then sweep.**
+        Second, `pkill -f run_workflow_locally` matches the killing shell's
+        own command line and kills itself (exit 144) -- stop a background
+        sweep by task id, not by a pattern that names itself.
+      - >-
+        And a self-inflicted error worth recording because the reading it
+        produced was convincing and wrong. Mid-diagnosis the clone had
+        silently re-grafted itself: an earlier `git fetch --unshallow origin
+        main` was undone by a later plain `git fetch origin main`, leaving
+        `git rev-list --count origin/main` at **1** with `.git/shallow`
+        present and the commit under investigation reading as a root commit
+        with no parent. Every history-shaped query then lied in a way that
+        looked like data: `git show --name-status` listed 250+ venture files
+        as `A` (a root commit shows its whole tree), and
+        `git log -G'SWITCHES_IN_THE_CATALOGUE'` reported the constant last
+        changed by that very commit. Caught by checking the commit count
+        rather than `is-shallow-repository`, exactly as CLAUDE.md prescribes,
+        and repaired with `git fetch --unshallow origin main` naming the ref
+        (7245 commits, parent resolving again). The useful half: content reads
+        at a ref were never affected, so the privacy test's own 262-vs-261
+        count was sound throughout. Trust the content read over the history
+        read when the two disagree.
+      - >-
+        Verified on the final branch: `validate_workflows.py` "All 333
+        workflow files are valid"; `publish_surface.py --check` matches the
+        snapshot; `test_validate_workflows` 38 OK;
+        `ventures/agent-instructions-drift-check` 41/41, now actually covered
+        by CI; `platform/privacy` 83/83 on the merged result;
+        `platform/webcheck` 59/59; `platform/ci`'s full unittest sweep with no
+        failures; `checklist_coverage.py` clean on both axes.
+    mrr_end: 0
