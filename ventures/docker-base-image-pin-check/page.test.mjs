@@ -131,3 +131,13 @@ test('index links one hop to the k8s-rollout-safety-check sibling', () => {
     'index must link ../k8s-rollout-safety-check/ so the pair is reciprocal and neither is an orphan',
   );
 });
+
+// sbom-diff-check graduated with no inbound sibling link
+// (platform/pages/siblings.mjs --check orphan class); this closes it.
+test('index links one hop to the sbom-diff-check sibling', () => {
+  assert.match(
+    index,
+    /href="\.\.\/sbom-diff-check\/"/,
+    'index must link ../sbom-diff-check/ so the new tool is not a crawlable orphan',
+  );
+});
