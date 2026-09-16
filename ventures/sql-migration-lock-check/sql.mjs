@@ -164,9 +164,19 @@ function lineAt(text, offset) {
  *
  * `inTransaction` is the field several checks turn on, and it is deliberately
  * only about *explicit* transaction blocks written in the file. Whether a
- * migration runner wraps the file in one of its own is not knowable from the
- * text, so engine.mjs reports that as a separate, clearly-labelled
- * conditional finding rather than guessing here.
+ * migration runner wraps the file in one of its own -- which most of them do
+ * by default -- is not knowable from the text.
+ *
+ * That gap is handled in the *fix* text of the two `CREATE INDEX` checks,
+ * which name the per-framework opt-out (`disable_ddl_transaction!`,
+ * `atomic = False`, `-x`, an Alembic autocommit block), rather than as a
+ * finding of its own. A finding would have to fire on every
+ * `CREATE INDEX CONCURRENTLY` that is *not* inside an explicit `BEGIN` --
+ * that is, on every correctly-written concurrent migration, including the
+ * ones whose authors already configured the opt-out. Warning someone about
+ * the thing they have already done is the cry-wolf failure this engine is
+ * written to avoid, and it would land on precisely the users who took the
+ * advice.
  *
  * @param {string} text
  * @returns {{ text: string, masked: string, line: number, index: number, inTransaction: boolean }[]}
