@@ -152,6 +152,11 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. Same reasoning as the
   // other vs-spreadsheet / by-hand pages above.
   'overtime-pay-calculator/vs-doing-it-by-hand.html',
+  // Compares against "checking a DST calendar by hand" -- a generic manual
+  // habit every developer already has access to, not a company or product
+  // this could be mistaken for. Same reasoning as the other manual-method
+  // pages above.
+  'cron-dst-drift-check/vs-checking-a-dst-calendar-by-hand.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
