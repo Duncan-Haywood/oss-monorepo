@@ -114,7 +114,7 @@
 <div class="card">
   <h2>1. Run the CLI against your page</h2>
   <p>Node.js, no dependencies to install:</p>
-  <pre class="cmd"><code>node check.mjs https://example.com/your-page --json</code></pre>
+  <pre class="cmd"><code>node cli/check.mjs https://example.com/your-page --json</code></pre>
   <p class="status-note">
     Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/social-preview-check" rel="noopener">check.mjs, probe.mjs, analyze.mjs, metatags.mjs and imagesize.mjs from the repo</a>
     — plain Node, nothing to install. It only ever talks to the URL you pass and whatever it points its
@@ -238,7 +238,7 @@
     let report;
     try {
       if (!payload || typeof payload !== 'object' || !payload.probe || typeof payload.probe !== 'object') {
-        throw new Error('Expected an object with a "probe" object -- the exact shape "node check.mjs <url> --json" prints.');
+        throw new Error('Expected an object with a "probe" object -- the exact shape "node cli/check.mjs <url> --json" prints.');
       }
       report = buildReport(payload.target ?? '(unknown target)', payload.probe);
     } catch (err) {
@@ -261,7 +261,7 @@
     try {
       payload = JSON.parse(text);
     } catch {
-      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node check.mjs &lt;url&gt; --json".</span>';
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node cli/check.mjs &lt;url&gt; --json".</span>';
       return;
     }
     runCheck(payload, 'check_run');

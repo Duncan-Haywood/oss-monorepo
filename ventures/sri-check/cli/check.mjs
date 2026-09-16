@@ -5,7 +5,7 @@
 // needs to actually be enforced, or declare a hash that no longer matches
 // what the CDN currently serves.
 //
-//   node check.mjs <page-url> [--json] [--timeout <ms>] [--no-fetch-assets]
+//   node cli/check.mjs <page-url> [--json] [--timeout <ms>] [--no-fetch-assets]
 //
 // Sends one GET for the page and one GET per cross-origin asset that
 // declares an integrity hash -- your machine, your network, nothing goes
@@ -17,7 +17,7 @@
 // was produced; 1 when a danger finding is present or the page could not be
 // fetched at all.
 
-import { extractCrossOriginAssets, buildReport } from './sri.mjs';
+import { extractCrossOriginAssets, buildReport } from '../sri.mjs';
 import { fetchText, fetchAllAssets } from './probe.mjs';
 
 function parseArgs(argv) {
@@ -91,7 +91,7 @@ function formatText(report) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args.page) {
-    console.error('Usage: node check.mjs <page-url> [--json] [--timeout <ms>] [--no-fetch-assets]');
+    console.error('Usage: node cli/check.mjs <page-url> [--json] [--timeout <ms>] [--no-fetch-assets]');
     process.exit(2);
   }
   try {
