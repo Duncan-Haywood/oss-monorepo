@@ -8,6 +8,15 @@
   <updated>2026-09-16T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
+    <title>HOA Reserve Fund Calculator — Special Assessment Risk</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hoa-reserve-fund-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/hoa-reserve-fund-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free calculator for HOA/condo board treasurers: project whether your current reserve contribution covers known roof, repaving, painting, pool, elevator, and HVAC replacements, or find the year a special assessment hits, then solve the minimum contribution to avoid it.</summary>
+  </entry>
+  <entry>
     <title>PDF Accessibility Tag Checker — Free PDF/UA &amp; Section 508 Evidence, Nothing Uploaded</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pdf-accessibility-tag-check/"/>
     <id>tag:marisstella.dev,2026:tool/pdf-accessibility-tag-check</id>
@@ -357,14 +366,5 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Dockerfile and find every FROM line referencing a base image by a mutable tag like node:18 instead of a pinned content digest (@sha256:...). Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Email Authentication Checker — Free SPF, DKIM, DMARC &amp; BIMI Checker</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/email-auth-check/"/>
-    <id>tag:marisstella.dev,2026:tool/email-auth-check</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free SPF, DKIM, DMARC and BIMI checker: paste any domain and get a plain-English report on why your email might be going to spam, with the exact DNS record read and what it means. Nothing uploaded -- your browser queries public DNS directly.</summary>
   </entry>
 </feed>
