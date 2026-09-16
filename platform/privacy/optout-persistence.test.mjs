@@ -67,7 +67,15 @@ const RELATIVE_SELF = relative(
 // 259 -> 260 on 2026-09-16, when `photo-addon-pricing-calculator` graduated
 // with a `usage.mjs` opt-out following the same `readOptOut`/`writeOptOut`
 // pattern as its siblings.
-const SWITCHES_IN_THE_CATALOGUE = 260;
+// 260 -> 261 on 2026-09-16, when `security-txt-check` graduated with the same
+// `readOptOut`/`writeOptOut` pair. Worth one line on why that switch matters
+// more than most on this particular page: the tool reads a file naming a
+// company's disclosure contact, so a list of which sites someone is checking
+// is itself sensitive. Nothing is uploaded either way -- the counters are
+// local and record only an event name and a day -- but the opt-out is the
+// visitor's own control over even that, and it has to survive a reload to
+// mean anything.
+const SWITCHES_IN_THE_CATALOGUE = 261;
 
 let counter = 0;
 function fixture(source) {

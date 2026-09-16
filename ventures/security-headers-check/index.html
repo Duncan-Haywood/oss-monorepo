@@ -306,6 +306,11 @@
   deliberately leaves out of scope, and <a href="../cache-control-check/">Cache-Control
   checker</a> covers HTTP caching headers (Vary, Cache-Control, ETag) -- a fifth response-header
   evidence class, also out of scope here.</p>
+  <p>And once the headers are right, the other thing a stranger looks for on your site is where to
+  report what they found: <a href="../security-txt-check/">security.txt checker</a> validates your
+  <code>/.well-known/security.txt</code> against RFC 9116. Worth running on a schedule rather than
+  once -- the RFC makes <code>Expires</code> mandatory, so a valid file becomes an invalid one on
+  its own, while still serving a 200.</p>
   <p>Prefer a hosted, single-grade outside read of a public site instead? See
   <a href="vs-securityheaders.html">how this checker compares to Security Headers
   (securityheaders.com)</a> -- different shapes, and when to reach for each.</p>

@@ -1633,7 +1633,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # an independent wedding/event photographer's package add-on pricing
     # calculator, with a static `index.html` from its first commit, same
     # shape as the rest of this running count.
-    total = 275  # `infra/OWNER_CHECKLIST.md`'s own "N of the 275 tools" wording.
+    # 276 since 2026-09-16, when `security-txt-check` graduated — a
+    # zero-dependency CLI + no-upload browser tool validating a `security.txt`
+    # against RFC 9116 (an expired or missing `Expires`, a `Contact` that is
+    # not a URI, a key pasted where an `Encryption` URI belongs), with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    total = 276  # `infra/OWNER_CHECKLIST.md`'s own "N of the 276 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

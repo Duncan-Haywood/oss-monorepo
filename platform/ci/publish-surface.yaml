@@ -815,6 +815,9 @@ workflows:
 - workflow: security-headers-check-ci.yml
   classification: none
   publishes: []
+- workflow: security-txt-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: self-storage-rate-increase-calculator-ci.yml
   classification: none
   publishes: []

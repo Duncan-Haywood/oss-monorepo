@@ -1,0 +1,125 @@
+name: security-txt-check
+description: >-
+  A free, zero-dependency CLI (+ a browser tool) for security engineers,
+  platform teams and anyone who has been asked for a disclosure contact:
+  validates a security.txt against RFC 9116. The headline check is the one
+  that silently catches most published files -- an expired `Expires` date,
+  which RFC 9116 says makes the whole file stale and unusable to a conforming
+  consumer while the server keeps returning 200 and the text still reads
+  correctly to a human. Also checks: a missing, duplicated or non-RFC-3339
+  `Expires`; a missing `Contact` or one that is a bare address rather than a
+  URI; a plain-http `Contact`; a PGP key pasted where an `Encryption` URI
+  belongs (which RFC 9116 forbids, and which breaks the line format for every
+  field after it); a known field name whose colon is missing, which a naive
+  parser splits on the colon inside the URL instead; `Preferred-Languages`
+  repeated or holding language names rather than RFC 5646 tags; the British
+  spelling of `Acknowledgments`, which a conforming parser must ignore; and a
+  cleartext-signed file with no `Canonical`. The CLI additionally fetches the
+  live file over real HTTP -- trying /.well-known/security.txt first and the
+  legacy root copy second -- to add the two checks a paste cannot support: the
+  served location and the media type. RFC MUSTs are reported as dangers and
+  SHOULDs/typos as notices, so the severity means something.
+stage: prototype
+owner: duncan
+
+# CLI/checker archetype, not a trade-bid calculator -- the shape
+# portfolio/pipeline/README.md's "archetype itself" section argues for over
+# another <trade>-bid-calculator, and the same "read what is actually there,
+# fetch what is named, report the exact evidence" split as
+# sitemap-lastmod-freshness-check and cors-misconfig-check (a real network
+# fetch the browser cannot do itself, paired with a paste-based browser mode).
+#
+# duplicate_check.py (run 2026-09-16) scored every existing venture,
+# screened-out row and pipeline candidate at 0.15 or below for this idea --
+# far under the 0.45 review bar. Closest by eye:
+# sitemap-lastmod-freshness-check (0.15) is the nearest structural sibling but
+# checks sitemap <lastmod> values; cookie-security-check (0.13) and
+# email-auth-check (0.10) are the nearest security-adjacent ones and check
+# entirely different artifacts (Set-Cookie attributes; SPF/DKIM/DMARC DNS
+# records). security-headers-check checks response headers, not a file under
+# /.well-known/. Nothing in screened-out.md mentions security.txt, RFC 9116,
+# or disclosure contacts.
+#
+# The differentiator worth stating plainly, because it is also the reason this
+# venture answers the portfolio's own weakest hypothesis: **every other
+# checker here reports a state that stays fixed once fixed, and this one
+# reports a deadline.** `Expires` is mandatory in RFC 9116 and time-bound, so
+# a file that passes today fails on its own with no commit and no deploy.
+# That gives the tool a mechanical reason to be re-run -- and a mechanical
+# reason to be wired into a schedule rather than a one-off visit -- which is
+# precisely the "frequency of use and reason to return" criterion
+# portfolio/router/allocate.py flags as untested across the catalogue.
+#
+# Distribution channel: RFC 9116 is a published standard with a stated MUST,
+# so the requirement is written and sourced rather than inferred -- the same
+# shape sitemap-lastmod-freshness-check's channel argument used for Google's
+# lastmod guidance. security.txt is also increasingly asked for by customer
+# security questionnaires and bug-bounty triage vendors, which is what makes
+# the audience one that turns up with a specific query ("security.txt
+# validator", "RFC 9116 Expires required", "security.txt expired") rather than
+# browsing. securitytxt.org is the established free tool in the category,
+# which is evidence of real sustained demand; based on general knowledge at
+# screening time (unverified against a live fetch -- egress to arbitrary hosts
+# is proxy-denied in this environment, per this repo's standing convention)
+# its shape is a web form for generating and validating a file, not a CLI
+# meant for a scheduled CI run, which is this tool's distinct wedge. The
+# comparison page says so and names where securitytxt.org is the better
+# answer.
+
+hypotheses:
+  - claim: >-
+      An engineer who has been asked for a security.txt by a customer security
+      questionnaire, a pen-test report or a bug-bounty triage vendor will
+      search "security.txt validator", "RFC 9116 Expires required" or
+      "security.txt expired" and find this tool, then wire the CLI into a
+      scheduled job once they discover the expiry date is the part that
+      lapses on its own.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Because RFC 9116 makes Expires mandatory and time-bound, this venture
+      has a structural reason for repeat use that no other checker in this
+      catalogue has -- a passing file becomes a failing one with no code
+      change -- and that reason, rather than feature depth, is what will
+      produce the portfolio's first measured return visit.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A meaningful share of live security.txt files are expired, mis-located,
+      or use a bare address rather than a URI, so a first-time visitor
+      checking their own file gets a finding rather than a clean pass -- which
+      is what makes the tool worth telling a colleague about.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the CLI's requests run on the user's own
+  # machine against a host of their choosing, and the browser tool parses only
+  # text pasted into it -- no server of ours in the loop either way. Serving
+  # one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, CLI/repo engagement, or paste-in report after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's "fair
+    run" definition).
+  - A materially better free tool covering the same rules (the RFC MUSTs, the
+    silently-ignored field names, and a live location/media-type check) at the
+    same zero-install, CI-usable bar becomes the obvious default, such that
+    this tool's differentiation no longer holds.
+  - RFC 9116 is superseded in a way that removes the mandatory time-bound
+    Expires field, which is the recurring-need premise this venture rests on.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/security-txt-check/
+  analytics: null

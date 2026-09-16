@@ -1154,6 +1154,29 @@ const CATEGORY_RULES = [
     // also what keeps that catch-all inside the bound `build.test.mjs` puts
     // on it.
     //
+    // `security-txt-check` joined 2026-09-16: a zero-dependency CLI plus a
+    // matching browser page, run by a security engineer or platform team
+    // against a `security.txt` they publish -- just for that file's own
+    // conformance to RFC 9116 (a missing or expired `Expires`, a `Contact`
+    // that is a bare address rather than a URI, a key pasted where an
+    // `Encryption` URI belongs, a silently-ignored field name), rather than a
+    // response header, a sitemap's `<lastmod>`, or a page's `<head>` tags. It
+    // shares `sitemap-lastmod-freshness-check`'s "CLI does the real fetch,
+    // browser half works from pasted text" split, for the same reason the
+    // whole category has it -- and cross-links `security-headers-check` and
+    // `email-auth-check` as Related.
+    //
+    // The one thing that distinguishes it from every other entry in this
+    // category is worth recording, because it is the reason it was built:
+    // every other checker here reports a state that stays fixed once fixed,
+    // and this one reports a *deadline*. RFC 9116 makes `Expires` mandatory
+    // and time-bound, so a file that passes today fails on its own with no
+    // commit and no deploy -- which is the only venture in this catalogue
+    // with a mechanical reason to be re-run rather than visited once.
+    // Listed by exact slug rather than a new prefix, the same way its
+    // neighbors above are (and note `security-headers-check` above does not
+    // cover it: the regex is anchored, and these are two different slugs).
+    //
     // `redirect-chain-check` joined 2026-09-11: a zero-dependency CLI plus a
     // matching browser page, run by a developer or SEO practitioner against
     // a URL they name -- just for the URL's own HTTP redirect chain (a
@@ -1306,7 +1329,7 @@ const CATEGORY_RULES = [
     // here rather than the catch-all is also what keeps that catch-all
     // inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
         slug,
       ),
   },
