@@ -1987,7 +1987,34 @@ const NO_WARRANTY =
 const NO_SLA =
   'Best-effort hosting, no SLA. These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.';
 
-const STYLE = `
+// The nine pages that share this stylesheet by interpolating `STYLE` — the
+// front page, About, and the seven category pages, none of which are on
+// `COMPRESSED_SUFFIX`'s gzip lever — all serialise into the one
+// `portfolio-front-html` ConfigMap `test_generated_configmaps_stay_under_the_
+// etcd_object_ceiling` measures. Nine copies of the same authored CSS, most
+// of it comments and indentation kept for the humans editing `STYLE_SOURCE`
+// below, cost real budget in that object for zero visual difference — the
+// same "a mechanism is cheapest applied where it earns its keep" reasoning
+// `COMPRESSED_SUFFIX`'s own comment makes, one level short of where gzip
+// already caught it. `minifyCss` strips what nginx's `gzip on` would have
+// thrown away anyway, once, at module load, so `STYLE_SOURCE` keeps its
+// comments for the next person reading it and every page that inlines
+// `STYLE` gets the smaller string for free.
+// Only collapses whitespace runs (the indentation and blank lines authored
+// for readability) to a single space and drops comments -- it does not touch
+// a single space that is already there, deliberately: several tests assert on
+// an exact rule's text, spaces included (e.g. `border: 1px solid
+// var(--field-edge);`), and a tighter minifier that also closed the space
+// after `:` or before `{` would pass byte-for-byte but fail those for a
+// property this function was never meant to change.
+function minifyCss(css) {
+  return css
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const STYLE_SOURCE = `
   :root {
     color-scheme: light dark;
     --ink: #16191d;
@@ -2103,6 +2130,8 @@ const STYLE = `
   .filter-status { margin: 0; font-size: 0.85rem; color: var(--ink-soft); min-height: 1.4em; }
   .filter-empty { margin: 0 0 1rem; color: var(--ink-soft); }
 `;
+
+const STYLE = minifyCss(STYLE_SOURCE);
 
 /** Examples, not instructions: one trade, one marketplace, one back-office job. */
 const FILTER_PLACEHOLDER = 'roofing, ebay, cash flow…';
