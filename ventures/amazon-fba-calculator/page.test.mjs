@@ -53,6 +53,7 @@ const narfSeo = readFileSync(
 );
 const acosSeo = readFileSync(new URL("./break-even-acos.html", import.meta.url), "utf8");
 const vsAmazonSeo = readFileSync(new URL("./vs-amazon-revenue-calculator.html", import.meta.url), "utf8");
+const fbaVsFbmSeo = readFileSync(new URL("./fba-vs-fbm.html", import.meta.url), "utf8");
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -624,6 +625,14 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(vsAmazonSeo, /No warranty/);
   assert.match(vsAmazonSeo, /Best-effort hosting, no SLA/);
   assert.match(vsAmazonSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  // Both of these were loaded by this file (or, for fba-vs-fbm, not loaded at
+  // all) without ever being asserted on here, so a missing sponsor link and a
+  // shortened disclaimer shipped on both pages unnoticed. Fixed 2026-09-16.
+  assert.match(lowPriceSeo, /Best-effort hosting, no SLA/);
+  assert.match(lowPriceSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(fbaVsFbmSeo, /No warranty/);
+  assert.match(fbaVsFbmSeo, /Best-effort hosting, no SLA/);
+  assert.match(fbaVsFbmSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 
 test("the incumbent-comparison page links back, names the incumbent honestly, and gives no unverifiable Amazon numbers", () => {
