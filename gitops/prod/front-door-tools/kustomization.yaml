@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 124 files, 554513 bytes
 #   portfolio-front-tools-5: 136 files, 553395 bytes
 #   portfolio-front-tools-6: 125 files, 555861 bytes
-#   portfolio-front-tools-7: 123 files, 552346 bytes
+#   portfolio-front-tools-7: 124 files, 556471 bytes
 #   portfolio-front-tools-8: 114 files, 556305 bytes
 #   portfolio-front-tools-9: 114 files, 552586 bytes
 #   portfolio-front-tools-10: 121 files, 554061 bytes
@@ -1131,6 +1131,7 @@ configMapGenerator:
       - forestry-mulching-bid-calculator__calc.mjs.gz=forestry-mulching-bid-calculator__calc.mjs.gz
       - forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz=forestry-mulching-bid-calculator__how-much-to-charge-for-forestry-mulching.html.gz
       - forestry-mulching-bid-calculator__index.html.gz=forestry-mulching-bid-calculator__index.html.gz
+      - forestry-mulching-bid-calculator__share.mjs.gz=forestry-mulching-bid-calculator__share.mjs.gz
       - forestry-mulching-bid-calculator__usage.mjs.gz=forestry-mulching-bid-calculator__usage.mjs.gz
       - forestry-mulching-bid-calculator__vs-aspire.html.gz=forestry-mulching-bid-calculator__vs-aspire.html.gz
       - foundation-repair-bid-calculator__calc.mjs.gz=foundation-repair-bid-calculator__calc.mjs.gz
