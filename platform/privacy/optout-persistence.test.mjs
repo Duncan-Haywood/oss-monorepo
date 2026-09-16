@@ -34,7 +34,12 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // 257 -> 258 on 2026-09-16, when `pdf-accessibility-tag-check` graduated
 // with a `usage.mjs` copying the same `readOptOut`/`writeOptOut` pattern
 // (via cors-misconfig-check's usage.mjs, keyed under its own storage name).
-const SWITCHES_IN_THE_CATALOGUE = 258;
+// 258 -> 259 on 2026-09-16, when `process-server-fee-calculator` merged
+// concurrently with its own `usage.mjs` opt-out switch (`usageAllowed`/
+// `toggleUsage`, a differently-named but equivalent pattern, keyed under
+// its own storage name) -- found while merging the obsidian-plugin-review-
+// check comparison page in, not caused by that page itself.
+const SWITCHES_IN_THE_CATALOGUE = 259;
 
 let counter = 0;
 function fixture(source) {
