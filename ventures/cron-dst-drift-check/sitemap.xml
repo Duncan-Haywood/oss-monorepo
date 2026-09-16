@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
   <url><loc>./why-cron-jobs-break-across-dst.html</loc></url>
+  <url><loc>./vs-checking-a-dst-calendar-by-hand.html</loc></url>
 </urlset>

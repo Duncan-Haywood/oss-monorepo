@@ -99,11 +99,19 @@ const RELATIVE_SELF = relative(
 // count is a property of the tree, not of either diff -- which is why this
 // check reads the catalogue and does not trust the number, and why the fix
 // is one line here rather than anything in either venture.
-// 266 -> 267 on 2026-09-16, when `land-survey-bid-calculator` graduated with
+// 266 -> 267 on 2026-09-16, when `sql-migration-lock-check` graduated with a
+// `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `check_run`/`example_loaded` counters), same discovery method as the rest
+// of this running count.
+// 267 -> 268 on 2026-09-16, when `sbom-diff-check` graduated with its own
+// `setUsageOptOut`/`usageOptedOut` switch (opts out of the
+// `diff_run`/`example_loaded` counters), same discovery method as the rest
+// of this running count.
+// 268 -> 269 on 2026-09-16, when `land-survey-bid-calculator` graduated with
 // its own `toggleUsage`/`usageAllowed` switch (the same pair
 // `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
 // use), same discovery method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 267;
+const SWITCHES_IN_THE_CATALOGUE = 269;
 
 let counter = 0;
 function fixture(source) {

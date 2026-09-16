@@ -31885,3 +31885,45 @@ entries:
         single new static comparison page with no form inputs does not
         newly implicate. No payment code introduced.
     mrr_end: 0
+  - venture: repository-branch-hygiene
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First real pilot run: scanned this portfolio's own remote, 568
+        branches, zero open PRs at the time. Found a real bug via the scale
+        no synthetic test had exercised — `--repo` mode derived the
+        "default branch" to protect from `git symbolic-ref HEAD` (whatever
+        happens to be checked out), not the repository's actual default.
+        Every existing test ran from the default branch itself, so this
+        never showed up locally. On this checkout (an agent session working
+        from its own feature branch, exactly this product's target
+        customer) `main` came back classified `uncertain` /
+        `investigate-missing-pr-record` — indistinguishable in the report
+        from stale bot work — while the throwaway session branch running the
+        scan was the one marked `protected` / `do-not-delete`.
+      - >-
+        Fixed in `src/branch_hygiene.py`: prefer `refs/remotes/origin/HEAD`
+        (survives a non-default checkout) over current `HEAD`, with a new
+        `--default-branch` override for a checkout with no `origin` or a
+        non-`main`/`master` default. Verified against this repo:
+        `origin/HEAD` was itself unset locally (a plain `git fetch` never
+        sets it, and neither does a shallow CI checkout) — rather than
+        silently guessing again in that case, it now falls back to current
+        HEAD but prints a named warning to stderr so the ambiguity is
+        visible instead of hidden. `--default-branch main` removes the
+        guess entirely and correctly protects `main`.
+      - >-
+        Added two regression tests reproducing both states (`origin/HEAD`
+        set via a real clone/push/set-head sequence; `origin/HEAD` absent)
+        plus one for the override — `test_branch_hygiene.py` 23/23,
+        `node --test *.test.mjs` 30/30 (the browser port only implements
+        `scan()` over a supplied snapshot, not git detection, so it was not
+        affected). Updated `README.md`'s local-mode section to document the
+        new flag and the origin/HEAD caveat.
+      - >-
+        No usable signal on the actual hypotheses yet (still zero pilot
+        teams) — this was a dogfood run against our own repo, not a
+        customer, and is recorded as a product fix, not evidence toward
+        either `VENTURE.yaml` hypothesis.
+    mrr_end: 0

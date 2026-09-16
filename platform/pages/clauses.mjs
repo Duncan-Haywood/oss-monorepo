@@ -83,7 +83,11 @@ export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
  * `slug/relative` display path, with why, rather than loosening the pattern
  * for everyone else.
  */
-const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+// Exported because `surface-budget.mjs` budgets exactly this class of page --
+// the comparison written against a generic method rather than a named product
+// -- and deriving that class a second time from filenames would let a page be
+// one kind for the disclaimer check and the other kind for the budget.
+export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
@@ -134,11 +138,6 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
   'hoa-reserve-fund-calculator/vs-spreadsheet.html',
-  // Compares against "a single-rate overtime calculator" -- the shape of
-  // nearly every free overtime calculator on the web, and the manual method
-  // behind it, not a company or product this could be mistaken for. The
-  // page's own footer says so explicitly ("names no specific product").
-  'overtime-pay-calculator/vs-single-rate-calculator.html',
   // Compares against "a flat day rate" -- a generic pricing method every
   // bridal artist already knows, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
@@ -152,6 +151,16 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // company or product this could be mistaken for. Same reasoning as the
   // other vs-spreadsheet / by-hand pages above.
   'overtime-pay-calculator/vs-doing-it-by-hand.html',
+  // Compares against "checking a DST calendar by hand" -- a generic manual
+  // habit every developer already has access to, not a company or product
+  // this could be mistaken for. Same reasoning as the other manual-method
+  // pages above.
+  'cron-dst-drift-check/vs-checking-a-dst-calendar-by-hand.html',
+  // Compares against "diffing the raw JSON files by hand" and "a generic
+  // online JSON-diff tool" -- a method and a category of tool, not any one
+  // company's product this could be mistaken for. The page's own footer
+  // says so explicitly ("names no specific product").
+  'sbom-diff-check/vs-diffing-the-raw-json-files.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
