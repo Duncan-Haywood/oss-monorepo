@@ -273,7 +273,7 @@ readings:
     # which is `hetzner-ssh-key-is-a-public-key`. What it is *not* downstream
     # of is the two rows that have blocked everything else all week.
     verdict: up
-    measured: "2026-09-13"
+    measured: "2026-09-16"
     # No run id: verified in a session sandbox, not from a dispatch, because
     # a dispatch is precisely what this route does not need. The commands
     # below reproduce it anywhere with bash, python3 and systemd-analyze.
@@ -304,6 +304,12 @@ readings:
       (`HETZNERSSHKEY`, `ARGOCD_REPO_TOKEN`, `SITE_GH_TOKEN`,
       `CODEX_AUTH_JSON`, `RUNNER_TOKEN`). Nothing for an agent session to do
       here but keep the reading current.
+      Re-measured again 2026-09-16, again prompted by the owner explicitly
+      naming Hetzner deploy/CI/CD priority and this exact Codex-on-Hetzner
+      route in the same message: still clean (56/56 tests, `systemd-analyze
+      verify` prints nothing on both units). No drift since 2026-09-13. Still
+      not installed; still the same single blocker, still `decision_queue.py`
+      row #1. Not re-adding that ask.
     note: >-
       Added 2026-09-05. The Codex worker's dev capacity had exactly two
       schedulers and both are down: the k3s CronJob (`k3s-cluster` below) and,

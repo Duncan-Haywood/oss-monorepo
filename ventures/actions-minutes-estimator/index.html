@@ -141,6 +141,7 @@ node cli.mjs --max-allowance-percent 80 .github/workflows   <span class="note">#
     <h2>How the billing actually works</h2>
     <p>The multipliers and the per-job rounding are where most of the surprise lives. <a href="how-github-actions-minutes-are-billed.html">How GitHub Actions minutes are billed</a> explains the arithmetic this tool uses and why a wide matrix of short jobs can bill several times its wall-clock time.</p>
     <p class="note">Already out of minutes and staring at a wall of red checks? <a href="../actions-runner-starvation-check/">actions-runner-starvation-check</a> tells you whether a red check is a real failure or a job GitHub never assigned a runner to — the thing that happens <em>after</em> the allowance is spent.</p>
+    <p class="note">See also <a href="vs-github-billing-page.html">this tool vs. your GitHub billing page</a> — what each one can and cannot tell you.</p>
   </section>
 
   <section class="card">

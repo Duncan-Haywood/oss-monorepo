@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const PAGES = ['index.html', 'how-github-actions-minutes-are-billed.html'];
+const PAGES = ['index.html', 'how-github-actions-minutes-are-billed.html', 'vs-github-billing-page.html'];
 
 const read = (file) => readFile(new URL(`./${file}`, import.meta.url), 'utf8');
 
@@ -57,6 +57,33 @@ test('index links one hop to the actions-runner-starvation-check sibling', async
 test('the docs page disclaims affiliation where it names a trademark', async () => {
   const page = await read('how-github-actions-minutes-are-billed.html');
   assert.match(page, /Not affiliated with GitHub/i);
+});
+
+test('the index page links to the GitHub-billing-page comparison', async () => {
+  assert.match(await read('index.html'), /href="vs-github-billing-page\.html"/);
+});
+
+test('the comparison page links back to the tool and carries valid FAQPage JSON-LD matching visible text', async () => {
+  const page = await read('vs-github-billing-page.html');
+  assert.match(page, /href="index\.html"/);
+  const match = page.match(/<script type="application\/ld\+json">\s*([\s\S]+?)<\/script>/);
+  assert.ok(match, 'missing FAQPage JSON-LD on the comparison page');
+  const faq = JSON.parse(match[1]);
+  assert.equal(faq['@type'], 'FAQPage');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(page.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(page.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test('the comparison page carries the no-warranty clause, the GitHub disclaimer, and is listed in the sitemap', async () => {
+  const page = await read('vs-github-billing-page.html');
+  assert.match(page, /No warranty/);
+  assert.match(page, /provided free and as-is, without warranty/);
+  assert.match(page, /not affiliated with, endorsed by, or sponsored by GitHub/i);
+  const sitemap = await read('sitemap.xml');
+  assert.match(sitemap, /vs-github-billing-page\.html/);
 });
 
 test('the page imports the same estimator the CLI runs', async () => {

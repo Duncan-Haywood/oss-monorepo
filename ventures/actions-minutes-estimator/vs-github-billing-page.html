@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Actions Minutes Estimator vs. Your GitHub Billing Page</title>
+<meta name="description" content="GitHub's billing page tells you how many Actions minutes an account has already spent, added up across every workflow. This free tool reads a workflow's YAML and projects what it will cost per workflow, per job, before you merge it -- naming the specific avoidable patterns (macOS 10x, per-job rounding, missing timeout-minutes, push+pull_request double-builds). Nothing uploaded either way.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/actions-minutes-estimator/vs-github-billing-page.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Actions Minutes Estimator vs. Your GitHub Billing Page">
+<meta property="og:description" content="Billing shows what you already spent, aggregated across the account. This tool projects what one workflow will cost, per job, before you merge it.">
+<meta property="og:url" content="https://example.invalid/actions-minutes-estimator/vs-github-billing-page.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this tool instead of GitHub's own billing page?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Different jobs, and most people who use this tool still check their billing page too. GitHub's billing page is the source of truth for what an account has already spent -- real, metered, and aggregated across every workflow in every repository on the account. It does not attribute a single minute to a single workflow or job, and it has nothing to say about a workflow you have not merged yet. This tool reads the workflow YAML you paste and projects forward from GitHub's own published rates, so you get a before-you-merge estimate the billing page structurally cannot produce." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why can't the billing page just show cost per workflow?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It aggregates by account and plan, not by workflow file, and the run-timing API that looks like it might close the gap (/actions/runs/<id>/timing) reports a billable total_ms of 0 on private repositories often enough that no reliable per-workflow attribution can be built on it. That gap is exactly what this tool exists to fill by modelling cost from the workflow definition itself rather than from a runtime API that does not expose it." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool read my account's actual usage or billing data?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No, and it cannot -- it has no access to your GitHub account at all. You paste workflow YAML into the browser tool, or point the CLI at a directory of workflow files on your own machine; either way it reads only the text of those files plus assumptions you set (how often you push, how many PRs you open) and projects a monthly total from GitHub's published list rates. It is an estimate from a model, not a read of your real spend, and both surfaces say so." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my workflow file or any account information uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The browser tool parses and costs everything client-side and sends nothing anywhere -- there is no account, no login, and no analytics vendor. The CLI reads local files and makes no network call at all. Neither surface could read your billing page even if it wanted to; you would need to check that yourself, separately, on github.com." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; line-height: 1.55; }
+  a { overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.5rem, 4.5vw, 2.3rem); margin: 0.3rem 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+  th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; opacity: 0.75; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.87rem; }
+  .note, footer { font-size: 0.86rem; opacity: 0.85; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; Actions Minutes Estimator</a></p>
+<h1>This tool vs. your GitHub Actions billing page</h1>
+<p>
+  <strong>GitHub's billing page</strong> is the real number: minutes actually metered against your
+  plan's allowance, aggregated across every workflow in every repository on the account. It is the
+  only place the true figure lives, and nothing here changes that. What it does not do is say which
+  workflow spent them, or what a workflow sitting in an open pull request is about to cost once it
+  merges -- both questions billing can only answer <em>after</em> the fact, once for the whole
+  account at once.
+</p>
+<p>
+  <strong>This tool</strong> reads the workflow YAML you paste (or point the CLI at) and projects
+  monthly billable minutes and dollar cost forward, per workflow and per job, against GitHub's own
+  published rates -- naming the specific patterns responsible: the macOS 10&times; multiplier,
+  per-job rounding on a wide matrix, a missing <code>timeout-minutes</code>, and <code>push</code> +
+  <code>pull_request</code> with no branch filter building the same commit twice. It does not read
+  your account, your billing page, or your real spend -- it models one workflow file forward from
+  a stated set of assumptions, all of them shown on screen.
+</p>
+<table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>What has this account actually spent this billing period?</td>
+      <td>Your GitHub billing page -- that is the real, metered number and this tool does not have it.</td>
+    </tr>
+    <tr>
+      <td>Which workflow or job is responsible for the spend?</td>
+      <td>This tool -- billing aggregates by account, not by workflow, and the run-timing API often reports 0 on private repos.</td>
+    </tr>
+    <tr>
+      <td>What will the workflow in my open pull request cost once it merges?</td>
+      <td>This tool -- nothing about a workflow that has not run yet exists on a billing page.</td>
+    </tr>
+    <tr>
+      <td>I want this checked automatically before a costly workflow merges.</td>
+      <td>The CLI's <code>--max-allowance-percent</code> gate -- exits non-zero when a change pushes projected usage past a share of your allowance, wireable into CI itself.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  Neither replaces the other. Billing is where you go to find out what actually happened; this tool
+  is where you go before it happens, so the workflow that would have doubled your spend gets a
+  named reason attached to it in review instead of a bigger number a month later.
+</p>
+<div class="card">
+  <h2>Try it</h2>
+  <pre class="cmd"><code>node cli.mjs .github/workflows</code></pre>
+  <p class="note">Reads workflow files from a local directory, no network access used or required. Paste the same files into <a href="index.html">the browser tool</a> for the same report with no install.</p>
+</div>
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Should I use this tool instead of GitHub's own billing page?</h3>
+  <p>Different jobs, and most people who use this tool still check their billing page too. GitHub's billing page is the source of truth for what an account has already spent -- real, metered, and aggregated across every workflow in every repository on the account. It does not attribute a single minute to a single workflow or job, and it has nothing to say about a workflow you have not merged yet. This tool reads the workflow YAML you paste and projects forward from GitHub's own published rates, so you get a before-you-merge estimate the billing page structurally cannot produce.</p>
+  <h3>Why can't the billing page just show cost per workflow?</h3>
+  <p>It aggregates by account and plan, not by workflow file, and the run-timing API that looks like it might close the gap (<code>/actions/runs/&lt;id&gt;/timing</code>) reports a billable <code>total_ms</code> of 0 on private repositories often enough that no reliable per-workflow attribution can be built on it. That gap is exactly what this tool exists to fill by modelling cost from the workflow definition itself rather than from a runtime API that does not expose it.</p>
+  <h3>Does this tool read my account's actual usage or billing data?</h3>
+  <p>No, and it cannot -- it has no access to your GitHub account at all. You paste workflow YAML into the browser tool, or point the CLI at a directory of workflow files on your own machine; either way it reads only the text of those files plus assumptions you set (how often you push, how many PRs you open) and projects a monthly total from GitHub's published list rates. It is an estimate from a model, not a read of your real spend, and both surfaces say so.</p>
+  <h3>Is my workflow file or any account information uploaded anywhere?</h3>
+  <p>No. The browser tool parses and costs everything client-side and sends nothing anywhere -- there is no account, no login, and no analytics vendor. The CLI reads local files and makes no network call at all. Neither surface could read your billing page even if it wanted to; you would need to check that yourself, separately, on github.com.</p>
+  <p class="note">Want the billing mechanics themselves rather than this comparison? <a href="how-github-actions-minutes-are-billed.html">How GitHub Actions minutes are billed</a> walks the multipliers and rounding rules this estimator applies.</p>
+</section>
+<footer>
+  <p><strong>Evidence, not a bill.</strong> This produces an estimate from the workflow files you supply plus assumptions you set. It is not a billing statement, not a quote, and not financial, accounting, or tax advice.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. <strong>You are responsible for checking any figure here against your own GitHub billing page before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI reads local files and makes no network call. This page only parses YAML you paste into it locally, or renders the report the CLI produced.</p>
+  <p>This page is not affiliated with, endorsed by, or sponsored by GitHub, Inc. GitHub and GitHub Actions are named here only to describe the billing page this tool is compared with and how this estimator differs from it.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
