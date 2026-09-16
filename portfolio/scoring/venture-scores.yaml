@@ -12340,3 +12340,131 @@ ventures:
       known false-positive shape (a context-dependent shorthand
       reference) is disclosed on the docs page rather than hidden or
       "fixed" with guesswork that could introduce a false negative.
+
+  - slug: overtime-pay-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the user already has: an hourly
+      rate, hours worked, or a set of hours-and-rate rows for the blended
+      case. There is no inference step, and applying 29 CFR 778.115's
+      weighted-average formula is an exact calculation against a published
+      federal rule, not a judgment call.
+    basis: >-
+      Graduated 2026-09-16 as a free calculator for hourly overtime pay:
+      standard single-rate time-and-a-half, and the FLSA weighted-average
+      ("blended rate") method for a workweek worked at two or more
+      different pay rates -- the case payroll admins most often get wrong
+      by hand, because the overtime premium is half the blended rate, not
+      the full rate. A new vertical (hourly wage/payroll arithmetic) rather
+      than the portfolio's trade-bid, marketplace-fee, or landlord-tenant
+      archetypes. `duplicate_check.py` scored nothing >= 0.16 against any
+      existing venture, pipeline candidate, or screened-out row; the
+      nearest venture by name, `certified-payroll-calculator`, is
+      Davis-Bacon certified-payroll reporting, a different problem.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: the arithmetic
+      itself is commodity once you know the formula -- what is not
+      commodity is that most people do not know the weighted-average
+      formula and get the "half the blended rate" step backwards, which is
+      exactly what a small, correct, single-purpose calculator fixes.
+      Distribution 6: "how to calculate overtime with two different pay
+      rates" / "blended overtime rate calculator" / "weighted average
+      overtime" are recurring searches among small-business payroll admins
+      and HR generalists, and r/humanresources, r/payroll, and small-business
+      forums see this exact question whenever an hourly employee splits
+      shifts across roles or rates in one week -- a predictable, recurring
+      payroll-cycle moment rather than a one-off search.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool only applies a configurable, published federal formula
+      to numbers the user already has -- it does not assert what is legally
+      owed under a specific state's law, generate a pay stub, or file
+      anything. Being wrong costs one party a miscalculated total to
+      double-check, not a filing or a third party's money; the page states
+      in the calculator results, the FAQ, and the footer (not only the
+      footer) that only federal FLSA rules are applied and that several
+      states require more (daily overtime, double-time, bonus inclusion).
+      Ethically: deterministic arithmetic, no dark patterns, no data
+      collected server-side, symmetric for whichever side (employer or
+      employee) is checking the math -- nothing is scraped or inferred
+      about a third party.
+  - slug: cron-dst-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a cron occurrence's local
+      wall-clock time exists, doesn't exist, or exists twice, and what UTC
+      time a fixed-UTC schedule needs per DST segment, is decided entirely by
+      Intl/Date timezone arithmetic -- not a model judgment, and it never
+      claims to know what a specific scheduler does with a skipped or
+      ambiguous occurrence.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's "archetype
+      itself" section: a drift checker for a new object entirely -- a cron
+      schedule against the real IANA DST calendar -- rather than another
+      instance of an existing misconfiguration check. duplicate_check.py
+      scored every existing venture, screened-out row, and pipeline
+      candidate against the final description at or below 0.12, well under
+      the 0.45 flag bar; a hand grep of every VENTURE.yaml and
+      screened-out.md for "cron"/"timezone"/"DST"/"daylight saving" found no
+      prior venture, candidate, or screened idea touching cron or timezone
+      arithmetic at all.
+      Autonomous ops 10 / gross margin 10: the browser page computes
+      everything from the visitor's own typed cron expression and timezone
+      name using the Intl timezone database already in their browser
+      (nothing uploaded, nothing fetched), and the CLI is pure Intl/Date
+      arithmetic with no network call, so serving one more user costs a
+      static file.
+      Distribution 6: cron+DST breakage is a long-documented, recurring
+      developer pain point rather than a one-off incident (Stack Overflow
+      carries hundreds of questions on cron+DST variants; r/devops and
+      r/sysadmin see the same "why did my job run an hour off" thread every
+      spring and fall), and GitHub Actions' own documentation states
+      directly that its schedule-trigger cron always runs in UTC with no
+      timezone option -- exactly the failure mode the drift subcommand
+      targets. Scored one point above agent-instructions-drift-check's
+      internal-only evidence because this channel is externally observable
+      without relying on this portfolio's own incident history, though no
+      search-volume tool was queried to confirm magnitude.
+      Time to revenue 5, defensibility 3: donations-only; cron parsing and
+      timezone-offset arithmetic are both well-trodden general techniques,
+      so defensibility rests on the specific combination (DST-gap/overlap
+      detection plus the named fixed-UTC-cron drift computation) rather than
+      on being hard to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool reads only a cron expression and timezone name the user
+      supplies, computes purely from the public IANA timezone database, and
+      never touches a third party or claims to know what a specific
+      scheduler does with a skipped or ambiguous occurrence -- it states
+      that limitation explicitly. Ethically: donations-only with no per-use
+      fee, so there is no direction in which the tool profits from over- or
+      under-reporting DST risk, and it gets strictly more useful the more of
+      a user's own schedules they check.

@@ -6292,3 +6292,61 @@ products:
           whether the CLI (not just the browser page) sees adoption in an
           external repo's CI, which is the strongest signal this is solving
           a real, recurring problem rather than a one-off curiosity click.
+  - slug: overtime-pay-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          overtime_calculated: 0
+          blended_calculated: 0
+          breakdown_copied: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit.
+          `live_url_visitors` is null, not zero: GitHub Pages exposes no
+          server-side analytics, this portfolio adds no third-party one, and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet, not measured-and-zero. Two calculators ship in one
+          page: standard single-rate overtime, and the FLSA weighted-average
+          (blended rate) method for a workweek worked at two or more pay
+          rates -- the reading worth watching is `blended_calculated`
+          against `overtime_calculated`, since the blended case is the
+          actual differentiator (a single-rate overtime calculation is
+          simple enough to not need a tool) and `breakdown_copied` against
+          `blended_calculated` shows whether a visitor took the result
+          somewhere else, the same ratio security-deposit-return-calculator
+          watches for its own statement copy.
+  - slug: cron-dst-drift-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          schedule_checked: 0
+          drift_checked: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool computing a cron expression's
+          upcoming run times against a real IANA timezone, flagging
+          spring-forward-gap and fall-back-overlap occurrences, plus a
+          separate check for how a fixed-UTC-only scheduler (GitHub Actions'
+          own `schedule:` cron among them) drifts against a target local
+          time across the year's DST segments. `live_url_visitors` is null
+          and not zero, deliberately -- GitHub Pages exposes no server-side
+          analytics and the local counter is opt-in and off by default, so
+          nobody has measured yet. Named channel to watch: developers
+          searching cron+DST failure terms (Stack Overflow's recurring
+          "cron daylight saving" questions, r/devops and r/sysadmin's
+          seasonal "why did my job run an hour off" threads) and anyone
+          searching how GitHub Actions' UTC-only `schedule:` cron behaves
+          across DST, plus any external repository wiring cli.mjs into its
+          own CI. The reading worth watching is `schedule_checked` plus
+          `drift_checked` against `example_loaded` -- a visitor who only
+          loads the worked examples has not brought their own schedule to
+          it -- and whether the CLI sees adoption in an external repo's CI,
+          the strongest signal this is solving a real, recurring problem
+          rather than a one-off curiosity click.

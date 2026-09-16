@@ -31538,3 +31538,252 @@ entries:
         `platform/webcheck` 59/59; `platform/ci`'s full unittest sweep with no
         failures; `checklist_coverage.py` clean on both axes.
     mrr_end: 0
+  - venture: court-reporter-transcript-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Salvaged PR #4747 instead of merging or closing it. The branch added
+        `vs-spreadsheet-comparison.html`, a second comparison page for this
+        venture against the same alternative (a spreadsheet or mental math)
+        that `main` already serves as `vs-spreadsheet-or-guessing.html`.
+        `supersede_check.py 4747` returned NOT SUPERSEDED (59 lines absent
+        from base) but flagged STALE DRAFT SUSPECTED on 6 of 7 files, which
+        is exactly the shape CLAUDE.md says not to merge on the line scan
+        alone: merging it would have published two pages competing for the
+        same query on the same site, and regressed the mirror to older byte
+        counts.
+      - >-
+        Read the pairs rather than the verdict. Most of the branch's prose
+        was an earlier draft of what `main` already says better, but three
+        things were genuinely new, and those were ported into the page
+        `main` actually serves: the agency-offer-divided-by-every-hour angle
+        (now a fifth FAQ, the one point the shipped page's FAQ never made),
+        the concrete turnaround tiers the multiplier moves between
+        (ordinary, expedited, daily, same-day), and the same division stated
+        in the "what each approach does" prose. No new URL, no duplicate.
+      - >-
+        Fixed a test that could never fail. Both FAQ tests here asserted
+        `html.includes(answer.acceptedAnswer.text)` against the whole file,
+        and the JSON-LD block is part of that file, so every answer
+        trivially "appeared" and the test could not catch JSON-LD diverging
+        from visible prose -- the precise condition Google's structured-data
+        policy penalises. `assertFaqMatchesVisibleProse` now strips the
+        JSON-LD block, strips tags, decodes the entities the markup uses
+        (`&mdash;`) but the JSON spells literally, and compares on
+        normalised whitespace; it also checks question text, not just
+        answers. Proved by mutation: editing the visible prose alone turns
+        it red, and it is green again once reverted.
+      - >-
+        Then went looking for where else it was copied to, rather than
+        leaving that as a follow-up nobody runs. `grep -rl
+        'html.includes(q.acceptedAnswer.text)'` found three more sites: a
+        third assertion in this venture's own file (the explainer page,
+        missed on the first pass because it was formatted differently) and
+        two in `ventures/caption-quality-check/page.test.mjs` -- one of them
+        the test named `every FAQPage question on every page is also present
+        as visible text`, which is the intent stated in the title and not
+        delivered by the body. All four assertions now compare against
+        stripped, entity-decoded visible prose. Both ventures' pages turned
+        out to be genuinely correct, which is the good outcome: the markup
+        was never wrong, it just was not being checked. Proved by mutation
+        on each venture separately -- altering one visible `<h3>` on
+        `caption-quality-check`'s comparison page, JSON-LD untouched, turns
+        it red naming the question, green again on revert.
+      - >-
+        Concurrency, recorded because it changed what this branch carries.
+        Two reds found on `main` while verifying -- the opt-out switch count
+        pinned at 261 against a catalogue of 262, and
+        `agent-instructions-drift-check` (#4745) having landed with three
+        test files that ran in no workflow at all -- were both fixed here
+        and then, on the re-merge before pushing, found already fixed on
+        `main` by a concurrent session that had gone further (count now 263,
+        for `hoa-reserve-fund-calculator`). Their versions were taken and
+        mine dropped rather than forced: the reds are closed either way, and
+        the arithmetic this branch did on the count (257 at 48f8b2887, five
+        `usage.mjs` added since, all five `pass`, 257 + 5 = 262) agreed with
+        theirs, which is the reassuring outcome rather than a wasted one.
+      - >-
+        Verified: `node --test ventures/court-reporter-transcript-calculator/*.test.mjs`
+        52 passed / 0 failed with the strengthened assertions in place.
+        Platform node suites 1503 passed / 0 failed. `gitops/tests` 581
+        passed / 1 skipped and `portfolio/*`+`infra/tests` 446 passed, both
+        via `python3 -m pytest` (the spelling CLAUDE.md pins -- bare
+        `pytest` here is a `uv` shim without the repo's deps). All 20
+        `platform/ci` unittest modules OK, `agent_review` OK. `regen.mjs`
+        re-run and its rewrites committed.
+    mrr_end: 0
+  - venture: overtime-pay-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and shipped a new venture per `session_gate.py`'s PROCEED
+        verdict and `portfolio/DIRECTION.md`'s 2026-09-06 owner direction
+        (new ventures rank first when no in-progress venture work exists and
+        the build-now pipeline is empty). Free browser calculator for hourly
+        overtime pay: standard single-rate time-and-a-half, plus the FLSA
+        weighted-average ("blended rate") method (29 CFR 778.115) for a
+        workweek worked at two or more different pay rates -- the case
+        payroll admins most often get wrong by hand, because the overtime
+        premium is half the blended rate, not the full rate.
+        `duplicate_check.py` scored nothing >= 0.16 against any existing
+        venture, pipeline candidate, or screened-out row; not in
+        `screened-out.md`. Entirely client-side, zero marginal cost, no
+        key/account required. Closed a crawlable-orphan pair with
+        `certified-payroll-calculator` (reciprocal footer links, both sides
+        tested) -- this venture graduated with no sibling linking to it, and
+        the orphan budget in `platform/pages/siblings-budget.json` is 0.
+      - >-
+        Concurrency note: 2 other sessions each merged a new venture to
+        `main` while this one was in progress (`agent-instructions-drift-check`,
+        `hoa-reserve-fund-calculator`), each independently bumping the same
+        generated/tracked totals this venture also touches (mirrored-tool
+        count in 4 places, the `platform/privacy` opt-out-switch pin,
+        `gitops/ci/README.md`'s runs-on count, `venture-scores.yaml`,
+        `usage.yaml`). Re-fetched `origin/main`, merged, and resolved by
+        taking the generated `gitops/prod/front-door*` mirror wholesale from
+        `origin/main` and re-running `regen.mjs` on top rather than hand
+        merging binary/generated diffs, and by hand for the prose/data
+        conflicts (appending this venture's entry after the concurrent
+        sessions' entries in each running-count comment and each YAML file,
+        landing on 279 total mirrored tools).
+      - >-
+        Verified locally: venture's own suite 74/74 (with
+        certified-payroll-calculator's new sibling-link tests); full
+        `platform/marketing` + `platform/pages` suite 1260/1260 (post-merge
+        rerun, clean); `platform/privacy` + `platform/webcheck` 142/142;
+        `platform/proposal` 243/243; `gitops/tests` 581 passed/1 skipped;
+        `platform/ci`'s 25-module unittest sweep + `agent_review` 21/21;
+        `portfolio/{ledger,scoring,router,usage,pipeline}` + `infra/tests`
+        446 passed; all 8 `portfolio-validate.yml` validators
+        (`router/validate.py`, `front-door-tools.mjs --headroom`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_probe_index.py`, `score_sensitivity.py`,
+        `score_ventures.py --check`, `validate_usage.py`) individually
+        clean on the finished (post-merge) tree; scoped browser checks
+        (`sweep`, `contrast`, `sideways`) against both touched ventures all
+        pass, after fixing a WCAG-adjacent sideways-scroll defect the check
+        itself caught (a 4-column rate-input row too wide at 360px, fixed
+        with a mobile grid-area stack) and a `money()` formatter signing a
+        negative inside the currency symbol (`platform/ci`'s
+        `check_money_sign` guard). `node platform/marketing/regen.mjs` run
+        (twice, once before and once after the `origin/main` merge) and its
+        rewrites committed.
+    mrr_end: 0
+  - venture: cron-dst-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, per the task brief and `session_gate.py`'s BUILD/PROCEED
+        verdict ("build-now" pipeline empty, so graduate a fresh niche).
+        Screened against `portfolio/pipeline/screened-out.md` and the
+        liability/ethical gates in `portfolio/pipeline/README.md` (composite
+        6.625, floor 1 `ai_leverage`, `liability_containment` 9,
+        `ethical_robustness` 9 -- both clear the 5 gate by a wide margin).
+        `duplicate_check.py` scored every existing venture, screened-out row,
+        and pipeline candidate at or below 0.12 against the final
+        description; a hand grep of every `VENTURE.yaml` and
+        `screened-out.md` for "cron"/"timezone"/"DST"/"daylight saving" found
+        nothing -- no prior venture or candidate reasons about cron
+        expressions or timezone offsets at all. Deliberately not another
+        `<trade>-bid-calculator` and not another generic misconfiguration
+        checker (`portfolio/pipeline/README.md` flags both shapes as needing
+        a new angle): this checks a new object entirely, a cron schedule
+        against the real IANA DST calendar, and the `drift` subcommand is a
+        generator (the two UTC clock times a fixed schedule actually needs)
+        as much as a checker.
+      - >-
+        Shipped a zero-dependency Node CLI (`cli.mjs`, `next`/`drift`
+        subcommands) and a browser page (`index.html`, computing entirely
+        from the visitor's own typed cron expression and timezone name using
+        the `Intl` timezone database already in their browser), sharing one
+        engine (`engine.mjs`): standard 5-field cron parsing with the
+        canonical day-of-month/day-of-week OR rule, local-wall-clock-to-UTC
+        resolution that correctly distinguishes a normal occurrence from a
+        DST-skipped (spring-forward gap) or DST-ambiguous (fall-back overlap)
+        one, and the fixed-UTC-cron drift computation (what GitHub Actions'
+        own UTC-only `schedule:` cron would need per DST segment of a year).
+      - >-
+        A real implementation bug found and fixed during development, not
+        just at the edges: the first `resolveLocalTime` used a two-step
+        fixed-point offset guess, which correctly finds the single instant
+        for a normal or skipped local time but silently converges to only
+        one of the two valid offsets for an *ambiguous* fall-back time,
+        missing the second occurrence entirely. Caught by a test that derives
+        the real transition date from the engine itself
+        (`findOffsetSegments`) rather than assuming one, so it stays correct
+        if a future tzdata update ever moves the rule. Fixed by sampling the
+        real offset a day before and a day after the target instead of
+        iterating from a single naive guess.
+      - >-
+        Two more real defects found by the checklist itself, not invented for
+        the write-up: the browser page's FAQPage JSON-LD text differed from
+        the visible copy beneath it by dash style (`--` vs an em dash) and,
+        in one answer, by wording -- caught by `faq-visible.test.mjs`'s
+        whole-catalogue sweep, not by this venture's own suite, and fixed by
+        making the JSON-LD byte-identical to the visible paragraph. And a
+        `VENTURE.yaml` hypothesis contained an unquoted "schedule: cron"
+        inside a plain YAML scalar, which is invalid YAML (a bare `: ` inside
+        an unquoted scalar reads as a new mapping key) -- caught by
+        `portfolio/router/test_allocate.py`'s real-tree load test, not by any
+        schema check run in isolation, and fixed by rewording rather than
+        quoting.
+      - >-
+        Registered everywhere a new venture needs to be:
+        `portfolio/scoring/venture-scores.yaml`,
+        `portfolio/usage/usage.yaml` baseline row,
+        `portfolio/pipeline/candidates.yaml` + a new write-up +
+        `README.md`'s ranked table (inserted by composite, every following
+        row renumbered -- not appended out of rank order), the mirrored-tool
+        count (278 -> 279) in `infra/OWNER_CHECKLIST.md` (all three
+        sentences), `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` (both comments), and
+        `gitops/tests/test_manifests.py`'s own running-count comment. Ran
+        `platform/pages/launched.mjs --write` (279 tools, 1 added) and
+        `platform/marketing/regen.mjs`.
+      - >-
+        High concurrent-session churn, handled rather than raced: `main`
+        moved twice while this session worked (`agent-instructions-drift-check`'s
+        own missing CI workflow and opt-out-count bump landed elsewhere;
+        then `hoa-reserve-fund-calculator` graduated, moving the
+        mirrored-tool baseline; then a FAQ-JSON-LD test fix landed). Rather
+        than fight three sets of conflicting registration edits, stashed this
+        session's work, fast-forwarded to each new `origin/main`, and
+        re-derived every count (mirrored-tool total, `SWITCHES_IN_THE_CATALOGUE`)
+        from the merged tree instead of carrying forward a number computed
+        against a stale one -- including dropping this session's own
+        now-redundant `agent-instructions-drift-check-ci.yml` once another
+        session's PR (#4751) had already added it. Also bumped
+        `SWITCHES_IN_THE_CATALOGUE` 263 -> 264 for this venture's own
+        `usageOptedOut`/`setUsageOptOut` switch and ran
+        `gitops/ci/sync_readme_counts.py` after adding the new CI workflow
+        file (it rewrote `gitops/ci/README.md`'s stale `runs-on` count
+        sentence, caught by `test_ci_runner.py`).
+      - >-
+        Verified against the final, merged tree: `ci_starvation.py --run
+        35135624851` and `--run 35133335388` both confirmed starvation
+        (`runner_id: 0`, 3-4s, no steps) before trusting any local result
+        over a red GitHub check. Venture's own suite 56/56 (`node --test
+        engine.test.mjs cli.test.mjs page.test.mjs`), including a dogfood
+        test proving both worked examples demonstrate genuine DST risk
+        rather than merely looking plausible.
+        `platform/marketing`+`platform/pages` 1260/1260;
+        `platform/privacy`+`platform/webcheck`+`platform/proposal` 243/243;
+        `gitops/tests` 581 passed/1 skipped via `python3 -m pytest` (the
+        spelling CLAUDE.md pins); `platform/ci`'s full unittest sweep (16
+        modules incl. `agent_review`) all OK after the workflow-coverage and
+        publish-surface fixes; `portfolio/{ledger,scoring,router,usage,
+        pipeline}`+`infra/tests` 446 passed. `checklist_coverage.py`,
+        `check_no_payment_code.py`, `clauses.mjs cron-dst-drift-check`,
+        `front-door-tools.mjs --headroom`, `pipeline/score_sensitivity.py`,
+        `probes/validate_probe_index.py`, `router/validate.py`,
+        `scoring/score_ventures.py --check`, `usage/validate_usage.py`, and
+        `pipeline/validate_doc_consistency.py` all clean. Browser checks
+        (`PLAYWRIGHT=... browser_checks.py --only cron-dst-drift-check`,
+        Playwright 1.56.0 + axe-core installed together in one command): 7
+        of 8 ran and passed (sideways, presets, roundtrip, contrast, optout,
+        sweep, journey); `highlight` skipped as not applicable (this tool
+        prints no highlight-promise sentence). No payment code introduced.
+    mrr_end: 0
