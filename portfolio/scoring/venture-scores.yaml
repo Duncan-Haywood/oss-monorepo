@@ -12280,3 +12280,63 @@ ventures:
       profits from steering a board's contribution estimate one way or the
       other, and the "percent funded" methodology is disclosed in the FAQ
       rather than presented as a black box.
+
+  - slug: agent-instructions-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a file reference, an npm
+      script, or a known interpreter-mismatch shell footgun matches the
+      repo is decided by regex extraction plus a filesystem/JSON existence
+      check -- not a model judgment, and it never evaluates whether an
+      instruction is good advice.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's "archetype
+      itself" section: a drift checker for AI-coding-agent instruction
+      files (AGENTS.md/CLAUDE.md/.cursorrules/copilot-instructions.md),
+      distinct from this portfolio's existing config/doc drift checkers
+      (env-example-drift-check diffs .env.example against process.env
+      reads; structured-data-drift-check diffs a page's own JSON-LD
+      against its visible text). duplicate_check.py scored the closest
+      existing venture (docker-base-image-pin-check) at 0.10 against the
+      final description, well under the 0.45 flag bar.
+      Autonomous ops 10 / gross margin 10: the browser page parses pasted
+      text and file *names* read from a locally-picked folder entirely
+      client-side (nothing uploaded), and the CLI reads only local files
+      it is pointed at, so serving one more user costs a static file.
+      Distribution 5: AGENTS.md became a real, multi-vendor convention
+      across AI coding agents through 2025 (Codex, Claude Code, Cursor's
+      .cursorrules, Copilot's copilot-instructions.md), and this
+      portfolio's own CLAUDE.md documents (2026-09-11, 2026-09-12) real
+      sessions losing time to the exact interpreter-mismatch footgun this
+      tool flags -- proof the failure mode is real, scored moderately
+      because that evidence is internal rather than external search
+      volume.
+      Time to revenue 5, defensibility 3: donations-only; the underlying
+      mechanism (a markdown-link/reference checker) is a well-trodden
+      general category, so defensibility rests on the specific
+      combination (npm-script check plus the named interpreter-mismatch
+      footgun, scoped to agent instruction files) rather than on being
+      hard to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool reads only text the user supplies and, optionally,
+      file names from a locally-picked folder; it never touches a third
+      party and never claims the instructions themselves are correct or
+      complete -- only whether a specific reference resolves. Ethically:
+      donations-only with no per-use fee, so there is no direction in
+      which the tool profits from over- or under-reporting, and the one
+      known false-positive shape (a context-dependent shorthand
+      reference) is disclosed on the docs page rather than hidden or
+      "fixed" with guesswork that could introduce a false negative.

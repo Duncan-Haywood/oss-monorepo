@@ -6262,3 +6262,33 @@ products:
           page) sees repeat use from a document-library batch scan, which
           is this venture's actual differentiation against five established
           upload-required, single-file competitors.
+  - slug: agent-instructions-drift-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          folder_selected: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool checking an AI-coding-agent
+          instruction file (AGENTS.md/CLAUDE.md/.cursorrules/
+          copilot-instructions.md) for broken file references, undefined
+          npm scripts, and known interpreter-mismatch shell footguns (bare
+          pytest/mypy instead of python3 -m). `live_url_visitors` is null
+          and not zero, deliberately -- GitHub Pages exposes no
+          server-side analytics and the local counter is opt-in and off by
+          default, so nobody has measured yet. Named channel to watch:
+          developers who just adopted the fast-growing, multi-vendor
+          AGENTS.md convention searching for a way to validate it (GitHub/
+          npm search, r/ChatGPTCoding, r/cursor, r/ClaudeAI, Hacker News
+          agent-tooling threads) and any repository wiring cli.mjs into its
+          own CI. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the worked
+          example has not brought their own instructions file to it -- and
+          whether the CLI (not just the browser page) sees adoption in an
+          external repo's CI, which is the strongest signal this is solving
+          a real, recurring problem rather than a one-off curiosity click.

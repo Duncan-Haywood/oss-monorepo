@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 277 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 278 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 277 of them — and
+Every tool in the collection is listed below — all 278 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -325,6 +325,7 @@ page that hosts it.
 
 ## More free tools
 
+- [AGENTS.md / CLAUDE.md Drift Check — Broken Links & Footguns in Agent Instructions](https://marisstella.dev/tools/agent-instructions-drift-check/): Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn't defined, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m). Free, runs entirely in your browser, nothing is uploaded.
 - [Free Electronics Calculators — AI Engineering Academy](https://marisstella.dev/tools/ai-engineering-academy/): A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.
 - [HOA Reserve Fund Calculator — Special Assessment Risk](https://marisstella.dev/tools/hoa-reserve-fund-calculator/): Free calculator for HOA/condo board treasurers: project whether your current reserve contribution covers known roof, repaving, painting, pool, elevator, and HVAC replacements, or find the year a special assessment hits, then solve the minimum contribution to avoid it.
 

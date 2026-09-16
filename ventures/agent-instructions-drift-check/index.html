@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AGENTS.md / CLAUDE.md Drift Check — Broken Links &amp; Footguns in Agent Instructions</title>
+  <meta name="description" content="Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn't defined, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m). Free, runs entirely in your browser, nothing is uploaded.">
+  <meta property="og:title" content="Does your AI coding agent's instruction file still match your repo?">
+  <meta property="og:description" content="A deterministic drift checker for AGENTS.md / CLAUDE.md and similar AI-coding-agent instruction files: broken file references, undefined npm scripts, and known interpreter-mismatch footguns. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Instructions Drift Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Checks an AI-coding-agent instruction file (AGENTS.md, CLAUDE.md, .cursorrules, copilot-instructions.md) for drift against the repo it describes: a markdown-link or inline-code file reference that no longer points at a real path, an npm run script reference not defined in package.json, and known interpreter-mismatch shell footguns such as bare pytest or mypy instead of python3 -m. Runs entirely in the browser or as a zero-dependency Node CLI usable as a CI gate."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why do AI agent instruction files go stale?","acceptedAnswer":{"@type":"Answer","text":"AGENTS.md and CLAUDE.md are prose, so nothing mechanical keeps them in sync with the repo the way a compiler keeps a type signature in sync with a call site. A script gets renamed, a doc gets moved, a package.json script gets renamed in a refactor -- and the instruction file still points an agent (or a new human contributor) at the old name. The agent then either fails on a command that no longer exists or, worse, silently succeeds against the wrong tool."}},{"@type":"Question","name":"What is an interpreter-mismatch footgun?", "acceptedAnswer":{"@type":"Answer","text":"A bare tool invocation like pytest or mypy that, on a machine where that tool was installed in isolation (a uv tool install, a pipx install), resolves to a different Python interpreter than the one the repository's own dependencies were installed into. The command runs, produces a plausible-looking result (often \"module not found\"), and is easy to misread as a real failure in the code rather than a wrong interpreter. python3 -m pytest always resolves against the same interpreter as the rest of the repo's tooling."}},{"@type":"Question","name":"Does this check whether the instructions are good advice?","acceptedAnswer":{"@type":"Answer","text":"No. It never judges tone, completeness, or whether a rule makes sense -- only whether a thing the file points at (a file path, an npm script, a known-bad shell pattern) still matches what the repo actually has today. That is a narrower, purely mechanical question, and it is the one a stale reference actually breaks on."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The browser page parses the text you paste and the file names it reads from a folder you pick entirely in your own browser, and never sends any of it anywhere. It reads only file names from the folder picker, never file contents. The CLI reads only local files -- no network call, ever."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    textarea { width: 100%; min-height: 180px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 12px ui-monospace, monospace; margin-bottom: 8px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+    .pill.missing-file { background: #fde8e8; color: #7f1d1d; }
+    .pill.missing-script { background: #fde8e8; color: #7f1d1d; }
+    .pill.footgun { background: #fef3c7; color: #78350f; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    .ok { color: #14532d; font-weight: 600; }
+    .changed { color: #7f1d1d; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">AGENT INSTRUCTIONS DRIFT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Does your AI coding agent's instruction file still match your repo?</h1>
+    <p>Paste your <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>.cursorrules</code>, or <code>copilot-instructions.md</code> and see every file path it references that no longer exists, every <code>npm run</code> script it names that isn't defined in <code>package.json</code>, and known interpreter-mismatch shell footguns — a bare <code>pytest</code> or <code>mypy</code> that can silently resolve to the wrong Python and waste an agent's whole run chasing a phantom failure.</p>
+    <p class="note">Nothing is uploaded. Pasted text is parsed entirely in this browser. The optional folder picker reads only file <em>names</em> from your chosen folder, never file contents, and nothing leaves your device either way.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Paste your instructions file</h2>
+    <label for="instructions-input">AGENTS.md / CLAUDE.md / .cursorrules content</label>
+    <textarea id="instructions-input" spellcheck="false" placeholder="Read `AGENTS.md` and `docs/setup.md` before starting.&#10;&#10;```&#10;npm run release&#10;pytest tests -q&#10;```"></textarea>
+
+    <label for="package-input">package.json content (optional — enables the npm-script check)</label>
+    <textarea id="package-input" spellcheck="false" placeholder='{"scripts": {"build": "tsc", "test": "node --test"}}' style="min-height:90px"></textarea>
+
+    <label for="folder-input">Your repo folder (optional — enables the file-reference check; only file names are read)</label>
+    <p>
+      <input type="file" id="folder-input" webkitdirectory multiple>
+    </p>
+
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (with drift)</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status"></p>
+  </section>
+
+  <section class="card" id="report-card" hidden aria-live="polite">
+    <h2>2. What drifted</h2>
+    <p id="summary"></p>
+    <table id="results-table" hidden>
+      <thead><tr><th>Kind</th><th>Reference</th><th>Detail</th></tr></thead>
+      <tbody id="results-rows"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this as a CI gate?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd">node cli.mjs check AGENTS.md                         # resolves refs from the current directory
+node cli.mjs check AGENTS.md --root .                 # explicit root
+node cli.mjs check CLAUDE.md --package package.json   # explicit package.json
+node cli.mjs check AGENTS.md --json                   # machine-readable</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only the instructions file, an optional <code>package.json</code>, and the local paths the instructions file itself names: no network call, ever. Exits 1 if anything is found, so it works as a CI gate on the same review that renames a file or a script.</p>
+  </section>
+
+  <section class="card">
+    <h2>What's checked</h2>
+    <table>
+      <thead><tr><th>Check</th><th>How</th></tr></thead>
+      <tbody>
+        <tr><td>Broken file reference</td><td>A markdown link target or an inline <code>`code span`</code> that looks like a path (has a slash and a letter-led extension, or is a well-known bare filename like <code>README.md</code>) is resolved against your repo root and flagged if it doesn't exist</td></tr>
+        <tr><td>Undefined npm script</td><td><code>npm run &lt;name&gt;</code>, <code>npm test</code>, and <code>npm start</code> references are checked against your <code>package.json</code>'s <code>scripts</code> map, if you supply one</td></tr>
+        <tr><td>Interpreter-mismatch footgun</td><td>A bare <code>pytest</code> or <code>mypy</code> inside a fenced code block, without a <code>python3 -m</code> (or <code>python -m</code>) prefix on the same line</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Restricted to markdown links and inline code spans on purpose — that is how instruction files actually cite a path when they mean it literally, and scanning ordinary prose for anything path-shaped would flag far more false positives than real drift. A shorthand reference that relies on nearby prose for its directory ("the same <code>validate.py</code> as above") reports as not found even when a longer form of the same path exists elsewhere — a known, disclosed limitation, not a bug. See <a href="why-ai-agent-instruction-files-rot.html">why these files rot, and where this checker's own edges are</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why do AI agent instruction files go stale?</h3>
+    <p>AGENTS.md and CLAUDE.md are prose, so nothing mechanical keeps them in sync with the repo the way a compiler keeps a type signature in sync with a call site. A script gets renamed, a doc gets moved, a package.json script gets renamed in a refactor -- and the instruction file still points an agent (or a new human contributor) at the old name. The agent then either fails on a command that no longer exists or, worse, silently succeeds against the wrong tool.</p>
+    <h3>What is an interpreter-mismatch footgun?</h3>
+    <p>A bare tool invocation like <code>pytest</code> or <code>mypy</code> that, on a machine where that tool was installed in isolation (a <code>uv tool install</code>, a <code>pipx</code> install), resolves to a different Python interpreter than the one the repository's own dependencies were installed into. The command runs, produces a plausible-looking result (often "module not found"), and is easy to misread as a real failure in the code rather than a wrong interpreter. <code>python3 -m pytest</code> always resolves against the same interpreter as the rest of the repo's tooling.</p>
+    <h3>Does this check whether the instructions are good advice?</h3>
+    <p>No. It never judges tone, completeness, or whether a rule makes sense -- only whether a thing the file points at (a file path, an npm script, a known-bad shell pattern) still matches what the repo actually has today. That is a narrower, purely mechanical question, and it is the one a stale reference actually breaks on.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. The browser page parses the text you paste and the file names it reads from a folder you pick entirely in your own browser, and never sends any of it anywhere. It reads only file names from the folder picker, never file contents. The CLI reads only local files -- no network call, ever.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security, or engineering advice, and it does not replace a qualified professional or a careful read of your own instruction file. It reports whether a referenced path, script, or known shell pattern matches what it was told about your repo — nothing more, and a clean result is not a guarantee that your instructions are correct or complete. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. The text you paste and the file names read from a chosen folder are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>folder_selected</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass on the same repo: <a href="../env-example-drift-check/">.env.example Drift Check</a>, <a href="../structured-data-drift-check/">Structured Data Drift Check</a>, and <a href="../license-drift-check/">License Drift Check</a> ask the same "does the doc still match the code" question about different pairs — an env file, a page's JSON-LD, a dependency tree — with the same deterministic, no-upload shape.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseInstructions, diffFileRefs, diffScriptRefs, summarize } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      instructionsInput: $("#instructions-input"), packageInput: $("#package-input"),
+      folderInput: $("#folder-input"), status: $("#status"),
+      reportCard: $("#report-card"), summary: $("#summary"),
+      table: $("#results-table"), rows: $("#results-rows"),
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    // webkitRelativePath is "<chosen-folder-name>/a/b/c.ext" -- strip the
+    // synthetic top-level folder name so refs like "src/index.js" match what
+    // an instructions file at the repo root would actually say.
+    let existingFiles = null; // Set<string> | null (null = folder not supplied, file check skipped)
+
+    els.folderInput.addEventListener("change", () => {
+      const files = Array.from(els.folderInput.files || []);
+      if (files.length === 0) { existingFiles = null; return; }
+      existingFiles = new Set(files.map((f) => f.webkitRelativePath.split("/").slice(1).join("/")));
+      els.status.textContent = `Loaded ${existingFiles.size} file name(s) from the chosen folder (names only, nothing read or uploaded).`;
+      record("folder_selected");
+    });
+
+    function renderReport() {
+      const text = els.instructionsInput.value;
+      if (!text.trim()) {
+        els.status.innerHTML = `<span class="error">Paste an instructions file first (or load the worked example).</span>`;
+        return;
+      }
+      els.status.textContent = "";
+
+      const { fileRefs, scriptRefs, footguns } = parseInstructions(text);
+
+      const fileDiff = existingFiles
+        ? diffFileRefs(fileRefs, (p) => existingFiles.has(p))
+        : { missing: [], matched: [] };
+
+      let definedScripts = null;
+      const pkgText = els.packageInput.value.trim();
+      if (pkgText) {
+        try {
+          const pkg = JSON.parse(pkgText);
+          if (pkg && typeof pkg.scripts === "object" && pkg.scripts) definedScripts = pkg.scripts;
+        } catch { /* leave definedScripts null -- an unparseable package.json just skips this check */ }
+      }
+      const scriptDiff = diffScriptRefs(scriptRefs, definedScripts);
+
+      const { status, text: summaryText } = summarize({ fileDiff, scriptDiff, footguns });
+      const noteParts = [];
+      if (!existingFiles) noteParts.push("no folder selected, so file references were not checked");
+      if (scriptDiff.skipped) noteParts.push("no package.json pasted, so npm scripts were not checked");
+      const note = noteParts.length ? ` (${noteParts.join("; ")})` : "";
+
+      els.summary.innerHTML = (status === "ok"
+        ? `<span class="ok">${escapeHtml(summaryText)}</span>`
+        : `<span class="changed">${escapeHtml(summaryText)}</span>`) + `<span class="note">${escapeHtml(note)}</span>`;
+
+      const rows = [
+        ...fileDiff.missing.map((m) => ({ kind: "missing-file", ref: m.ref, detail: `referenced at line ${m.occurrences[0]?.line ?? "?"}${m.occurrences.length > 1 ? ` (+${m.occurrences.length - 1} more)` : ""}` })),
+        ...(scriptDiff.skipped ? [] : scriptDiff.missing.map((m) => ({ kind: "missing-script", ref: `npm run ${m.name}`, detail: `referenced at line ${m.occurrences[0]?.line ?? "?"}` }))),
+        ...footguns.map((f) => ({ kind: "footgun", ref: f.tool, detail: `line ${f.line}: ${f.message}` })),
+      ];
+      els.table.hidden = rows.length === 0;
+      els.rows.innerHTML = rows.map((r) => `<tr>
+        <td><span class="pill ${r.kind}">${r.kind.replace("-", " ")}</span></td>
+        <td><code>${escapeHtml(r.ref)}</code></td>
+        <td>${escapeHtml(r.detail)}</td>
+      </tr>`).join("");
+
+      els.reportCard.hidden = false;
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#check").addEventListener("click", renderReport);
+
+    // A regular string, not a template literal, specifically so the worked
+    // example can contain literal backticks (real markdown inline-code
+    // syntax) without needing to escape them -- an escaped backtick inside a
+    // template literal reads back with a stray backslash if anything ever
+    // extracts this source text verbatim (as this venture's own page.test.mjs
+    // does, to prove the example on the page matches what the engine finds).
+    const EXAMPLE_INSTRUCTIONS = [
+      "# Example instructions",
+      "",
+      "Read [`AGENTS.md`](AGENTS.md) and `docs/setup.md` before starting.",
+      "",
+      "Before pushing, run:",
+      "",
+      "```",
+      "npm run build",
+      "npm run relase",
+      "pytest tests -q",
+      "```",
+    ].join("\n");
+    const EXAMPLE_PACKAGE = `{"scripts": {"build": "tsc", "test": "node --test"}}`;
+
+    $("#load-example").addEventListener("click", () => {
+      els.instructionsInput.value = EXAMPLE_INSTRUCTIONS;
+      els.packageInput.value = EXAMPLE_PACKAGE;
+      existingFiles = new Set(["AGENTS.md"]); // demonstrates docs/setup.md as missing
+      renderReport();
+      record("example_loaded");
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.instructionsInput.value = "";
+      els.packageInput.value = "";
+      els.folderInput.value = "";
+      existingFiles = null;
+      els.status.textContent = "";
+      els.reportCard.hidden = true;
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

@@ -805,6 +805,13 @@
     const setShareStatus = (text) => { el('shareStatus').textContent = text; };
 
     el('copyShareLink').addEventListener('click', async () => {
+      // This page's price only renders on submit, unlike most sibling
+      // calculators, which update live as you type -- so a sender who never
+      // clicked Calculate could copy a link whose figures they had not
+      // themselves seen priced. Submitting first means the sender always
+      // sees the same headline the recipient's page will compute from the
+      // link. Found by platform/pages/roundtrip.mjs.
+      form.requestSubmit();
       const url = shareUrl(window.location, shareInputs());
       try {
         // navigator.clipboard is unavailable on an insecure origin and can be
@@ -829,6 +836,14 @@
       }
       count('shared_link_opened');
       setShareStatus('Opened from a shared link. Every figure below came from the sender — change any of them to check against your own numbers.');
+      // `.value = ` above never dispatches input/change, so the page-load
+      // suggestion pass (line ~775, run against the form's *defaults*) is
+      // still sitting in `proposalScope` -- describing a job that is not the
+      // one the sender just filled in. `proposalScope` is deliberately not
+      // in the link payload (it is a draft regenerated from the numbers, not
+      // sender prose worth carrying), so it has to be regenerated here or it
+      // never is. Found by platform/pages/roundtrip.mjs.
+      refreshProposal();
       form.requestSubmit();
     }
 </script>
