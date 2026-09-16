@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 278 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 279 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Free calculator for HOA/condo board treasurers: project whether your current reserve contribution covers known roof, repaving, painting, pool, elevator, and HVAC replacements, or find the year a special assessment hits, then solve the minimum contribution to avoid it.</summary>
+  </entry>
+  <entry>
+    <title>Overtime Pay Calculator — Blended Rate for Two Pay Rates, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/overtime-pay-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/overtime-pay-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free overtime pay calculator: standard time-and-a-half for one hourly rate, plus the FLSA weighted-average (blended rate) calculator for a week worked at two or more different pay rates. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>PDF Accessibility Tag Checker — Free PDF/UA &amp; Section 508 Evidence, Nothing Uploaded</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: run a CLI that sends real requests with crafted Origin headers to your API, then paste the JSON here for a plain-English report on reflected-origin, null-origin, and unanchored allow-list CORS misconfigurations. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Craft Fair Booth Calculator — Is This Market Worth Taking?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/craft-fair-booth-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/craft-fair-booth-calculator</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="Creator &amp; solo earner income"/>
-    <summary type="text">Free calculator for makers: find what one craft fair, farmers market, or art festival booth has to sell to break even after booth fee, jury fee, mileage, materials, and card fees — plus your real hourly rate for the weekend and the most a booth could cost and still be worth it. Unsold stock is treated as inventory, not a loss.</summary>
   </entry>
 </feed>

@@ -83,7 +83,10 @@ const RELATIVE_SELF = relative(
 // 262 -> 263 on 2026-09-16, when `hoa-reserve-fund-calculator` graduated
 // with its own `toggleUsage`/`usageAllowed` opt-out switch, same discovery
 // method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 263;
+// 263 -> 264 on 2026-09-16, when `overtime-pay-calculator` graduated with a
+// `usage.mjs` opt-out following the same `readOptOut`/`writeOptOut` pattern
+// as its siblings.
+const SWITCHES_IN_THE_CATALOGUE = 264;
 
 let counter = 0;
 function fixture(source) {

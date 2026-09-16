@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 278 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 279 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 278 of them — and
+Every tool in the collection is listed below — all 279 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -317,17 +317,18 @@ page that hosts it.
 - [Cloud Egress Cost Calculator for S3 Storage](https://marisstella.dev/tools/cloud-egress-calculator/): Compare monthly S3-compatible storage, request, and data egress costs for a real workload. Free, private, and runs in your browser.
 - [IFTA Quarterly Fuel Tax Calculator](https://marisstella.dev/tools/ifta-quarterly-fuel-tax-calculator/): Work your IFTA quarterly return from your own trip and fuel records: average fleet MPG, taxable gallons and net taxable gallons per jurisdiction, the Indiana/Kentucky/Virginia surcharge charged the way it is actually charged, and interest on a late return. Free, private, nothing leaves your browser.
 
-## Restaurant, bar & food truck pricing
-
-- [Food Truck Event & Catering Margin Calculator — Price a Booking](https://marisstella.dev/tools/food-truck-event-margin-calculator/): Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you're already considering against the breakeven.
-- [Menu Engineering Calculator](https://marisstella.dev/tools/menu-engineering-calculator/): Free menu engineering calculator for independent restaurants: enter each dish's plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.
-- [Pour Cost Calculator](https://marisstella.dev/tools/pour-cost-calculator/): Free pour cost calculator for bars and restaurants: price a cocktail from your own bottle costs and pour sizes, see the liquor cost percentage against your target, and find out what over-pouring is really costing you a year. Nothing leaves your browser.
-
 ## More free tools
 
 - [AGENTS.md / CLAUDE.md Drift Check — Broken Links & Footguns in Agent Instructions](https://marisstella.dev/tools/agent-instructions-drift-check/): Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn't defined, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m). Free, runs entirely in your browser, nothing is uploaded.
 - [Free Electronics Calculators — AI Engineering Academy](https://marisstella.dev/tools/ai-engineering-academy/): A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.
 - [HOA Reserve Fund Calculator — Special Assessment Risk](https://marisstella.dev/tools/hoa-reserve-fund-calculator/): Free calculator for HOA/condo board treasurers: project whether your current reserve contribution covers known roof, repaving, painting, pool, elevator, and HVAC replacements, or find the year a special assessment hits, then solve the minimum contribution to avoid it.
+- [Overtime Pay Calculator — Blended Rate for Two Pay Rates, Free](https://marisstella.dev/tools/overtime-pay-calculator/): Free overtime pay calculator: standard time-and-a-half for one hourly rate, plus the FLSA weighted-average (blended rate) calculator for a week worked at two or more different pay rates. Entirely client-side, nothing uploaded.
+
+## Restaurant, bar & food truck pricing
+
+- [Food Truck Event & Catering Margin Calculator — Price a Booking](https://marisstella.dev/tools/food-truck-event-margin-calculator/): Free calculator for independent food truck and trailer operators: find the real price for one private event, catering, or festival booking after commissary prep, travel, staff labor, propane, permit fees, and turnout risk, then check a price you're already considering against the breakeven.
+- [Menu Engineering Calculator](https://marisstella.dev/tools/menu-engineering-calculator/): Free menu engineering calculator for independent restaurants: enter each dish's plate food cost, menu price and units sold to classify it as a star, plowhorse, puzzle or dog, see contribution margin against the menu average, and size what a price move on the high-volume low-margin plates is worth a year. Nothing leaves your browser.
+- [Pour Cost Calculator](https://marisstella.dev/tools/pour-cost-calculator/): Free pour cost calculator for bars and restaurants: price a cocktail from your own bottle costs and pour sizes, see the liquor cost percentage against your target, and find out what over-pouring is really costing you a year. Nothing leaves your browser.
 
 ## Optional
 

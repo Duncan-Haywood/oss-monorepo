@@ -1651,7 +1651,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the first year a special assessment is likely and solving for the
     # contribution that avoids it, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 278  # `infra/OWNER_CHECKLIST.md`'s own "N of the 278 tools" wording.
+    # 279 since 2026-09-16, when `overtime-pay-calculator` graduated — a free
+    # browser calculator for standard single-rate overtime pay plus the FLSA
+    # weighted-average (blended rate) method for a workweek worked at two or
+    # more different pay rates, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    total = 279  # `infra/OWNER_CHECKLIST.md`'s own "N of the 279 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
