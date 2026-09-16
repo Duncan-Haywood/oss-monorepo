@@ -75,7 +75,12 @@ const RELATIVE_SELF = relative(
 // local and record only an event name and a day -- but the opt-out is the
 // visitor's own control over even that, and it has to survive a reload to
 // mean anything.
-const SWITCHES_IN_THE_CATALOGUE = 261;
+// 261 -> 262 on 2026-09-16, when `agent-instructions-drift-check` graduated
+// with a `setUsageOptOut`/`usageOptedOut` switch -- named differently from
+// the `readOptOut`/`writeOptOut` siblings but discovered the same way
+// (behaviourally: does the switch's state survive a reload), which is the
+// point of not using a name allowlist here.
+const SWITCHES_IN_THE_CATALOGUE = 262;
 
 let counter = 0;
 function fixture(source) {
