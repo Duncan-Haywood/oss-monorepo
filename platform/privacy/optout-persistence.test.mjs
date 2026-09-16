@@ -34,7 +34,13 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // 257 -> 258 on 2026-09-16, when `pdf-accessibility-tag-check` graduated
 // with a `usage.mjs` copying the same `readOptOut`/`writeOptOut` pattern
 // (via cors-misconfig-check's usage.mjs, keyed under its own storage name).
-const SWITCHES_IN_THE_CATALOGUE = 258;
+// 258 -> 259 on 2026-09-16, when `process-server-fee-calculator` (#4720)
+// merged with a `toggleUsage()` opt-out following the same working pattern
+// as its sibling ventures -- this file was not touched by that PR, so main
+// stayed red here until a later session (adding this venture's own
+// `vs-servemanager.html` comparison page) noticed while running the
+// checklist.
+const SWITCHES_IN_THE_CATALOGUE = 259;
 
 let counter = 0;
 function fixture(source) {
