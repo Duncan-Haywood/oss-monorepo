@@ -440,3 +440,30 @@ test('a string literal survives into the quoted statement', () => {
   const f = analyzeSql(sql).findings.find((x) => x.id === 'no-lock-timeout');
   assert.match(f.statement, /'hello world'/);
 });
+
+test('the lock grouping counts non-ALTER exclusive statements too', () => {
+  // TRUNCATE and DROP TABLE both take ACCESS EXCLUSIVE. The grouping check
+  // used to live inside the ALTER TABLE branch, so this file -- two exclusive
+  // locks held together for the length of the block, exactly what the check's
+  // title describes -- reported nothing at all.
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+TRUNCATE audit_log;
+DROP TABLE legacy_sessions;
+COMMIT;`;
+  assert.ok(has(sql, 'many-locks-one-transaction'));
+});
+
+test('a single non-ALTER exclusive statement in a transaction is not a grouping', () => {
+  const sql = "SET lock_timeout='3s';\nBEGIN;\nTRUNCATE audit_log;\nCOMMIT;";
+  assert.ok(!has(sql, 'many-locks-one-transaction'));
+});
+
+test('mixed ALTER and non-ALTER exclusive statements group together', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+TRUNCATE audit_log;
+ALTER TABLE users DROP COLUMN legacy;
+COMMIT;`;
+  assert.ok(has(sql, 'many-locks-one-transaction'));
+});

@@ -208,6 +208,30 @@ export function analyzeSql(text) {
   // looks like.
   const createdHere = new Set();
 
+  /**
+   * Record that `st` needs an ACCESS EXCLUSIVE lock: report the missing
+   * `lock_timeout`, and count it toward the per-transaction lock grouping.
+   *
+   * One helper rather than repeating the pair at each call site, because the
+   * grouping half used to live *inside* the `ALTER TABLE` branch while the
+   * check's own title says "several exclusive-lock statements share one
+   * transaction". So `BEGIN; TRUNCATE a; DROP TABLE b; COMMIT;` -- two
+   * ACCESS EXCLUSIVE locks held together, exactly what the check describes --
+   * reported nothing at all.
+   */
+  const noteExclusive = (st) => {
+    if (!lockTimeout) pushNoTimeout(findings, st);
+    if (!st.inTransaction) return;
+    exclusiveInTx.push(st);
+    if (exclusiveInTx.length === 2 && !reportedManyLocks) {
+      reportedManyLocks = true;
+      findings.push(finding('many-locks-one-transaction', st, {
+        impact: `This transaction takes an exclusive lock at line ${exclusiveInTx[0].line} and another here. A transaction releases no lock until it commits, so the first table stays locked for the combined duration of everything that follows — including any slow scan later in the block. Locking two tables at once also widens the window for a deadlock against application traffic taking the same locks in the other order.`,
+        fix: 'Split these into separate transactions (usually separate migrations) so each lock is held only for its own statement, and take them in a consistent order where you cannot.',
+      }));
+    }
+  };
+
   for (const st of statements) {
     const s = st.masked;
     const upper = s.toUpperCase();
@@ -308,7 +332,7 @@ export function analyzeSql(text) {
         impact: 'This rewrites the table (or its indexes) in full while holding an ACCESS EXCLUSIVE lock, so every read and every write on it blocks for the entire rewrite. On a large table that is a planned outage whether or not it was planned as one.',
         fix: '`REINDEX` has a `CONCURRENTLY` form. For bloat, `VACUUM FULL` has no online equivalent in core PostgreSQL — `pg_repack` does the same job without the long exclusive lock, or schedule this inside a maintenance window and say so.',
       }));
-      if (takesExclusiveLock(s) && !lockTimeout) pushNoTimeout(findings, st);
+      if (takesExclusiveLock(s)) noteExclusive(st);
       continue;
     }
 
@@ -317,7 +341,7 @@ export function analyzeSql(text) {
         impact: 'TRUNCATE removes every row in the table and takes an ACCESS EXCLUSIVE lock. It is not row-by-row and it does not fire per-row DELETE triggers, so data is gone without the usual audit trail. In a migration this is almost always either a mistake or an undocumented destructive step.',
         fix: 'If the data is genuinely disposable, say so in a comment on this statement so the next reader does not have to guess. If it is not, this is the statement to remove.',
       }));
-      if (!lockTimeout) pushNoTimeout(findings, st);
+      noteExclusive(st);
       continue;
     }
 
@@ -402,23 +426,11 @@ export function analyzeSql(text) {
         }));
       }
 
-      if (takesExclusiveLock(s)) {
-        if (!lockTimeout) pushNoTimeout(findings, st);
-        if (st.inTransaction) {
-          exclusiveInTx.push(st);
-          if (exclusiveInTx.length === 2 && !reportedManyLocks) {
-            reportedManyLocks = true;
-            findings.push(finding('many-locks-one-transaction', st, {
-              impact: `This transaction takes an exclusive lock at line ${exclusiveInTx[0].line} and another here. A transaction releases no lock until it commits, so the first table stays locked for the combined duration of everything that follows — including any slow scan later in the block. Locking two tables at once also widens the window for a deadlock against application traffic taking the same locks in the other order.`,
-              fix: 'Split these into separate transactions (usually separate migrations) so each lock is held only for its own statement, and take them in a consistent order where you cannot.',
-            }));
-          }
-        }
-      }
+      if (takesExclusiveLock(s)) noteExclusive(st);
       continue;
     }
 
-    if (takesExclusiveLock(s) && !lockTimeout) pushNoTimeout(findings, st);
+    if (takesExclusiveLock(s)) noteExclusive(st);
   }
 
   findings.sort((a, b) => (a.line - b.line) || a.id.localeCompare(b.id));
