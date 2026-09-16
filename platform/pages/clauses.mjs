@@ -115,6 +115,10 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // hand" -- a generic method every user of the calculator already has
   // access to, not a company or product this could be mistaken for.
   'ai-coding-plan-cost-calculator/vs-checking-pricing-pages-yourself.html',
+  // Compares against "clicking Re-run failed jobs and seeing what happens" --
+  // a generic manual habit every GitHub Actions user already has, not a
+  // company or product this could be mistaken for.
+  'actions-runner-starvation-check/vs-rerunning-the-job.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
