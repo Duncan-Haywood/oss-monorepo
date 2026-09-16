@@ -775,7 +775,13 @@ def test_the_served_tree_is_the_size_the_ceilings_predict() -> None:
     # by a percent; the point is that a change which silently stopped
     # compressing would show up here rather than as an OOMKill months later.
     assert source / stored > 2.0, f"compression fell to {source / stored:.2f}x, which the ceilings do not assume"
-    assert stored <= 8 * 1024 * 1024, "the served mirror is over MIRROR_BYTE_CEILING"
+    # Kept as a literal rather than re-derived from front-door-tools.mjs on
+    # purpose (see the module docstring): this checks the built artifact
+    # independently of the generator that produced it. It still has to track
+    # MIRROR_BYTE_CEILING by hand, though -- #4478 raised that constant from
+    # 8 MiB to 12 MiB, and this literal was not updated with it, so it sat
+    # quietly wrong until the mirror itself grew past the old number.
+    assert stored <= 12 * 1024 * 1024, "the served mirror is over MIRROR_BYTE_CEILING"
 
 
 def test_it_did_not_skip_on_the_runner_that_is_supposed_to_run_it() -> None:
