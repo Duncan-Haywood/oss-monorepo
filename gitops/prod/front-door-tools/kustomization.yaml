@@ -33,22 +33,22 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555785 bytes
-#   portfolio-front-tools-1: 106 files, 554509 bytes
-#   portfolio-front-tools-2: 148 files, 556379 bytes
+#   portfolio-front-tools-0: 133 files, 555797 bytes
+#   portfolio-front-tools-1: 106 files, 554519 bytes
+#   portfolio-front-tools-2: 148 files, 556389 bytes
 #   portfolio-front-tools-3: 139 files, 552738 bytes
-#   portfolio-front-tools-4: 122 files, 553173 bytes
-#   portfolio-front-tools-5: 137 files, 553141 bytes
-#   portfolio-front-tools-6: 121 files, 556641 bytes
-#   portfolio-front-tools-7: 133 files, 554119 bytes
-#   portfolio-front-tools-8: 111 files, 554397 bytes
-#   portfolio-front-tools-9: 113 files, 551068 bytes
-#   portfolio-front-tools-10: 121 files, 555362 bytes
-#   portfolio-front-tools-11: 129 files, 543169 bytes
-#   portfolio-front-tools-12: 104 files, 555150 bytes
-#   portfolio-front-tools-13: 108 files, 543609 bytes
-#   portfolio-front-tools-14: 113 files, 554045 bytes
-#   portfolio-front-tools-15: 58 files, 296388 bytes
+#   portfolio-front-tools-4: 122 files, 553165 bytes
+#   portfolio-front-tools-5: 137 files, 553143 bytes
+#   portfolio-front-tools-6: 121 files, 556753 bytes
+#   portfolio-front-tools-7: 133 files, 554122 bytes
+#   portfolio-front-tools-8: 111 files, 554386 bytes
+#   portfolio-front-tools-9: 112 files, 553229 bytes
+#   portfolio-front-tools-10: 121 files, 555273 bytes
+#   portfolio-front-tools-11: 133 files, 556963 bytes
+#   portfolio-front-tools-12: 104 files, 555095 bytes
+#   portfolio-front-tools-13: 108 files, 543624 bytes
+#   portfolio-front-tools-14: 113 files, 554109 bytes
+#   portfolio-front-tools-15: 58 files, 296449 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1360,6 +1360,9 @@ configMapGenerator:
       - kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz=kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz
       - kitchen-tile-backsplash-bid-calculator__usage.mjs.gz=kitchen-tile-backsplash-bid-calculator__usage.mjs.gz
       - kitchen-tile-backsplash-bid-calculator__vs-jobber.html.gz=kitchen-tile-backsplash-bid-calculator__vs-jobber.html.gz
+      - land-survey-bid-calculator__calc.mjs.gz=land-survey-bid-calculator__calc.mjs.gz
+      - land-survey-bid-calculator__index.html.gz=land-survey-bid-calculator__index.html.gz
+      - land-survey-bid-calculator__usage.mjs.gz=land-survey-bid-calculator__usage.mjs.gz
       - landscape-lighting-bid-calculator__calc.mjs.gz=landscape-lighting-bid-calculator__calc.mjs.gz
       - landscape-lighting-bid-calculator__how-much-to-charge-to-install-landscape-lighting.html.gz=landscape-lighting-bid-calculator__how-much-to-charge-to-install-landscape-lighting.html.gz
       - landscape-lighting-bid-calculator__index.html.gz=landscape-lighting-bid-calculator__index.html.gz
@@ -1375,15 +1378,15 @@ configMapGenerator:
       - llms-txt-generator__generator.mjs.gz=llms-txt-generator__generator.mjs.gz
       - llms-txt-generator__index.html.gz=llms-txt-generator__index.html.gz
       - llms-txt-generator__usage.mjs.gz=llms-txt-generator__usage.mjs.gz
-      - llms-txt-generator__vs-a-hosted-docs-platform.html.gz=llms-txt-generator__vs-a-hosted-docs-platform.html.gz
-      - llms-txt-generator__what-is-llms-txt.html.gz=llms-txt-generator__what-is-llms-txt.html.gz
-      - locksmith-bid-calculator__calc.mjs.gz=locksmith-bid-calculator__calc.mjs.gz
-      - locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz=locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - llms-txt-generator__vs-a-hosted-docs-platform.html.gz=llms-txt-generator__vs-a-hosted-docs-platform.html.gz
+      - llms-txt-generator__what-is-llms-txt.html.gz=llms-txt-generator__what-is-llms-txt.html.gz
+      - locksmith-bid-calculator__calc.mjs.gz=locksmith-bid-calculator__calc.mjs.gz
+      - locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz=locksmith-bid-calculator__how-much-should-a-locksmith-charge-for-a-service-call.html.gz
       - locksmith-bid-calculator__index.html.gz=locksmith-bid-calculator__index.html.gz
       - locksmith-bid-calculator__share.mjs.gz=locksmith-bid-calculator__share.mjs.gz
       - locksmith-bid-calculator__usage.mjs.gz=locksmith-bid-calculator__usage.mjs.gz
@@ -1501,15 +1504,15 @@ configMapGenerator:
       - paver-patio-bid-calculator__index.html.gz=paver-patio-bid-calculator__index.html.gz
       - paver-patio-bid-calculator__share.mjs.gz=paver-patio-bid-calculator__share.mjs.gz
       - paver-patio-bid-calculator__usage.mjs.gz=paver-patio-bid-calculator__usage.mjs.gz
-      - paver-patio-bid-calculator__vs-aspire.html.gz=paver-patio-bid-calculator__vs-aspire.html.gz
-      - payment-reconciliation-workbench__app.mjs.gz=payment-reconciliation-workbench__app.mjs.gz
-      - payment-reconciliation-workbench__export.mjs.gz=payment-reconciliation-workbench__export.mjs.gz
-      - payment-reconciliation-workbench__index.html.gz=payment-reconciliation-workbench__index.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - paver-patio-bid-calculator__vs-aspire.html.gz=paver-patio-bid-calculator__vs-aspire.html.gz
+      - payment-reconciliation-workbench__app.mjs.gz=payment-reconciliation-workbench__app.mjs.gz
+      - payment-reconciliation-workbench__export.mjs.gz=payment-reconciliation-workbench__export.mjs.gz
+      - payment-reconciliation-workbench__index.html.gz=payment-reconciliation-workbench__index.html.gz
       - payment-reconciliation-workbench__reconcile.mjs.gz=payment-reconciliation-workbench__reconcile.mjs.gz
       - payment-reconciliation-workbench__usage.mjs.gz=payment-reconciliation-workbench__usage.mjs.gz
       - payment-reconciliation-workbench__vs-synder.html.gz=payment-reconciliation-workbench__vs-synder.html.gz

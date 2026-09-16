@@ -2179,7 +2179,14 @@ const SUBCATEGORY_RULES = {
       // same reason `custom-farm-rate` does: it is not a takeoff for an
       // installed product, it is a rate measured against the operator's own
       // payroll and overhead — which is what this group is.
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate)/.test(slug),
+      // `land-survey-bid-calculator` joined 2026-09-16, for the same reason
+      // `custom-farm-rate` did: it is not a takeoff for an installed
+      // product — nothing is built, poured, or replaced — it prices a crew's
+      // own field, office-research, and drafting hours against a target
+      // margin, the same job-costing shape as `job-margin` and
+      // `shop-rate` for a licensed surveyor's boundary/ALTA retracement
+      // work instead of a construction trade.
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate|land-survey)/.test(slug),
     },
     {
       id: 'trades-cleaning',

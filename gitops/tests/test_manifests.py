@@ -1670,7 +1670,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # schedule-capacity check for whether the artists booked can finish the
     # group on time, with a static `index.html` from its first commit, same
     # shape as the rest of this running count.
-    total = 281  # `infra/OWNER_CHECKLIST.md`'s own "N of the 281 tools" wording.
+    # 282 since 2026-09-16, when `land-survey-bid-calculator` graduated — a
+    # browser-local bid calculator pricing a boundary/topographic/ALTA survey
+    # job from corners located vs. set, terrain, record research, crew and
+    # drafting time, then comparing the result to a flat per-acre quote, with
+    # a static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    total = 282  # `infra/OWNER_CHECKLIST.md`'s own "N of the 282 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

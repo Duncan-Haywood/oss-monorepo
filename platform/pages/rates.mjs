@@ -186,6 +186,18 @@ export const SHOP_RATE_ALIASES = {
     hourlyWage: 'wagePerHour',
     targetMargin: 'targetMarginPct',
   },
+  // "Crew rate ($/hr per person)" is the same raw, un-burdened per-person wage
+  // as `hourlyWage`, spelled `crewHourlyRatePerPerson`. "Target margin on
+  // price (%)" is the same net-margin-on-price concept as `targetMargin`,
+  // spelled `targetMarginPercentPct` (the `Pct` suffix matches this page's own
+  // convention for a 0-100 UI field backing a 0-1 fraction in calc.mjs). It has
+  // no separate payroll-burden field, and office research and drafting time
+  // are priced as their own hourly rates rather than an overhead percentage of
+  // direct cost, so it carries two of the four: see PARTIAL_SHOP_RATE_PAGES.
+  'land-survey-bid-calculator': {
+    hourlyWage: 'crewHourlyRatePerPerson',
+    targetMargin: 'targetMarginPercentPct',
+  },
 };
 
 /**
@@ -237,6 +249,8 @@ export const PARTIAL_SHOP_RATE_PAGES = {
   // `appliance-repair-quote-calculator` case, and not a `hourlyWage`.
   'bounce-house-rental-calculator':
     'This tool prices labour as one rate per crew member that already covers burden, so your saved wage and burden are left alone here.',
+  'land-survey-bid-calculator':
+    'This tool has no separate payroll-burden field and prices office research and drafting time as their own hourly rates rather than a percentage of direct cost, so your saved burden and overhead rates are left alone here.',
 };
 
 /**

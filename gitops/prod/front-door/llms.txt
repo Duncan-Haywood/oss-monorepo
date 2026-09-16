@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 281 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 282 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 281 of them — and
+Every tool in the collection is listed below — all 282 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -93,6 +93,7 @@ page that hosts it.
 - [Janitorial Bid Calculator — Commercial Price Per Month](https://marisstella.dev/tools/janitorial-bid-calculator/): Price a commercial cleaning contract from production rates, day-porter shifts, and periodic floor care, see what a 5× to 3× cut actually costs, whether letting the building buy the paper still holds your margin, and whether throwing in the initial clean loses month 1.
 - [Junk Removal Bid Calculator — Price the Dump Ticket](https://marisstella.dev/tools/junk-removal-bid-calculator/): Price a junk removal job from material weight and the landfill ticket: cubic yards, pounds per yard, dump fee per ton, special item fees, labor, travel, and the walk-away number.
 - [Kitchen Tile Backsplash Bid Calculator — Price It Right](https://marisstella.dev/tools/kitchen-tile-backsplash-bid-calculator/): Price a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, owner-supplied versus you-supply, weekday versus occupied versus after-hours, and extras — plus the walk-away price a $35 / SF special cannot see.
+- [Land Survey Bid Calculator — Corner-Based Pricing](https://marisstella.dev/tools/land-survey-bid-calculator/): Free bid calculator for independent licensed land surveyors: price a boundary, topographic, or ALTA/NSPS survey by corners located vs. set, terrain, record research, crew and drafting time — and see the gap against a flat per-acre quote.
 - [Landscape Lighting Bid Calculator — Price to Install It](https://marisstella.dev/tools/landscape-lighting-bid-calculator/): Price low-voltage landscape lighting from fixture mix, fixtures-only versus new-system versus existing-add-on, trench and soil, transformer size, and extras — plus the walk-away price a $150 / light special cannot see.
 - [Locksmith Bid Calculator — Price a Service Call](https://marisstella.dev/tools/locksmith-bid-calculator/): Free calculator for mobile locksmiths: price one service call — lockout, rekey, lock install, or fob programming — with the after-hours premium and minimum service charge built in, then check whether today's calls hit your income goal.
 - [Metal Roof Bid Calculator — Price a Metal Roof Job](https://marisstella.dev/tools/metal-roof-bid-calculator/): Price a residential standing-seam or exposed-fastener metal roof from the panel squares a per-square special cannot see, the tear-off, the stories, and the trim — plus walk-away price and proposed-price margin check.
