@@ -12468,3 +12468,58 @@ ventures:
       fee, so there is no direction in which the tool profits from over- or
       under-reporting DST risk, and it gets strictly more useful the more of
       a user's own schedules they check.
+  - slug: bridal-hair-makeup-pricing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. Every figure -- service revenue, the early-start
+      and travel fees, the service-minimum top-up, the schedule-capacity
+      check, and the trial-fee credit -- is deterministic arithmetic over
+      numbers the artist types in, never a model judgment about a booking.
+    basis: >-
+      Built directly as a new niche per portfolio/DIRECTION.md's "Pipeline
+      and new ventures" option 3 (the build-now pipeline was empty), rather
+      than graduated from a pipeline candidate write-up. A grep of every
+      VENTURE.yaml and screened-out.md for "bridal"/"makeup"/"hair"/"beauty"/
+      "wedding" (aside from the unrelated moving-bid-calculator) found no
+      prior venture or screened idea for a mobile beauty-services business,
+      so this is a genuinely new category rather than a variant of an
+      existing one.
+      Autonomous ops 10 / gross margin 10: the calculator runs entirely in
+      the visitor's own browser from typed inputs, nothing uploaded, nothing
+      fetched, so serving one more user costs a static file -- same shape as
+      every other browser-local calculator in this portfolio.
+      Distribution 5: bridal hair/makeup pricing is a recurring pain point
+      in wedding-vendor communities (r/weddingstylist, MUA/hairstylist
+      Facebook groups, "how to price bridal hair and makeup" is a common
+      blog-post title in the industry), giving it plausible organic search
+      and community-referral reach similar to this portfolio's other
+      solo-service-business calculators (`photo-booth-event-quote`,
+      `craft-fair-booth-calculator`). Scored on par with them rather than
+      higher, since no search-volume tool was queried to confirm magnitude
+      and the audience is narrower than a developer-tooling checker.
+      Time to revenue 5, defensibility 3: donations-only; per-person tiered
+      pricing and a capacity check are both straightforward arithmetic once
+      named, so defensibility rests on the specific combination (the
+      trial-fee-credit accounting plus the schedule-capacity check) rather
+      than on being hard to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool reads only prices, headcounts, and timing figures the
+      artist supplies, computes purely client-side, and never files, signs,
+      or determines anything on the artist's or client's behalf -- it states
+      a planning estimate, not a contract. Ethically: donations-only with no
+      per-use fee, so the tool has no incentive to over- or under-report the
+      schedule-capacity finding, and it gets strictly more useful to an
+      artist the more bookings they check against it.

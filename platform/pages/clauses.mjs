@@ -134,6 +134,10 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
   'hoa-reserve-fund-calculator/vs-spreadsheet.html',
+  // Compares against "a flat day rate" -- a generic pricing method every
+  // bridal artist already knows, not a company or product this could be
+  // mistaken for. Same reasoning as the other generic-method pages above.
+  'bridal-hair-makeup-pricing-calculator/vs-flat-day-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

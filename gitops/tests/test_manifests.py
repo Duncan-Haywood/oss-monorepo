@@ -1663,7 +1663,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # fixed-UTC-cron (GitHub Actions `schedule:` style) drift calculator,
     # with a static `index.html` from its first commit, same shape as the
     # rest of this running count.
-    total = 280  # `infra/OWNER_CHECKLIST.md`'s own "N of the 280 tools" wording.
+    # 281 since 2026-09-16, when `bridal-hair-makeup-pricing-calculator`
+    # graduated — a browser-local calculator pricing a mobile bridal hair
+    # and makeup booking (bride, bridal party, hair-only, makeup-only, kids)
+    # plus an early-start fee, mileage, a service-minimum top-up, and a
+    # schedule-capacity check for whether the artists booked can finish the
+    # group on time, with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    total = 281  # `infra/OWNER_CHECKLIST.md`'s own "N of the 281 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
