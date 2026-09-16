@@ -31028,3 +31028,125 @@ entries:
         (281 ventures), `publish_surface.py --check`,
         `check_no_payment_code.py` all clean.
     mrr_end: 0
+
+  - venture: pdf-accessibility-tag-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, mandate to process PR #4706 (the
+        repo's only open PR at the time) before any new work. Reviewed the
+        full diff -- disclaimers, usage tracking, the no-upload privacy
+        claim (grepped the venture's own source for fetch/XMLHttpRequest/
+        sendBeacon: none), tests, mirror/gitops generation -- and found it
+        sound. Started resolving its merge conflicts (a ledger conflict
+        combining both sides' venture entries, and the generated
+        front-door mirror via `resolve-mirror-merge.sh` + `regen.mjs`),
+        and independently found the same real defect a concurrent session
+        also caught: `gitops/tests/test_front_door_serving.py` hardcoded
+        `8 * 1024 * 1024` as the mirror's byte ceiling, six days stale
+        against `front-door-tools.mjs`'s own `MIRROR_BYTE_CEILING` (raised
+        to 12 MiB on 2026-09-10, #4478) -- `main`'s mirror sat 14,155 bytes
+        under the stale literal and 4.2 MB under the real one, so the next
+        regen tripped an irrelevant limit. Fixed the same way both times:
+        read the ceiling out of `front-door-tools.mjs` with the regex
+        `test_manifests.py` already uses, instead of restating it.
+      - >-
+        Before this session could push its own merge, a concurrent session
+        merged PR #4706 directly (`merged_at` 13:48:07Z, commit
+        `029a28885`), including its own copy of the identical
+        `MIRROR_BYTE_CEILING` fix -- so this session's local branch and
+        commits were superseded mid-flight. Verified via
+        `mcp__github__pull_request_read` (`merged: true`) and
+        `git log --oneline origin/main -- ventures/pdf-accessibility-tag-check`
+        rather than assumed; aborted the local merge (`git merge --abort`),
+        reset to `origin/main`, and confirmed the PR queue was empty before
+        starting new work, per this repo's duplicate-PR guidance. No time
+        was lost repeating work -- the review and the defect-fix were both
+        genuine, independent findings that happened to land twice.
+      - >-
+        `pages_state.py --require-current` read `current` already (built
+        from the tip of `main`), so no publish step was needed for this
+        merge -- another session had already refreshed it.
+    mrr_end: 0
+
+  - venture: obsidian-plugin-review-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        With the PR queue empty, ran `session_gate.py` (PROCEED, empty
+        build-now pipeline) and continued the comparison-page backlog.
+        Scanned every `ventures/*/index.html` against its `vs-*.html`
+        siblings and found this venture was the only one left without one
+        at the time. Shipped
+        `ventures/obsidian-plugin-review-check/vs-guessing-or-waiting-for-review.html`
+        against the two generic alternatives the venture's own README
+        already names -- guessing from Obsidian's developer guidelines, or
+        waiting for a reviewer's comment on a community-plugin submission
+        pull request -- following the `ios-privacy-manifest-check/vs-
+        waiting-for-app-review.html` precedent: reused the venture's own
+        existing no-warranty/not-affiliated/no-upload footer wording
+        verbatim, so no new `clauses.mjs` `COMPARISON_DISCLAIMER_EXEMPT`
+        entry was needed. Linked from `index.html`'s footer, added to
+        `sitemap.xml`, and added FAQ-visible/not-affiliated/license/
+        sitemap tests to `page.test.mjs`.
+      - >-
+        While this branch was in flight, three more concurrent sessions'
+        merges landed and each needed absorbing: `process-server-fee-
+        calculator` graduated (bumping `SWITCHES_IN_THE_CATALOGUE` 258 ->
+        259 in `platform/privacy/optout-persistence.test.mjs` for its own
+        `usage.mjs` opt-out switch, `usageAllowed`/`toggleUsage` -- a
+        differently-spelled but equivalent pattern to `readOptOut`/
+        `writeOptOut`, found only after merging and re-running the
+        checklist); a second concurrent session shipped a *different*
+        comparison page for this same venture
+        (`vs-eslint-plugin-obsidianmd.html`, #4724) -- resolved the
+        resulting `page.test.mjs` conflict by keeping **both** test
+        blocks rather than picking a side, since both pages are
+        legitimate, non-overlapping content (a different alternative
+        compared against each); and a third session (#4729) had already
+        raised the same pinned count further, to 260, for `photo-addon-
+        pricing-calculator`'s own opt-out switch, absorbed via a clean
+        merge. `run_workflow_locally.py --tree`'s own "UNSTABLE CHECKOUT"
+        detector caught one of these mid-sweep (HEAD moved while the
+        10-minute sweep ran) and correctly refused to report a verdict;
+        re-ran clean on a stable checkout after merging the drift in.
+      - >-
+        Verified: venture's own suite 58/58 (up from 52);
+        `platform/marketing`+`platform/pages` full suite 1298/1298 across
+        three merge cycles; `platform/proposal`+`platform/privacy`+
+        `platform/webcheck` 306/306; `node platform/pages/clauses.mjs
+        --slug obsidian-plugin-review-check` clean; `gitops/tests` 581
+        passed/1 skip (environmental); `platform/ci`'s unittest sweep (25
+        modules via `discover`) + `agent_review` 934 + 21/21;
+        `portfolio/{ledger,scoring,router,usage,pipeline}`+`infra/tests`
+        446 passed; `check_venture_regression.py --base origin/main`: no
+        live venture disappears. `run_workflow_locally.py --for-changes`:
+        12/14 selected workflows passed on a stable checkout (2 held on
+        secrets); `pages.yml`'s one "failure" is the tool being unable to
+        evaluate a `${{ }}` expression in the workflow's own "Build the
+        site" step, cascading to a downstream "no `_site` directory"
+        failure -- verified manually instead:
+        `build_pages_site.py --base-url https://duncan-haywood.github.io/monorepo-projects`
+        then `check_pages_links.py _site` -> `OK: every local reference
+        resolves` (1014 pages, 273 products). CI starved
+        (`ci_starvation.py` confirmed `runner_id: 0` on every check).
+        Merged as #4730 (squash); `pages_state.py --require-current`
+        confirmed `current` after `publish-branch.sh`.
+      - >-
+        Continued once more with the queue still empty: found
+        `photo-addon-pricing-calculator` (the venture whose own PR had
+        just bumped the opt-out count above) was itself the only venture
+        now missing a `vs-*.html` page, shipped
+        `vs-pricing-by-comparing-to-other-studios.html` against the
+        generic pricing method its own FAQ already frames the tool
+        against ("comparing to what other studios charge" -- a method,
+        not a company, so added a `COMPARISON_DISCLAIMER_EXEMPT` entry
+        rather than a not-affiliated clause for a party that does not
+        exist), and caught a genuine FAQPage/visible-copy mismatch while
+        verifying: the JSON-LD used a literal em dash where the visible
+        prose and the rest of the venture's own house style use `--`,
+        the exact defect class CLAUDE.md already records costing live
+        product -- fixed before merging, not after.
+    mrr_end: 0

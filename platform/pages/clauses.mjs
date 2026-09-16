@@ -119,6 +119,12 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a generic manual habit every GitHub Actions user already has, not a
   // company or product this could be mistaken for.
   'actions-runner-starvation-check/vs-rerunning-the-job.html',
+  // Compares against "pricing an add-on by comparing to what other studios
+  // charge" -- a generic pricing method every independent photographer
+  // already uses, not one specific company or product this could be
+  // mistaken for. The page's own FAQ says so explicitly ("has no data on
+  // what any other studio charges").
+  'photo-addon-pricing-calculator/vs-pricing-by-comparing-to-other-studios.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
