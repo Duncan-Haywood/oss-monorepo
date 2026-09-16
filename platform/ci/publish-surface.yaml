@@ -167,6 +167,9 @@ workflows:
 - workflow: brand-deal-rate-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: bridal-hair-makeup-pricing-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: browser-checks-ci.yml
   classification: none
   publishes: []

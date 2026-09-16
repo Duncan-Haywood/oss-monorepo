@@ -159,3 +159,29 @@ test("the comparison page does not repeat a question the index page already answ
   );
   assert.deepEqual(overlap, [], `duplicated FAQ question(s): ${overlap.join(", ")}`);
 });
+
+test("index links to the vs-doing-it-by-hand comparison page", () => {
+  assert.match(page("index.html"), /href="\.\/vs-doing-it-by-hand\.html"/);
+});
+
+test("the comparison page links back to the calculator and carries valid FAQPage JSON-LD matching visible text", () => {
+  const vsPage = page("vs-doing-it-by-hand.html");
+  assert.match(vsPage, /href="\.\/"/);
+  const blocks = [...vsPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const parsed = blocks.map((b) => JSON.parse(b));
+  const faq = parsed.find((p) => p["@type"] === "FAQPage");
+  assert.ok(faq, "missing FAQPage JSON-LD on the comparison page");
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(vsPage.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(vsPage.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test("the comparison page carries the no-warranty clause and is listed in the venture sitemap", () => {
+  const vsPage = page("vs-doing-it-by-hand.html");
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /Nothing leaves your browser/);
+  const sitemap = page("sitemap.xml");
+  assert.match(sitemap, /vs-doing-it-by-hand\.html/);
+});
