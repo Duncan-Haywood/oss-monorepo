@@ -511,3 +511,26 @@ test('the Aspire comparison page FAQPage JSON-LD matches the visible copy verbat
     assert.ok(vsAspire.includes(acceptedAnswer.text), `answer not found verbatim: ${acceptedAnswer.text.slice(0, 60)}...`);
   }
 });
+
+// --- shared-link restore regenerates proposalScope --------------------------
+//
+// `proposalScope` is deliberately not in share.mjs's payload (it is a draft
+// regenerated from the job's own numbers, not sender prose worth carrying —
+// see share.mjs's PROPOSAL_TERM_TEXT comment and platform/pages/roundtrip.mjs's
+// PROSE_FIELDS comment). But `.value =` in the restore loop below never
+// dispatches input/change, so without an explicit regeneration call the
+// recipient's proposalScope is left holding whatever the page-load defaults
+// suggested -- describing a job that is not the one the link just restored.
+// Found by platform/pages/roundtrip.mjs: a recipient opening a shared link saw
+// a scope of work for a different acreage and density than the sender's own
+// figures, under a headline price that matched to the cent.
+test('opening a shared link regenerates proposalScope from the restored figures, not the page defaults', () => {
+  const restoreBlock = html.slice(html.indexOf('const incomingJob ='), html.indexOf('</script>', html.indexOf('const incomingJob =')));
+  assert.match(restoreBlock, /for \(const \[id, value\] of Object\.entries\(incomingJob\)\)/);
+  const afterRestoreLoop = restoreBlock.slice(restoreBlock.indexOf('setShareStatus('));
+  assert.match(
+    afterRestoreLoop,
+    /refreshProposal\(\)/,
+    'the incoming-link handler must call refreshProposal() (which runs suggestScope) after setting the restored fields, or proposalScope keeps describing the page-load defaults',
+  );
+});
