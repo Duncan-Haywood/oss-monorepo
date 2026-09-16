@@ -50,3 +50,21 @@ test('index and docs page state that only `check` touches the network', async ()
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /snapshot.*and.*diff.*read only local files|no network call, ever/is);
 });
+
+test('index links to the vsix-audit comparison page, and it links back', async () => {
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(index, /href="vs-vsix-audit\.html"/);
+  const compare = await readFile(new URL('./vs-vsix-audit.html', import.meta.url), 'utf8');
+  assert.match(compare, /href="\.\/"/);
+});
+
+test('the vsix-audit comparison page carries the no-warranty clause and the trademark disclaimer', async () => {
+  const page = await readFile(new URL('./vs-vsix-audit.html', import.meta.url), 'utf8');
+  assert.match(page, /no warranty/i);
+  assert.match(page, /not\s+affiliated\s+with/i);
+});
+
+test('the vsix-audit comparison page is reachable from the sitemap', async () => {
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /vs-vsix-audit\.html/);
+});
