@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SBOM Diff Check vs. diffing the raw JSON files by hand — SBOM Diff Check</title>
+<meta name="description" content="A line-based diff of two CycloneDX or SPDX SBOM files is buried in serial-number and timestamp noise. See why a structural, package-only diff finds the real change faster, and when the raw JSON diff is still the right tool.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-diffing-the-raw-json-files.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. diffing the raw SBOM JSON files by hand">
+<meta property="og:description" content="Both CycloneDX and SPDX documents carry a serial number and a generation timestamp that change on every run, even with an identical package list. A raw diff shows that noise before it shows the one line that matters.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a plain diff of two SBOM files actually show me?","acceptedAnswer":{"@type":"Answer","text":"Mostly noise. A CycloneDX or SPDX document embeds a serial number, a generation timestamp, and the generating tool's own version, and every one of those fields differs between two runs even when the package list is byte-for-byte identical. On a real SBOM with hundreds of components, the real change — one package added, one bumped — is a handful of lines lost inside dozens of metadata lines that changed for no reason you care about."}},{"@type":"Question","name":"Is a structural diff ever the wrong choice?","acceptedAnswer":{"@type":"Answer","text":"Yes, when you need to audit the SBOM document itself rather than the packages it describes — checking that a required field like a license expression or a supplier name is present and correctly formatted on every component, or verifying the document's own metadata (spec version, tool provenance) for a compliance record. That is a document-validation task, not a change-detection task, and a raw JSON diff or a schema validator is the right tool for it."}},{"@type":"Question","name":"Can I paste both files into an online JSON-diff tool instead?","acceptedAnswer":{"@type":"Answer","text":"You can, but an SBOM is a complete inventory of your build's dependencies, and for a proprietary product that inventory itself can be sensitive — internal package names, an unreleased component, or the sheer shape of your dependency tree. Uploading it to a third-party web tool just to answer \"what changed\" is a real information disclosure for a question that does not need one. This page reads both files in your browser and never sends them anywhere."}},{"@type":"Question","name":"Does either approach tell me if a change is safe?","acceptedAnswer":{"@type":"Answer","text":"No. Neither a raw diff nor this tool's structural comparison says anything about whether an added or updated package is vulnerable, malicious, or appropriately licensed — both only show you that a change happened. Deciding whether the change is safe to ship is a separate step this tool does not do."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #17324a; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #17324a; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3630; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the tool</a></p>
+<h1>This tool vs. diffing the raw SBOM JSON files by hand</h1>
+<p class="lede">The obvious first move when you want to know what changed between two SBOMs is <code>diff old.json new.json</code>, or pasting both into a generic JSON-diff tool. Both are close to useless for this specific question, and the reason is structural rather than a quality problem with either approach: a SBOM document carries metadata that changes on every generation run, and that metadata buries the one thing you actually asked about.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A raw diff or generic JSON-diff tool</strong> is correct and complete for comparing two JSON documents field-for-field. Its limit here is structural: a CycloneDX or SPDX document embeds a serial number, a generation timestamp, and the generating tool's own version string, and every one of those differs between two runs even when the package list is identical. On a real SBOM with hundreds of components, that metadata noise arrives before the one line you actually care about.</p>
+<p><strong>This tool</strong> reads only each component's name and version from both documents — CycloneDX or SPDX, and the two can even be mixed — and reports exactly which packages were added, removed, or changed version. It ignores every field a raw diff would show you that has nothing to do with what the build actually contains.</p>
+<table>
+<thead><tr><th>Question</th><th>Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>Did any package get added, removed, or bumped between two builds?</td><td>This tool's added / removed / version-changed lists.</td></tr>
+<tr><td>Is a required SBOM field present and correctly formatted on every component?</td><td>Neither tool answers this — that is document validation, not change detection.</td></tr>
+<tr><td>Can I compare a CycloneDX build against an SPDX build from before a tooling switch?</td><td>This tool. Only name and version are compared, and both formats expose them.</td></tr>
+<tr><td>Is an added or updated package actually safe to ship?</td><td>Neither tool can answer this — both are structural comparisons with no vulnerability or license data.</td></tr>
+<tr><td>Is anything I paste uploaded anywhere?</td><td>No, for this tool — everything runs in your browser. A generic online JSON-diff tool may log or cache what you paste; check its own policy before pasting a full dependency inventory into one.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What does a plain diff of two SBOM files actually show me?</h3>
+<p>Mostly noise. A CycloneDX or SPDX document embeds a serial number, a generation timestamp, and the generating tool's own version, and every one of those fields differs between two runs even when the package list is byte-for-byte identical. On a real SBOM with hundreds of components, the real change — one package added, one bumped — is a handful of lines lost inside dozens of metadata lines that changed for no reason you care about.</p>
+<h3>Is a structural diff ever the wrong choice?</h3>
+<p>Yes, when you need to audit the SBOM document itself rather than the packages it describes — checking that a required field like a license expression or a supplier name is present and correctly formatted on every component, or verifying the document's own metadata (spec version, tool provenance) for a compliance record. That is a document-validation task, not a change-detection task, and a raw JSON diff or a schema validator is the right tool for it.</p>
+<h3>Can I paste both files into an online JSON-diff tool instead?</h3>
+<p>You can, but an SBOM is a complete inventory of your build's dependencies, and for a proprietary product that inventory itself can be sensitive — internal package names, an unreleased component, or the sheer shape of your dependency tree. Uploading it to a third-party web tool just to answer "what changed" is a real information disclosure for a question that does not need one. This page reads both files in your browser and never sends them anywhere.</p>
+<h3>Does either approach tell me if a change is safe?</h3>
+<p>No. Neither a raw diff nor this tool's structural comparison says anything about whether an added or updated package is vulnerable, malicious, or appropriately licensed — both only show you that a change happened. Deciding whether the change is safe to ship is a separate step this tool does not do.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked tool apply a structural comparison to files you supply. They are provided free and as-is, without warranty of any kind, express or implied, and they are not a security audit or a compliance attestation. <strong>You are responsible for verifying anything here before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>This page names no specific product.</strong> "Diffing the raw JSON files" and "a generic online JSON-diff tool" describe a method and a category of tool, not any one company's product.</p>
+<p><strong>Nothing leaves your browser.</strong> The tool this page links to runs entirely client-side; nothing you paste is uploaded anywhere.</p>
+<p><a href="./">Back to the tool</a></p>
+</footer>
+</body>
+</html>
