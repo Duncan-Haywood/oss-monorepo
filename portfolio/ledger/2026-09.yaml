@@ -31671,3 +31671,119 @@ entries:
         (twice, once before and once after the `origin/main` merge) and its
         rewrites committed.
     mrr_end: 0
+  - venture: cron-dst-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, per the task brief and `session_gate.py`'s BUILD/PROCEED
+        verdict ("build-now" pipeline empty, so graduate a fresh niche).
+        Screened against `portfolio/pipeline/screened-out.md` and the
+        liability/ethical gates in `portfolio/pipeline/README.md` (composite
+        6.625, floor 1 `ai_leverage`, `liability_containment` 9,
+        `ethical_robustness` 9 -- both clear the 5 gate by a wide margin).
+        `duplicate_check.py` scored every existing venture, screened-out row,
+        and pipeline candidate at or below 0.12 against the final
+        description; a hand grep of every `VENTURE.yaml` and
+        `screened-out.md` for "cron"/"timezone"/"DST"/"daylight saving" found
+        nothing -- no prior venture or candidate reasons about cron
+        expressions or timezone offsets at all. Deliberately not another
+        `<trade>-bid-calculator` and not another generic misconfiguration
+        checker (`portfolio/pipeline/README.md` flags both shapes as needing
+        a new angle): this checks a new object entirely, a cron schedule
+        against the real IANA DST calendar, and the `drift` subcommand is a
+        generator (the two UTC clock times a fixed schedule actually needs)
+        as much as a checker.
+      - >-
+        Shipped a zero-dependency Node CLI (`cli.mjs`, `next`/`drift`
+        subcommands) and a browser page (`index.html`, computing entirely
+        from the visitor's own typed cron expression and timezone name using
+        the `Intl` timezone database already in their browser), sharing one
+        engine (`engine.mjs`): standard 5-field cron parsing with the
+        canonical day-of-month/day-of-week OR rule, local-wall-clock-to-UTC
+        resolution that correctly distinguishes a normal occurrence from a
+        DST-skipped (spring-forward gap) or DST-ambiguous (fall-back overlap)
+        one, and the fixed-UTC-cron drift computation (what GitHub Actions'
+        own UTC-only `schedule:` cron would need per DST segment of a year).
+      - >-
+        A real implementation bug found and fixed during development, not
+        just at the edges: the first `resolveLocalTime` used a two-step
+        fixed-point offset guess, which correctly finds the single instant
+        for a normal or skipped local time but silently converges to only
+        one of the two valid offsets for an *ambiguous* fall-back time,
+        missing the second occurrence entirely. Caught by a test that derives
+        the real transition date from the engine itself
+        (`findOffsetSegments`) rather than assuming one, so it stays correct
+        if a future tzdata update ever moves the rule. Fixed by sampling the
+        real offset a day before and a day after the target instead of
+        iterating from a single naive guess.
+      - >-
+        Two more real defects found by the checklist itself, not invented for
+        the write-up: the browser page's FAQPage JSON-LD text differed from
+        the visible copy beneath it by dash style (`--` vs an em dash) and,
+        in one answer, by wording -- caught by `faq-visible.test.mjs`'s
+        whole-catalogue sweep, not by this venture's own suite, and fixed by
+        making the JSON-LD byte-identical to the visible paragraph. And a
+        `VENTURE.yaml` hypothesis contained an unquoted "schedule: cron"
+        inside a plain YAML scalar, which is invalid YAML (a bare `: ` inside
+        an unquoted scalar reads as a new mapping key) -- caught by
+        `portfolio/router/test_allocate.py`'s real-tree load test, not by any
+        schema check run in isolation, and fixed by rewording rather than
+        quoting.
+      - >-
+        Registered everywhere a new venture needs to be:
+        `portfolio/scoring/venture-scores.yaml`,
+        `portfolio/usage/usage.yaml` baseline row,
+        `portfolio/pipeline/candidates.yaml` + a new write-up +
+        `README.md`'s ranked table (inserted by composite, every following
+        row renumbered -- not appended out of rank order), the mirrored-tool
+        count (278 -> 279) in `infra/OWNER_CHECKLIST.md` (all three
+        sentences), `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` (both comments), and
+        `gitops/tests/test_manifests.py`'s own running-count comment. Ran
+        `platform/pages/launched.mjs --write` (279 tools, 1 added) and
+        `platform/marketing/regen.mjs`.
+      - >-
+        High concurrent-session churn, handled rather than raced: `main`
+        moved twice while this session worked (`agent-instructions-drift-check`'s
+        own missing CI workflow and opt-out-count bump landed elsewhere;
+        then `hoa-reserve-fund-calculator` graduated, moving the
+        mirrored-tool baseline; then a FAQ-JSON-LD test fix landed). Rather
+        than fight three sets of conflicting registration edits, stashed this
+        session's work, fast-forwarded to each new `origin/main`, and
+        re-derived every count (mirrored-tool total, `SWITCHES_IN_THE_CATALOGUE`)
+        from the merged tree instead of carrying forward a number computed
+        against a stale one -- including dropping this session's own
+        now-redundant `agent-instructions-drift-check-ci.yml` once another
+        session's PR (#4751) had already added it. Also bumped
+        `SWITCHES_IN_THE_CATALOGUE` 263 -> 264 for this venture's own
+        `usageOptedOut`/`setUsageOptOut` switch and ran
+        `gitops/ci/sync_readme_counts.py` after adding the new CI workflow
+        file (it rewrote `gitops/ci/README.md`'s stale `runs-on` count
+        sentence, caught by `test_ci_runner.py`).
+      - >-
+        Verified against the final, merged tree: `ci_starvation.py --run
+        35135624851` and `--run 35133335388` both confirmed starvation
+        (`runner_id: 0`, 3-4s, no steps) before trusting any local result
+        over a red GitHub check. Venture's own suite 56/56 (`node --test
+        engine.test.mjs cli.test.mjs page.test.mjs`), including a dogfood
+        test proving both worked examples demonstrate genuine DST risk
+        rather than merely looking plausible.
+        `platform/marketing`+`platform/pages` 1260/1260;
+        `platform/privacy`+`platform/webcheck`+`platform/proposal` 243/243;
+        `gitops/tests` 581 passed/1 skipped via `python3 -m pytest` (the
+        spelling CLAUDE.md pins); `platform/ci`'s full unittest sweep (16
+        modules incl. `agent_review`) all OK after the workflow-coverage and
+        publish-surface fixes; `portfolio/{ledger,scoring,router,usage,
+        pipeline}`+`infra/tests` 446 passed. `checklist_coverage.py`,
+        `check_no_payment_code.py`, `clauses.mjs cron-dst-drift-check`,
+        `front-door-tools.mjs --headroom`, `pipeline/score_sensitivity.py`,
+        `probes/validate_probe_index.py`, `router/validate.py`,
+        `scoring/score_ventures.py --check`, `usage/validate_usage.py`, and
+        `pipeline/validate_doc_consistency.py` all clean. Browser checks
+        (`PLAYWRIGHT=... browser_checks.py --only cron-dst-drift-check`,
+        Playwright 1.56.0 + axe-core installed together in one command): 7
+        of 8 ran and passed (sideways, presets, roundtrip, contrast, optout,
+        sweep, journey); `highlight` skipped as not applicable (this tool
+        prints no highlight-promise sentence). No payment code introduced.
+    mrr_end: 0

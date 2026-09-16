@@ -278,6 +278,9 @@ workflows:
 - workflow: crawl-space-encapsulation-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cron-dst-drift-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: crown-molding-bid-calculator-ci.yml
   classification: none
   publishes: []
