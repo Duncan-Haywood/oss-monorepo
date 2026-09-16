@@ -43,8 +43,8 @@
 #   portfolio-front-tools-7: 123 files, 552354 bytes
 #   portfolio-front-tools-8: 114 files, 556334 bytes
 #   portfolio-front-tools-9: 114 files, 552591 bytes
-#   portfolio-front-tools-10: 121 files, 553778 bytes
-#   portfolio-front-tools-11: 126 files, 552824 bytes
+#   portfolio-front-tools-10: 121 files, 554284 bytes
+#   portfolio-front-tools-11: 127 files, 556114 bytes
 #   portfolio-front-tools-12: 102 files, 556599 bytes
 #   portfolio-front-tools-13: 108 files, 541719 bytes
 #   portfolio-front-tools-14: 77 files, 380520 bytes
@@ -1443,6 +1443,7 @@ configMapGenerator:
       - obsidian-plugin-review-check__scan.mjs.gz=obsidian-plugin-review-check__scan.mjs.gz
       - obsidian-plugin-review-check__usage.mjs.gz=obsidian-plugin-review-check__usage.mjs.gz
       - obsidian-plugin-review-check__versions-json-missing-entry.html.gz=obsidian-plugin-review-check__versions-json-missing-entry.html.gz
+      - obsidian-plugin-review-check__vs-guessing-or-waiting-for-review.html.gz=obsidian-plugin-review-check__vs-guessing-or-waiting-for-review.html.gz
       - oidc-trust-policy-check__analyze.mjs.gz=oidc-trust-policy-check__analyze.mjs.gz
       - oidc-trust-policy-check__check.mjs.gz=oidc-trust-policy-check__check.mjs.gz
       - oidc-trust-policy-check__index.html.gz=oidc-trust-policy-check__index.html.gz
@@ -1501,12 +1502,12 @@ configMapGenerator:
       - pet-grooming-bid-calculator__share.mjs.gz=pet-grooming-bid-calculator__share.mjs.gz
       - pet-grooming-bid-calculator__usage.mjs.gz=pet-grooming-bid-calculator__usage.mjs.gz
       - pet-grooming-bid-calculator__vs-moego.html.gz=pet-grooming-bid-calculator__vs-moego.html.gz
-      - photo-booth-event-quote__calc.mjs.gz=photo-booth-event-quote__calc.mjs.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - photo-booth-event-quote__calc.mjs.gz=photo-booth-event-quote__calc.mjs.gz
       - photo-booth-event-quote__how-much-to-charge-for-a-photo-booth-rental.html.gz=photo-booth-event-quote__how-much-to-charge-for-a-photo-booth-rental.html.gz
       - photo-booth-event-quote__index.html.gz=photo-booth-event-quote__index.html.gz
       - photo-booth-event-quote__share.mjs.gz=photo-booth-event-quote__share.mjs.gz
