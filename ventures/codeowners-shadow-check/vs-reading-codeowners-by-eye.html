@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CODEOWNERS Shadow Checker vs. Reading the File By Eye</title>
+<meta name="description" content="Resolving a CODEOWNERS file by eye means holding every pattern and every file in your head at once and re-deriving GitHub's last-match-wins order yourself. This free tool does the resolution in code against your real file list and names exactly which rules a later, broader rule silently overrides. Nothing uploaded either way.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/codeowners-shadow-check/vs-reading-codeowners-by-eye.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="CODEOWNERS Shadow Checker vs. reading the file by eye">
+<meta property="og:description" content="Reading CODEOWNERS by eye means re-deriving GitHub's last-match-wins order yourself, pattern by pattern. This tool resolves it in code against your real file list and names exactly which rules a later, broader rule silently overrides.">
+<meta property="og:url" content="https://example.invalid/codeowners-shadow-check/vs-reading-codeowners-by-eye.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use this tool instead of just reading the CODEOWNERS file myself?",
+      "acceptedAnswer": { "@type": "Answer", "text": "For a short file with a handful of rules, reading it yourself is often enough -- you can usually see which pattern is more specific at a glance. This tool exists for the case that breaks that instinct: a file that has grown over months or years, where a broad rule added recently for an unrelated reason now sits below several older, specific rules and silently wins every one of them under GitHub's last-match-wins order. Nothing about that is visible from reading the file top to bottom -- it only shows up once you resolve every pattern against every file the way GitHub actually does." }
+    },
+    {
+      "@type": "Question",
+      "name": "Isn't this the same thing GitHub's own CODEOWNERS syntax highlighting already checks?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No, and that gap is exactly why this tool exists. GitHub's editor confirms every pattern parses and every owner is a real, well-formed reference -- it does not resolve each pattern against your actual file list and compare who wins. A CODEOWNERS file can be syntactically perfect, with GitHub's own highlighting showing no problem anywhere, while a later catch-all rule has already made an earlier, specific rule dead weight. Syntax validity and resolution correctness are two different questions, and GitHub's built-in check only answers the first." }
+    },
+    {
+      "@type": "Question",
+      "name": "How is this different from just grepping the file for a pattern I'm worried about?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Grepping finds the rule; it doesn't tell you whether the rule still wins anything. You'd still have to manually check every later line for a broader pattern that could override it, against every file that rule is supposed to cover -- exactly the resolution this tool automates. It reports every rule that never wins ownership of any file in your list, separately from rules that matched nothing at all, so you don't have to re-derive last-match-wins by hand for each one you're unsure about." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my CODEOWNERS file or file list uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The CLI (check.mjs) reads files already on your machine and never makes a network request -- it does not need to, since resolving CODEOWNERS needs no GitHub API call. The browser report viewer only parses text you paste into it yourself, locally in your browser. The only thing stored is an anonymous local count of which features were used and the day, with no CODEOWNERS content and no file paths in it." }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; line-height: 1.55; }
+  a { overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); margin: 0.3rem 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.1rem 0 0.3rem; }
+  .card { border: 1px solid #8888; border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #8886; padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+  th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; opacity: 0.75; }
+  pre.cmd { background: rgba(127,127,127,0.12); padding: 0.75rem 0.9rem; border-radius: 8px; overflow-x: auto; font-size: 0.87rem; }
+  .note, footer { font-size: 0.86rem; opacity: 0.85; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid #8886; }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<p><a href="index.html">&larr; CODEOWNERS Shadow Checker</a></p>
+<h1>This checker vs. reading CODEOWNERS by eye</h1>
+<p>
+  <strong>Reading the file yourself</strong> works fine for a short CODEOWNERS file with a handful
+  of rules -- you can usually tell which pattern is more specific at a glance. It stops working the
+  way most CODEOWNERS files actually grow: a specific rule (<code>/src/payments/*.js
+  @payments-team</code>) is added, works for months, and then someone adds a broader rule further
+  down the file (<code>*.js @generalists</code>) for an unrelated reason. Nothing about that is
+  visible from reading top to bottom. GitHub's own syntax highlighting finds no problem either --
+  every pattern is valid, every owner is real. The earlier rule still matches its files; it just
+  never wins ownership of them again, silently, under GitHub's last-match-wins resolution.
+</p>
+<p>
+  <strong>This tool</strong> does not read the file for you -- it resolves it the way GitHub
+  actually does, every pattern against every file in your real list, and names exactly which rules
+  never win anything because a later, broader rule always overrides them. That is a mechanical
+  resolution problem, not a reading-comprehension one, and it is the one thing GitHub's own syntax
+  checker does not do.
+</p>
+<table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>I just want to confirm my CODEOWNERS file has no syntax errors.</td>
+      <td>GitHub's own editor highlighting -- that's exactly its job, and this tool checks the same syntax rule as a secondary pass.</td>
+    </tr>
+    <tr>
+      <td>I want to know whether an earlier, specific rule still wins ownership against my actual files, or a later rule quietly overrides it.</td>
+      <td>This checker -- resolves last-match-wins against your real file list and names the exact overriding rule, instead of leaving you to trace it by eye.</td>
+    </tr>
+    <tr>
+      <td>I want this checked automatically in CI, with a non-zero exit on a shadowed rule.</td>
+      <td>This checker's exported <code>buildReport</code> function -- wireable into any CI step, no GitHub API call required.</td>
+    </tr>
+    <tr>
+      <td>I'd rather not re-derive last-match-wins by hand every time the file changes.</td>
+      <td>This checker -- paste the CLI's JSON (or the file contents and path list) into the report viewer and get the resolution done for you.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+  Neither replaces the other, and in practice both matter: GitHub's own highlighting for whether the
+  file parses at all, this tool for the recurring question reading it once never answers -- whether
+  every rule you think is protecting a path is actually still winning anything.
+</p>
+<div class="card">
+  <h2>Try it</h2>
+  <pre class="cmd"><code>node check.mjs</code></pre>
+  <p class="note">Auto-detects your <code>CODEOWNERS</code> file and tracked files, no reading required. Paste the JSON into <a href="index.html">the checker</a> for the plain-English report of exactly which rules a later rule shadows.</p>
+</div>
+<section class="card">
+  <h2>Common questions</h2>
+  <h3>Should I use this tool instead of just reading the CODEOWNERS file myself?</h3>
+  <p>For a short file with a handful of rules, reading it yourself is often enough -- you can usually see which pattern is more specific at a glance. This tool exists for the case that breaks that instinct: a file that has grown over months or years, where a broad rule added recently for an unrelated reason now sits below several older, specific rules and silently wins every one of them under GitHub's last-match-wins order. Nothing about that is visible from reading the file top to bottom -- it only shows up once you resolve every pattern against every file the way GitHub actually does.</p>
+  <h3>Isn't this the same thing GitHub's own CODEOWNERS syntax highlighting already checks?</h3>
+  <p>No, and that gap is exactly why this tool exists. GitHub's editor confirms every pattern parses and every owner is a real, well-formed reference -- it does not resolve each pattern against your actual file list and compare who wins. A CODEOWNERS file can be syntactically perfect, with GitHub's own highlighting showing no problem anywhere, while a later catch-all rule has already made an earlier, specific rule dead weight. Syntax validity and resolution correctness are two different questions, and GitHub's built-in check only answers the first.</p>
+  <h3>How is this different from just grepping the file for a pattern I'm worried about?</h3>
+  <p>Grepping finds the rule; it doesn't tell you whether the rule still wins anything. You'd still have to manually check every later line for a broader pattern that could override it, against every file that rule is supposed to cover -- exactly the resolution this tool automates. It reports every rule that never wins ownership of any file in your list, separately from rules that matched nothing at all, so you don't have to re-derive last-match-wins by hand for each one you're unsure about.</p>
+  <h3>Is my CODEOWNERS file or file list uploaded anywhere?</h3>
+  <p>No. The CLI (check.mjs) reads files already on your machine and never makes a network request -- it does not need to, since resolving CODEOWNERS needs no GitHub API call. The browser report viewer only parses text you paste into it yourself, locally in your browser. The only thing stored is an anonymous local count of which features were used and the day, with no CODEOWNERS content and no file paths in it.</p>
+  <p class="note">Want the exact before-and-after of a rule losing its review requirement? Read <a href="why-codeowners-review-stops-being-required.html">why a CODEOWNERS review requirement can silently stop firing</a>.</p>
+</section>
+<footer>
+  <p><strong>Evidence, not a determination.</strong> This resolves ownership against the file list
+  you gave it. A rule matching nothing in your list is reported as a notice, not proof the pattern
+  is wrong -- it may simply be that your list didn't include a matching file.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any
+  kind, express or implied. It is not legal or compliance advice, and it does not replace a
+  qualified review of your repository's access controls. <strong>You are responsible for reviewing
+  and verifying its output before relying on it</strong>, and for having authorisation to check any
+  repository you point it at.
+  To the maximum extent permitted by law, the authors accept no liability for any loss or damage
+  arising from its use.</p>
+  <p><strong>Nothing leaves your browser.</strong> The CLI reads files already on your own machine
+  and never makes a network request -- never through this site. This page only parses text you
+  paste into it locally.</p>
+  <p>This page is not affiliated with, endorsed by, or sponsored by GitHub. GitHub is named here
+  only to describe how CODEOWNERS resolution actually works and how this checker differs from
+  reading the file by eye.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+  &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely
+  optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>
