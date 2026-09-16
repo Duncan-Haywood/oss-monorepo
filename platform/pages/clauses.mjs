@@ -102,6 +102,10 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // adjuster already has, not a company or product this could be mistaken
   // for.
   'cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html',
+  // Compares against "a rate-sheet spreadsheet or mental math" -- a method
+  // every freelance court reporter already has, not a company or product
+  // this could be mistaken for.
+  'court-reporter-transcript-calculator/vs-spreadsheet-comparison.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

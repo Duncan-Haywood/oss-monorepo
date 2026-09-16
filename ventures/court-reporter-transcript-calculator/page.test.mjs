@@ -137,3 +137,30 @@ test("a usage opt-out control is present and reflects an already-opted-out state
   assert.match(html, /setUsageOptOut\(true\)/);
   assert.match(html, /usageOptedOut\(\)/);
 });
+
+test("the index page links to the spreadsheet comparison page", () => {
+  assert.match(page("index.html"), /href="vs-spreadsheet-comparison\.html"/);
+});
+
+test("the comparison page links back to the tool and carries valid FAQPage JSON-LD matching visible text", () => {
+  const html = page("vs-spreadsheet-comparison.html");
+  assert.match(html, /href="\.\/"/);
+  const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?)<\/script>/s);
+  assert.ok(match, "missing FAQPage JSON-LD on the comparison page");
+  const faq = JSON.parse(match[1]);
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(html.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(html.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test("the comparison page carries the no-warranty clause", () => {
+  const html = page("vs-spreadsheet-comparison.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /provided free and as-is, without warranty/);
+});
+
+test("the comparison page is listed in the venture sitemap", () => {
+  assert.match(page("sitemap.xml"), /vs-spreadsheet-comparison\.html/);
+});
