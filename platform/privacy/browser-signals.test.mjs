@@ -10,6 +10,8 @@ import { join } from "node:path";
 
 import { checkModule, findUsageModules } from "./browser-signals.mjs";
 
+const REPO_ROOT = new URL("../../", import.meta.url).pathname;
+
 let counter = 0;
 function fixture(source) {
   // A fresh directory per fixture: the checker imports by URL, and Node caches
@@ -137,6 +139,38 @@ test("discovery also finds the classic-script usage.js trackers, not only usage.
     commonJsTrackers.length >= 5,
     `expected at least the 5 known CommonJS trackers, found ${commonJsTrackers.length}`,
   );
+});
+
+test("discovery skips build output, so the count does not depend on who has built", () => {
+  // Measured 2026-09-12: the catalogue count read 254 in CI and 260 in a
+  // working tree where `ventures/ai-engineering-academy`'s build had run,
+  // because `site/dist/tools/*/usage.mjs` are six copies of modules already
+  // counted from their sources. The pinned count in
+  // optout-persistence.test.mjs then failed for a reason that was not a
+  // change to the catalogue -- the worst kind of red, because the honest
+  // response to it is to raise the number and bake the artefact in.
+  const root = mkdtempSync(join(REPO_ROOT, "ventures", "discovery-probe-"));
+  try {
+    writeFileSync(join(root, "usage.mjs"), HONOURING);
+    mkdirSync(join(root, "dist"), { recursive: true });
+    writeFileSync(join(root, "dist", "usage.mjs"), HONOURING);
+    const found = findUsageModules(root);
+    assert.deepEqual(found, [join(root, "usage.mjs")],
+      "the source module is the catalogue; the built copy of it is not");
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test("discovery outside the repository keeps everything, including a dist", () => {
+  // The fixtures above live in a tmpdir, where `git check-ignore` cannot
+  // answer. Keeping every path is the right failure: a checker that quietly
+  // found nothing because git was unavailable would report a clean catalogue
+  // having driven no module at all.
+  const root = mkdtempSync(join(tmpdir(), "discovery-outside-"));
+  try {
+    mkdirSync(join(root, "dist"), { recursive: true });
+    writeFileSync(join(root, "dist", "usage.mjs"), HONOURING);
+    assert.deepEqual(findUsageModules(root), [join(root, "dist", "usage.mjs")]);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 test("the driver leaves no globals behind", async () => {

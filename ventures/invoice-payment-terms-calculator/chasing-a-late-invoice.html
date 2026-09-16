@@ -162,7 +162,7 @@
 
   <script type="module">
     import { compareLateInvoice, lateInvoiceNote } from './calc.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
     const ids = ['amount','daysOverdue','annualCarryRate','hourlyRate','waitDays','waitRecoveryPct','chaseHours','chaseDays','chaseRecoveryPct','settlementDiscountPct','settlementDays','settlementRecoveryPct','collectionCommissionPct','collectionDays','collectionRecoveryPct'];
     const defaults = { amount:'1200', daysOverdue:'15', annualCarryRate:'24', hourlyRate:'85', waitDays:'30', waitRecoveryPct:'70', chaseHours:'3', chaseDays:'14', chaseRecoveryPct:'85', settlementDiscountPct:'10', settlementDays:'5', settlementRecoveryPct:'80', collectionCommissionPct:'30', collectionDays:'90', collectionRecoveryPct:'45' };
     const $ = id => document.getElementById(id);
@@ -250,6 +250,19 @@
     });
 
     update(false);
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

@@ -104,11 +104,30 @@ quiet on its own. Fix the sentence and it goes quiet immediately. It is a gate
 that opens, in both directions, which is the property this repository keeps
 finding it needs and keeps having to add after the fact.
 
-It deliberately does **not** scan `portfolio/ledger/`. Those files are dated,
-append-only history: a ledger entry that said "zero users" on 2026-09-02 is a
-record of what a session believed that day, and rewriting it would destroy the
-evidence of how this spread. Steering documents are different -- they are read
-as current, every run, by every agent.
+It deliberately does **not** scan the dated ledger files under
+`portfolio/ledger/`. Those are append-only history: a ledger entry that said
+"zero users" on 2026-09-02 is a record of what a session believed that day, and
+rewriting it would destroy the evidence of how this spread. Steering documents
+are different -- they are read as current, every run, by every agent.
+
+**`portfolio/ledger/asks.yaml` is the exception, and it was missed for two days
+(added 2026-09-13).** The rule above was written as "skip `portfolio/ledger/`",
+which is a statement about a *directory*, and the property that actually
+matters is whether a file is read as current. `asks.yaml` lives in that
+directory and is not history at all: it is the live source `decision_queue.py`
+renders, so every sentence in it is shown to the account owner as present-tense
+fact on every run. Measured that day, its `pages-custom-domain` ask read
+"`portfolio/usage/usage.yaml` records zero visitors across all 200 products",
+and this check reported `claims honest` with the overclaim sitting on the most
+decision-bearing surface in the repository -- the one page whose whole purpose
+is telling the owner which of these products is worth their next hour.
+
+That is the worst place for this particular error, because of which way it
+cuts. "Never measured" licenses exactly one thing: go get a reading. "Records
+zero" is evidence *against* the products, and it licenses retiring them. A
+guard that is correct about everything it happens to look at is the shape of
+hole this repository keeps paying for, so the glob below names the file rather
+than the directory.
 """
 
 from __future__ import annotations
@@ -130,10 +149,13 @@ VISITOR_SIGNAL = "live_url_visitors"
 # than about anyone using a product. `portfolio-pages` IS the build.
 BUILD_STATISTIC_SLUGS = frozenset({"portfolio-pages"})
 
-# Documents read as current instruction by every session. The ledger is
-# excluded on purpose -- see the module docstring.
+# Documents read as current instruction by every session. The *dated* ledger
+# files are excluded on purpose -- see the module docstring. `asks.yaml` is in
+# that directory but is not history: `decision_queue.py` renders it to the
+# owner as current fact, so it belongs here.
 STEERING_GLOBS = (
     "CLAUDE.md",
+    "portfolio/ledger/asks.yaml",
     "AGENTS.md",
     "PRODUCT_PLAYBOOK.md",
     "portfolio/DIRECTION.md",

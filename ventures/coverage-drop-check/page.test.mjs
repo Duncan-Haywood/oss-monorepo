@@ -7,7 +7,11 @@ const guide = readFileSync(new URL("./why-did-my-pr-drop-coverage.html", import.
 
 test("the page imports compareCoverage from compare.mjs and records usage", () => {
   assert.match(html, /import \{ compareCoverage, summarizeCompare \} from "\.\/compare\.mjs"/);
-  assert.match(html, /import \{ record, setUsageOptOut \} from "\.\/usage\.mjs"/);
+  assert.match(html, /import \{ record, setUsageOptOut, usageOptedOut \} from "\.\/usage\.mjs"/);
+  // `usageOptedOut` is what lets the button show a choice made on an earlier
+  // visit. Without it the page counted correctly and still told the visitor
+  // their click had not taken.
+  assert.match(html, /usageOptedOut\(\)/);
   assert.match(html, /record\("check_run"\)/);
   assert.match(html, /record\("example_loaded"\)/);
 });

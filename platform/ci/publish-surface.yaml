@@ -179,6 +179,9 @@ workflows:
 - workflow: canonical-tag-check-ci.yml
   classification: none
   publishes: []
+- workflow: caption-quality-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: card-processing-fee-audit-ci.yml
   classification: none
   publishes: []
@@ -255,6 +258,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: countertop-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: court-reporter-transcript-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: coverage-drop-check-ci.yml
@@ -393,6 +399,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: flat-roof-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: fleet-repair-or-replace-planner-ci.yml
   classification: none
   publishes: []
 - workflow: flooring-bid-calculator-ci.yml
@@ -599,6 +608,9 @@ workflows:
 - workflow: npm-reachability-triage-ci.yml
   classification: none
   publishes: []
+- workflow: obsidian-plugin-review-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: oidc-trust-policy-check-ci.yml
   classification: none
   publishes: []
@@ -636,6 +648,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: payment-reconciliation-workbench-ci.yml
+  classification: none
+  publishes: []
+- workflow: pdf-accessibility-tag-check-ci.yml
   classification: none
   publishes: []
 - workflow: pergola-bid-calculator-ci.yml

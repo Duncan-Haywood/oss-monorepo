@@ -98,6 +98,27 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // percentage of the increase they win. The page names no specific company
   // and its own footer says so explicitly.
   'dental-ppo-writeoff-calculator/vs-ppo-fee-negotiators.html',
+  // Compares against "a spreadsheet or mental math" -- a method every
+  // adjuster already has, not a company or product this could be mistaken
+  // for.
+  'cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html',
+  // Compares against "a spreadsheet or a guess under a deadline" -- a
+  // method every reporter already has, not a company or product this could
+  // be mistaken for.
+  'court-reporter-transcript-calculator/vs-spreadsheet-or-guessing.html',
+  // Compares against reconciling a 1099-K by hand in a spreadsheet -- a
+  // method every marketplace seller already has, not a company or product
+  // this could be mistaken for. Same reasoning as the cat-adjuster page
+  // above.
+  '1099k-reconciliation-worksheet/vs-spreadsheet-comparison.html',
+  // Compares against "checking pricing pages and doing the arithmetic by
+  // hand" -- a generic method every user of the calculator already has
+  // access to, not a company or product this could be mistaken for.
+  'ai-coding-plan-cost-calculator/vs-checking-pricing-pages-yourself.html',
+  // Compares against "clicking Re-run failed jobs and seeing what happens" --
+  // a generic manual habit every GitHub Actions user already has, not a
+  // company or product this could be mistaken for.
+  'actions-runner-starvation-check/vs-rerunning-the-job.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

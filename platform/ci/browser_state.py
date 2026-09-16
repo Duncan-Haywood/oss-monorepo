@@ -190,10 +190,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 STATE = os.path.join(HERE, "browser_state.json")
 
-# The seven checks browser_checks.py knows about. Duplicated as a literal
+# The eight checks browser_checks.py knows about. Duplicated as a literal
 # rather than imported so that reading the state file never triggers the
-# environment probing browser_checks.py does at import time.
-CHECKS = ("sideways", "presets", "roundtrip", "highlight", "contrast", "sweep", "journey")
+# environment probing browser_checks.py does at import time -- and kept honest
+# by `test_browser_checks.Registry.test_every_enumeration_of_the_checks_agrees`,
+# because a duplicated constant with no guard is how this repository has twice
+# shipped a rule that went stale on one side.
+CHECKS = ("sideways", "presets", "roundtrip", "highlight", "contrast", "optout", "sweep", "journey")
 
 # A commit touching any of these can change what a browser sees. See the
 # module docstring for why this is a literal list and not a heuristic.
@@ -617,9 +620,41 @@ def report(st: dict) -> str:
             continue
         when = reading.get("measured", "?")
         commit = (reading.get("commit") or "")[:8]
-        pages = reading.get("pages")
-        extra = f", {pages} pages" if pages else ""
-        lines.append(f"  {mark}  {check:<10} {when} at {commit}{extra}")
+        # No count on the row, deliberately. `reading["pages"]` is
+        # `browser_checks.py::_count_html` -- the HTML file count of the built
+        # artifact, which that function's own docstring calls "only ever
+        # context" and does not derive from any check's scope. The checks
+        # cover different sets: `contrast.mjs` filters out every `404.html`
+        # and `offline.html`, so its axe total is always below the file count.
+        #
+        # Printing it beside a check's name attributes it to that check,
+        # whatever noun follows. It did: #4651's ledger recorded "all 7 checks
+        # passing over 1022 pages ... with no WCAG A/AA violations" when
+        # contrast had covered 1020. Renaming it to "files" was the first
+        # attempt and was not enough -- `contrast ... 1022 files` still reads
+        # as contrast's number. The count is artifact-wide, so it belongs on
+        # one line about the artifact, below.
+        lines.append(f"  {mark}  {check:<10} {when} at {commit}")
+    # The artifact count, once, labelled as what it is. Grouped by commit
+    # rather than assumed common: a `--only` run records a scoped reading, so
+    # two checks can legitimately carry different counts, and collapsing that
+    # into one number would be the same overstatement one level up.
+    by_count = {}
+    for check in CHECKS:
+        reading = st[check]["reading"]
+        if not reading or not reading.get("pages"):
+            continue
+        key = (reading.get("pages"), (reading.get("commit") or "")[:8])
+        by_count.setdefault(key, []).append(check)
+    if by_count:
+        lines.append("")
+        for (pages, commit), checks in sorted(by_count.items()):
+            who = "" if len(checks) == len(CHECKS) else f" ({', '.join(checks)})"
+            lines.append(
+                f"  artifact at {commit}: {pages} HTML files{who} — context, not"
+                " any check's coverage; each check scopes its own set"
+            )
+
     stale = [c for c in CHECKS if st[c]["verdict"] in ("stale", "never", "unknown")]
     lines.append("")
     if not stale:

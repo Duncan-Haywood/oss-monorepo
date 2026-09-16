@@ -11686,6 +11686,157 @@ ventures:
     scores:
       ai_leverage: 1
       autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over numbers the filer already has: one or
+      more 1099-K Box 1a totals, refunds, marketplace-remitted sales tax,
+      platform fees, COGS, and shipping paid. There is no inference step —
+      the output is a per-platform and combined subtraction, not a
+      judgment call about what is deductible or owed.
+    basis: >-
+      Graduated 2026-09-11 as a free worksheet reconciling one or more Form
+      1099-K Box 1a gross-payment totals down to an estimated net taxable
+      profit, per platform and combined across marketplaces. A different
+      shape from both saturated archetypes this fleet steers away from
+      (single-formula trade-bid calculators, single-request -check/-checker
+      classifiers): a multi-row worksheet + aggregation tool, closer in
+      kind to payment-reconciliation-workbench and
+      grant-reporting-tracker. `duplicate_check.py` scored nothing >= 0.45
+      against any existing venture, pipeline candidate, or screened-out row
+      (run 2026-09-11; top match vending-machine-route-margin at 0.09, an
+      unrelated route calculator matching only on generic "margin"
+      vocabulary).
+      Autonomous ops 10 / gross margin 10: entirely client-side, nothing is
+      uploaded, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: the arithmetic
+      itself is commodity — what is not commodity is combining multiple
+      platforms' 1099-K forms into one exportable reconciliation in one
+      free, no-signup tool.
+      Distribution 6: r/tax, r/Etsyseller, r/eBay, r/Flipping, r/reselling,
+      and r/Mercari all see recurring "why is my 1099-K higher than what I
+      actually made" and "how do I reconcile my 1099-K" threads every
+      filing season, driven by the structural fact that Box 1a is a gross
+      figure that can include marketplace-remitted sales tax and
+      unrefunded-looking refunds — a predictable, recurring seasonal search
+      pattern rather than a one-off.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass on both. The tool never invents a number — every input is a
+      figure the filer already has (a received 1099-K, their own
+      refund/fee/cost records) — and the arithmetic is pure addition and
+      subtraction with no hidden model. A "this is a worksheet, not a
+      filing" finding fires unconditionally on every non-empty worksheet,
+      so the output can never be mistaken for a completed tax
+      determination; a negative-adjustment finding fires rather than
+      silently flooring a bad number to zero. Ethically: deterministic
+      arithmetic over a publicly documented IRS instruction (what Box 1a
+      excludes/includes), no dark patterns, nothing collected
+      server-side, and no revenue model tied to the number shown beyond an
+      optional, unrelated donation link.
+  - slug: fleet-repair-or-replace-planner
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI anywhere in the product. Every input is a figure the owner
+      already holds -- their own repair ledger and downtime log, a dealer
+      quote, a trade-in appraisal -- and the model is addition,
+      subtraction and one division, deliberately simple enough that the
+      explainer page can walk the whole worked example on paper. A number
+      an owner cannot check is a number they should not commit capital on,
+      so inference here would make the result less trustworthy without
+      making it more correct.
+    basis: >-
+      Graduated 2026-09-12. A multi-row cost comparison plus a
+      budget-constrained ranking across rows, which is a different
+      mechanism from both shapes portfolio/pipeline/README.md steers
+      sessions away from: the <trade>-bid-calculator archetype (one
+      formula, one job, one trade) and the -check/-checker archetype
+      (single-request classifier over a pasted file). Nearest shape
+      relatives in the fleet are which-job-first (ranks a list) and
+      payment-reconciliation-workbench (multi-row worksheet).
+      duplicate_check.py scored nothing >= 0.45; the genuine nearest
+      neighbour, equipment-lease-buyout-calculator (0.09), was read
+      closely rather than taken on the number -- it compares ONE asset's
+      lease buyout against return-and-replace, where this answers the
+      question one level up, across several owned assets against one
+      budget. The two are cross-linked in both directions.
+      Defensibility 5, a point above quarterly-estimated-tax-calendar and
+      1099k-reconciliation-worksheet, and the reason is incentive rather
+      than novelty: equivalent annual cost is textbook and trivially
+      restated, but every free calculator ranking for these phrases
+      belongs to an equipment dealer, a fleet-leasing company or a
+      fleet-management SaaS vendor -- all of whom have a commercial reason
+      to prefer the "replace" answer, and all of whom gate the
+      multi-asset version behind a demo or a subscription. A tool with no
+      transaction, no referral and no finance partner can be willing to
+      say "keep", and ships a worked example that does.
+      Distribution 7: "repair or replace work truck", "when to replace a
+      service van" and "which truck to replace first" are recurring
+      high-intent searches across r/HVAC, r/Plumbing, r/electricians,
+      r/Construction, r/smallbusiness and r/Truckers, from an audience
+      with a real capital decision and the money to act on it.
+      Time to revenue 6: the decision recurs at every budget cycle rather
+      than once in a filing season, which is the same recurrence argument
+      that scored quarterly-estimated-tax-calendar a 6 and
+      1099k-reconciliation-worksheet a 5.
+      Autonomous ops 10 / gross margin 10: a static page, no build step,
+      no dependencies, and no network request of any kind. One more user,
+      or one more CSV export, costs nothing.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass on both. Liability containment: being wrong costs the owner a
+      worksheet that wants a second look before capital is committed, not
+      a lawsuit or a third party's money. Three properties keep it
+      contained and each has a test. The tool is willing to recommend
+      keeping -- sampleRows() ships a row the arithmetic says to keep and
+      calc.test.mjs asserts it, because a planner that could never say
+      keep would be a sales tool for capital spending.
+      `not-a-determination` and `undiscounted-eac` both fire
+      unconditionally on every non-empty plan rather than only when
+      something looks wrong, so the output cannot be read as an
+      endorsement of the rest. And `missing-replacement-cost` fires
+      rather than letting a blank quote read as zero capital, which would
+      otherwise make replacing always look like the win. Scored a point
+      below 1099k-reconciliation-worksheet's 7 honestly: that tool
+      reconciles a figure a third party already reported, changing
+      nothing about what was filed, whereas this one informs a
+      forward-looking capital commitment not yet made.
+      Ethical robustness: deterministic arithmetic over the owner's own
+      figures, nothing uploaded, no dark patterns, and no degradation for
+      users as traffic grows. The bias a business here would be tempted
+      toward -- recommending purchases -- has no mechanism: no
+      transaction, no referral, no lead capture, no finance partner, and
+      no revenue tied to the recommendation, only an unrelated optional
+      donation link. Every disclosure it raises pushes toward re-checking
+      a figure that would overstate the case for spending.
+
+  - slug: obsidian-plugin-review-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
       time_to_revenue: 6
       gross_margin: 10
       defensibility: 4
@@ -11695,41 +11846,264 @@ ventures:
     floor: 1
     floor_dimension: ai_leverage
     floor_note: >-
-      No AI in the product, by the venture's own VENTURE.yaml note ("ships
-      zero AI"). The value is deterministic subtraction/addition applying a
-      publicly documented IRS instruction (what Form 1099-K Box 1a excludes
-      and includes) to numbers the filer already holds, per platform and
-      combined across every marketplace at once.
+      No AI in the product, deliberately. Whether versions.json carries an
+      entry for manifest.json's current version, whether a manifest field
+      still reads the obsidian-sample-plugin template's own placeholder
+      value (id "sample-plugin", name "Sample Plugin", author "Your
+      Name"), and whether source assigns innerHTML/outerHTML/
+      insertAdjacentHTML are all decided by pattern matching against
+      fixed field names and a fixed list of DOM APIs -- a factual,
+      deterministic comparison, not a model judgment, and it never claims
+      an obsidianmd/obsidian-releases review determination.
     basis: >-
-      Added to the score file 2026-09-11, in the same change that gave the
-      venture the per-venture CI workflow `validate_workflows.py` requires
-      (it had shipped `calc.test.mjs`/`page.test.mjs` with no workflow
-      running them). Scored on the same rubric as this portfolio's other
-      seller fee/reconciliation calculators. Defensibility 4: the
-      arithmetic is transparent, as it has to be, but the multi-row,
-      multi-platform aggregation (reconciling several marketplaces' 1099-K
-      forms into one combined worksheet) is a genuinely different shape
-      from the fleet's single-formula seller calculators
-      (`etsy-profit-calculator`, `poshmark-fee-calculator`), closer in kind
-      to `payment-reconciliation-workbench` and
-      `grant-reporting-tracker`'s multi-row queues, and no incumbent free
-      calculator combines multiple platforms' 1099-K forms in one place per
-      the venture's own `VENTURE.yaml` duplicate-check note. Distribution
-      6: r/tax, r/Etsyseller, r/eBay, r/Flipping, r/reselling, and
-      r/Mercari all see "why is my 1099-K higher than what I made" threads
-      every filing season (Jan-Apr) per the venture's own note -- a
-      structurally recurring, seasonal search topic distinct from the
-      per-sale fee questions the fleet's existing seller calculators
-      already answer -- but volume is unmeasured and the season has not
-      yet arrived.
+      Graduated 2026-09-12 per portfolio/pipeline/README.md's "archetype
+      itself" section: the third instance of the "cross-check a
+      platform's own review-gating manifest/metadata against actual
+      source usage" shape, after chrome-extension-permission-check and
+      wordpress-plugin-review-check, for a third platform (Obsidian
+      community plugins) with disjoint audience, terminology
+      (manifest.json/versions.json, the Component API's registerDomEvent
+      auto-cleanup), and rejection reasons from either. duplicate_check.py
+      scored every existing venture, screened-out.md row, and pipeline
+      candidate below 0.16 against the final description -- the closest
+      matches were the other two platform-review checkers, well under the
+      0.45 review bar.
+      Autonomous ops 10 / gross margin 10: the browser page parses only
+      files a visitor selects and the CLI reads only a path its own
+      invoker names, so serving one more user or one more repo costs a
+      static file and needs no human review of any output.
+      Distribution 6, a point below chrome-extension-permission-check and
+      wordpress-plugin-review-check's 7: Obsidian's plugin-developer base
+      is real but smaller than either the Chrome Web Store's or
+      WordPress.org's, the same niche-platform-developer-population
+      reasoning that scored ios-privacy-manifest-check a 6. Named,
+      active channels exist regardless -- r/ObsidianMD, the official
+      Obsidian Discord's plugin-development channels, and the
+      obsidianmd/obsidian-releases GitHub repository's own PR review
+      comments, where every community-plugin submission is reviewed by
+      volunteer maintainers who routinely link back to the published
+      plugin guidelines on exactly these issues.
+      Time to revenue 6, defensibility 4: donations-only; a transparent
+      pattern-matcher is easy to reimplement, so defensibility rests on
+      being first and correct for this exact manifest/versions cross-check
+      plus the two source-pattern checks, rather than on any moat --
+      matching both sibling checkers' scores on these two dimensions
+      exactly, since the underlying economics (no transaction, no lead
+      capture, static analysis only) are identical across all three.
     gates:
       liability_containment: pass
       ethical_robustness: pass
     gate_note: >-
-      Pass: per the venture's own `VENTURE.yaml` gate reasoning
-      (liability_containment 7, ethical_robustness 8) -- every input is a
-      figure the filer already has (a 1099-K they received, their own
-      refund/fee/cost records), the worksheet is framed as a reconciliation
-      to verify rather than a filed amount or a determination of actual tax
-      liability, and the filer remains the one who files their own return.
-      Nothing entered leaves the browser.
+      Pass on both, per the reasoning already recorded in this venture's
+      own VENTURE.yaml. Liability containment: the product only reports
+      pattern-matches against Obsidian's own published developer
+      documentation (manifest field names, the versions.json mechanism,
+      the innerHTML/outerHTML security guidance) -- evidence, never a
+      determination that a submission will be approved, and every page
+      says so. No advice-of-record, no compliance warranty, no scraped
+      data; the tool reads only the files a visitor selects or a path the
+      CLI's own invoker names. Ethical robustness: no revenue model
+      conditions the tool's accuracy on over- or under-flagging, so a
+      false negative and a false positive cost the same nothing -- the
+      reviewer still makes the actual call. Getting more submissions
+      through review faster is strictly better for the developer as the
+      tool scales, never worse.
+  - slug: caption-quality-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Reading speed, line length, lines
+      per cue, duration, overlaps, and gaps are all exact arithmetic on a
+      cue's own timestamps and text against a configurable threshold -- a
+      factual, deterministic comparison, not a model judgment, and it never
+      claims a certification against WCAG, Section 508, FCC, or any single
+      controlling standard.
+    basis: >-
+      Screened 2026-09-13 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool, but in a
+      domain this portfolio had not yet touched -- caption/subtitle
+      accessibility quality -- rather than a 281st <trade>-bid-calculator
+      or a 39th SEO/security -check. duplicate_check.py scored every
+      existing venture, screened-out row, and pipeline candidate below 0.14
+      against the final description, well under the 0.45 flag bar; nothing
+      in screened-out.md or the existing venture set reads caption/subtitle
+      files. Autonomous ops 10 / gross margin 10: both the CLI and the
+      browser page parse only a local file or pasted text with no network
+      request at all in either mode, so serving one more user costs a
+      static file.
+      Distribution 5: video creators, course producers, and accessibility
+      reviewers asking "why are my captions too fast" or wanting to QC an
+      SRT/VTT file before upload is a real, named search-term and forum
+      anchor (r/VideoEditing, r/Twitch, creator-education forums), and paid
+      caption-QC review already exists inside commercial captioning
+      services (3Play Media, Verbit, Rev), which is evidence of real
+      willingness to pay for this exact check rather than invented demand
+      -- scored a point below hreflang-reciprocity-check's 6 because the
+      strongest named competitor evidence here is paid-tier services
+      bundling this as a feature, not a dedicated free by-name competitor
+      tool for this specific check.
+      Time to revenue 6, defensibility 3: donations-only; a transparent
+      threshold checker over publicly-published caption style-guide
+      numbers is easy to reimplement once the rule is known, same as this
+      portfolio's other deterministic checkers, so defensibility rests on
+      being first, the CI-usable CLI, the paste-based zero-network browser
+      mode, and this portfolio's disclaimer/usage conventions rather than
+      on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool never touches a third party's infrastructure or data
+      at all -- both surfaces process only a file the visitor already has
+      (pasted text, or a local path the CLI's own invoker names), so there
+      is no network request, no scraped data, and no third-party exposure
+      of any kind. Every page states plainly that a clean result is
+      evidence against specific, commonly-used, configurable thresholds,
+      never a certification of WCAG, Section 508, FCC, or any other
+      standard's compliance, and that it does not replace a human review
+      of transcription accuracy or translation quality -- no advice-of-
+      record, no compliance warranty. Ethical robustness: no revenue model
+      conditions the tool's accuracy on over- or under-flagging a cue, so a
+      false positive and a false negative cost the operator the same
+      nothing; a visitor who fixes a flagged cue gets a strictly more
+      readable caption track, which is better for the deaf/hard-of-hearing
+      viewers the check exists for as the tool is used more, never worse.
+  - slug: court-reporter-transcript-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. A deposition invoice total, an effective hourly
+      rate, and an agency-offer comparison are all exact arithmetic on
+      page counts, per-page rates, turnaround multipliers, flat fees, and
+      hours the reporter already has -- there is no inference step, only a
+      sum and a division.
+    basis: >-
+      Screened 2026-09-13 per portfolio/pipeline/README.md's "archetype
+      itself" section: freelance court reporting / deposition
+      transcription, a professional-services niche this portfolio had not
+      yet touched, with a billing shape (a flat appearance fee stacked on a
+      per-page rate that itself multiplies by turnaround speed) distinct
+      from every existing trade-bid or marketplace-fee calculator here.
+      duplicate_check.py scored the final description below 0.13 against
+      every existing venture, pipeline candidate, screened-out row, and
+      ai-first-markets idea -- well under the 0.45 flag bar -- after two
+      adjacent niches were checked and set aside: a mobile-notary
+      income-planning angle scored 0.26 against the existing
+      notary-trip-quote venture (same audience, thinner variant of its
+      existing per-job quote) and an AI-crawler-access checker scored 0.49
+      against the existing ai-crawler-access-check venture. Autonomous ops
+      10 / gross margin 10: entirely client-side, no server component, zero
+      marginal cost per visitor.
+      Distribution 6: r/courtreporting and NCRA (National Court Reporters
+      Association) member forums both see recurring "how much should I
+      charge for a rush transcript" and "is this agency offer worth taking"
+      threads -- a predictable, recurring pricing question with real search
+      volume ("court reporter transcript rate calculator", "deposition
+      transcript pricing"), the same shape of evidence this portfolio's
+      other trade calculators use, in a professional-services niche none of
+      them have entered.
+      Time to revenue 5, defensibility 3: donations-only; the per-page,
+      turnaround-multiplied billing arithmetic is easy to reimplement once
+      known, so defensibility rests on being first and on this portfolio's
+      disclaimer/usage conventions rather than on any moat.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Both calculators only total numbers the reporter already has
+      (page count, per-page rate, turnaround multiplier, flat fees, travel
+      miles, hours) and report an invoice total, an hourly rate, or an
+      offer comparison -- neither asserts what any court's official
+      transcript-rate schedule requires, what a specific agency contract
+      obligates, or what a client legally owes, and every turnaround
+      multiplier defaults to an editable, clearly-labelled illustrative
+      value rather than an authoritative one. Being wrong costs the
+      reporter a number to double-check, not a filing. Ethically:
+      deterministic arithmetic, no dark patterns, no data collected
+      server-side, and nothing in either calculator shades toward an
+      operator's interest -- the agency-offer check exists specifically to
+      protect the reporter's own time from an underpriced assignment.
+  - slug: pdf-accessibility-tag-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a PDF is tagged, titled,
+      has a declared language, has alt-text-bearing structure elements, or
+      has a text-showing operator on a page is decided by reading the PDF's
+      own object graph -- the catalog dictionary, the structure tree, and
+      content-stream operators -- not a model judgment, and it never claims
+      a PDF/UA or Section 508 conformance determination.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's "archetype
+      itself" section: PDF document-structure accessibility, distinct from
+      this portfolio's existing rendered-HTML-page evidence ventures
+      (ada-title-ii-evidence, shopify-a11y-evidence). duplicate_check.py
+      scored the closest existing venture (caption-quality-check, a
+      different accessibility-adjacent artifact type -- SRT/WebVTT caption
+      tracks, not PDF structure) at 0.20 against the final description,
+      well under the 0.45 flag bar; ada-title-ii-evidence itself scored
+      only 0.13 (it checks rendered HTML via pasted axe-core JSON, never
+      opens a PDF). Autonomous ops 10 / gross margin 10: the browser page
+      reads the file entirely client-side via the native
+      DecompressionStream API (nothing uploaded) and the CLI reads files
+      from the user's own machine, so serving one more user costs a static
+      file and needs no human review of any output.
+      Distribution 6: DOJ's April 2024 ADA Title II rule text defines PDFs
+      posted through a public entity's website as "web content" subject to
+      WCAG 2.1 AA, with compliance dates extended to April 2027/2028, plus
+      an earlier May 2026 HHS Section 504 deadline; five separate existing
+      free tools (PDFix, PDF Audit, Free PDF Checker, axesCheck, PAC) prove
+      real, sustained search demand for "PDF accessibility checker" /
+      "PDF/UA checker online" terms.
+      Time to revenue 6, defensibility 2: donations-only; five established
+      free competitors already serve this exact question and none require
+      uploading or offer a batch CLI, so defensibility rests specifically
+      on the no-upload (native DecompressionStream, nothing sent to a
+      server) and CLI-batch-folder-scan angle rather than on being
+      first-to-market or having a checklist moat -- scored lower than this
+      portfolio's typical checker floor of 3 because the field is more
+      crowded than most niches this portfolio has entered.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool reads a file the user supplies locally and never
+      touches a third party; every finding is evidence tied to a specific
+      structural fact (a missing StructTreeRoot, a Widget with no
+      resolvable /TU, a page with image content but no text-showing
+      operator), with the alt-text count explicitly disclosed as an
+      approximate, document-wide heuristic rather than a confirmed
+      per-image match, and an encrypted PDF is reported as a named
+      limitation rather than silently mis-scored. Never phrased as a
+      PDF/UA or Section 508 conformance determination. Ethically:
+      donations-only with no per-scan fee or volume-based revenue, so
+      there is no direction in which the tool profits from over- or
+      under-reporting, and the heuristic limitations are disclosed in the
+      product's own FAQ rather than hidden.

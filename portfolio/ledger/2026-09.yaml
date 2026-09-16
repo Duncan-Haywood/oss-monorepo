@@ -28932,3 +28932,2099 @@ entries:
         limitation) -- the runner route or the Hetzner box under host mode
         is the route with real egress for that step.
     mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the open-PR queue, which held two PRs. #4631 was `dirty`
+        against a `main` that moved four times during the repair: resolved the
+        generated mirror through the repo's own `resolve-mirror-merge.sh` and
+        `regen.mjs` rather than picking a side, took `main`'s superseded
+        mirrored-tool counts, kept both sessions' ledger entries, and
+        integrated *a second session's concurrent repair of the same branch*
+        by merge rather than force-push — checking entry-by-entry first that
+        its ledger held nothing this side lacked (453 entries there, all
+        present among the 457 here). Every push was a fast-forward. #4637 was
+        reviewed and merged after local verification (marketing+pages
+        1255/1255, venture 37/37, privacy+webcheck 82/82, gitops 581 passed /
+        1 skipped, clauses clean across all 4 pages); it names a real
+        third-party product and carries a not-affiliated clause, a trademark
+        acknowledgement and a no-warranty note.
+      - >-
+        Shipped two guards for the same silent-failure family (#4640). First:
+        `yaml.safe_load` resolves a duplicated mapping key by taking the last
+        and saying nothing, so a ledger file that repeats a key parses clean,
+        validates clean, and discards a value. Found one on `main` while
+        resolving #4631; writing the check found two more. All three benign —
+        each duplicate held the value it shadowed — but the same shape with an
+        `outcomes:` key would discard a whole session's record while every
+        validator stayed green, and ledger conflicts are resolved by hand here
+        several times an hour. Second: `run_workflow_locally.py --tree` reads
+        the checkout as it stands and takes 40+ minutes, so running it in the
+        background while working makes it lie. Measured on myself — a sweep
+        reported the apex tool mirror stale; it was not, another PR's branch
+        had been checked out mid-sweep, and the identical step passed 260/260
+        on an untouched worktree at the same commit. It now fingerprints the
+        checkout before and after and fails when it moved. Both guards were
+        proved to fail before being trusted.
+      - >-
+        Ran the first full-catalogue browser sweep since 89b7dbe7 (all 7
+        checks, 1018 pages, ~45 minutes) and it found a dead product:
+        `vpat-acr-generator`, graduated hours earlier in #4632, threw
+        `pageerror: Failed to execute 'querySelector' on 'Document':
+        '#level-1.1.1' is not a valid selector` — a WCAG criterion id contains
+        dots, which parse as class selectors, so `querySelector` throws rather
+        than returning null and every button on the page was dead. The same
+        page carried 100 critical axe `select-name` violations. **A concurrent
+        session shipped the repair first (#4643), independently and more
+        fully**, so this branch carries none of it: their `page.test.mjs`
+        guards both defects and more. Recorded here because the finding is the
+        reusable part — the venture's logic was always correct and all 18 of
+        its unit tests passed, because they import `calc.mjs` and never load
+        the page. `browser_checks.py --checks sweep` is the only check in this
+        tree that asks whether a tool answers at all, and it had never been
+        run against that venture. A venture can pass every test it has and be
+        a dead product.
+      - >-
+        Deployed: refreshed the `gh-pages` snapshot, which had fallen behind
+        `main` by three merges including a venture graduation, so the live
+        catalogue was missing a product. `pages_state.py --require-current`
+        exits 0 and GitHub's managed builder served the push
+        (`gh-pages` at 3a31cd15, built from 777dc72a).
+      - >-
+        Fixed forward two red assertions on `main`, confirmed pre-existing by
+        running them in a detached worktree at `origin/main`:
+        `test_readme_runs_on_count_matches_reality` and
+        `test_sync_readme_counts_repairs_drift_and_is_idempotent`. #4643 added
+        `1099k-reconciliation-worksheet-ci.yml` without running
+        `gitops/ci/sync_readme_counts.py`, so the README claimed 361 of 363
+        `runs-on` lines across 323 workflows when the tree holds 362 of 364
+        across 324. Regenerated with the repo's own tool, not edited by hand.
+      - >-
+        Owner-blocked, each measured this session rather than inherited.
+        **Hetzner/Codex:** `DRY_RUN=1 WITH_CODEX_HOST=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1
+        bootstrap/restore-cluster.sh` prints a complete plan for all three
+        extras and stops at `cannot SSH to control-plane root@89.167.29.39`.
+        The Codex host governor — which spends a ChatGPT plan's included quota
+        via `CODEX_AUTH_JSON` and runs `worker.sh` against
+        `gitops/agents/workers/mandate.md`, itself already a mirror of the
+        portfolio's own operating mandate including the PR-drain floor — is
+        built, tested and ready to install. Blocker is
+        `hetzner-ssh-key-is-a-public-key` (#3184, queued 23+ days). No
+        duplicate ask added. **IndexNow:** still `never` for all 1008 live
+        URLs; verified the egress limit directly rather than inheriting it —
+        `api.indexnow.org`, `www.bing.com` and `duncan-haywood.github.io` all
+        `connect_rejected` at the sandbox proxy. **Usage:** `never-measured`;
+        `live_url_visitors` is `null` across every reading, never once a zero.
+    mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Correction to the `portfolio` entry landed in #4645, recorded as a new
+        entry rather than by editing that one. An automated reviewer raised
+        both halves of this and both were right, and reconciling them is the
+        point: one finding said the entry attached outcomes from #4631, #4637,
+        #4640 and #4643 to a commit that repaired a single README count, which
+        AGENTS.md forbids -- an outcome "rides with the work it describes,
+        same commit, or same PR". The obvious fix, trimming that entry, was
+        pushed and was itself wrong: this README's first rule is "Append, do
+        not edit. Rewriting history to look better destroys the only signal
+        the router has", and the trim deleted real observations (a
+        browser-sweep finding, the PR processing, measured owner blockers)
+        that no other entry carries.
+      - >-
+        So the landed entry stands unedited and this entry carries the
+        correction. For the record: of the outcomes listed there, only the two
+        `gitops/ci/README.md` count assertions and the `gh-pages` republish
+        belong to #4645's own commit. The two guards described belong to
+        #4640, and the `vpat-acr-generator` repair belongs to #4643, which
+        shipped it independently and more fully -- #4645's branch carried none
+        of that code.
+      - >-
+        The reusable part is that the two rules can look opposed and are not.
+        "Attribute outcomes to the work that shipped them" governs what a new
+        entry may claim; "append, do not edit" governs what may be done to an
+        entry already landed. A misattribution is corrected forward, the same
+        way this repository corrects a wrong claim in `CLAUDE.md` -- by
+        writing the correction next to it and keeping the original visible,
+        which is why several sections of that file read as a record of
+        corrections rather than as a clean statement.
+    mrr_end: 0
+
+  - venture: fleet-repair-or-replace-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and graduated a new venture. `session_gate.py` returned
+        PROCEED and reported the `build-now` pipeline empty (every scored
+        candidate has graduated), which is the case DIRECTION.md's 'Owner
+        direction, 2026-09-06' ranks a fresh niche first in. The open-PR queue
+        was empty at the start of this session -- zero open PRs, confirmed by
+        both `list_pull_requests` and a search -- so the three-PR merge quota
+        in the standing brief had nothing to drain and new work was in bounds.
+        Niche: a repair-or-replace planner for owners of small trade and
+        service fleets. A multi-row cost comparison plus a budget-constrained
+        ranking across rows -- not a single-formula bid calculator and not a
+        single-request checker, the two archetypes pipeline/README.md steers
+        sessions away from.
+      - >-
+        The product insight, and the reason this is not another calculator:
+        the comparison owners actually make is last year's repair invoices
+        against the price of a new one, which omits the days the asset was off
+        the road. The planner asks for downtime explicitly, values it at the
+        revenue the owner says a day costs, and reports per asset and
+        fleet-wide whether the repair bill or the downtime is the larger
+        number. On the shipped worked example, dropping the downtime line
+        turns a $12,712/yr saving into a coin toss -- the explainer page walks
+        exactly that, and `page.test.mjs` pins its figures against what
+        `calc.mjs` computes, so changing the arithmetic without updating the
+        published prose turns the suite red.
+      - >-
+        `duplicate_check.py` scored nothing >= 0.45 (run 2026-09-12); top
+        match 0.10. The genuine nearest neighbour,
+        equipment-lease-buyout-calculator (0.09), was read rather than taken
+        on its score: it prices ONE asset's lease buyout against
+        return-and-replace, where this answers the question a level up --
+        which of several owned assets to act on at all, against one budget.
+        The two are now cross-linked in both directions with an assertion on
+        the href in each venture, which also holds
+        `platform/pages/siblings-budget.json` at its committed orphan budget
+        of 0 (measured 0 of 269 after the change) rather than shipping the
+        tool as an orphan to close later.
+      - >-
+        Gates, both clearing the >= 5 bar: liability_containment 6,
+        ethical_robustness 8. Full reasoning in the venture's VENTURE.yaml and
+        the `venture-scores.yaml` gate_note. The containment argument rests on
+        three tested properties: the tool is willing to recommend KEEPING (the
+        shipped example includes a row the arithmetic says to keep, asserted
+        in calc.test.mjs, because a planner that could never say keep would be
+        a sales tool for capital spending); `not-a-determination` and
+        `undiscounted-eac` fire unconditionally on every non-empty plan rather
+        than only when something looks wrong; and `missing-replacement-cost`
+        fires rather than letting a blank quote read as zero capital, which
+        would otherwise make replacing always look like the win. Composite
+        6.5. Ships with LICENSE, the no-warranty clause naming what it is not
+        advice about, the privacy line, local-only usage counting with an
+        opt-out honouring DNT/GPC, an optional Sponsors link, robots.txt,
+        sitemap.xml, SoftwareApplication + FAQPage JSON-LD, OG tags, and a
+        launch date in `launched.json` so it enters the Atom feed.
+      - >-
+        Hit a real ceiling on the way, and fixed it rather than raising it.
+        Adding the venture took the apex's `portfolio-front-html` ConfigMap to
+        943,974 bytes against the 943,718-byte budget in
+        `gitops/tests/test_manifests.py` -- over by 256 bytes, and over that
+        budget is not a degraded document but the whole `prod` Application
+        (the hashed ConfigMap name `portfolio-front.yaml` mounts never gets
+        created, new pods sit in ContainerCreating, Argo reports Degraded).
+        The test says to make the object smaller rather than raise the budget,
+        so `catalog.json` is now stored gzip-only, the lever the mirror and the
+        comparison pages already pulled: 147,400 bytes to 34,840, on the
+        criterion `COMPRESSED_SUFFIX`'s own note already states (it grows with
+        the catalogue at ~550 bytes per venture, where the front page and the
+        category pages do not). Roughly thirty ventures of headroom rather
+        than none. The URL is unchanged -- a well-known path is not something
+        to move to save bytes; only the stored key changed.
+      - >-
+        That change needed a guard it did not have, and finding that out is
+        the more useful half. Serving a gz-only key means dropping
+        `try_files` (it stats the uncompressed name, which is on disk nowhere,
+        and 404s in the rewrite phase before `gzip_static` ever runs -- the
+        trap the mirror's blocks document at length) and using `gzip_static
+        always` plus `gunzip on`. `test_front_door_serving.py` already fetched
+        `/catalog.json` over real nginx, but only with `Accept-Encoding:
+        gzip`. Every assertion in that file passes with plain `gzip_static
+        on;` and no `gunzip on;` -- a configuration that serves the gzip
+        client and 404s every client that did not ask for gzip, which for a
+        machine-readable catalogue is the common case, since a scripted fetch
+        frequently sends no encoding header. Added an `Accept-Encoding:
+        identity` assertion and then PROVED it against the real defect rather
+        than an approximation: sabotaging the block to `gzip_static on;` with
+        no `gunzip on;` makes the whole file still report 19 passed before the
+        new assertion and fails with `404 == 200` after it. Config restored
+        and re-verified green.
+      - >-
+        Verified locally (Actions starved this window -- 60 consecutive
+        `publish-pages-branch.yml` runs at `runner_id: 0`, so "run or read CI"
+        means run it here): the venture's own 28 calc + 38 page assertions
+        pass; equipment-lease-buyout-calculator 49/49 after its new inbound
+        link; `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` 1257/1257; `python3 -m pytest gitops/tests
+        -q` 581 passed / 1 skipped, with `guard_state.py --require-runnable`
+        exiting 0 (the one remaining skip is the GitHub-hosted-runner-only
+        one) after `apt-get install python3-pytest nginx-light
+        openssh-client`; all 25 `platform/ci` unittest modules OK;
+        `agent_review` OK; `python3 -m pytest portfolio/ledger
+        portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline
+        infra/tests -q` 446 passed; `score_ventures.py --check` clean at 278;
+        `router/validate.py` clean at 277; `validate_workflows.py` clean at
+        325; `publish_surface.py --check` clean; `clauses.mjs` clean on both
+        pages; `siblings.mjs --check` 0 orphans; `checklist_coverage.py`
+        clean; `check_venture_regression.py --base origin/main` reports no
+        live venture disappearing; `regen.mjs` run and its output committed.
+      - >-
+        Counter syncs this graduation required, all four of which exist
+        because a venture touches files no one edits on purpose:
+        `gitops/ci/sync_readme_counts.py` for the workflow counts (324 -> 325),
+        and the mirrored-tool count from 268 to 269 in the four places
+        `test_manifests.py` pins it (`infra/OWNER_CHECKLIST.md` x3,
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/default.conf`
+        x2, plus the running `total` constant in the test itself).
+      - >-
+        The automated Codex review on #4649 raised three findings and all three
+        were real; fixed in the same PR before merge. The serious one was a
+        wrong number on a published page: `paybackYears` divided the capital
+        outlay by `annualSaving`, which has already had `annualisedCapital`
+        subtracted from it, so the purchase was charged for itself twice. It
+        reported 2.95 years on the shipped worked example against a true simple
+        payback of $37,500 / ($19,000 - $1,600) = 2.16, and pushed assets
+        across the three-year `strong-payback` threshold in the pessimistic
+        direction. Payback now divides by a new `operatingSaving` (the repair
+        and downtime spend replacing stops, no capital term); `annualSaving`
+        stays the EAC comparison that drives the recommendation and the budget
+        ranking, which is what it answers correctly.
+      - >-
+        The other two: selection membership was keyed on the asset *name*, so a
+        fleet with two rows both called "Truck" ticked both when only one fitted
+        the budget, collapsed the pair in the count, and exported a `keep` row
+        as "in this year's plan" -- fixed with a stable `id` rather than by
+        forbidding duplicate names, since a duplicate label in a fleet is
+        ordinary bookkeeping. And `savingPerDollar` was rounded to cents before
+        being sorted on, which collapsed 0.011 and 0.014 into a tie and handed
+        the decision to the absolute-saving tie-break -- systematically
+        preferring the big expensive asset in exactly the close cases the ratio
+        heuristic exists for. Kept exact now, rounded only for display.
+      - >-
+        Two lessons worth the entry. First, the guard that should have caught
+        the payback bug was the one this venture shipped *specifically* to
+        prevent published prose drifting from the module -- `page.test.mjs`
+        pins the explainer's worked figures against `calc.mjs`. It passed,
+        because it asserted the page and the module *agreed*, and they did:
+        both were wrong the same way. A consistency check cannot catch a shared
+        error, which is the same shape CLAUDE.md records for manifest-derived
+        claims about the public surface. Second, the fix had to change the
+        prose as well as the code: the explainer taught payback as "capital
+        divided by the annual saving", so a reader applying that method to
+        their own fleet would have carried the bug forward. Each finding now
+        has a regression test written against the review's own
+        counter-example.
+      - >-
+        A second Codex round on the fix raised two more, both real, both fixed
+        in the same PR. A blank replacement cost -- which the required HTML
+        input permits -- still produced a `replace` verdict, was taken by the
+        budget selector at $0 capital, and had its entire keep cost reported as
+        captured annual saving. The `missing-replacement-cost` finding warned
+        about it and that was not enough: a warning beside a table, a summary
+        and a CSV all presenting an impossible quote as this year's plan does
+        not read as "disregard the row". There is now an `incomplete` verdict
+        that `selectWithinBudget` never picks, covering both ways capital
+        becomes untrustworthy (no quote, and a trade-in worth more than the
+        replacement, which floors capital to zero and lands in the same place).
+      - >-
+        **The second one is fleet-wide and is NOT fixed beyond this venture.**
+        The per-venture `usage.mjs` opt-out was stored only in a `globalThis`
+        flag, so it lived in one JavaScript realm: reload the page and there is
+        a new realm, no marker, a switch that has reset itself to "off", and
+        counting resumed. AGENTS.md requires usage counting be "visible and
+        switch-off-able", and a switch that unswitches itself on every
+        navigation is neither. Measured across the tree: **39 ventures carry
+        this shape and only 3 persist the flag**, so ~36 live products state a
+        privacy control in their footer that does not survive a visit. This
+        venture now stores the opt-out under its own key (separate from the
+        counters, so "delete my data" can never be the thing that re-enables
+        collection), reads it back on load, paints the button from the stored
+        state, and has seven assertions including a realm-reload regression.
+        Fixing the other 36 is a follow-up, deliberately out of this PR's
+        scope; the hub's own `pf-site.js` already does it correctly with
+        `portfolio-hub-optout`, so the convention to copy exists.
+      - >-
+        A third review round found two more, both real, both fixed. The
+        opt-out's two storage writes shared one `try` with the flag written
+        first, so a `setItem` that throws (a full quota is the ordinary way)
+        jumped to the catch before `removeItem` ran: the visitor clicked a
+        switch advertised as permanent and got neither half -- counters intact,
+        no durable flag, counting resumed on the next reload on top of the data
+        they had just asked to delete. Each write is now independent and the
+        counters go first, because if only one half can succeed, deleting the
+        data is the half worth having. And the CSV omitted
+        `downtimeDaysOnNew`/`downtimeCostOnNew`, so the exported
+        `replaceAnnualCost`, `annualSaving` and `paybackYears` could not be
+        re-derived from the file -- which matters precisely because the export
+        is what reaches a lender or an accountant, who get the findings, the
+        page and the reasoning none of. Both columns added, with a test that
+        reconstructs the replacement cost from the exported columns alone.
+      - >-
+        Worth recording about the third round specifically: the first finding
+        was that a doc comment I had just written claimed a property the code
+        did not have -- "if the write of the flag fails, the counters are still
+        cleared" was false under the ordering directly beneath it. That is the
+        same failure this entry already notes one level up, where
+        `page.test.mjs` passed the payback bug because page and module agreed
+        while both were wrong. A comment is an assertion with no test behind
+        it, and writing one confidently next to the code it describes is not
+        evidence about the code. Four rounds, eight real findings, every one
+        verified before changing anything and every one carrying a regression
+        test built from the reviewer's own counter-example.
+      - >-
+        **Correction to this entry's own fleet-wide number, measured properly
+        (2026-09-12).** The note above says "39 ventures carry this shape and
+        only 3 persist the flag", and that figure -- which also went out in a
+        comment on #4649 and in #4653's body -- came from a single narrow grep
+        for `globalThis.__usageOptOut`. It is wrong in both halves. Measured by
+        shape instead of by one identifier, across all 245 `ventures/*/usage.mjs`:
+        **46 ventures export an opt-out setter (`setUsageOptOut` or
+        `disableUsage`), 4 of them persist it and 42 do not.** So the defect is
+        wider than reported, not narrower, and the "3 that do it right" was 4.
+      - >-
+        The remaining 199 ventures export no opt-out setter from `usage.mjs` at
+        all, and that is a DIFFERENT question which this entry deliberately does
+        not answer: 166 of their pages never mention an opt-out (which may be
+        correct if they count nothing), and 33 do mention one, of which a crude
+        scan finds 6 persisting a flag in the page itself. Those 27 are a
+        candidate gap, not a measured one -- the scan looks for an `optout`-ish
+        key by name and would miss a differently-named one. Worth its own look
+        before anyone acts on that number, which is exactly the caution the
+        first figure in this entry failed to take.
+      - >-
+        The reusable lesson, and it is the third instance in this one entry: a
+        number produced by one grep and then restated as a fact about the fleet
+        is the same error as a comment asserting a property the code beneath it
+        lacks, and as a consistency test passing because both sides were wrong
+        together. Each time the fix was to go and measure the thing itself
+        rather than a proxy for it -- which CLAUDE.md already says at length
+        about manifest-derived claims, and which cost nothing here except the
+        embarrassment of having published a figure twice before checking it.
+    mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Recorded the first clean whole-catalogue browser/accessibility reading
+        since `89b7dbe7`: all 7 checks (`sideways`, `presets`, `roundtrip`,
+        `highlight`, `contrast`, `sweep`, `journey`) passing over 1022 pages
+        at `d4970cdd`, two viewports, **no WCAG A/AA violations**.
+        `browser_state.py` now reports every check covering the current tree
+        instead of all 7 stale.
+      - >-
+        This is the check that earns its 45 minutes. The previous full sweep,
+        run earlier the same session, is what caught `vpat-acr-generator`
+        shipping completely dead -- `querySelector('#level-1.1.1')` throws,
+        because a WCAG criterion id's dots parse as class selectors, so every
+        button on the page was inert -- plus 100 critical axe `select-name`
+        violations on the same page. That venture passed all 18 of its unit
+        tests the whole time it was broken, because they import `calc.mjs`
+        and never load the page. This reading confirms the repair (#4643)
+        held: `sweep` and `contrast` both clean on that venture now.
+      - >-
+        Run from the main checkout rather than a nested worktree, and
+        deliberately: an earlier attempt was abandoned because a `git
+        worktree` inside the repo is untracked and uncommittable, and the
+        recorded reading has to be a tracked file to be worth anything. The
+        tree was left untouched for the duration -- the same discipline the
+        `--tree` drift guard shipped in #4640 enforces for
+        `run_workflow_locally.py`, applied by hand here because
+        `browser_checks.py` already pins its commit before the build.
+      - >-
+        `--record` refuses a run with any failure or skip, which is why no
+        reading was recorded for the earlier sweep despite it being the more
+        valuable of the two: a reading that laundered a failing run into "the
+        catalogue passed" would be worse than none. Both outcomes are the
+        tool behaving correctly.
+    mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Correction to the browser-reading entry landed in #4651, appended
+        rather than edited. That entry said all 7 checks passed "over 1022
+        pages at two viewports, with no WCAG A/AA violations". **1022 is the
+        artifact size, not the accessibility coverage**, and stating it that
+        way overstates the evidence. A reviewer caught it after the merge and
+        was right; both halves verified against the code rather than taken on
+        the citation.
+      - >-
+        What was actually measured, from the run's own output: `contrast` --
+        the axe pass, and the only one of the seven that produces WCAG
+        evidence -- checked **1020** pages at two viewports with 0 violations.
+        `sideways` checked 1021 at 360px. The 1022 in the reading's `pages`
+        field comes from `browser_checks.py::_count_html`, whose own docstring
+        says it counts HTML files in the built artifact and is "only ever
+        context", explicitly not derived from any check's scope.
+        `platform/pages/contrast.mjs:121` filters `404.html` and
+        `offline.html` out on purpose -- they are host-served and the offline
+        page is styled against a background it never gets in a browser -- so
+        the axe total is necessarily below the file count.
+      - >-
+        Worth keeping because of which direction the error ran. This is the
+        shape CLAUDE.md records against itself repeatedly: a correct reading
+        of one artifact (`_count_html` returned 1022) restated as a stronger
+        claim about a different thing (1022 pages received a WCAG run).
+        Accessibility evidence is a bad place for that, because it is the kind
+        of record someone may later rely on rather than re-measure. The
+        reading itself stands and stays useful -- 1020 pages clean at two
+        viewports is a real result, and it is what confirmed the
+        `vpat-acr-generator` repair held.
+      - >-
+        Fixed in tooling as well as prose, and the tooling half took two
+        attempts. `browser_state.py` printed the count on each check's own
+        row -- `contrast ... 1022 pages` -- which is what invited the claim.
+        Renaming the unit to `files` was the first fix and a reviewer showed
+        it was not enough: `contrast ... 1022 files` still attributes the
+        number to contrast, because the attribution comes from the position,
+        not the noun. The count is now off the rows entirely and printed once
+        as `artifact at <commit>: N HTML files -- context, not any check's
+        coverage`, grouped by commit so a scoped `--only` reading is not
+        collapsed into a single number, which would be the same overstatement
+        one level up. Three tests pin it and all three fail against the
+        `files` version as well as the original. `_count_html` itself is
+        unchanged: its docstring already called the number context, and it
+        was right.
+    mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Restored a privacy promise across the catalogue: **37 of the 69
+        ventures that offer an in-page "turn usage counting off" switch did
+        not survive a reload**. They kept the choice only in
+        `globalThis.__usageOptOut`, which is a fresh realm on every page load,
+        so the visitor switched counting off, the counters were deleted, and
+        the next visit started counting again while offering the switch back.
+        A control that quietly stops working is worse than none, because the
+        visitor believes they have already used it and never looks again. All
+        37 fixed; all 69 now pass.
+      - >-
+        The guard is `platform/privacy/optout-persistence.mjs`, and it is
+        **behavioural rather than a grep** -- the same conclusion
+        `browser-signals.mjs` reached for the DNT/GPC promise, arrived at here
+        the hard way. Five static rules were tried against this question and
+        all five were wrong, always overcounting: `setItem(OPT_OUT...)` missed
+        `vendor-rate-break-even` (lowercase `optOutKey`); `getItem(...opt-out)`
+        missed `wash-and-fold-price-calculator` (key spelled `-usage-off`);
+        comparing setter bodies compared the setter and not the gate; and none
+        of them can see whether a stored value is ever branched on. The
+        counts those rules produced were 38, 39, 40, 42 and 69. The
+        behavioural answer is 37, and it is validated against four
+        known-correct modules and one known-broken one.
+      - >-
+        The check drives each module for real: count, opt out, then
+        **re-import in a fresh realm over the same storage** -- which is what
+        a reload is -- and ask whether it writes again. A control run first,
+        because silence from a recorder that was never reached is not
+        evidence. Its own suite pins six discriminations including the one
+        that defeats every static rule: a module that *stores* the flag and
+        never reads it is still a failure.
+      - >-
+        Reusing `browser-signals.mjs`'s driver rather than restating it turned
+        up a real bug in the reuse: `drive()` installed its own fresh storage
+        each call, so the flag the switch had just written was invisible to
+        the reload run and a correct module read as broken. Caught because the
+        first catalogue run reported 69 failures including two modules already
+        verified correct by hand. `drive()` now takes an optional
+        caller-supplied store; its own 52 tests still pass.
+      - >-
+        The fix itself is gate-shape independent, which matters because the
+        gates differ (`usageBlocked()`, an inline `||` chain, others) even
+        where the setters are identical: every *read* of the in-memory flag
+        becomes a helper consulting the durable key, while the assignment
+        stays as a same-page fast path. Writes are independent and
+        counters-first, per the finding on #4653 -- sharing one `try` means a
+        quota-full `setItem` skips the delete and the visitor gets neither
+        half.
+      - >-
+        Verified: the guard's own suite 7/7; the 38 changed ventures' suites
+        1732/1732; `platform/privacy` + `proposal` + `webcheck` 213/213;
+        `marketing` + `pages` 1257/1257; `gitops/tests` 581 passed / 1
+        skipped; `check_pages.mjs` 997 pages sound; `checklist_coverage`
+        clean. `regen.mjs` rewrote the mirror for the 38 modules.
+      - >-
+        Two review findings before merge, both correct, and the first is
+        pointed: **the new suite was run by no workflow.**
+        `portfolio-validate.yml` named `browser-signals.test.mjs` and
+        `inline-signals.test.mjs` individually, so `CLAUDE.md`'s local list
+        ran the new one for every session and CI ran it nowhere -- a guard
+        nobody runs, shipped in the same change as a guard. The workflow's own
+        comment had predicted exactly this ("it would have run *nowhere* in
+        CI without being named here -- the same defect being fixed, one layer
+        up") and I walked into it anyway. Fixed by **globbing**
+        `platform/privacy/*.test.mjs` rather than adding a third hardcoded
+        line: a hand-maintained filename list in the directory whose purpose
+        is catching unchecked promises will lose the next file too.
+      - >-
+        Second finding: `undrivable` was excluded from the catalogue
+        assertion's failure set, and a `>= 60` threshold allowed nine of the
+        69 to become unverifiable while the suite stayed green -- directly
+        contradicting the unit test one screen above asserting that an
+        unreachable recorder is never silently accepted. `undrivable` now
+        fails, and the count must equal the number of modules offering a
+        switch, with no slack.
+      - >-
+        Known limitation, deliberately not widened into this change: the
+        opt-out **button label** on those pages still does not reflect a
+        choice made on an earlier visit, so a returning visitor sees "turn
+        counting off" when it is already off. Counting is genuinely off --
+        the privacy behaviour is correct -- but the page-level wiring differs
+        per venture and page JS is exactly where this session already found a
+        product shipping dead. That belongs in its own change, per venture,
+        with the browser sweep to back it.
+      - >-
+        Third finding, and the worst of the five: **the checker found switches
+        by a hand-maintained list of five names**, inside a file whose stated
+        thesis is that names prove nothing. Five live controls wired to real
+        buttons were filed as `no-switch` and excluded from the check
+        entirely -- `clearAndDisable` (equipment-rental-break-even),
+        `writeOptOut` (delivery-app-margin-calculator),
+        `setUsageCountingEnabled` (mcp-supply-chain-watch), `disableUsage`
+        (card-processing-fee-audit), `setOptedOut` (no-show-fee-calculator).
+        A switch is now defined by what it does: an exported function which,
+        called, makes the recorder stop writing on this page. That needs no
+        list and rejects the near misses on behaviour -- `clearUsageLog()`
+        empties the counters and the recorder writes again, so it is a delete
+        button and not an opt-out. **The checked set went from 69 modules to
+        93**; all 24 newly visible controls already persisted correctly,
+        which is the uncomfortable part, because nothing would have said when
+        one of them stopped.
+      - >-
+        Fourth finding: which writes counted as *counters* was decided by
+        looking for "opt" or "off" in the key, so a module whose counter is
+        honestly named `coffee-usage` -- `c-o-f-f-e-e` contains `off` -- had
+        its resumed write filtered out and passed while broken. Counter keys
+        are now measured in the control run, and the filter that can turn a
+        fail into a pass excludes a key only when the switch demonstrably
+        wrote it and the recorder never does. That change put more weight on
+        "the recorder went quiet" as evidence, so a second control run now
+        asks whether the recorder writes *repeatably*: one that dedupes after
+        the first event falls silent on its own, and is reported rather than
+        passed.
+      - >-
+        Two modules surfaced from that as `undrivable` and were real findings:
+        `delivery-app-margin-calculator` and `where-to-sell-calculator` store
+        the choice durably but consult it only through the page, which reads
+        it into the checkbox on load and hands the checkbox back to
+        `recordUsage`. That works, and it made the promise depend on one line
+        of page wiring; both recorders now honour their own stored choice as
+        well.
+      - >-
+        Fifth finding: the catalogue count was pinned with `>=`, which buys
+        back its own slack the moment the catalogue grows -- with a 94th
+        switch added, a regression in `ltl-freight-class-estimator`'s
+        `clearUsage()` (a real opt-out that only behavioural discovery finds)
+        would reclassify it as `no-switch` and leave the suite green at 93.
+        It is now an equality against a named baseline. Five findings on one
+        change, all correct, and three of them the same shape: a margin left
+        where the check meets the catalogue.
+      - >-
+        Sixth finding, left for its own change and recorded here so it cannot
+        be lost: **the same broken promise exists one layer up, at page
+        level, and it is larger.** Where a page implements its opt-out by
+        passing a checkbox into `recordUsage(storage, optedOut, event)`
+        rather than through an exported setter, the module offers no switch,
+        this guard files it `no-switch`, and the checkbox resets on reload.
+        Confirmed on `vpat-acr-generator` (`#optout` read at index.html:112,
+        passed at 261/273/282/288, never assigned and never stored) and
+        `tree-service-bid-calculator` (identical shape). Measured scope: 172
+        `no-switch` modules, **220 pages carrying an opt-out control
+        anyway**. The honest test drives the page in a browser -- tick,
+        reload, is it still off -- which is `browser_checks.py` territory,
+        not a wider filter on a module-level importer, and inferring it from
+        page source is the static shortcut this file already got wrong five
+        times. Next change.
+    mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        The same broken privacy promise as the entry above, one layer up, and
+        larger: **273 of the 329 published pages offering a usage opt-out
+        forgot the visitor's choice**, and 20 more gave no visible feedback at
+        all. 36 worked. The visitor ticked "do not keep an anonymous local
+        usage count", came back, and the box was unticked and counting had
+        resumed -- so they had no reason to think it had ever failed. All 329
+        now remember it.
+      - >-
+        Measured in a real browser, never inferred. `platform/pages/optout.mjs`
+        loads each page, changes the control, reloads, and requires the new
+        state to survive. It is **direction-agnostic on purpose**: labels are
+        worded both ways in this catalogue ("Do not keep an anonymous local
+        usage count" and "Count anonymous local feature use (off by default)"),
+        and a checker that decided which state meant "off" would be wrong on
+        one of them and go on being wrong silently. It reads two control
+        shapes, because the catalogue has two -- a checkbox carrying state in
+        `checked`, and a button carrying it in its own label.
+      - >-
+        The repair has three shapes. Where the module already remembered
+        (#4657) and only the button's label did not, the page asks the module
+        on load and replays exactly what the click does -- 38 ventures. Where
+        nothing remembered, the module gained `readOptOut`/`writeOptOut`,
+        consulted by the recorder itself so the promise no longer depends on
+        one line of page wiring, and the page restores and writes -- 164
+        ventures. Where the counting is a closure in the page's own script with
+        no module at all, the page stores the control's own state under a
+        page-local key -- 18 ventures, including two whose logic lives in
+        `app.js` and three in `app.mjs`.
+      - >-
+        The second pass stopped matching the recording gate and started
+        **adding** one: `if (readOptOut(storage)) return;` as the recorder's
+        first statement asks the same question earlier and cannot change the
+        meaning of whatever guard follows. Only-adds is the safer edit in a
+        privacy control, and it reached 16 ventures whose gate is spelled with
+        `enabled`, an event allowlist, or no storage parameter at all.
+      - >-
+        **Four defects in the transform, each caught by a different guard that
+        was not looking for it**, which is the part worth keeping. The
+        behavioural module check merged hours earlier reported five modules as
+        `undrivable`: the generated `readOptOut` closed over a *function-scoped*
+        `const key`, so every call threw, the `try` swallowed it, and the
+        opt-out silently never worked -- worse than the defect being fixed, and
+        invisible to the ventures' own suites, which pass the choice in
+        explicitly and never exercise the stored path. `check_pages.mjs` caught
+        `<script> is opened 2x but closed 3x`. `discoverability.test.mjs`
+        caught a JSON-LD blob that no longer parsed. And the browser check
+        itself caught a block inserted into `<script type="module" src="...">`,
+        whose body a browser ignores entirely -- the diff looked right and the
+        page did nothing.
+      - >-
+        Those four are one mistake at three levels of specificity: append to a
+        script tag, then to any script tag without a `src`, then cut a span by
+        eye and take the neighbour with it. Recorded because the lesson is not
+        "be careful with regexes" -- it is that a 400-file mechanical change
+        hides its own collateral, and the only reason none of it shipped is
+        that this repository has accumulated guards that ask different
+        questions.
+      - >-
+        The checker was also wrong twice before it was right, both times in the
+        direction of accusing pages that work. It matched bare `count` inside
+        "ac**count** login record" and answered for the wrong checkbox on
+        `chargeback-evidence-packet`; and it read only the control's own label,
+        so `locksmith-bid-calculator` -- which persists the choice *and* shows
+        it, in a sibling `#usageStatus` -- came back as "no feedback at all". A
+        guard that accuses working pages is one that gets muted, so it now
+        matches on the identifier first with word boundaries, and reads the
+        surroundings only where the control's own state did not move.
+      - >-
+        Registering an eighth browser check meant editing four hand-maintained
+        copies of the list (`browser_checks.CHECKS`, `browser_state.CHECKS`,
+        and two spellings in `browser-checks-ci.yml`).
+        `test_every_enumeration_of_the_checks_agrees` now ties them together:
+        the existing guard catches a check *no* list names, this catches one
+        that only some of them name -- where the local sweep runs it and the
+        nightly does not.
+      - >-
+        Found and left for its own change: `shopify-permission-drift` keeps its
+        recorder in `capture.mjs`, and `findUsageModules` walks `usage.mjs` and
+        `usage.js` only -- so the catalogue checker has never once looked at
+        it. Fixed in place here; the filename convention standing in for a
+        check is not, because widening it moves the pinned count again and
+        deserves its own measurement.
+      - >-
+        Verified: 329 of 329 pages remember the choice, measured in Chromium
+        after the change; every touched venture's suite 19634/19634 across 219
+        ventures; `platform/marketing` + `pages` + `privacy` + `webcheck` +
+        `proposal` 1483/1483; `check_pages.mjs` 997 pages all sound;
+        `gitops/tests` 581 passed 1 skipped; `portfolio/ledger` + `scoring` +
+        `router` + `usage` 374 passed; `checklist_coverage` clean.
+    mrr_end: 0
+  - venture: reverb-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked this venture over its co-leader `where-to-sell-calculator`
+        (`allocate.py` ranked both merit 7.00, "Explore" tasks needing
+        customer-contact evidence no agent session can manufacture) after
+        reading both in full: both are already unusually mature (103-177
+        passing tests, full `SoftwareApplication`/`FAQPage` JSON-LD,
+        disclaimers, sponsor links, `launched.json` and `llms.txt` entries,
+        clean `clauses.mjs` runs), so the work was finding the one concrete
+        gap each still had rather than a green-field build.
+      - >-
+        Found: `index.html` was missing `<meta name="robots">`, `<link
+        rel="canonical">` and a favicon, and every page in the venture --
+        `index.html` plus all 9 `should-i-*`/`vs-*` companion pages -- was
+        missing `og:type`. The sibling venture's own `index.html` already
+        carries all four, and this venture's own companion pages already
+        carried robots/canonical (a `page.test.mjs` comment excused
+        `index.html` from that convention as "the app shell", which stopped
+        holding up once the sibling counterexample existed for the same
+        page shape).
+      - >-
+        Fixed all of it and tightened `page.test.mjs`: replaced the stale
+        exemption comment, added a test asserting `index.html` itself
+        carries robots/canonical/favicon/og:type, and folded an `og:type`
+        assertion into the existing "every published page carries Open
+        Graph tags" test so the gap cannot silently return on either page
+        shape.
+      - >-
+        Verified: `ventures/reverb-fee-calculator` 104/104 (up from 103,
+        net one added og:type/canonical/favicon test replacing the removed
+        exemption); `platform/marketing` + `platform/pages` 1257/1257;
+        `platform/ci` 25/25 `unittest` modules + `agent_review` 21/21;
+        `gitops/tests` 557 passed / 25 skipped (regen.mjs refreshed the 9
+        `gitops/prod/front-door-tools/reverb-fee-calculator__*.html.gz`
+        mirror shards + `kustomization.yaml` checksums for this venture;
+        skips are the pre-existing nginx/ssh-key environmental class this
+        change did not touch); `portfolio/ledger`+`scoring`+`router`+
+        `usage`+`pipeline`+`infra/tests` 446 passed; `checklist_coverage.py`
+        clean.
+    mrr_end: 0
+  - venture: obsidian-plugin-review-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture: `ventures/obsidian-plugin-review-check`, a
+        free, zero-network CLI + browser tool for Obsidian community-plugin
+        developers preparing an `obsidianmd/obsidian-releases` submission or
+        version update. Fourth instance of this portfolio's
+        "cross-check a platform's own review-gating manifest against actual
+        source usage" archetype (`ios-privacy-manifest-check`,
+        `chrome-extension-permission-check`, `wordpress-plugin-review-check`
+        came first), for a fourth platform: cross-checks `manifest.json`'s
+        `version` against `versions.json` (Obsidian's release-visibility
+        mechanism -- a missing entry is one of the easiest release-blocking
+        mistakes to introduce, since the two files live separately with
+        nothing forcing them to move together), flags manifest fields left
+        as the official `obsidian-sample-plugin` template's own placeholder
+        values (`id: "sample-plugin"`, `name: "Sample Plugin"`,
+        `author: "Your Name"`), flags missing required manifest fields (`id`,
+        `name`, `version`, `minAppVersion`, `description`, `author` --
+        `authorUrl`/`fundingUrl`/`isDesktopOnly` reported but not blocking),
+        and scans JS/TS source for `innerHTML`/`outerHTML` assignment and
+        `insertAdjacentHTML` calls -- the cross-site-scripting pattern
+        Obsidian's own developer guidelines name explicitly, recommending
+        the DOM API or `createEl`/`createSpan`/`createDiv` instead. Two
+        informational-only notes (never block the pass/fail result): a
+        direct `document`/`window.addEventListener` call that skips the
+        `Component` API's auto-cleanup (`registerDomEvent`), and a leftover
+        `console.log`. Every blocking/informational split, and the
+        evidence-not-a-determination framing, mirrors
+        `wordpress-plugin-review-check`'s. Ships the standard
+        disclaimer/privacy/sponsor-link copy (plus a
+        not-affiliated-with-Obsidian-or-Dynalist-Inc. trademark line,
+        matching the pattern the three sibling checkers already use for
+        Google/Apple/the WordPress Foundation), a secondary doc page on the
+        missing-`versions.json`-entry failure mode with HowTo/FAQPage
+        JSON-LD, usage counting (opt-out persists via the same
+        `usageOptOut`-checkbox pattern `wordpress-plugin-review-check`
+        already uses correctly), LICENSE, and 53 tests (`scan.test.mjs`,
+        `check.test.mjs`, `usage.test.mjs`, `page.test.mjs`).
+      - >-
+        Screened per `portfolio/pipeline/README.md`'s "archetype itself"
+        section (a developer CLI/checker matching an established
+        four-platform pattern, not a 280th `<trade>-bid-calculator` or a
+        39th generic `-check` scanner) and
+        `python3 portfolio/pipeline/duplicate_check.py` (closest match
+        `wordpress-plugin-review-check` at 0.16, `chrome-extension-
+        permission-check` at 0.14, both well under the 0.45 flag bar).
+        Both liability/ethics gates clear with room: `liability_containment`
+        -- the product only reports pattern-matches against Obsidian's own
+        published developer documentation, evidence never a determination,
+        no advice-of-record, no scraped data (reads only files a visitor
+        selects or a path the CLI's own invoker names); `ethical_robustness`
+        -- no revenue model conditions accuracy on over- or under-flagging,
+        so there is no direction this business is incentivized to be wrong
+        in, and getting more submissions through review faster is strictly
+        better for the developer as the tool scales. First-visitor channel
+        named per `DIRECTION.md`'s graduation condition: developers hitting
+        a stalled review or searching the exact terminology ("obsidian
+        plugin versions.json missing entry", "obsidian plugin review
+        guidelines", "obsidian sample plugin id not changed"), plus
+        r/ObsidianMD on Reddit, the official Obsidian Discord's
+        plugin-development channels, and the
+        `obsidianmd/obsidian-releases` GitHub repository's own
+        pull-request review comments (every community-plugin submission is
+        a PR there) -- named channels, not yet measured traffic.
+      - >-
+        Wiring: `node platform/marketing/regen.mjs` (both generators);
+        `node platform/pages/launched.mjs --write` (270 tools, 1 added).
+        The new venture matched no existing category rule and would have
+        pushed the catch-all ("More free tools") to 6, past the 5-tool bound
+        `build.test.mjs` enforces -- added it to the `ci` category's
+        exact-slug list in `platform/pages/build.mjs`, following the exact
+        precedent `wordpress-plugin-review-check`'s own graduation recorded.
+        `platform/pages/siblings.mjs --check` then flagged the new venture
+        itself as a crawlable orphan (budget 0, "nearest sibling:
+        wordpress-plugin-review-check") -- closed by adding a reciprocal
+        footer link and a `page.test.mjs` assertion on each side
+        (`ventures/wordpress-plugin-review-check/index.html` +
+        `page.test.mjs`, and the new venture's own footer links back to
+        both `wordpress-plugin-review-check` and
+        `chrome-extension-permission-check`). Re-verified after both fixes:
+        `siblings.mjs --check` 0 orphans, `build.test.mjs` catch-all at 5.
+        `validate_workflows.py` then flagged the 4 new test files running in
+        no workflow -- added `.github/workflows/obsidian-plugin-review-
+        check-ci.yml` (copied `wordpress-plugin-review-check-ci.yml`'s
+        shape) and recorded it with `publish_surface.py --write`
+        (classified `none`, matching every sibling test-only venture
+        workflow).
+      - >-
+        A second full run of `platform/marketing/*.test.mjs` +
+        `platform/pages/*.test.mjs` (1257/1257, after the wiring fixes
+        above) found a fourth, real defect the pre-fix run's 3 failures had
+        masked: `faq-visible.test.mjs` caught the new venture's own FAQPage
+        JSON-LD text paraphrased differently from the visible `<h3>`/`<p>`
+        copy on three points (the source-upload answer said "files or
+        folder" in JSON-LD vs "folder" on the page; the approval question
+        omitted "for the community plugin list" on the page; the
+        does-a-clean-report-mean-approval answer dropped the
+        `registerDomEvent` clause from the visible copy). Fixed by making
+        the visible text match the JSON-LD verbatim -- exactly the
+        JSON-LD/visible-copy drift `DIRECTION.md` and CLAUDE.md record
+        costing live product before (#3256-3258's mismatched `FAQPage`).
+      - >-
+        Verified after that fix: this venture's own suite 53/53 (includes
+        the sibling-link assertion added alongside the orphan fix);
+        `wordpress-plugin-review-check`'s own suite 64/64 after its
+        reciprocal-link edit;
+        `faq-visible.test.mjs` and this venture's `page.test.mjs` both green
+        standalone; a second full `platform/marketing/*.test.mjs` +
+        `platform/pages/*.test.mjs` run, 1257/1257 (the run before this fix
+        showed 1 real failure -- the FAQPage mismatch above -- after the
+        prior run's 3 orphan/category failures were already fixed); full
+        `build.test.mjs` standalone, 284/284, 0 `not ok`;
+        `siblings.test.mjs` standalone 14/14; `clauses.mjs` clean on both
+        touched ventures; `checklist_coverage.py`, `check_no_payment_code.py`,
+        `portfolio/router/validate.py` (278 ventures),
+        `pipeline/validate_candidates.py`,
+        `pipeline/validate_doc_consistency.py`, `validate_workflows.py`,
+        `publish_surface.py --check` all clean.
+        `platform/ci/browser_state.py` reported every check current against
+        `main` (this change is uncommitted, so it cannot yet reflect it) --
+        ran `browser_checks.py --only obsidian-plugin-review-check` directly
+        instead (Playwright 1.56.0 + axe-core installed per AGENTS.md):
+        7 of 8 checks ran and passed (sideways, presets, roundtrip, contrast
+        -- 2 pages/2 viewports, 0 WCAG A/AA violations --, optout, sweep,
+        journey/sitemap); `highlight` did not run because this tool makes no
+        highlight-style promise, which is a legitimate skip per the check's
+        own message, not a failure.
+    mrr_end: 0
+
+  - venture: brand-deal-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Open-PR queue had exactly one PR
+        (#4668) at the start. Reviewing it found both defects it fixed
+        (missing venture-scores.yaml row, stale SWITCHES_IN_THE_CATALOGUE
+        count) had already landed on main via #4665 and #4667 while it was
+        in flight -- merging it would have reverted #4665's
+        `distribution: 6`/`composite: 6.167` back to `distribution: 5`/
+        `composite: 6.0`. Closed with the superseding commits named, per
+        CLAUDE.md's Duplicate PRs guidance for a branch main has moved past;
+        `supersede_check.py` still reported NOT SUPERSEDED because its
+        line-level scan doesn't match differing prose/values, which is the
+        "STALE DRAFT SUSPECTED" shape the same section describes. That left
+        the repairable-PR queue empty (fewer than three existed).
+      - >-
+        The owner also asked directly, in this same session, to prioritize
+        Hetzner deployment/CI-CD, marketing-material deployment on the
+        Hetzner VMs, and a Codex CLI dev worker there. Investigated first:
+        all three are already built and tested
+        (`bootstrap/restore-cluster.sh` with `WITH_CODEX_HOST=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1`, and
+        `gitops/agents/host/` for the Codex worker specifically), and every
+        one is blocked on the single owner action already ranked #1 in
+        decision_queue.py (`hetzner-ssh-key-is-a-public-key`, plus four
+        other credentials only the owner holds). Re-verified codex-host-mode
+        is still installable (56/56 tests, up from 45; `systemd-analyze
+        verify` clean on both units) and refreshed the reading in
+        `portfolio/ledger/infra_state.yaml` rather than re-adding a
+        duplicate owner ask or attempting an action no agent session can
+        perform.
+      - >-
+        With Hetzner genuinely owner-blocked, confirmed the GitHub Pages
+        route was already current (`pages_state.py`), then shipped
+        `ventures/brand-deal-rate-calculator/vs-marketplace-rate-estimator.html`
+        -- one of 24 ventures (now 23) still missing this portfolio's proven
+        organic-search asset. Framed against the generic marketplace/
+        rate-estimator role (Intellifluence/Klear/HypeAuditor-style tools),
+        not a named company, matching the disclaimer pattern already used
+        elsewhere. Caught a real defect during verification:
+        `faq-visible.test.mjs` flagged the FAQPage JSON-LD using literal
+        `--` where the visible prose used an em dash; fixed by matching the
+        JSON-LD text to the visible copy exactly.
+      - >-
+        `main` advanced from `11c5f170` to `3967916c1` (#4669) mid-session
+        with the identical fix to a mirror-staleness defect
+        (security-deposit-return-calculator's mirror missing its own
+        already-merged computeDepositInterest feature) that this session's
+        own first `regen.mjs` run had independently found. Merged
+        `origin/main` (clean, no conflicts) and re-ran `regen.mjs`, which
+        reported nothing left to rewrite -- confirming #4669 fully covered
+        it.
+      - >-
+        Verified: venture's own tests 32/32; full
+        `platform/marketing/*.test.mjs platform/pages/*.test.mjs` suite
+        1331/1331 post-merge (1257/1257 pre-merge); `platform/proposal` +
+        `platform/privacy` + `platform/webcheck` 242/242; `gitops/tests`
+        581 passed/1 skipped (ENVIRONMENTAL); full `platform/ci` unittest
+        sweep + `agent_review`'s `test_review` all OK; `pytest
+        portfolio/{ledger,scoring,router,usage,pipeline} infra/tests`
+        446 passed; `score_ventures.py --check`, `checklist_coverage.py`,
+        `guard_state.py --require-runnable` (no fixable skips, after
+        installing nginx-light + openssh-client + python3-pytest via apt),
+        `usage_state.py --require-honest`, `check_no_payment_code.py`,
+        `check_ledger_only.py`, and the doc-consistency/candidates/usage/
+        sensitivity validators all clean.
+      - >-
+        Merged as #4670 (all 11 PR checks read `runner_id: 0` --
+        `ci_starvation.py --run` confirmed starvation on every one, not a
+        real failure). Deployed: `gh-pages` refreshed via
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+        against the merge tip (`7b3e1628`); `pages_state.py` reports
+        `current`. IndexNow submission attempted and 403'd at this
+        sandbox's egress proxy (`api.indexnow.org` not allowlisted) --
+        not fatal, the site itself is already published; needs an Actions
+        runner or the Hetzner box under host mode to actually reach
+        IndexNow, both still blocked on the same SSH-key ask above.
+    mrr_end: 0
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `browser_state.py` reported every browser/accessibility check STALE
+        against `main` (last recorded 2026-09-12 at `dea00546`; several
+        merges landed since, including a new venture). Installed Playwright
+        1.56.0 + axe-core per AGENTS.md and ran a full, unfiltered
+        `browser_checks.py --record` sweep to refresh it, since a stale
+        recorded reading is what let real defects (48 critical axe `label`
+        violations, 2026-09-06) sit unnoticed for this catalogue's entire
+        life before anyone ran the checks by hand.
+      - >-
+        The sweep found one real, reproducible failure: `roundtrip` reported
+        `1099k-reconciliation-worksheet: the copied link carries no bid`.
+        Traced it to a structural mismatch between the probe's assumption
+        (fill the visible fields, click share, compare those same fields on
+        the other side) and this venture's actual UI: its "Copy share link"
+        button encodes an in-memory row *list*, built only when the separate
+        "Add platform" form is submitted -- filling that form's number
+        fields, as the probe does, changes nothing the link carries. The
+        tool's own response (`share.mjs`'s `encodeRows([])` correctly
+        returning `''`, surfaced to the visitor as "Nothing entered yet --
+        the link would open blank") is honest, correct behaviour, not a
+        dropped field.
+      - >-
+        Wrote a fix (a documented `ROW_LIST_VENTURES` skip), then found
+        while merging `main` before pushing that a concurrent session had
+        landed a better one minutes earlier as PR #4671
+        (`a6ddba601`): rather than skipping the venture, it generically
+        detects an add-then-share form (any `<form>` containing the edited
+        number-field ids with a submit control), submits it, and re-reads
+        the share link -- so this shape gets real round-trip coverage
+        instead of a documented gap. Deferred to it: took `origin/main`'s
+        `roundtrip.mjs` as-is over this session's own draft. Verified their
+        fix directly rather than assuming it: merged `main`, ran `node
+        platform/pages/roundtrip.mjs 1099k-reconciliation-worksheet`
+        against a freshly built dist -- passes, real submit-and-compare, no
+        failure and no skip.
+      - >-
+        Also surveyed the branch/PR backlog before this, per this session's
+        mandate: 0 open PRs. 509 remote branches; 301 have zero commits
+        ahead of `origin/main` (trivially superseded, no PR needed). Ran
+        `portfolio/ledger/supersede_check.py` (after `git fetch
+        --unshallow`, since the clone starts shallow and a shallow diff
+        against these branches is meaningless per this file's own warning)
+        against all 208 branches with unique commits: every one resolved to
+        SUPERSEDED (including by identical-merge proof) or, for the several
+        flagged NOT SUPERSEDED, a confirmed STALE DRAFT -- `main` already
+        has a later, fuller version of the same file in every case checked
+        (e.g. `marketing/locksmith-bid-calculator-vs-jobber`'s index.html
+        links 1 comparison page where `main`'s now links 3;
+        `atm-route-margin`'s and several `agent/claude/issue-*` branches'
+        only unmatched lines were stale generated mirror byte-counts in
+        `gitops/prod/front-door-tools/kustomization.yaml`). No branch
+        surveyed carried real, unshipped product work; none needed a PR
+        opened under the branch-to-PR presumption's own exemption for
+        branches proven to add nothing beyond their target.
+    mrr_end: 0
+
+  - venture: caption-quality-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, zero-dependency CLI + browser tool
+        checking an SRT/WebVTT caption file's cues against commonly-used
+        caption style-guide thresholds (reading speed in characters/second,
+        min/max duration, line length, lines per cue, overlapping cues,
+        too-short gaps, invalid/out-of-order timing, empty cues) --
+        readability, a separate and unenforced question from whether
+        captions merely exist under WCAG 1.2.2 / Section 508. Screened per
+        pipeline/README.md's "archetype itself" section: not another
+        <trade>-bid-calculator (141/280) or SEO/security -checker (38+/280)
+        -- a checker, but in a domain (caption/subtitle accessibility) the
+        portfolio had not touched. `duplicate_check.py` scored every
+        existing venture, screened-out row, and pipeline candidate below
+        0.14 against the final description, well under the 0.45 bar. Named
+        channel: video creators/course producers/accessibility reviewers
+        asking "why are my captions too fast" (r/VideoEditing, r/Twitch,
+        creator forums); paid caption-QC review already sold inside 3Play
+        Media/Verbit/Rev's commercial captioning services is evidence of
+        real willingness to pay for this exact check.
+      - >-
+        Full PRODUCT_PLAYBOOK.md slice: engine.mjs (pure parsing/
+        classification, 29 tests), check.mjs CLI (8 tests), usage.mjs
+        opt-out-capable local counter (9 tests), index.html +
+        why-caption-quality-matters.html with disclaimers/privacy line/
+        sponsor link/JSON-LD (18 page tests) -- 64/64 venture tests pass.
+        VENTURE.yaml with scored hypotheses; venture-scores.yaml row
+        (composite 5.833, both gates pass); .github/workflows/
+        caption-quality-check-ci.yml recorded in publish-surface.yaml.
+      - >-
+        Cross-cutting fixes this shipment required: mirrored-tool-count
+        prose 270->271 in infra/OWNER_CHECKLIST.md (x3), aggregate.py,
+        default.conf (x2), and test_manifests.py's pinned total;
+        gitops/ci/README.md's runs-on-switch count via
+        sync_readme_counts.py; platform/privacy/optout-persistence.test.mjs's
+        pinned SWITCHES_IN_THE_CATALOGUE 255->256; closed the crawlable-
+        orphan this venture introduced with a reciprocal link + test to
+        ada-title-ii-evidence; fixed an em-dash vs "--" mismatch between
+        this venture's FAQPage JSON-LD and its visible prose
+        (faq-visible.test.mjs); ran launched.mjs --write and regen.mjs
+        (twice) so the mirror/front-door/feed/catalog/llms.txt are current;
+        merged origin/main (advanced by an unrelated PR touching the same
+        generated mirror artifacts) and re-ran regen.mjs to reconcile
+        rather than hand-merging binary .gz conflicts.
+      - >-
+        Verified (Actions starved this session, per ci_starvation.py):
+        venture's own suite 64/64; gitops/tests 581 passed/1 skip
+        (environmental -- guard_state.py --require-runnable confirmed no
+        fixable skips after installing nginx-light/openssh-client);
+        platform/ci's 15 unittest modules + agent_review 21/21 all green;
+        portfolio/{ledger,scoring,router,usage,pipeline} + infra/tests 446
+        passed; platform/marketing 262/262; platform/pages full suite
+        994/995 (the one failure, build.test.mjs's "the catch-all holds
+        only what no section claims", confirmed pre-existing and unrelated
+        via a git-stash A/B test against the tree before this venture's
+        changes); platform/proposal 101/101, platform/privacy 82/82,
+        platform/webcheck 59/59; router/validate.py (279 ventures),
+        score_ventures.py --check, publish_surface.py --check,
+        checklist_coverage.py, clauses.mjs all clean. Merged as PR #4672.
+    mrr_end: 0
+
+  - venture: terraform-plan-blast-radius-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Open-PR queue had exactly one PR
+        (#4673, home-inspection-fee-calculator's comparison page) at the
+        start -- fewer than three existed, so this session's mandate was to
+        process all of them rather than hunt for two more. It was already
+        behind `main`'s tip (`mergeable_state: dirty`): merged `origin/main`
+        in, resolved a real conflict in the ledger append it carried
+        (two sessions' outcome entries for the same month, kept both rather
+        than picking one), and re-ran `regen.mjs` rather than trusting the
+        three-way auto-merge of the generated front-door `.gz` artifacts.
+        Verified the full checklist (venture 31/31; marketing+pages
+        1257/1257 post-merge; proposal+privacy+webcheck 242/242; gitops/tests
+        581/1 skip; all 15 platform/ci unittest modules + agent_review;
+        portfolio pytest suites 446 passed; all 8 portfolio-validate.yml
+        validators; checklist_coverage, check_ledger_only, check_no_payment_code,
+        usage_state --require-honest, guard_state --require-runnable all
+        clean after installing python3-pytest/nginx-light/openssh-client via
+        apt) and merged as #4673. Republished `gh-pages` and confirmed
+        `pages_state.py` reports `current`.
+      - >-
+        The owner also asked, in this same scheduled prompt, to keep Hetzner
+        deployment/CI-CD, marketing-material deployment on the Hetzner VMs,
+        and a Codex CLI dev worker there prioritized. Checked
+        `infra_state.yaml` first rather than re-measuring blind: this exact
+        ask had already been investigated and re-verified *earlier the same
+        day* by this session's own prior work (PR #4670's `codex-host-mode`
+        refresh, 56/56 tests, `systemd-analyze verify` clean). All three
+        routes are built and tested; every one is still blocked on the
+        single owner action already ranked #1 in `decision_queue.py`
+        (`hetzner-ssh-key-is-a-public-key`, plus four credentials only the
+        owner holds). Did not re-run that measurement or add a duplicate
+        ask -- CLAUDE.md's Duplicate-PRs guidance is explicit that
+        re-verifying a reading taken hours earlier in the same day is
+        wasted work, not diligence.
+      - >-
+        With the open-PR queue empty and Hetzner genuinely owner-blocked,
+        continued the proven comparison-page pattern:
+        `terraform-plan-blast-radius-check` had a product page but no
+        comparison page (one of ~15 remaining ventures in that state). Its
+        own README already frames itself against Sentinel/OPA/Conftest/
+        Terraform Cloud under "What it is not", so
+        `vs-writing-your-own-sentinel-opa-policy.html` makes that comparison
+        explicit: those policy engines catch the same destructive-apply
+        failure only once someone authors and maintains a stateful-resource
+        policy in a policy language, while this tool ships that detection
+        built in as a zero-dependency CLI/browser page needing no platform.
+        Caught and fixed a literal-dash-vs-mdash mismatch between the
+        FAQPage JSON-LD and the visible prose via `faq-visible.test.mjs`
+        before opening the PR, same lesson #4670/#4673 already recorded.
+      - >-
+        `main` advanced from `2bbbb0ef` to `133c62af` (#4674, a concurrent
+        session's browser-check refresh and branch-backlog audit) mid-session.
+        Merged cleanly, no conflicts; re-ran `regen.mjs` post-merge and got
+        no drift, confirming the pre-merge mirror was already correct.
+        Verified: venture's own suite 58/58; the whole-portfolio
+        faq-visible/faq-coverage/faq-duplicate/link/siblings suite 81/81;
+        marketing+pages 1256/1257 post-merge (the one failure,
+        build.test.mjs's pre-existing "the catch-all holds only what no
+        section claims", already confirmed unrelated to venture changes by
+        #4672's own git-stash A/B test); proposal+privacy+webcheck 242/242;
+        gitops/tests 581/1 skip; platform/ci sweep + agent_review;
+        portfolio pytest suites 446 passed; all 8 validators;
+        checklist_coverage/check_ledger_only/check_no_payment_code clean.
+        Pushed and opened #4675; every check on it came back red in 2-3s
+        (`runner_id: 0`) -- confirmed starvation rather than a real failure
+        with `ci_starvation.py`, and merged on the local verification above.
+        Republished `gh-pages` and confirmed `pages_state.py` reports
+        `current` against the new tip.
+    mrr_end: 0
+
+  - venture: vpat-acr-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session, continuing the comparison-page pass: this venture's
+        own README already names the commercial competition (Level Access,
+        BarrierBreak, Accessibility.Works, WCAG.com) and the public pricing
+        evidence ($2,000-5,000 per engagement) for exactly this comparison,
+        so `vs-hiring-a-vpat-consultant.html` writes it up without naming a
+        specific firm (matching the stricter disclaimer precedent used
+        elsewhere): a paid VPAT/ACR engagement bundles testing the product
+        plus formatting the result, this tool only does the formatting half,
+        and the real value for a vendor that has already tested internally
+        is skipping the fee for the half a deterministic tool does for free.
+        Linked from `index.html`; the venture's own `sitemap.xml` was left
+        alone after confirming in `build.mjs` that hand-written per-venture
+        sitemaps are legacy and superseded at build time by one generated
+        from the pages actually published (`renderVentureSitemap`), so
+        editing it would have been a no-op cross-cutting fix outside scope.
+      - >-
+        `main` advanced from `133c62af` to `887aa9c0` (#4675, this session's
+        own prior PR) then to `19a2d725` (#4677, a concurrent session's fix
+        for the pre-existing `build.test.mjs` failure this session had been
+        seeing and had already confirmed unrelated via #4672's git-stash
+        A/B test) mid-session. Merged cleanly; re-ran the full
+        marketing+pages suite post-merge specifically to confirm #4677
+        closed that gap rather than assuming it from the PR title -- it did
+        (1257/1257, zero failures, for the first time this session).
+      - >-
+        Verified: venture's own suite 27/27; whole-portfolio
+        faq-visible/faq-coverage/faq-duplicate/link/siblings 81/81;
+        marketing+pages 1257/1257 post-merge; proposal+privacy+webcheck
+        242/242; gitops/tests 581/1 skip; platform/ci sweep + agent_review;
+        portfolio pytest suites 446 passed; all 8 validators;
+        checklist_coverage/check_no_payment_code/usage_state
+        --require-honest clean. Republished `gh-pages`; `pages_state.py`
+        confirmed `current`.
+      - >-
+        Also recorded, in this same commit, the outcome entry for this
+        session's earlier work reviewing/fixing/merging PR #4673
+        (home-inspection-fee-calculator's comparison page) and shipping
+        #4675 (terraform-plan-blast-radius-check's), which had no product
+        change of their own left to ride alongside at the time -- folded in
+        here rather than pushed standalone, per `check_ledger_only.py`'s
+        purpose and this file's own "ledger entry rides with real work"
+        rule.
+    mrr_end: 0
+
+  - venture: fleet-repair-or-replace-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Open-PR queue had exactly one PR
+        (#4679, vpat-acr-generator's comparison page) at the start -- fewer
+        than three existed, so per the mandate's own rule this session's job
+        was to process all of them rather than hunt for two more. Reviewed
+        it: `mergeable_state: unstable` with every check red in 2-4s
+        (`runner_id: 0`); confirmed starvation with `ci_starvation.py`
+        rather than assuming it, then verified locally in an isolated
+        worktree (venture suite 27/27, faq-visible/faq-coverage/
+        faq-duplicate/link/siblings 81/81, full marketing+pages 1257/1257,
+        check_ledger_only clean) before merging as #4679.
+      - >-
+        Checked the branch-to-PR presumption before starting new work.
+        `git branch -r` listed 520 remote branches; the clone was shallow,
+        so the first raw `rev-list` reading (thousands of commits "ahead")
+        was the shallow-clone artifact CLAUDE.md already warns about, not
+        real divergence -- unshallowed first (`git fetch --unshallow`,
+        then all branches locally) before trusting any comparison. Of 519
+        non-main branches, 213 carry commits `main` genuinely lacks.
+        Sampled 10 of the highest-value candidates (by commits-ahead,
+        including both branches whose names directly matched this
+        session's other mandate -- `agent/deploy-cicd-ledger-2868` and
+        `agent/marketing-distribution-gutter-guard-vs-jobnimbus`) against
+        `search_pull_requests(head:<branch>)`: all 10 already had one or
+        more closed PRs from prior sessions' triage passes, explicitly
+        titled `[stale]`/`[triage]`/"superseded"/"already shipped as #N".
+        Concluded the 213-branch backlog is not neglected work -- it is
+        already fully triaged, just not deleted -- and that opening ~200
+        more `[triage]` PRs to re-derive the same verdicts would itself be
+        the wasted duplicate effort CLAUDE.md's Duplicate-PRs section warns
+        against, not diligence. Did not open new triage PRs for the
+        remainder; a future session auditing this backlog should sample
+        first rather than assume it is unprocessed.
+      - >-
+        The owner also asked, in this same scheduled prompt, to prioritize
+        Hetzner deployment/CI-CD, marketing-material deployment on the
+        Hetzner VMs, and standing up Codex CLI there to consume its
+        included dev-work quota. Checked `infra_state.yaml` and
+        `decision_queue.py` rather than re-measuring blind: all three routes
+        (self-hosted CI runner, the Codex dev-host, and the cluster serving
+        `marisstella.dev`) are already built and tested (per #4670's
+        `codex-host-mode` refresh earlier the same day) and every one is
+        still blocked on the single owner-only credential ranked #1 in the
+        decision queue for 9 days running -- `hetzner-ssh-key-is-a-public-key`
+        -- which needs the owner's own machine (a web/agent session's egress
+        proxy cannot reach `:22` regardless of which key it holds). Did not
+        re-run that measurement or add a duplicate ask.
+      - >-
+        With the PR queue empty, the branch backlog confirmed
+        already-triaged, and Hetzner genuinely owner-blocked, continued the
+        proven comparison-page pattern for a venture that had none:
+        `fleet-repair-or-replace-planner`'s own VENTURE.yaml already frames
+        its competition as "equipment dealers, fleet-leasing companies and
+        fleet-management SaaS vendors, all of whom... gate the multi-asset
+        version behind a demo or a subscription" -- but names no specific
+        product and no public pricing was verified this session, so
+        `vs-fleet-management-software.html` compares against the generic
+        category (paid fleet management/maintenance software: continuous
+        per-vehicle tracking, work orders, inspections, telematics) rather
+        than inventing a named-firm claim, matching the stricter disclaimer
+        precedent used on `vpat-acr-generator` and
+        `dental-ppo-writeoff-calculator`'s own generic comparisons. The real
+        tradeoff: that category tracks fleets continuously for a recurring
+        fee; this planner answers one narrower, free, occasional question --
+        which assets pay to replace this year, ranked against a capital
+        budget -- and the two are complementary rather than competing.
+      - >-
+        Caught two defects before opening a PR, both instances of failure
+        modes this file already records: (1) the JSON-LD `FAQPage` text used
+        literal `--` where the visible prose used `&mdash;`, the same
+        literal-dash-vs-mdash mismatch #4670/#4673/#4675/#4679 each
+        independently caught -- fixed by writing real em-dash characters
+        into the JSON-LD rather than the escape sequence. (2)
+        `clauses.test.mjs` failed both `every ... page carries the clause`
+        assertions: a `vs-<competitor>`-shaped filename requires the literal
+        phrase "not affiliated with" (`platform/pages/clauses.mjs`'s
+        `NOT_AFFILIATED` pattern), which the first footer draft's paraphrase
+        ("does not name, evaluate, or claim affiliation with") did not
+        literally contain -- fixed by rewording the footer to state it
+        directly rather than adding a special-case exemption, since the page
+        is a genuine vs-page and the disclaimer is simply true as stated.
+        Re-ran `node platform/marketing/regen.mjs` after each content edit
+        (a stale mirror is a false-negative source this file has recorded
+        before) and the whole-portfolio suites after that.
+      - >-
+        Verified: venture's own suite 60/60; whole-portfolio
+        faq-visible/faq-coverage/faq-duplicate/link/siblings 81/81 (0 after
+        the two fixes above, re-confirmed 81/81 clean); marketing+pages
+        1257/1257 post-regen; proposal+privacy+webcheck 242/242;
+        `platform/ci`'s 21-module unittest sweep + `agent_review`'s
+        `test_review`; `gitops/tests` 581 passed/1 skipped (installed
+        `python3-pytest`/`nginx-light`/`openssh-client` via `apt-get update
+        && apt-get install`, the documented pip-timeout workaround);
+        `portfolio/{ledger,scoring,router,usage,pipeline} infra/tests` 446
+        passed; all 8 `portfolio-validate.yml` validators individually;
+        `checklist_coverage.py`, `check_ledger_only.py`,
+        `check_no_payment_code.py`, `usage_state.py --require-honest`, and
+        `guard_state.py --require-runnable` (1 ENVIRONMENTAL skip, 0
+        fixable) all clean. No new form input was added by this change (a
+        static comparison page, no `<input>`/`<form>`), so the browser-check
+        sweep's staleness (recorded separately, dated the same day) was not
+        re-run for this diff per the "touches markup a user types into"
+        trigger in CLAUDE.md -- it does not apply here.
+    mrr_end: 0
+
+  - venture: cat-adjuster-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session (a separate concurrent firing). Reviewed
+        the sole open PR (#4673, home-inspection-fee-calculator's comparison
+        page): sound, well-tested, additive marketing content. A concurrent
+        session had already pushed a merge resolving the same `main`-drift
+        conflict (`portfolio/ledger/2026-09.yaml`) directly to the PR branch
+        while this session was independently resolving the identical
+        conflict locally -- discarded this session's own redundant merge
+        commit and re-verified the concurrent session's resolution instead
+        (regen.mjs reported no drift; full local checklist re-run clean)
+        rather than overwrite it. Merged as #4673. That left the
+        repairable-PR queue empty (fewer than three existed).
+      - >-
+        Surveyed the branch backlog per the "branch-to-PR presumption"
+        instruction: 515 non-main branches exist. Bulk ancestor-check found
+        only 16 are literal git ancestors of main, but a random sample of
+        72 branches (12 + 60) all had a zero-line diff against `main`
+        outside the append-only ledger file -- i.e. their content is
+        already fully shipped (squash/rebase-merged elsewhere), just not a
+        literal git ancestor. This is git hygiene debt (undeleted branches
+        after merge), not a real backlog of unshipped work, so no new PRs
+        were opened from it; opening hundreds of no-op PRs would be pure
+        overhead. Left branch deletion to the owner rather than mass-delete
+        500+ refs unilaterally in a shared multi-agent repo.
+      - >-
+        The owner asked directly (same recurring scheduled prompt) to
+        prioritize Hetzner deployment/CI-CD, marketing-material deployment
+        on the Hetzner VMs, and a Codex CLI dev-worker there. This was
+        already re-verified in this exact session's own immediately-prior
+        run today (2026-09-13, folded into #4670's ledger entry above):
+        codex-host-mode is fully built and tested (56/56 tests,
+        `systemd-analyze verify` clean), and every Hetzner route is blocked
+        on the single owner action already ranked #1 in decision_queue.py
+        (`hetzner-ssh-key-is-a-public-key`, plus four other credentials
+        only the owner holds). Nothing had changed since that reading a few
+        hours earlier, so did not re-run the same 56-test suite again
+        (per the spirit of not re-verifying an unchanged finding) --
+        confirmed only that the infra_state.yaml note was still current.
+      - >-
+        With Hetzner genuinely owner-blocked and the PR queue and branch
+        backlog both clear of real work, shipped
+        `ventures/cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html`
+        -- one of 15 ventures lacking this portfolio's proven organic-search
+        asset. No single named commercial competitor exists for this niche,
+        so framed against the honest alternative the venture's own
+        `kill_criteria` already names ("a fee-schedule spreadsheet or mental
+        math"), matching the precedent of three existing generic
+        (non-branded) comparison pages in this portfolio. Required adding
+        the page to `platform/pages/clauses.mjs`'s
+        `COMPARISON_DISCLAIMER_EXEMPT` set (caught by
+        `clauses.test.mjs`'s real-tree walk): a `vs-*.html` filename is
+        otherwise treated as naming a competitor and required a "not
+        affiliated with" disclaimer, which would have been a fabricated
+        claim about a company that does not exist here.
+      - >-
+        Verified: venture's own tests 50/50 (71/71 after the clauses fix
+        re-run); full `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        suite 1256/1257 both before and after this venture's changes -- the
+        one failure is `build.test.mjs`'s pre-existing "the catch-all holds
+        only what no section claims", unrelated to captions/comparisons/
+        this venture, already documented as such in #4672's ledger entry
+        above; `platform/pages/clauses.test.mjs` 21/21 after the exemption
+        fix (was 2 failures before it: the real-venture-tree disclaimer
+        walk correctly caught the missing exemption); `gitops/tests` 581
+        passed/1 skipped (environmental, nginx-light + openssh-client
+        installed via apt); full `platform/ci` 15-module unittest sweep +
+        `agent_review`'s `test_review` all green; `pytest
+        portfolio/{ledger,scoring,router,usage,pipeline} infra/tests` 446
+        passed (twice, before and after); `score_ventures.py --check`,
+        `checklist_coverage.py`, `guard_state.py --require-runnable` (no
+        fixable skips), `usage_state.py --require-honest`,
+        `check_no_payment_code.py`, `check_ledger_only.py`,
+        `router/validate.py`, and the doc-consistency/candidates/usage
+        validators all clean. `run_workflow_locally.py --tree` was
+        attempted but hit its own 600s timeout partway through the full
+        verification-only sweep; not re-attempted given every individual
+        required suite above already passed and `ci_starvation.py`
+        confirmed the PR's own red checks were starvation, not real
+        failures.
+    mrr_end: 0
+
+  - venture: cat-adjuster-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, product-first mandate, running
+        concurrently with the session above. Open-PR queue was empty on
+        arrival: the one PR present at session start (#4673) was
+        independently repaired (a real merge conflict in
+        portfolio/ledger/2026-09.yaml) and merged by a concurrent session
+        while this one was verifying the same resolution -- confirmed via
+        pull_request_read (merged_at 06:24:33Z) rather than pushed a
+        redundant duplicate. A separate concurrent session's own
+        branch-backlog audit (#4674) had already run supersede_check.py
+        against all 208 remote branches carrying commits ahead of main and
+        found every one SUPERSEDED or STALE DRAFT -- no unshipped work in
+        the backlog, so the branch-to-PR conversion phase needed no further
+        action either.
+      - >-
+        The owner also asked directly to prioritize Hetzner deployment/
+        CI-CD, marketing-material deployment on the Hetzner VMs, and a
+        Codex CLI dev worker there running a similar autonomous prompt.
+        Checked `decision_queue.py`: all three are already built and fully
+        tested (bootstrap/restore-cluster.sh with WITH_CODEX_HOST=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1, and
+        gitops/agents/host/ for the Codex worker specifically), and every
+        one is blocked on the single owner-held credential ranked #1
+        (hetzner-ssh-key-is-a-public-key -- the installed public key has no
+        matching private key on file anywhere an agent session can reach).
+        Did not re-add a duplicate ask; flagged it to the owner directly
+        instead of leaving it buried in ledger prose, since this session
+        was scheduled and no one was watching the transcript live.
+      - >-
+        With Hetzner genuinely owner-blocked and the PR/branch backlog
+        already drained, independently picked the same venture
+        (cat-adjuster-fee-calculator) as the concurrent session above and
+        shipped a second comparison page,
+        `vs-the-headline-per-claim-rate.html`, framed against the generic
+        practice of judging a deployment offer by its headline per-claim
+        rate alone -- a different query intent from the concurrent
+        session's `vs-spreadsheet-comparison.html`. Discovered the
+        collision only at push time, after both pages were already
+        written and verified. Kept both rather than discarding either:
+        this portfolio already has ventures with more than one comparison
+        page targeting different angles (3pl-quote-normalizer has both
+        `vs-extensiv.html` and `vs-shipbob.html`), so two pages on
+        different long-tail queries for the same venture is precedented,
+        additive SEO surface, not redundant work. Caught the same
+        em-dash-vs-literal-"--" FAQPage JSON-LD mismatch #4670/#4672/#4675
+        all hit; fixed by matching the JSON-LD text to the rendered
+        em-dash exactly. Used the "not affiliated with" clause phrase
+        (matching #4673's generic-category voice) rather than the
+        concurrent session's `COMPARISON_DISCLAIMER_EXEMPT` entry --
+        both satisfy `clauses.mjs`, and the concurrent session's edit to
+        that shared list is kept as-is rather than duplicated.
+      - >-
+        `main` advanced from `133c62af` through `ebd29851a` (#4678-#4680)
+        to `cc1e29d62` (#4682, the concurrent session's own
+        cat-adjuster-fee-calculator page, plus #4683) mid-session, across
+        two separate merges. Each carried a real conflict in the generated
+        front-door mirror and a ledger-append conflict at the same anchor;
+        resolved the mirror both times with
+        `platform/marketing/resolve-mirror-merge.sh` per its own header
+        (taking `origin/main`'s copy of the handful of generated files the
+        script itself doesn't cover, then re-running `regen.mjs` an extra
+        time until the full suite came back clean), and kept every ledger
+        entry from both sides rather than picking one.
+      - >-
+        Verified post-merge: venture's own tests (both pages) passing;
+        full `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        suite 1257/1257 (zero failures); `platform/proposal` +
+        `platform/privacy` + `platform/webcheck` 242/242; `gitops/tests`
+        581 passed/1 skipped (ENVIRONMENTAL); `router/validate.py` (279
+        ventures), `score_ventures.py --check`, `checklist_coverage.py`,
+        `check_no_payment_code.py`, `guard_state.py --require-runnable`
+        (no fixable skips), `usage_state.py --require-honest`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_usage.py`, `publish_surface.py --check` all clean.
+    mrr_end: 0
+
+  - venture: llms-txt-generator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-a-hosted-docs-platform.html`, a comparison page laying
+        out the honest tradeoff between this free generator and the doc-
+        hosting vendors that auto-generate llms.txt as a bundled feature of
+        migrating your whole docs site onto their platform -- both sides
+        of the comparison are grounded in the venture's own `VENTURE.yaml`
+        write-up, which already names "hosted generators from doc-tooling
+        vendors" as the category this fleet's own duplicate-check reasoned
+        about. Followed the stricter no-brand-name precedent
+        (`vpat-acr-generator/vs-hiring-a-vpat-consultant.html`,
+        `home-inspection-fee-calculator/vs-franchise-fee-schedule.html`):
+        describes the paid alternative as a generic category, names no
+        specific vendor, and its footer's "not affiliated with, endorsed
+        by, or sponsored by any specific documentation platform or vendor"
+        line satisfies `platform/pages/clauses.mjs`'s trademark-disclaimer
+        check directly, with no need to add it to
+        `COMPARISON_DISCLAIMER_EXEMPT`. Linked one hop from `index.html`.
+      - >-
+        Chose this venture over the other 30 ventures under `ventures/`
+        with no `vs-*.html` yet: most of the rest are non-static apps
+        (Next.js, Python packages, a Swift watchface, CLIs) the comparison-
+        page pattern does not fit, or lack a README-attested paid-
+        alternative category to compare against honestly.
+      - >-
+        Verified: venture's own suite 43/43;
+        `faq-visible`/`faq-coverage`/`faq-duplicate`/`link`/`siblings`
+        (whole-portfolio sweeps) 81/81; `checklist_coverage.py` clean;
+        `clauses.mjs` reports the venture's 3 published pages carry their
+        required clauses. No open or recently-merged PR duplicated this
+        (checked `list_pull_requests` state:open — none — and
+        `search_pull_requests` for `llms-txt-generator` /
+        `vscode-extension-drift-check` / `codeowners-shadow-check`, the
+        other candidates considered — all prior PRs on those slugs already
+        merged and closed, nothing in flight).
+    mrr_end: 0
+
+  - venture: caption-quality-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Drained the PR queue first per this
+        session's mandate: exactly one PR was open (#4673,
+        `home-inspection-fee-calculator`'s comparison page) -- fewer than
+        the 3-PR quota, so processed it fully. Found a real merge conflict
+        in `portfolio/ledger/2026-09.yaml` (two sessions' outcome entries
+        needed combining, not picking one side) and resolved it; ran the
+        full checklist (`gitops/tests` 581/1, `platform/ci`'s 15-module
+        unittest sweep + `agent_review`, `portfolio/{ledger,scoring,router,
+        usage,pipeline}` + `infra/tests` 446 passed, all 8
+        `portfolio-validate.yml` validators, `run_workflow_locally.py
+        --for-changes` and `--tree`), and settled the generated mirror
+        after a `git stash`/re-run A/B confirmed `regen.mjs`'s output was
+        stable. A concurrent session merged #4673 with a byte-for-byte
+        identical resolution while this session was still verifying it --
+        confirmed via `git diff` against the pushed branch before pushing
+        anything, so nothing was duplicated.
+      - >-
+        Sampled 13 of this repo's several hundred accumulated stale
+        branches (the mandate's branch-to-PR presumption) rather than
+        auditing all of them, since a concurrent session's own exhaustive
+        pass had just landed in #4674 (208 branches with unique commits,
+        all resolved SUPERSEDED or STALE DRAFT via `supersede_check.py`
+        after `git fetch --unshallow`). Every one of the 13 sampled here
+        was independently confirmed superseded -- each branch's content
+        (a venture, a comparison page, a sibling link) already existed on
+        `main` under the identical filename, with `main`'s copy the fuller
+        or later version in every case checked (e.g. `atm-route-margin`'s
+        branch predates the shareable-link feature `main` now has). No
+        unshipped work found; did not re-run the full 208-branch sweep
+        `main` already had.
+      - >-
+        With the PR queue and branch backlog both empty of repairable
+        work, `session_gate.py` read PROCEED (meta-work share 24%, build-
+        now pipeline empty) and `portfolio/DIRECTION.md` pointed at the
+        comparison-page backlog. Shipped
+        `ventures/caption-quality-check/vs-professional-caption-qc-review.html`
+        -- this venture (graduated #4672) had none yet. Framed generically
+        against "a paid captioning vendor's QC pass" rather than naming
+        3Play Media/Verbit/Rev (all three named in this venture's own
+        VENTURE.yaml as evidence of willingness to pay), since none of
+        their internal QC processes are fully publicly documented --
+        matching the stricter no-brand-name convention used for
+        `home-inspection-fee-calculator`'s franchise-fee-schedule page
+        rather than the named-competitor convention used for
+        `vs-httpstatus-io.html`, where the competitor is a single,
+        simple, publicly self-described product.
+      - >-
+        Caught a real defect during verification rather than after:
+        `faq-visible.test.mjs` flagged the FAQPage JSON-LD using a literal
+        `--` where the visible prose used `&mdash;` -- the same mismatch
+        class #4670's ledger entry already recorded. Fixed by using the
+        literal em-dash character in the JSON-LD text so it matches the
+        visible copy after entity decoding.
+      - >-
+        `main` advanced twice while this PR was in flight (#4679
+        `vpat-acr-generator`'s comparison page, #4680 a `build.mjs`
+        catch-all refactor; then again to `cc1e29d6` before merge).
+        Resolved the resulting sequential-shard mirror conflicts with
+        `platform/marketing/resolve-mirror-merge.sh` per its own header,
+        took `origin/main`'s copy of the two conflicting binary files as a
+        base, and learned mid-session that the merge script alone does not
+        settle `catalog.json.gz`/`compare.html.gz`/`llms.txt` -- a direct
+        `regen.mjs` run after it found 3 more files to rewrite, caught by
+        running the full suite a second time rather than trusting the
+        script's own internal tests (which only cover the mirror
+        directory) as sufficient.
+      - >-
+        Verified: venture's own suite 67/67 (up from 64);
+        `platform/marketing` + `platform/pages` full suite 1257/1257,
+        run three times (pre-merge, post-first-merge, post-final-regen)
+        because of the two `main` advances; `checklist_coverage.py`,
+        `score_ventures.py --check` (280 ventures),
+        `router/validate.py` (279 ventures), `guard_state.py
+        --require-runnable`, `usage_state.py --require-honest`,
+        `check_ledger_only.py` all clean.
+      - >-
+        Merged as #4686 (all 21 PR checks read `runner_id: 0` across two
+        job groups -- `ci_starvation.py --run` confirmed starvation on
+        both, not a real failure). Deployed:
+        `CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh` against the merge tip
+        (`da9021c2`); `pages_state.py --require-current` reports
+        `current`. IndexNow submission 403'd at this sandbox's egress
+        proxy (`api.indexnow.org` not allowlisted), same known limitation
+        as prior sessions -- needs an Actions runner or the Hetzner host
+        mode to actually reach it.
+    mrr_end: 0
+  - venture: court-reporter-transcript-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, browser-only calculator for freelance
+        court reporters and deposition stenographers -- turns page count,
+        turnaround speed, travel, certified copies, exhibits, rough draft
+        and realtime into a deposition transcript invoice total and an
+        effective hourly rate (with a copyable plain-text invoice
+        summary), plus a separate agency-offer check that turns an
+        agency's flat per-page offer into an effective hourly rate against
+        a reporter's own target. Screened per pipeline/README.md's
+        "archetype itself" section: not another <trade>-bid-calculator
+        (141/281) or SEO/security -checker (38+/281) -- a
+        professional-services niche this portfolio had not touched, with a
+        billing shape (a flat appearance fee stacked on a per-page rate
+        that itself multiplies by turnaround speed) distinct from every
+        existing venture here. `duplicate_check.py` scored the final
+        description below 0.13 against every existing venture, pipeline
+        candidate, screened-out row, and ai-first-markets idea, well under
+        the 0.45 bar -- after two adjacent niches were checked and set
+        aside first: a mobile-notary income-planning angle scored 0.26
+        against the existing notary-trip-quote venture (same audience,
+        thinner variant of its existing per-job quote), and an
+        AI-crawler-access checker scored 0.49 against the existing
+        ai-crawler-access-check venture. Named channel: r/courtreporting
+        and NCRA (National Court Reporters Association) member forums both
+        see recurring "how much should I charge for a rush transcript" and
+        "is this agency offer worth taking" threads, with real search
+        volume ("court reporter transcript rate calculator", "deposition
+        transcript pricing").
+      - >-
+        Full PRODUCT_PLAYBOOK.md slice: calculator.mjs (pure arithmetic,
+        no dependencies, 19 tests covering both calculators, negative/
+        non-finite input handling, and the plain-text invoice-summary
+        renderer), usage.mjs opt-out-capable local counter (8 tests),
+        index.html with both calculators, disclaimers, privacy line,
+        sponsor link, FAQPage + SoftwareApplication JSON-LD verified
+        character-for-character against the visible FAQ prose, and a
+        reciprocal sibling link to notary-trip-quote (15 page tests) --
+        42/42 venture tests pass. VENTURE.yaml with scored hypotheses
+        (gates: liability_containment 8, ethical_robustness 8);
+        venture-scores.yaml row (composite 5.833, both gates pass);
+        .github/workflows/court-reporter-transcript-calculator-ci.yml
+        recorded in publish-surface.yaml.
+      - >-
+        Cross-cutting fixes this shipment required, all pre-existing gaps
+        exposed by adding the 281st mirrored tool rather than defects this
+        venture introduced: mirrored-tool-count prose 271->272 in
+        infra/OWNER_CHECKLIST.md (x3), aggregate.py, default.conf,
+        test_manifests.py's pinned total; gitops/ci/README.md's
+        runs-on-switch count via sync_readme_counts.py (my new venture's
+        CI workflow added a job); platform/privacy/optout-persistence.
+        test.mjs's pinned SWITCHES_IN_THE_CATALOGUE 256->257; ran
+        launched.mjs --write and regen.mjs so the mirror/front-door/feed/
+        catalog/llms.txt are current; filed the venture under build.mjs's
+        `services` category (solo professional pricing one job for a
+        client, alongside notary-trip-quote) rather than leaving it in the
+        catch-all. Also found a genuinely pre-existing, unrelated break:
+        build.test.mjs's catch-all-size bound (5) was already exceeded by 6
+        members on `main` before this venture touched anything -- confirmed
+        via a git-stash A/B test putting the working tree back to `main`'s
+        state, where the same assertion failed identically. Before
+        re-categorizing any of the other five by hand, merged
+        `origin/main` (which had advanced during this session) and found
+        two concurrent sessions had already fixed the same break
+        independently: #4677 filed `caption-quality-check` into `ci` and
+        `security-deposit-return-calculator` into `backoffice`, and a
+        sibling `cat-adjuster-fee-calculator` session's branch (merged as
+        part of the same `origin/main` advance) filed
+        `childcare-tuition-calculator` and
+        `food-truck-event-margin-calculator` into `services`. So the bound
+        needed no raising after all -- resolved the resulting `build.mjs`
+        merge conflict by keeping both sets of category-rule additions
+        (theirs plus this venture's own) rather than picking a side, and
+        left the test's bound comment recording what actually happened
+        instead of the raise this session almost made permanent.
+      - >-
+        Verified: venture's own suite 42/42; gitops/tests 581 passed/1
+        skip (environmental -- guard_state.py --require-runnable confirmed
+        no fixable skips after installing nginx-light/openssh-client);
+        platform/ci's 25 unittest modules (932 tests) + agent_review 21/21
+        all green; portfolio/{ledger,scoring,router,usage,pipeline} +
+        infra/tests 446 passed; platform/marketing + platform/pages full
+        suite 1257/1257 (after the catch-all-bound and mirrored-count
+        fixes above); platform/proposal 101/101, platform/privacy 82/82,
+        platform/webcheck 59/59; router/validate.py (280 ventures),
+        score_ventures.py --check, publish_surface.py --check (--write
+        run for the new workflow), checklist_coverage.py,
+        validate_candidates.py, validate_doc_consistency.py,
+        validate_probe_index.py, score_sensitivity.py, validate_usage.py,
+        check_no_payment_code.py, clauses.mjs all clean. Merged as PR
+        #4689.
+    mrr_end: 0
+  - venture: pdf-accessibility-tag-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, screened this session against
+        portfolio/pipeline/screened-out.md and the liability/ethical
+        gates in portfolio/pipeline/README.md (composite 6.125, floor 1
+        ai_leverage, liability_containment 6, ethical_robustness 8 --
+        both clear the 5 gate). Shipped a zero-dependency Node CLI
+        (check.mjs) and a no-upload browser page (index.html), sharing
+        one checking engine (engine.mjs) built on a from-scratch lenient
+        PDF object parser (pdf-parser.mjs) that reads a PDF's tag
+        structure, document title, declared language, image alt text
+        (approximate, document-wide, explicitly disclosed as such),
+        form-field /TU labels, and per-page text-layer presence, against
+        PDF/UA and Section 508. Neither surface uploads or transmits the
+        file: the browser page decodes FlateDecode streams with the
+        native DecompressionStream API entirely in the tab, and the CLI
+        uses Node's built-in zlib; the CLI also batch-scans a whole
+        document-library folder in one run, which none of the five
+        surveyed free competitors (PDFix, PDF Audit, Free PDF Checker,
+        axesCheck, PAC) offer alongside no-upload processing.
+      - >-
+        Named channel: government and university webmasters and
+        accessibility-services staff preparing for ADA Title II's
+        DOJ-extended April 2027/2028 deadlines and HHS's May 2026
+        Section 504 deadline -- DOJ's own rule text defines PDFs posted
+        through a public entity's site as "web content" subject to WCAG
+        2.1 AA, and five separate live free competitor tools are
+        evidence of real, sustained search demand for "PDF accessibility
+        checker" / "PDF/UA checker online" terms. duplicate_check.py
+        scored the final description below 0.20 against every existing
+        venture, pipeline candidate, screened-out row, and
+        ai-first-markets idea before graduation (0.57 self-match after
+        graduation, as expected).
+      - >-
+        duplicate_check.py, VENTURE.yaml, portfolio/pipeline/candidates.yaml
+        + candidates/pdf-accessibility-tag-check.md +
+        portfolio/pipeline/README.md's table,
+        portfolio/scoring/venture-scores.yaml, and
+        portfolio/usage/usage.yaml's baseline row all added/updated in
+        the same PR as the code, per the graduation process.
+      - >-
+        Fixed forward in the same PR, found while verifying: two of
+        `platform/pages/build.mjs`'s taxonomy categories needed the new
+        slug named explicitly (the "evidence" category, matching
+        ada-title-ii-evidence/vpat-acr-generator's buyer and disclosure
+        posture) to avoid landing in the catch-all past
+        build.test.mjs's bound; the FAQPage JSON-LD on the new page's
+        own index.html did not byte-match its visible copy in three
+        places (platform/pages/faq-visible.test.mjs), the exact defect
+        class CLAUDE.md already records costing live product; a fleet-wide
+        browser accessibility pass (contrast.mjs via
+        platform/ci/browser_checks.py) found the file-picker input had no
+        accessible label (WCAG "label" violation, the same class as the
+        48 found 2026-09-06); the page was a crawlable orphan with no
+        other page linking to it, fixed by a reciprocal cross-link added
+        to ada-title-ii-evidence's own index.html
+        (platform/pages/siblings.test.mjs's committed-budget check); and
+        the fleet-wide venture count moved 272 -> 273, which needed
+        gitops/tests' pinned counts (test_manifests.py,
+        test_ci_runner.py via `python3 gitops/ci/sync_readme_counts.py`),
+        infra/OWNER_CHECKLIST.md, gitops/prod/usage/aggregate.py, and
+        gitops/prod/front-door/default.conf (both mirrored-count
+        comments) updated together, plus
+        platform/privacy/optout-persistence.test.mjs's pinned
+        SWITCHES_IN_THE_CATALOGUE bumped 257 -> 258 for the new venture's
+        usage.mjs opt-out.
+      - >-
+        Verified: venture's own suite 53/53 (byte-level PDF parser
+        including a real zlib-compressed content stream and a compressed
+        object stream round-trip, all six accessibility checks, the
+        CLI's file/directory handling and exit codes via real subprocess
+        runs, the usage counter, and the page's structure/disclaimers);
+        gitops/tests 581 passed/1 skip (environmental --
+        guard_state.py --require-runnable confirmed no fixable skips
+        after apt-get update && apt-get install -y --no-install-recommends
+        python3-pytest nginx-light openssh-client); platform/ci's 15
+        unittest modules + agent_review 21/21 all green;
+        portfolio/{ledger,scoring,router,usage,pipeline} + infra/tests
+        446 passed; platform/marketing + platform/pages full suite
+        1257/1257 (after the faq-visible/build.mjs-category/launched.json
+        fixes above); platform/proposal 101/101, platform/privacy 82/82
+        (after the pinned-count fix above), platform/webcheck unaffected;
+        router/validate.py, score_ventures.py --check, publish_surface.py
+        --check (--write run for the new CI workflow),
+        checklist_coverage.py, validate_candidates.py,
+        validate_doc_consistency.py, validate_usage.py,
+        check_no_payment_code.py, clauses.mjs, validate_workflows.py all
+        clean; browser_checks.py --only pdf-accessibility-tag-check
+        (contrast, sweep, optout, sideways, presets, roundtrip, journey
+        all ok after the label fix; highlight skipped -- this tool makes
+        no highlight promise, an allowed skip) --
+        PLAYWRIGHT=$(npm root -g)/playwright/index.js after
+        `npm install --no-save playwright@1.56.0 axe-core`. A full
+        whole-catalogue `browser_checks.py --record` run was not done
+        this session (build.mjs changed, staling all 8 checks
+        fleet-wide per browser_state.py) -- flagging rather than
+        claiming it; the scoped `--only` run above is real evidence for
+        this venture's own page but not a recorded fleet-wide reading.
+    mrr_end: 0
+
+  - venture: court-reporter-transcript-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed the catalogue's last content gap. `guide-coverage.mjs`
+        reported exactly one of 272 published surfaces with no page beside
+        its entry page -- this one -- so it was the only venture with no
+        organic entry point for the question a buyer types before they know
+        the tool exists. Added
+        `what-is-a-good-per-page-rate-for-a-court-reporter.html`, answering
+        the question freelance reporters actually ask when an agency emails
+        an offer, and answering it honestly: a per-page rate cannot say, and
+        the division that can is the one `computeAgencyOfferCheck` already
+        performs. Coverage is now 272/272.
+      - >-
+        The page's worked figures are the venture's own calculator output,
+        not invented illustration, and a test pins them to it. Identical
+        $4.50/page + $75 appearance offers on 120 pages pay $615 either way
+        but $68.33/h over 9 hours against $111.82/h over 5.5 -- one clears
+        an $85 target, the other misses by $16.67. A third example carries
+        the counter-intuitive half: 60 pages at $6.25 (a 39% higher rate)
+        totals $475, $140 less, and returns $86.36/h. Pinning them matters
+        because a prose page has a failure mode a calculator does not -- its
+        numbers can go silently wrong when the logic behind them changes,
+        and nothing else in the tree would notice.
+      - >-
+        Linked from index.html above the footer rather than appended to an
+        FAQ answer, deliberately: `page.test.mjs` compares FAQPage JSON-LD
+        against the visible prose verbatim, so editing an answer to carry
+        the link would have broken the match. The link is what makes the
+        page reachable at all -- `pages_state.py` measures that the
+        published site is served from a GitHub Pages *subpath*, where
+        crawlers read a `robots.txt` belonging to someone else's site and
+        sitemap auto-discovery therefore cannot happen. A crawl path is the
+        only route to a new page on this origin. Verified the whole site
+        still has one: a BFS from `index.html` over the built artifact
+        reaches 1037 of 1039 pages, the two exceptions being `404.html` and
+        `offline.html`, which are unlinked by design.
+      - >-
+        Verified: venture suite 47/47 (up from 42); platform/marketing +
+        platform/pages 1257/1257 after `regen.mjs` (which the new page
+        required -- 5 mirror tests fail until it runs, exactly as CLAUDE.md
+        documents); platform/proposal + platform/privacy + platform/webcheck
+        242/242 with zero skips (the two history-pinned `page-integrity`
+        tests ran, since the clone was unshallowed); gitops/tests 557
+        passed/25 skipped, then `guard_state.py --require-runnable` exit 0
+        after installing nginx-light + openssh-client, leaving one genuinely
+        environmental skip; all 20 `platform/ci` unittest modules and
+        `agent_review` OK; portfolio/{ledger,scoring,router,usage,pipeline}
+        + infra/tests 446 passed; `checklist_coverage.py` clean;
+        `browser_checks.py --record` over the whole catalogue.
+      - >-
+        Ran the full browser sweep, stale since 2026-09-13 and the check
+        CLAUDE.md records sessions habitually skipping over one npm install.
+        `contrast` is the one worth naming: 1037 pages at two viewports,
+        **no WCAG A/AA violations** -- the check that found 48 critical axe
+        `label` failures across three live products when it was first run on
+        2026-09-06 now comes back clean over a catalogue six times the size.
+        `sideways` 1038 pages with no horizontal scroll at 360px; `optout`
+        334 pages all remembering the visitor's choice; `presets`,
+        `roundtrip`, `highlight` clean.
+      - >-
+        Re-measured three infra readings rather than inheriting them, on the
+        owner's repeated ask for Hetzner CI/CD, marketing deployment and the
+        Codex dev worker. Actions runners: still starved --
+        `ci_starvation.py --run 35095456643` names `runner_id: 0` on all ten
+        runs the #4691 merge triggered, five days unmoved and consistent
+        with a 2026-10-01 allowance reset. Codex host mode: 56/56 tests,
+        `systemd-analyze verify` exit 0, and the owner's one-shot recovery
+        rehearsed as far as a session can take it (`DRY_RUN=1` with all
+        three `WITH_*` flags resolves every extra and credential, then exits
+        1 at the SSH gate exactly as documented) -- installable, still
+        blocked on nothing but `hetzner-ssh-key-is-a-public-key`. Session
+        egress: `api.indexnow.org`, `www.bing.com` and
+        `duncan-haywood.github.io` all `403 to CONNECT`.
+      - >-
+        The largest ongoing product cost of the Actions outage, stated
+        because nothing in the tree says it: 1037 published URLs have been
+        announced to no search engine, ever. `indexnow.mjs --ref
+        origin/gh-pages` dry-runs correctly -- right origin, right host,
+        right `keyLocation` on the subpath, 1037 URLs from catalog.json and
+        273 sitemaps -- so the submission is built and verified and merely
+        has nowhere to send from. Both routes with egress are down
+        (`publish-pages-branch.yml` has starved on all 60 completed runs;
+        the box needs SSH). It fires by itself the moment a runner returns.
+        No new owner ask: this is downstream of the two already queued.
+      - >-
+        Did not re-publish `gh-pages`. `pages_state.py` read `stale` at the
+        start of this session and `current` an hour later -- a concurrent
+        session published e223221d while this work was in progress. Left it
+        alone deliberately: publishing from a checkout that has since been
+        overtaken is the force-push race CLAUDE.md records taking a
+        just-shipped venture off the live site on 2026-09-06.
+    mrr_end: 0
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, branch `claude/quirky-hopper-5c3e4c`.
+        PR queue at start: exactly one open PR (#4691,
+        `cache-control-check`'s vs-curl comparison page) -- fewer than the
+        3-PR quota, so processed it fully rather than skipping to new work.
+        It had gone `dirty` (merge conflict) against two other sessions'
+        concurrent comparison-page and mirror-count merges. Resolved: the
+        generated `gitops/prod/front-door-tools`/`front-door` binaries and
+        `kustomization.yaml` by taking `origin/main`'s copy and re-running
+        `regen.mjs` (the documented pattern for this exact conflict shape),
+        and a `portfolio/ledger/2026-09.yaml` conflict by keeping both
+        sessions' venture entries as separate rows rather than picking a
+        side. Verified `platform/marketing`+`platform/pages` 1257/1257,
+        `checklist_coverage.py`, `score_ventures.py --check` (281
+        ventures), `router/validate.py` (280 ventures), all clean;
+        `ci_starvation.py --run` confirmed all 21 PR checks were
+        `runner_id: 0` (starved), not a real failure. Merged as #4691
+        (squash -- this repo disallows merge commits).
+      - >-
+        Sampled 15 of the most recently-updated remote branches (of ~522
+        total) for the mandate's branch-to-PR presumption, since a prior
+        session's exhaustive #4674 sweep (208 branches) had already run
+        days earlier and this session's budget did not cover a second
+        full pass. All 15 confirmed SUPERSEDED via `supersede_check.py`
+        (several with the RENAME SUSPECTED note, all reading "closing
+        drops no content"). No unshipped work found; did not claim the
+        full 522-branch backlog was cleared.
+      - >-
+        Refreshed the published GitHub Pages snapshot after the #4691
+        merge (`session_gate.py` flagged it stale): `CONFIRM=publish-
+        pages-branch PUSH=1 ./platform/pages/publish-branch.sh` against
+        `origin/main` at `e223221d`; `pages_state.py --require-current`
+        confirmed `current`. `indexnow_state.py` still reports `never`
+        submitted -- same known limitation as prior sessions, this
+        sandbox's egress proxy 403s `api.indexnow.org`.
+      - >-
+        Shipped `ventures/court-reporter-transcript-calculator/vs-
+        spreadsheet-or-guessing.html` -- this venture (merged the same
+        day as #4689) had no comparison page yet. Its own README already
+        states the exact framing worth writing up ("in seconds instead of
+        a spreadsheet or a guess under a deadline"), so followed the
+        `cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html`
+        precedent: compares against the generic method every reporter
+        already has, not a named company or product, so added it to
+        `clauses.mjs`'s `COMPARISON_DISCLAIMER_EXEMPT` allowlist
+        alongside that precedent rather than writing a not-affiliated
+        clause for a party that does not exist.
+      - >-
+        Caught and fixed a real defect during verification, the same
+        mismatch class CLAUDE.md's #4670/#4686 entries already recorded:
+        `faq-visible.test.mjs` flagged the new page's FAQPage JSON-LD
+        using a literal `--` where the visible prose used `&mdash;` --
+        fixed by substituting the literal em-dash character into the
+        JSON-LD text so it matches the visible copy after entity
+        decoding, verified with a standalone JSON.parse check plus the
+        full suite re-run.
+      - >-
+        Verified: venture's own suite 52/52 (up from 42, after the FAQ
+        JSON-LD fix); `platform/marketing`+`platform/pages` full suite
+        1257/1257, run three times (once caught the missing mirror
+        regen for the new page via `front-door-tools.test.mjs`, once
+        caught the JSON-LD mismatch via `faq-visible.test.mjs`, clean on
+        the third); `checklist_coverage.py`, `score_ventures.py --check`
+        (281 ventures), `router/validate.py` (280 ventures) all clean.
+    mrr_end: 0
+  - venture: ios-privacy-manifest-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session, continuing the comparison-page backlog after #4697.
+        Shipped `ventures/ios-privacy-manifest-check/vs-waiting-for-app-
+        review.html` -- this venture had no `vs-*.html` page yet. Its own
+        README already names the two generic alternatives worth writing
+        up ("used to mean either guessing from Apple's documentation or
+        waiting for App Review to reject the build and tell you"), so
+        wrote the page against both. Unlike the two prior comparison
+        pages this session shipped, no `clauses.mjs` allowlist edit was
+        needed: the venture already carries a "Not affiliated with,
+        endorsed by, or sponsored by Apple Inc." line for its own footer,
+        and the new page reuses the same wording, so the existing
+        `NOT_AFFILIATED` regex matches without a new exemption entry.
+      - >-
+        While a different session (concurrent, unrelated to this one) was
+        independently building a near-identical comparison page for
+        `court-reporter-transcript-calculator` at the same time as
+        #4697, discovered as PR #4695 shortly after #4697 merged. Ran
+        `supersede_check.py 4695`, which correctly reported STALE DRAFT
+        SUSPECTED rather than a clean SUPERSEDED verdict (it cannot tell
+        "duplicate work" from "superseded draft" on its own); read both
+        diffs by hand and confirmed they were substantively equivalent in
+        scope, quality, and precedent used. Closed #4695 with a comment
+        naming the merged #4697 file it duplicates, rather than shipping
+        two near-duplicate `vs-*` pages for the same tool.
+      - >-
+        Verified: venture's own suite 48/48 (up from 42);
+        `platform/pages/clauses.test.mjs` 21/21 with no edit needed;
+        `platform/marketing`+`platform/pages` full suite 1257/1257, clean
+        on the first run (no em-dash/literal-dash JSON-LD mismatch this
+        time, since the page uses literal `--` consistently in both the
+        JSON-LD and the visible prose, matching this venture's own
+        existing style); `checklist_coverage.py`, `score_ventures.py
+        --check` (281 ventures), `router/validate.py` (280 ventures) all
+        clean.
+    mrr_end: 0
+
+  - venture: codeowners-shadow-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Drained the PR queue first per this
+        session's mandate: exactly one PR was open (#4691,
+        `cache-control-check`'s comparison page). Fetched a full
+        (unshallow) clone, checked it out, merged current `origin/main`
+        into it, and resolved the resulting conflicts -- the generated
+        mirror (`platform/marketing/resolve-mirror-merge.sh`, then a
+        direct `node platform/marketing/regen.mjs` run afterward since the
+        script alone left `catalog.json.gz`/`compare.html.gz`/`llms.txt`
+        stale, matching the exact gap this repo's own convention already
+        documents) and a real ledger conflict where two sessions'
+        outcome entries for different ventures (`caption-quality-check`
+        and `court-reporter-transcript-calculator`) had collided into one
+        YAML block and needed splitting into two entries, not picking a
+        side. Ran the full verification checklist afterward (venture
+        suite, `platform/marketing`+`platform/pages` 1257/1257,
+        `platform/proposal`+`platform/privacy`+`platform/webcheck`
+        242/242, `gitops/tests` 581/1 skip, `platform/ci`'s 25-module
+        unittest sweep + `agent_review` 21/21, `portfolio/{ledger,scoring,
+        router,usage,pipeline}`+`infra/tests` 446 passed, all 8
+        `portfolio-validate.yml` validators, `run_workflow_locally.py
+        --for-changes` and `--tree`) before attempting to push -- and on
+        push found a concurrent session had already merged the PR with a
+        byte-for-byte identical tree (`git diff <my-merge-commit>
+        origin/claude/hopeful-cray-z4o97o` was empty), confirming nothing
+        was lost or duplicated. Pages snapshot was already `current`
+        against the resulting `main` tip and IndexNow announcement is
+        blocked only by this sandbox's documented egress limitation
+        (`api.indexnow.org` 403s at the proxy) -- no action possible
+        here, no new owner ask needed since the workflow-side fix is
+        already in place per this file's IndexNow section.
+      - >-
+        With the queue empty, checked for a second open PR before
+        starting product work (per this repo's duplicate-PR guidance) and
+        found #4698 (`ai-coding-plan-cost-calculator`'s comparison page),
+        already claimed and in progress by a different concurrent
+        session with a detailed PR body -- left it alone rather than
+        duplicating effort.
+      - >-
+        Continued the comparison-page backlog (the dominant recent work
+        pattern, per #4693/#4690/#4686 and this session's own reading of
+        `session_gate.py`, which reported PROCEED with an empty
+        build-now pipeline). `codeowners-shadow-check` was one of the
+        ventures still without a `vs-*.html` page. Its own README already
+        states the distinction worth writing up -- "GitHub's own
+        CODEOWNERS syntax highlighting ... does not resolve every pattern
+        against every file and compare winners -- that's the one thing
+        this tool does" -- so shipped
+        `ventures/codeowners-shadow-check/vs-reading-codeowners-by-eye.html`
+        against "reading the CODEOWNERS file by eye", the generic method
+        every maintainer already has (same exemption shape as
+        `cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html`).
+        The page also explains why it differs from GitHub's own syntax
+        checker specifically, and carries the "not affiliated with ...
+        GitHub" line since GitHub itself is named as a comparison point
+        in that explanation, satisfying `clauses.mjs`'s `NOT_AFFILIATED`
+        check directly rather than needing a new
+        `COMPARISON_DISCLAIMER_EXEMPT` entry. Linked from `index.html`,
+        added to the venture's `sitemap.xml`, and added FAQ-visibility,
+        clause, and sitemap tests to `page.test.mjs` matching the
+        existing `vs-curl.html` test convention on `cache-control-check`.
+      - >-
+        Verified: venture's own suite 63/63 (up from 58);
+        `node platform/pages/clauses.mjs --slug codeowners-shadow-check`
+        clean; `platform/marketing`+`platform/pages` full suite
+        1257/1257, run twice (first run found the expected 7 generated-
+        mirror mismatches for the new page, fixed with `regen.mjs`,
+        clean on the second run); `checklist_coverage.py`,
+        `router/validate.py` (280 ventures), `score_ventures.py --check`
+        (281 ventures), `publish_surface.py --check`,
+        `check_no_payment_code.py` all clean.
+    mrr_end: 0

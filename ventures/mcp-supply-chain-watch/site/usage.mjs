@@ -43,6 +43,9 @@ export function setUsageCountingEnabled(enabled) {
 }
 
 export function recordEvent(eventName) {
+  // `isUsageCountingEnabled` already reads the same key the control writes,
+  // so it is the whole gate: one source of truth, honoured here and painted
+  // on the page.
   if (!isUsageCountingEnabled()) return;
   try {
     const day = new Date().toISOString().slice(0, 10);
@@ -63,5 +66,33 @@ export function readLocalUsage() {
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
+  }
+}
+
+// The page-facing pair. This venture already had an opt-out, under
+// OPT_OUT_KEY, so these read and write *that* -- the first draft invented
+// `${STORAGE_KEY}-opt-out` beside it, which left a returning visitor with
+// counting correctly off (recordEvent honours the old key) and the control
+// painted as if their choice had been forgotten. Two keys mean the page's one
+// control can only ever set one of them.
+export function readOptOut(storage = globalThis.localStorage) {
+  try {
+    return storage?.getItem(OPT_OUT_KEY) === "1";
+  } catch {
+    // A blocked or full store must never be read as consent.
+    return false;
+  }
+}
+
+export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+  if (!storage) return;
+  // Independent writes, counters first: sharing one try means a setItem
+  // that throws on a full quota skips the delete entirely, and the
+  // visitor gets neither half of what the control promised.
+  if (optedOut) {
+    try { storage.removeItem(STORAGE_KEY); } catch { /* storage is optional */ }
+    try { storage.setItem(OPT_OUT_KEY, "1"); } catch { /* storage is optional */ }
+  } else {
+    try { storage.removeItem(OPT_OUT_KEY); } catch { /* storage is optional */ }
   }
 }

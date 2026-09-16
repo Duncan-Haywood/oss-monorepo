@@ -110,7 +110,7 @@
 
 <script type="module">
   import { parseReadme, findPluginHeaderFile, parsePluginHeader, detectUnescapedOutput, detectMissingNonceChecks, buildReport } from './scan.mjs';
-  import { recordUsage } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
 
   const fileInput = document.getElementById('fileInput');
   const fileCountEl = document.getElementById('fileCount');
@@ -293,6 +293,19 @@ function example_save_settings() {
       resultsEl.appendChild(ul);
     }
   }
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
 </script>
 
 <section class="card">
@@ -340,9 +353,11 @@ function example_save_settings() {
   <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and
   never changes what the tool does.</p>
   <p>Also worth a pass over your other extensions:
-  <a href="../chrome-extension-permission-check/">Chrome Extension Permission Checker</a> and
-  <a href="../ios-privacy-manifest-check/">iOS Privacy Manifest Checker</a> cross-check a platform's
-  review-gating manifest against actual source usage the same way, for Chrome and iOS.</p>
+  <a href="../chrome-extension-permission-check/">Chrome Extension Permission Checker</a>,
+  <a href="../ios-privacy-manifest-check/">iOS Privacy Manifest Checker</a>, and
+  <a href="../obsidian-plugin-review-check/">Obsidian Plugin Review Checker</a> cross-check a
+  platform's review-gating manifest against actual source usage the same way, for Chrome, iOS, and
+  Obsidian.</p>
 </footer>
 </body>
 </html>

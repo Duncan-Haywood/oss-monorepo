@@ -141,6 +141,7 @@ node cli.mjs --max-allowance-percent 80 .github/workflows   <span class="note">#
     <h2>How the billing actually works</h2>
     <p>The multipliers and the per-job rounding are where most of the surprise lives. <a href="how-github-actions-minutes-are-billed.html">How GitHub Actions minutes are billed</a> explains the arithmetic this tool uses and why a wide matrix of short jobs can bill several times its wall-clock time.</p>
     <p class="note">Already out of minutes and staring at a wall of red checks? <a href="../actions-runner-starvation-check/">actions-runner-starvation-check</a> tells you whether a red check is a real failure or a job GitHub never assigned a runner to — the thing that happens <em>after</em> the allowance is spent.</p>
+    <p class="note">Already reading your GitHub billing page and wondering what this adds? See <a href="vs-billing-page.html">this estimator vs. your billing page</a>.</p>
   </section>
 
   <section class="card">
@@ -172,7 +173,7 @@ node cli.mjs --max-allowance-percent 80 .github/workflows   <span class="note">#
 
   <script type="module">
     import { estimate, formatUsd, readWorkflowSource, DEFAULT_ASSUMPTIONS } from "./estimate.mjs";
-    import { record, setUsageOptOut } from "./usage.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
     const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -343,6 +344,19 @@ jobs:
       event.target.textContent = "Usage counting is off";
       event.target.disabled = true;
     });
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
   </script>
 </body>
 </html>

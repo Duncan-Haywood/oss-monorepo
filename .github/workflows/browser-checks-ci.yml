@@ -1,11 +1,12 @@
 name: Browser checks
 
-# Runs the seven checks in `platform/pages/` that need a real browser, so the
+# Runs the eight checks in `platform/pages/` that need a real browser, so the
 # question "does every tool still compute" has an automated answer for the
 # first time.
 #
 # What this closes. `platform/ci/browser_checks.py` orchestrates
-# `sideways`, `presets`, `roundtrip`, `highlight`, `contrast`, `sweep` and
+# `sideways`, `presets`, `roundtrip`, `highlight`, `contrast`, `optout`,
+# `sweep` and
 # `journey` -- between them the only things that open a page, type into the
 # form and read the number back out. Its own docstring says why none of them
 # ran anywhere: "They need Playwright, which is not a dependency of this repo,
@@ -103,7 +104,7 @@ on:
       checks:
         description: "Comma-separated subset to run (default: all seven)"
         required: false
-        default: "sideways,presets,roundtrip,highlight,contrast,sweep,journey"
+        default: "sideways,presets,roundtrip,highlight,contrast,optout,sweep,journey"
       only:
         description: "Comma-separated venture slugs to scope to (default: the whole site)"
         required: false
@@ -218,7 +219,7 @@ jobs:
           # scratch directory is not one of the places it would guess.
           PLAYWRIGHT: ${{ runner.temp }}/browser-checks/node_modules/playwright/index.js
           AXE: ${{ runner.temp }}/browser-checks/node_modules/axe-core/axe.min.js
-          CHECKS: ${{ inputs.checks || 'sideways,presets,roundtrip,highlight,contrast,sweep,journey' }}
+          CHECKS: ${{ inputs.checks || 'sideways,presets,roundtrip,highlight,contrast,optout,sweep,journey' }}
           # Empty on the nightly, which is the whole point: the scheduled run
           # is the whole-site sweep and must never be scoped by accident. The
           # input exists for the case the header calls out -- "anyone touching

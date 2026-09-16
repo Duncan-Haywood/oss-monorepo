@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This calculator vs. comparing fee schedules by spreadsheet or mental math</title>
+<meta name="description" content="A spreadsheet can hold a fee schedule's numbers. It only compares deployments correctly if someone remembers to enter every daily cost and every unpaid travel day the same way, twice, under time pressure between storms. This free calculator runs the same arithmetic without that risk.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="vs-spreadsheet-comparison.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. comparing fee schedules by spreadsheet or mental math">
+<meta property="og:description" content="A spreadsheet can do the same arithmetic as this calculator. The difference is what happens when you build it from scratch, under time pressure, for a second offer that just came in.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't a spreadsheet just as accurate as this calculator?","acceptedAnswer":{"@type":"Answer","text":"A correctly built one is, because the arithmetic itself is simple multiplication and subtraction. The risk is not the math, it is building it correctly twice: once for each firm's offer, under time pressure, often on a phone between claims. A spreadsheet has no built-in reminder to price the unpaid travel days the same way for both offers, or to apply the same large-loss bonus rate consistently — and a single dropped line changes which offer looks better without showing an error."}},{"@type":"Question","name":"When is a spreadsheet actually the better choice?","acceptedAnswer":{"@type":"Answer","text":"When the deployment has a wrinkle this calculator does not model — a per-diem that steps down after a set number of days, a firm that pays mileage only past a threshold, or a shared rental vehicle split three ways. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that is quick to fill in correctly and hard to get wrong by accident, for the common case of a flat per-claim fee, a large-loss bonus, and steady daily costs."}},{"@type":"Question","name":"What does mental math miss that either a spreadsheet or this calculator would catch?","acceptedAnswer":{"@type":"Answer","text":"The unpaid travel days, almost every time. It is easy to estimate a per-claim rate against a rough daily cost in your head and get a directionally sane answer, and much harder to also carry two unpaid travel days of full daily cost through that mental estimate without a place to write it down. Both a spreadsheet and this calculator force the travel-day cost onto the page as its own line, which is what actually closes the gap between a fee schedule that looks fine and a deployment that pays a few dollars an hour."}},{"@type":"Question","name":"Does this replace comparing IA firms on anything other than price?","acceptedAnswer":{"@type":"Answer","text":"No, and it is not built to. This calculator and a spreadsheet both stop at the arithmetic: net profit and effective hourly rate from the numbers you supply. Neither one evaluates a firm's reputation, how reliably it pays, or whether its claim-volume promises for a given storm are realistic — that still has to come from other adjusters' experience with that firm, checked independently before accepting a deployment."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#131b2e;background:#eef1f8}
+body{max-width:820px;margin:auto;padding:28px 18px 48px}
+a{color:#1f3ca3;overflow-wrap:anywhere}
+.eyebrow{font-size:.8rem;font-weight:700;letter-spacing:.06em;color:#1f3ca3;margin:0 0 6px}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.12;letter-spacing:-.02em;margin:.3rem 0;max-width:26ch}
+.lede{font-size:1.05rem;max-width:64ch;color:#4a5578}
+p,li{line-height:1.6}
+section.card{background:#fff;border:1px solid #dbe1f2;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1f3ca310;margin:1rem 0}
+h2{margin-top:0;color:#131b2e}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #dbe1f2;vertical-align:top}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#4a5578}
+.fine,.note{font-size:.86rem;color:#4a5578}
+footer{color:#4a5578;font-size:.86rem;margin-top:28px;border-top:1px solid #dbe1f2;padding-top:16px}
+footer p{margin:.6rem 0}
+@media (max-width:820px){body{padding:20px 14px 40px}}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; CAT Adjuster Fee Schedule &amp; Deployment Profit Calculator</a></p>
+<header>
+<h1>This calculator vs. comparing fee schedules by spreadsheet or mental math</h1>
+<p class="lede">The arithmetic is the same either way: net profit and effective hourly rate, after daily cost and unpaid travel days come out of the gross. The difference is what happens when that arithmetic gets built from scratch, under time pressure, for a second offer that just came in.</p>
+</header>
+<section class="card">
+<h2>What each approach actually does</h2>
+<p>
+  <strong>A spreadsheet or mental math</strong> can produce exactly the same
+  answer as this calculator &mdash; the math is multiplication and
+  subtraction, not anything exotic. What a blank spreadsheet or a phone
+  screen does not give you is a place that already has every line an offer
+  needs: estimating-software cost, lodging, per diem, vehicle, mileage,
+  the large-loss bonus rate, and the two categories of day &mdash; in-zone
+  and unpaid travel &mdash; that get billed differently. Building that
+  structure correctly once, for one offer, on a deadline between claims, and
+  then building it again identically for a second firm's offer, is where a
+  dropped line or an inconsistent assumption creeps in.
+</p>
+<p>
+  <strong>This calculator</strong> is that structure already built. Fill in
+  the same fields for each firm's offer and the comparison table applies
+  the same formula to both, so the two offers are judged by the same rules
+  rather than by however carefully each spreadsheet happened to be built
+  that day.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What does this specific offer actually pay per hour?</td><td>This calculator's deployment profit result &mdash; free, private, no account.</td></tr>
+<tr><td>Which of two or three offers pays the best effective rate for the same trip?</td><td>This calculator's <a href="./#compare">fee-schedule comparison table</a>.</td></tr>
+<tr><td>My deployment has a rule this calculator doesn't model (a stepped per diem, a shared rental).</td><td>A spreadsheet you build yourself &mdash; it can represent any rule you can describe.</td></tr>
+<tr><td>Is this firm reliable, and will it actually assign the claim volume it promised?</td><td>Neither. Check with other adjusters who have worked for that firm.</td></tr>
+<tr><td>Is my data uploaded anywhere?</td><td>No. Everything runs in your browser; your figures stay on this device.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the arithmetic runs in your browser, and nothing you type is uploaded anywhere.</p>
+</section>
+<section class="card">
+<h2>Common questions</h2>
+<h3>Isn't a spreadsheet just as accurate as this calculator?</h3>
+<p>A correctly built one is, because the arithmetic itself is simple multiplication and subtraction. The risk is not the math, it is building it correctly twice: once for each firm's offer, under time pressure, often on a phone between claims. A spreadsheet has no built-in reminder to price the unpaid travel days the same way for both offers, or to apply the same large-loss bonus rate consistently &mdash; and a single dropped line changes which offer looks better without showing an error.</p>
+<h3>When is a spreadsheet actually the better choice?</h3>
+<p>When the deployment has a wrinkle this calculator does not model &mdash; a per-diem that steps down after a set number of days, a firm that pays mileage only past a threshold, or a shared rental vehicle split three ways. A spreadsheet you build yourself can represent any rule you can describe. This calculator trades that flexibility for a form that is quick to fill in correctly and hard to get wrong by accident, for the common case of a flat per-claim fee, a large-loss bonus, and steady daily costs.</p>
+<h3>What does mental math miss that either a spreadsheet or this calculator would catch?</h3>
+<p>The unpaid travel days, almost every time. It is easy to estimate a per-claim rate against a rough daily cost in your head and get a directionally sane answer, and much harder to also carry two unpaid travel days of full daily cost through that mental estimate without a place to write it down. Both a spreadsheet and this calculator force the travel-day cost onto the page as its own line, which is what actually closes the gap between a fee schedule that looks fine and a deployment that pays a few dollars an hour.</p>
+<h3>Does this replace comparing IA firms on anything other than price?</h3>
+<p>No, and it is not built to. This calculator and a spreadsheet both stop at the arithmetic: net profit and effective hourly rate from the numbers you supply. Neither one evaluates a firm's reputation, how reliably it pays, or whether its claim-volume promises for a given storm are realistic &mdash; that still has to come from other adjusters' experience with that firm, checked independently before accepting a deployment.</p>
+<p class="note">
+  Open <a href="./">the deployment profit calculator</a>, or see <a href="./is-this-cat-adjuster-fee-schedule-worth-it.html">a worked example comparing two firms' offers</a>.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every number stays on this device. This calculator does not determine your licensing, appointment, or authority to handle a claim in any state, and it does not evaluate an IA firm's reputation, timeliness of payment, or claim-volume promises.</p>
+<p class="support">Free and open source. If it helps you compare an offer, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>

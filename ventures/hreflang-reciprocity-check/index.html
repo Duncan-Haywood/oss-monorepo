@@ -154,7 +154,7 @@ node check.mjs https://example.com/en/ --max-alternates 20</pre>
 
   <script type="module">
     import { buildReport, extractHreflangLinks } from './engine.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
 
     const $ = (sel) => document.querySelector(sel);
     const els = {
@@ -329,6 +329,19 @@ ${HEAD_CLOSE}${BODY_OPEN}Welcome${BODY_CLOSE}${HTML_CLOSE}`,
     });
 
     $('#usageOptOut').addEventListener('change', () => {});
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

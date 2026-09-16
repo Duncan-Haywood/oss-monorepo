@@ -97,11 +97,25 @@ configMapGenerator:
       # tools as JSON for a client that filters rather than reads. Same reason
       # again for riding here, with one extra: `llms.txt` above links it, so
       # shipping that file without this one would publish a document pointing
-      # at a path the catch-all answers with the front page. The largest single
-      # key in this ConfigMap at ~88 KB; `front-door.test.mjs` holds the whole
-      # generated set under the 1 MiB object ceiling so this cannot grow past
-      # it unnoticed.
-      - catalog.json=front-door/catalog.json
+      # at a path the catch-all answers with the front page.
+      #
+      # **Stored gzipped since 2026-09-12.** It was the largest key in this
+      # ConfigMap and the fastest-growing one — 148,099 bytes plain for 269
+      # tools, gaining ~550 with every venture — and on that day it took the
+      # built object to 943,974 bytes against the 943,718-byte budget in
+      # `gitops/tests/test_manifests.py`. Over that budget is not a degraded
+      # document, it is the whole `prod` Application: the hashed ConfigMap name
+      # `portfolio-front.yaml` mounts never gets created, new pods sit in
+      # ContainerCreating, and Argo reports Degraded.
+      #
+      # A `.gz` key is not valid UTF-8, so kustomize files it under
+      # `binaryData` as base64 — the 4/3 expansion the ceiling tests already
+      # model. The URL is unchanged: nginx still answers `/catalog.json`, via
+      # `gzip_static always; gunzip on;` and *no* `try_files`, because
+      # `try_files` stats the uncompressed name and there is no longer a plain
+      # sibling on disk. The `location = /catalog.json` block in
+      # `front-door/default.conf` carries the long version of that trap.
+      - catalog.json.gz=front-door/catalog.json.gz
       # The embed runtime and its stylesheet, generated from
       # `platform/pages/embed.mjs` by `front-door.mjs --write`. Same reason
       # again for riding here: every mirrored entry page links them absolutely
@@ -151,6 +165,7 @@ configMapGenerator:
       - c__evidence.html=front-door/c__evidence.html
       - c__marketplace.html=front-door/c__marketplace.html
       - c__backoffice.html=front-door/c__backoffice.html
+      - c__food-service.html=front-door/c__food-service.html
       - c__services.html=front-door/c__services.html
       - c__logistics.html=front-door/c__logistics.html
       - c__ci.html=front-door/c__ci.html

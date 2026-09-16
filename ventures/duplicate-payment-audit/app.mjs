@@ -85,3 +85,22 @@ $('download').addEventListener('click', () => {
   count('review_exported');
 });
 $('usage').addEventListener('change', event => { localStorage.setItem('duplicate-payment-audit-disable', event.target.checked ? '0' : '1'); });
+
+// Restore the visitor's usage-counting choice on arrival. The control's own
+// change listener above has always written `duplicate-payment-audit-disable`, and the
+// recorder has always read it -- the only thing missing was reading it back,
+// so the choice came back in its default state and was silently undone.
+//
+// It reads that key rather than a preference key of its own: a second flag
+// would let the recorder and the control disagree, which is the failure this
+// is here to remove, not a new way to have it.
+(() => {
+  // A few ventures import this file under `node --test`, with no DOM or a
+  // stub one. Remembering a preference must not be what breaks that.
+  if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document.getElementById !== 'function') return;
+  const usageControl = document.getElementById('usage');
+  if (!usageControl) return;
+  try { usageControl.checked = localStorage.getItem('duplicate-payment-audit-disable') !== '1'; }
+  catch { /* a browser refusing site data simply does not remember */ }
+})();

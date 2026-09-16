@@ -153,12 +153,56 @@ class Registry(unittest.TestCase):
                 f"platform/pages/{name}.mjs is missing",
             )
 
-    def test_the_seven_documented_checks_are_all_registered(self):
+    def test_the_documented_checks_are_all_registered(self):
         self.assertEqual(
             set(bc.CHECKS),
             {"journey", "sweep", "contrast", "roundtrip", "presets", "highlight",
-             "sideways"},
+             "sideways", "optout"},
         )
+
+    def test_every_enumeration_of_the_checks_agrees(self):
+        """The registry is written out in four places. They must not drift.
+
+        `browser_checks.CHECKS` is the registry; `browser_state.CHECKS`
+        duplicates it as a literal on purpose (importing it would trigger the
+        environment probing this module does at import time); and
+        `browser-checks-ci.yml` spells the same list twice, once as the
+        workflow_dispatch default and once as the fallback for `CHECKS`.
+
+        Nothing tied them together until `optout` was added on 2026-09-12 and
+        four files had to be edited by hand to register one check. The
+        neighbouring test already catches a check that no list names -- this
+        catches a check that *some* of them name, which is worse: the sweep
+        runs it locally and the nightly does not, or the nightly runs it and
+        `browser_state.py` reports the reading under a check it does not know,
+        and either way the disagreement is invisible until someone diffs two
+        files nobody thinks to diff.
+        """
+        import re
+        import browser_state
+
+        self.assertEqual(
+            list(bc.CHECKS),
+            list(browser_state.CHECKS),
+            "browser_state.CHECKS has drifted from browser_checks.CHECKS",
+        )
+
+        workflow = os.path.join(
+            os.path.dirname(os.path.dirname(bc.PAGES)),
+            ".github", "workflows", "browser-checks-ci.yml",
+        )
+        with open(workflow, encoding="utf-8") as fh:
+            text = fh.read()
+        spelled = re.findall(r"\b((?:[a-z]+,){3,}[a-z]+)\b", text)
+        lists = [s for s in spelled if set(s.split(",")) & set(bc.CHECKS)]
+        self.assertTrue(lists, f"no check list found in {workflow}")
+        for spelling in lists:
+            self.assertEqual(
+                spelling.split(","),
+                list(bc.CHECKS),
+                f"{os.path.basename(workflow)} spells the checks as {spelling!r}, "
+                f"which is not {','.join(bc.CHECKS)}",
+            )
 
     def test_highlight_is_registered(self):
         """It was written on 2026-08-29 and left out of CHECKS.

@@ -276,7 +276,7 @@
   <script type="module">
     import { calculateShopRate, ALL_INPUT_IDS } from './calc.mjs';
     import { saveCarriedRates, readCarriedRates, SHOP_RATES_KEY } from './shop-rates.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
 
     // The four rates above are what the *rest of the site* reads; nothing
     // saved the other fourteen (crew size, hours, benefits, overhead line
@@ -590,6 +590,19 @@
       if (typeof saved.targetMargin === 'number') el('targetMargin').value = saved.targetMargin;
     }
     refreshSavedState();
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
   </script>
 </body>
 </html>

@@ -154,7 +154,7 @@
 
 <script type="module">
   import { buildReport } from './analyze.mjs';
-  import { recordUsage } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -250,6 +250,19 @@
     els.reportCard.hidden = true;
     els.status.textContent = 'Paste the JSON from step 1 and click Check.';
   });
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
 </script>
 
 <footer>
@@ -277,7 +290,8 @@
   optional and never changes what the tool does.</p>
   <p>Longer read: <a href="why-isnt-my-cdn-caching-this.html">Why isn't my CDN caching this?</a>
   — the six response-header reasons a shared cache stores nothing, each with the RFC rule that makes
-  it binding rather than a tuning preference.</p>
+  it binding rather than a tuning preference. See also <a href="vs-curl.html">this checker vs.
+  reading headers with curl -I</a>.</p>
   <p>Also worth a pass on your site: <a href="../security-headers-check/">Security Headers
   checker</a> covers Content-Security-Policy and clickjacking headers, and
   <a href="../cookie-security-check/">Cookie Security checker</a> covers Set-Cookie attribute

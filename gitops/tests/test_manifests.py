@@ -1607,7 +1607,29 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # first commit, merging on top of the above the same way the two
     # ventures before it did: concurrent graduations each correctly claimed
     # their own base, and merging both advances the total by one per venture.
-    total = 269  # `infra/OWNER_CHECKLIST.md`'s own "N of the 269 tools" wording.
+    # 270 since 2026-09-12, when `fleet-repair-or-replace-planner` graduated —
+    # a repair-versus-replace planner for a small trade fleet, with a static
+    # `index.html` from its first commit, so it entered the mirror and the
+    # total together like the rest of this running count.
+    # 271 since 2026-09-13, when `obsidian-plugin-review-check` graduated — a
+    # free CLI + browser tool for Obsidian community-plugin developers, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    # 272 since 2026-09-13, when `caption-quality-check` graduated — a free
+    # CLI + browser tool checking SRT/WebVTT caption files for reading speed,
+    # line length, and timing problems against commonly-used caption
+    # style-guide thresholds, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 273 since 2026-09-13, when `court-reporter-transcript-calculator`
+    # graduated — a freelance court reporter deposition-invoice and
+    # agency-offer calculator, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 274 since 2026-09-16, when `pdf-accessibility-tag-check` graduated — a
+    # zero-dependency CLI + no-upload browser tool checking a PDF's own tag
+    # structure, title, language, alt text, and form-field labels against
+    # PDF/UA and Section 508, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    total = 274  # `infra/OWNER_CHECKLIST.md`'s own "N of the 274 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

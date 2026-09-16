@@ -124,7 +124,7 @@
   <h2>Check a page</h2>
   <p>Node.js CLI, no dependencies to install — fetches the page and every cross-origin
   asset it loads, then hashes what each one currently serves:</p>
-  <pre class="cmd"><code>node check.mjs https://example.com/ --json</code></pre>
+  <pre class="cmd"><code>node cli/check.mjs https://example.com/ --json</code></pre>
   <p class="status-note">
     Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/sri-check" rel="noopener">check.mjs, probe.mjs, and sri.mjs from the repo</a>
     — plain Node, nothing to install. It only ever talks to the page URL you pass and the
@@ -163,7 +163,7 @@
 
 <script type="module">
   import { extractCrossOriginAssets, buildReport, digestBase64, integrityValue } from './sri.mjs';
-  import { recordUsage } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -255,7 +255,7 @@
     let report;
     try {
       if (!payload || typeof payload !== 'object' || typeof payload.page !== 'string') {
-        throw new Error('Expected an object with a "page" field -- the exact shape "node check.mjs <url> --json" prints.');
+        throw new Error('Expected an object with a "page" field -- the exact shape "node cli/check.mjs <url> --json" prints.');
       }
       if (payload.fetchError) {
         report = { page: payload.page, assets: [], findings: [], dangerCount: 0, noticeCount: 0, thirdPartyCount: 0, ok: false, fetchError: payload.fetchError };
@@ -288,7 +288,7 @@
     try {
       payload = JSON.parse(text);
     } catch {
-      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node check.mjs &lt;url&gt; --json".</span>';
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node cli/check.mjs &lt;url&gt; --json".</span>';
       return;
     }
     runCheckFromPayload(payload, 'check_run');
@@ -310,6 +310,19 @@
   // the real classification engine against this page's own bundled example
   // without a browser.
   window.__sriCheckExample = { extractCrossOriginAssets, buildReport, EXAMPLE };
+
+    // Remember the visitor's usage-counting choice between visits. The
+    // control was read on every record call and never stored, so the box
+    // came back unticked on the next load and counting resumed -- a
+    // control that quietly stops working is worse than none, because the
+    // visitor believes they have already used it.
+    {
+      const usageControl = document.getElementById('usageOptOut');
+      if (usageControl) {
+        usageControl.checked = readOptOut(localStorage);
+        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      }
+    }
 </script>
 
 <footer>

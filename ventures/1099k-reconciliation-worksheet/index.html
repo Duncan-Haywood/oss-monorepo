@@ -61,7 +61,8 @@
     browser and never leave your device — see the privacy note in the
     footer. See <a href="why-is-my-1099-k-higher-than-what-i-actually-made.html">why
     the gap exists</a> for the two-minute explanation of what Box 1a legally
-    represents.</p>
+    represents, or <a href="vs-spreadsheet-comparison.html">how this compares
+    to reconciling it yourself in a spreadsheet</a>.</p>
     <p class="note">Still owe quarterly estimated tax on this income as the
     year goes? The <a href="../quarterly-estimated-tax-calendar/">quarterly
     estimated tax calendar</a> is the other end of the same tax year — that
@@ -89,6 +90,7 @@
 
   <section class="card">
     <h2>Reconciled worksheet</h2>
+    <p class="note" id="restore-note" hidden></p>
     <p class="stats" id="stats"></p>
     <p class="empty" id="empty">No platforms added yet — add one above, or load the example.</p>
     <div style="overflow:auto">
@@ -98,7 +100,7 @@
       <tfoot id="results-foot"></tfoot>
     </table>
     </div>
-    <p><button type="button" class="secondary" id="export-csv">Export CSV</button></p>
+    <p><button type="button" class="secondary" id="export-csv">Export CSV</button> <button type="button" class="secondary" id="copy-link">Copy share link</button> <span id="share-status" class="note" role="status" aria-live="polite"></span></p>
     <div id="findings"></div>
   </section>
 
@@ -131,14 +133,15 @@
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, legal, or financial advice, and it does not replace a qualified tax professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting your actual filing obligations. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool except in your own browser's local storage.</p>
-    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>row_added</code>, <code>row_removed</code>, <code>csv_exported</code>, <code>example_loaded</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. &ldquo;Copy share link&rdquo; encodes your rows into this page's own URL fragment rather than sending them anywhere — the fragment is never included in any network request, so nothing leaves your browser when you share it. Anonymous feature events (<code>row_added</code>, <code>row_removed</code>, <code>csv_exported</code>, <code>example_loaded</code>, <code>link_copied</code>) are counted only in local storage on your device and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { reconcileAll, toCsv, sampleRows } from "./calc.mjs";
-    import { record, setUsageOptOut } from "./usage.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { encodeRows, decodeRows } from "./share.mjs";
 
     const STORAGE_KEY = "1099k-reconciliation-worksheet-rows";
     const $ = (sel) => document.querySelector(sel);
@@ -149,6 +152,8 @@
     const body = $("#results-body");
     const foot = $("#results-foot");
     const findingsEl = $("#findings");
+    const restoreNote = $("#restore-note");
+    const shareStatus = $("#share-status");
 
     function loadRows() {
       try {
@@ -166,7 +171,17 @@
       }
     }
 
-    let rows = loadRows();
+    // A shared link wins over whatever this browser already has saved -- the
+    // recipient of a link is opening someone else's worksheet, not resuming
+    // their own, and a link that quietly deferred to local storage would
+    // show the wrong figures with no indication anything was ignored.
+    const linkedRows = decodeRows(location.hash);
+    let rows = linkedRows.length > 0 ? linkedRows : loadRows();
+    if (linkedRows.length > 0) {
+      saveRows(rows);
+      restoreNote.hidden = false;
+      restoreNote.textContent = "Opened from a shared link — these are the sender's figures, replacing anything saved in this browser.";
+    }
     let lastResult = null;
 
     function money(n) {
@@ -267,6 +282,33 @@
       record("csv_exported");
     });
 
+    async function copyShareLink() {
+      const fragment = encodeRows(rows);
+      const url = `${location.origin}${location.pathname}${fragment ? `#${fragment}` : ""}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement("textarea");
+        fallback.value = url;
+        fallback.setAttribute("readonly", "");
+        fallback.style.position = "fixed";
+        fallback.style.opacity = "0";
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand("copy");
+        fallback.remove();
+      }
+      shareStatus.textContent = fragment
+        ? "Link copied — it reopens with every platform row included."
+        : "Nothing entered yet — the link would open blank.";
+      setTimeout(() => { shareStatus.textContent = ""; }, 3000);
+      record("link_copied");
+    }
+
+    $("#copy-link").addEventListener("click", () => {
+      copyShareLink().catch(() => { shareStatus.textContent = "Copy failed; copy the address bar instead."; });
+    });
+
     $("#optout").addEventListener("click", (event) => {
       setUsageOptOut(true);
       event.target.textContent = "Usage counting is off";
@@ -274,6 +316,19 @@
     });
 
     render();
+
+    // Show the choice the visitor already made. Counting really is off --
+    // the module remembers it (#4657) -- but the button came back saying
+    // "turn counting off", which tells the visitor their click did not
+    // take. A control that appears not to have worked is one the visitor
+    // clicks again, or stops believing.
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
   </script>
 </body>
 </html>

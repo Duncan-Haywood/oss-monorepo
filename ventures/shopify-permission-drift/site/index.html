@@ -216,7 +216,7 @@
       parseInventory,
       ticketSummary,
     } from "./compare.mjs";
-    import { recordEvent, setUsageCountingEnabled } from "./usage.mjs";
+    import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
     const DRAFT_KEY = "shopify-permission-drift:drafts";
     const beforeEl = document.getElementById("before");
@@ -403,7 +403,15 @@
     } else {
       loadExample({ count: false });
     }
+    // Restore the choice before anything is recorded. The change listener
+    // above already writes it through setUsageCountingEnabled, and
+    // recordEvent already honours it -- reading it back was the only
+    // missing half. It goes above the page_viewed call on purpose: a
+    // restore that runs afterwards has already counted a visit the visitor
+    // asked not to have counted.
+    usageOptOut.checked = !isUsageCountingEnabled();
     recordEvent("page_viewed");
-  </script>
+  
+</script>
 </body>
 </html>

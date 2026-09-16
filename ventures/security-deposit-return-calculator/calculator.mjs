@@ -54,12 +54,43 @@ export function computeProratedRent({ monthlyRent, daysInMonth, daysOccupied }) 
 }
 
 /**
- * @param {{depositAmount: number, deductions: Array<{description: string, amount: number}>}} input
- * @returns {{totalDeductions: number, refundDue: number, balanceOwed: number, lineItems: Array<{description: string, amount: number}>, findings: Array<{id:string, severity:string, title:string, detail:string}>}}
+ * Interest a deposit accrued while held, for the states and cities that
+ * require a landlord to pay it (New York for buildings with six or more
+ * units, Massachusetts, New Jersey, Connecticut, Maryland, and others --
+ * the rate and whether it applies at all is set by the jurisdiction, not
+ * this tool, so the rate is always something the user supplies).
+ *
+ * @param {{depositAmount: number, annualRatePercent: number, daysHeld: number}} input
+ * @returns {{interestAmount: number, findings: Array<{id:string, severity:string, title:string, detail:string}>}}
  */
-export function computeDepositSettlement({ depositAmount, deductions }) {
+export function computeDepositInterest({ depositAmount, annualRatePercent, daysHeld }) {
+  const deposit = Number.isFinite(depositAmount) && depositAmount > 0 ? depositAmount : 0;
+  const rate = Number.isFinite(annualRatePercent) && annualRatePercent > 0 ? annualRatePercent : 0;
+  const days = Number.isFinite(daysHeld) && daysHeld > 0 ? daysHeld : 0;
+
+  const interestAmount = round2(deposit * (rate / 100) * (days / 365));
+
+  const findings = [];
+  if (rate > 0 && days === 0) {
+    findings.push({
+      id: "interest-rate-without-days",
+      severity: SEVERITY.MEDIUM,
+      title: "Interest rate entered without days held",
+      detail: "An interest rate was entered but no days held, so no interest was added. Enter how many days the deposit was held to include the accrued interest.",
+    });
+  }
+
+  return { interestAmount, findings };
+}
+
+/**
+ * @param {{depositAmount: number, deductions: Array<{description: string, amount: number}>, depositInterest?: number}} input
+ * @returns {{totalDeductions: number, refundDue: number, balanceOwed: number, depositInterest: number, lineItems: Array<{description: string, amount: number}>, findings: Array<{id:string, severity:string, title:string, detail:string}>}}
+ */
+export function computeDepositSettlement({ depositAmount, deductions, depositInterest = 0 }) {
   const deposit = Number.isFinite(depositAmount) && depositAmount > 0 ? depositAmount : 0;
   const list = Array.isArray(deductions) ? deductions : [];
+  const interest = Number.isFinite(depositInterest) && depositInterest > 0 ? round2(depositInterest) : 0;
 
   const lineItems = list
     .map((d) => ({
@@ -69,8 +100,8 @@ export function computeDepositSettlement({ depositAmount, deductions }) {
     .filter((d) => d.amount > 0);
 
   const totalDeductions = round2(lineItems.reduce((sum, d) => sum + d.amount, 0));
-  const refundDue = round2(Math.max(0, deposit - totalDeductions));
-  const balanceOwed = round2(Math.max(0, totalDeductions - deposit));
+  const refundDue = round2(Math.max(0, deposit + interest - totalDeductions));
+  const balanceOwed = round2(Math.max(0, totalDeductions - deposit - interest));
 
   const findings = [];
 
@@ -109,7 +140,7 @@ export function computeDepositSettlement({ depositAmount, deductions }) {
     detail: "This calculator totals the deposit and the deductions you enter — it does not know your state's itemized-statement deadline, deposit limit, or interest rules, and it does not determine what counts as normal wear and tear versus damage. Check your lease and local landlord-tenant law before finalizing.",
   });
 
-  return { totalDeductions, refundDue, balanceOwed, lineItems, findings };
+  return { totalDeductions, refundDue, balanceOwed, depositInterest: interest, lineItems, findings };
 }
 
 /**
@@ -160,7 +191,7 @@ function money(n) {
  */
 export function formatItemizedStatement(settlement, { depositAmount } = {}) {
   const deposit = Number.isFinite(depositAmount) && depositAmount > 0 ? round2(depositAmount) : 0;
-  const { lineItems = [], totalDeductions = 0, refundDue = 0, balanceOwed = 0 } = settlement ?? {};
+  const { lineItems = [], totalDeductions = 0, refundDue = 0, balanceOwed = 0, depositInterest = 0 } = settlement ?? {};
 
   const lines = ["SECURITY DEPOSIT - ITEMIZED STATEMENT", ""];
   lines.push(`Security deposit held: ${money(deposit)}`, "");
@@ -177,6 +208,13 @@ export function formatItemizedStatement(settlement, { depositAmount } = {}) {
       const description = item.description || "(description needed)";
       lines.push(`  ${i + 1}. ${description} - ${money(item.amount)}`);
     });
+  }
+
+  // Only shown when the user entered an interest rate -- most deposits owe
+  // none, and a zero line on every statement would read as a determination
+  // that no interest applies, which is not something this tool knows.
+  if (depositInterest > 0) {
+    lines.push("", `Interest credited: ${money(depositInterest)}`);
   }
 
   lines.push("", `Total deductions: ${money(totalDeductions)}`);

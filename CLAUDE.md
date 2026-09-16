@@ -172,6 +172,60 @@ reporting the tree green with `gitops/tests` unrun and spending the session
 rediscovering a one-line workaround, and this file already knows which one gets
 picked.
 
+**Keep the `python3 -m` in front of it, and do not "simplify" it to bare
+`pytest` (measured 2026-09-11).** Every pytest line in this checklist is
+spelled `python3 -m pytest`, and that is load-bearing rather than habit. In
+this web session `pytest` on `PATH` was `/root/.local/bin/pytest` — a `uv
+tool install`, whose shebang points at its own isolated interpreter
+(`/root/.local/share/uv/tools/pytest/bin/python`) that does not have the
+repository's dependencies. So the two spellings disagree, on the same suite,
+in the same shell, minutes apart:
+
+```
+python3 -m pytest gitops/tests -q   # 581 passed, 1 skipped
+pytest gitops/tests -v              # UNRUN: `yaml` is not installed here
+```
+
+`python3 -m pytest` resolves against `/usr/local/bin/python3`, which has
+`yaml` 6.0.1 and everything else. It matters beyond this checklist because
+`hetzner-gitops-ci.yml`'s own `gitops / pytest` step invokes bare `pytest`,
+so `run_workflow_locally.py` reports that step `UNRUN` while the identical
+suite passes 581/1 under the checklist spelling. That is the tool being
+honest — it cannot know the module is importable under a *different*
+interpreter — but a session reading only the sweep concludes `gitops/tests`
+never ran, and a session reading only the checklist concludes it did. Both
+are right about what they ran. Run the `python3 -m` form and say which
+spelling you used.
+
+**It is not only pytest, and the mypy instance is worse because it reports as
+a real failure rather than as `UNRUN` (measured 2026-09-12).**
+`vendor-change-watch-ci.yml`'s lint job runs bare `mypy .`, and
+`run_workflow_locally.py` reported it `FAILED` on two files this PR does not
+touch:
+
+```
+tests/test_usage.py:1: error: Cannot find implementation or library stub for
+  module named "pytest"  [import-not-found]
+Found 2 errors in 2 files (checked 11 source files)
+```
+
+Same shim, same shape: `/root/.local/bin/mypy` is a `uv tool install` whose
+shebang is `/root/.local/share/uv/tools/mypy/bin/python`, and that interpreter
+has no pytest — `python3` has 7.4.4. So the two spellings disagree in the same
+shell, minutes apart:
+
+```
+mypy .              # Found 2 errors: pytest has no stub here
+python3 -m mypy .   # Success: no issues found in 11 source files
+```
+
+The sweep cannot classify this one as `UNRUN`, and that is not a bug in the
+sweep: mypy *did* run, and an `import-not-found` is a result it is entitled to
+report. Only the reader can tell that the missing module is missing from the
+wrong interpreter. So the rule generalises past pytest — **prefer `python3 -m
+<tool>` for every Python tool in this checklist, and when a workflow step
+spells it bare, run both before you believe the red.**
+
 **`pip install pytest` is not the whole barrier, and the rest of it has been
 invisible since it was written (added 2026-09-10).** That parenthesis warns
 about the run that fails loudly. The run that *succeeds* needs two more lines:
@@ -925,6 +979,46 @@ Without it there is no merge base with `main`, so `git merge` refuses with
 "unrelated histories" and `git diff origin/main <branch>` reports thousands
 of files. That is the clone, not the branch — do not read it as a conflict
 or as a reason to close anything.
+
+**And `git fetch --unshallow` on its own is not proof you are out of that
+state (measured 2026-09-13).** If you fetched one branch by name earlier in
+the session — `git fetch origin main`, which every session here does to read
+the tip — that ref is deepened to exactly one commit and a later bare
+`--unshallow` **does not go back for it**. The repository then reports itself
+complete while `main` alone is a stump:
+
+```
+git rev-parse --is-shallow-repository   # false
+ls .git/shallow                         # absent
+git rev-list --count origin/main        # 1      <-- the whole history
+git rev-list --max-parents=0 origin/main   # main's own TIP, as a root commit
+```
+
+So the remedy this paragraph prescribes reports success and leaves the exact
+symptom it warns about, which is worse than the plain shallow case: there,
+`is-shallow-repository` tells you. Both readings then point somewhere wrong,
+and neither looks like a clone artifact:
+
+- `git merge origin/main` → `refusing to merge unrelated histories`, and
+  `git merge-base origin/main <branch>` is empty. That reads as *`main` has
+  been rebuilt or force-pushed*, which is a much more alarming conclusion
+  than the truth and invites archaeology into a non-problem.
+- `git rev-list --count origin/main..<branch>` reports ~7,100 for **every**
+  branch, because the counted range is the branch's entire history. A sweep
+  of all branches then says every one carries thousands of unique commits —
+  which argues equally for mass PR creation and for dismissing the whole set,
+  and is the same "thousands of files" misreading one level up.
+
+The fix is to name the ref: `git fetch --unshallow origin main`. Check the
+count, never the flag. `git rev-list --count origin/main` in the hundreds or
+more is the cheap assertion; `1` means you are in this state whatever
+`is-shallow-repository` says.
+
+Note what this does *not* touch, because it is the reason the error above was
+caught rather than acted on: anything reading file **content** at a ref is
+unaffected. `git show origin/main:<path>` and `supersede_check.py` were both
+correct throughout — only history-shaped questions (merge base, commit
+counts, `git merge`) were wrong. If the two disagree, trust the content.
 
 On 2026-08-24 between 17:24 and 17:25, two sessions closed finished,
 tested features minutes apart — #1006 ("superseded by the merged eBay

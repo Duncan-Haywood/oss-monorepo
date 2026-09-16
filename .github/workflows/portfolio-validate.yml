@@ -534,9 +534,6 @@ jobs:
       - name: Usage counters honour Do Not Track and Global Privacy Control
         run: node platform/privacy/browser-signals.mjs
 
-      - name: Browser-signal checker unit tests
-        run: node --test platform/privacy/browser-signals.test.mjs
-
       # The other half of the same promise. `browser-signals.mjs` finds its
       # subjects by filename (`usage.mjs` / `usage.js`), and 11 ventures keep
       # the counter inline in the page or in `app.mjs` instead -- so the step
@@ -544,16 +541,27 @@ jobs:
       # looked at. This checks those structurally: the signal must be consulted
       # before the write, with a branch between them.
       #
-      # Named explicitly rather than globbed, matching the steps around it. That
-      # is also why these two lines exist at all: `CLAUDE.md`'s local test list
-      # already covers `platform/privacy/*.test.mjs`, so the new suite runs for
-      # a session either way, and it would have run *nowhere* in CI without
-      # being named here -- the same defect being fixed, one layer up.
       - name: Inline usage counters honour Do Not Track and Global Privacy Control
         run: node platform/privacy/inline-signals.mjs
 
-      - name: Inline-signal checker unit tests
-        run: node --test platform/privacy/inline-signals.test.mjs
+      # GLOBBED, and the comment this replaces is why. It said the suites were
+      # "named explicitly rather than globbed, matching the steps around it",
+      # and noted in the same breath that a suite not named here "would have
+      # run *nowhere* in CI -- the same defect being fixed, one layer up".
+      #
+      # That prediction came true on 2026-09-12. `optout-persistence.test.mjs`
+      # was added with a catalogue-wide assertion that all 69 ventures offering
+      # an opt-out keep it across a reload, `CLAUDE.md`'s local list covered it
+      # via `platform/privacy/*.test.mjs` so every session ran it, and CI ran
+      # it nowhere. A reviewer caught it before the merge.
+      #
+      # A hand-maintained list of filenames in a directory whose whole purpose
+      # is catching promises nobody checks will lose the next file too. The
+      # glob cannot: `checklist_coverage.py` already fails when a new test
+      # DIRECTORY appears, and this closes the same gap one level down, for
+      # files inside a directory CI already knows about.
+      - name: Privacy checker unit tests
+        run: node --test platform/privacy/*.test.mjs
 
       - name: Publish-surface unit tests
         working-directory: platform/ci

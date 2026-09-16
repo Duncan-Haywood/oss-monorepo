@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   computeProratedRent,
   computeDepositSettlement,
+  computeDepositInterest,
   formatItemizedStatement,
   STATEMENT_DISCLAIMER,
 } from "./calculator.mjs";
@@ -123,6 +124,79 @@ test("deposit settlement: negative or non-numeric input does not throw", () => {
   const result = computeDepositSettlement({ depositAmount: undefined, deductions: undefined });
   assert.equal(result.totalDeductions, 0);
   assert.equal(result.refundDue, 0);
+});
+
+// --- Deposit interest -------------------------------------------------------
+
+test("deposit interest: a full year at a stated rate is the deposit times the rate", () => {
+  const result = computeDepositInterest({ depositAmount: 1000, annualRatePercent: 2, daysHeld: 365 });
+  assert.equal(result.interestAmount, 20);
+});
+
+test("deposit interest: half a year at a stated rate is half the annual interest", () => {
+  const result = computeDepositInterest({ depositAmount: 2000, annualRatePercent: 1, daysHeld: 182.5 });
+  assert.equal(result.interestAmount, 10);
+});
+
+test("deposit interest: no rate entered is zero interest and no finding", () => {
+  const result = computeDepositInterest({ depositAmount: 1500, annualRatePercent: 0, daysHeld: 365 });
+  assert.equal(result.interestAmount, 0);
+  assert.equal(result.findings.length, 0);
+});
+
+test("deposit interest: a rate with no days held is zero interest, flagged rather than silently dropped", () => {
+  const result = computeDepositInterest({ depositAmount: 1500, annualRatePercent: 2, daysHeld: 0 });
+  assert.equal(result.interestAmount, 0);
+  assert.ok(findingIds(result).includes("interest-rate-without-days"));
+});
+
+test("deposit interest: negative or non-numeric input does not throw", () => {
+  assert.doesNotThrow(() => computeDepositInterest({ depositAmount: -100, annualRatePercent: NaN, daysHeld: undefined }));
+  const result = computeDepositInterest({});
+  assert.equal(result.interestAmount, 0);
+});
+
+test("deposit settlement: interest adds to the refund when deductions are below the deposit", () => {
+  const interest = computeDepositInterest({ depositAmount: 1000, annualRatePercent: 2, daysHeld: 365 });
+  const result = computeDepositSettlement({
+    depositAmount: 1000,
+    deductions: [{ description: "cleaning", amount: 100 }],
+    depositInterest: interest.interestAmount,
+  });
+  assert.equal(result.depositInterest, 20);
+  assert.equal(result.refundDue, 920);
+});
+
+test("deposit settlement: interest can turn a balance owed into a smaller balance or a refund", () => {
+  const result = computeDepositSettlement({
+    depositAmount: 500,
+    deductions: [{ description: "carpet replacement", amount: 520 }],
+    depositInterest: 30,
+  });
+  assert.equal(result.balanceOwed, 0);
+  assert.equal(result.refundDue, 10);
+});
+
+test("deposit settlement: with no interest entered, behaviour is unchanged from before interest existed", () => {
+  const result = computeDepositSettlement({ depositAmount: 1500, deductions: [{ description: "cleaning", amount: 200 }] });
+  assert.equal(result.depositInterest, 0);
+  assert.equal(result.refundDue, 1300);
+});
+
+test("statement: an entered interest amount is credited on its own line before the total", () => {
+  const settlement = computeDepositSettlement({
+    depositAmount: 1000,
+    deductions: [{ description: "cleaning", amount: 100 }],
+    depositInterest: 20,
+  });
+  const text = formatItemizedStatement(settlement, { depositAmount: 1000 });
+  assert.match(text, /Interest credited: \$20\.00/);
+  assert.match(text, /Refund due: \$920\.00/);
+});
+
+test("statement: no interest entered omits the interest line entirely", () => {
+  const text = statementFor(1500, [{ description: "cleaning", amount: 200 }]);
+  assert.doesNotMatch(text, /Interest credited/);
 });
 
 test("deposit settlement: rounds to the cent rather than accumulating float drift", () => {
