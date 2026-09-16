@@ -125,6 +125,11 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mistaken for. The page's own FAQ says so explicitly ("has no data on
   // what any other studio charges").
   'photo-addon-pricing-calculator/vs-pricing-by-comparing-to-other-studios.html',
+  // Compares against "reading the resistor color code by eye" -- a manual
+  // reading method every user of this calculator already has access to,
+  // not a company or product this could be mistaken for. Same reasoning as
+  // the other manual-method pages above.
+  'ai-engineering-academy/resistor-calculator/vs-reading-the-color-code-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
