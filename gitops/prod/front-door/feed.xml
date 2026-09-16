@@ -71,6 +71,15 @@
     <summary type="text">Free calculator for independent wedding and event photographers: find real net profit for one package add-on -- an extra hour, a second shooter, an album upgrade, an engagement session -- after your own shoot/cull/edit time, gear wear, and any subcontractor or physical-goods cost, then compare two or three add-ons by effective hourly rate.</summary>
   </entry>
   <entry>
+    <title>SBOM Diff Check — What Changed Between Two CycloneDX or SPDX Builds?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sbom-diff-check/"/>
+    <id>tag:marisstella.dev,2026:tool/sbom-diff-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste two CycloneDX or SPDX SBOM JSON files and see exactly which packages were added, removed, or changed version between two builds. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>security.txt Checker — Is Your RFC 9116 File Valid, or Expired?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/security-txt-check/"/>
     <id>tag:marisstella.dev,2026:tool/security-txt-check</id>
