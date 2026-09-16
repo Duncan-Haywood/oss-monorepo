@@ -31221,3 +31221,73 @@ entries:
         score_ventures.py --check clean (285 ventures). No payment code
         introduced.
     mrr_end: 0
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continued the comparison-page backlog with the PR queue empty
+        (checked and confirmed via `list_pull_requests`). The venture-level
+        scan (`ventures/*/index.html` and `ventures/*/site/index.html`
+        against `vs-*.html`) found 11 ventures apparently lacking one, but
+        10 of those are Next.js apps, a Python package, a Swift watch app,
+        or explicitly `NOT-A-VENTURE` -- not the static-page shape a
+        comparison page fits. The 11th, `ai-engineering-academy`, turned
+        out to already have one at the hub level
+        (`tools/vs-omni-calculator.html`) that the scan's directory-only
+        check missed because it lives under `tools/`, not the venture
+        root or `site/` -- so the real gap was per-tool, not per-venture:
+        none of its six electronics calculators had one. Shipped
+        `tools/resistor-calculator/vs-reading-the-color-code-by-eye.html`,
+        comparing the calculator against manually reading resistor color
+        bands (a generic method, not a competitor -- added a
+        `COMPARISON_DISCLAIMER_EXEMPT` entry in `platform/pages/clauses.mjs`
+        rather than a not-affiliated clause for a party that doesn't
+        exist). Linked from the calculator's `index.html` footer (which
+        also fixed a pre-existing dead `../LICENSE` link in that same
+        footer -- the file is one level up from where that href pointed),
+        with a dedicated `vs-reading-the-color-code-by-eye.test.mjs`
+        modelled on the venture's own `vs-omni-calculator.test.mjs`
+        pattern (disclaimer, canonical tag, FAQPage schema matching visible
+        `<h3>`s verbatim, not-orphaned). Also caught and fixed a same-file
+        drift while writing it: the FAQPage JSON-LD used `+/-` but the
+        visible copy under the matching `<h3>` used the `&plusmn;` HTML
+        entity for the same figures -- would have failed a strict
+        verbatim check and is the exact JSON-LD/visible-copy mismatch
+        class CLAUDE.md already records costing live product.
+      - >-
+        Also found and stopped a duplicate of my own effort mid-run: this
+        session began a full `browser_checks.py --record` sweep (all 8
+        whole-catalogue checks were STALE per `browser_state.py`, having
+        been invalidated by this same session's own earlier comparison-page
+        merges), but a concurrent session merged #4733 recording that exact
+        sweep at a newer commit (`b40b67bf`) while mine was still running.
+        Stopped the redundant run rather than letting it finish and
+        clobbering or conflicting with the fresher recording -- the
+        `session_gate.py` collision warning (3 distinct sessions within a
+        15-minute window) was live and correct.
+      - >-
+        Verified: venture's own suite 34/34 (up from 26, all pre-existing
+        calc/usage tests plus 8 new); full `platform/pages` suite 998/998
+        (includes the orphan/reachability and sitemap-consistency checks);
+        `platform/marketing` 262/262; `platform/proposal` 243 combined with
+        `platform/privacy`+`platform/webcheck`; a fresh
+        `node platform/pages/build.mjs` + `node platform/pages/check.mjs
+        dist` by hand confirmed "275 products, 1062 pages, no dead links"
+        (an earlier `run_workflow_locally.py --tree` run had flagged the
+        new page as unreachable, but that sweep had started before the
+        footer link was added and was reading the working tree mid-edit --
+        stopped it and re-verified clean rather than trusting a stale
+        in-flight read); `gitops/tests` 581 passed/1 skipped;
+        `platform/ci`'s 25-module unittest sweep + `agent_review` 21/21;
+        `portfolio/{ledger,scoring,router,usage,pipeline}`+`infra/tests`
+        446 passed; all 8 `portfolio-validate.yml` validators
+        (`router/validate.py`, `front-door-tools.mjs --headroom`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_probe_index.py`, `score_sensitivity.py`,
+        `score_ventures.py --check`, `validate_usage.py`) individually
+        clean on the finished diff. `node platform/marketing/regen.mjs`
+        run and its rewrites (a new mirror shard, refreshed
+        `resistor-calculator__index.html.gz`, `catalog.json.gz`,
+        `sitemap.xml`, `kustomization.yaml`) committed alongside.
+    mrr_end: 0
