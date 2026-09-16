@@ -166,6 +166,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // and reviewer already has access to, not a company or product this could
   // be mistaken for. Same reasoning as the other manual-method pages above.
   'agent-instructions-drift-check/vs-checking-it-by-hand.html',
+  // Compares against "a spreadsheet" -- a generic method every backflow
+  // tester already has, not a company or product this could be mistaken
+  // for. The page's own footer says so explicitly ("names no specific
+  // product"). Same reasoning as the other vs-spreadsheet pages above.
+  'backflow-test-fee-calculator/vs-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
