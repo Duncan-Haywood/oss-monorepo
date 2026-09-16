@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Overtime Pay Calculator — Blended Rate for Two Pay Rates, Free</title>
+  <meta name="description" content="Free overtime pay calculator: standard time-and-a-half for one hourly rate, plus the FLSA weighted-average (blended rate) calculator for a week worked at two or more different pay rates. Entirely client-side, nothing uploaded.">
+  <meta property="og:title" content="Overtime Pay Calculator — blended rate for two pay rates, free">
+  <meta property="og:description" content="Standard overtime pay for one hourly rate, plus the FLSA weighted-average method for a week worked at two or more different rates. Entirely client-side.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Overtime Pay Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Calculates standard time-and-a-half overtime pay from one hourly rate and hours worked, and the FLSA weighted-average (blended rate) overtime for a workweek where an employee worked at two or more different hourly rates -- the regular rate used for the overtime premium in that case is total straight-time pay divided by total hours, not any single rate entered. Copies the blended-rate breakdown as a plain-text record. Entirely client-side; nothing is uploaded.","featureList":"Standard single-rate overtime pay, FLSA weighted-average blended-rate overtime for multiple pay rates in one workweek, configurable overtime threshold and multiplier, copy a plain-text breakdown"}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you calculate overtime pay with one hourly rate?","acceptedAnswer":{"@type":"Answer","text":"Pay the hours up to the overtime threshold (40 hours a week under federal FLSA rules) at the regular rate, and pay the hours past the threshold at the overtime rate — the regular rate times the overtime multiplier, 1.5x by default (\"time and a half\")."}},{"@type":"Question","name":"How do you calculate overtime when an employee worked at two different pay rates in the same week?","acceptedAnswer":{"@type":"Answer","text":"Under the federal FLSA weighted-average method (29 CFR 778.115), the regular rate for that week is total straight-time earnings divided by total hours worked — not either rate on its own, and not a simple average of the two rates. The overtime premium is half that blended rate for each hour worked past the threshold, because straight-time pay for every hour, including the overtime hours, is already counted once in the straight-time total."}},{"@type":"Question","name":"Why is the overtime premium only half the blended rate, not 1.5 times it?","acceptedAnswer":{"@type":"Answer","text":"Because straight-time pay for every hour worked — including the hours past the overtime threshold — is already included once in the total straight-time pay. Adding the full 1.5x rate for those hours would double-count the first 1x. Adding only the extra 0.5x (the \"half-time premium\") brings each overtime hour up to time-and-a-half in total."}},{"@type":"Question","name":"Does this apply in every state?","acceptedAnswer":{"@type":"Answer","text":"This calculator applies the federal FLSA rules: a 40-hour weekly threshold and a 1.5x multiplier by default. Several states require more — daily overtime past a set number of hours in a single day, a double-time threshold, or a higher minimum multiplier — and nondiscretionary bonuses or shift differentials can also change the regular rate. Check your state's rules and your specific pay policy before relying on the total."}},{"@type":"Question","name":"Is this legal or payroll advice?","acceptedAnswer":{"@type":"Answer","text":"No. This calculator only applies the arithmetic you configure (threshold and multiplier) to the hours and rates you enter — it does not know your state's overtime rules, your bonus structure, or your specific pay policy, and it is not a substitute for reviewing those or consulting a qualified professional."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #1f4a5d; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4c5a68; }
+    .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #adc3cc; border-radius: 7px; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1.5; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a6b8e; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e4edf1; color: #1f4a5d; }
+    button.small { padding: 6px 10px; font-size: .85rem; margin: 4px 0 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+    .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
+    .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3e9ef; color: #1f4a5d; }
+    .stats { font-size: .85rem; color: #4c5a68; margin-bottom: 10px; }
+    .error { color: #9a3412; font-weight: 600; }
+    .rate-row { display: grid; grid-template-columns: 1fr 110px 110px auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+    @media (max-width: 480px) {
+      .rate-row { grid-template-columns: 1fr 1fr; grid-template-areas: "label label" "hours rate" "remove remove"; }
+      .rate-row .rate-label { grid-area: label; }
+      .rate-row .rate-hours { grid-area: hours; }
+      .rate-row .rate-rate { grid-area: rate; }
+      .rate-row .remove-rate { grid-area: remove; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">OVERTIME PAY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What's the overtime pay — and what if there were two rates?</h1>
+    <p>Two calculators for the arithmetic a payroll week raises: standard
+    time-and-a-half overtime for one hourly rate, and the FLSA
+    <strong>weighted-average (blended rate)</strong> method for a workweek
+    where someone worked at two or more different hourly rates — the case
+    people get wrong by hand, because the regular rate used for the overtime
+    premium is neither rate on its own. Both run entirely in this browser.</p>
+    <p class="note">Nothing is uploaded. Your numbers are read in this
+    browser and never leave your device — see the privacy note in the
+    footer.</p>
+  </header>
+
+  <section class="card">
+    <h2>Standard overtime (one pay rate)</h2>
+    <div class="grid">
+      <div>
+        <label for="single-rate">Hourly rate ($)</label>
+        <input type="number" id="single-rate" min="0" step="0.01" placeholder="e.g. 20">
+      </div>
+      <div>
+        <label for="single-hours">Hours worked this week</label>
+        <input type="number" id="single-hours" min="0" step="0.25" placeholder="e.g. 45">
+      </div>
+      <div>
+        <label for="single-threshold">Overtime threshold (hours)</label>
+        <input type="number" id="single-threshold" min="1" step="1" value="40">
+      </div>
+      <div>
+        <label for="single-multiplier">Overtime multiplier</label>
+        <input type="number" id="single-multiplier" min="1" step="0.1" value="1.5">
+      </div>
+    </div>
+    <p>
+      <button type="button" id="calculate-single">Calculate</button>
+      <button type="button" class="secondary" id="load-single-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-single">Clear</button>
+    </p>
+    <p class="note" id="single-status">Enter the hourly rate and hours worked, then click Calculate.</p>
+  </section>
+
+  <section class="card" id="single-report" aria-live="polite" hidden>
+    <h2>Standard overtime result</h2>
+    <p class="stats" id="single-stats"></p>
+    <div id="single-findings"></div>
+  </section>
+
+  <section class="card">
+    <h2>Blended rate overtime (two or more pay rates in one week)</h2>
+    <p class="note">Add a row for each distinct hourly rate this employee was
+    paid this workweek, with the hours worked at that rate — for example a
+    warehouse shift at one rate and a front-desk shift at another, or a
+    shift-differential premium tracked as a separate rate.</p>
+    <div id="rate-rows"></div>
+    <p><button type="button" class="secondary small" id="add-rate">+ Add rate</button></p>
+    <div class="grid">
+      <div>
+        <label for="blended-threshold">Overtime threshold (hours)</label>
+        <input type="number" id="blended-threshold" min="1" step="1" value="40">
+      </div>
+    </div>
+    <p>
+      <button type="button" id="calculate-blended">Calculate blended rate</button>
+      <button type="button" class="secondary" id="load-blended-example">Load an example</button>
+      <button type="button" class="secondary" id="clear-blended">Clear</button>
+    </p>
+    <p class="note" id="blended-status">Add each pay rate and its hours, then click Calculate blended rate.</p>
+  </section>
+
+  <section class="card" id="blended-report" aria-live="polite" hidden>
+    <h2>Blended rate result</h2>
+    <p class="stats" id="blended-stats"></p>
+    <table>
+      <thead><tr><th>Pay rate</th><th>Hours</th><th>Rate</th><th>Pay</th></tr></thead>
+      <tbody id="blended-body"></tbody>
+    </table>
+    <div id="blended-findings"></div>
+    <button type="button" id="copy-breakdown">Copy breakdown</button>
+    <p class="note" id="copy-breakdown-status">Copies every pay rate and its hours, the blended regular rate, the overtime premium, and the total as plain text to paste into a payroll record or a pay question. The &ldquo;arithmetic only&rdquo; note is copied with it.</p>
+    <div id="breakdown-fallback" hidden>
+      <label class="note" for="breakdown-text">Select and copy the breakdown:</label>
+      <textarea id="breakdown-text" rows="12" readonly></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What this does and doesn't do</h2>
+    <p>Both calculators apply the federal FLSA overtime formulas to the
+    numbers you enter. Neither one knows your state's daily-overtime rule, a
+    double-time threshold, your nondiscretionary bonus structure, or your
+    specific pay policy — those can all change the regular rate or the
+    threshold under FLSA and state law. Treat the output as the arithmetic
+    behind your own payroll record or pay question, not a legal
+    determination of what is owed.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do you calculate overtime pay with one hourly rate?</h3>
+    <p>Pay the hours up to the overtime threshold (40 hours a week under federal FLSA rules) at the regular rate, and pay the hours past the threshold at the overtime rate — the regular rate times the overtime multiplier, 1.5x by default ("time and a half").</p>
+    <h3>How do you calculate overtime when an employee worked at two different pay rates in the same week?</h3>
+    <p>Under the federal FLSA weighted-average method (29 CFR 778.115), the regular rate for that week is total straight-time earnings divided by total hours worked — not either rate on its own, and not a simple average of the two rates. The overtime premium is half that blended rate for each hour worked past the threshold, because straight-time pay for every hour, including the overtime hours, is already counted once in the straight-time total.</p>
+    <h3>Why is the overtime premium only half the blended rate, not 1.5 times it?</h3>
+    <p>Because straight-time pay for every hour worked — including the hours past the overtime threshold — is already included once in the total straight-time pay. Adding the full 1.5x rate for those hours would double-count the first 1x. Adding only the extra 0.5x (the "half-time premium") brings each overtime hour up to time-and-a-half in total.</p>
+    <h3>Does this apply in every state?</h3>
+    <p>This calculator applies the federal FLSA rules: a 40-hour weekly threshold and a 1.5x multiplier by default. Several states require more — daily overtime past a set number of hours in a single day, a double-time threshold, or a higher minimum multiplier — and nondiscretionary bonuses or shift differentials can also change the regular rate. Check your state's rules and your specific pay policy before relying on the total.</p>
+    <h3>Is this legal or payroll advice?</h3>
+    <p>No. This calculator only applies the arithmetic you configure (threshold and multiplier) to the hours and rates you enter — it does not know your state's overtime rules, your bonus structure, or your specific pay policy, and it is not a substitute for reviewing those or consulting a qualified professional.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking your state's overtime rules and your own pay policy. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>overtime_calculated</code>, <code>blended_calculated</code>, <code>breakdown_copied</code>, <code>example_loaded</code>) are counted only in local storage on your device. Copying the breakdown puts it on your clipboard and nowhere else — the text is built in this browser and is never sent anywhere. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Working a Davis-Bacon prevailing-wage job instead? The <a href="../certified-payroll-calculator/">certified payroll calculator</a> checks required vs. actual hourly compensation and correct overtime pay for one classification, one week, against a wage determination you already looked up.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { computeSingleRateOvertime, computeWeightedAverageOvertime, formatWeightedBreakdown } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+
+    function money(n) {
+      const format = (v) => `$${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const value = Number(n) || 0;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    }
+
+    function renderFindings(container, findings) {
+      if (findings.length === 0) {
+        container.innerHTML = "";
+        return;
+      }
+      container.innerHTML = findings.map((f) => `
+        <div class="finding">
+          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <p>${f.detail}</p>
+        </div>`).join("");
+    }
+
+    // --- Standard single-rate overtime ---
+
+    const singleEls = {
+      rate: $("#single-rate"), hours: $("#single-hours"), threshold: $("#single-threshold"), multiplier: $("#single-multiplier"),
+      status: $("#single-status"), report: $("#single-report"), stats: $("#single-stats"), findings: $("#single-findings"),
+    };
+
+    function runSingleCalculate() {
+      const result = computeSingleRateOvertime({
+        hourlyRate: Number(singleEls.rate.value),
+        hoursWorked: Number(singleEls.hours.value),
+        overtimeThresholdHours: Number(singleEls.threshold.value) || 40,
+        overtimeMultiplier: Number(singleEls.multiplier.value) || 1.5,
+      });
+      singleEls.stats.innerHTML = `${result.regularHours} regular hour(s) + ${result.overtimeHours} overtime hour(s) @ ${money(result.overtimeRate)}/hr. <strong>Total pay: <span class="price">${money(result.totalPay)}</span></strong>`;
+      renderFindings(singleEls.findings, result.findings);
+      singleEls.report.hidden = false;
+      singleEls.status.textContent = "";
+      record("overtime_calculated");
+      singleEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    $("#calculate-single").addEventListener("click", () => {
+      if (!singleEls.rate.value || !singleEls.hours.value) {
+        singleEls.status.innerHTML = `<span class="error">Enter the hourly rate and hours worked above first.</span>`;
+        return;
+      }
+      runSingleCalculate();
+    });
+
+    $("#load-single-example").addEventListener("click", () => {
+      singleEls.rate.value = "20";
+      singleEls.hours.value = "45";
+      singleEls.threshold.value = "40";
+      singleEls.multiplier.value = "1.5";
+      runSingleCalculate();
+      record("example_loaded");
+      singleEls.status.textContent = "Worked example: $20/hr for 45 hours in a week.";
+    });
+
+    $("#clear-single").addEventListener("click", () => {
+      singleEls.rate.value = "";
+      singleEls.hours.value = "";
+      singleEls.threshold.value = "40";
+      singleEls.multiplier.value = "1.5";
+      singleEls.report.hidden = true;
+      singleEls.status.textContent = "Enter the hourly rate and hours worked, then click Calculate.";
+    });
+
+    // --- Blended (weighted-average) overtime ---
+
+    const blendedEls = {
+      rows: $("#rate-rows"), threshold: $("#blended-threshold"),
+      status: $("#blended-status"), report: $("#blended-report"), stats: $("#blended-stats"),
+      body: $("#blended-body"), findings: $("#blended-findings"),
+      copyStatus: $("#copy-breakdown-status"), fallback: $("#breakdown-fallback"), textarea: $("#breakdown-text"),
+    };
+
+    // Held from the last calculate so the copy button can never hand out a
+    // breakdown that disagrees with the table above it -- the same reasoning
+    // CLAUDE.md records against share.mjs's own field allowlist.
+    let lastResult = null;
+
+    function addRateRow(label = "", hours = "", rate = "") {
+      const row = document.createElement("div");
+      row.className = "rate-row";
+      row.innerHTML = `
+        <input type="text" class="rate-label" placeholder="e.g. warehouse shift" value="${label}">
+        <input type="number" class="rate-hours" min="0" step="0.25" placeholder="Hours" value="${hours}">
+        <input type="number" class="rate-rate" min="0" step="0.01" placeholder="Rate ($)" value="${rate}">
+        <button type="button" class="secondary small remove-rate">Remove</button>`;
+      row.querySelector(".remove-rate").addEventListener("click", () => row.remove());
+      blendedEls.rows.appendChild(row);
+    }
+
+    function readRateRows() {
+      return [...blendedEls.rows.querySelectorAll(".rate-row")].map((row) => ({
+        label: row.querySelector(".rate-label").value,
+        hours: Number(row.querySelector(".rate-hours").value),
+        rate: Number(row.querySelector(".rate-rate").value),
+      }));
+    }
+
+    function runBlendedCalculate() {
+      const entries = readRateRows();
+      const result = computeWeightedAverageOvertime({
+        entries,
+        overtimeThresholdHours: Number(blendedEls.threshold.value) || 40,
+      });
+
+      blendedEls.body.innerHTML = result.lineItems
+        .map((e) => `<tr><td>${e.label}</td><td>${e.hours}</td><td>${money(e.rate)}</td><td>${money(e.pay)}</td></tr>`)
+        .join("");
+      blendedEls.stats.innerHTML = `${result.totalHours} total hour(s), blended rate ${money(result.weightedAverageRate)}/hr, ${result.overtimeHours} overtime hour(s) @ ${money(result.overtimePremiumPerHour)}/hr premium. <strong>Total pay: <span class="price">${money(result.totalPay)}</span></strong>`;
+      renderFindings(blendedEls.findings, result.findings);
+      lastResult = result;
+      blendedEls.fallback.hidden = true;
+      blendedEls.copyStatus.textContent = COPY_HINT;
+      blendedEls.report.hidden = false;
+      blendedEls.status.textContent = "";
+      record("blended_calculated");
+      blendedEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    const COPY_HINT = "Copies every pay rate and its hours, the blended regular rate, the overtime premium, and the total as plain text to paste into a payroll record or a pay question. The “arithmetic only” note is copied with it.";
+
+    $("#copy-breakdown").addEventListener("click", async () => {
+      if (!lastResult) {
+        blendedEls.copyStatus.innerHTML = `<span class="error">Calculate the blended rate first, then copy the breakdown.</span>`;
+        return;
+      }
+      const text = formatWeightedBreakdown(lastResult);
+      blendedEls.textarea.value = text;
+      try {
+        // Absent over plain http, in some embedded webviews, and whenever the
+        // permission is refused -- so the textarea below is the route that
+        // always works, not a nicety.
+        await navigator.clipboard.writeText(text);
+        blendedEls.fallback.hidden = true;
+        blendedEls.copyStatus.textContent = "Breakdown copied. Paste it into your payroll record or a message — read it once before sending.";
+      } catch {
+        blendedEls.fallback.hidden = false;
+        blendedEls.copyStatus.textContent = "This browser blocked the clipboard. The breakdown is in the box below — select it and copy.";
+        blendedEls.textarea.focus();
+        blendedEls.textarea.select();
+      }
+      record("breakdown_copied");
+    });
+
+    $("#add-rate").addEventListener("click", () => addRateRow());
+
+    $("#calculate-blended").addEventListener("click", () => {
+      const entries = readRateRows().filter((e) => e.hours > 0 && e.rate > 0);
+      if (entries.length === 0) {
+        blendedEls.status.innerHTML = `<span class="error">Add at least one rate with hours and a rate above first.</span>`;
+        return;
+      }
+      runBlendedCalculate();
+    });
+
+    $("#load-blended-example").addEventListener("click", () => {
+      blendedEls.rows.innerHTML = "";
+      addRateRow("Warehouse shift", "30", "20");
+      addRateRow("Front desk shift", "15", "15");
+      blendedEls.threshold.value = "40";
+      runBlendedCalculate();
+      record("example_loaded");
+      blendedEls.status.textContent = "Worked example: 30 hours at $20/hr plus 15 hours at $15/hr in the same week.";
+    });
+
+    $("#clear-blended").addEventListener("click", () => {
+      blendedEls.rows.innerHTML = "";
+      blendedEls.threshold.value = "40";
+      blendedEls.report.hidden = true;
+      // Drop the held result with the inputs that produced it, so a copy
+      // after a clear cannot hand out the cleared row's figures.
+      lastResult = null;
+      blendedEls.fallback.hidden = true;
+      blendedEls.textarea.value = "";
+      blendedEls.copyStatus.textContent = COPY_HINT;
+      blendedEls.status.textContent = "Add each pay rate and its hours, then click Calculate blended rate.";
+      addRateRow();
+      addRateRow();
+    });
+
+    addRateRow();
+    addRateRow();
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

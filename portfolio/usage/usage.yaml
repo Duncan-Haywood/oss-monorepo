@@ -6262,3 +6262,29 @@ products:
           page) sees repeat use from a document-library batch scan, which
           is this venture's actual differentiation against five established
           upload-required, single-file competitors.
+  - slug: overtime-pay-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          overtime_calculated: 0
+          blended_calculated: 0
+          breakdown_copied: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit.
+          `live_url_visitors` is null, not zero: GitHub Pages exposes no
+          server-side analytics, this portfolio adds no third-party one, and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet, not measured-and-zero. Two calculators ship in one
+          page: standard single-rate overtime, and the FLSA weighted-average
+          (blended rate) method for a workweek worked at two or more pay
+          rates -- the reading worth watching is `blended_calculated`
+          against `overtime_calculated`, since the blended case is the
+          actual differentiator (a single-rate overtime calculation is
+          simple enough to not need a tool) and `breakdown_copied` against
+          `blended_calculated` shows whether a visitor took the result
+          somewhere else, the same ratio security-deposit-return-calculator
+          watches for its own statement copy.

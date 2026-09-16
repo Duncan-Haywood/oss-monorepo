@@ -620,6 +620,9 @@ workflows:
 - workflow: outage-triage.yml
   classification: none
   publishes: []
+- workflow: overtime-pay-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: owner-operator-cpm-calculator-ci.yml
   classification: none
   publishes: []
