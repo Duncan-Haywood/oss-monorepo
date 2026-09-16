@@ -102,6 +102,11 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // adjuster already has, not a company or product this could be mistaken
   // for.
   'cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html',
+  // Compares against reconciling a 1099-K by hand in a spreadsheet -- a
+  // method every marketplace seller already has, not a company or product
+  // this could be mistaken for. Same reasoning as the cat-adjuster page
+  // above.
+  '1099k-reconciliation-worksheet/vs-spreadsheet-comparison.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
