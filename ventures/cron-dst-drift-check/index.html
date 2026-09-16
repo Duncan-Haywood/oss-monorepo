@@ -142,7 +142,7 @@ node cli.mjs drift 09:00 --tz America/New_York --year 2027 --json</pre>
         <tr><td>Fixed-UTC-cron drift</td><td>A target local time is converted to UTC once per DST segment of the year; more than one distinct UTC clock time means a single fixed-UTC schedule cannot hold the local time steady</td></tr>
       </tbody>
     </table>
-    <p class="note">Numeric cron fields only in v0 — no named months or weekdays (<code>JAN</code>, <code>MON</code>). Day-of-month and day-of-week follow the standard cron rule: when <em>both</em> are restricted (neither is <code>*</code>), a date matches either one, not both — the single most common cron misreading. See <a href="why-cron-jobs-break-across-dst.html">why this happens, and this checker's own named limits</a>.</p>
+    <p class="note">Numeric cron fields only in v0 — no named months or weekdays (<code>JAN</code>, <code>MON</code>). Day-of-month and day-of-week follow the standard cron rule: when <em>both</em> are restricted (neither is <code>*</code>), a date matches either one, not both — the single most common cron misreading. See <a href="why-cron-jobs-break-across-dst.html">why this happens, and this checker's own named limits</a>, or <a href="vs-checking-a-dst-calendar-by-hand.html">how this compares to just checking a DST calendar by hand</a>.</p>
   </section>
 
   <section class="card">

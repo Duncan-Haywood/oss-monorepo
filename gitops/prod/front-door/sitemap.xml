@@ -913,6 +913,9 @@
     <loc>https://marisstella.dev/tools/cron-dst-drift-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/cron-dst-drift-check/vs-checking-a-dst-calendar-by-hand.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/cron-dst-drift-check/why-cron-jobs-break-across-dst.html</loc>
   </url>
   <url>
