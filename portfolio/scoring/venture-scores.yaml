@@ -12225,3 +12225,58 @@ ventures:
       there is no direction in which the tool profits from over- or
       under-reporting, and the heuristic limitations are disclosed in the
       product's own FAQ rather than hidden.
+
+  - slug: hoa-reserve-fund-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The reserve-fund projection --
+      interest, contribution, cyclical per-component replacement at an
+      inflated cost, and the standard percent-funded metric -- is decided
+      entirely by the numbers the board types in, not a model judgment.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's scoring
+      process; full write-up at
+      portfolio/pipeline/candidates/hoa-reserve-fund-calculator.md.
+      Distinct from cash-runway-planner (general small-business operating
+      cash, no component-based capital schedule) and
+      retainage-cashflow-calculator (construction retainage on a project,
+      not a recurring association reserve fund) -- confirmed against the
+      full ventures/ list and screened-out.md, neither of which names
+      "hoa", "reserve", "condo", or "assessment" anywhere.
+      Autonomous ops 10 / gross margin 10: the page runs entirely
+      client-side with no upload, so serving one more user costs a static
+      file and needs no human review of output.
+      Distribution 7: post-Surfside state reserve-study mandates (Florida
+      SB 4-D / SIRS most prominent, others following) drive current,
+      dated search volume for "HOA reserve fund calculator" and "special
+      assessment calculator" -- a board with a compliance deadline has a
+      concrete reason to search this exact phrase now, not a generic one.
+      Time to revenue 7, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable, same as the
+      portfolio's typical checker floor), so the edge is being first and
+      narrow in this specific niche rather than a moat in the code.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool is scoped strictly to financial funding-schedule
+      planning for ordinary capital components -- it does not perform or
+      claim to perform the structural/life-safety inspection that
+      state-mandated reserve studies (e.g. Florida SB 4-D / SIRS) require,
+      and both the FAQ and footer disclaimer say so by name, directing the
+      board to a licensed reserve specialist for the mandated study rather
+      than implying this tool substitutes for one. Ethically: donations-only
+      with no per-use fee, so there is no direction in which the tool
+      profits from steering a board's contribution estimate one way or the
+      other, and the "percent funded" methodology is disclosed in the FAQ
+      rather than presented as a black box.
