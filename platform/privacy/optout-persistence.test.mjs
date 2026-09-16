@@ -90,7 +90,16 @@ const RELATIVE_SELF = relative(
 // own `setUsageOptOut`/`usageOptedOut` switch (opts out of the
 // `schedule_checked`/`drift_checked`/`example_loaded` counters), same
 // discovery method as the rest of this running count.
-const SWITCHES_IN_THE_CATALOGUE = 265;
+// 265 -> 266 on 2026-09-16, when `bridal-hair-makeup-pricing-calculator`
+// graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` uses), same discovery method as the rest of
+// this running count. Recorded a run late: #4766 and #4758 were open at the
+// same time and each raised the constant by one against a base where the
+// other had not landed, so the pair of graduations only moved it once. The
+// count is a property of the tree, not of either diff -- which is why this
+// check reads the catalogue and does not trust the number, and why the fix
+// is one line here rather than anything in either venture.
+const SWITCHES_IN_THE_CATALOGUE = 266;
 
 let counter = 0;
 function fixture(source) {
