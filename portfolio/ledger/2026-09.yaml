@@ -31291,3 +31291,106 @@ entries:
         `resistor-calculator__index.html.gz`, `catalog.json.gz`,
         `sitemap.xml`, `kustomization.yaml`) committed alongside.
     mrr_end: 0
+  - venture: marketplace-fee-compare
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR queue was empty on arrival (confirmed twice, `list_pull_requests`
+        and a `is:pr is:open` search, both zero), so the mandate's three-PR
+        merge quota was satisfied by an empty repairable queue rather than by
+        merges. Went to the deployment priority instead.
+      - >-
+        Deployment: `pages_state.py` opened the session reporting the
+        `gh-pages` snapshot STALE (built from `2bb0c80a` while `main` was at
+        `da615001`, 4 changed files feeding the build), and
+        `run_workflow_locally.py --tree` confirmed `pages-freshness` was the
+        only red workflow on `main`. A concurrent session published while my
+        verification sweep was still running, and the snapshot read `current`
+        at the tip by the time I would have pushed -- so I did NOT re-publish.
+        Re-running `publish-branch.sh` from my older checkout is exactly the
+        "publishing backwards" race CLAUDE.md records from 2026-09-06, which
+        took a just-shipped venture off the live site. Recording the
+        near-miss because the correct action here was to do nothing.
+      - >-
+        Measured, not inherited: IndexNow is still announcing nothing. The
+        sandbox egress 403s `api.indexnow.org` at CONNECT (`curl: (56) CONNECT
+        tunnel failed`), and all 10 most recent `publish-pages-branch.yml`
+        runs came back starved. Both announce routes remain unavailable to an
+        agent session, so 1000+ published URLs are still announced to nobody.
+        No new owner ask added -- `infra_state.yaml` already carries it.
+        Likewise did not re-measure `codex-host-mode`: a session earlier the
+        same day had already re-run it clean (56/56) on this identical owner
+        ask, and the blocker is unchanged
+        (`hetzner-ssh-key-is-a-public-key`).
+      - >-
+        Shipped: the comparison page had three routes out into its deep
+        calculators and only one of them carried the reader's item.
+        `handoff.mjs` was written precisely to stop this page dumping a
+        seller into an empty form -- its own header comment says so -- but the
+        fix reached only the ranked "continue with these numbers" list. The
+        "not included here" caveat beside each of the six ranked channels,
+        and the pointers to the three deliberately-excluded channels (Faire,
+        Whatnot, Reverb), still rendered a bare `../<slug>/` and dropped
+        price, postage, cost of goods and packaging. The caveat link is the
+        one attached to the reason a reader most likely wants the deep tool,
+        so the highest-intent exit was the lossiest. Both lists now build
+        their href from the handoff table, rebuilt per render rather than once
+        at load (a link built before the first paint can only hold the page's
+        defaults), and following one is counted as a new `pointer_followed`
+        event -- distinct from `handoff_followed` so the existing series stays
+        continuous, and carrying no slug, matching the privacy rule the
+        handoff counter already set.
+      - >-
+        Faire is deliberately left bare, recorded as data in `NO_ITEM_HANDOFF`
+        rather than as a comment so the omission reads as a decision: it is
+        wholesale, so this page's retail `price` and its `unitWholesale` are
+        not the same quantity, and carrying one over would land a plausible
+        wrong number in the field the whole calculation turns on. The
+        module's own rule is that such a link is worse than a bare one.
+      - >-
+        Trap found and recorded in place, because it cost real product and
+        would have cost it again. A comment I wrote inside the page's
+        `<script>` illustrated the failure case by spelling out a literal href
+        attribute. `front-door-tools.mjs` scans script bodies with one regex
+        and judges any href carrying no `${` as a real path -- it does not
+        strip comments, because it reads the body as text rather than as a
+        parsed program. So the illustration became a dead link, the
+        eligibility fixpoint dropped `marketplace-fee-compare` from the apex
+        mirror, and the cascade then dropped `where-to-sell-calculator` and
+        `whatnot-seller-payout` -- while the build error named only the
+        collateral and never the page that caused it. I hit it twice: the
+        reworded comment explaining the trap contained the same pattern. The
+        warning now lives in that comment, phrased so it cannot re-trigger
+        itself.
+      - >-
+        Verified: venture suite 120/120 (was 118, plus 11 new handoff
+        assertions and 2 new page-structure ones); every new guard
+        negative-tested by breaking the Whatnot mapping and confirming 3 of
+        them fail, rather than trusting a green run over new assertions;
+        `platform/marketing`+`platform/pages` 1260/1260;
+        `platform/privacy`+`platform/webcheck` 142/142 with 0 skipped (clone
+        unshallowed first, so the two history-pinned page-integrity tests
+        actually ran); `platform/proposal` 101/101; `gitops/tests` 581
+        passed/1 skipped via `python3 -m pytest` (the spelling CLAUDE.md
+        pins -- bare `pytest` on PATH here is a `uv` shim without the repo's
+        deps); `platform/ci`'s unittest sweep all OK plus `agent_review` OK;
+        `portfolio/{ledger,scoring,router,usage,pipeline}`+`infra/tests` 446
+        passed. `regen.mjs` re-run and its three rewrites committed
+        (`kustomization.yaml`, `marketplace-fee-compare__handoff.mjs.gz`,
+        `marketplace-fee-compare__index.html.gz`); mirror headroom unchanged
+        at 67.2% and the same 10 ventures excluded as on baseline.
+        `browser_checks.py --only marketplace-fee-compare` 7 of 8 passing, 1
+        skipped on a missing dependency, 0 failures and 0 console errors.
+      - >-
+        Customer journey exercised in a real browser rather than asserted:
+        typed an item, expanded the pointer lists and clicked through. The
+        eBay caveat link arrives at
+        `#costOfGoods=12&otherCost=1.1&price=40&shippingCharged=6&shippingCost=5.2`
+        with price and cost of goods prefilled; Reverb and Whatnot arrive
+        prefilled under their own field names (`salePrice` on Whatnot, which
+        is the rename that would have been silently dropped); Faire arrives
+        bare by design; and editing the price rebuilds the pointer to
+        `price=99`, proving the links track the item rather than the
+        load-time defaults.
+    mrr_end: 0
