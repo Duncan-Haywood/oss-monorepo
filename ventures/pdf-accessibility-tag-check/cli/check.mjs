@@ -3,17 +3,23 @@
 // and prints an accessibility-structure evidence report for each. Nothing
 // is uploaded anywhere -- the file never leaves this process.
 //
-//   node check.mjs report.pdf
-//   node check.mjs ./document-library/ --json
-//   node check.mjs a.pdf b.pdf --json
+//   node cli/check.mjs report.pdf
+//   node cli/check.mjs ./document-library/ --json
+//   node cli/check.mjs a.pdf b.pdf --json
 //
 // Exit code 0 when every file parsed and none has a "danger"-severity
 // finding; 1 when at least one file has a danger finding, could not be
 // parsed, or could not be read.
+//
+// Lives in cli/, not the venture root, so the front-door mirror -- which
+// walks only the venture's top-level directory -- never picks this up: the
+// browser page doesn't need a Node CLI entry point, and every byte here is
+// spent against the mirror's MIRROR_BYTE_CEILING for nothing a visitor can
+// use. See gitops/tests/test_front_door_serving.py.
 
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { analyzePdf } from './engine.mjs';
+import { analyzePdf } from '../engine.mjs';
 import { inflate } from './inflate-node.mjs';
 
 async function collectPdfPaths(inputs) {

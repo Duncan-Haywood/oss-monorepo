@@ -4,7 +4,7 @@
 // is exactly what these fixtures exercise. See pdf-parser.mjs's header
 // comment for why that's a reasonable thing for a v0 evidence tool to do.
 
-import { bytesToBinaryString, binaryStringToBytes } from './pdf-parser.mjs';
+import { bytesToBinaryString, binaryStringToBytes } from '../pdf-parser.mjs';
 
 /**
  * @param {Array<{num: number, dict: string, stream?: Uint8Array|string}>} objects
