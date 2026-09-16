@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://example.invalid/ios-privacy-manifest-check/</loc></url>
 <url><loc>https://example.invalid/ios-privacy-manifest-check/missing-privacy-manifest-itms-91061.html</loc></url>
+<url><loc>https://example.invalid/ios-privacy-manifest-check/vs-waiting-for-app-review.html</loc></url>
 </urlset>
