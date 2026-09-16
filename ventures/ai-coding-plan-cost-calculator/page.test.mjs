@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const PAGES = ['index.html', 'how-ai-coding-plan-pricing-works.html'];
+const PAGES = ['index.html', 'how-ai-coding-plan-pricing-works.html', 'vs-doing-the-math-yourself.html'];
 
 const read = (file) => readFile(new URL(`./${file}`, import.meta.url), 'utf8');
 
@@ -81,4 +81,64 @@ test('every preset select the page fills in has a matching option-filling call',
   for (const id of ['plan', 'usage-tier', 'model']) {
     assert.match(page, new RegExp(`id="${id}"`), `missing #${id} element`);
   }
+});
+
+test('index links to the comparison page', async () => {
+  assert.match(await read('index.html'), /href="vs-checking-pricing-pages-yourself\.html"/);
+});
+
+test('the comparison page links back to the tool and carries valid FAQPage JSON-LD matching visible text', async () => {
+  const vsPage = await read('vs-checking-pricing-pages-yourself.html');
+  assert.match(vsPage, /href="index\.html"/);
+  const blocks = [...vsPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const faq = blocks.map((b) => JSON.parse(b)).find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(vsPage.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(vsPage.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test('the comparison page carries the no-warranty clause and the estimate language', async () => {
+  const vsPage = await read('vs-checking-pricing-pages-yourself.html');
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /provided free and as-is, without warranty/);
+  assert.match(vsPage, /estimate/i);
+});
+
+test('the comparison page is listed in the venture sitemap', async () => {
+  assert.match(await read('sitemap.xml'), /vs-checking-pricing-pages-yourself\.html/);
+});
+
+function jsonLdBlocks(source) {
+  const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
+  const blocks = [];
+  let m;
+  while ((m = re.exec(source)) !== null) blocks.push(m[1]);
+  return blocks;
+}
+
+test('index links to the "doing the math yourself" comparison page', async () => {
+  assert.match(await read('index.html'), /href="vs-doing-the-math-yourself\.html"/);
+});
+
+test('the comparison page links back to the calculator and carries valid FAQPage JSON-LD matching visible text', async () => {
+  const page = await read('vs-doing-the-math-yourself.html');
+  assert.match(page, /href="\.\/"/);
+  const blocks = jsonLdBlocks(page);
+  assert.ok(blocks.length >= 1, 'expected at least one JSON-LD block');
+  const parsed = blocks.map((b) => JSON.parse(b));
+  const faq = parsed.find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(page.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(page.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test('the comparison page is listed in the venture sitemap', async () => {
+  const sitemap = await read('sitemap.xml');
+  assert.match(sitemap, /vs-doing-the-math-yourself\.html/);
 });

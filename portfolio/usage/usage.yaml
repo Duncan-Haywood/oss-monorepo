@@ -5685,6 +5685,31 @@ products:
           watching is `check_run` against `example_loaded` -- a visitor who
           only ever loads the example has not brought their own input to it,
           which is the difference between a demo and a tool.
+  - slug: security-txt-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit, so this
+          row never has to be added retroactively the way
+          sitemap-lastmod-freshness-check's was. `live_url_visitors` is
+          `null`, not zero: GitHub Pages exposes no server-side analytics,
+          this portfolio adds no third-party one, and the local counters are
+          opt-in and off by default -- so nobody has measured, which is not
+          the same as having measured nothing. The three event counts are
+          genuine zeros for a venture published minutes ago.
+          The signal worth watching here is `check_run` on a *return* visit
+          rather than its first-run total. RFC 9116 makes `Expires` mandatory
+          and time-bound, so unlike every other checker in this catalogue a
+          conforming file becomes non-conforming with no code change -- this
+          is the one venture whose hypothesis about repeat use has a
+          mechanical reason behind it rather than a hope, and the first place
+          this file could record a return visit at all.
   - slug: sitemap-lastmod-freshness-check
     surface: github-pages
     readings:
@@ -6150,6 +6175,46 @@ products:
           external repo wiring cli.mjs in between plan and apply) is the
           signal that actually matters for this shape -- the CLI is the
           primary distribution surface, not the browser page.
+  - slug: process-server-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          job-priced: 0
+          clients-compared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/process-server-fee-calculator/`) from its first commit, so
+          unlike most rows here it has never been an instrumented-but-
+          unreachable product. `live_url_visitors` is null and not zero,
+          deliberately -- GitHub Pages exposes no server-side analytics and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet. Counts honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on
+          for yet.
+  - slug: photo-addon-pricing-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          addon-priced: 0
+          addons-compared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/photo-addon-pricing-calculator/`) from its first commit,
+          so unlike most rows here it has never been an instrumented-but-
+          unreachable product. `live_url_visitors` is null and not zero,
+          deliberately -- GitHub Pages exposes no server-side analytics and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet. Counts honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on
+          for yet.
   - slug: 1099k-reconciliation-worksheet
     surface: github-pages
     readings:
@@ -6170,3 +6235,60 @@ products:
           Named channel to watch: r/tax, r/Etsyseller, r/eBay, r/Flipping,
           r/reselling, r/Mercari around filing season (Jan-Apr), where "why
           is my 1099-K higher than what I made" is a recurring thread.
+  - slug: pdf-accessibility-tag-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and no-upload browser tool that reads a PDF's
+          own tag structure, title, language, image alt text, form-field
+          labels, and text-layer presence against PDF/UA and Section 508.
+          `live_url_visitors` is null and not zero, deliberately -- GitHub
+          Pages exposes no server-side analytics and the local counter is
+          opt-in and off by default, so nobody has measured yet. Named
+          channel to watch: government and university webmasters/
+          accessibility-services staff searching "PDF accessibility
+          checker" / "PDF/UA checker online" ahead of ADA Title II's April
+          2027/2028 deadlines and HHS's May 2026 Section 504 deadline. The
+          reading worth watching is `check_run` against `example_loaded` --
+          a visitor who only ever loads the worked example has not brought
+          their own PDF to it -- and whether the CLI (not just the browser
+          page) sees repeat use from a document-library batch scan, which
+          is this venture's actual differentiation against five established
+          upload-required, single-file competitors.
+  - slug: agent-instructions-drift-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          folder_selected: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool checking an AI-coding-agent
+          instruction file (AGENTS.md/CLAUDE.md/.cursorrules/
+          copilot-instructions.md) for broken file references, undefined
+          npm scripts, and known interpreter-mismatch shell footguns (bare
+          pytest/mypy instead of python3 -m). `live_url_visitors` is null
+          and not zero, deliberately -- GitHub Pages exposes no
+          server-side analytics and the local counter is opt-in and off by
+          default, so nobody has measured yet. Named channel to watch:
+          developers who just adopted the fast-growing, multi-vendor
+          AGENTS.md convention searching for a way to validate it (GitHub/
+          npm search, r/ChatGPTCoding, r/cursor, r/ClaudeAI, Hacker News
+          agent-tooling threads) and any repository wiring cli.mjs into its
+          own CI. The reading worth watching is `check_run` against
+          `example_loaded` -- a visitor who only ever loads the worked
+          example has not brought their own instructions file to it -- and
+          whether the CLI (not just the browser page) sees adoption in an
+          external repo's CI, which is the strongest signal this is solving
+          a real, recurring problem rather than a one-off curiosity click.

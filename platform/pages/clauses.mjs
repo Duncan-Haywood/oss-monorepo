@@ -102,10 +102,34 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // adjuster already has, not a company or product this could be mistaken
   // for.
   'cat-adjuster-fee-calculator/vs-spreadsheet-comparison.html',
-  // Compares against "a rate-sheet spreadsheet or mental math" -- a method
-  // every freelance court reporter already has, not a company or product
-  // this could be mistaken for.
-  'court-reporter-transcript-calculator/vs-spreadsheet-comparison.html',
+  // Compares against "a spreadsheet or a guess under a deadline" -- a
+  // method every reporter already has, not a company or product this could
+  // be mistaken for.
+  'court-reporter-transcript-calculator/vs-spreadsheet-or-guessing.html',
+  // Compares against reconciling a 1099-K by hand in a spreadsheet -- a
+  // method every marketplace seller already has, not a company or product
+  // this could be mistaken for. Same reasoning as the cat-adjuster page
+  // above.
+  '1099k-reconciliation-worksheet/vs-spreadsheet-comparison.html',
+  // Compares against "checking pricing pages and doing the arithmetic by
+  // hand" -- a generic method every user of the calculator already has
+  // access to, not a company or product this could be mistaken for.
+  'ai-coding-plan-cost-calculator/vs-checking-pricing-pages-yourself.html',
+  // Compares against "clicking Re-run failed jobs and seeing what happens" --
+  // a generic manual habit every GitHub Actions user already has, not a
+  // company or product this could be mistaken for.
+  'actions-runner-starvation-check/vs-rerunning-the-job.html',
+  // Compares against "pricing an add-on by comparing to what other studios
+  // charge" -- a generic pricing method every independent photographer
+  // already uses, not one specific company or product this could be
+  // mistaken for. The page's own FAQ says so explicitly ("has no data on
+  // what any other studio charges").
+  'photo-addon-pricing-calculator/vs-pricing-by-comparing-to-other-studios.html',
+  // Compares against "reading the resistor color code by eye" -- a manual
+  // reading method every user of this calculator already has access to,
+  // not a company or product this could be mistaken for. Same reasoning as
+  // the other manual-method pages above.
+  'ai-engineering-academy/resistor-calculator/vs-reading-the-color-code-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

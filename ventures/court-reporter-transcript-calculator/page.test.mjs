@@ -4,6 +4,51 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
+// The FAQ tests below used to assert `html.includes(answerText)` against the
+// whole file. That can never fail: the JSON-LD block is itself part of `html`,
+// so every answer trivially "appears". The check that matters -- and the one
+// Google's structured-data policy actually enforces -- is that the answer text
+// appears in the *rendered* prose a visitor reads. So strip the JSON-LD block
+// first, then the tags, then decode the entities the markup uses (`&mdash;`)
+// but the JSON spells literally, and compare on normalised whitespace.
+const visibleText = (html) =>
+  html
+    .replace(/<script type="application\/ld\+json">.*?<\/script>/gs, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&mdash;/g, "—")
+    .replace(/&larr;/g, "←")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/** Assert every JSON-LD FAQ answer in `html` is prose a visitor can actually read. */
+const assertFaqMatchesVisibleProse = (html, minQuestions) => {
+  const match = html.match(
+    /<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?)<\/script>/s,
+  );
+  assert.ok(match, "expected a FAQPage JSON-LD block");
+  const data = JSON.parse(match[1]);
+  assert.ok(data.mainEntity.length >= minQuestions);
+  const visible = visibleText(html);
+  for (const q of data.mainEntity) {
+    const answer = q.acceptedAnswer.text.replace(/\s+/g, " ").trim();
+    assert.ok(
+      visible.includes(answer),
+      `FAQ answer for "${q.name}" must appear verbatim in the visible page, not only inside the JSON-LD`,
+    );
+    const name = q.name.replace(/\s+/g, " ").trim();
+    assert.ok(
+      visible.includes(name),
+      `FAQ question "${q.name}" must appear verbatim in the visible page, not only inside the JSON-LD`,
+    );
+  }
+};
+
 test("index page carries the required disclaimer, privacy line, and sponsor link", () => {
   const html = page("index.html");
   assert.match(html, /No warranty/);
@@ -36,17 +81,7 @@ test("robots and sitemap let crawlers find the page", () => {
 });
 
 test("the FAQPage JSON-LD answer text matches the visible FAQ prose exactly", () => {
-  const html = page("index.html");
-  const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?)<\/script>/s);
-  assert.ok(match, "expected a FAQPage JSON-LD block");
-  const data = JSON.parse(match[1]);
-  assert.ok(data.mainEntity.length >= 4);
-  for (const q of data.mainEntity) {
-    assert.ok(
-      html.includes(q.acceptedAnswer.text),
-      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
-    );
-  }
+  assertFaqMatchesVisibleProse(page("index.html"), 4);
 });
 
 // --- Deposition transcript invoice -----------------------------------------
@@ -138,29 +173,109 @@ test("a usage opt-out control is present and reflects an already-opted-out state
   assert.match(html, /usageOptedOut\(\)/);
 });
 
-test("the index page links to the spreadsheet comparison page", () => {
-  assert.match(page("index.html"), /href="vs-spreadsheet-comparison\.html"/);
+// --- "What is a good per-page rate?" explainer ------------------------------
+//
+// The question a reporter types before they know this tool exists. It is the
+// organic entry point for the agency offer check: the honest answer to "is
+// $4.50 a page good?" is that the rate alone cannot say, which is exactly the
+// division `computeAgencyOfferCheck` performs.
+
+const RATE_PAGE = "what-is-a-good-per-page-rate-for-a-court-reporter.html";
+
+test("the per-page-rate explainer carries the disclaimer, sponsor link, and a route back to the tool", () => {
+  const html = page(RATE_PAGE);
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal or financial advice/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /href="\.\/"/, "must link back to the calculator itself");
 });
 
-test("the comparison page links back to the tool and carries valid FAQPage JSON-LD matching visible text", () => {
-  const html = page("vs-spreadsheet-comparison.html");
-  assert.match(html, /href="\.\/"/);
+test("the explainer's FAQPage JSON-LD answer text matches its visible prose exactly", () => {
+  const html = page(RATE_PAGE);
   const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?)<\/script>/s);
-  assert.ok(match, "missing FAQPage JSON-LD on the comparison page");
-  const faq = JSON.parse(match[1]);
-  assert.ok(faq.mainEntity.length >= 3);
-  for (const qa of faq.mainEntity) {
-    assert.ok(html.includes(qa.name), `visible question missing: ${qa.name}`);
-    assert.ok(html.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  assert.ok(match, "expected a FAQPage JSON-LD block");
+  const data = JSON.parse(match[1]);
+  assert.ok(data.mainEntity.length >= 3);
+  for (const q of data.mainEntity) {
+    assert.ok(
+      html.includes(q.acceptedAnswer.text),
+      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
+    );
   }
 });
 
-test("the comparison page carries the no-warranty clause", () => {
-  const html = page("vs-spreadsheet-comparison.html");
-  assert.match(html, /No warranty/);
-  assert.match(html, /provided free and as-is, without warranty/);
+// --- vs-spreadsheet-or-guessing.html ----------------------------------------
+
+test("index links the vs-spreadsheet-or-guessing comparison page", () => {
+  assert.match(
+    page("index.html"),
+    /href="\.\/vs-spreadsheet-or-guessing\.html"/,
+  );
 });
 
-test("the comparison page is listed in the venture sitemap", () => {
-  assert.match(page("sitemap.xml"), /vs-spreadsheet-comparison\.html/);
+test("the comparison page is reachable from the sitemap", () => {
+  assert.match(page("sitemap.xml"), /vs-spreadsheet-or-guessing\.html/);
+});
+
+test("the comparison page carries the required disclaimer and sponsor link", () => {
+  const html = page("vs-spreadsheet-or-guessing.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal or financial advice/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /Nothing leaves your browser/);
+});
+
+test("the comparison page links back to the calculator", () => {
+  assert.match(page("vs-spreadsheet-or-guessing.html"), /href="\.\/"/);
+});
+
+test("the comparison page's FAQPage JSON-LD answer text matches the visible FAQ prose exactly", () => {
+  assertFaqMatchesVisibleProse(page("vs-spreadsheet-or-guessing.html"), 5);
+});
+
+test("the index links the explainer, so it is reachable without the sitemap", () => {
+  assert.match(
+    page("index.html"),
+    new RegExp(`href="${RATE_PAGE.replace(/[.]/g, "\\.")}"`),
+    "index must link the explainer -- the published site is served from a subpath where sitemap auto-discovery does not happen, so a crawl path is the only route to it",
+  );
+});
+
+// The figures in the explainer are not illustrative decoration: they are what
+// the venture's own calculator returns. Pinning them here means a change to
+// `computeAgencyOfferCheck` cannot silently make the page's worked examples
+// wrong, which is the failure mode a prose page has and a calculator does not.
+test("the explainer's worked figures are what computeAgencyOfferCheck actually returns", async () => {
+  const { computeAgencyOfferCheck } = await import("./calculator.mjs");
+  const html = page(RATE_PAGE);
+
+  const slow = computeAgencyOfferCheck({
+    pages: 120, agencyPageRate: 4.5, agencyAppearanceFee: 75,
+    hoursWorked: 9, targetHourlyRate: 85,
+  });
+  assert.equal(slow.agencyTotalPay, 615);
+  assert.equal(slow.effectiveHourlyRate, 68.33);
+  assert.equal(slow.hourlyShortfall, 16.67);
+  assert.equal(slow.meetsTarget, false);
+
+  const quick = computeAgencyOfferCheck({
+    pages: 120, agencyPageRate: 4.5, agencyAppearanceFee: 75,
+    hoursWorked: 5.5, targetHourlyRate: 85,
+  });
+  assert.equal(quick.effectiveHourlyRate, 111.82);
+  assert.equal(quick.meetsTarget, true);
+
+  // The counter-intuitive one: a 39% higher page rate that pays $140 less in
+  // total and $25/hour less, because the page count halved.
+  const higherRate = computeAgencyOfferCheck({
+    pages: 60, agencyPageRate: 6.25, agencyAppearanceFee: 100,
+    hoursWorked: 5.5, targetHourlyRate: 85,
+  });
+  assert.equal(higherRate.agencyTotalPay, 475);
+  assert.equal(higherRate.effectiveHourlyRate, 86.36);
+  assert.ok(higherRate.effectiveHourlyRate < quick.effectiveHourlyRate);
+
+  for (const figure of ["$615", "$68.33", "$111.82", "$475", "$86.36", "$16.67"]) {
+    assert.ok(html.includes(figure), `the page must state ${figure} as computed`);
+  }
 });

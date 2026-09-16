@@ -50,7 +50,7 @@
       file contents rather than a URL, entirely in your browser with the Web
       Crypto API and no fetch at all -- which also means it can hash a file
       that has not been deployed to a public URL yet. Its companion CLI
-      (<code>node check.mjs &lt;url&gt; --json</code>) does a different job
+      (<code>node cli/check.mjs &lt;url&gt; --json</code>) does a different job
       srihash.org has no mode for: it fetches a page itself, finds every
       script and stylesheet tag loaded from a different origin, and reports a
       tag with <strong>no integrity attribute at all</strong>, an

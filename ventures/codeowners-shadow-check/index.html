@@ -107,7 +107,7 @@
   <h2>1. Get your CODEOWNERS file and file list (optional CLI)</h2>
   <p>Node.js, no dependencies to install. Auto-detects <code>CODEOWNERS</code>, <code>.github/CODEOWNERS</code>,
   or <code>docs/CODEOWNERS</code>, and your tracked files via <code>git ls-files</code>:</p>
-  <pre class="cmd"><code>node check.mjs</code></pre>
+  <pre class="cmd"><code>node cli/check.mjs</code></pre>
   <p class="status-note">
     Get <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/codeowners-shadow-check" rel="noopener">check.mjs and codeowners.mjs from the repo</a>
     — plain Node, nothing to install, nothing sent anywhere. You do not need the CLI at all: paste your
@@ -276,11 +276,11 @@
     try {
       payload = JSON.parse(text);
     } catch {
-      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node check.mjs".</span>';
+      els.status.innerHTML = '<span class="error">That is not valid JSON -- paste the whole output of "node cli/check.mjs".</span>';
       return;
     }
     if (typeof payload.codeowners !== 'string' || !Array.isArray(payload.paths)) {
-      els.status.innerHTML = '<span class="error">Expected an object with "codeowners" (string) and "paths" (array) -- the exact shape "node check.mjs" prints.</span>';
+      els.status.innerHTML = '<span class="error">Expected an object with "codeowners" (string) and "paths" (array) -- the exact shape "node cli/check.mjs" prints.</span>';
       return;
     }
     els.codeowners.value = payload.codeowners;
@@ -346,7 +346,9 @@
   a third: stale branch inventory and recovery, rather than review-routing correctness.</p>
   <p>Seen a review requirement vanish with no explanation? Read
   <a href="why-codeowners-review-stops-being-required.html">why a CODEOWNERS review requirement can
-  silently stop firing</a> for the exact before-and-after and how to gate CI against it.</p>
+  silently stop firing</a> for the exact before-and-after and how to gate CI against it.
+  Wondering why not just read the file yourself? See
+  <a href="vs-reading-codeowners-by-eye.html">this checker vs. reading CODEOWNERS by eye</a>.</p>
 </footer>
 </body>
 </html>

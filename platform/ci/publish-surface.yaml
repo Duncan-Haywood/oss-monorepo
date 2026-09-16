@@ -77,6 +77,9 @@ workflows:
 - workflow: agent-cross-review.yml
   classification: none
   publishes: []
+- workflow: agent-instructions-drift-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: agent-permission-harness-ci.yml
   classification: none
   publishes: []
@@ -650,6 +653,9 @@ workflows:
 - workflow: payment-reconciliation-workbench-ci.yml
   classification: none
   publishes: []
+- workflow: pdf-accessibility-tag-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: pergola-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -657,6 +663,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: pet-grooming-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: photo-addon-pricing-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: photo-booth-event-quote-ci.yml
@@ -713,6 +722,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: print-atelier-ci.yml
+  classification: none
+  publishes: []
+- workflow: process-server-fee-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: proposal-module-ci.yml
@@ -804,6 +816,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: security-headers-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: security-txt-check-ci.yml
   classification: none
   publishes: []
 - workflow: self-storage-rate-increase-calculator-ci.yml

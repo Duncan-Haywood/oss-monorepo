@@ -309,6 +309,7 @@ export default class ExamplePlugin extends Plugin {
   <h3>Does a clean report mean my plugin will be approved for the community plugin list?</h3>
   <p>No. This is evidence from pattern-matching your <code>manifest.json</code>, <code>versions.json</code>, and source against known field names and API calls -- it is not the review process, and it is a line-level heuristic, not data-flow or runtime analysis. It can miss an <code>innerHTML</code> assignment built from a value that is actually safe, a <code>registerDomEvent</code> call the reviewer would still ask about for an unrelated reason, or a guideline this tool does not check at all. Always re-check against Obsidian's current developer guidelines before submitting.</p>
   <p>More on the most common of these: <a href="versions-json-missing-entry.html">Fixing a missing versions.json entry</a>.</p>
+  <p>Already using ESLint? See <a href="vs-eslint-plugin-obsidianmd.html">how this checker compares to eslint-plugin-obsidianmd</a>, the official Obsidian ESLint plugin.</p>
 </section>
 
 <footer>
@@ -335,6 +336,8 @@ export default class ExamplePlugin extends Plugin {
   with the checkbox above.</p>
   <p>Not affiliated with, endorsed by, or sponsored by Obsidian or Dynalist Inc. Obsidian is a
   product of Dynalist Inc., named here only to describe what this tool checks.</p>
+  <p>Wondering why bother with a scanner instead of the guidelines or a pull request?
+  See <a href="vs-guessing-or-waiting-for-review.html">this checker vs. guessing from Obsidian's guidelines or waiting for a reviewer to comment</a>.</p>
   <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> --
   <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and
   never changes what the tool does.</p>

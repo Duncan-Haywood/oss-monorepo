@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>About these tools — Free small-business calculators</title>
-<meta name="description" content="Who makes these 272 free calculators, why they are free, and what happens to the numbers you type in — nothing leaves your browser, and this site logs no addresses.">
+<meta name="description" content="Who makes these 277 free calculators, why they are free, and what happens to the numbers you type in — nothing leaves your browser, and this site logs no addresses.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#12594a">
 <link rel="canonical" href="https://marisstella.dev/about/">
@@ -12,7 +12,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Free small-business calculators">
 <meta property="og:title" content="About these tools">
-<meta property="og:description" content="Who makes these 272 free calculators, why they are free, and what happens to the numbers you type in — nothing leaves your browser, and this site logs no addresses.">
+<meta property="og:description" content="Who makes these 277 free calculators, why they are free, and what happens to the numbers you type in — nothing leaves your browser, and this site logs no addresses.">
 <meta property="og:url" content="https://marisstella.dev/about/">
 <meta property="og:image" content="https://marisstella.dev/social-card.png">
 <meta property="og:image:width" content="1200">
@@ -22,129 +22,14 @@
 <meta name="twitter:image" content="https://marisstella.dev/social-card.png">
 <meta name="twitter:image:alt" content="The site mark: a simple calculator — a display above two rows of three keys — centred on a plain coloured field. The card carries no text.">
 <meta name="robots" content="index, follow">
-<style>
-  :root {
-    color-scheme: light dark;
-    --ink: #16191d;
-    --ink-soft: #454c55;
-    --paper: #fbfaf8;
-    --card: #ffffff;
-    --rule: #ddd8d0;
-    --link: #12506b;
-    /* The call to action needs its own pair rather than reusing --link on a
-       white foreground. In dark mode --link is a pale blue, and white text on
-       it measured 1.93:1 — a headless contrast pass caught it before this page
-       ever shipped. The button inverts instead: pale fill, dark ink. */
-    --cta-bg: #12506b;
-    --cta-fg: #ffffff;
-    /* The search field's edge, and the one border on this page that is not
-       --rule. --rule measures 1.36:1 against --paper in light and 1.54:1 in
-       dark: fine for a card, whose shape a reader gets from its fill and its
-       content, and a failure of WCAG 2.1 SC 1.4.11 for a text input, where
-       the boundary is the only thing saying "you can type here". A headless
-       pass over the rendered page caught it before this shipped; both values
-       below clear 3:1 against --paper. */
-    --field-edge: #8a8379;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --ink: #eceef1;
-      --ink-soft: #b3bac3;
-      --paper: #14171a;
-      --card: #1c2025;
-      --rule: #333940;
-      --link: #7fc4e2;
-      --cta-bg: #7fc4e2;
-      --cta-fg: #10161a;
-      --field-edge: #6f7780;
-    }
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  }
-  main, header, footer { max-width: 62rem; margin: 0 auto; padding: 0 1.25rem; }
-  header { padding-top: 3.5rem; padding-bottom: 1rem; }
-  h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.15; margin: 0 0 0.75rem; letter-spacing: -0.015em; }
-  .lede { font-size: clamp(1.05rem, 2.4vw, 1.2rem); color: var(--ink-soft); margin: 0 0 1.5rem; max-width: 44rem; }
-  .cta {
-    display: inline-block;
-    background: var(--cta-bg);
-    color: var(--cta-fg);
-    text-decoration: none;
-    font-weight: 600;
-    padding: 0.7rem 1.3rem;
-    border-radius: 0.4rem;
-  }
-  .cta:hover, .cta:focus { filter: brightness(1.1); }
-  h2 { font-size: 1.35rem; margin: 2.75rem 0 1rem; }
-  .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); padding: 0; list-style: none; margin: 0; }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--rule);
-    border-left: 4px solid var(--accent, var(--rule));
-    border-radius: 0.5rem;
-    padding: 1rem 1.1rem;
-  }
-  .card h3 { margin: 0 0 0.15rem; font-size: 1.05rem; }
-  .card h3 a { color: var(--link); text-decoration: none; }
-  .card h3 a:hover, .card h3 a:focus { text-decoration: underline; }
-  .count { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 0.5rem; }
-  .card p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
-  /* The category headings inside the mirror section. Sized between an h2 and a
-     card title so the section reads as one list with dividers rather than as
-     several sections; scroll-margin-top keeps a heading off the very top
-     edge when a card's fragment link jumps to it. */
-  .group { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin: 1.75rem 0 0.75rem; scroll-margin-top: 1rem; }
-  .group:first-of-type { margin-top: 0; }
-  header .fine { color: var(--ink-soft); font-size: 0.9rem; max-width: 60ch; margin: 0.75rem 0 0; }
-  .rows { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); padding: 0; list-style: none; margin: 0; }
-  .lede-sm { color: var(--ink-soft); max-width: 60ch; margin: -0.25rem 0 1rem; }
-  .rows h3 { margin: 0 0 0.3rem; font-size: 1rem; }
-  .rows p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
-  footer { border-top: 1px solid var(--rule); margin-top: 3.5rem; padding-top: 1.5rem; padding-bottom: 3rem; color: var(--ink-soft); font-size: 0.88rem; }
-  footer a { color: var(--link); }
-  footer p { max-width: 52rem; }
-  .fine strong { color: var(--ink); }
-  /* The filter over the mirrored tools. Revealed by script — see
-     FILTER_SCRIPT — so a reader without JavaScript never meets a box that
-     does nothing.
-
-     Every element the filter hides needs a rule here, and the reason is the
-     cascade rather than specificity: the UA sheet's [hidden] { display: none }
-     loses to ANY author display declaration, however weak. .filter and .grid
-     both set display: grid, so without these two selectors the hidden element
-     keeps its box. For .grid that was not hypothetical — it was measured in a
-     browser: filtering to one trade left the six emptied category lists still
-     rendering. Nothing was visible, because a grid with no visible items has
-     no height, so the page looked right and a screen reader read six empty
-     lists between the heading and the one result. */
-  .filter[hidden], .filter-empty[hidden], .grid[hidden] { display: none; }
-  .filter { display: grid; gap: 0.4rem; margin: 0 0 1.5rem; max-width: 30rem; }
-  .filter label { font-size: 0.88rem; color: var(--ink-soft); }
-  .filter input {
-    font: inherit;
-    color: var(--ink);
-    background: var(--card);
-    border: 1px solid var(--field-edge);
-    border-radius: 0.4rem;
-    padding: 0.55rem 0.7rem;
-    width: 100%;
-  }
-  .filter input:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
-  .filter-status { margin: 0; font-size: 0.85rem; color: var(--ink-soft); min-height: 1.4em; }
-  .filter-empty { margin: 0 0 1rem; color: var(--ink-soft); }
-</style>
+<style>:root { color-scheme: light dark; --ink: #16191d; --ink-soft: #454c55; --paper: #fbfaf8; --card: #ffffff; --rule: #ddd8d0; --link: #12506b; --cta-bg: #12506b; --cta-fg: #ffffff; --field-edge: #8a8379; } @media (prefers-color-scheme: dark) { :root { --ink: #eceef1; --ink-soft: #b3bac3; --paper: #14171a; --card: #1c2025; --rule: #333940; --link: #7fc4e2; --cta-bg: #7fc4e2; --cta-fg: #10161a; --field-edge: #6f7780; } } * { box-sizing: border-box; } body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; } main, header, footer { max-width: 62rem; margin: 0 auto; padding: 0 1.25rem; } header { padding-top: 3.5rem; padding-bottom: 1rem; } h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.15; margin: 0 0 0.75rem; letter-spacing: -0.015em; } .lede { font-size: clamp(1.05rem, 2.4vw, 1.2rem); color: var(--ink-soft); margin: 0 0 1.5rem; max-width: 44rem; } .cta { display: inline-block; background: var(--cta-bg); color: var(--cta-fg); text-decoration: none; font-weight: 600; padding: 0.7rem 1.3rem; border-radius: 0.4rem; } .cta:hover, .cta:focus { filter: brightness(1.1); } h2 { font-size: 1.35rem; margin: 2.75rem 0 1rem; } .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); padding: 0; list-style: none; margin: 0; } .card { background: var(--card); border: 1px solid var(--rule); border-left: 4px solid var(--accent, var(--rule)); border-radius: 0.5rem; padding: 1rem 1.1rem; } .card h3 { margin: 0 0 0.15rem; font-size: 1.05rem; } .card h3 a { color: var(--link); text-decoration: none; } .card h3 a:hover, .card h3 a:focus { text-decoration: underline; } .count { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 0.5rem; } .card p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; } .group { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin: 1.75rem 0 0.75rem; scroll-margin-top: 1rem; } .group:first-of-type { margin-top: 0; } header .fine { color: var(--ink-soft); font-size: 0.9rem; max-width: 60ch; margin: 0.75rem 0 0; } .rows { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); padding: 0; list-style: none; margin: 0; } .lede-sm { color: var(--ink-soft); max-width: 60ch; margin: -0.25rem 0 1rem; } .rows h3 { margin: 0 0 0.3rem; font-size: 1rem; } .rows p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; } footer { border-top: 1px solid var(--rule); margin-top: 3.5rem; padding-top: 1.5rem; padding-bottom: 3rem; color: var(--ink-soft); font-size: 0.88rem; } footer a { color: var(--link); } footer p { max-width: 52rem; } .fine strong { color: var(--ink); } .filter[hidden], .filter-empty[hidden], .grid[hidden] { display: none; } .filter { display: grid; gap: 0.4rem; margin: 0 0 1.5rem; max-width: 30rem; } .filter label { font-size: 0.88rem; color: var(--ink-soft); } .filter input { font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--field-edge); border-radius: 0.4rem; padding: 0.55rem 0.7rem; width: 100%; } .filter input:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; } .filter-status { margin: 0; font-size: 0.85rem; color: var(--ink-soft); min-height: 1.4em; } .filter-empty { margin: 0 0 1rem; color: var(--ink-soft); }</style>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "AboutPage",
   "name": "About these tools",
   "url": "https://marisstella.dev/about/",
-  "description": "Who makes these 272 free calculators, why they are free, and what happens to the numbers you type in — nothing leaves your browser, and this site logs no addresses.",
+  "description": "Who makes these 277 free calculators, why they are free, and what happens to the numbers you type in — nothing leaves your browser, and this site logs no addresses.",
   "inLanguage": "en",
   "isAccessibleForFree": true,
   "isPartOf": {
@@ -175,11 +60,11 @@
 <body>
 <header>
   <h1>About these tools</h1>
-  <p class="lede">272 free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and nothing you type is uploaded.</p>
+  <p class="lede">277 free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and nothing you type is uploaded.</p>
 </header>
 <main>
   <h2>What this is</h2>
-  <p>A working set of 272 small, single-purpose web tools across 9 areas — pricing a job, checking what a marketplace sale actually nets, planning cashflow, normalising freight quotes, and assembling the evidence a compliance obligation asks for. Each one exists because the arithmetic behind it is easy to get wrong under time pressure and expensive to get wrong in front of a customer.</p>
+  <p>A working set of 277 small, single-purpose web tools across 10 areas — pricing a job, checking what a marketplace sale actually nets, planning cashflow, normalising freight quotes, and assembling the evidence a compliance obligation asks for. Each one exists because the arithmetic behind it is easy to get wrong under time pressure and expensive to get wrong in front of a customer.</p>
   <p>They are deliberately narrow. A tool here answers one question for one kind of business, rather than being a spreadsheet template that answers none of them well.</p>
 
   <h2>What happens to what you type</h2>
@@ -206,12 +91,12 @@
   <h2>Linking to these tools</h2>
   <p>You do not need permission to link to anything here, quote a page, or screenshot a result — for a forum answer, a trade newsletter, a course handout, or a write-up. Linking straight to the individual tool is more use to a reader than linking to the front page. If it helps, here is the description, already written:</p>
   <h3>One line</h3>
-  <p class="fine">272 free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.</p>
+  <p class="fine">277 free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.</p>
   <h3>A paragraph</h3>
-  <p class="fine">Free small-business calculators is a collection of 272 free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor&#39;s own browser. There is no account system, no payment and no third-party analytics; the numbers a user types never leave their device. All 272 are free, with no gated features and no paid tier.</p>
+  <p class="fine">Free small-business calculators is a collection of 277 free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor&#39;s own browser. There is no account system, no payment and no third-party analytics; the numbers a user types never leave their device. All 277 are free, with no gated features and no paid tier.</p>
   <h3>The facts, if you would rather write your own</h3>
   <ul>
-    <li><strong>272 tools</strong> across 9 categories, all free, none gated.</li>
+    <li><strong>277 tools</strong> across 10 categories, all free, none gated.</li>
     <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics, no upload; works offline once opened.</li>
     <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
     <li><strong>Front page:</strong> <a href="/">https://marisstella.dev/</a></li>
@@ -219,7 +104,7 @@
   <p>Please do not describe these as certified, audited, guaranteed, or as professional advice — they are none of those things, and saying so would mislead the person you are recommending them to.</p>
 
   <h2>Embedding a tool on your own page</h2>
-  <p>Every one of the 272 tools here can be framed on someone else's page — a trade association's resource page, a supplier's blog post, a forum's sidebar. Open any tool and scroll to the bottom for a ready-made, copyable snippet built from that page's own address and title; there is nothing to write by hand. The framed page is the calculator's own page rather than a stripped-down copy, so it keeps the tool's full working and its liability notice, and it adds no script, cookie or request of its own. This needs no permission and no message to us first.</p>
+  <p>Every one of the 277 tools here can be framed on someone else's page — a trade association's resource page, a supplier's blog post, a forum's sidebar. Open any tool and scroll to the bottom for a ready-made, copyable snippet built from that page's own address and title; there is nothing to write by hand. The framed page is the calculator's own page rather than a stripped-down copy, so it keeps the tool's full working and its liability notice, and it adds no script, cookie or request of its own. This needs no permission and no message to us first.</p>
 
   <h2>For crawlers and assistants</h2>
   <p>The catalogue is published in machine-readable form so an assistant can cite the right tool rather than guess at one: <a href="/catalog.json">catalog.json</a> lists every tool with its category and description, <a href="/llms.txt">llms.txt</a> is the same catalogue as prose, and <a href="/sitemap.xml">sitemap.xml</a> indexes every published page. To follow new tools rather than re-read the catalogue, subscribe to the <a href="/feed.xml" type="application/atom+xml">Atom feed</a>.</p>
@@ -234,11 +119,12 @@
     <li><a href="https://marisstella.dev/c/marketplace/">Free marketplace seller fee calculators</a></li>
     <li><a href="https://marisstella.dev/c/solo-earner/">Creator &amp; solo earner income</a></li>
     <li><a href="https://marisstella.dev/c/logistics/">Free freight, 3PL and cloud cost calculators</a></li>
+    <li><a href="https://marisstella.dev/c/food-service/">Free menu, pour cost and food truck pricing calculators</a></li>
     <li><a href="https://marisstella.dev/c/more/">More free small-business calculators</a></li>
   </ul>
 </main>
 <footer>
-  <p><a href="/">All 272 tools</a> · <a href="/feed.xml" type="application/atom+xml">New tools feed</a> · <a href="/llms.txt">llms.txt</a></p>
+  <p><a href="/">All 277 tools</a> · <a href="/feed.xml" type="application/atom+xml">New tools feed</a> · <a href="/llms.txt">llms.txt</a></p>
   <p class="fine"><strong>No warranty.</strong> These tools are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, financial, engineering or professional advice, and they do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
   <p class="fine"><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
 </footer>

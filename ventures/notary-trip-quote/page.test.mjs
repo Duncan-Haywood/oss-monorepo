@@ -177,3 +177,15 @@ test('index links one hop to the translator-project-quote sibling', () => {
     'index must link ../translator-project-quote/ so crawlers reach the translator calculator in one hop',
   );
 });
+
+// Same section, same shape: a solo legal-support professional pricing one
+// job's flat client fee against their own travel/time cost. Reciprocal with
+// process-server-fee-calculator's own link back here (see its page.test.mjs)
+// so neither tool is a crawlable orphan.
+test('index links one hop to the process-server-fee-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/process-server-fee-calculator\/"/,
+    'index must link ../process-server-fee-calculator/ so crawlers reach the process server calculator in one hop',
+  );
+});

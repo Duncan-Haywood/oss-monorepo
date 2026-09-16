@@ -24,7 +24,7 @@ well-formed. It does not resolve every pattern against every file and compare wi
 ### CLI — optional convenience, no network, no dependencies
 
 ```
-node check.mjs
+node cli/check.mjs
 ```
 
 Auto-detects your `CODEOWNERS` file (root, `.github/`, or `docs/`, the same three
@@ -33,8 +33,8 @@ one JSON object ready to paste into the browser page. Point it at a specific fil
 supply your own path list instead of `git ls-files`:
 
 ```
-node check.mjs path/to/CODEOWNERS
-node check.mjs --paths files.txt
+node cli/check.mjs path/to/CODEOWNERS
+node cli/check.mjs --paths files.txt
 ```
 
 ### Browser — works from pasted text, CLI or not

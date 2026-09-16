@@ -10236,6 +10236,76 @@ ventures:
       clean reciprocal link, and every page states plainly that a clean
       result is evidence from the pages actually fetched or pasted, not a
       full international-SEO audit or a ranking guarantee.
+  - slug: security-txt-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.000
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a field name is one RFC 9116
+      defines, whether a value parses as an RFC 3339 timestamp, and whether
+      that timestamp is before "now" are exact comparisons against a published
+      standard and a clock -- factual and deterministic, not a model judgment.
+      The tool never claims to assess the site's security, only the file's
+      conformance.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool in the same shape
+      as sitemap-lastmod-freshness-check and cors-misconfig-check (a real
+      network fetch the browser cannot do itself, paired with a paste-based
+      browser mode), not another <trade>-bid-calculator.
+      duplicate_check.py scored every existing venture, screened-out row and
+      pipeline candidate at 0.15 or below against the final description, far
+      under the 0.45 flag bar; the closest are structural siblings over
+      entirely different evidence classes (sitemap <lastmod> values,
+      Set-Cookie attributes, SPF/DKIM/DMARC records, response headers).
+      Nothing in screened-out.md mentions security.txt, RFC 9116, or
+      disclosure contacts. Autonomous ops 10 / gross margin 10: the CLI's
+      requests run from the user's own machine against a host of their
+      choosing, and the browser page needs no network at all, so serving one
+      more user costs a static file.
+      Distribution 6 -- one higher than sitemap-lastmod-freshness-check, and
+      the reason is the only thing that distinguishes this venture from every
+      other checker in the catalogue. RFC 9116 makes `Expires` mandatory and
+      time-bound, so a conforming file becomes a non-conforming one with no
+      commit and no deploy. That is a mechanical reason to return, and a
+      mechanical reason to wire the CLI into a schedule -- which is precisely
+      the "frequency of use and reason to return" criterion
+      portfolio/router/allocate.py reports as untested across all 283
+      ventures. The search-term anchor is a published standard with a stated
+      MUST rather than an inferred practice ("security.txt validator", "RFC
+      9116 Expires required", "security.txt expired"), and securitytxt.org is
+      general-knowledge evidence of real sustained demand in the category.
+      Time to revenue 6, defensibility 3: donations-only; a transparent
+      validator over a published standard is easy to reimplement once the
+      rules are known, same as this portfolio's other deterministic checkers,
+      so defensibility rests only on the CI-usable CLI, the paste-based
+      browser mode, the danger/notice severity split, and this portfolio's
+      disclaimer and usage conventions.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only ordinary, unauthenticated GET requests from the
+      user's own machine to two well-known paths on a host they named -- never
+      this portfolio's infrastructure touching a third party, and no different
+      in kind from opening a URL in a tab. It reads a file whose entire purpose
+      is to be read by strangers, so there is no access question to contain.
+      Every page states plainly that this validates one file against RFC 9116
+      and is not a security assessment, not a vulnerability scan, and not a
+      determination that anyone reads the address published. The tool
+      deliberately does not verify PGP signatures, because doing so would mean
+      fetching a key on the user's behalf. What a visitor pastes never leaves
+      their browser, which matters more here than elsewhere in the catalogue:
+      a list of which companies someone is checking is itself sensitive, and
+      the usage counters record only an event name and a day.
   - slug: sitemap-lastmod-freshness-check
     scores:
       ai_leverage: 1
@@ -11633,6 +11703,103 @@ ventures:
       otherwise skip 508 documentation altogether. Nothing is uploaded, no
       personal data is collected, and no claim is made that improves this
       portfolio's position at a user's expense.
+  - slug: process-server-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model -- extra-attempt,
+      rush, and skip-trace add-ons split from a client's base fee, mileage
+      revenue split from actual vehicle cost, and a break-even base fee
+      derivation -- and it is arithmetic a process server has to be able to
+      re-derive when deciding whether a client relationship is worth
+      keeping.
+    basis: >-
+      Graduated and scored 2026-09-11, in the same change, per
+      `score_ventures.py --check`. Same two-layer shape as this portfolio's
+      other route/deployment-pricing calculators
+      (`cat-adjuster-fee-calculator`, `medical-courier-route-margin`),
+      scored the same way, applied to a genuinely different buyer: an
+      independent 1099 process server paid a flat per-serve base fee,
+      deciding whether a specific job or a specific client relationship is
+      worth taking. Defensibility 3: the arithmetic is transparent and
+      reproducible, as it has to be, and it is somewhat less
+      niche-specific than the CAT-adjuster deployment split -- the
+      attempts/skip-trace/mileage-vs-vehicle-cost shape generalizes more
+      readily to other route-billing add-on structures than a blended
+      large-loss fee does. Distribution 5: "process server fee calculator"
+      and "how much to charge to serve papers" are narrow, low-competition
+      search terms, and r/ProcessServers, NAPPS's member forums, and
+      process-serving Facebook groups are named, active communities that
+      already discuss per-serve and per-attempt pricing -- but membership
+      is smaller and more fragmented than the CAT-adjuster forums this
+      portfolio scored 6, and volume is unmeasured either way.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the server's own figures, never a
+      determination of whether service was validly effected under any
+      state's rules of civil procedure, whether the server is licensed,
+      bonded, or registered in a jurisdiction, or whether an affidavit of
+      service will hold up in court. The tool never touches a live case or
+      anyone else's data. Nothing entered leaves the browser.
+  - slug: photo-addon-pricing-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model -- shoot/cull/edit
+      time valued at a target hourly rate, gear depreciation/wear, and a
+      break-even price derivation -- and it is arithmetic an independent
+      photographer has to be able to re-derive when deciding whether an
+      add-on is worth offering.
+    basis: >-
+      Graduated and scored 2026-09-16, in the same change, per
+      `score_ventures.py --check`. Same two-layer shape as this portfolio's
+      other solo-professional pricing calculators
+      (`process-server-fee-calculator`, `photo-booth-event-quote`), scored
+      the same way, applied to a genuinely different decision: an independent
+      wedding/event photographer deciding whether a specific package add-on
+      is worth offering or repricing, not whether a single job or client is
+      worth taking. Defensibility 3: the arithmetic is transparent and
+      reproducible, as it has to be, and the shoot/cull/edit-hours-vs-target-
+      rate shape generalizes readily to other creative-services add-on
+      pricing, same as the process-server calculator's own attempts/mileage
+      shape generalizes to other route-billing add-ons. Distribution 5:
+      "how much to charge for a second shooter" and "extra hour wedding
+      photography price" are narrow, low-competition search terms, and
+      r/WeddingPhotography, r/photography's business-side threads, the
+      Fstoppers "Business" forum, SLR Lounge, and PPA (Professional
+      Photographers of America) member forums are named, active communities
+      that already discuss add-on pricing -- comparable in size to the
+      CAT-adjuster and process-server forums this portfolio has already
+      scored 5-6, and volume is unmeasured either way.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the photographer's own figures,
+      never legal or contract advice, tax guidance, or a determination that
+      any specific price is fair or enforceable under a client contract. The
+      tool never touches a live booking or anyone else's data. Nothing
+      entered leaves the browser.
   - slug: 1099k-reconciliation-worksheet
     scores:
       ai_leverage: 1
@@ -11992,3 +12159,128 @@ ventures:
       server-side, and nothing in either calculator shades toward an
       operator's interest -- the agency-offer check exists specifically to
       protect the reporter's own time from an underpriced assignment.
+  - slug: pdf-accessibility-tag-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a PDF is tagged, titled,
+      has a declared language, has alt-text-bearing structure elements, or
+      has a text-showing operator on a page is decided by reading the PDF's
+      own object graph -- the catalog dictionary, the structure tree, and
+      content-stream operators -- not a model judgment, and it never claims
+      a PDF/UA or Section 508 conformance determination.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's "archetype
+      itself" section: PDF document-structure accessibility, distinct from
+      this portfolio's existing rendered-HTML-page evidence ventures
+      (ada-title-ii-evidence, shopify-a11y-evidence). duplicate_check.py
+      scored the closest existing venture (caption-quality-check, a
+      different accessibility-adjacent artifact type -- SRT/WebVTT caption
+      tracks, not PDF structure) at 0.20 against the final description,
+      well under the 0.45 flag bar; ada-title-ii-evidence itself scored
+      only 0.13 (it checks rendered HTML via pasted axe-core JSON, never
+      opens a PDF). Autonomous ops 10 / gross margin 10: the browser page
+      reads the file entirely client-side via the native
+      DecompressionStream API (nothing uploaded) and the CLI reads files
+      from the user's own machine, so serving one more user costs a static
+      file and needs no human review of any output.
+      Distribution 6: DOJ's April 2024 ADA Title II rule text defines PDFs
+      posted through a public entity's website as "web content" subject to
+      WCAG 2.1 AA, with compliance dates extended to April 2027/2028, plus
+      an earlier May 2026 HHS Section 504 deadline; five separate existing
+      free tools (PDFix, PDF Audit, Free PDF Checker, axesCheck, PAC) prove
+      real, sustained search demand for "PDF accessibility checker" /
+      "PDF/UA checker online" terms.
+      Time to revenue 6, defensibility 2: donations-only; five established
+      free competitors already serve this exact question and none require
+      uploading or offer a batch CLI, so defensibility rests specifically
+      on the no-upload (native DecompressionStream, nothing sent to a
+      server) and CLI-batch-folder-scan angle rather than on being
+      first-to-market or having a checklist moat -- scored lower than this
+      portfolio's typical checker floor of 3 because the field is more
+      crowded than most niches this portfolio has entered.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool reads a file the user supplies locally and never
+      touches a third party; every finding is evidence tied to a specific
+      structural fact (a missing StructTreeRoot, a Widget with no
+      resolvable /TU, a page with image content but no text-showing
+      operator), with the alt-text count explicitly disclosed as an
+      approximate, document-wide heuristic rather than a confirmed
+      per-image match, and an encrypted PDF is reported as a named
+      limitation rather than silently mis-scored. Never phrased as a
+      PDF/UA or Section 508 conformance determination. Ethically:
+      donations-only with no per-scan fee or volume-based revenue, so
+      there is no direction in which the tool profits from over- or
+      under-reporting, and the heuristic limitations are disclosed in the
+      product's own FAQ rather than hidden.
+  - slug: agent-instructions-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a file reference, an npm
+      script, or a known interpreter-mismatch shell footgun matches the
+      repo is decided by regex extraction plus a filesystem/JSON existence
+      check -- not a model judgment, and it never evaluates whether an
+      instruction is good advice.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's "archetype
+      itself" section: a drift checker for AI-coding-agent instruction
+      files (AGENTS.md/CLAUDE.md/.cursorrules/copilot-instructions.md),
+      distinct from this portfolio's existing config/doc drift checkers
+      (env-example-drift-check diffs .env.example against process.env
+      reads; structured-data-drift-check diffs a page's own JSON-LD
+      against its visible text). duplicate_check.py scored the closest
+      existing venture (docker-base-image-pin-check) at 0.10 against the
+      final description, well under the 0.45 flag bar.
+      Autonomous ops 10 / gross margin 10: the browser page parses pasted
+      text and file *names* read from a locally-picked folder entirely
+      client-side (nothing uploaded), and the CLI reads only local files
+      it is pointed at, so serving one more user costs a static file.
+      Distribution 5: AGENTS.md became a real, multi-vendor convention
+      across AI coding agents through 2025 (Codex, Claude Code, Cursor's
+      .cursorrules, Copilot's copilot-instructions.md), and this
+      portfolio's own CLAUDE.md documents (2026-09-11, 2026-09-12) real
+      sessions losing time to the exact interpreter-mismatch footgun this
+      tool flags -- proof the failure mode is real, scored moderately
+      because that evidence is internal rather than external search
+      volume.
+      Time to revenue 5, defensibility 3: donations-only; the underlying
+      mechanism (a markdown-link/reference checker) is a well-trodden
+      general category, so defensibility rests on the specific
+      combination (npm-script check plus the named interpreter-mismatch
+      footgun, scoped to agent instruction files) rather than on being
+      hard to copy.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool reads only text the user supplies and, optionally,
+      file names from a locally-picked folder; it never touches a third
+      party and never claims the instructions themselves are correct or
+      complete -- only whether a specific reference resolves. Ethically:
+      donations-only with no per-use fee, so there is no direction in
+      which the tool profits from over- or under-reporting, and the one
+      known false-positive shape (a context-dependent shorthand
+      reference) is disclosed on the docs page rather than hidden or
+      "fixed" with guesswork that could introduce a false negative.

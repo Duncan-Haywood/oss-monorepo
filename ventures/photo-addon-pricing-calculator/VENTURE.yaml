@@ -1,0 +1,31 @@
+name: photo-addon-pricing-calculator
+description: A browser-local calculator for independent wedding and event photographers/videographers to find real net profit for a package add-on -- an extra hour of coverage, a second shooter, an album/print upgrade, an engagement session -- after their own shoot/cull/edit time and gear depreciation/wear, then compare two or three add-on options by effective hourly rate, not headline price.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent wedding and event photographers will use a per-add-on profit calculator because a flat "$300 for an extra hour" or "$450 for a second shooter" price hides whether the add-on is worth offering once the culling and editing hours it generates, and gear wear, are netted out against the photographer's own target hourly rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Members of r/WeddingPhotography and r/photography business-side threads, the Fstoppers "Business" forum, SLR Lounge, and PPA (Professional Photographers of America) member forums asking "what should I charge for a second shooter" or "how much extra for another hour" are underserved by generic freelance-rate calculators, because the shoot/cull/edit time split and the gear-wear allowance are specific to photography add-on pricing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Photographers who offer several add-ons (extra hours, second shooter, album upgrades, engagement sessions) will use the add-on comparison table, not just the single-add-on calculator, to decide which add-ons to keep offering or to reprice.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified independent wedding/event photographers use the calculator twice within 90 days of public distribution.
+  - Users say their studio management or invoicing software's own package pricing already produces the same accept/reprice decision just as fast.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/photo-addon-pricing-calculator/
+  analytics: null

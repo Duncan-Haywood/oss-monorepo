@@ -194,10 +194,11 @@ test('robots and sitemap let crawlers find every page', () => {
   assert.match(sitemap, /auto-repair-effective-labor-rate\/<\/loc>/);
   assert.match(sitemap, /what-is-my-effective-labor-rate\.html/);
   assert.match(sitemap, /vs-tekmetric\.html/);
+  assert.match(sitemap, /vs-shop-ware\.html/);
 });
 
 test('every published page carries Open Graph tags', () => {
-  for (const [name, html] of [['index.html', markup], ['what-is-my-effective-labor-rate.html', guide], ['vs-tekmetric.html', page('vs-tekmetric.html')]]) {
+  for (const [name, html] of [['index.html', markup], ['what-is-my-effective-labor-rate.html', guide], ['vs-tekmetric.html', page('vs-tekmetric.html')], ['vs-shop-ware.html', page('vs-shop-ware.html')]]) {
     assert.match(html, /property="og:title"/, `${name} has no og:title`);
     assert.match(html, /property="og:description"/, `${name} has no og:description`);
   }
@@ -219,6 +220,29 @@ test('index links to the Tekmetric comparison page, and the comparison page link
 
 test('wide tables on the Tekmetric comparison page scroll in their own box, not the page', () => {
   const vsPage = page('vs-tekmetric.html');
+  const tables = [...vsPage.matchAll(/<table[\s\S]*?<\/table>/g)];
+  assert.ok(tables.length > 0);
+  const wrapped = [...vsPage.matchAll(/<div class="scroll">[\s\S]*?<\/div>/g)];
+  assert.equal(wrapped.length, tables.length, 'every table needs its own .scroll wrapper');
+  assert.match(vsPage, /\.scroll \{ overflow-x: auto; \}/);
+});
+
+test('index links to the Shop-Ware comparison page, and the comparison page links back', () => {
+  assert.match(markup, /href="vs-shop-ware\.html"/);
+  const vsPage = page('vs-shop-ware.html');
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /not\s+affiliated\s+with/i);
+  assert.match(vsPage, /<link rel="canonical"/);
+  assert.match(vsPage, /application\/ld\+json/);
+  assert.match(vsPage, /href="\.\/"/, 'the comparison page must link back to the tool');
+  // PRODUCT_PLAYBOOK.md 5f: a vs-<competitor> page names a trademark and must
+  // say plainly it is not that product's page. Loosely matched to allow the
+  // page's own voice, mirroring platform/pages/clauses.mjs's NOT_AFFILIATED.
+  assert.match(vsPage, /Shop-Ware/);
+});
+
+test('wide tables on the Shop-Ware comparison page scroll in their own box, not the page', () => {
+  const vsPage = page('vs-shop-ware.html');
   const tables = [...vsPage.matchAll(/<table[\s\S]*?<\/table>/g)];
   assert.ok(tables.length > 0);
   const wrapped = [...vsPage.matchAll(/<div class="scroll">[\s\S]*?<\/div>/g)];

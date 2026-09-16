@@ -360,7 +360,7 @@
   } from "./calc.mjs";
   import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
   import { decodeShare, encodeShare } from "./share.mjs";
-  import { handoffsForRows } from "./handoff.mjs";
+  import { handoffsForRows, handoffUrl, excludedHandoffUrl } from "./handoff.mjs";
 
   const FIELD_IDS = [
     "price", "shippingCharged", "itemCost", "shippingCost",
@@ -396,14 +396,51 @@
              placeholder="default">
     </div>`).join("");
 
-  el("notCovered").innerHTML = CHANNELS.map((channel) => `
-    <li><strong>${escapeHtml(channel.label)}</strong> — not included here:
-      ${escapeHtml(channel.notCovered)}
-      <a href="../${escapeHtml(channel.deepTool)}/">Open the ${escapeHtml(channel.deepToolLabel)}</a>.</li>`).join("");
+  // The two pointer lists, rebuilt on every render for the same reason the
+  // "continue with these numbers" list is.
+  //
+  // Both used to render once at load with a bare `../<slug>/`, which put three
+  // routes out of this page in two different states: the ranked handoff list
+  // carried the seller's item, while the "not included here" caveats and the
+  // excluded-channel pointers — pointing at the *same* calculators — dropped
+  // it. A reader who took the caveat link, which is the one attached to the
+  // reason they most likely want the deep tool, retyped everything.
+  //
+  // Rendering once was the cause, not an accident of it: a link built before
+  // the first paint can only hold the page's defaults, so carrying the item
+  // requires rebuilding when the item changes.
+  function paintPointers(item) {
+    el("notCovered").innerHTML = CHANNELS.map((channel) => {
+      // The `??` is defensive only — `handoff.test.mjs` asserts all six ranked
+      // channels have an entry — but the fallback is still built from the
+      // model, so a channel whose mapping is mid-write keeps a working link
+      // rather than emitting the string "null" as its target.
+      //
+      // Never spell a sample href attribute out inside a comment in this
+      // script. `front-door-tools.mjs` scans script bodies for href and src
+      // attributes and judges every match that carries no interpolation as a
+      // real path the page will hand the browser — and it does not strip
+      // comments first, because it reads the body with one regex rather than
+      // as a parsed program. So an illustration becomes a dead link, the
+      // eligibility fixpoint drops this venture, and then it drops everything
+      // that linked here. Measured while writing this: one such comment took
+      // `where-to-sell-calculator` and `whatnot-seller-payout` off the apex
+      // alongside this page, and the build error named only the collateral.
+      const href = handoffUrl(channel.id, item) ?? `../${channel.deepTool}/`;
+      return `
+      <li><strong>${escapeHtml(channel.label)}</strong> — not included here:
+        ${escapeHtml(channel.notCovered)}
+        <a href="${escapeHtml(href)}"
+           data-pointer="${escapeHtml(channel.deepTool)}">Open the ${escapeHtml(channel.deepToolLabel)}</a>.</li>`;
+    }).join("");
 
-  el("excluded").innerHTML = EXCLUDED_CHANNELS.map((channel) =>
-    `<strong>${escapeHtml(channel.label)}</strong> is not in the table. ${escapeHtml(channel.why)}
-     <a href="../${escapeHtml(channel.deepTool)}/">Open the ${escapeHtml(channel.deepToolLabel)}</a>.`).join(" ");
+    el("excluded").innerHTML = EXCLUDED_CHANNELS.map((channel) => {
+      const href = excludedHandoffUrl(channel.deepTool, item) ?? `../${channel.deepTool}/`;
+      return `<strong>${escapeHtml(channel.label)}</strong> is not in the table. ${escapeHtml(channel.why)}
+       <a href="${escapeHtml(href)}"
+          data-pointer="${escapeHtml(channel.deepTool)}">Open the ${escapeHtml(channel.deepToolLabel)}</a>.`;
+    }).join(" ");
+  }
 
   function readItem() {
     return Object.fromEntries(FIELD_IDS.map((id) => [id, el(id).value]));
@@ -475,6 +512,7 @@
     }
 
     paintHandoffs(rows, item);
+    paintPointers(item);
   }
 
   // "Continue with these numbers", rebuilt on every render.
@@ -544,6 +582,22 @@
   el("handoffs").addEventListener("click", (event) => {
     if (event.target.closest("a[data-handoff]")) count("handoff_followed");
   });
+
+  // The pointer lists get their own counter rather than adding to
+  // `handoff_followed`. Both answer "did the reader leave into a deep tool",
+  // but they answer it about different invitations — one offered because a
+  // channel won, one offered because this page admits it cannot price
+  // something — and folding them together would make the existing series
+  // discontinuous at this change while hiding which invitation actually works.
+  //
+  // Which tool was opened is not recorded, for the reason the handoff counter
+  // gives: the question is whether the route is used at all, and that is
+  // answerable without narrowing anyone.
+  for (const id of ["notCovered", "excluded"]) {
+    el(id).addEventListener("click", (event) => {
+      if (event.target.closest("a[data-pointer]")) count("pointer_followed");
+    });
+  }
 
   el("copy").addEventListener("click", async () => {
     if (!lastRun) {

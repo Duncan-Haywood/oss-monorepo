@@ -27,7 +27,7 @@ third-party script protection is missing or broken — instead of assuming
 ### CLI — does the actual fetching
 
 ```
-node check.mjs https://example.com/ [--json] [--timeout <ms>] [--no-fetch-assets]
+node cli/check.mjs https://example.com/ [--json] [--timeout <ms>] [--no-fetch-assets]
 ```
 
 Fetches the page, then re-fetches every cross-origin asset that declares an
@@ -38,7 +38,7 @@ when the page was reachable and no danger-severity finding was produced;
 
 ```yaml
 # in your own CI, not this portfolio's -- your compute, your target
-- run: node check.mjs https://staging.example.com/
+- run: node cli/check.mjs https://staging.example.com/
 ```
 
 `--no-fetch-assets` skips the second round of requests (a large page, or a
@@ -48,7 +48,7 @@ with no hash-drift check.
 ### Browser — hash generator (standalone) and report viewer
 
 Open `index.html`. The hash generator needs no CLI at all — paste content,
-get a hash. The page checker needs the CLI's output: `node check.mjs <url>
+get a hash. The page checker needs the CLI's output: `node cli/check.mjs <url>
 --json`, pasted in. **Why the browser can't fetch the page itself:** reading
 another site's response body from browser JavaScript is CORS-restricted, and
 most pages you'd want to check do not opt your tab into reading their full

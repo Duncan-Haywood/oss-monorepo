@@ -417,6 +417,83 @@ const CATEGORY_RULES = [
     test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first|custom-farm-rate)/.test(slug),
   },
   {
+    id: 'food-service',
+    title: 'Restaurant, bar & food truck pricing',
+    accent: '#6b2f3a',
+    blurb:
+      'What a plate, a pour, or a booked event actually earns once food cost, waste, and the hours behind it are in the arithmetic — for the operators who sell food and drink rather than a job at someone else\'s property.',
+    // Added 2026-09-13. The catch-all guard in `build.test.mjs` is what
+    // prompted it -- `More free tools` had reached 6 against a bound of 5 --
+    // but this section is NOT what fixed that, and the distinction matters for
+    // anyone weighing whether to keep it. #4677 restored the bound
+    // independently in the same window by filing `caption-quality-check` (the
+    // arrival that tripped it) under `ci`.
+    //
+    // What the guard actually bought was the enumeration. Following its own
+    // instruction -- "Prefer listing the catch-all to reasoning about the one
+    // venture in front of you" -- the six were listed rather than judging the
+    // arrival, and the cluster turned out to be already there, two of it
+    // sitting in the catch-all and one of it filed under `services` for want
+    // of anywhere better. So judge this section on the axis below and on
+    // `pour-cost-calculator` having a home that fits, not on a bound.
+    //
+    // The axis is what is being sold: food and drink, priced per item or per
+    // event, where the cost side is ingredients and prep hours. That is a
+    // different question from every named section above:
+    //
+    //   - `trades` bids a job at the customer's property. `hood-cleaning-bid-
+    //     calculator` cleans a restaurant's hood and is deliberately NOT moved
+    //     here -- it is a trade pricing its own visit, and the restaurant is
+    //     its customer, not its operator.
+    //   - `services` prices "a visit, a route, a booking, or a licence".
+    //   - `marketplace` is someone else's storefront and fee schedule.
+    //   - `solo-earner` is one individual's own labour or audience.
+    //
+    // `pour-cost-calculator` moves here out of `services`, and that is the
+    // part worth justifying rather than assuming. A bar working out the pour
+    // cost on a spirit is not pricing a visit, a route, a booking or a licence
+    // -- it was in `services` because nothing fitted better, which is the same
+    // condition the catch-all exists to express, one section over. A reader
+    // who found the menu tool is plausibly the same person who wants the pour
+    // cost; a reader of `dog-walking-route-pricing` is not.
+    //
+    // An exact slug list rather than a prefix family, for the reason
+    // `solo-earner` records: these three are named for three unrelated things
+    // and no prefix catches them without stealing from a section above. A
+    // `food` prefix would not catch `menu-engineering-calculator` or
+    // `pour-cost-calculator` at all, and a `menu` or `pour` prefix claims
+    // nothing a fourth member would inherit. The cost is that a fourth member
+    // needs one line here -- which the catch-all bound will ask for anyway.
+    //
+    // Smallest named section at three members (`logistics` is next at seven),
+    // and the honest case for it has to stand without the bound, since #4677
+    // already satisfied that. Two things carry it:
+    //
+    // `pour-cost-calculator` gains a home that fits. It was in `services`,
+    // which prices "a visit, a route, a booking, or a licence", and a pour cost
+    // is none of those -- so one of these three was already mis-filed
+    // regardless of what the catch-all did.
+    //
+    // And a hub that answers "restaurant menu pricing" or "bar pour cost" is
+    // worth more to a searcher than three rows spread across "Everything else"
+    // and a service-business page they have no reason to open. This catalogue's
+    // measured problem is enumeration, not content (`pages_state.py`'s
+    // `indexing` row: sitemap auto-discovery cannot happen from a project-Pages
+    // subpath), so a named hub on a high-intent phrase is the cheap half of
+    // that.
+    //
+    // The risk in the other direction is real and worth naming: a section this
+    // small is one venture away from looking arbitrary, and food/bev is a wide
+    // enough niche that it should grow rather than sit at three. If it has not
+    // gained a fourth member in a few months, fold it back into `services`
+    // rather than defending it.
+    test: (slug) => [
+      'menu-engineering-calculator',
+      'food-truck-event-margin-calculator',
+      'pour-cost-calculator',
+    ].includes(slug),
+  },
+  {
     id: 'services',
     title: 'Service business pricing & quotes',
     accent: '#1d4a5c',
@@ -543,8 +620,28 @@ const CATEGORY_RULES = [
     // by area or a site visit) and not a back-office reconciliation (the
     // number is invoiced for the job just done, not reconciled against a
     // prior statement).
+    //
+    // `process-server-fee-calculator` joined 2026-09-11 on its first commit,
+    // filed here rather than left for a catch-all spell: an independent
+    // process server pricing one service-of-process job from a flat base
+    // fee, extra-attempt/rush/skip-trace add-ons, mileage, and their own
+    // vehicle cost and time is the same job as `notary-trip-quote` (which it
+    // links to) — a solo legal-support professional turning a client's flat
+    // fee schedule and their own travel/time cost into an accept-or-decline
+    // decision, not a trade bid and not a marketplace fee.
+    //
+    // `photo-addon-pricing-calculator` joined 2026-09-16 on its first commit,
+    // filed here rather than left for a catch-all spell: an independent
+    // wedding/event photographer pricing one package add-on (an extra hour,
+    // a second shooter, an album/print upgrade, an engagement session) from
+    // their own shoot/cull/edit time valued at a target hourly rate, gear
+    // depreciation/wear, and any subcontractor or physical-goods cost is the
+    // same job as `photo-booth-event-quote` and `commercial-photo-license-
+    // calculator` (both of which it links to) — a solo photography
+    // professional turning their own time and cost into a customer-facing
+    // price, not a trade bid and not a marketplace fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing)/.test(
         slug,
       ),
   },
@@ -597,9 +694,23 @@ const CATEGORY_RULES = [
     // vendor's procurement bid instead of a merchant's theme or a listing
     // photo set. Slug ends in neither `-evidence` nor any suffix above, and
     // starts with `vpat`, which none of the prefixes above would guess.
+    //
+    // `pdf-accessibility-tag-check` joined 2026-09-16, filed here on its
+    // first commit rather than after a spell in the catch-all -- what
+    // `build.test.mjs`'s catch-all bound is for. Its buyer and evidence
+    // posture match this section exactly ("3 of N automatable checks did
+    // not pass -- here is each one", never "this PDF is compliant"), the
+    // same as `shopify-a11y-evidence` and `vpat-acr-generator` right above:
+    // a dated accessibility-structure record a government or university
+    // webmaster hands to whoever remediates the file, not a determination
+    // this tool made on their behalf. Not `ci`, even though it also ships a
+    // matching CLI: that section's buyer is a developer auditing their own
+    // supply chain, not a compliance record for a document library. Slug
+    // ends in `-check`, not any suffix above, and starts with `pdf`, which
+    // none of the prefixes above would guess.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator)/.test(slug),
+      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check)/.test(slug),
   },
   {
     id: 'backoffice',
@@ -1043,6 +1154,29 @@ const CATEGORY_RULES = [
     // also what keeps that catch-all inside the bound `build.test.mjs` puts
     // on it.
     //
+    // `security-txt-check` joined 2026-09-16: a zero-dependency CLI plus a
+    // matching browser page, run by a security engineer or platform team
+    // against a `security.txt` they publish -- just for that file's own
+    // conformance to RFC 9116 (a missing or expired `Expires`, a `Contact`
+    // that is a bare address rather than a URI, a key pasted where an
+    // `Encryption` URI belongs, a silently-ignored field name), rather than a
+    // response header, a sitemap's `<lastmod>`, or a page's `<head>` tags. It
+    // shares `sitemap-lastmod-freshness-check`'s "CLI does the real fetch,
+    // browser half works from pasted text" split, for the same reason the
+    // whole category has it -- and cross-links `security-headers-check` and
+    // `email-auth-check` as Related.
+    //
+    // The one thing that distinguishes it from every other entry in this
+    // category is worth recording, because it is the reason it was built:
+    // every other checker here reports a state that stays fixed once fixed,
+    // and this one reports a *deadline*. RFC 9116 makes `Expires` mandatory
+    // and time-bound, so a file that passes today fails on its own with no
+    // commit and no deploy -- which is the only venture in this catalogue
+    // with a mechanical reason to be re-run rather than visited once.
+    // Listed by exact slug rather than a new prefix, the same way its
+    // neighbors above are (and note `security-headers-check` above does not
+    // cover it: the regex is anchored, and these are two different slugs).
+    //
     // `redirect-chain-check` joined 2026-09-11: a zero-dependency CLI plus a
     // matching browser page, run by a developer or SEO practitioner against
     // a URL they name -- just for the URL's own HTTP redirect chain (a
@@ -1195,7 +1329,7 @@ const CATEGORY_RULES = [
     // here rather than the catch-all is also what keeps that catch-all
     // inside the bound `build.test.mjs` puts on it.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|terraform-plan-)/.test(
         slug,
       ),
   },
@@ -1946,6 +2080,14 @@ const CATEGORY_PAGE_COPY = {
     intro:
       'Winning the work and getting paid for it are two different problems. These tools cover the second one: when the cash actually arrives, what a payment term costs you, and what a price change has to earn before it breaks even.',
     audience: 'small-business owners and operators',
+  },
+  'food-service': {
+    title: 'Free menu, pour cost and food truck pricing calculators',
+    description:
+      'Free pricing tools for restaurants, bars and food trucks. Work out a menu item\'s margin, a spirit\'s pour cost, or whether a booked event covers its own prep.',
+    intro:
+      'Food and drink is priced per item, and the cost side is the part that moves: an ingredient price that changed last week, waste nobody logged, and the prep hours that never make it onto the plate cost. These tools put those in the arithmetic, so a menu price or an event quote is a margin you can point at rather than a guess with a multiplier on it.',
+    audience: 'restaurant, bar and food truck operators',
   },
   services: {
     title: 'Free pricing calculators for service businesses',

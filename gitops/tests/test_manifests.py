@@ -1598,28 +1598,54 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # the tree, not of any one session's diff, so concurrent ventures
     # graduating in parallel each correctly claimed their own base and
     # merging all of them advances the total by one per venture.
-    # 268 since 2026-09-11, when `1099k-reconciliation-worksheet` graduated
-    # (#4641) — a multi-platform gig/marketplace 1099-K reconciliation
-    # worksheet with a static `index.html` from its first commit, same shape
-    # as the rest of this running count.
-    # 269 since 2026-09-12, when `fleet-repair-or-replace-planner` graduated —
+    # 268 since 2026-09-11, when `process-server-fee-calculator` graduated —
+    # a static `index.html` from its first commit, same shape as the venture
+    # above it.
+    # 269 since 2026-09-11, when `1099k-reconciliation-worksheet` also
+    # graduated the same day (#4641) — a multi-platform gig/marketplace
+    # 1099-K reconciliation worksheet with a static `index.html` from its
+    # first commit, merging on top of the above the same way the two
+    # ventures before it did: concurrent graduations each correctly claimed
+    # their own base, and merging both advances the total by one per venture.
+    # 270 since 2026-09-12, when `fleet-repair-or-replace-planner` graduated —
     # a repair-versus-replace planner for a small trade fleet, with a static
     # `index.html` from its first commit, so it entered the mirror and the
     # total together like the rest of this running count.
-    # 270 since 2026-09-13, when `obsidian-plugin-review-check` graduated — a
+    # 271 since 2026-09-13, when `obsidian-plugin-review-check` graduated — a
     # free CLI + browser tool for Obsidian community-plugin developers, with a
     # static `index.html` from its first commit, same shape as the rest of
     # this running count.
-    # 271 since 2026-09-13, when `caption-quality-check` graduated — a free
+    # 272 since 2026-09-13, when `caption-quality-check` graduated — a free
     # CLI + browser tool checking SRT/WebVTT caption files for reading speed,
     # line length, and timing problems against commonly-used caption
     # style-guide thresholds, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    # 272 since 2026-09-13, when `court-reporter-transcript-calculator`
+    # 273 since 2026-09-13, when `court-reporter-transcript-calculator`
     # graduated — a freelance court reporter deposition-invoice and
     # agency-offer calculator, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 272  # `infra/OWNER_CHECKLIST.md`'s own "N of the 272 tools" wording.
+    # 274 since 2026-09-16, when `pdf-accessibility-tag-check` graduated — a
+    # zero-dependency CLI + no-upload browser tool checking a PDF's own tag
+    # structure, title, language, alt text, and form-field labels against
+    # PDF/UA and Section 508, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    # 275 since 2026-09-16, when `photo-addon-pricing-calculator` graduated —
+    # an independent wedding/event photographer's package add-on pricing
+    # calculator, with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    # 276 since 2026-09-16, when `agent-instructions-drift-check` graduated —
+    # a zero-dependency CLI + no-upload browser tool checking an AI-coding-
+    # agent instruction file (AGENTS.md/CLAUDE.md) for broken file
+    # references, undefined npm scripts, and known interpreter-mismatch
+    # shell footguns, with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    # 277 since 2026-09-16, when `security-txt-check` graduated — a
+    # zero-dependency CLI + no-upload browser tool validating a `security.txt`
+    # against RFC 9116 (an expired or missing `Expires`, a `Contact` that is
+    # not a URI, a key pasted where an `Encryption` URI belongs), with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    total = 277  # `infra/OWNER_CHECKLIST.md`'s own "N of the 277 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

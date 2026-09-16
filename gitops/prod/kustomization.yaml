@@ -165,6 +165,7 @@ configMapGenerator:
       - c__evidence.html=front-door/c__evidence.html
       - c__marketplace.html=front-door/c__marketplace.html
       - c__backoffice.html=front-door/c__backoffice.html
+      - c__food-service.html=front-door/c__food-service.html
       - c__services.html=front-door/c__services.html
       - c__logistics.html=front-door/c__logistics.html
       - c__ci.html=front-door/c__ci.html

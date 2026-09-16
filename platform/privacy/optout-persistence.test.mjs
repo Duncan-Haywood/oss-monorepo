@@ -9,9 +9,19 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { checkModule, checkAll } from "./optout-persistence.mjs";
+
+// This file's own repo-relative path, so the catalogue test's failure message
+// can quote a runnable `git log` rather than a path typed out by hand -- the
+// kind of restatement that survives a rename and then sends the next reader
+// to a file that is not there.
+const RELATIVE_SELF = relative(
+  join(fileURLToPath(new URL(".", import.meta.url)), "..", ".."),
+  fileURLToPath(import.meta.url),
+);
 
 // How many venture usage modules offer an in-page way to turn counting off,
 // measured 2026-09-12. Every one of them must keep the choice across a
@@ -31,7 +41,54 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // 255 -> 256 on 2026-09-13, when `caption-quality-check` shipped with a
 // `usage.mjs` following the same `readOptOut`/`writeOptOut` pattern as
 // redirect-chain-check and its siblings.
-const SWITCHES_IN_THE_CATALOGUE = 257;
+// 256 -> 257 on 2026-09-11 (missed at the time), when
+// `process-server-fee-calculator` graduated with a `usage.mjs` opt-out
+// following the same `readOptOut`/`writeOptOut` pattern as its siblings --
+// its own PR touched venture-scores.yaml, publish-surface.yaml and the
+// front-door mirror but not this file, so main stayed red here by one until
+// this comment was written, same shape as the obsidian-plugin-review-check
+// miss above.
+// 257 -> 258 on 2026-09-16, when `pdf-accessibility-tag-check` graduated
+// with a `usage.mjs` copying the same `readOptOut`/`writeOptOut` pattern
+// (via cors-misconfig-check's usage.mjs, keyed under its own storage name).
+// 258 -> 259 on 2026-09-16, when `process-server-fee-calculator` (#4720)
+// graduated with a `usage.mjs` opt-out. That merge left `main` red here --
+// the same shape as the 254 -> 255 entry above, and for the same reason: the
+// venture's own suite is green, and nothing in a new venture's diff points at
+// this file. Found by a session that merged `main` into its branch and re-ran
+// the checklist, not by CI, which is starved.
+// One thing that entry is worth keeping separate from the others: it is the
+// first addition here that does NOT copy the `readOptOut`/`writeOptOut` pair.
+// It spells the same switch `usageAllowed`/`toggleUsage`, persisting an
+// `...-usage-opt-out` key in `localStorage`. Behavioural discovery found it
+// regardless, which is the argument for behavioural discovery -- the name
+// allowlist this file started with would have filed it `no-switch` and left a
+// real opt-out unverified while the count still read as full coverage.
+// 259 -> 260 on 2026-09-16, when `photo-addon-pricing-calculator` graduated
+// with a `usage.mjs` opt-out following the same `readOptOut`/`writeOptOut`
+// pattern as its siblings.
+// 260 -> 261 on 2026-09-16, when `security-txt-check` graduated with the same
+// `readOptOut`/`writeOptOut` pair. Worth one line on why that switch matters
+// more than most on this particular page: the tool reads a file naming a
+// company's disclosure contact, so a list of which sites someone is checking
+// is itself sensitive. Nothing is uploaded either way -- the counters are
+// local and record only an event name and a day -- but the opt-out is the
+// visitor's own control over even that, and it has to survive a reload to
+// mean anything.
+// 261 -> 262 on 2026-09-16, for `agent-instructions-drift-check` (#4745), the
+// last of the five ventures that graduated since the count was 257 and the
+// only one whose merge did not carry the bump. Found red on `main`, not on the
+// branch that fixed it.
+//
+// The arithmetic is recorded because the failure message asks for it and this
+// is the case it warns is *not* a free bump. Measured at 48f8b2887, the commit
+// that last set the number: 268 modules, 257 switches, constant 257 -- correct
+// then. At HEAD: 273 modules, 262 switches. Five `ventures/*/usage.mjs` were
+// added in between, all five report `pass`, and 257 + 5 = 262 exactly. So the
+// rise is fully accounted for by additions and no module silently stopped
+// being a switch, which is the reading that would have meant leaving this line
+// alone and going to find the venture that lost its opt-out instead.
+const SWITCHES_IN_THE_CATALOGUE = 262;
 
 let counter = 0;
 function fixture(source) {
@@ -368,9 +425,25 @@ test("every venture that offers the switch keeps it across a reload", async () =
   // covers, and a claim that can drift is not one. If this fails after you
   // added a venture, raise it. If it fails and you added nothing, a switch
   // stopped being a switch -- find out which before touching this line.
+  //
+  // The message names the repair because the bare number does not. Five
+  // ventures have now graduated without bumping this line, and #4667 was a
+  // whole PR spent rediscovering that a count moving up by one after a
+  // venture addition is a one-line edit. The archaeology is what costs, not
+  // the fix -- and a failure that has to be re-derived every time is one that
+  // eventually gets waved through. The comment block above records *what*
+  // happened each time; this records *how to find out* which it was.
   assert.equal(
     switched.length,
     SWITCHES_IN_THE_CATALOGUE,
-    "the set of modules offering an opt-out changed",
+    `the set of modules offering an opt-out changed: found ${switched.length}, ` +
+      `this file pins ${SWITCHES_IN_THE_CATALOGUE}. Name what moved before ` +
+      `editing the constant:\n` +
+      `  git log -1 --format=%h -G'SWITCHES_IN_THE_CATALOGUE = [0-9]' -- ${RELATIVE_SELF}\n` +
+      `  git diff --name-status <that-commit> HEAD -- 'ventures/*/usage.mjs' 'ventures/*/usage.js'\n` +
+      `One 'A' line per unit of increase is a venture graduating: raise the ` +
+      `constant and note it above. Anything else -- a decrease, or a rise no ` +
+      `addition accounts for -- means a switch stopped being a switch, and ` +
+      `the constant is not what needs changing.`,
   );
 });

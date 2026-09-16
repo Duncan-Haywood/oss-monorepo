@@ -1,0 +1,50 @@
+name: agent-instructions-drift-check CI
+
+# Zero-dependency CLI/browser tool: `engine.mjs` holds the drift rules shared
+# by both entry points, `cli.mjs` is the command-line entry point, and
+# `page.test.mjs` covers the two pages' structure, disclaimers and usage
+# wiring. Keep all three covered independently of the portfolio-wide
+# validation workflow, which only checks published pages and does not run
+# venture unit tests.
+#
+# This file was missing when the venture landed in #4745, which is the exact
+# hole `validate_workflows.py` exists to catch: its three suites ran on a
+# contributor's machine and in no workflow, so `main` was red on
+# `test_the_real_venture_tree_has_every_test_file_running_somewhere` from that
+# merge until this file. Same merge also missed the opt-out count bump in
+# `platform/privacy/optout-persistence.test.mjs`; both were found by running
+# the checklist rather than by anything that asks.
+on:
+  pull_request:
+    paths:
+      - "ventures/agent-instructions-drift-check/**"
+      - ".github/workflows/agent-instructions-drift-check-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/agent-instructions-drift-check/**"
+      - ".github/workflows/agent-instructions-drift-check-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-instructions-drift-check-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/agent-instructions-drift-check
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run engine, CLI, and page-wiring tests
+        run: node --test engine.test.mjs cli.test.mjs page.test.mjs

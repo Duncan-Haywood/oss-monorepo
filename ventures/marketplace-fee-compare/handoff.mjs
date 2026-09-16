@@ -195,6 +195,90 @@ export const HANDOFFS = [
   },
 ];
 
+/**
+ * The same courtesy for the channels this page deliberately does *not* rank.
+ *
+ * `EXCLUDED_CHANNELS` in `calc.mjs` names three marketplaces that would be an
+ * unfair row here — Faire is wholesale, Whatnot is a livestream auction,
+ * Reverb is category-restricted — and gives each "a pointer instead of a row".
+ * That pointer was a bare `../<slug>/`, so it walked a seller into exactly the
+ * empty form this module was written to stop: the fix above reached the six
+ * ranked channels and left the same defect on the way out to these three.
+ *
+ * Keyed by slug rather than by a channel id because `EXCLUDED_CHANNELS` has no
+ * ids — it is a pointer list, not a rate table — and `deepTool` is already the
+ * value the page renders the link from.
+ *
+ * Faire is absent on purpose; `NO_ITEM_HANDOFF` says why.
+ */
+export const EXCLUDED_HANDOFFS = [
+  {
+    slug: 'whatnot-seller-payout',
+    label: 'Whatnot seller payout calculator',
+    // Safe to carry because the sale is still one item at one price: what
+    // differs is where the fees land (commission on the hammer, processing on
+    // the checkout total including buyer-paid shipping and tax), which is the
+    // arithmetic the deep tool exists to do. The price basis is the same.
+    //
+    // Names match `where-to-sell-calculator`'s vetted Whatnot mapping, which
+    // the sibling-agreement test below asserts rather than trusts.
+    fields: {
+      price: 'salePrice',
+      shippingCharged: 'shippingCharged',
+      shippingCost: 'shippingCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    drops: {
+      monthlyOrders:
+        'Whatnot charges no monthly subscription, so an order count has nothing '
+        + 'to amortise. Its own roll-up input is lots per show, which this page '
+        + 'never asks for.',
+    },
+  },
+  {
+    slug: 'reverb-fee-calculator',
+    label: 'Reverb fee calculator',
+    // Reverb's fee shape is a marketplace percentage plus payment processing —
+    // `calc.mjs` says so where it explains the exclusion, which is on category
+    // grounds rather than arithmetic ones. So a retail price means the same
+    // thing on both sides and every field lines up one-for-one.
+    fields: {
+      price: 'price',
+      shippingCharged: 'shippingCharged',
+      shippingCost: 'shippingCost',
+      itemCost: 'itemCost',
+      otherCost: 'otherCost',
+    },
+    drops: {
+      monthlyOrders:
+        'Reverb has no monthly plan fee, so there is nothing for an order count '
+        + 'to spread across, and the calculator offers no input for it.',
+    },
+  },
+];
+
+/**
+ * Excluded channels that get a bare link on purpose, and the reason.
+ *
+ * Data rather than a comment for the same reason `drops` is: an entry missing
+ * from `EXCLUDED_HANDOFFS` because nobody wrote it looks identical to one left
+ * out deliberately, and the test asserts this list accounts for the difference.
+ */
+export const NO_ITEM_HANDOFF = [
+  {
+    slug: 'faire-wholesale-calculator',
+    why:
+      'Faire is wholesale, so `price` here and `unitWholesale` there are not the '
+      + 'same quantity — a shop buys at roughly half retail. Carrying this '
+      + "page's retail price over would land a plausible wrong number in the "
+      + 'field the whole calculation turns on, and this module\'s rule is that '
+      + 'such a link is worse than a bare one. Its per-unit cost would survive '
+      + 'the trip, but a wholesale sheet holding a real cost against a default '
+      + 'wholesale price reads as an answer too, so nothing is carried.',
+  },
+];
+
 /** Slugs travel into an href, so keep them to a shape that cannot escape it. */
 const slugIsSafe = (value) => /^[a-z0-9-]+$/.test(value);
 
@@ -251,6 +335,32 @@ export function handoffUrl(channel, item = {}) {
 
   const query = params.toString();
   return `../${entry.slug}/${query ? `#${query}` : ''}`;
+}
+
+/** The excluded-channel handoff for a deep-tool slug, or null if it has none. */
+export function excludedHandoffFor(slug) {
+  return EXCLUDED_HANDOFFS.find((entry) => entry.slug === slug) ?? null;
+}
+
+/**
+ * A relative link to an excluded channel's calculator, carrying the item.
+ *
+ * Returns the bare `../<slug>/` when the channel has no mapping, so a caller
+ * rendering the pointer list never has to choose between a link that lies and
+ * no link at all — Faire keeps the pointer it always had, minus the numbers.
+ */
+export function excludedHandoffUrl(slug, item = {}) {
+  if (!slugIsSafe(slug)) return null;
+
+  const entry = excludedHandoffFor(slug);
+  if (!entry) return `../${slug}/`;
+
+  const values = handoffValues(entry, item);
+  const params = new URLSearchParams();
+  for (const field of Object.keys(values).sort()) params.set(field, String(values[field]));
+
+  const query = params.toString();
+  return `../${slug}/${query ? `#${query}` : ''}`;
 }
 
 /**

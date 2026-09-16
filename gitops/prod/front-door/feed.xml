@@ -1,12 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 272 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 277 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
-  <updated>2026-09-13T00:00:00Z</updated>
+  <updated>2026-09-16T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <entry>
+    <title>AGENTS.md / CLAUDE.md Drift Check — Broken Links &amp; Footguns in Agent Instructions</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/agent-instructions-drift-check/"/>
+    <id>tag:marisstella.dev,2026:tool/agent-instructions-drift-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Paste your AGENTS.md, CLAUDE.md, .cursorrules, or copilot-instructions.md and see every file path it references that no longer exists, every npm run script it names that isn&#39;t defined, and known interpreter-mismatch shell footguns (bare pytest/mypy instead of python3 -m). Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>PDF Accessibility Tag Checker — Free PDF/UA &amp; Section 508 Evidence, Nothing Uploaded</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pdf-accessibility-tag-check/"/>
+    <id>tag:marisstella.dev,2026:tool/pdf-accessibility-tag-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free tool: drop a PDF in your browser and get an evidence report on tagging, title, language, image alt text, and form-field labels -- the structural checks behind PDF/UA and Section 508. The file never leaves your device. Also a zero-dependency CLI for batch-scanning a whole document library.</summary>
+  </entry>
+  <entry>
+    <title>Photo Package Add-On Pricing Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/photo-addon-pricing-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/photo-addon-pricing-calculator</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for independent wedding and event photographers: find real net profit for one package add-on -- an extra hour, a second shooter, an album upgrade, an engagement session -- after your own shoot/cull/edit time, gear wear, and any subcontractor or physical-goods cost, then compare two or three add-ons by effective hourly rate.</summary>
+  </entry>
+  <entry>
+    <title>security.txt Checker — Is Your RFC 9116 File Valid, or Expired?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/security-txt-check/"/>
+    <id>tag:marisstella.dev,2026:tool/security-txt-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste a security.txt and check it against RFC 9116 — a missing or expired Expires field (the one that silently makes your whole file stale), a Contact that isn&#39;t a URI, a plain-http Contact, a PGP key pasted where an Encryption URI belongs, a duplicated Expires or Preferred-Languages, the British spelling of Acknowledgments, and a signed file with no Canonical. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
+  </entry>
   <entry>
     <title>Caption Quality Checker — SRT &amp; WebVTT Reading Speed, Line Length &amp; Timing</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/caption-quality-check/"/>
@@ -197,6 +233,15 @@
     <summary type="text">Paste your site&#39;s page list, a sitemap.xml, or a Markdown docs tree and get a valid llms.txt file — the emerging llmstxt.org convention that gives AI assistants a structured map of your site. Free, runs entirely in your browser, nothing is uploaded. Validate an existing llms.txt too.</summary>
   </entry>
   <entry>
+    <title>Process Server Fee &amp; Route Profit Calculator</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/process-server-fee-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/process-server-fee-calculator</id>
+    <published>2026-09-11T00:00:00Z</published>
+    <updated>2026-09-11T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free calculator for independent process servers: find real net profit for one service-of-process job after extra attempts, rush and skip-trace fees, mileage, and your own drive time and vehicle cost, then compare what two or three client law firms actually pay per hour.</summary>
+  </entry>
+  <entry>
     <title>Quarterly Estimated Tax Calendar — Free, No Sign-Up</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/quarterly-estimated-tax-calendar/"/>
     <id>tag:marisstella.dev,2026:tool/quarterly-estimated-tax-calendar</id>
@@ -321,50 +366,5 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste your Dockerfile and find every FROM line referencing a base image by a mutable tag like node:18 instead of a pinned content digest (@sha256:...). Free, runs in your browser, nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Email Authentication Checker — Free SPF, DKIM, DMARC &amp; BIMI Checker</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/email-auth-check/"/>
-    <id>tag:marisstella.dev,2026:tool/email-auth-check</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free SPF, DKIM, DMARC and BIMI checker: paste any domain and get a plain-English report on why your email might be going to spam, with the exact DNS record read and what it means. Nothing uploaded -- your browser queries public DNS directly.</summary>
-  </entry>
-  <entry>
-    <title>IFTA Quarterly Fuel Tax Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ifta-quarterly-fuel-tax-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ifta-quarterly-fuel-tax-calculator</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Work your IFTA quarterly return from your own trip and fuel records: average fleet MPG, taxable gallons and net taxable gallons per jurisdiction, the Indiana/Kentucky/Virginia surcharge charged the way it is actually charged, and interest on a late return. Free, private, nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Merchant Feed Check — Catch Google/Meta Shopping Feed Errors Before They Disapprove Products</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/merchant-feed-check/"/>
-    <id>tag:marisstella.dev,2026:tool/merchant-feed-check</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste or load a Google Merchant Center / Meta Catalog product feed (CSV, TSV, or JSON) and get a deterministic, item-by-item report of missing required fields, invalid GTIN checksums, malformed prices, and the documented disapproval triggers -- before the crawler finds them. Free, runs entirely in your browser, nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>GitHub Actions OIDC Trust Policy Checker — AWS sub/aud conditions</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/oidc-trust-policy-check/"/>
-    <id>tag:marisstella.dev,2026:tool/oidc-trust-policy-check</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: paste an AWS IAM role trust policy and see whether its GitHub Actions OIDC conditions actually restrict which repository, branch or environment can assume the role. Catches a missing sub condition, a wildcard that spans repositories, repo:org/name:* (which includes pull requests from forks), and a literal * under StringEquals. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>PWA Installability Checker — Manifest, Icons, Display Mode</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/pwa-installability-check/"/>
-    <id>tag:marisstella.dev,2026:tool/pwa-installability-check</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: run a CLI that fetches your page, its Web App Manifest, and every icon it lists, then paste the JSON here for a plain-English report against Chrome&#39;s installability criteria -- the same checks Lighthouse&#39;s installable-manifest audit runs, no Chrome required. Nothing uploaded.</summary>
   </entry>
 </feed>
