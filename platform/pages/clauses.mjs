@@ -134,10 +134,19 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
   'hoa-reserve-fund-calculator/vs-spreadsheet.html',
+  // Compares against "a single-rate overtime calculator" -- the shape of
+  // nearly every free overtime calculator on the web, and the manual method
+  // behind it, not a company or product this could be mistaken for. The
+  // page's own footer says so explicitly ("names no specific product").
+  'overtime-pay-calculator/vs-single-rate-calculator.html',
   // Compares against "a flat day rate" -- a generic pricing method every
   // bridal artist already knows, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
   'bridal-hair-makeup-pricing-calculator/vs-flat-day-rate.html',
+  // Compares against "a spreadsheet formula" -- a generic method every
+  // payroll admin already has, not a company or product this could be
+  // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
+  'overtime-pay-calculator/vs-spreadsheet.html',
   // Compares against "doing the blended-rate arithmetic by hand or in a
   // spreadsheet" -- a generic method every payroll admin already has, not a
   // company or product this could be mistaken for. Same reasoning as the
