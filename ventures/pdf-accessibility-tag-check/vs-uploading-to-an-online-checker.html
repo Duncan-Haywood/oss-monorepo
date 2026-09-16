@@ -20,7 +20,7 @@
     {
       "@type": "Question",
       "name": "Can I check a whole folder of PDFs at once instead of one at a time?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes, with the CLI: node check.mjs ./document-library/ --json walks a folder recursively and exits non-zero if any file has a finding, so it can gate a CI job or a scheduled task. The classic free desktop tool, PAC, checks one file at a time with no batch mode, and none of the surveyed free online checkers offer a batch or folder option either." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, with the CLI: node cli/check.mjs ./document-library/ --json walks a folder recursively and exits non-zero if any file has a finding, so it can gate a CI job or a scheduled task. The classic free desktop tool, PAC, checks one file at a time with no batch mode, and none of the surveyed free online checkers offer a batch or folder option either." }
     },
     {
       "@type": "Question",
@@ -76,8 +76,8 @@
     <tr>
       <th>One file or a folder</th>
       <td>PAC, the classic free desktop tool, checks one file at a time. None of the surveyed free online
-      checkers offer a batch or folder mode either. This tool's CLI, <code>check.mjs</code>, walks a whole
-      folder recursively (<code>node check.mjs ./document-library/ --json</code>) and exits non-zero if any
+      checkers offer a batch or folder mode either. This tool's CLI, <code>cli/check.mjs</code>, walks a whole
+      folder recursively (<code>node cli/check.mjs ./document-library/ --json</code>) and exits non-zero if any
       file has a finding -- so a document library of hundreds of PDFs is one command, and the same command
       can gate a CI job on newly published documents.</td>
     </tr>
@@ -104,7 +104,7 @@
 <h3>Do free online PDF accessibility checkers upload my file to a server?</h3>
 <p>The ones surveyed here do -- PDFix, PDF Audit, freepdfchecker.com, and axesCheck all ask you to choose or drop a file that is then sent to their server to be scanned. This checker reads the file with the browser's own File and DecompressionStream APIs entirely in your tab, so a government form, a permit, or an HR document never has to leave your machine to be checked.</p>
 <h3>Can I check a whole folder of PDFs at once instead of one at a time?</h3>
-<p>Yes, with the CLI: <code>node check.mjs ./document-library/ --json</code> walks a folder recursively and exits non-zero if any file has a finding, so it can gate a CI job or a scheduled task. The classic free desktop tool, PAC, checks one file at a time with no batch mode, and none of the surveyed free online checkers offer a batch or folder option either.</p>
+<p>Yes, with the CLI: <code>node cli/check.mjs ./document-library/ --json</code> walks a folder recursively and exits non-zero if any file has a finding, so it can gate a CI job or a scheduled task. The classic free desktop tool, PAC, checks one file at a time with no batch mode, and none of the surveyed free online checkers offer a batch or folder option either.</p>
 <h3>Does a clean report mean the PDF is fully PDF/UA or Section 508 compliant?</h3>
 <p>No. This is evidence, not a determination -- specific, automatable structural checks (tagging, title, language, alt-text coverage, text layer, form labels), not a full PDF/UA or Section 508 conformance audit and not a substitute for a manual or assistive-technology review. A clean report means these checks found nothing, not that the document is compliant.</p>
 <h3>What does this check that a visual read-through of the PDF would not catch?</h3>
