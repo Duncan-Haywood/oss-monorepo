@@ -10,27 +10,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "06c1aa2c817efe7d9cff3b0a1da2a9001cc1cc79",
-      "measured": "2026-09-11",
-      "pages": 980,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "12f8f8af43e393ba3d9f5ade170dddb6ff00349f",
-        "platform/pages": "f36132ea6645a6a2bec3740d4966d057d78242f4",
-        "ventures": "2826248caf7006de38e240838fd61a39655e5360"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "de7f1628230c16869adef3d00b17f0112b2b2636",
       "measured": "2026-09-11",
       "pages": 981,
@@ -425,6 +404,21 @@
         "obsidian-plugin-review-check",
         "process-server-fee-calculator"
       ],
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "7f416d2fdaa15df496939a0458168a71866d33bd",
+        "ventures": "76512d4bf9b37cd145a5d969bbbc4d9e531c8418"
+      }
+    },
+    {
+      "checks": [
+        "journey"
+      ],
+      "commit": "d0edcc1ec2045cea09089911cbdab3d63fba6317",
+      "measured": "2026-09-16",
+      "pages": 1061,
+      "result": "pass",
+      "scope": "full",
       "surface": {
         "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
         "platform/pages": "7f416d2fdaa15df496939a0458168a71866d33bd",
