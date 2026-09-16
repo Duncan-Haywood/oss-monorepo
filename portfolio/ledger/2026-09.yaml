@@ -31927,3 +31927,75 @@ entries:
         customer, and is recorded as a product fix, not evidence toward
         either `VENTURE.yaml` hypothesis.
     mrr_end: 0
+  - venture: attic-insulation-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fleshed out this already-live, thin prototype (0 ledger entries, 0
+        portfolio mentions per `router/allocate.py`) rather than starting a
+        new venture: `node platform/pages/surface-budget.mjs --for
+        attic-insulation-bid-calculator` showed 1 guide and 1 named-product
+        comparison but room for the one generic-method comparison page every
+        other budgeted venture carries. Added
+        `vs-a-flat-price-per-square-foot.html`, comparing the calculator
+        against the flat per-square-foot postcard rate the venture's own
+        README already names as the failure mode it exists to fix (an R-30-
+        to-R-38 attic priced the same as an R-13-to-R-49 one of the same
+        square footage). Linked from `index.html` and `README.md` in both
+        directions, listed in `sitemap.xml`, and added to
+        `COMPARISON_DISCLAIMER_EXEMPT` in `platform/pages/clauses.mjs`
+        (generic method, not a named competitor). Also corrected a stale
+        README line claiming the venture was "not yet deployed" — confirmed
+        it has been live at
+        https://duncan-haywood.github.io/monorepo-projects/attic-insulation-bid-calculator/
+        since #1331, via `git ls-tree origin/gh-pages` and the mirror alias
+        in `gitops/prod/front-door/00-mirror-alias.conf`.
+      - >-
+        Picked this over the day's other active work (sql-migration-lock-
+        check, the overtime-pay-calculator comparison pages, bridal-hair-
+        makeup-pricing-calculator, hoa-reserve-fund-calculator accessibility)
+        specifically to avoid duplicating it — checked `git log --oneline
+        -20` on `origin/main` and the surface-budget tool for this slug
+        before starting. `browser_state.py` showed every whole-catalogue
+        check STALE from same-day churn rather than any known failure, so
+        there was no live accessibility regression to chase; this was the
+        next rung down the priority order (flesh out a thin, already-shipped
+        venture).
+      - >-
+        Concurrency note: `origin/main` advanced twice while this was in
+        progress (through `agent-instructions-drift-check`'s own comparison
+        page, among others), which made a first
+        `check_venture_regression.py` run falsely report
+        `sbom-diff-check` as a removed venture -- the tool's own documented
+        false-positive shape for a tree older than its base, not a real
+        regression. Resolved per its own instructions:
+        `git fetch origin main`, stashed the working changes, reset to
+        `origin/main`, reapplied, kept `origin/main`'s copy of every
+        generated `gitops/prod/front-door*` file and re-ran `regen.mjs`
+        rather than hand-merging binary/generated diffs, and merged the one
+        real conflict (`COMPARISON_DISCLAIMER_EXEMPT` in `clauses.mjs`,
+        additive with the concurrent session's own new entry) by hand.
+        Re-ran `check_venture_regression.py --base origin/main` clean
+        afterward.
+      - >-
+        Verified locally: venture's own suite 117/117; `platform/marketing`
+        + `platform/pages` 1271/1271 (both before and after the
+        `origin/main` merge); `clauses.mjs attic-insulation-bid-calculator`
+        and `surface-budget.mjs --check` clean (1 generic-method page, at
+        budget); `checklist_coverage.py`, `router/validate.py`,
+        `usage/validate_usage.py`, `score_ventures.py --check` all clean;
+        `gitops/tests` 557 passed/25 skipped via `python3 -m pytest` (the
+        skips are the documented nginx/SSH-key environmental ones, unrelated
+        to this change); `platform/ci`'s 15-module unittest sweep + 21/21
+        `agent_review`; `portfolio/{ledger,scoring,router,usage,pipeline}` +
+        `infra/tests` 446 passed; `run_workflow_locally.py --for-changes`
+        clean on every workflow it could evaluate locally (the one
+        conditional-step cascade failure it reported, `pages.yml`'s hub-link
+        check needing a `_site` directory a skipped prior step never built,
+        is a known local-runner limitation unrelated to this diff --
+        `portfolio-pages.yml`'s own full build-and-check of the real site
+        passed end to end). `node platform/marketing/regen.mjs` run (twice,
+        once before and once after the `origin/main` merge) and its
+        rewrites committed.
+    mrr_end: 0

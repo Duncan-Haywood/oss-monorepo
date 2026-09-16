@@ -166,6 +166,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // and reviewer already has access to, not a company or product this could
   // be mistaken for. Same reasoning as the other manual-method pages above.
   'agent-instructions-drift-check/vs-checking-it-by-hand.html',
+  // Compares against "a flat price per square foot" -- a generic pricing
+  // method every insulation crew already has access to, not a company or
+  // product this could be mistaken for. Same reasoning as the other
+  // generic-method pages above.
+  'attic-insulation-bid-calculator/vs-a-flat-price-per-square-foot.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
