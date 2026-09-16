@@ -1686,7 +1686,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # version-changed packages between two builds, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
-    total = 283  # `infra/OWNER_CHECKLIST.md`'s own "N of the 283 tools" wording.
+    # 284 since 2026-09-16, when `backflow-test-fee-calculator` graduated —
+    # a browser-local calculator pricing a multi-device backflow-preventer
+    # test visit (per-device fee, a multi-device discount for devices after
+    # the first, a per-device report-filing fee, travel, and a retest fee
+    # for failures), with a static `index.html` from its first commit, same
+    # shape as the rest of this running count.
+    total = 284  # `infra/OWNER_CHECKLIST.md`'s own "N of the 284 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
