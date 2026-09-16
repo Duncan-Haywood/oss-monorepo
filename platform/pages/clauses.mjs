@@ -138,6 +138,10 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // bridal artist already knows, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
   'bridal-hair-makeup-pricing-calculator/vs-flat-day-rate.html',
+  // Compares against "a spreadsheet formula" -- a generic method every
+  // payroll user already has, not a company or product this could be
+  // mistaken for. Same reasoning as the other vs-spreadsheet pages above.
+  'overtime-pay-calculator/vs-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

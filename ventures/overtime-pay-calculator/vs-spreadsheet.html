@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>This calculator vs. a spreadsheet — Overtime Pay Calculator</title>
+<meta name="description" content="A spreadsheet can multiply hours by a rate. Getting the FLSA weighted-average (blended rate) overtime formula right for a week worked at two or more pay rates is a different, easier-to-get-wrong exercise — this free calculator does it for you.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-spreadsheet.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This calculator vs. a spreadsheet">
+<meta property="og:description" content="A spreadsheet can multiply hours by a rate. The FLSA weighted-average overtime formula for two or more pay rates in one week is a different, easier-to-get-wrong exercise.">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does a typical payroll spreadsheet get right about overtime?", "acceptedAnswer": {"@type": "Answer", "text": "Standard single-rate overtime: hours up to the threshold at the regular rate, hours past it at 1.5x. That is one formula per row and a spreadsheet handles it fine."}}, {"@type": "Question", "name": "Where does a spreadsheet formula usually go wrong on overtime?", "acceptedAnswer": {"@type": "Answer", "text": "The moment someone works at two or more pay rates in the same week. The correct FLSA regular rate is total straight-time pay for the week divided by total hours worked — not either rate on its own, and not a simple average of the two rates. A hand-built formula that multiplies each rate by 1.5x separately, or averages the two rates before applying 1.5x, produces the wrong overtime premium without erroring."}}, {"@type": "Question", "name": "Why is the overtime premium half the blended rate rather than 1.5 times it?", "acceptedAnswer": {"@type": "Answer", "text": "Straight-time pay for every hour worked, including the hours past the threshold, is already counted once in the straight-time total used to compute the blended rate. Adding the full 1.5x rate for those hours again would double-count the first 1x. Adding only the extra 0.5x half-time premium brings each overtime hour up to time-and-a-half in total — a step a spreadsheet formula has to encode correctly by hand, with no built-in check that it did."}}, {"@type": "Question", "name": "Does getting this formula wrong matter in practice?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The federal weighted-average method is set out in 29 CFR 778.115, and an employer who instead pays overtime on only one of the two rates, or on a simple average, has underpaid the required overtime premium under the FLSA — a wage-and-hour exposure that grows every pay period the formula stays wrong."}}, {"@type": "Question", "name": "Is this calculator a substitute for reviewing your own state's rules?", "acceptedAnswer": {"@type": "Answer", "text": "No, and neither is a spreadsheet. This tool applies the federal FLSA threshold and multiplier you configure to the numbers you enter. Several states require more — daily overtime, a double-time threshold, or a higher minimum multiplier — and this calculator does not know which apply to you."}}]}</script>
+<style>
+  :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f4f2f7; }
+  body { max-width: 820px; margin: auto; padding: 28px; }
+  a { color: #2a6b8e; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.7rem, 4.6vw, 2.5rem); line-height: 1.1; margin: 0 0 14px; color: #1f4a5d; }
+  h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1f4a5d; }
+  h3 { font-size: 1rem; margin: 18px 0 4px; }
+  p, li { line-height: 1.6; }
+  .lede { font-size: 1.05rem; color: #2c3038; }
+  .card { background: #fff; border: 1px solid #d6e0e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f4a5d10; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 12px 0; }
+  th, td { text-align: left; padding: 9px 7px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
+  .note, footer { font-size: .86rem; color: #4c5a68; }
+  footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
+</style>
+</head>
+<body>
+<p class="note"><a href="./">&larr; back to the calculator</a></p>
+<h1>This calculator vs. a spreadsheet</h1>
+<p class="lede">Most payroll spreadsheets already have an overtime column: hours over 40, times the rate, times 1.5. That formula is correct for one thing — an employee paid a single hourly rate all week. It quietly stops being correct the moment someone works at two or more different pay rates in the same workweek, which is exactly the case a plain <code>=IF(hours&gt;40,...)</code> formula was never built to handle.</p>
+
+<section class="card">
+<h2>What each one is for</h2>
+<p><strong>A spreadsheet</strong> handles standard single-rate overtime well: one formula, one row, done. What it does not do on its own is the federal FLSA <strong>weighted-average (blended rate)</strong> method required when someone worked at two or more different hourly rates in the same week — the regular rate used for that week's overtime premium is total straight-time pay divided by total hours, not either rate alone and not a simple average of the two. Encoding that correctly, and only that, takes a formula most sheets don't have and most people don't build until a payroll question forces the issue.</p>
+<p><strong>This calculator</strong> runs both cases: standard single-rate overtime, and the FLSA blended-rate calculation for any number of pay rates in one week, with the regular-rate arithmetic done the same way every time and a plain-text breakdown you can paste into a payroll record or a pay question.</p>
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What's the overtime pay at one hourly rate?</td><td>Either one &mdash; a spreadsheet formula handles this fine.</td></tr>
+<tr><td>What's the regular rate when someone worked at two or more pay rates this week?</td><td>This calculator's blended-rate method &mdash; total straight-time pay divided by total hours, not either rate alone.</td></tr>
+<tr><td>Why isn't the overtime premium just 1.5x each rate added together?</td><td>This calculator shows the half-time premium math so the double-count doesn't happen.</td></tr>
+<tr><td>Is anything I enter uploaded anywhere?</td><td>No. The calculator runs entirely in your browser; nothing is sent to a server.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>Common questions</h2>
+<h3>What does a typical payroll spreadsheet get right about overtime?</h3>
+<p>Standard single-rate overtime: hours up to the threshold at the regular rate, hours past it at 1.5x. That is one formula per row and a spreadsheet handles it fine.</p>
+<h3>Where does a spreadsheet formula usually go wrong on overtime?</h3>
+<p>The moment someone works at two or more pay rates in the same week. The correct FLSA regular rate is total straight-time pay for the week divided by total hours worked &mdash; not either rate on its own, and not a simple average of the two rates. A hand-built formula that multiplies each rate by 1.5x separately, or averages the two rates before applying 1.5x, produces the wrong overtime premium without erroring.</p>
+<h3>Why is the overtime premium half the blended rate rather than 1.5 times it?</h3>
+<p>Straight-time pay for every hour worked, including the hours past the threshold, is already counted once in the straight-time total used to compute the blended rate. Adding the full 1.5x rate for those hours again would double-count the first 1x. Adding only the extra 0.5x half-time premium brings each overtime hour up to time-and-a-half in total &mdash; a step a spreadsheet formula has to encode correctly by hand, with no built-in check that it did.</p>
+<h3>Does getting this formula wrong matter in practice?</h3>
+<p>Yes. The federal weighted-average method is set out in 29 CFR 778.115, and an employer who instead pays overtime on only one of the two rates, or on a simple average, has underpaid the required overtime premium under the FLSA &mdash; a wage-and-hour exposure that grows every pay period the formula stays wrong.</p>
+<h3>Is this calculator a substitute for reviewing your own state's rules?</h3>
+<p>No, and neither is a spreadsheet. This tool applies the federal FLSA threshold and multiplier you configure to the numbers you enter. Several states require more &mdash; daily overtime, a double-time threshold, or a higher minimum multiplier &mdash; and this calculator does not know which apply to you.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This page and the linked calculator apply the federal FLSA arithmetic you configure to the numbers you enter. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for checking your state's overtime rules and your own pay policy. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> The calculator this page links to runs entirely client-side; nothing you enter is uploaded anywhere.</p>
+<p><a href="./">Back to the calculator</a></p>
+</footer>
+</body>
+</html>

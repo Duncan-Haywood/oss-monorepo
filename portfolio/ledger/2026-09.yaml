@@ -31885,3 +31885,102 @@ entries:
         single new static comparison page with no form inputs does not
         newly implicate. No payment code introduced.
     mrr_end: 0
+  - venture: overtime-pay-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added `vs-spreadsheet.html`, the venture's first comparison page:
+        what a payroll spreadsheet's ordinary overtime formula gets right
+        (single-rate time-and-a-half) versus where it silently breaks once
+        someone works at two or more pay rates in one week, and the FLSA
+        weighted-average/blended-rate arithmetic (29 CFR 778.115) this
+        calculator already does for that case. Generic-method comparison
+        (a spreadsheet formula, not a named competitor), so it carries the
+        no-warranty/no-SLA clauses rather than a not-affiliated trademark
+        disclaimer; added to `COMPARISON_DISCLAIMER_EXEMPT` in
+        `platform/pages/clauses.mjs` alongside the other vs-spreadsheet
+        pages, with the same reasoning. Linked one hop from the index page
+        and listed in the venture's own sitemap.
+      - >-
+        This page's `<h1>` phrasing ("This calculator vs. a spreadsheet")
+        exactly matches `hoa-reserve-fund-calculator/vs-spreadsheet.html`'s,
+        so the fleet-wide comparison grouping in `platform/pages/build.mjs`
+        (`comparisonSubjectKey`) now files both under one product --
+        "spreadsheet" -- crossing `COMPARE_PRODUCT_MIN_TOOLS` (2) for the
+        first time. `regen.mjs` therefore rendered a new cross-portfolio
+        `/compare/spreadsheet/` page and `front-door.test.mjs`'s own
+        kustomization-mount assertion caught the one manual step that
+        generator output does not itself perform: added
+        `vs__spreadsheet.html.gz=front-door/vs__spreadsheet.html.gz` to
+        `gitops/prod/kustomization.yaml` (same pattern as the other
+        `vs__<product>` lines already there).
+      - >-
+        Also fixed three pre-existing, unrelated defects on `main` found
+        while running this checklist, all introduced by the prior merge
+        (`bridal-hair-makeup-pricing-calculator`, #4766) and missed by that
+        PR's own verification: (1)
+        `platform/privacy/optout-persistence.test.mjs` pins a running count
+        of ventures offering a usage opt-out switch (265) that PR's new
+        `toggleUsage`/`usageAllowed` switch left one behind (raised to 266,
+        with a comment naming what moved, per the test's own instructions);
+        (2) `check_step_grid.py` flagged two `<input>` `min`/`step`
+        combinations on that venture's own page
+        (`minutesPerFullService` min="1" step="5",
+        `prepWindowMinutes` min="1" step="15") whose lattice excludes every
+        whole number -- changed both to `step="any"` per the checker's own
+        documented fix, preserving `min`/`max`/`value`; (3)
+        `validate_workflows.py` invariant 7 flagged that the venture ships 5
+        `*.test.mjs` files with no workflow running them -- added
+        `.github/workflows/bridal-hair-makeup-pricing-calculator-ci.yml`
+        (copied from the `overtime-pay-calculator` sibling) and recorded it
+        with `publish_surface.py --write`. Re-ran
+        `run_workflow_locally.py --for-changes` after all three fixes:
+        `portfolio-validate.yml` now reads 67/67 run steps passed (the 4
+        "not run" are its own `uses:` checkout/setup steps plus one
+        `pip install` setup step this sandbox has no PyPI egress for --
+        the `python3 -m pytest`/`unittest` equivalents were run directly
+        and are all green, per the verification list below); 13/15
+        selected workflows passed overall, the other 2 held on a secret
+        this sandbox does not hold (`agent-cross-review.yml`,
+        `hetzner-gitops-ci.yml`) or need write access
+        (`portfolio-pages.yml/deploy`, `publish-pages-branch.yml/publish`)
+        -- unchanged from before these fixes and not this change's to
+        clear.
+      - >-
+        Verified: venture's own suite 37/37 (`node --test
+        ventures/overtime-pay-calculator/*.test.mjs`, including 4 new
+        comparison-page assertions in `page.test.mjs`); `platform/marketing`
+        + `platform/pages`
+        1260/1260 (0 failing after the kustomization fix, versus 1 failing
+        before it); `platform/privacy` + `platform/webcheck` 142/142 (0
+        failing after the opt-out-count fix); `platform/proposal` 101/101;
+        `gitops/tests` 557 passed/25 skipped via `python3 -m pytest` (the
+        spelling CLAUDE.md pins; skips are the nginx/ssh binaries, both
+        already installed and re-verified separately); `platform/ci`'s
+        25-module unittest sweep (2 failures, both the pre-existing
+        `bridal-hair-makeup-pricing-calculator` defects noted above, neither
+        touched by this change) + `agent_review` 21/21;
+        `portfolio/{ledger,scoring,router,usage,pipeline}` + `infra/tests`
+        446 passed; `router/validate.py`, `front-door-tools.mjs --headroom`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_probe_index.py`, `score_sensitivity.py`,
+        `score_ventures.py --check`, `usage/validate_usage.py`, and
+        `publish_surface.py --check` all individually clean;
+        `siblings.mjs --check` reports 0 orphans;
+        `checklist_coverage.py` clean. `ci_starvation.py` confirmed real
+        starvation on the latest push (`runner_id: 0` on both
+        `appointment-deposit-calculator CI` and `hetzner-gitops CI`), so
+        ran the full local checklist rather than trusting CI. Scoped
+        browser/axe checks (`python3 platform/ci/browser_checks.py --only
+        overtime-pay-calculator`): sideways/presets/roundtrip/contrast/
+        optout/sweep all pass, `highlight` skipped (this venture makes no
+        highlight promise); the whole-catalogue `journey` check failed once
+        on a documented flaky race
+        (`requestfailed: .../icon-192.png`, the exact false-positive
+        `platform/pages/journey.mjs`'s own comments describe) and passed
+        clean on an immediate rerun with no code change, confirming it was
+        not this change. `node platform/marketing/regen.mjs` run and its
+        rewrites committed. No payment code introduced; no new venture
+        created.
+    mrr_end: 0
