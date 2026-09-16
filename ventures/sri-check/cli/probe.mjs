@@ -12,7 +12,7 @@
 // answer" is itself evidence that has to survive into the report rather than
 // crash the run.
 
-import { digestBase64, ALGORITHMS } from './sri.mjs';
+import { digestBase64, ALGORITHMS } from '../sri.mjs';
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 const USER_AGENT = 'sri-check/1 (+https://duncan-haywood.github.io/monorepo-projects/sri-check/)';
