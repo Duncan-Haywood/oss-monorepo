@@ -1670,7 +1670,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # schedule-capacity check for whether the artists booked can finish the
     # group on time, with a static `index.html` from its first commit, same
     # shape as the rest of this running count.
-    total = 281  # `infra/OWNER_CHECKLIST.md`'s own "N of the 281 tools" wording.
+    # 282 since 2026-09-16, when `sql-migration-lock-check` graduated — a
+    # zero-dependency CLI + browser tool reading a PostgreSQL schema
+    # migration and reporting every statement that can take a blocking lock
+    # or rewrite a table, including four relational checks a per-statement
+    # linter cannot make (a missing `lock_timeout` above an exclusive-lock
+    # statement, `NOT VALID` and `VALIDATE CONSTRAINT` sharing a
+    # transaction, `CREATE INDEX CONCURRENTLY` inside a transaction block,
+    # and `SET NOT NULL` judged against a validated `CHECK` earlier in the
+    # file), with a static `index.html` from its first commit, same shape as
+    # the rest of this running count.
+    total = 282  # `infra/OWNER_CHECKLIST.md`'s own "N of the 282 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
