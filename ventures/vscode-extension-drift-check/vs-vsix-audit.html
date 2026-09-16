@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This checker vs. vsix-audit | VS Code Extension Drift Check</title>
+  <meta name="description" content="vsix-audit is a free, open-source static scanner from Trail of Bits that vets a named .vsix file for malware indicators before you install it. This tool does the opposite and narrower job: it diffs two point-in-time snapshots of the extensions you already have installed and trust, to catch a surface change or a marketplace delisting after the fact. Not affiliated with Trail of Bits.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-vsix-audit.html">
+  <meta property="og:title" content="This checker vs. vsix-audit">
+  <meta property="og:description" content="vsix-audit vets a named extension before you install it. This tool diffs two snapshots of what you already have installed to catch a surface change or a marketplace delisting since your last check.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does vsix-audit already catch a drift in an extension I already installed?","acceptedAnswer":{"@type":"Answer","text":"Not in the way this tool does. vsix-audit, from Trail of Bits, is a scanner you point at one named .vsix file: it statically analyzes that file's code with AST-based pattern matching and YARA rules built from IOCs of known campaigns (GlassWorm and others), and reports text, JSON, or SARIF output, typically before you install the extension or as a CI gate on a specific package. It does not track your installed set over time. This tool does the opposite and narrower job: it never inspects an extension's code at all, and instead diffs two point-in-time snapshots of your own already-installed extensions to name exactly which ones changed their declared activation surface since an earlier snapshot, plus a separate live check for whether an installed id still resolves on the VS Code Marketplace."}},{"@type":"Question","name":"Should I use this tool or vsix-audit?","acceptedAnswer":{"@type":"Answer","text":"They answer different questions, and a team can reasonably run both. vsix-audit answers \"should I install this specific extension\" by inspecting its code for malware indicators before it ever runs on your machine. This tool answers \"did something I already installed and trust just change, or get pulled from the marketplace since I checked\" — the question that matters after installation, which is also the mechanism behind the GlassWorm and Nx Console incidents: both involved extensions that were already trusted and installed before anything went wrong. Free, no account, no code sent anywhere either way."}},{"@type":"Question","name":"Is this page affiliated with Trail of Bits?","acceptedAnswer":{"@type":"Answer","text":"No. This page is not affiliated with, endorsed by, or sponsored by Trail of Bits. vsix-audit is a project of Trail of Bits, named here only to describe what this tool is and is not, based on its own public GitHub repository and documentation."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    a { color: #1a4560; overflow-wrap: anywhere; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .tableWrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; VS Code Extension Drift Check</a></p>
+  <h1>This checker vs. vsix-audit</h1>
+  <p class="note">Different moments: vsix-audit vets a named <code>.vsix</code> file for malware indicators before you install it. This tool diffs two point-in-time snapshots of extensions you already have installed and trust, to name exactly what changed or what quietly disappeared from the marketplace since your last check.</p>
+
+  <section class="card">
+    <h2>What each tool is for</h2>
+    <p>
+      <strong>vsix-audit</strong> is an open-source security scanner from
+      Trail of Bits that you point at one named extension. It statically
+      analyzes that <code>.vsix</code> file's code with AST-based pattern
+      matching and YARA rules built from indicators of compromise drawn from
+      known campaigns &mdash; GlassWorm and others among them &mdash; and
+      reports findings as text, JSON, or SARIF, which fits it naturally into
+      a CI gate on a specific package. It is a <em>pre-install</em> tool: the
+      question it answers is whether a named extension looks safe to install
+      in the first place, based on what its code actually contains.
+    </p>
+    <p>
+      This tool does none of that. It never downloads, unpacks, or statically
+      analyzes an extension's code &mdash; it has no opinion at all about
+      whether a given <code>.vsix</code> file is safe to install. What it
+      does instead is read two snapshots of your own <em>already-installed</em>
+      extension set (the output of <code>node cli.mjs snapshot</code>, or the
+      plain output of <code>code --list-extensions --show-versions</code>)
+      and diff them, naming exactly which extensions gained a new activation
+      trigger, a new dependency, or a changed entry point since the older
+      snapshot &mdash; plus a separate, CLI-only live check for whether an
+      installed id still resolves on the VS Code Marketplace at all. It is a
+      <em>post-install, point-in-time</em> tool, and the moment it targets is
+      the one that mattered in both GlassWorm and the Nx Console compromise:
+      extensions that were already trusted and running before anything
+      changed.
+    </p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+        <tbody>
+          <tr><td>Is this specific extension safe to install, based on what its code actually does?</td><td>vsix-audit &mdash; that is the pre-install code-scanning job it is built for.</td></tr>
+          <tr><td>Did an extension I already installed and trust change its activation surface since I last checked?</td><td>This tool &mdash; paste two snapshots, get the diff, nothing installed or scanned.</td></tr>
+          <tr><td>Is an extension I already installed still on the marketplace, or was it quietly pulled?</td><td>This tool's CLI-only <code>check</code> command &mdash; a live, factual resolution lookup, not a code scan.</td></tr>
+          <tr><td>I want YARA-rule and AST-based static analysis of an extension's actual code before I install it.</td><td>vsix-audit &mdash; this tool never inspects extension code at all.</td></tr>
+          <tr><td>I want a CI gate on my whole team's already-installed extension set, not one named package.</td><td>This tool &mdash; <code>node cli.mjs diff baseline.json current.json</code> exits non-zero on drift.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      A team can reasonably run both: vsix-audit before adding a new
+      extension to an allowlist, and this tool on a schedule against the
+      whole already-installed set, to catch the drift or delisting that
+      happens after an extension has already been trusted and approved. This
+      page makes no claim about vsix-audit's detection accuracy either way
+      &mdash; it only describes its documented shape and states what this
+      tool does differently. Neither tool's clean result is a guarantee of
+      safety.
+    </p>
+    <p class="note">This tool needs no account and no sign-in: it is a static page, the diff runs in your browser (or as a stdlib-only CLI script for <code>snapshot</code>/<code>diff</code>), and both keep working with the network off.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Does vsix-audit already catch a drift in an extension I already installed?</h3>
+    <p>Not in the way this tool does. vsix-audit, from Trail of Bits, is a scanner you point at one named <code>.vsix</code> file: it statically analyzes that file's code with AST-based pattern matching and YARA rules built from IOCs of known campaigns (GlassWorm and others), and reports text, JSON, or SARIF output, typically before you install the extension or as a CI gate on a specific package. It does not track your installed set over time. This tool does the opposite and narrower job: it never inspects an extension's code at all, and instead diffs two point-in-time snapshots of your own already-installed extensions to name exactly which ones changed their declared activation surface since an earlier snapshot, plus a separate live check for whether an installed id still resolves on the VS Code Marketplace.</p>
+    <h3>Should I use this tool or vsix-audit?</h3>
+    <p>They answer different questions, and a team can reasonably run both. vsix-audit answers "should I install this specific extension" by inspecting its code for malware indicators before it ever runs on your machine. This tool answers "did something I already installed and trust just change, or get pulled from the marketplace since I checked" &mdash; the question that matters after installation, which is also the mechanism behind the GlassWorm and Nx Console incidents: both involved extensions that were already trusted and installed before anything went wrong. Free, no account, no code sent anywhere either way.</p>
+    <h3>Is this page affiliated with Trail of Bits?</h3>
+    <p>No. This page is not affiliated with, endorsed by, or sponsored by Trail of Bits. vsix-audit is a project of Trail of Bits, named here only to describe what this tool is and is not, based on its own public GitHub repository and documentation.</p>
+    <p class="note">Open <a href="./">VS Code Extension Drift Check</a> to diff your own installed set, or read <a href="./why-vs-code-does-not-warn-you-when-an-extension-is-delisted.html">why VS Code doesn't warn you when an extension is delisted</a> for the full mechanism and how to wire the CLI into CI.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It reports a structural difference between two snapshots of an extension's declared manifest fields, and whether an id currently resolves on the VS Code Marketplace &mdash; it is not a malware scanner, not a security audit, and not a guarantee that an unflagged extension is safe or a flagged one is dangerous. It does not replace reading the extension's source yourself or a qualified security review. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p class="note">Local-only privacy: nothing you paste is ever uploaded, and <code>snapshot</code>/<code>diff</code> make no network calls of their own. We count only anonymous feature events in localStorage, with an opt-out. This page makes no live comparison against vsix-audit &mdash; it is a static page describing its publicly documented facts.</p>
+    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
