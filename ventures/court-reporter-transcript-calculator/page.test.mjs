@@ -215,3 +215,42 @@ test("the explainer's worked figures are what computeAgencyOfferCheck actually r
     assert.ok(html.includes(figure), `the page must state ${figure} as computed`);
   }
 });
+
+// --- vs-spreadsheet-or-guessing.html ----------------------------------------
+
+test("index links the vs-spreadsheet-or-guessing comparison page", () => {
+  assert.match(
+    page("index.html"),
+    /href="\.\/vs-spreadsheet-or-guessing\.html"/,
+  );
+});
+
+test("the comparison page is reachable from the sitemap", () => {
+  assert.match(page("sitemap.xml"), /vs-spreadsheet-or-guessing\.html/);
+});
+
+test("the comparison page carries the required disclaimer and sponsor link", () => {
+  const html = page("vs-spreadsheet-or-guessing.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal or financial advice/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /Nothing leaves your browser/);
+});
+
+test("the comparison page links back to the calculator", () => {
+  assert.match(page("vs-spreadsheet-or-guessing.html"), /href="\.\/"/);
+});
+
+test("the comparison page's FAQPage JSON-LD answer text matches the visible FAQ prose exactly", () => {
+  const html = page("vs-spreadsheet-or-guessing.html");
+  const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?)<\/script>/s);
+  assert.ok(match, "expected a FAQPage JSON-LD block");
+  const data = JSON.parse(match[1]);
+  assert.ok(data.mainEntity.length >= 4);
+  for (const q of data.mainEntity) {
+    assert.ok(
+      html.includes(q.acceptedAnswer.text),
+      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
+    );
+  }
+});

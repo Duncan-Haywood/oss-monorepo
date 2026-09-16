@@ -82,3 +82,31 @@ test('every preset select the page fills in has a matching option-filling call',
     assert.match(page, new RegExp(`id="${id}"`), `missing #${id} element`);
   }
 });
+
+test('index links to the comparison page', async () => {
+  assert.match(await read('index.html'), /href="vs-checking-pricing-pages-yourself\.html"/);
+});
+
+test('the comparison page links back to the tool and carries valid FAQPage JSON-LD matching visible text', async () => {
+  const vsPage = await read('vs-checking-pricing-pages-yourself.html');
+  assert.match(vsPage, /href="index\.html"/);
+  const blocks = [...vsPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const faq = blocks.map((b) => JSON.parse(b)).find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(vsPage.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(vsPage.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test('the comparison page carries the no-warranty clause and the estimate language', async () => {
+  const vsPage = await read('vs-checking-pricing-pages-yourself.html');
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /provided free and as-is, without warranty/);
+  assert.match(vsPage, /estimate/i);
+});
+
+test('the comparison page is listed in the venture sitemap', async () => {
+  assert.match(await read('sitemap.xml'), /vs-checking-pricing-pages-yourself\.html/);
+});
