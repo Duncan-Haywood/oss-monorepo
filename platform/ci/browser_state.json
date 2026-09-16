@@ -429,6 +429,29 @@
         "platform/pages": "7f416d2fdaa15df496939a0458168a71866d33bd",
         "ventures": "76512d4bf9b37cd145a5d969bbbc4d9e531c8418"
       }
+    },
+    {
+      "checks": [
+        "contrast",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "d0edcc1ec2045cea09089911cbdab3d63fba6317",
+      "measured": "2026-09-16",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "obsidian-plugin-review-check",
+        "process-server-fee-calculator"
+      ],
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "7f416d2fdaa15df496939a0458168a71866d33bd",
+        "ventures": "76512d4bf9b37cd145a5d969bbbc4d9e531c8418"
+      }
     }
   ]
 }
