@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>This Checker vs. Just Re-Running the Failed Job</title>
+  <meta name="description" content="The common first move on a red GitHub Actions check is clicking Re-run failed jobs and seeing if it turns green. That costs a full run and, while runners are starved, often fails the same way again with no new information. This tool reads the one field -- runner_id -- that already answers the question from the JSON you can fetch right now, no second run required.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-rerunning-the-job.html">
+  <meta property="og:title" content="This checker vs. just re-running the job">
+  <meta property="og:description" content="Re-running costs a full run and, while runners are starved, often tells you nothing new. This reads runner_id from the JSON you already have.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Isn't clicking \"Re-run failed jobs\" the obvious first move?","acceptedAnswer":{"@type":"Answer","text":"It is the obvious move, and it is not wrong -- if the job actually ran and hit a flaky test, a re-run can genuinely pass and tell you something. It is just slow and, during a starvation window, uninformative: a job that never got a runner the first time has no more reason to get one the second time, so the same push can burn several retries before anyone notices the pattern is runner_id: 0 every time, not a flaky assertion."}},{"@type":"Question","name":"Does re-running eventually prove whether it was starvation?","acceptedAnswer":{"@type":"Answer","text":"Only after the fact and only sometimes -- if a runner happens to be available on a later retry, the job passes and you never learn why it failed the first time; if runners are still starved, it fails again and looks like a flaky or broken job either way. This tool answers from the very first run's own JSON, before you spend a second run finding out."}},{"@type":"Question","name":"What does this tool see that a re-run does not show me?","acceptedAnswer":{"@type":"Answer","text":"The run's own runner_id field, which the checks tab never surfaces. A job that was actually scheduled has a real, nonzero id; a job GitHub never got to has runner_id: 0 and an empty runner_name. That single field is proof no step could have run, and it is present on the very first failed run -- a re-run does not reveal it any better, it just spends another run's worth of time."}},{"@type":"Question","name":"Is my run's JSON uploaded anywhere to get this verdict?","acceptedAnswer":{"@type":"Answer","text":"No. You fetch it yourself with your own gh CLI or token, paste it into this page, and the verdict is computed in your browser. Nothing about your run, your repository, or your token is sent anywhere -- the only network request in the whole flow is the one you made yourself to GitHub's API."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.1; color: #17324a; margin: 0 0 16px; }
+    h2 { font-size: 1.18rem; margin: 30px 0 8px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 20px 0 4px; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; margin: 20px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+    th { color: #55606f; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
+    code { background: #eef1f5; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+    a.cta { display: inline-block; background: #17604a; color: #fff; font-weight: 700; padding: 11px 16px; border-radius: 8px; text-decoration: none; }
+    footer { margin-top: 30px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <p class="note"><a href="./">&larr; Actions Runner Starvation Check</a></p>
+  <h1>This checker vs. just re-running the job</h1>
+
+  <p><strong>Re-running the failed job</strong> is most people's first move on a red check, and it is a reasonable one -- if the job actually ran and hit a genuinely flaky test, a re-run can pass and confirm that. What it costs is a full run's worth of time, and during a starvation window it is often uninformative: a job that never got a runner the first time has no more claim on one the second time, so the same push can burn several retries before the pattern -- <code>runner_id: 0</code> every single time -- becomes obvious.</p>
+
+  <p><strong>This tool</strong> answers from the JSON the very first failed run already produced, before you spend a second run finding out. It reads the one field the checks tab never shows you and tells you in one click whether a runner was ever assigned.</p>
+
+  <table>
+    <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>The job ran and I suspect a flaky test -- will it pass if I try again?</td>
+        <td>Re-run the job -- that is a real question about test flakiness this tool does not answer.</td>
+      </tr>
+      <tr>
+        <td>Did this job even get a runner the first time?</td>
+        <td>This checker -- reads <code>runner_id</code> from the JSON you already have, no second run needed.</td>
+      </tr>
+      <tr>
+        <td>Six checks went red in three seconds on a change that couldn't break them all.</td>
+        <td>This checker -- that pattern is the starvation signature; paste the JSON and confirm it instantly instead of guessing from how it looks.</td>
+      </tr>
+      <tr>
+        <td>I want this decided automatically in CI, without a person reading the checks tab.</td>
+        <td><code>python3 check.py --run RUN_ID</code> -- exits 1 the moment any job was starved, wireable into a workflow step.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Used together: re-run when you have a specific reason to suspect flakiness in a job that actually executed; reach for this tool first when several unrelated checks all went red at once, or before spending a retry on a job that may never get a runner anyway.</p>
+
+  <div class="card">
+    <h2>Try it</h2>
+    <p>Paste the same JSON you would check before deciding to re-run anything.</p>
+    <p><a class="cta" href="./">Check whether it was starved</a></p>
+    <p class="note">Free, runs entirely in your browser, nothing is uploaded. If the verdict is starved, <a href="../actions-minutes-estimator/">actions-minutes-estimator</a> projects which workflow is spending the allowance before the next run goes the same way.</p>
+  </div>
+
+  <h2>Questions</h2>
+
+  <h3>Isn't clicking "Re-run failed jobs" the obvious first move?</h3>
+  <p>It is the obvious move, and it is not wrong -- if the job actually ran and hit a flaky test, a re-run can genuinely pass and tell you something. It is just slow and, during a starvation window, uninformative: a job that never got a runner the first time has no more reason to get one the second time, so the same push can burn several retries before anyone notices the pattern is <code>runner_id: 0</code> every time, not a flaky assertion.</p>
+
+  <h3>Does re-running eventually prove whether it was starvation?</h3>
+  <p>Only after the fact and only sometimes -- if a runner happens to be available on a later retry, the job passes and you never learn why it failed the first time; if runners are still starved, it fails again and looks like a flaky or broken job either way. This tool answers from the very first run's own JSON, before you spend a second run finding out.</p>
+
+  <h3>What does this tool see that a re-run does not show me?</h3>
+  <p>The run's own <code>runner_id</code> field, which the checks tab never surfaces. A job that was actually scheduled has a real, nonzero id; a job GitHub never got to has <code>runner_id: 0</code> and an empty <code>runner_name</code>. That single field is proof no step could have run, and it is present on the very first failed run -- a re-run does not reveal it any better, it just spends another run's worth of time.</p>
+
+  <h3>Is my run's JSON uploaded anywhere to get this verdict?</h3>
+  <p>No. You fetch it yourself with your own <code>gh</code> CLI or token, paste it into this page, and the verdict is computed in your browser. Nothing about your run, your repository, or your token is sent anywhere -- the only network request in the whole flow is the one you made yourself to GitHub's API.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it describes are provided free and as-is, without warranty of any kind, express or implied. They are not a substitute for reading GitHub's own billing and Actions usage pages, and they do not tell you why your account stopped getting runners, only whether a specific job got one. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+    <p>Everything on the linked tool runs in your browser; nothing you paste is uploaded.</p>
+    <p class="note"><a href="./">Back to the checker</a> &middot; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support this work</a> (entirely optional)</p>
+  </footer>
+</body>
+</html>

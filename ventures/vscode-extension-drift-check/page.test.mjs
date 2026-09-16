@@ -50,3 +50,28 @@ test('index and docs page state that only `check` touches the network', async ()
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /snapshot.*and.*diff.*read only local files|no network call, ever/is);
 });
+
+test('index links to the vs-vscan comparison page', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /href="vs-vscan\.html"/);
+});
+
+test('the vs-vscan page links back to the tool, carries the not-affiliated clause, and its FAQ JSON-LD matches visible text', async () => {
+  const page = await readFile(new URL('./vs-vscan.html', import.meta.url), 'utf8');
+  assert.match(page, /href="\.\/"/);
+  assert.match(page, /not\s+affiliated\s+with/i);
+  assert.match(page, /no warranty/i);
+  const blocks = [...page.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const faq = blocks.map((b) => JSON.parse(b)).find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the vs-vscan page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(page.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(page.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test('the vs-vscan page is listed in the venture sitemap', async () => {
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /vs-vscan\.html/);
+});
