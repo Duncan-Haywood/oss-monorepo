@@ -33,7 +33,7 @@ to screenshot it and ask why.
 ### CLI — does the actual fetching
 
 ```
-node check.mjs https://example.com/your-page [--json] [--timeout <ms>]
+node cli/check.mjs https://example.com/your-page [--json] [--timeout <ms>]
 ```
 
 Sends a real GET to the page, then a real (partial, range-limited) GET to
@@ -46,12 +46,12 @@ it's usable as a pre-publish CI gate:
 
 ```yaml
 # in your own CI, not this portfolio's -- your compute, your target
-- run: node check.mjs https://staging.example.com/new-post
+- run: node cli/check.mjs https://staging.example.com/new-post
 ```
 
 ### Browser report viewer — renders JSON you already have
 
-Open `index.html`, paste the output of `node check.mjs <url> --json`, and
+Open `index.html`, paste the output of `node cli/check.mjs <url> --json`, and
 click Check. Nothing you paste is uploaded; the page reads it in memory in
 your tab.
 
