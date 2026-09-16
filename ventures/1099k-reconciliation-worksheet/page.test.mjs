@@ -54,6 +54,29 @@ test("index links the explainer page and the sitemap lists it too", () => {
   assert.match(sitemap, /why-is-my-1099-k-higher-than-what-i-actually-made\.html/);
 });
 
+test("the comparison page links back to the worksheet, carries its FAQ visibly, and the disclaimer", () => {
+  const html = page("vs-spreadsheet-comparison.html");
+  assert.match(html, /href="\.\/"/);
+  assert.match(html, /No warranty/);
+  assert.match(html, /not tax, legal, or financial advice/i);
+  assert.match(html, /<script type="application\/ld\+json">/);
+  for (const q of [
+    "Isn't a spreadsheet just as accurate as this worksheet?",
+    "When is a spreadsheet actually the better choice?",
+    "What does a blank spreadsheet not remind you to do that this worksheet does?",
+    "Does this replace my tax preparer or a filed return?",
+  ]) {
+    assert.ok(html.includes(q), `missing visible question: ${q}`);
+  }
+});
+
+test("index links the comparison page and the sitemap lists it too", () => {
+  const html = page("index.html");
+  const sitemap = page("sitemap.xml");
+  assert.match(html, /href="vs-spreadsheet-comparison\.html"/);
+  assert.match(sitemap, /vs-spreadsheet-comparison\.html/);
+});
+
 // Sibling-orphan budget (platform/pages/siblings.test.mjs, siblings-budget.json):
 // a tool ships with an inbound link from an existing sibling in the same
 // commit, not as an orphan to close later. quarterly-estimated-tax-calendar

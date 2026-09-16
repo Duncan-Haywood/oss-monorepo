@@ -149,3 +149,36 @@ test('index links forward to its own missing-privacy-manifest-itms-91061 satelli
     'index must link missing-privacy-manifest-itms-91061.html so a visitor arriving on index.html can reach the ITMS-91061 explainer, matching the forward-link pattern every sibling satellite page uses',
   );
 });
+
+// --- vs-waiting-for-app-review.html -----------------------------------------
+
+test('index links its own vs-waiting-for-app-review comparison page', () => {
+  assert.match(html, /href="vs-waiting-for-app-review\.html"/);
+});
+
+test('the comparison page is reachable from the sitemap', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /vs-waiting-for-app-review\.html/);
+});
+
+test('the comparison page carries the required disclaimers and links back to the checker', () => {
+  const vsHtml = readFileSync(join(HERE, 'vs-waiting-for-app-review.html'), 'utf8');
+  assert.match(vsHtml, /No warranty/);
+  assert.match(vsHtml, /Not affiliated with, endorsed by, or sponsored by Apple/);
+  assert.match(vsHtml, /Nothing leaves your browser/);
+  assert.match(vsHtml, /href="index\.html"/);
+});
+
+test("the comparison page's FAQPage JSON-LD answer text matches the visible FAQ prose exactly", () => {
+  const vsHtml = readFileSync(join(HERE, 'vs-waiting-for-app-review.html'), 'utf8');
+  const blocks = jsonLdBlocks(vsHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const q of faq.mainEntity) {
+    assert.ok(
+      vsHtml.includes(q.acceptedAnswer.text),
+      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
+    );
+  }
+});
