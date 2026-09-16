@@ -11992,3 +11992,69 @@ ventures:
       server-side, and nothing in either calculator shades toward an
       operator's interest -- the agency-offer check exists specifically to
       protect the reporter's own time from an underpriced assignment.
+  - slug: pdf-accessibility-tag-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a PDF is tagged, titled,
+      has a declared language, has alt-text-bearing structure elements, or
+      has a text-showing operator on a page is decided by reading the PDF's
+      own object graph -- the catalog dictionary, the structure tree, and
+      content-stream operators -- not a model judgment, and it never claims
+      a PDF/UA or Section 508 conformance determination.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's "archetype
+      itself" section: PDF document-structure accessibility, distinct from
+      this portfolio's existing rendered-HTML-page evidence ventures
+      (ada-title-ii-evidence, shopify-a11y-evidence). duplicate_check.py
+      scored the closest existing venture (caption-quality-check, a
+      different accessibility-adjacent artifact type -- SRT/WebVTT caption
+      tracks, not PDF structure) at 0.20 against the final description,
+      well under the 0.45 flag bar; ada-title-ii-evidence itself scored
+      only 0.13 (it checks rendered HTML via pasted axe-core JSON, never
+      opens a PDF). Autonomous ops 10 / gross margin 10: the browser page
+      reads the file entirely client-side via the native
+      DecompressionStream API (nothing uploaded) and the CLI reads files
+      from the user's own machine, so serving one more user costs a static
+      file and needs no human review of any output.
+      Distribution 6: DOJ's April 2024 ADA Title II rule text defines PDFs
+      posted through a public entity's website as "web content" subject to
+      WCAG 2.1 AA, with compliance dates extended to April 2027/2028, plus
+      an earlier May 2026 HHS Section 504 deadline; five separate existing
+      free tools (PDFix, PDF Audit, Free PDF Checker, axesCheck, PAC) prove
+      real, sustained search demand for "PDF accessibility checker" /
+      "PDF/UA checker online" terms.
+      Time to revenue 6, defensibility 2: donations-only; five established
+      free competitors already serve this exact question and none require
+      uploading or offer a batch CLI, so defensibility rests specifically
+      on the no-upload (native DecompressionStream, nothing sent to a
+      server) and CLI-batch-folder-scan angle rather than on being
+      first-to-market or having a checklist moat -- scored lower than this
+      portfolio's typical checker floor of 3 because the field is more
+      crowded than most niches this portfolio has entered.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool reads a file the user supplies locally and never
+      touches a third party; every finding is evidence tied to a specific
+      structural fact (a missing StructTreeRoot, a Widget with no
+      resolvable /TU, a page with image content but no text-showing
+      operator), with the alt-text count explicitly disclosed as an
+      approximate, document-wide heuristic rather than a confirmed
+      per-image match, and an encrypted PDF is reported as a named
+      limitation rather than silently mis-scored. Never phrased as a
+      PDF/UA or Section 508 conformance determination. Ethically:
+      donations-only with no per-scan fee or volume-based revenue, so
+      there is no direction in which the tool profits from over- or
+      under-reporting, and the heuristic limitations are disclosed in the
+      product's own FAQ rather than hidden.
