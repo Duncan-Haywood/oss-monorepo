@@ -489,33 +489,47 @@ readings:
 
   github-pages-branch-route:
     verdict: up
-    measured: "2026-09-10"
-    run: 34452482066
+    measured: "2026-09-16"
+    run: 35156548733
     how: >-
-      RE-MEASURED 2026-09-10T07:56Z, run 34452482066. GitHub's managed builder
-      `dynamic/pages/pages-build-deployment` ran on `gh-pages` at `644bcd2e`
-      and concluded `success`. A managed Pages build is triggered only by a
-      push to the configured source, so `gh-pages` IS that source and the
-      snapshot deployed. Verified against the run object itself
-      (`head_branch: gh-pages`, `path: dynamic/pages/...`, `conclusion:
-      success`) rather than from a summary that restates it.
+      `python3 platform/ci/pages_state.py --record`, which takes the reading
+      and writes the three fields above. It needs no runner, no cluster and no
+      credential beyond the repository read a session already has. The reading
+      itself is GitHub's managed builder
+      `dynamic/pages/pages-build-deployment` running on `gh-pages` and
+      concluding `success`: a managed Pages build is triggered only by a push
+      to the configured source, so a successful run names `gh-pages` as that
+      source and shows the snapshot deployed. `read_pages_deployment` verifies
+      it against the run object itself (`head_branch`, `path`, `conclusion`)
+      rather than from a summary that restates it.
 
-      Why this needed retaking rather than a code change, which is the
-      reusable part. `STALE_AFTER_DAYS` is 3 and this row was last measured
-      2026-09-06, so on 2026-09-10 it aged out to `unknown` -- and
-      `serving_origins()` correctly dropped it, which flipped
+      **Deliberately undated prose.** This block says how to re-measure and
+      what was learned; `verdict`, `measured` and `run` carry the date and are
+      machine-written by `--record`. A dated narrative here would contradict
+      those fields the moment anyone retook the reading, which is what the
+      block it replaced had started to do.
+
+      Why this row is the one that got a command, which is the reusable part.
+      `STALE_AFTER_DAYS` is 3, so this row ages out to `unknown` on the fourth
+      day -- and `serving_origins()` then correctly drops it, which flips
       `decision_queue.py`'s header from "PARTIAL OUTAGE ... the rows below are
-      NOT all waiting on this" back to "OUTAGE: the public surface is down.
-      ... every other row here is downstream of a host answering at all".
-      Both sentences cannot be true, and the second is the one #3199 was
-      written to stop printing: the catalogue is served by GitHub Pages and
-      `pages-custom-domain` (added the same day, exposure `none`) is
-      downstream of no host at all. The ageing is deliberate and right --
-      `serving_origins()`'s own docstring says an un-re-measured origin must
-      fall back rather than keep suppressing the banner on a reading nobody
-      retook. So the defect was a stale measurement, not the rule that ages
-      it, and the fix is this reading. If the banner regresses again, retake
-      it; do not widen the window to silence it.
+      NOT all waiting on this" to "OUTAGE: the public surface is down. ...
+      every other row here is downstream of a host answering at all". Both
+      sentences cannot be true, and the second is the one #3199 was written to
+      stop printing: the catalogue is served by GitHub Pages, and
+      `pages-custom-domain` (exposure `none`) is downstream of no host at all.
+      An owner who reads the false one spends their session on the expensive
+      Hetzner route while the cheap one stays untaken.
+      The ageing is deliberate and right -- `serving_origins()`'s own docstring
+      says an un-re-measured origin must fall back rather than keep suppressing
+      the banner on a reading nobody retook -- so the defect is never the rule
+      that ages it. **Do not widen the window to silence it.** It happened on
+      2026-09-10 and the fix was to retake the reading by hand, with this block
+      then saying "if the banner regresses again, retake it". It regressed
+      again on 2026-09-16, six days later, because a reminder addressed to
+      whoever happens to look is the one thing this repository has repeatedly
+      measured itself failing at. The retake is now one command, and the
+      publish block in CLAUDE.md runs it.
     note: >-
       Measured 2026-09-05 across all 232 workflows in this repository. The
       three `dynamic/` entries are

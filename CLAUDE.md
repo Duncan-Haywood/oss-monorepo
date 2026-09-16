@@ -503,8 +503,42 @@ published snapshot** (added 2026-09-05):
 python3 platform/ci/pages_state.py --require-current   # exits 1 if it is stale
 CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
 python3 platform/ci/pages_state.py --require-current   # and 0 once you have
+python3 platform/ci/pages_state.py --record            # then commit the row it rewrites
 python3 platform/ci/indexnow_state.py                  # and: was any of it announced?
 ```
+
+**`--record` was added 2026-09-16, and the defect it closes had already been
+fixed once by hand and come back.** `decision_queue.py` ages any reading older
+than `STALE_AFTER_DAYS` (3) out to `unknown`, and `serving_origins()` then
+drops `github-pages-branch-route` — which flips the queue's header from
+"PARTIAL OUTAGE ... the rows below are NOT all waiting on this" to **"OUTAGE:
+the public surface is down. hetzner-ssh-key-is-a-public-key comes first; every
+other row here is downstream of a host answering at all."** That sentence is
+false whenever Pages is serving, and it is the most expensive sentence in the
+repository: it is addressed to the owner, it tells them to stop reading, and it
+sends the one session they have at the Hetzner SSH route while
+`pages-custom-domain` — the row that would actually put the catalogue in front
+of a search engine, and that is downstream of no host at all — sits below the
+fold.
+
+Measured 2026-09-16: the row was last measured 2026-09-10, so it had aged out,
+and the queue printed the OUTAGE banner while GitHub's managed builder had
+deployed `gh-pages` twenty minutes earlier (run 35156548733, snapshot current
+at the tip of `main`). That is the *second* time — it happened on 2026-09-10
+too, and the fix then was to retake the reading by hand and write "if the
+banner regresses again, retake it" into the row. Six days later it regressed.
+
+The ageing rule is correct and **must not be widened to silence the banner**:
+an un-re-measured origin must never keep suppressing it on the strength of a
+reading nobody retook. What was wrong is that the retake was addressed to
+whoever happened to look, for a reading this repo can take on demand with no
+runner, no cluster and no credential. `--record` is that reminder turned into a
+command, the same move `--require-current` is against a stale snapshot and
+`guard_state.py --require-runnable` is against a fixable skip. It writes only
+`verdict`, `measured` and `run`, by line, so the file's prose survives — a
+`yaml.safe_load`/`yaml.dump` round-trip would round-trip the data perfectly and
+delete every dated lesson in it. It refuses to record a `deployed: unknown`
+rather than overwriting a real reading with a non-reading.
 
 **That last line was added 2026-09-11, and the answer it returned on the day
 it was written was `never` — for all 964 published pages.** The publish script
