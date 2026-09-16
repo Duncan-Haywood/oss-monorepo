@@ -448,6 +448,74 @@ class CredentialMissing(unittest.TestCase):
         self.assertEqual(step.missing_kind, "tool")
 
 
+class DeclaredUnrun(unittest.TestCase):
+    """The same "did not run" class, reached by the check saying so itself.
+
+    Added 2026-09-16 for `check_venture_regression.py` -- the only check here
+    that already draws this distinction internally, and the one where reading
+    it wrong is most expensive. When it cannot *prove* that a venture missing
+    from the tree is really gone (your checkout is an ancestor of the base, or
+    a shallow clone leaves ancestry unanswerable) it refuses to pass, exits 2,
+    and prints `UNRUN: ...`. The sweep read that as an ordinary `FAILED`, so
+    `main` was reported red under a step named "Check no live venture
+    disappears from the served catalogue" -- which reads like live product
+    going dark.
+
+    That is not a rare race. A `--tree` sweep takes ~20 minutes and this
+    repository lands merges from up to 4 sessions inside 15, so `main` moving
+    mid-sweep is the ordinary case. Measured 2026-09-16: it happened on the
+    first sweep of the session.
+    """
+
+    def run_one(self, command, workdir="."):
+        step = runner.Step("j", "n", command, workdir)
+        runner.execute(step, timeout=60)
+        return step
+
+    def test_the_real_checker_against_a_ref_it_cannot_resolve_is_unrun(self):
+        """The measured case, run against the tool itself rather than a fake."""
+        step = self.run_one(
+            "python3 platform/ci/check_venture_regression.py "
+            "--base HEAD --head refs/nope/definitely-absent")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing_kind, "self-reported")
+
+    def test_the_unrun_marker_carries_the_step_s_own_words(self):
+        step = self.run_one("echo 'UNRUN: your checkout is behind the base' >&2; exit 2")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing_kind, "self-reported")
+        self.assertIn("behind the base", step.reason)
+
+    def test_a_real_regression_stays_a_failure(self):
+        """The discrimination this class turns on.
+
+        A venture genuinely gone, with ancestry proven, exits 1 and prints no
+        `UNRUN:` line. Reclassifying that would bury the one defect this check
+        exists to catch, so the marker -- not the exit code -- is what decides.
+        """
+        step = self.run_one(
+            "echo '1 live venture removed by this change:'; "
+            "echo '    widget-calculator'; exit 1")
+        self.assertEqual(step.status, "failed")
+
+    def test_the_word_unrun_in_prose_is_not_a_self_report(self):
+        """Only a line that *starts* with the marker counts.
+
+        A step that merely mentions the word -- a checker describing its own
+        exit codes, say -- is reporting a result, not disclaiming one.
+        """
+        step = self.run_one(
+            "echo 'exits UNRUN: when it cannot tell' >&2; "
+            "echo 'assertion failed' >&2; exit 1")
+        self.assertEqual(step.status, "failed")
+
+    def test_a_missing_tool_still_reports_as_a_tool(self):
+        """Order matters: a toolchain miss is the more specific diagnosis."""
+        step = self.run_one("python3 -m absent_module_xyz")
+        self.assertEqual(step.status, "unrun")
+        self.assertEqual(step.missing_kind, "tool")
+
+
 class StatusMark(unittest.TestCase):
     """Every status the executor can set must be printable.
 

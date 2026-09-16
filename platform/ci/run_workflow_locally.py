@@ -444,6 +444,51 @@ def missing_credential(output) -> str | None:
     return None
 
 
+def declared_unrun(output) -> str | None:
+    """What a step said when it reported itself unable to run, or None.
+
+    The same "did not run" class as the two above, reached from a third
+    direction: not a tool this sandbox lacks and not a credential it lacks,
+    but a check that ran, discovered it could not answer its own question,
+    and said so in as many words.
+
+    Added 2026-09-16 for `check_venture_regression.py`, which is the only
+    check here that already makes this distinction internally and the one
+    where getting it wrong is most expensive. It compares the tree against a
+    base ref, and a removal it spots means a live product vanished from the
+    served catalogue -- so when it *cannot prove* the removal is real (your
+    checkout is an ancestor of the base, or a shallow clone leaves ancestry
+    unanswerable) it deliberately refuses to pass, exits `EXIT_UNRUN` = 2,
+    and prints `UNRUN: ...` followed by "This check did not run, which is not
+    the same as passing."
+
+    The sweep read that as an ordinary `FAILED`, which is the costume problem
+    the two blocks above were written about, wearing a third costume. It
+    matters most in exactly the situation `--tree` creates by construction: a
+    sweep takes ~20 minutes, this repository lands merges from up to 4
+    sessions inside 15, so `main` moving *during* the sweep is the ordinary
+    case rather than an edge one. The reader then sees `main` reported red,
+    with a step name -- "Check no live venture disappears from the served
+    catalogue" -- that reads like live product going dark. Measured that day:
+    that is precisely what happened, and the checker's own diagnostic was the
+    only thing that kept it from being reported as a red `main`.
+
+    The discrimination that keeps this honest is the same one `missing_toolchain`
+    and `missing_credential` use, and it is the whole reason this matches a
+    marker rather than an exit code. A **real** regression -- the venture
+    genuinely gone, ancestry proven -- exits 1 and prints no `UNRUN:` line, so
+    it stays `failed` and stays loud. Only a check that explicitly disclaims
+    its own result is reclassified, and it is still never counted as green:
+    an `unrun` step is named, counted as not run, and owed an answer.
+    """
+    for line in output:
+        if line.strip().startswith("UNRUN:"):
+            return line.strip()[len("UNRUN:"):].strip() or (
+                "the step reported that it did not run"
+            )
+    return None
+
+
 class Step:
     """One `run:` step, with where and how it should be executed."""
 
@@ -862,6 +907,10 @@ def execute(step: Step, timeout: int) -> None:
         step.missing_kind = "credential"
         step.reason = (f"`{uncredentialed}` is not set here, so this step "
                        "never ran the check it exists to make")
+    elif (said_so := declared_unrun(output)) is not None:
+        step.status = "unrun"
+        step.missing_kind = "self-reported"
+        step.reason = said_so
     else:
         step.status = "failed"
         step.reason = f"exit {done.returncode}"
@@ -919,6 +968,16 @@ def report(name, steps, uses_skipped, forced) -> int:
             print("        Set the missing credential(s) and re-run; until "
                   "then these steps have verified nothing:")
             print("          " + ", ".join(creds))
+        # A self-reported one names its own remedy, and that remedy is
+        # specific to the check (`check_venture_regression.py` asks for a
+        # fetch and a merge, not an install). Point at it rather than
+        # inventing a generic instruction that would be wrong for the next
+        # check to join this class.
+        if any(s.missing_kind == "self-reported" for s in unrun):
+            print("        A step above reported itself unable to run. Its own "
+                  "output says what it needs;")
+            print("        re-run it directly and satisfy that before reading "
+                  "this tree as verified.")
 
     for step in setup_failed:
         print(f"SETUP   {step.label}: {step.reason}")
