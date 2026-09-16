@@ -16,6 +16,35 @@ async function read(file) {
   return readFile(new URL(`./${file}`, import.meta.url), 'utf8');
 }
 
+// The FAQ checks below asserted `html.includes(...)` against the whole file.
+// That can never fail: the JSON-LD block is itself part of `html`, so every
+// question and answer trivially "appeared" — including in the test literally
+// named "also present as visible text". The check that matters, and the one
+// Google's structured-data policy enforces, is that the text is prose a
+// visitor actually reads. So strip the JSON-LD blocks first, then the tags,
+// then decode the entities the markup uses but the JSON spells literally, and
+// compare on normalised whitespace.
+function visibleText(html) {
+  return html
+    .replace(/<script[^>]*type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/g, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&mdash;/g, '—')
+    .replace(/&larr;/g, '←')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Is `text` prose a visitor can read on `html`, rather than only JSON-LD? */
+function isVisibleProse(html, text) {
+  return visibleText(html).includes(text.replace(/\s+/g, ' ').trim());
+}
+
 test('every JSON-LD block on the index page is valid JSON', async () => {
   const html = await read('index.html');
   const blocks = jsonLdBlocks(html);
@@ -42,7 +71,10 @@ test('every FAQPage question on every page is also present as visible text', asy
     const faqBlocks = jsonLdBlocks(html).map((b) => JSON.parse(b)).filter((b) => b['@type'] === 'FAQPage');
     for (const faq of faqBlocks) {
       for (const q of faq.mainEntity) {
-        assert.ok(html.includes(q.name), `${file}: question "${q.name}" not found as visible text`);
+        assert.ok(
+          isVisibleProse(html, q.name),
+          `${file}: question "${q.name}" must appear as visible prose, not only inside the JSON-LD`,
+        );
       }
     }
   }
@@ -147,8 +179,14 @@ test('the comparison page carries valid FAQPage JSON-LD matching its visible que
   assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
   assert.ok(faq.mainEntity.length >= 3);
   for (const q of faq.mainEntity) {
-    assert.ok(html.includes(q.name), `question "${q.name}" not found as visible text`);
-    assert.ok(html.includes(q.acceptedAnswer.text), `answer to "${q.name}" not found as visible text`);
+    assert.ok(
+      isVisibleProse(html, q.name),
+      `question "${q.name}" must appear as visible prose, not only inside the JSON-LD`,
+    );
+    assert.ok(
+      isVisibleProse(html, q.acceptedAnswer.text),
+      `answer to "${q.name}" must appear as visible prose, not only inside the JSON-LD`,
+    );
   }
 });
 
