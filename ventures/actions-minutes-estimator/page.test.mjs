@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const PAGES = ['index.html', 'how-github-actions-minutes-are-billed.html'];
+const PAGES = ['index.html', 'how-github-actions-minutes-are-billed.html', 'vs-github-billing-page.html'];
 
 const read = (file) => readFile(new URL(`./${file}`, import.meta.url), 'utf8');
 
@@ -57,6 +57,16 @@ test('index links one hop to the actions-runner-starvation-check sibling', async
 test('the docs page disclaims affiliation where it names a trademark', async () => {
   const page = await read('how-github-actions-minutes-are-billed.html');
   assert.match(page, /Not affiliated with GitHub/i);
+});
+
+test('the comparison page disclaims affiliation where it names a trademark', async () => {
+  const page = await read('vs-github-billing-page.html');
+  assert.match(page, /not\s+affiliated\s+with/i);
+});
+
+test('index links the comparison page and it links back', async () => {
+  assert.match(await read('index.html'), /href="vs-github-billing-page\.html"/);
+  assert.match(await read('vs-github-billing-page.html'), /href="\.\/"/);
 });
 
 test('the page imports the same estimator the CLI runs', async () => {

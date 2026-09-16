@@ -66,6 +66,7 @@ So this reads the workflow files and does the arithmetic forward.
 | `cli.mjs` | terminal report, `--json`, and the CI budget gate |
 | `index.html` | the browser tool — imports `estimate.mjs`, does not restate it |
 | `how-github-actions-minutes-are-billed.html` | the explainer the tool links to |
+| `vs-github-billing-page.html` | why the billing page can't answer "which workflow?" or "before I merge?" |
 
 The browser page **imports** the same module the CLI runs. It does not carry a
 port of the arithmetic; two copies would drift, and the browser copy is the one

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This estimator vs. your GitHub billing page</title>
+<meta name="description" content="GitHub's own Settings → Billing page tells you how many Actions minutes an account has already spent, added up across every workflow. It cannot tell you which workflow spent them, or what a workflow you are about to merge will cost. This free tool reads the workflow files and does that arithmetic forward, before the allowance is gone.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="./vs-github-billing-page.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This estimator vs. your GitHub billing page">
+<meta property="og:description" content="Billing shows minutes already spent, aggregated across the account. This reads your workflow files and projects the cost forward, per workflow and per job, before you merge.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Doesn't GitHub's billing page already show me this?","acceptedAnswer":{"@type":"Answer","text":"It shows total minutes spent for the billing period, added up across every workflow in the account. It does not break that total down by workflow or job, and it only reports minutes that have already been spent — it cannot tell you what a workflow currently sitting in a pull request will cost once it starts running on every push. This tool reads the workflow YAML itself and projects the cost forward, before any of it has run."}},{"@type":"Question","name":"So is the billing page useless?","acceptedAnswer":{"@type":"Answer","text":"No — it is the only place that shows real, already-billed spend and your actual remaining allowance for the current cycle, and it is the figure GitHub will actually charge you against. This tool produces an estimate from assumptions you set (how often you push, how many pull requests run); the billing page is ground truth. Check a number here against it before making a decision that depends on being exact."}},{"@type":"Question","name":"Why would I need per-workflow attribution at all?","acceptedAnswer":{"@type":"Answer","text":"Because a repository with more than a handful of workflows makes the billing page's account-wide total nearly useless for deciding what to fix. A macOS matrix job, a */20 * * * * cron, and a workflow that fires on both push and pull_request with no branch filter can each be spending thousands of allowance minutes a month, and the billing page reports one number for all of them combined. Attribution is what turns 'we are over budget' into 'this one workflow is the reason.'"}},{"@type":"Question","name":"Is anything I paste here sent to GitHub or anyone else?","acceptedAnswer":{"@type":"Answer","text":"No. This tool never talks to GitHub's API or anywhere else — it only parses the YAML you paste, entirely in your browser. It has no way to read your actual billing page or your account's real spend; it can only project from the files and the assumptions you give it. That is a real limit, not an oversight — see the question above about the billing page being ground truth."}}]}</script>
+<style>
+:root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+body { max-width: 820px; margin: auto; padding: 28px 18px 48px; }
+a { color: #17604a; overflow-wrap: anywhere; }
+.eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .06em; color: #17324a; margin: 0 0 6px; }
+h1 { font-size: clamp(1.7rem,5vw,2.5rem); line-height: 1.12; letter-spacing: -.02em; margin: .3rem 0; max-width: 26ch; color: #17324a; }
+.lede { font-size: 1.05rem; max-width: 64ch; color: #4c5a68; }
+p, li { line-height: 1.6; }
+section.card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #17324a10; margin: 1rem 0; }
+h2 { margin-top: 0; color: #17324a; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e3e9ef; vertical-align: top; }
+th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #55606f; }
+.fine, .note { font-size: .86rem; color: #55606f; }
+footer { color: #55606f; font-size: .86rem; margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+footer p { margin: .6rem 0; }
+a.cta { display: inline-block; background: #17604a; color: #fff; font-weight: 700; padding: 11px 16px; border-radius: 8px; text-decoration: none; }
+@media (max-width: 820px) { body { padding: 20px 14px 40px; } }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; GitHub Actions Minutes Estimator</a></p>
+<header>
+<h1>This estimator vs. your GitHub billing page</h1>
+<p class="lede">Settings &rarr; Billing &rarr; Plans and usage shows how many Actions minutes an account has already spent this cycle, added up across every workflow. It is real, and it is the number GitHub will actually charge you against. What it will not do is tell you which workflow spent them, or what a workflow sitting in an open pull request is about to cost once it starts running on every push. This free tool reads the workflow files themselves and does that arithmetic forward.</p>
+</header>
+<section class="card">
+<h2>What each one actually answers</h2>
+<p>
+  <strong>GitHub's billing page</strong> is a ledger, not a diagnosis. It totals
+  minutes already consumed for the current cycle against your plan's
+  allowance, and it is the figure that determines whether you get billed for
+  overage. It has no per-workflow or per-job breakdown, and it cannot look
+  forward &mdash; a workflow you have not merged yet has spent nothing, so it
+  has nothing to show you about it.
+</p>
+<p>
+  <strong>This estimator</strong> never touches your account or GitHub's API
+  at all &mdash; it parses the workflow YAML you paste, entirely in your
+  browser, and projects a monthly cost from it: per workflow, per job, with
+  the runner multiplier, matrix expansion, cron frequency, and rounding rules
+  GitHub actually bills by. It can do that before a single run has happened,
+  which is the one thing the billing page structurally cannot do.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>What has this account actually been billed for, this cycle?</td><td>GitHub's own billing page &mdash; that number is ground truth, this tool's is an estimate.</td></tr>
+<tr><td>Which workflow, or which job in a matrix, is spending the most?</td><td>This estimator &mdash; paste your workflow files and see it attributed, before or after the fact.</td></tr>
+<tr><td>What will merging this pull request's workflow change cost me a month?</td><td>This estimator. Billing has nothing to show for a workflow that has not run yet.</td></tr>
+<tr><td>How close am I to my actual remaining allowance right now?</td><td>GitHub's billing page. This tool has no way to read your real account balance.</td></tr>
+<tr><td>Is my workflow file uploaded anywhere?</td><td>No, on either page &mdash; this one parses and costs entirely client-side and never calls GitHub's API.</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Use both. The billing page tells you the account is over budget; this tool is how you find out which workflow to fix.</p>
+</section>
+<section class="card">
+<h2>Common questions</h2>
+<h3>Doesn't GitHub's billing page already show me this?</h3>
+<p>It shows total minutes spent for the billing period, added up across every workflow in the account. It does not break that total down by workflow or job, and it only reports minutes that have already been spent &mdash; it cannot tell you what a workflow currently sitting in a pull request will cost once it starts running on every push. This tool reads the workflow YAML itself and projects the cost forward, before any of it has run.</p>
+<h3>So is the billing page useless?</h3>
+<p>No &mdash; it is the only place that shows real, already-billed spend and your actual remaining allowance for the current cycle, and it is the figure GitHub will actually charge you against. This tool produces an estimate from assumptions you set (how often you push, how many pull requests run); the billing page is ground truth. Check a number here against it before making a decision that depends on being exact.</p>
+<h3>Why would I need per-workflow attribution at all?</h3>
+<p>Because a repository with more than a handful of workflows makes the billing page's account-wide total nearly useless for deciding what to fix. A macOS matrix job, a <code>*/20 * * * *</code> cron, and a workflow that fires on both <code>push</code> and <code>pull_request</code> with no branch filter can each be spending thousands of allowance minutes a month, and the billing page reports one number for all of them combined. Attribution is what turns 'we are over budget' into 'this one workflow is the reason.'</p>
+<h3>Is anything I paste here sent to GitHub or anyone else?</h3>
+<p>No. This tool never talks to GitHub's API or anywhere else &mdash; it only parses the YAML you paste, entirely in your browser. It has no way to read your actual billing page or your account's real spend; it can only project from the files and the assumptions you give it. That is a real limit, not an oversight &mdash; see the question above about the billing page being ground truth.</p>
+<p class="note">
+  <a class="cta" href="./">Estimate your Actions cost</a>
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It produces an <em>estimate</em> from the workflow files you paste plus assumptions you set — it is not a billing statement, not a quote, and not financial, accounting, or tax advice. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. <strong>You are responsible for checking any figure here against your own GitHub billing page before relying on it.</strong></p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime or that a URL will keep working.</p>
+<p>Not affiliated with, endorsed by, or sponsored by GitHub, Inc. "GitHub" and "GitHub Actions" are trademarks of GitHub, Inc., named here only to describe the billing page this tool is not and does not replace.</p>
+<p class="support">Free and open source. If it helps you find the expensive workflow, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> support is entirely optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
