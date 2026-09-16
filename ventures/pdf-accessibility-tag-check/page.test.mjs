@@ -112,3 +112,59 @@ test('the bundled worked example decodes to a real PDF that this engine flags as
   assert.ok(ids.includes('missing-title'));
   assert.ok(ids.includes('missing-lang'));
 });
+
+// --- vs-uploading-to-an-online-checker.html ---------------------------------
+//
+// The comparison page is the venture's organic entry point: it answers the
+// question a webmaster types ("free PDF/UA checker that doesn't upload") before
+// they know this tool exists. It carries the same obligations the entry page
+// does, and one it does not — every factual claim it makes about a named
+// competitor is a claim this repository is answerable for.
+
+const comparisonHtml = readFileSync(
+  join(HERE, 'vs-uploading-to-an-online-checker.html'),
+  'utf8',
+);
+
+test('the comparison page carries the disclaimer, the non-affiliation clause, and the sponsor link', () => {
+  assert.match(comparisonHtml, /No warranty/);
+  assert.match(comparisonHtml, /not legal, accessibility-consulting, or compliance advice/);
+  assert.match(comparisonHtml, /Not affiliated with, endorsed by, or sponsored by/);
+  assert.match(comparisonHtml, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('the comparison page links back to the checker and is linked from it', () => {
+  assert.match(comparisonHtml, /href="index\.html"/);
+  assert.match(html, /href="vs-uploading-to-an-online-checker\.html"/);
+});
+
+test('the comparison page is listed in the venture sitemap', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /vs-uploading-to-an-online-checker\.html/);
+});
+
+// The failure this pins is the one CLAUDE.md records costing live product: a
+// FAQPage block whose answer text has drifted from the prose a reader sees.
+// Search engines treat that as cloaking, and nothing else in the tree looks.
+test("the comparison page's FAQPage answers appear verbatim in its visible prose", () => {
+  const blocks = jsonLdBlocks(comparisonHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'expected a FAQPage block');
+  assert.ok(faq.mainEntity.length >= 4);
+  for (const q of faq.mainEntity) {
+    assert.ok(
+      comparisonHtml.includes(q.acceptedAnswer.text),
+      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
+    );
+  }
+});
+
+// The page tells a reader they can batch a folder in one command and that a
+// finding makes it exit non-zero. Both halves are load-bearing for the CI
+// use it recommends, so neither is left as prose nobody checks.
+test('the batch command the comparison page advertises is the one the CLI actually exposes', async () => {
+  const cli = readFileSync(join(HERE, 'cli', 'check.mjs'), 'utf8');
+  assert.match(comparisonHtml, /node cli\/check\.mjs \.\/document-library\/ --json/);
+  assert.match(cli, /--json/);
+  assert.match(cli, /process\.exitCode|process\.exit\(/);
+});
