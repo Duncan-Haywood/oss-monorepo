@@ -33,8 +33,8 @@ readings:
 
   github-actions-runners:
     verdict: down
-    measured: "2026-09-11"
-    run: 34588034490
+    measured: "2026-09-16"
+    run: 35095456643
     how: >-
       Cheapest route, and it costs nothing at all: classify a check that
       already ran on any open PR, by its **job** id rather than a run id --
@@ -214,6 +214,24 @@ readings:
       `STALE_AFTER_DAYS` (3) -- and should be read as unknown, not as the
       `down` verdict it still carries below, until a dispatch actually gets a
       runner assigned.
+      Re-measured 2026-09-16T12:22Z from a scheduled autonomous session, off
+      ordinary push traffic rather than a dispatch: all ten workflow runs that
+      the #4691 merge commit triggered on `main` (e223221d) concluded
+      `failure` between 4 and 40 seconds after creation, and
+      `ci_starvation.py --run 35095456643` (`Portfolio validate`) exits 0
+      naming `runner_id: 0 -- no runner was ever assigned, so no step ran`.
+      Five days unmoved from the 09-11 reading, and consistent with the
+      2026-10-01 allowance-reset expectation. No dispatch was spent
+      confirming it: this row's own guidance is one classification per
+      session, and ordinary merge traffic supplied it for free.
+      Two consequences worth stating rather than re-deriving. `k3s-cluster`
+      below is still unmeasurable (its `Outage triage` dispatch needs the
+      runner this row says does not exist), so it stays 12 days stale and
+      should be read as unknown. And `indexnow_state.py` reports the
+      announcement route has now starved on all 60 completed runs of
+      `publish-pages-branch.yml` -- so 1037 published URLs remain announced
+      to nobody, which is this outage's largest ongoing product cost and is
+      not visible anywhere in the tree.
 
   k3s-cluster:
     verdict: down
@@ -304,6 +322,24 @@ readings:
       (`HETZNERSSHKEY`, `ARGOCD_REPO_TOKEN`, `SITE_GH_TOKEN`,
       `CODEX_AUTH_JSON`, `RUNNER_TOKEN`). Nothing for an agent session to do
       here but keep the reading current.
+      Re-measured 2026-09-16, on the same owner ask repeated verbatim
+      (Hetzner CI/CD, marketing materials deployed on the boxes, and the
+      Codex CLI running dev work against the plan's included quota): still
+      clean -- 56/56 tests, and `systemd-analyze verify` exits 0 printing
+      nothing on both units. The recovery dry run was rehearsed too, which
+      the 09-13 reading did not do: `DRY_RUN=1 WITH_CODEX_HOST=1
+      WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1
+      bootstrap/restore-cluster.sh` prints the no-SSH half correctly (all
+      three extras resolved to a box, each naming the credential standing
+      behind it) and then exits 1 at the SSH gate on both hosts, exactly as
+      documented. So the route is not merely unit-tested -- the owner's
+      one-shot recovery was executed as far as a session can take it, and
+      the first thing it cannot do is the first thing it needs.
+      One more thing was checked rather than assumed, because the third ask
+      is about the *prompt* and not only the install:
+      `gitops/agents/workers/mandate.md` already carries the product-first
+      mandate this account runs on, including the three-PR drain floor, in
+      sync. Nothing to port.
       Re-measured again 2026-09-16, prompted by the same owner ask repeating
       verbatim (Hetzner CI/CD, marketing-material deployment, this Codex
       dev-worker route) three days after the 2026-09-13 reading above: still
@@ -619,7 +655,7 @@ readings:
     # here — can actually reach. `down` means it cannot reach the boxes or any
     # hosted secret store, so it cannot be the machine that deploys.
     verdict: down
-    measured: "2026-09-06"
+    measured: "2026-09-16"
     run: null
     how: >-
       From inside a session: `curl -s -o /dev/null -w '%{http_code}'
@@ -650,6 +686,20 @@ readings:
       key would still fail to reach `:22`, and the obvious reading of that
       failure is "the key is wrong" — which is exactly the sentence this
       repository has already spent a week on once.
+      Re-measured 2026-09-16, and the two hosts checked were chosen because a
+      product route now turns on each. `api.indexnow.org` and `www.bing.com`
+      both come back `CONNECT tunnel failed, response 403`, reported by the
+      proxy as `connect_rejected ... organization policy` — so the 1037-URL
+      announcement `indexnow.mjs` has ready and verified cannot be sent from
+      here, and the runner that could send it is starved (see
+      `github-actions-runners`). `duncan-haywood.github.io` is refused the
+      same way, which is why no session can confirm the published catalogue
+      returns 200 to a stranger, only that GitHub deployed it.
+      That last one is worth keeping separate from the rest of this row. The
+      denial is about *this sandbox*, not about the site — reading it as
+      evidence the catalogue is unreachable would repeat the exact
+      manifest-derived error the "nothing is served" episode cost a week on,
+      running in the opposite direction.
       This does not supersede `github-actions-runners` or `k3s-cluster`; it is
       orthogonal to both. It says who can act while they are down.
       **Added 2026-09-06: do not port-probe :80 or :443 from a session — the
