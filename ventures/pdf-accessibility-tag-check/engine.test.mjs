@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import zlib from 'node:zlib';
 import { analyzePdf } from './engine.mjs';
-import { inflate } from './inflate-node.mjs';
-import { buildPdf, accessiblePdfObjects, ACCESSIBLE_TRAILER } from './fixtures.mjs';
+import { inflate } from './cli/inflate-node.mjs';
+import { buildPdf, accessiblePdfObjects, ACCESSIBLE_TRAILER } from './cli/fixtures.mjs';
 
 function findingIds(report) { return report.findings.map((f) => f.id); }
 function noteIds(report) { return report.notes.map((n) => n.id); }

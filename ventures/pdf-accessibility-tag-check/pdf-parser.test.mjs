@@ -5,8 +5,8 @@ import {
   parseValue, scanObjects, findTrailer, expandObjectStreams, decodeStream,
   resolve, isDict, isName, bytesToBinaryString, binaryStringToBytes, PRef,
 } from './pdf-parser.mjs';
-import { inflate } from './inflate-node.mjs';
-import { buildPdf, accessiblePdfObjects, ACCESSIBLE_TRAILER } from './fixtures.mjs';
+import { inflate } from './cli/inflate-node.mjs';
+import { buildPdf, accessiblePdfObjects, ACCESSIBLE_TRAILER } from './cli/fixtures.mjs';
 
 test('binary string round-trips every byte value', () => {
   const bytes = new Uint8Array(256);
