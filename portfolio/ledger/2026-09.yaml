@@ -31787,3 +31787,101 @@ entries:
         sweep, journey); `highlight` skipped as not applicable (this tool
         prints no highlight-promise sentence). No payment code introduced.
     mrr_end: 0
+  - venture: bridal-hair-makeup-pricing-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First work of the run: the only open PR (#4761, "hoa-reserve-fund-
+        calculator: add a comparison page vs. a spreadsheet") was reviewed
+        and locally verified while `ci_starvation.py --run 35144974836`
+        confirmed its one red check was starvation (`runner_id: 0`, 5s, no
+        steps), not a real failure -- but it and a follow-up (#4762, its
+        WCAG AA contrast fix) were both merged by a concurrent session
+        seconds into this session's own review, before this session's own
+        merge action landed. The open-PR queue was 0 both before and after,
+        so the three-PR quota's "process all of them" branch applied
+        vacuously; no PR in this session's own merge history to cite.
+      - >-
+        New venture, per the task brief and `portfolio/DIRECTION.md`'s
+        "Pipeline and new ventures" option 3 (`session_gate.py`'s
+        build-now pipeline was empty, and the router validators, gitops
+        tests, and marketing/pages suite were all otherwise green). Screened
+        for overlap by grepping every `VENTURE.yaml` and `screened-out.md`
+        for "bridal"/"makeup"/"hair"/"beauty"/"wedding" (aside from the
+        unrelated `moving-bid-calculator`) and found nothing -- no prior
+        venture or screened idea for a mobile beauty-services business.
+        Composite 5.667, floor 1 `ai_leverage` (no AI, deliberately
+        deterministic arithmetic), both gates (`liability_containment`,
+        `ethical_robustness`) pass -- see `portfolio/scoring/venture-
+        scores.yaml`.
+      - >-
+        Shipped a browser-local calculator (`calc.mjs`/`index.html`) for
+        mobile bridal hair and makeup artists pricing one wedding-day
+        booking: per-person service tiers (bride, bridal party, hair-only,
+        makeup-only, kids), an early-start fee, mileage, a top-up to a
+        service minimum, and a trial-fee credit that the calculator
+        surfaces as the real discount it is rather than a neutral timing
+        change (crediting the trial fee lowers the combined total collected
+        by up to the trial fee itself -- easy to miss, quantified rather
+        than asserted). The differentiated feature is a schedule-capacity
+        check: whether the artists already booked can finish the whole
+        group between arrival and the must-be-ready deadline, and if not,
+        exactly how many additional artists the booking needs, what billing
+        them costs the client, and what paying them out costs the artist --
+        a question no flat day-rate or per-service price sheet answers.
+      - >-
+        A real design error caught by the calculator's own test suite before
+        it shipped: the first draft asserted that crediting the trial fee
+        toward the wedding day changes only the balance due, never the
+        total contract value. Running the arithmetic against that assertion
+        failed it (`1090` vs `1215`) -- crediting *is* a real discount on
+        the combined total, up to the trial fee, not a neutral timing
+        shift. Fixed by correcting the claim (both the code's header
+        comment and the test) rather than the arithmetic, which was already
+        right.
+      - >-
+        Registered everywhere a new venture needs to be: `portfolio/scoring/
+        venture-scores.yaml`, `portfolio/usage/usage.yaml` baseline row, the
+        mirrored-tool count (280 -> 281) in `infra/OWNER_CHECKLIST.md` (all
+        three sentences), `gitops/prod/usage/aggregate.py`, `gitops/prod/
+        front-door/default.conf` (both comments), and `gitops/tests/
+        test_manifests.py`'s own running-count comment. Added a category
+        rule in `platform/pages/build.mjs` (filed under `services`, not the
+        catch-all, which `build.test.mjs`'s catch-all-size bound would
+        otherwise have failed at 6). Added `vs-flat-day-rate.html` to
+        `COMPARISON_DISCLAIMER_EXEMPT` in `platform/pages/clauses.mjs` (a
+        generic pricing method, not a named competitor). Closed the venture
+        as a crawlable orphan on its first commit rather than leaving it for
+        `siblings-budget.json`'s zero-orphan ratchet to catch later: added a
+        reciprocal inbound link from `appointment-deposit-calculator`
+        (its trial/booking deposit is the same shape this calculator
+        prices), with a `page.test.mjs` assertion on the href in both
+        ventures. Ran `platform/pages/launched.mjs --write` (281 tools, 1
+        added) and `platform/marketing/regen.mjs`.
+      - >-
+        Verified against the working tree: venture's own suite 67/67
+        (`node --test ventures/bridal-hair-makeup-pricing-calculator/
+        *.test.mjs`); `appointment-deposit-calculator`'s own suite 69/69
+        after the reciprocal-link addition; `platform/marketing`+
+        `platform/pages` 1260/1260 (including the fleet-wide zero-crawlable-
+        orphan and catch-all-size assertions); `gitops/tests` 581
+        passed/1 skipped via `python3 -m pytest` (the spelling CLAUDE.md
+        pins) -- one real failure caught and fixed on the first pass
+        (`test_mirrored_tool_count_matches_what_the_docs_claim`, the exact
+        four-place trap CLAUDE.md's "168 became 169" paragraph and the
+        "gitops/tests condition was widened" paragraph both warn about).
+        `checklist_coverage.py`, `check_no_payment_code.py`, `clauses.mjs
+        bridal-hair-makeup-pricing-calculator appointment-deposit-
+        calculator`, `router/validate.py`, `scoring/score_ventures.py
+        --check`, `usage/validate_usage.py`, `pipeline/
+        validate_doc_consistency.py`, and `pipeline/validate_candidates.py`
+        all clean. Browser/Playwright checks and `ci_starvation.py` against
+        this venture's own (nonexistent) CI were not run: no workflow file
+        was added for it (a static, test-only venture with no CI-publishable
+        surface), and the whole-catalogue browser suite
+        (`browser_state.py`) was already reporting every check stale from
+        an unrelated front-door change before this session started, which a
+        single new static comparison page with no form inputs does not
+        newly implicate. No payment code introduced.
+    mrr_end: 0

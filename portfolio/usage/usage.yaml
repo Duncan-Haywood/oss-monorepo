@@ -6350,3 +6350,32 @@ products:
           it -- and whether the CLI sees adoption in an external repo's CI,
           the strongest signal this is solving a real, recurring problem
           rather than a one-off curiosity click.
+  - slug: bridal-hair-makeup-pricing-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          booking-priced: 0
+          assistant-needed: 0
+          link_copied: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          browser-local calculator pricing a mobile bridal hair and makeup
+          booking across the bride, bridal party, hair-only, makeup-only,
+          and kids' services, applying an early-start fee and mileage,
+          topping a small booking up to a service minimum, reporting the
+          total contract value alongside a trial-fee credit, and checking
+          whether the artists booked can finish the group before the
+          must-be-ready deadline. `live_url_visitors` is null and not zero,
+          deliberately -- GitHub Pages exposes no server-side analytics and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet. Named channel to watch: bridal/wedding-vendor
+          communities (r/weddingstylist, MUA and hairstylist Facebook
+          groups) and organic search for "bridal hair and makeup pricing
+          calculator" or "how to price bridal hair and makeup". The reading
+          worth watching is `assistant-needed` against `booking-priced` --
+          how often the schedule-capacity check actually changes a staffing
+          decision is the calculator's differentiated claim, not the price
+          total a flat rate could also produce.
