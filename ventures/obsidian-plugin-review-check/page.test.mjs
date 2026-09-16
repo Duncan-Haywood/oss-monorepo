@@ -204,3 +204,56 @@ test('the comparison page is listed in sitemap.xml', () => {
   const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
   assert.match(sitemap, /vs-guessing-or-waiting-for-review\.html/);
 });
+
+// --- vs-eslint-plugin-obsidianmd.html ---------------------------------
+//
+// A second, distinct comparison page (merged concurrently as #4724): this
+// one is an organic entry point for a developer already using ESLint types
+// ("obsidian eslint plugin vs manifest checker"), a different alternative
+// than the guidelines-or-review-comment page above. It carries the same
+// obligations the entry page does, and one it does not -- every factual
+// claim it makes about a named competitor is a claim this repository is
+// answerable for.
+
+const comparisonHtml = readFileSync(
+  join(HERE, 'vs-eslint-plugin-obsidianmd.html'),
+  'utf8',
+);
+
+test('the eslint comparison page carries the disclaimer, the non-affiliation clause, and the sponsor link', () => {
+  assert.match(comparisonHtml, /No warranty/);
+  assert.match(comparisonHtml, /provided free and as-is, without warranty/);
+  assert.match(comparisonHtml, /Not affiliated with, endorsed by, or sponsored by Obsidian/);
+  assert.match(comparisonHtml, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test('the eslint comparison page links back to the checker and is linked from it', () => {
+  assert.match(comparisonHtml, /href="index\.html"/);
+  assert.match(html, /href="vs-eslint-plugin-obsidianmd\.html"/);
+});
+
+test('the eslint comparison page is listed in the venture sitemap', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /vs-eslint-plugin-obsidianmd\.html/);
+});
+
+// The failure this pins is the one CLAUDE.md records costing live product: a
+// FAQPage block whose answer text has drifted from the prose a reader sees.
+test("the eslint comparison page's FAQPage answers appear verbatim in its visible prose", () => {
+  const blocks = jsonLdBlocks(comparisonHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((p) => p['@type'] === 'FAQPage');
+  assert.ok(faq, 'expected a FAQPage block');
+  assert.ok(faq.mainEntity.length >= 4);
+  for (const q of faq.mainEntity) {
+    assert.ok(
+      comparisonHtml.includes(q.acceptedAnswer.text),
+      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
+    );
+  }
+});
+
+test('the eslint comparison page states the CLI command this checker actually exposes', () => {
+  const checkCli = readFileSync(join(HERE, 'check.mjs'), 'utf8');
+  assert.match(comparisonHtml, /node check\.mjs \./);
+  assert.match(checkCli, /process\.exitCode|process\.exit\(/);
+});

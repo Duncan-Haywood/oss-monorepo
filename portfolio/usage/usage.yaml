@@ -6170,6 +6170,26 @@ products:
           measured yet. Counts honor DNT/GPC, so zero is the expected
           reading for a tool nobody has visited or switched the counter on
           for yet.
+  - slug: photo-addon-pricing-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          addon-priced: 0
+          addons-compared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/photo-addon-pricing-calculator/`) from its first commit,
+          so unlike most rows here it has never been an instrumented-but-
+          unreachable product. `live_url_visitors` is null and not zero,
+          deliberately -- GitHub Pages exposes no server-side analytics and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet. Counts honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on
+          for yet.
   - slug: 1099k-reconciliation-worksheet
     surface: github-pages
     readings:

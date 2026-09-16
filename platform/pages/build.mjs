@@ -629,8 +629,19 @@ const CATEGORY_RULES = [
     // links to) — a solo legal-support professional turning a client's flat
     // fee schedule and their own travel/time cost into an accept-or-decline
     // decision, not a trade bid and not a marketplace fee.
+    //
+    // `photo-addon-pricing-calculator` joined 2026-09-16 on its first commit,
+    // filed here rather than left for a catch-all spell: an independent
+    // wedding/event photographer pricing one package add-on (an extra hour,
+    // a second shooter, an album/print upgrade, an engagement session) from
+    // their own shoot/cull/edit time valued at a target hourly rate, gear
+    // depreciation/wear, and any subcontractor or physical-goods cost is the
+    // same job as `photo-booth-event-quote` and `commercial-photo-license-
+    // calculator` (both of which it links to) — a solo photography
+    // professional turning their own time and cost into a customer-facing
+    // price, not a trade bid and not a marketplace fee.
     test: (slug) =>
-      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee)/.test(
+      /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing)/.test(
         slug,
       ),
   },
