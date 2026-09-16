@@ -33,38 +33,22 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555846 bytes
-#   portfolio-front-tools-1: 106 files, 554019 bytes
-#   portfolio-front-tools-2: 148 files, 556216 bytes
-<<<<<<< HEAD
-#   portfolio-front-tools-3: 139 files, 552766 bytes
-#   portfolio-front-tools-4: 122 files, 553139 bytes
-#   portfolio-front-tools-5: 137 files, 553869 bytes
-#   portfolio-front-tools-6: 121 files, 555086 bytes
-#   portfolio-front-tools-7: 128 files, 551847 bytes
-#   portfolio-front-tools-8: 113 files, 553980 bytes
-#   portfolio-front-tools-9: 114 files, 556492 bytes
-#   portfolio-front-tools-10: 121 files, 542505 bytes
-#   portfolio-front-tools-11: 129 files, 554132 bytes
-#   portfolio-front-tools-12: 100 files, 543690 bytes
-#   portfolio-front-tools-13: 112 files, 554534 bytes
-#   portfolio-front-tools-14: 94 files, 472105 bytes
-#   portfolio-front-tools-15: 52 files, 266057 bytes
-=======
-#   portfolio-front-tools-3: 138 files, 550991 bytes
-#   portfolio-front-tools-4: 123 files, 553710 bytes
-#   portfolio-front-tools-5: 137 files, 556782 bytes
-#   portfolio-front-tools-6: 123 files, 551774 bytes
-#   portfolio-front-tools-7: 124 files, 547202 bytes
-#   portfolio-front-tools-8: 113 files, 552283 bytes
-#   portfolio-front-tools-9: 113 files, 551390 bytes
-#   portfolio-front-tools-10: 121 files, 554414 bytes
-#   portfolio-front-tools-11: 132 files, 555019 bytes
-#   portfolio-front-tools-12: 102 files, 554794 bytes
-#   portfolio-front-tools-13: 112 files, 554586 bytes
-#   portfolio-front-tools-14: 94 files, 472063 bytes
-#   portfolio-front-tools-15: 52 files, 266068 bytes
->>>>>>> origin/main
+#   portfolio-front-tools-0: 133 files, 555854 bytes
+#   portfolio-front-tools-1: 106 files, 554025 bytes
+#   portfolio-front-tools-2: 148 files, 556227 bytes
+#   portfolio-front-tools-3: 139 files, 552760 bytes
+#   portfolio-front-tools-4: 122 files, 553104 bytes
+#   portfolio-front-tools-5: 137 files, 553866 bytes
+#   portfolio-front-tools-6: 121 files, 555097 bytes
+#   portfolio-front-tools-7: 129 files, 557016 bytes
+#   portfolio-front-tools-8: 114 files, 556328 bytes
+#   portfolio-front-tools-9: 114 files, 555003 bytes
+#   portfolio-front-tools-10: 121 files, 554428 bytes
+#   portfolio-front-tools-11: 132 files, 554965 bytes
+#   portfolio-front-tools-12: 102 files, 554774 bytes
+#   portfolio-front-tools-13: 112 files, 554616 bytes
+#   portfolio-front-tools-14: 94 files, 472055 bytes
+#   portfolio-front-tools-15: 52 files, 266170 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1156,12 +1140,12 @@ configMapGenerator:
       - forestry-mulching-bid-calculator__index.html.gz=forestry-mulching-bid-calculator__index.html.gz
       - forestry-mulching-bid-calculator__share.mjs.gz=forestry-mulching-bid-calculator__share.mjs.gz
       - forestry-mulching-bid-calculator__usage.mjs.gz=forestry-mulching-bid-calculator__usage.mjs.gz
+      - forestry-mulching-bid-calculator__vs-aspire.html.gz=forestry-mulching-bid-calculator__vs-aspire.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - forestry-mulching-bid-calculator__vs-aspire.html.gz=forestry-mulching-bid-calculator__vs-aspire.html.gz
       - foundation-repair-bid-calculator__calc.mjs.gz=foundation-repair-bid-calculator__calc.mjs.gz
       - foundation-repair-bid-calculator__how-much-to-charge-for-foundation-repair.html.gz=foundation-repair-bid-calculator__how-much-to-charge-for-foundation-repair.html.gz
       - foundation-repair-bid-calculator__index.html.gz=foundation-repair-bid-calculator__index.html.gz
@@ -1274,13 +1258,13 @@ configMapGenerator:
       - hreflang-reciprocity-check__fetch-page.mjs.gz=hreflang-reciprocity-check__fetch-page.mjs.gz
       - hreflang-reciprocity-check__index.html.gz=hreflang-reciprocity-check__index.html.gz
       - hreflang-reciprocity-check__usage.mjs.gz=hreflang-reciprocity-check__usage.mjs.gz
+      - hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz=hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz
+      - hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz=hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz=hreflang-reciprocity-check__vs-merkle-hreflang-tool.html.gz
-      - hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz=hreflang-reciprocity-check__why-hreflang-must-be-reciprocal.html.gz
       - ice-dam-removal-bid-calculator__calc.mjs.gz=ice-dam-removal-bid-calculator__calc.mjs.gz
       - ice-dam-removal-bid-calculator__index.html.gz=ice-dam-removal-bid-calculator__index.html.gz
       - ice-dam-removal-bid-calculator__usage.mjs.gz=ice-dam-removal-bid-calculator__usage.mjs.gz
@@ -1393,13 +1377,13 @@ configMapGenerator:
       - marketplace-fee-compare__share.mjs.gz=marketplace-fee-compare__share.mjs.gz
       - marketplace-fee-compare__usage.mjs.gz=marketplace-fee-compare__usage.mjs.gz
       - marketplace-fee-compare__vs-sellerboard.html.gz=marketplace-fee-compare__vs-sellerboard.html.gz
+      - marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz=marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz
+      - mcp-supply-chain-watch__compare.mjs.gz=mcp-supply-chain-watch__compare.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz=marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz
-      - mcp-supply-chain-watch__compare.mjs.gz=mcp-supply-chain-watch__compare.mjs.gz
       - mcp-supply-chain-watch__index.html.gz=mcp-supply-chain-watch__index.html.gz
       - mcp-supply-chain-watch__usage.mjs.gz=mcp-supply-chain-watch__usage.mjs.gz
       - mcp-supply-chain-watch__vs-snyk.html.gz=mcp-supply-chain-watch__vs-snyk.html.gz
@@ -1519,13 +1503,13 @@ configMapGenerator:
       - pergola-bid-calculator__vs-buildxact.html.gz=pergola-bid-calculator__vs-buildxact.html.gz
       - pest-control-bid-calculator__calc.mjs.gz=pest-control-bid-calculator__calc.mjs.gz
       - pest-control-bid-calculator__how-much-to-charge.html.gz=pest-control-bid-calculator__how-much-to-charge.html.gz
+      - pest-control-bid-calculator__index.html.gz=pest-control-bid-calculator__index.html.gz
+      - pest-control-bid-calculator__usage.mjs.gz=pest-control-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - pest-control-bid-calculator__index.html.gz=pest-control-bid-calculator__index.html.gz
-      - pest-control-bid-calculator__usage.mjs.gz=pest-control-bid-calculator__usage.mjs.gz
       - pest-control-bid-calculator__vs-pestpac.html.gz=pest-control-bid-calculator__vs-pestpac.html.gz
       - pet-grooming-bid-calculator__calc.mjs.gz=pet-grooming-bid-calculator__calc.mjs.gz
       - pet-grooming-bid-calculator__how-much-to-charge.html.gz=pet-grooming-bid-calculator__how-much-to-charge.html.gz
@@ -1653,16 +1637,16 @@ configMapGenerator:
       - redirect-chain-check__vs-httpstatus-io.html.gz=redirect-chain-check__vs-httpstatus-io.html.gz
       - redirect-chain-check__why-redirect-chains-matter.html.gz=redirect-chain-check__why-redirect-chains-matter.html.gz
       - retainage-cashflow-calculator__calc.mjs.gz=retainage-cashflow-calculator__calc.mjs.gz
-  - name: portfolio-front-tools-12
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - retainage-cashflow-calculator__index.html.gz=retainage-cashflow-calculator__index.html.gz
       - retainage-cashflow-calculator__share.mjs.gz=retainage-cashflow-calculator__share.mjs.gz
       - retainage-cashflow-calculator__should-i-take-partial-retainage-now.html.gz=retainage-cashflow-calculator__should-i-take-partial-retainage-now.html.gz
       - retainage-cashflow-calculator__usage.mjs.gz=retainage-cashflow-calculator__usage.mjs.gz
       - retainage-cashflow-calculator__vs-levelset.html.gz=retainage-cashflow-calculator__vs-levelset.html.gz
+  - name: portfolio-front-tools-12
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - retaining-wall-bid-calculator__calc.mjs.gz=retaining-wall-bid-calculator__calc.mjs.gz
       - retaining-wall-bid-calculator__how-much-to-charge-for-a-retaining-wall.html.gz=retaining-wall-bid-calculator__how-much-to-charge-for-a-retaining-wall.html.gz
       - retaining-wall-bid-calculator__index.html.gz=retaining-wall-bid-calculator__index.html.gz
