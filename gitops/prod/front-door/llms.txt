@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 272 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 273 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 272 of them — and
+Every tool in the collection is listed below — all 273 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -243,6 +243,7 @@ page that hosts it.
 - [DNS Change Evidence — Free Before/After DNS Record Report](https://marisstella.dev/tools/dns-configuration-evidence/): Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.
 - [E-invoice Preflight — Check JSON, UBL, CII, or Factur-X](https://marisstella.dev/tools/einvoice-preflight/): Free local e-invoice preflight: drop a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, payment terms days that do not match the due date, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.
 - [MCP Supply-Chain Watch](https://marisstella.dev/tools/mcp-supply-chain-watch/): Free MCP tool manifest drift checker: paste two locally captured Model Context Protocol server manifests and see which tools were added, removed, or had their description or inputSchema change. Runs in your browser — nothing is uploaded, no server is contacted.
+- [PDF Accessibility Tag Checker — Free PDF/UA & Section 508 Evidence, Nothing Uploaded](https://marisstella.dev/tools/pdf-accessibility-tag-check/): Free tool: drop a PDF in your browser and get an evidence report on tagging, title, language, image alt text, and form-field labels -- the structural checks behind PDF/UA and Section 508. The file never leaves your device. Also a zero-dependency CLI for batch-scanning a whole document library.
 - [Print File Preflight — free DPI and print-size checker for artists](https://marisstella.dev/tools/print-atelier/): Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before you pay for a proof. Runs entirely in your browser — artwork is never uploaded.
 - [MLS Listing Photo Preflight — free listing photo checker for real estate agents](https://marisstella.dev/tools/real-estate-agent-photo-app/): Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser — nothing is uploaded. Download a dated evidence record before you deliver.
 - [Shopify Permission Drift Record](https://marisstella.dev/tools/shopify-permission-drift/): Free Shopify permission drift checker: paste two customer-authorized app inventory exports and see which scopes, webhooks, or authorization states changed. Runs in your browser — nothing is uploaded.

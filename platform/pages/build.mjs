@@ -597,9 +597,23 @@ const CATEGORY_RULES = [
     // vendor's procurement bid instead of a merchant's theme or a listing
     // photo set. Slug ends in neither `-evidence` nor any suffix above, and
     // starts with `vpat`, which none of the prefixes above would guess.
+    //
+    // `pdf-accessibility-tag-check` joined 2026-09-16, filed here on its
+    // first commit rather than after a spell in the catch-all -- what
+    // `build.test.mjs`'s catch-all bound is for. Its buyer and evidence
+    // posture match this section exactly ("3 of N automatable checks did
+    // not pass -- here is each one", never "this PDF is compliant"), the
+    // same as `shopify-a11y-evidence` and `vpat-acr-generator` right above:
+    // a dated accessibility-structure record a government or university
+    // webmaster hands to whoever remediates the file, not a determination
+    // this tool made on their behalf. Not `ci`, even though it also ships a
+    // matching CLI: that section's buyer is a developer auditing their own
+    // supply chain, not a compliance record for a document library. Slug
+    // ends in `-check`, not any suffix above, and starts with `pdf`, which
+    // none of the prefixes above would guess.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator)/.test(slug),
+      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check)/.test(slug),
   },
   {
     id: 'backoffice',
