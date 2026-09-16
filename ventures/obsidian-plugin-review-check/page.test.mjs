@@ -17,6 +17,7 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(HERE, 'index.html'), 'utf8');
 const docHtml = readFileSync(join(HERE, 'versions-json-missing-entry.html'), 'utf8');
+const vsHtml = readFileSync(join(HERE, 'vs-guessing-or-waiting-for-review.html'), 'utf8');
 
 function jsonLdBlocks(source) {
   const re = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
@@ -170,39 +171,75 @@ test('the bundled worked example exercises every report status this tool can sho
   assert.equal(report.ok, false, 'an example with real issues must not report ok');
 });
 
+test('index links to the vs-guessing-or-waiting-for-review comparison page, and it links back', () => {
+  assert.match(html, /href="vs-guessing-or-waiting-for-review\.html"/);
+  assert.match(vsHtml, /href="index\.html"/);
+});
+
+test('the comparison page carries valid FAQPage JSON-LD matching its visible copy', () => {
+  const blocks = jsonLdBlocks(vsHtml).map((b) => JSON.parse(b));
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  const decode = (s) => s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(vsHtml.includes(decode(name)), `question not found verbatim in visible copy: ${name}`);
+    assert.ok(vsHtml.includes(decode(acceptedAnswer.text)), `answer not found verbatim in visible copy: ${acceptedAnswer.text.slice(0, 60)}...`);
+  }
+});
+
+test('the no-warranty and not-affiliated disclaimers are present on the comparison page', () => {
+  assert.match(vsHtml, /No warranty/);
+  assert.match(vsHtml, /provided free and as-is, without warranty/);
+  assert.match(vsHtml, /Not affiliated with, endorsed by, or sponsored by Obsidian/);
+});
+
+test('the comparison page carries the MIT license link and no-upload claim', () => {
+  assert.match(vsHtml, /href="LICENSE"/);
+  assert.match(vsHtml, /MIT licence/);
+  assert.match(vsHtml, /never uploads them|Nothing leaves your browser/);
+});
+
+test('the comparison page is listed in sitemap.xml', () => {
+  const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /vs-guessing-or-waiting-for-review\.html/);
+});
+
 // --- vs-eslint-plugin-obsidianmd.html ---------------------------------
 //
-// The comparison page is an organic entry point: it answers the question a
-// developer already using ESLint types before finding this tool ("obsidian
-// eslint plugin vs manifest checker"). It carries the same obligations the
-// entry page does, and one it does not -- every factual claim it makes about
-// a named competitor is a claim this repository is answerable for.
+// A second, distinct comparison page (merged concurrently as #4724): this
+// one is an organic entry point for a developer already using ESLint types
+// ("obsidian eslint plugin vs manifest checker"), a different alternative
+// than the guidelines-or-review-comment page above. It carries the same
+// obligations the entry page does, and one it does not -- every factual
+// claim it makes about a named competitor is a claim this repository is
+// answerable for.
 
 const comparisonHtml = readFileSync(
   join(HERE, 'vs-eslint-plugin-obsidianmd.html'),
   'utf8',
 );
 
-test('the comparison page carries the disclaimer, the non-affiliation clause, and the sponsor link', () => {
+test('the eslint comparison page carries the disclaimer, the non-affiliation clause, and the sponsor link', () => {
   assert.match(comparisonHtml, /No warranty/);
   assert.match(comparisonHtml, /provided free and as-is, without warranty/);
   assert.match(comparisonHtml, /Not affiliated with, endorsed by, or sponsored by Obsidian/);
   assert.match(comparisonHtml, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 
-test('the comparison page links back to the checker and is linked from it', () => {
+test('the eslint comparison page links back to the checker and is linked from it', () => {
   assert.match(comparisonHtml, /href="index\.html"/);
   assert.match(html, /href="vs-eslint-plugin-obsidianmd\.html"/);
 });
 
-test('the comparison page is listed in the venture sitemap', () => {
+test('the eslint comparison page is listed in the venture sitemap', () => {
   const sitemap = readFileSync(join(HERE, 'sitemap.xml'), 'utf8');
   assert.match(sitemap, /vs-eslint-plugin-obsidianmd\.html/);
 });
 
 // The failure this pins is the one CLAUDE.md records costing live product: a
 // FAQPage block whose answer text has drifted from the prose a reader sees.
-test("the comparison page's FAQPage answers appear verbatim in its visible prose", () => {
+test("the eslint comparison page's FAQPage answers appear verbatim in its visible prose", () => {
   const blocks = jsonLdBlocks(comparisonHtml).map((b) => JSON.parse(b));
   const faq = blocks.find((p) => p['@type'] === 'FAQPage');
   assert.ok(faq, 'expected a FAQPage block');
@@ -215,7 +252,7 @@ test("the comparison page's FAQPage answers appear verbatim in its visible prose
   }
 });
 
-test('the comparison page states the CLI command this checker actually exposes', () => {
+test('the eslint comparison page states the CLI command this checker actually exposes', () => {
   const checkCli = readFileSync(join(HERE, 'check.mjs'), 'utf8');
   assert.match(comparisonHtml, /node check\.mjs \./);
   assert.match(checkCli, /process\.exitCode|process\.exit\(/);
