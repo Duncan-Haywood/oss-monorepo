@@ -129,7 +129,7 @@ test('a worked-example button exists as an alternative to running the CLI first'
 });
 
 test('the CLI command is shown and matches the shipped check.mjs entry point', () => {
-  assert.match(html, /node check\.mjs/);
+  assert.match(html, /node cli\/check\.mjs/);
 });
 
 function extractConst(name) {

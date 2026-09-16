@@ -5,9 +5,9 @@
 // ready to paste into index.html's report viewer. Nothing here talks to
 // any network -- it only reads files already on this machine.
 //
-//   node check.mjs                    # auto-detect, print JSON
-//   node check.mjs path/to/CODEOWNERS # use this file instead
-//   node check.mjs --paths files.txt  # use this newline list instead of git ls-files
+//   node cli/check.mjs                    # auto-detect, print JSON
+//   node cli/check.mjs path/to/CODEOWNERS # use this file instead
+//   node cli/check.mjs --paths files.txt  # use this newline list instead of git ls-files
 
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -23,7 +23,7 @@ export function findCodeownersPath(explicit) {
     if (existsSync(candidate)) return candidate;
   }
   throw new Error(
-    `no CODEOWNERS file found at ${CANDIDATE_LOCATIONS.join(', ')} -- pass a path explicitly: node check.mjs <path>`,
+    `no CODEOWNERS file found at ${CANDIDATE_LOCATIONS.join(', ')} -- pass a path explicitly: node cli/check.mjs <path>`,
   );
 }
 

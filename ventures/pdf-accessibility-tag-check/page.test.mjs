@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { analyzePdf } from './engine.mjs';
-import { inflate } from './inflate-node.mjs';
+import { inflate } from './cli/inflate-node.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(HERE, 'index.html'), 'utf8');
@@ -81,7 +81,7 @@ test('a file input and drop zone exist for choosing a PDF', () => {
 });
 
 test('the CLI batch-scan command is documented', () => {
-  assert.match(html, /node check\.mjs \.\/document-library\/ --json/);
+  assert.match(html, /node cli\/check\.mjs \.\/document-library\/ --json/);
 });
 
 test('links to the sibling ADA Title II, Shopify a11y, and VPAT ventures', () => {

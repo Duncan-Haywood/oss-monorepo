@@ -47,7 +47,7 @@ gaps that leaves:
    an unfamiliar third-party site.
 2. **A matching CLI that batch-scans a folder.** A government IT office or
    university disability-services team usually has a document library, not
-   one PDF. `node check.mjs ./document-library/ --json` walks a whole folder
+   one PDF. `node cli/check.mjs ./document-library/ --json` walks a whole folder
    recursively and exits non-zero if any file has a finding, so it works as a
    CI or scheduled-job gate. Nothing free and online offers this today.
 
@@ -56,9 +56,9 @@ gaps that leaves:
 ### CLI
 
 ```
-node check.mjs report.pdf
-node check.mjs ./document-library/ --json
-node check.mjs a.pdf b.pdf --json
+node cli/check.mjs report.pdf
+node cli/check.mjs ./document-library/ --json
+node cli/check.mjs a.pdf b.pdf --json
 ```
 
 Reads the file(s) directly from disk — nothing goes through this portfolio.
@@ -67,7 +67,7 @@ Exit code `0` when every file parsed and none has a danger-severity finding;
 
 ```yaml
 # in your own CI, not this portfolio's
-- run: node check.mjs ./public/documents/ --json
+- run: node cli/check.mjs ./public/documents/ --json
 ```
 
 ### Browser
