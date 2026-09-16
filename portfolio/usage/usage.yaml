@@ -6150,6 +6150,26 @@ products:
           external repo wiring cli.mjs in between plan and apply) is the
           signal that actually matters for this shape -- the CLI is the
           primary distribution surface, not the browser page.
+  - slug: process-server-fee-calculator
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-11
+        signals:
+          live_url_visitors: null
+          job-priced: 0
+          clients-compared: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/process-server-fee-calculator/`) from its first commit, so
+          unlike most rows here it has never been an instrumented-but-
+          unreachable product. `live_url_visitors` is null and not zero,
+          deliberately -- GitHub Pages exposes no server-side analytics and
+          the local counter is opt-in and off by default, so nobody has
+          measured yet. Counts honor DNT/GPC, so zero is the expected
+          reading for a tool nobody has visited or switched the counter on
+          for yet.
   - slug: 1099k-reconciliation-worksheet
     surface: github-pages
     readings:
