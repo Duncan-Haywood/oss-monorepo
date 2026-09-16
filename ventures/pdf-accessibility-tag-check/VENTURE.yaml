@@ -1,0 +1,73 @@
+name: pdf-accessibility-tag-check
+description: >-
+  A free browser tool (+ a matching zero-dependency CLI) that reads a PDF's
+  internal structure -- tag tree, document title, declared language, image
+  alt text, form-field labels, and whether a page has an extractable text
+  layer -- and reports which PDF/UA and Section 508 structural requirements
+  are met. The browser page never uploads the file (native
+  DecompressionStream reads Flate-compressed PDF streams entirely in the
+  tab); the CLI never sends a file anywhere and can batch-scan a whole
+  document library folder in one run.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      Government and university webmasters and accessibility/disability-
+      services staff preparing for ADA Title II's April 2027/2028 deadlines
+      (and universities/agencies already under a May 2026 HHS Section 504
+      deadline) need to check PDFs specifically, not just rendered web
+      pages, because DOJ's own rule defines PDFs and other conventional
+      electronic documents posted on a public entity's website as "web
+      content" subject to WCAG 2.1 AA -- and will search the exact terms
+      ("free PDF accessibility checker", "PDF/UA checker online", "PDF 508
+      compliance checker") this tool targets.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A meaningful share of that audience will prefer a checker that never
+      uploads the file over the several existing free online PDF
+      accessibility checkers (PDFix, PDF Audit, freepdfchecker.com,
+      axesCheck) that require uploading the PDF to a third-party server --
+      government forms, permits, meeting minutes, and HR documents are
+      exactly the kind of file a public-sector user is reluctant to hand to
+      an unfamiliar site, and none of the surveyed competitors advertise
+      client-side-only processing as their model.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A government IT office or university disability-services team with a
+      document library of hundreds of PDFs will use the CLI's batch/
+      recursive-folder scan (none of the surveyed free online competitors
+      offer a CLI or batch mode; the closest alternative, PAC, is a
+      one-file-at-a-time Windows desktop app) and wire it into a recurring
+      job or CI check on newly-published documents, producing return usage
+      with no action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Real user reports show the tag/alt-text/text-layer heuristics produce
+    enough false negatives (declaring a genuinely inaccessible PDF clean) to
+    be misleading rather than merely incomplete, and the mitigation
+    (tightening the heuristics or adding a stronger disclaimer) does not fix
+    it.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/pdf-accessibility-tag-check/
+  analytics: null
