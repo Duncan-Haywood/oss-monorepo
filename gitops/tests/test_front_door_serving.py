@@ -768,6 +768,21 @@ def test_the_served_tree_is_the_size_the_ceilings_predict() -> None:
     # and it is what the pod's tmpfs actually holds — the number
     # `MIRROR_BYTE_CEILING` and the Deployment's memory limit both reason
     # about, taken from the artifact rather than from the generator.
+    #
+    # Read the ceiling from the generator rather than restating it: a literal
+    # here drifted from `MIRROR_BYTE_CEILING` when that constant was raised
+    # from 8 MiB to 12 MiB on 2026-09-10 (front-door-tools.mjs's own history
+    # comment records the raise), and this test kept asserting the old 8 MiB
+    # figure for six days until the mirror's ordinary daily growth crossed it
+    # — a real red herring, since the generator's actual wall was nowhere
+    # close. `test_manifests.py` already reads the same constant this way for
+    # the same reason; this mirrors that pattern instead of restating a
+    # second stale copy of it.
+    source_text = (ROOT.parent / "platform" / "marketing" / "front-door-tools.mjs").read_text()
+    match = re.search(r"MIRROR_BYTE_CEILING = (\d+) \* 1024 \* 1024", source_text)
+    assert match, "front-door-tools.mjs no longer declares MIRROR_BYTE_CEILING in MiB"
+    mirror_byte_ceiling = int(match.group(1)) * 1024 * 1024
+
     stored = sum(len(v) for v in _mirror().values())
     source = sum(len(gzip.decompress(v)) for v in _mirror().values())
     assert stored < source, "the mirror is not actually compressed"
@@ -775,7 +790,7 @@ def test_the_served_tree_is_the_size_the_ceilings_predict() -> None:
     # by a percent; the point is that a change which silently stopped
     # compressing would show up here rather than as an OOMKill months later.
     assert source / stored > 2.0, f"compression fell to {source / stored:.2f}x, which the ceilings do not assume"
-    assert stored <= 8 * 1024 * 1024, "the served mirror is over MIRROR_BYTE_CEILING"
+    assert stored <= mirror_byte_ceiling, "the served mirror is over MIRROR_BYTE_CEILING"
 
 
 def test_it_did_not_skip_on_the_runner_that_is_supposed_to_run_it() -> None:
