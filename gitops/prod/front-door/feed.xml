@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 275 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 276 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -24,6 +24,15 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for independent wedding and event photographers: find real net profit for one package add-on -- an extra hour, a second shooter, an album upgrade, an engagement session -- after your own shoot/cull/edit time, gear wear, and any subcontractor or physical-goods cost, then compare two or three add-ons by effective hourly rate.</summary>
+  </entry>
+  <entry>
+    <title>security.txt Checker — Is Your RFC 9116 File Valid, or Expired?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/security-txt-check/"/>
+    <id>tag:marisstella.dev,2026:tool/security-txt-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste a security.txt and check it against RFC 9116 — a missing or expired Expires field (the one that silently makes your whole file stale), a Contact that isn&#39;t a URI, a plain-http Contact, a PGP key pasted where an Encryption URI belongs, a duplicated Expires or Preferred-Languages, the British spelling of Acknowledgments, and a signed file with no Canonical. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
   </entry>
   <entry>
     <title>Caption Quality Checker — SRT &amp; WebVTT Reading Speed, Line Length &amp; Timing</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free SPF, DKIM, DMARC and BIMI checker: paste any domain and get a plain-English report on why your email might be going to spam, with the exact DNS record read and what it means. Nothing uploaded -- your browser queries public DNS directly.</summary>
-  </entry>
-  <entry>
-    <title>IFTA Quarterly Fuel Tax Calculator</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ifta-quarterly-fuel-tax-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ifta-quarterly-fuel-tax-calculator</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="Logistics, freight &amp; cloud cost"/>
-    <summary type="text">Work your IFTA quarterly return from your own trip and fuel records: average fleet MPG, taxable gallons and net taxable gallons per jurisdiction, the Indiana/Kentucky/Virginia surcharge charged the way it is actually charged, and interest on a late return. Free, private, nothing leaves your browser.</summary>
   </entry>
 </feed>

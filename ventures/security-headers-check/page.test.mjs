@@ -91,6 +91,14 @@ test('index links to at least one sibling security-checker venture', () => {
   assert.match(html, /href="\.\.\/(cors-misconfig-check|sri-check)\/"/);
 });
 
+// security-txt-check links here, so this link is the return half of that pair.
+// Asserted rather than left to a footer edit: platform/pages/siblings.mjs runs
+// a budget of 0, so dropping it makes the new venture a crawlable orphan and
+// turns a run red -- which is a worse way to find out than this test failing.
+test('index links back to security-txt-check, closing the sibling pair', () => {
+  assert.match(html, /href="\.\.\/security-txt-check\/"/);
+});
+
 test('a worked-example button exists as an alternative to running the CLI first', () => {
   assert.match(html, /id="load-example"/);
 });
