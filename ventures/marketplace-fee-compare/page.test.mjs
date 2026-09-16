@@ -131,18 +131,47 @@ test("the own-store demand caveat is in the markup, not only in prose", () => {
 test("every channel and every excluded channel link to their deep calculator", () => {
   for (const channel of [...CHANNELS, ...EXCLUDED_CHANNELS]) {
     assert.ok(
-      scriptSource.includes("../${escapeHtml(channel.deepTool)}/"),
+      scriptSource.includes("../${channel.deepTool}/"),
       "deep-tool links must be generated from the model",
     );
   }
   // Two generated link lists: the per-channel caveats and the excluded note.
+  // The slug still comes from `channel.deepTool` in both, which is what this
+  // guards — a hand-typed slug here is how the caveat about one calculator
+  // ends up above a link into a different one.
   assert.equal(
-    (scriptSource.match(/\.\.\/\$\{escapeHtml\(channel\.deepTool\)\}\//g) ?? []).length,
+    (scriptSource.match(/\.\.\/\$\{channel\.deepTool\}\//g) ?? []).length,
     2,
   );
   assert.ok(
     EXCLUDED_CHANNELS.some((c) => c.deepTool === "whatnot-seller-payout"),
     "Whatnot must be in EXCLUDED_CHANNELS so the hub generates its deep link",
+  );
+});
+
+test("both pointer lists carry the item rather than linking bare", () => {
+  // The defect this replaced: three routes out of this page, only one of them
+  // carrying the seller's numbers. The ranked "continue with these numbers"
+  // list used `handoffUrl`, while these two rendered a bare `../<slug>/` and
+  // dropped price, postage, cost of goods and packaging on the floor.
+  assert.match(scriptSource, /handoffUrl\(channel\.id, item\)/);
+  assert.match(scriptSource, /excludedHandoffUrl\(channel\.deepTool, item\)/);
+
+  // And they are rebuilt per render, not once at load — a link built before
+  // the first paint can only ever hold the page's own defaults.
+  assert.match(scriptSource, /function paintPointers\(item\)/);
+  assert.match(scriptSource, /\n\s*paintPointers\(item\);/);
+});
+
+test("following a pointer is counted, without recording which tool", () => {
+  assert.match(scriptSource, /data-pointer=/);
+  assert.match(scriptSource, /count\("pointer_followed"\)/);
+  // The counter must not be handed the slug: whether the route is used at all
+  // is the question, and one seller's chosen marketplace is closer to a price
+  // than to a page view.
+  assert.ok(
+    !/count\("pointer_followed",[^)]/.test(scriptSource),
+    "pointer_followed must not carry the tool that was opened",
   );
 });
 
