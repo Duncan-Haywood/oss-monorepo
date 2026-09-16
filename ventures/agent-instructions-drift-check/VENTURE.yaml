@@ -1,0 +1,79 @@
+name: agent-instructions-drift-check
+description: 'Free, zero-network, zero-dependency CLI + browser tool that checks an AI-coding-agent instruction file (AGENTS.md, CLAUDE.md, .cursorrules, .github/copilot-instructions.md) for drift against the repo it describes -- a markdown-link or inline-code file reference that no longer points at a real path, an `npm run <script>` reference not defined in package.json, and known interpreter-mismatch shell footguns (a bare `pytest` or `mypy` that can silently resolve to the wrong Python, wasting an agent''s whole turn on a phantom failure). Not a style linter or a judgment on whether an instruction is good advice -- purely mechanical: does what the file points at still match what the repo actually has.'
+stage: prototype
+
+owner: duncan
+
+# CLI/checker archetype, chosen deliberately over a 200th <trade>-bid-calculator
+# and over a 39th generic misconfiguration checker: portfolio/pipeline/
+# README.md's "archetype itself" section (2026-09-07, widened 2026-09-11)
+# flags both shapes as needing a genuinely new angle, not just a new niche,
+# to count as evidence of novelty on their own. This is a new *object* to
+# check (an AI-coding-agent instruction file), not a new instance of an
+# existing check.
+#
+# duplicate_check.py (run 2026-09-16) scored every existing venture,
+# screened-out row, and pipeline candidate against this idea's description at
+# or below 0.10 -- nowhere near the 0.45 read-this-first bar. Closest by eye:
+# docker-base-image-pin-check, env-example-drift-check, pinned-actions-check,
+# codeowners-shadow-check (all "deterministic diff/pin-check between two
+# things a repo already has" in shape, none of them read an agent instruction
+# file). Grepped ventures/*/VENTURE.yaml and screened-out.md by hand for
+# "agent" / "AGENTS.md" / "CLAUDE.md" / "instruction" as well: the only venture
+# hits are `real-estate-agent-photo-app` and `ubuntu-agent-server`, both an
+# unrelated sense of "agent" (a real-estate agent; a software agent process),
+# and screened-out.md's "Agent observability platform" row is a different
+# business entirely (a hosted monitoring platform competing with funded
+# incumbents on telemetry, not a static instruction-file linter).
+#
+# Distribution channel, named and checkable without guessing: AGENTS.md
+# became a real, multi-vendor convention across AI coding agents through
+# 2025 (OpenAI's Codex, Anthropic's Claude Code, Cursor's .cursorrules, and
+# GitHub Copilot's copilot-instructions.md all read a project-level
+# instruction file), which is the platform-migration shape
+# PRODUCT_PLAYBOOK.md points at ("a platform migration nobody has shipped
+# the boring tool for yet"). Searchable channels with real, current thread
+# volume: developer communities actively discussing these files day to day
+# -- r/ChatGPTCoding, r/cursor, r/ClaudeAI, Hacker News threads on agent
+# tooling, and the GitHub topic/search surface for repositories that now
+# carry an AGENTS.md or CLAUDE.md at their root, which is itself the
+# discovery mechanism (a repo owner searching "AGENTS.md" or "lint
+# AGENTS.md" on GitHub or npm is the first visitor this targets). The
+# strongest evidence available without fabricating a source is internal and
+# honestly disclosed as such: this portfolio's own CLAUDE.md documents, in
+# its own dated entries (2026-09-11, 2026-09-12), real sessions losing time
+# to the exact bare-pytest/bare-mypy interpreter-mismatch footgun this tool
+# flags mechanically -- proof the failure mode is real, not proof of
+# external search volume, which is why distribution is scored moderately
+# rather than high below.
+hypotheses:
+  - claim: A maintainer whose CI or agent workflow has hit the bare-pytest/bare-mypy interpreter-mismatch footgun once (as this repo's own CLAUDE.md records happening more than once) will run the CLI against their own AGENTS.md/CLAUDE.md, see it named, and wire it into CI so the same PR that renames a script or moves a file also has to fix the instruction file that pointed at it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A developer who just adopted the AGENTS.md convention in a new or existing repo will search for a way to validate it is not lying to the agent, find this tool via GitHub/npm search or a developer-community thread about agent tooling, and use the browser page once before deciding whether to add the CLI to CI.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: the browser tool parses only text pasted and
+  # file *names* read locally in the visitor's own browser (never uploaded),
+  # and the CLI reads only local files it is pointed at, with no network
+  # call at all. Serving one more user costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found wiring cli.mjs into its own CI within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/agent-instructions-drift-check/
+  analytics: null

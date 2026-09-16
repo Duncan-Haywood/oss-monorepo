@@ -31150,6 +31150,77 @@ entries:
         the exact defect class CLAUDE.md already records costing live
         product -- fixed before merging, not after.
     mrr_end: 0
+  - venture: agent-instructions-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        New venture, screened this session per the "direction setting"
+        intake gate (portfolio/DIRECTION.md already told this brief not to
+        restate strategy again -- see session_gate.py's PROCEED verdict and
+        the owner's standing preference for a new venture). Screened
+        against portfolio/pipeline/screened-out.md and the liability/
+        ethical gates in portfolio/pipeline/README.md (composite 6.5, floor
+        1 ai_leverage, liability_containment 9, ethical_robustness 9 --
+        both clear the 5 gate by a wide margin). Deliberately not a
+        202nd `<trade>-bid-calculator` and not a 39th generic
+        misconfiguration checker (portfolio/pipeline/README.md flags both
+        shapes as needing a new angle, not just a new niche): this checks a
+        new object entirely, an AI-coding-agent instruction file
+        (AGENTS.md/CLAUDE.md/.cursorrules/copilot-instructions.md), for
+        drift against the repo it describes.
+      - >-
+        Shipped a zero-dependency Node CLI (cli.mjs) and a no-upload
+        browser page (index.html, with an optional local folder picker
+        that reads file *names* only, never contents or uploads), sharing
+        one parsing/diff engine (engine.mjs): markdown-link/inline-code
+        file-reference extraction, npm run/test/start script-reference
+        extraction against package.json, and fenced-code-block detection
+        of the interpreter-mismatch shell footgun (bare pytest/mypy
+        instead of python3 -m) that this repo's own CLAUDE.md documents
+        costing real sessions time on 2026-09-11 and 2026-09-12.
+      - >-
+        Named channel: developers who have adopted the fast-growing,
+        multi-vendor AGENTS.md convention (Codex, Claude Code, Cursor's
+        .cursorrules, Copilot's copilot-instructions.md all read one as of
+        2025-2026) searching for a way to validate it -- GitHub/npm search,
+        r/ChatGPTCoding, r/cursor, r/ClaudeAI, Hacker News agent-tooling
+        threads -- and any repo wiring cli.mjs into its own CI.
+        duplicate_check.py scored the closest existing venture
+        (docker-base-image-pin-check) at 0.10 against the final
+        description, well under the 0.45 flag bar; a hand grep of every
+        VENTURE.yaml and screened-out.md for "agent"/"AGENTS.md"/
+        "CLAUDE.md"/"instruction" found only unrelated senses of "agent"
+        (real-estate-agent-photo-app, ubuntu-agent-server) and a
+        differently-shaped screened-out row (a hosted telemetry-monitoring
+        platform, not a static linter).
+      - >-
+        Ran the CLI against this repo's own real, current AGENTS.md during
+        graduation (not a fabricated demo) and it found one live broken
+        reference (`usage/usage.yaml`, missing its `portfolio/` prefix) --
+        direct, non-fabricated proof the tool works on the exact class of
+        document that inspired it.
+      - >-
+        VENTURE.yaml, portfolio/pipeline/candidates.yaml +
+        candidates/agent-instructions-drift-check.md +
+        portfolio/pipeline/README.md's table (renumbered, inserted by
+        composite rather than appended out of order),
+        portfolio/scoring/venture-scores.yaml, and
+        portfolio/usage/usage.yaml's baseline row all added/updated in the
+        same PR as the code, per the graduation process. Ran
+        platform/marketing/regen.mjs and platform/pages/launched.mjs
+        --write so the venture is mirrored and enters the Atom feed.
+      - >-
+        Verified: venture's own suite 73/73 (32 engine, 12 CLI including a
+        dogfood test against this repo's own AGENTS.md, 9 page); CLI run
+        manually against a temp fixture and against this repo's own
+        AGENTS.md; router/validate.py 284 valid; clauses.mjs clean;
+        check_no_payment_code.py clean; checklist_coverage.py clean;
+        validate_doc_consistency.py + validate_candidates.py both clean
+        (43 candidates); usage/validate_usage.py clean (256 products);
+        score_ventures.py --check clean (285 ventures). No payment code
+        introduced.
+    mrr_end: 0
   - venture: ai-engineering-academy
     agent_spend_usd: null
     human_hours: 0
@@ -31219,4 +31290,251 @@ entries:
         run and its rewrites (a new mirror shard, refreshed
         `resistor-calculator__index.html.gz`, `catalog.json.gz`,
         `sitemap.xml`, `kustomization.yaml`) committed alongside.
+    mrr_end: 0
+  - venture: marketplace-fee-compare
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR queue was empty on arrival (confirmed twice, `list_pull_requests`
+        and a `is:pr is:open` search, both zero), so the mandate's three-PR
+        merge quota was satisfied by an empty repairable queue rather than by
+        merges. Went to the deployment priority instead.
+      - >-
+        Deployment: `pages_state.py` opened the session reporting the
+        `gh-pages` snapshot STALE (built from `2bb0c80a` while `main` was at
+        `da615001`, 4 changed files feeding the build), and
+        `run_workflow_locally.py --tree` confirmed `pages-freshness` was the
+        only red workflow on `main`. A concurrent session published while my
+        verification sweep was still running, and the snapshot read `current`
+        at the tip by the time I would have pushed -- so I did NOT re-publish.
+        Re-running `publish-branch.sh` from my older checkout is exactly the
+        "publishing backwards" race CLAUDE.md records from 2026-09-06, which
+        took a just-shipped venture off the live site. Recording the
+        near-miss because the correct action here was to do nothing.
+      - >-
+        Measured, not inherited: IndexNow is still announcing nothing. The
+        sandbox egress 403s `api.indexnow.org` at CONNECT (`curl: (56) CONNECT
+        tunnel failed`), and all 10 most recent `publish-pages-branch.yml`
+        runs came back starved. Both announce routes remain unavailable to an
+        agent session, so 1000+ published URLs are still announced to nobody.
+        No new owner ask added -- `infra_state.yaml` already carries it.
+        Likewise did not re-measure `codex-host-mode`: a session earlier the
+        same day had already re-run it clean (56/56) on this identical owner
+        ask, and the blocker is unchanged
+        (`hetzner-ssh-key-is-a-public-key`).
+      - >-
+        Shipped: the comparison page had three routes out into its deep
+        calculators and only one of them carried the reader's item.
+        `handoff.mjs` was written precisely to stop this page dumping a
+        seller into an empty form -- its own header comment says so -- but the
+        fix reached only the ranked "continue with these numbers" list. The
+        "not included here" caveat beside each of the six ranked channels,
+        and the pointers to the three deliberately-excluded channels (Faire,
+        Whatnot, Reverb), still rendered a bare `../<slug>/` and dropped
+        price, postage, cost of goods and packaging. The caveat link is the
+        one attached to the reason a reader most likely wants the deep tool,
+        so the highest-intent exit was the lossiest. Both lists now build
+        their href from the handoff table, rebuilt per render rather than once
+        at load (a link built before the first paint can only hold the page's
+        defaults), and following one is counted as a new `pointer_followed`
+        event -- distinct from `handoff_followed` so the existing series stays
+        continuous, and carrying no slug, matching the privacy rule the
+        handoff counter already set.
+      - >-
+        Faire is deliberately left bare, recorded as data in `NO_ITEM_HANDOFF`
+        rather than as a comment so the omission reads as a decision: it is
+        wholesale, so this page's retail `price` and its `unitWholesale` are
+        not the same quantity, and carrying one over would land a plausible
+        wrong number in the field the whole calculation turns on. The
+        module's own rule is that such a link is worse than a bare one.
+      - >-
+        Trap found and recorded in place, because it cost real product and
+        would have cost it again. A comment I wrote inside the page's
+        `<script>` illustrated the failure case by spelling out a literal href
+        attribute. `front-door-tools.mjs` scans script bodies with one regex
+        and judges any href carrying no `${` as a real path -- it does not
+        strip comments, because it reads the body as text rather than as a
+        parsed program. So the illustration became a dead link, the
+        eligibility fixpoint dropped `marketplace-fee-compare` from the apex
+        mirror, and the cascade then dropped `where-to-sell-calculator` and
+        `whatnot-seller-payout` -- while the build error named only the
+        collateral and never the page that caused it. I hit it twice: the
+        reworded comment explaining the trap contained the same pattern. The
+        warning now lives in that comment, phrased so it cannot re-trigger
+        itself.
+      - >-
+        Verified: venture suite 120/120 (was 118, plus 11 new handoff
+        assertions and 2 new page-structure ones); every new guard
+        negative-tested by breaking the Whatnot mapping and confirming 3 of
+        them fail, rather than trusting a green run over new assertions;
+        `platform/marketing`+`platform/pages` 1260/1260;
+        `platform/privacy`+`platform/webcheck` 142/142 with 0 skipped (clone
+        unshallowed first, so the two history-pinned page-integrity tests
+        actually ran); `platform/proposal` 101/101; `gitops/tests` 581
+        passed/1 skipped via `python3 -m pytest` (the spelling CLAUDE.md
+        pins -- bare `pytest` on PATH here is a `uv` shim without the repo's
+        deps); `platform/ci`'s unittest sweep all OK plus `agent_review` OK;
+        `portfolio/{ledger,scoring,router,usage,pipeline}`+`infra/tests` 446
+        passed. `regen.mjs` re-run and its three rewrites committed
+        (`kustomization.yaml`, `marketplace-fee-compare__handoff.mjs.gz`,
+        `marketplace-fee-compare__index.html.gz`); mirror headroom unchanged
+        at 67.2% and the same 10 ventures excluded as on baseline.
+        `browser_checks.py --only marketplace-fee-compare` 7 of 8 passing, 1
+        skipped on a missing dependency, 0 failures and 0 console errors.
+      - >-
+        Customer journey exercised in a real browser rather than asserted:
+        typed an item, expanded the pointer lists and clicked through. The
+        eBay caveat link arrives at
+        `#costOfGoods=12&otherCost=1.1&price=40&shippingCharged=6&shippingCost=5.2`
+        with price and cost of goods prefilled; Reverb and Whatnot arrive
+        prefilled under their own field names (`salePrice` on Whatnot, which
+        is the rename that would have been silently dropped); Faire arrives
+        bare by design; and editing the price rebuilds the pointer to
+        `price=99`, proving the links track the item rather than the
+        load-time defaults.
+    mrr_end: 0
+  - venture: forestry-mulching-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real, live share-link defect surfaced by the whole-catalogue
+        `browser_checks.py --record` sweep (run because `browser_state.py`
+        reported all 8 checks stale): `roundtrip` failed on this venture with
+        `dropped 1: proposalScope`. `proposalScope` is a customer-facing scope
+        of work, auto-suggested from the job's own numbers unless the visitor
+        hand-edits it (`dataset.edited`), and is deliberately not carried in
+        the share-link payload itself -- the recipient's page is meant to
+        regenerate it from the numbers the link *does* carry, the same design
+        `garage-door-bid-calculator`'s share.mjs documents and
+        `platform/pages/roundtrip.mjs`'s own `PROSE_FIELDS` comment states as
+        intentional. The bug: the incoming-link restore loop sets every
+        field's `.value` directly, which never dispatches input/change, so the
+        page's one scope-regeneration call (at page-load, against the form's
+        *default* figures) never re-fires against the sender's actual
+        restored figures -- a recipient opening a shared link saw a scope of
+        work naming a different acreage and density than the job the sender
+        priced, under a headline that otherwise matched to the cent. Fixed by
+        calling the existing `refreshProposal()` (which runs `suggestScope`)
+        once the incoming fields are set. Also had the "Copy a link to this
+        job" button submit the form first, since this venture (unlike most
+        sibling bid calculators) only computes its headline price on submit,
+        not live on input -- so a sender who shared before ever calculating
+        was sharing a job priced they had never themselves seen priced.
+      - >-
+        Verified: `node --test ventures/forestry-mulching-bid-calculator/*.test.mjs`
+        133/133 (includes a new regression test asserting the incoming-link
+        handler calls `refreshProposal()`). Re-ran the actual browser check
+        that found the bug -- `node platform/pages/build.mjs
+        --out=platform/pages/dist` then `PLAYWRIGHT=.../playwright/index.js
+        node platform/pages/roundtrip.mjs forestry-mulching-bid-calculator` --
+        confirmed `proposalScope` no longer appears in the dropped-field list.
+        One residual note remains in that check's output, `headline — →
+        $10,506.34`: not a real drop (nothing was lost -- the sender's page
+        legitimately never computed a price before the probe copied the
+        link, since this form is submit-gated by design, unlike siblings that
+        recompute live on every keystroke), so the check still exits 1 on
+        this venture for a reason unrelated to the fix. Left the submit-gated
+        design alone rather than reworking this venture's calculation UX to
+        chase a green run on a check whose own file already special-cases an
+        analogous shape (`1099k-reconciliation-worksheet`'s reset-on-submit
+        form) rather than forcing the product to match the probe.
+        `python3 platform/ci/checklist_coverage.py` and
+        `python3 portfolio/ledger/check_ledger_only.py` both clean on the
+        rest of this diff.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `main` was red on three of `portfolio-validate.yml`'s 67 steps, with
+        Actions starved fleet-wide so CI could not surface any of it. Found by
+        `run_workflow_locally.py --tree`, the one line in CLAUDE.md's
+        checklist that asks whether `main` is green rather than whether a diff
+        is sound. Fourth instance of the shape that file already records three
+        times: a correct, current guard red on `main`, found by a session that
+        happened to look rather than by anything that asks.
+      - >-
+        One root cause, three symptoms. #4745 graduated
+        `agent-instructions-drift-check` without two things the repo's own
+        guards require: no workflow filtered on its path and ran
+        `node --test`, so its 41 assertions executed nowhere but a
+        contributor's machine (`validate_workflows.py` failed by design and
+        its own unit test failed beside it); and its `usage.mjs` was a 262nd
+        opt-out switch while `platform/privacy` still pinned 261.
+      - >-
+        Two of those three were fixed by someone else, and the useful part of
+        this entry is that this session did not ship over the top of them.
+        A concurrent session had #4750 open carrying exactly the
+        `SWITCHES_IN_THE_CATALOGUE` 261 -> 262 bump -- minimal, correctly
+        reasoned, and arguably better worded than the version already
+        committed here. Per the mandate's "prefer finishing someone else's
+        sound PR over starting a competing one", #4750 was verified
+        independently (merged onto current `main` in a scratch branch: clean
+        merge, 6 insertions, `platform/privacy` 83/83) and merged, and this
+        branch was then rebuilt to carry only the part still missing from
+        `main` -- the CI workflow. The duplicate constant hunk was dropped
+        rather than merged, which is what would otherwise have produced a
+        guaranteed conflict on that exact line.
+      - >-
+        Also closed #4749, which was a duplicate of this session's own
+        already-merged #4746 sitting on the same designated branch name.
+        Proven before closing rather than asserted, as CLAUDE.md requires:
+        `supersede_check.py 4749` exits 0 with `SUPERSEDED -- adds nothing
+        origin/main does not already have`, corroborated by
+        `git diff --name-only origin/main <head>` returning 0 files. Worth
+        recording why it existed at all, since the shape will recur in a fleet
+        this concurrent: squash-merging #4746 landed its content under a new
+        sha and deleted the branch, the branch was then recreated from the old
+        pre-squash commit, and merging `main` back in brought its tree to
+        parity with `main` -- so the history reads unmerged while the content
+        is fully landed.
+      - >-
+        Shipped here: `.github/workflows/agent-instructions-drift-check-ci.yml`,
+        copied from the `security-txt-check` sibling and recorded in
+        `publish-surface.yaml` with classification `none` / `publishes: []`,
+        confirmed by `--check`. It runs `node --test` under `contents: read`
+        and pushes nothing, so it is not the unattended automation CLAUDE.md's
+        Automation rule gates. The venture's 41 tests were passing the whole
+        time; they were simply running nowhere, which is the defect.
+      - >-
+        Two process traps measured in this session, both cheap to hit again.
+        First, `run_workflow_locally.py` voided its own verdict with
+        `UNSTABLE CHECKOUT: HEAD moved from b77dd7ce5 to ea69d5f75 while the
+        sweep ran` -- correctly, because the tree was reset and
+        `publish-branch.sh` run over the top mid-flight. A tool refusing to
+        stand behind a reading taken across two trees is the same principle as
+        its `UNRUN` classification, and the response is to re-run on a settled
+        checkout, never to report either result. **Commit first, then sweep.**
+        Second, `pkill -f run_workflow_locally` matches the killing shell's
+        own command line and kills itself (exit 144) -- stop a background
+        sweep by task id, not by a pattern that names itself.
+      - >-
+        And a self-inflicted error worth recording because the reading it
+        produced was convincing and wrong. Mid-diagnosis the clone had
+        silently re-grafted itself: an earlier `git fetch --unshallow origin
+        main` was undone by a later plain `git fetch origin main`, leaving
+        `git rev-list --count origin/main` at **1** with `.git/shallow`
+        present and the commit under investigation reading as a root commit
+        with no parent. Every history-shaped query then lied in a way that
+        looked like data: `git show --name-status` listed 250+ venture files
+        as `A` (a root commit shows its whole tree), and
+        `git log -G'SWITCHES_IN_THE_CATALOGUE'` reported the constant last
+        changed by that very commit. Caught by checking the commit count
+        rather than `is-shallow-repository`, exactly as CLAUDE.md prescribes,
+        and repaired with `git fetch --unshallow origin main` naming the ref
+        (7245 commits, parent resolving again). The useful half: content reads
+        at a ref were never affected, so the privacy test's own 262-vs-261
+        count was sound throughout. Trust the content read over the history
+        read when the two disagree.
+      - >-
+        Verified on the final branch: `validate_workflows.py` "All 333
+        workflow files are valid"; `publish_surface.py --check` matches the
+        snapshot; `test_validate_workflows` 38 OK;
+        `ventures/agent-instructions-drift-check` 41/41, now actually covered
+        by CI; `platform/privacy` 83/83 on the merged result;
+        `platform/webcheck` 59/59; `platform/ci`'s full unittest sweep with no
+        failures; `checklist_coverage.py` clean on both axes.
     mrr_end: 0

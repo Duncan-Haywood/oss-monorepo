@@ -75,10 +75,18 @@ const RELATIVE_SELF = relative(
 // local and record only an event name and a day -- but the opt-out is the
 // visitor's own control over even that, and it has to survive a reload to
 // mean anything.
-// 261 -> 262 on 2026-09-16, when `overtime-pay-calculator` graduated with a
+// 261 -> 262 on 2026-09-16, when `agent-instructions-drift-check` graduated
+// with a `setUsageOptOut`/`usageOptedOut` switch -- named differently from
+// the `readOptOut`/`writeOptOut` siblings but discovered the same way
+// (behaviourally: does the switch's state survive a reload), which is the
+// point of not using a name allowlist here.
+// 262 -> 263 on 2026-09-16, when `hoa-reserve-fund-calculator` graduated
+// with its own `toggleUsage`/`usageAllowed` opt-out switch, same discovery
+// method as the rest of this running count.
+// 263 -> 264 on 2026-09-16, when `overtime-pay-calculator` graduated with a
 // `usage.mjs` opt-out following the same `readOptOut`/`writeOptOut` pattern
 // as its siblings.
-const SWITCHES_IN_THE_CATALOGUE = 262;
+const SWITCHES_IN_THE_CATALOGUE = 264;
 
 let counter = 0;
 function fixture(source) {

@@ -19,8 +19,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { HANDOFFS, handoffFor, handoffUrl, handoffValues, handoffsForRows } from './handoff.mjs';
-import { CHANNELS, loadItem, compareChannels } from './calc.mjs';
+import {
+  HANDOFFS,
+  EXCLUDED_HANDOFFS,
+  NO_ITEM_HANDOFF,
+  handoffFor,
+  handoffUrl,
+  handoffValues,
+  handoffsForRows,
+  excludedHandoffUrl,
+} from './handoff.mjs';
+import { CHANNELS, EXCLUDED_CHANNELS, loadItem, compareChannels } from './calc.mjs';
 
 import { INPUT_FIELDS as EBAY_FIELDS } from '../ebay-fee-calculator/calc.mjs';
 import { FIELD_IDS as ETSY_FIELDS } from '../etsy-profit-calculator/share.mjs';
@@ -28,6 +37,12 @@ import { INPUT_FIELDS as AMAZON_FIELDS } from '../amazon-fba-calculator/calc.mjs
 import { INPUT_FIELDS as WALMART_FIELDS } from '../walmart-marketplace-calculator/calc.mjs';
 import { FIELD_IDS as TIKTOK_FIELDS } from '../tiktok-shop-fee-calculator/calc.mjs';
 import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs';
+
+// The two excluded channels whose item still travels. Imported from the target
+// for the same reason the six above are: a rename there must fail here rather
+// than silently start dropping a field on arrival.
+import { INPUT_IDS as WHATNOT_FIELDS } from '../whatnot-seller-payout/calc.mjs';
+import { INPUT_FIELDS as REVERB_FIELDS } from '../reverb-fee-calculator/calc.mjs';
 
 // The other comparison page in this portfolio, imported so the two tables can
 // be checked against each other rather than kept in sync by hand.
@@ -283,4 +298,161 @@ test('handoffsForRows follows the ranking, best first', () => {
 
 test('handoffsForRows on an empty comparison returns nothing', () => {
   assert.deepEqual(handoffsForRows([], ITEM), []);
+});
+
+// ---------------------------------------------------------------------------
+// The channels this page points at instead of ranking
+// ---------------------------------------------------------------------------
+
+const EXCLUDED_TARGET_FIELDS = {
+  'whatnot-seller-payout': WHATNOT_FIELDS,
+  'reverb-fee-calculator': REVERB_FIELDS,
+};
+
+test('every field we send an excluded channel is one its calculator reads', () => {
+  for (const entry of EXCLUDED_HANDOFFS) {
+    const accepted = EXCLUDED_TARGET_FIELDS[entry.slug];
+    assert.ok(accepted, `no field list imported for ${entry.slug}`);
+    for (const field of Object.values(entry.fields)) {
+      assert.ok(
+        accepted.includes(field),
+        `${entry.slug} does not accept "${field}" — the link would arrive without it`,
+      );
+    }
+  }
+});
+
+test('every excluded channel is either carried or documented as bare', () => {
+  // The invariant that makes the omission of Faire readable as a decision. An
+  // entry missing because nobody wrote it would otherwise look the same as one
+  // left out on purpose, which is the failure `drops` already guards against
+  // one level down.
+  const carried = new Set(EXCLUDED_HANDOFFS.map((entry) => entry.slug));
+  const bare = new Set(NO_ITEM_HANDOFF.map((entry) => entry.slug));
+
+  for (const channel of EXCLUDED_CHANNELS) {
+    const inCarried = carried.has(channel.deepTool);
+    const inBare = bare.has(channel.deepTool);
+    assert.ok(
+      inCarried || inBare,
+      `${channel.label} (${channel.deepTool}) is in neither table — decide whether its item travels`,
+    );
+    assert.ok(!(inCarried && inBare), `${channel.deepTool} is both carried and documented as bare`);
+  }
+
+  // And nothing in either table names a channel this page does not point at.
+  const known = new Set(EXCLUDED_CHANNELS.map((channel) => channel.deepTool));
+  for (const slug of [...carried, ...bare]) {
+    assert.ok(known.has(slug), `${slug} is not a tool EXCLUDED_CHANNELS points at`);
+  }
+});
+
+test('every bare excluded pointer states a reason', () => {
+  for (const entry of NO_ITEM_HANDOFF) {
+    assert.ok(
+      typeof entry.why === 'string' && entry.why.length > 0,
+      `${entry.slug} is left bare without a stated reason`,
+    );
+  }
+});
+
+test('every input is carried or documented as dropped for excluded channels', () => {
+  const vocabulary = Object.keys(loadItem(ITEM)).filter((key) => key !== 'categoryId');
+
+  for (const entry of EXCLUDED_HANDOFFS) {
+    for (const key of vocabulary) {
+      const carried = Object.hasOwn(entry.fields, key);
+      const dropped = Object.hasOwn(entry.drops, key);
+      assert.ok(
+        carried || dropped,
+        `${entry.slug}: "${key}" is neither mapped nor listed in drops — decide which`,
+      );
+      assert.ok(!(carried && dropped), `${entry.slug}: "${key}" is both mapped and dropped`);
+    }
+    for (const key of Object.keys(entry.drops)) {
+      assert.ok(vocabulary.includes(key), `${entry.slug}: drops "${key}", not an input this page has`);
+      assert.ok(
+        typeof entry.drops[key] === 'string' && entry.drops[key].length > 0,
+        `${entry.slug}: the drop of "${key}" needs a stated reason`,
+      );
+    }
+  }
+});
+
+test('the category never travels to an excluded channel either', () => {
+  for (const entry of EXCLUDED_HANDOFFS) {
+    const url = excludedHandoffUrl(entry.slug, ITEM);
+    assert.ok(!paramsOf(url).has('categoryId'), `${entry.slug} received a categoryId`);
+    assert.ok(!Object.values(entry.fields).includes('categoryId'));
+  }
+});
+
+test('excluded targets get the same field names as where-to-sell sends them', () => {
+  // where-to-sell-calculator ranks Whatnot and Reverb as ordinary rows, so it
+  // already has a vetted mapping for both. Two pages sending the same input
+  // under different names to the same calculator is the bug that produces a
+  // plausible wrong number rather than an error.
+  const bySlug = new Map(WHERE_TO_SELL_HANDOFFS.map((entry) => [entry.slug, entry]));
+  let compared = 0;
+
+  for (const entry of EXCLUDED_HANDOFFS) {
+    const sibling = bySlug.get(entry.slug);
+    if (!sibling) continue;
+    for (const [source, target] of Object.entries(entry.fields)) {
+      if (!Object.hasOwn(sibling.fields, source)) continue;
+      assert.equal(
+        target,
+        sibling.fields[source],
+        `${entry.slug}: this page sends ${source} as "${target}", where-to-sell sends "${sibling.fields[source]}"`,
+      );
+      compared += 1;
+    }
+  }
+
+  assert.ok(compared >= 8, `only ${compared} field pairs compared — the tables stopped lining up`);
+});
+
+test('the item arrives on Whatnot under Whatnot names', () => {
+  const params = paramsOf(excludedHandoffUrl('whatnot-seller-payout', ITEM));
+  assert.equal(params.get('salePrice'), '40', 'price should arrive as salePrice');
+  assert.equal(params.get('itemCost'), '12');
+  assert.equal(params.get('shippingCharged'), '6');
+  assert.equal(params.get('shippingCost'), '5.2');
+  assert.equal(params.get('otherCost'), '1.1');
+  assert.ok(!params.has('price'), 'Whatnot has no "price" input; it would be dropped');
+  assert.ok(!params.has('monthlyOrders'), 'Whatnot has no monthly plan to amortise');
+});
+
+test('the item arrives on Reverb under Reverb names', () => {
+  const params = paramsOf(excludedHandoffUrl('reverb-fee-calculator', ITEM));
+  assert.equal(params.get('price'), '40');
+  assert.equal(params.get('itemCost'), '12');
+  assert.equal(params.get('shippingCharged'), '6');
+  assert.equal(params.get('shippingCost'), '5.2');
+  assert.equal(params.get('otherCost'), '1.1');
+  assert.ok(!params.has('monthlyOrders'), 'Reverb has no monthly plan fee');
+});
+
+test('Faire keeps a bare pointer, carrying no numbers', () => {
+  // The whole point of NO_ITEM_HANDOFF: the link still works, it just does not
+  // claim to know the wholesale price.
+  const url = excludedHandoffUrl('faire-wholesale-calculator', ITEM);
+  assert.equal(url, '../faire-wholesale-calculator/');
+  assert.ok(!url.includes('#'), 'a wholesale sheet must not receive a retail price');
+});
+
+test('an unknown or unsafe slug never becomes a link', () => {
+  assert.equal(excludedHandoffUrl('../../etc/passwd', ITEM), null);
+  assert.equal(excludedHandoffUrl('Not A Slug', ITEM), null);
+  // An unrecognised but well-formed slug falls back to the bare pointer rather
+  // than to null, so a channel added to EXCLUDED_CHANNELS still renders a link
+  // while its mapping is being written.
+  assert.equal(excludedHandoffUrl('some-new-tool', ITEM), '../some-new-tool/');
+});
+
+test('a blank item produces a bare link rather than one full of zeroes', () => {
+  // Same rule the ranked handoff follows: an explicit 0 reads as a real answer
+  // on arrival, so an untouched form must not override the target's defaults.
+  const url = excludedHandoffUrl('reverb-fee-calculator', {});
+  assert.equal(url, '../reverb-fee-calculator/');
 });
