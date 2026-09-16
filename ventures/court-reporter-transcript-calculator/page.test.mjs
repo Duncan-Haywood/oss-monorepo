@@ -4,6 +4,51 @@ import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
+// The FAQ tests below used to assert `html.includes(answerText)` against the
+// whole file. That can never fail: the JSON-LD block is itself part of `html`,
+// so every answer trivially "appears". The check that matters -- and the one
+// Google's structured-data policy actually enforces -- is that the answer text
+// appears in the *rendered* prose a visitor reads. So strip the JSON-LD block
+// first, then the tags, then decode the entities the markup uses (`&mdash;`)
+// but the JSON spells literally, and compare on normalised whitespace.
+const visibleText = (html) =>
+  html
+    .replace(/<script type="application\/ld\+json">.*?<\/script>/gs, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&mdash;/g, "—")
+    .replace(/&larr;/g, "←")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/** Assert every JSON-LD FAQ answer in `html` is prose a visitor can actually read. */
+const assertFaqMatchesVisibleProse = (html, minQuestions) => {
+  const match = html.match(
+    /<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?)<\/script>/s,
+  );
+  assert.ok(match, "expected a FAQPage JSON-LD block");
+  const data = JSON.parse(match[1]);
+  assert.ok(data.mainEntity.length >= minQuestions);
+  const visible = visibleText(html);
+  for (const q of data.mainEntity) {
+    const answer = q.acceptedAnswer.text.replace(/\s+/g, " ").trim();
+    assert.ok(
+      visible.includes(answer),
+      `FAQ answer for "${q.name}" must appear verbatim in the visible page, not only inside the JSON-LD`,
+    );
+    const name = q.name.replace(/\s+/g, " ").trim();
+    assert.ok(
+      visible.includes(name),
+      `FAQ question "${q.name}" must appear verbatim in the visible page, not only inside the JSON-LD`,
+    );
+  }
+};
+
 test("index page carries the required disclaimer, privacy line, and sponsor link", () => {
   const html = page("index.html");
   assert.match(html, /No warranty/);
@@ -36,17 +81,7 @@ test("robots and sitemap let crawlers find the page", () => {
 });
 
 test("the FAQPage JSON-LD answer text matches the visible FAQ prose exactly", () => {
-  const html = page("index.html");
-  const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?)<\/script>/s);
-  assert.ok(match, "expected a FAQPage JSON-LD block");
-  const data = JSON.parse(match[1]);
-  assert.ok(data.mainEntity.length >= 4);
-  for (const q of data.mainEntity) {
-    assert.ok(
-      html.includes(q.acceptedAnswer.text),
-      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
-    );
-  }
+  assertFaqMatchesVisibleProse(page("index.html"), 4);
 });
 
 // --- Deposition transcript invoice -----------------------------------------
@@ -156,17 +191,7 @@ test("the per-page-rate explainer carries the disclaimer, sponsor link, and a ro
 });
 
 test("the explainer's FAQPage JSON-LD answer text matches its visible prose exactly", () => {
-  const html = page(RATE_PAGE);
-  const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?)<\/script>/s);
-  assert.ok(match, "expected a FAQPage JSON-LD block");
-  const data = JSON.parse(match[1]);
-  assert.ok(data.mainEntity.length >= 3);
-  for (const q of data.mainEntity) {
-    assert.ok(
-      html.includes(q.acceptedAnswer.text),
-      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
-    );
-  }
+  assertFaqMatchesVisibleProse(page(RATE_PAGE), 3);
 });
 
 // --- vs-spreadsheet-or-guessing.html ----------------------------------------
@@ -195,17 +220,7 @@ test("the comparison page links back to the calculator", () => {
 });
 
 test("the comparison page's FAQPage JSON-LD answer text matches the visible FAQ prose exactly", () => {
-  const html = page("vs-spreadsheet-or-guessing.html");
-  const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?)<\/script>/s);
-  assert.ok(match, "expected a FAQPage JSON-LD block");
-  const data = JSON.parse(match[1]);
-  assert.ok(data.mainEntity.length >= 4);
-  for (const q of data.mainEntity) {
-    assert.ok(
-      html.includes(q.acceptedAnswer.text),
-      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
-    );
-  }
+  assertFaqMatchesVisibleProse(page("vs-spreadsheet-or-guessing.html"), 5);
 });
 
 test("the index links the explainer, so it is reachable without the sitemap", () => {
