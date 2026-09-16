@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 133 files, 555799 bytes
 #   portfolio-front-tools-1: 106 files, 554524 bytes
 #   portfolio-front-tools-2: 148 files, 556400 bytes
-#   portfolio-front-tools-3: 139 files, 552740 bytes
+#   portfolio-front-tools-3: 140 files, 556839 bytes
 #   portfolio-front-tools-4: 122 files, 553187 bytes
 #   portfolio-front-tools-5: 137 files, 552960 bytes
 #   portfolio-front-tools-6: 121 files, 552290 bytes
@@ -596,6 +596,7 @@ configMapGenerator:
       - agent-instructions-drift-check__engine.mjs.gz=agent-instructions-drift-check__engine.mjs.gz
       - agent-instructions-drift-check__index.html.gz=agent-instructions-drift-check__index.html.gz
       - agent-instructions-drift-check__usage.mjs.gz=agent-instructions-drift-check__usage.mjs.gz
+      - agent-instructions-drift-check__vs-checking-it-by-hand.html.gz=agent-instructions-drift-check__vs-checking-it-by-hand.html.gz
       - agent-instructions-drift-check__why-ai-agent-instruction-files-rot.html.gz=agent-instructions-drift-check__why-ai-agent-instruction-files-rot.html.gz
       - ai-coding-plan-cost-calculator__calc.mjs.gz=ai-coding-plan-cost-calculator__calc.mjs.gz
       - ai-coding-plan-cost-calculator__how-ai-coding-plan-pricing-works.html.gz=ai-coding-plan-cost-calculator__how-ai-coding-plan-pricing-works.html.gz
