@@ -6,14 +6,14 @@
 // Your machine, your network -- no request goes through this portfolio or
 // anywhere but the URL you pass and whatever it points its preview image at.
 //
-//   node check.mjs <url> [--json] [--timeout <ms>]
+//   node cli/check.mjs <url> [--json] [--timeout <ms>]
 //
 // Exit code 0 when the probe completed and no "danger"-severity finding is
 // present; 1 when a danger finding is present or the probe failed to
 // complete (network error, timeout, bad URL).
 
 import { runProbe } from './probe.mjs';
-import { buildReport } from './analyze.mjs';
+import { buildReport } from '../analyze.mjs';
 
 function formatText(report) {
   const lines = [];
@@ -76,7 +76,7 @@ export async function runCheck(target, { probeFn = runProbe, timeoutMs } = {}) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args.target) {
-    console.error('Usage: node check.mjs <url> [--json] [--timeout <ms>]');
+    console.error('Usage: node cli/check.mjs <url> [--json] [--timeout <ms>]');
     process.exit(2);
   }
   try {

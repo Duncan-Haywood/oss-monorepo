@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 148 files, 556216 bytes
 #   portfolio-front-tools-3: 138 files, 554404 bytes
 #   portfolio-front-tools-4: 124 files, 554560 bytes
-#   portfolio-front-tools-5: 137 files, 554181 bytes
+#   portfolio-front-tools-5: 135 files, 549506 bytes
 #   portfolio-front-tools-6: 125 files, 555863 bytes
 #   portfolio-front-tools-7: 123 files, 552341 bytes
 #   portfolio-front-tools-8: 114 files, 556308 bytes
@@ -46,7 +46,7 @@
 #   portfolio-front-tools-10: 121 files, 553786 bytes
 #   portfolio-front-tools-11: 126 files, 552808 bytes
 #   portfolio-front-tools-12: 102 files, 556599 bytes
-#   portfolio-front-tools-13: 114 files, 553413 bytes
+#   portfolio-front-tools-13: 108 files, 541719 bytes
 #   portfolio-front-tools-14: 77 files, 380538 bytes
 #   portfolio-front-tools-15: 52 files, 266056 bytes
 #
@@ -758,9 +758,7 @@ configMapGenerator:
       - cache-control-check__vs-curl.html.gz=cache-control-check__vs-curl.html.gz
       - cache-control-check__why-isnt-my-cdn-caching-this.html.gz=cache-control-check__why-isnt-my-cdn-caching-this.html.gz
       - canonical-tag-check__analyze.mjs.gz=canonical-tag-check__analyze.mjs.gz
-      - canonical-tag-check__check.mjs.gz=canonical-tag-check__check.mjs.gz
       - canonical-tag-check__index.html.gz=canonical-tag-check__index.html.gz
-      - canonical-tag-check__probe.mjs.gz=canonical-tag-check__probe.mjs.gz
       - canonical-tag-check__usage.mjs.gz=canonical-tag-check__usage.mjs.gz
       - canonical-tag-check__vs-screaming-frog.html.gz=canonical-tag-check__vs-screaming-frog.html.gz
       - caption-quality-check__check.mjs.gz=caption-quality-check__check.mjs.gz
@@ -1749,11 +1747,7 @@ configMapGenerator:
     files:
       - snow-removal-bid-calculator__vs-aspire.html.gz=snow-removal-bid-calculator__vs-aspire.html.gz
       - social-preview-check__analyze.mjs.gz=social-preview-check__analyze.mjs.gz
-      - social-preview-check__check.mjs.gz=social-preview-check__check.mjs.gz
-      - social-preview-check__imagesize.mjs.gz=social-preview-check__imagesize.mjs.gz
       - social-preview-check__index.html.gz=social-preview-check__index.html.gz
-      - social-preview-check__metatags.mjs.gz=social-preview-check__metatags.mjs.gz
-      - social-preview-check__probe.mjs.gz=social-preview-check__probe.mjs.gz
       - social-preview-check__social-preview-fallback-rules.html.gz=social-preview-check__social-preview-fallback-rules.html.gz
       - social-preview-check__usage.mjs.gz=social-preview-check__usage.mjs.gz
       - social-preview-check__vs-facebook-sharing-debugger.html.gz=social-preview-check__vs-facebook-sharing-debugger.html.gz
@@ -1780,9 +1774,7 @@ configMapGenerator:
       - spray-foam-bid-calculator__share.mjs.gz=spray-foam-bid-calculator__share.mjs.gz
       - spray-foam-bid-calculator__usage.mjs.gz=spray-foam-bid-calculator__usage.mjs.gz
       - spray-foam-bid-calculator__vs-jobber.html.gz=spray-foam-bid-calculator__vs-jobber.html.gz
-      - sri-check__check.mjs.gz=sri-check__check.mjs.gz
       - sri-check__index.html.gz=sri-check__index.html.gz
-      - sri-check__probe.mjs.gz=sri-check__probe.mjs.gz
       - sri-check__sri.mjs.gz=sri-check__sri.mjs.gz
       - sri-check__usage.mjs.gz=sri-check__usage.mjs.gz
       - sri-check__vs-srihash.html.gz=sri-check__vs-srihash.html.gz

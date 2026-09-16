@@ -34,7 +34,7 @@ server.
 ### CLI — does the actual fetching
 
 ```
-node check.mjs https://example.com/some/page [--json] [--timeout <ms>]
+node cli/check.mjs https://example.com/some/page [--json] [--timeout <ms>]
 ```
 
 Fetches directly from your machine — nothing goes through this portfolio. Exit code `0` when
@@ -43,12 +43,12 @@ it's usable directly as a CI gate against your own staging environment:
 
 ```yaml
 # in your own CI, not this portfolio's -- your compute, your target
-- run: node check.mjs https://staging.example.com/blog/some-post/
+- run: node cli/check.mjs https://staging.example.com/blog/some-post/
 ```
 
 ### Browser — renders a report from JSON you already have
 
-Open `index.html`, paste the output of `node check.mjs <url> --json`, and click Check.
+Open `index.html`, paste the output of `node cli/check.mjs <url> --json`, and click Check.
 **Why the browser can't do the fetching itself:** reading another origin's response headers
 and body from inside a page is CORS-gated, and most sites set no
 `Access-Control-Allow-Origin` at all — so a browser tab cannot reliably fetch an arbitrary
