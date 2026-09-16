@@ -2,27 +2,6 @@
   "readings": [
     {
       "checks": [
-        "contrast",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "0861bf7d9a222b57cd74bf652b4e28fb739cfd0d",
-      "measured": "2026-09-11",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "staffing-markup-calculator"
-      ],
-      "surface": {
-        "platform/marketing": "790e07eba9f60496ede8511968a73aa9599e2789",
-        "platform/pages": "07cdde2bacc6e201a0c0a899e2e2bb714029c380",
-        "ventures": "f55359f50989bfd1314c2d597740d2737c64ceb4"
-      }
-    },
-    {
-      "checks": [
         "highlight",
         "journey"
       ],
@@ -413,6 +392,28 @@
         "platform/marketing": "305f16fd074673d55e48b2e5d127d18a91a667b5",
         "platform/pages": "b5eea784f9a905ffee35784598ee0eac149bbf3f",
         "ventures": "924d2452b00509163c44cd5f3d2b9e636965eb09"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "59a018496ea6c6a08d3f46beefdceb5ae1cca791",
+      "measured": "2026-09-16",
+      "pages": 1043,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "305f16fd074673d55e48b2e5d127d18a91a667b5",
+        "platform/pages": "d04dddfec426e78ca0a0636b3f12686d51e29d4a",
+        "ventures": "5ef04fdffadecc9e359dac74d1811734eddcda4a"
       }
     }
   ]
