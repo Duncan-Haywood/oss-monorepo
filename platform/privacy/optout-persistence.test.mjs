@@ -34,7 +34,17 @@ import { checkModule, checkAll } from "./optout-persistence.mjs";
 // 257 -> 258 on 2026-09-16, when `pdf-accessibility-tag-check` graduated
 // with a `usage.mjs` copying the same `readOptOut`/`writeOptOut` pattern
 // (via cors-misconfig-check's usage.mjs, keyed under its own storage name).
-const SWITCHES_IN_THE_CATALOGUE = 258;
+// 258 -> 259 on 2026-09-16, when `process-server-fee-calculator` (#4720)
+// graduated. Worth a line because it is the first addition here that does
+// NOT copy the `readOptOut`/`writeOptOut` pair: it spells the same switch
+// `usageAllowed`/`toggleUsage`, persisting an `...-usage-opt-out` key in
+// `localStorage`. Behavioural discovery found it anyway, which is the
+// argument for behavioural discovery -- the name allowlist this file
+// started with would have filed it `no-switch` and left a real opt-out
+// unverified while the count still read as full coverage. Main was red on
+// this assertion from #4720 merging until now, since that PR bumped no
+// count here.
+const SWITCHES_IN_THE_CATALOGUE = 259;
 
 let counter = 0;
 function fixture(source) {
