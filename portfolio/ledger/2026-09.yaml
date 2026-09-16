@@ -30142,6 +30142,115 @@ entries:
         rule.
     mrr_end: 0
 
+  - venture: fleet-repair-or-replace-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session. Open-PR queue had exactly one PR
+        (#4679, vpat-acr-generator's comparison page) at the start -- fewer
+        than three existed, so per the mandate's own rule this session's job
+        was to process all of them rather than hunt for two more. Reviewed
+        it: `mergeable_state: unstable` with every check red in 2-4s
+        (`runner_id: 0`); confirmed starvation with `ci_starvation.py`
+        rather than assuming it, then verified locally in an isolated
+        worktree (venture suite 27/27, faq-visible/faq-coverage/
+        faq-duplicate/link/siblings 81/81, full marketing+pages 1257/1257,
+        check_ledger_only clean) before merging as #4679.
+      - >-
+        Checked the branch-to-PR presumption before starting new work.
+        `git branch -r` listed 520 remote branches; the clone was shallow,
+        so the first raw `rev-list` reading (thousands of commits "ahead")
+        was the shallow-clone artifact CLAUDE.md already warns about, not
+        real divergence -- unshallowed first (`git fetch --unshallow`,
+        then all branches locally) before trusting any comparison. Of 519
+        non-main branches, 213 carry commits `main` genuinely lacks.
+        Sampled 10 of the highest-value candidates (by commits-ahead,
+        including both branches whose names directly matched this
+        session's other mandate -- `agent/deploy-cicd-ledger-2868` and
+        `agent/marketing-distribution-gutter-guard-vs-jobnimbus`) against
+        `search_pull_requests(head:<branch>)`: all 10 already had one or
+        more closed PRs from prior sessions' triage passes, explicitly
+        titled `[stale]`/`[triage]`/"superseded"/"already shipped as #N".
+        Concluded the 213-branch backlog is not neglected work -- it is
+        already fully triaged, just not deleted -- and that opening ~200
+        more `[triage]` PRs to re-derive the same verdicts would itself be
+        the wasted duplicate effort CLAUDE.md's Duplicate-PRs section warns
+        against, not diligence. Did not open new triage PRs for the
+        remainder; a future session auditing this backlog should sample
+        first rather than assume it is unprocessed.
+      - >-
+        The owner also asked, in this same scheduled prompt, to prioritize
+        Hetzner deployment/CI-CD, marketing-material deployment on the
+        Hetzner VMs, and standing up Codex CLI there to consume its
+        included dev-work quota. Checked `infra_state.yaml` and
+        `decision_queue.py` rather than re-measuring blind: all three routes
+        (self-hosted CI runner, the Codex dev-host, and the cluster serving
+        `marisstella.dev`) are already built and tested (per #4670's
+        `codex-host-mode` refresh earlier the same day) and every one is
+        still blocked on the single owner-only credential ranked #1 in the
+        decision queue for 9 days running -- `hetzner-ssh-key-is-a-public-key`
+        -- which needs the owner's own machine (a web/agent session's egress
+        proxy cannot reach `:22` regardless of which key it holds). Did not
+        re-run that measurement or add a duplicate ask.
+      - >-
+        With the PR queue empty, the branch backlog confirmed
+        already-triaged, and Hetzner genuinely owner-blocked, continued the
+        proven comparison-page pattern for a venture that had none:
+        `fleet-repair-or-replace-planner`'s own VENTURE.yaml already frames
+        its competition as "equipment dealers, fleet-leasing companies and
+        fleet-management SaaS vendors, all of whom... gate the multi-asset
+        version behind a demo or a subscription" -- but names no specific
+        product and no public pricing was verified this session, so
+        `vs-fleet-management-software.html` compares against the generic
+        category (paid fleet management/maintenance software: continuous
+        per-vehicle tracking, work orders, inspections, telematics) rather
+        than inventing a named-firm claim, matching the stricter disclaimer
+        precedent used on `vpat-acr-generator` and
+        `dental-ppo-writeoff-calculator`'s own generic comparisons. The real
+        tradeoff: that category tracks fleets continuously for a recurring
+        fee; this planner answers one narrower, free, occasional question --
+        which assets pay to replace this year, ranked against a capital
+        budget -- and the two are complementary rather than competing.
+      - >-
+        Caught two defects before opening a PR, both instances of failure
+        modes this file already records: (1) the JSON-LD `FAQPage` text used
+        literal `--` where the visible prose used `&mdash;`, the same
+        literal-dash-vs-mdash mismatch #4670/#4673/#4675/#4679 each
+        independently caught -- fixed by writing real em-dash characters
+        into the JSON-LD rather than the escape sequence. (2)
+        `clauses.test.mjs` failed both `every ... page carries the clause`
+        assertions: a `vs-<competitor>`-shaped filename requires the literal
+        phrase "not affiliated with" (`platform/pages/clauses.mjs`'s
+        `NOT_AFFILIATED` pattern), which the first footer draft's paraphrase
+        ("does not name, evaluate, or claim affiliation with") did not
+        literally contain -- fixed by rewording the footer to state it
+        directly rather than adding a special-case exemption, since the page
+        is a genuine vs-page and the disclaimer is simply true as stated.
+        Re-ran `node platform/marketing/regen.mjs` after each content edit
+        (a stale mirror is a false-negative source this file has recorded
+        before) and the whole-portfolio suites after that.
+      - >-
+        Verified: venture's own suite 60/60; whole-portfolio
+        faq-visible/faq-coverage/faq-duplicate/link/siblings 81/81 (0 after
+        the two fixes above, re-confirmed 81/81 clean); marketing+pages
+        1257/1257 post-regen; proposal+privacy+webcheck 242/242;
+        `platform/ci`'s 21-module unittest sweep + `agent_review`'s
+        `test_review`; `gitops/tests` 581 passed/1 skipped (installed
+        `python3-pytest`/`nginx-light`/`openssh-client` via `apt-get update
+        && apt-get install`, the documented pip-timeout workaround);
+        `portfolio/{ledger,scoring,router,usage,pipeline} infra/tests` 446
+        passed; all 8 `portfolio-validate.yml` validators individually;
+        `checklist_coverage.py`, `check_ledger_only.py`,
+        `check_no_payment_code.py`, `usage_state.py --require-honest`, and
+        `guard_state.py --require-runnable` (1 ENVIRONMENTAL skip, 0
+        fixable) all clean. No new form input was added by this change (a
+        static comparison page, no `<input>`/`<form>`), so the browser-check
+        sweep's staleness (recorded separately, dated the same day) was not
+        re-run for this diff per the "touches markup a user types into"
+        trigger in CLAUDE.md -- it does not apply here.
+    mrr_end: 0
+
   - venture: cat-adjuster-fee-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -30225,6 +30334,86 @@ entries:
         required suite above already passed and `ci_starvation.py`
         confirmed the PR's own red checks were starvation, not real
         failures.
+    mrr_end: 0
+
+  - venture: cat-adjuster-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, product-first mandate, running
+        concurrently with the session above. Open-PR queue was empty on
+        arrival: the one PR present at session start (#4673) was
+        independently repaired (a real merge conflict in
+        portfolio/ledger/2026-09.yaml) and merged by a concurrent session
+        while this one was verifying the same resolution -- confirmed via
+        pull_request_read (merged_at 06:24:33Z) rather than pushed a
+        redundant duplicate. A separate concurrent session's own
+        branch-backlog audit (#4674) had already run supersede_check.py
+        against all 208 remote branches carrying commits ahead of main and
+        found every one SUPERSEDED or STALE DRAFT -- no unshipped work in
+        the backlog, so the branch-to-PR conversion phase needed no further
+        action either.
+      - >-
+        The owner also asked directly to prioritize Hetzner deployment/
+        CI-CD, marketing-material deployment on the Hetzner VMs, and a
+        Codex CLI dev worker there running a similar autonomous prompt.
+        Checked `decision_queue.py`: all three are already built and fully
+        tested (bootstrap/restore-cluster.sh with WITH_CODEX_HOST=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1, and
+        gitops/agents/host/ for the Codex worker specifically), and every
+        one is blocked on the single owner-held credential ranked #1
+        (hetzner-ssh-key-is-a-public-key -- the installed public key has no
+        matching private key on file anywhere an agent session can reach).
+        Did not re-add a duplicate ask; flagged it to the owner directly
+        instead of leaving it buried in ledger prose, since this session
+        was scheduled and no one was watching the transcript live.
+      - >-
+        With Hetzner genuinely owner-blocked and the PR/branch backlog
+        already drained, independently picked the same venture
+        (cat-adjuster-fee-calculator) as the concurrent session above and
+        shipped a second comparison page,
+        `vs-the-headline-per-claim-rate.html`, framed against the generic
+        practice of judging a deployment offer by its headline per-claim
+        rate alone -- a different query intent from the concurrent
+        session's `vs-spreadsheet-comparison.html`. Discovered the
+        collision only at push time, after both pages were already
+        written and verified. Kept both rather than discarding either:
+        this portfolio already has ventures with more than one comparison
+        page targeting different angles (3pl-quote-normalizer has both
+        `vs-extensiv.html` and `vs-shipbob.html`), so two pages on
+        different long-tail queries for the same venture is precedented,
+        additive SEO surface, not redundant work. Caught the same
+        em-dash-vs-literal-"--" FAQPage JSON-LD mismatch #4670/#4672/#4675
+        all hit; fixed by matching the JSON-LD text to the rendered
+        em-dash exactly. Used the "not affiliated with" clause phrase
+        (matching #4673's generic-category voice) rather than the
+        concurrent session's `COMPARISON_DISCLAIMER_EXEMPT` entry --
+        both satisfy `clauses.mjs`, and the concurrent session's edit to
+        that shared list is kept as-is rather than duplicated.
+      - >-
+        `main` advanced from `133c62af` through `ebd29851a` (#4678-#4680)
+        to `cc1e29d62` (#4682, the concurrent session's own
+        cat-adjuster-fee-calculator page, plus #4683) mid-session, across
+        two separate merges. Each carried a real conflict in the generated
+        front-door mirror and a ledger-append conflict at the same anchor;
+        resolved the mirror both times with
+        `platform/marketing/resolve-mirror-merge.sh` per its own header
+        (taking `origin/main`'s copy of the handful of generated files the
+        script itself doesn't cover, then re-running `regen.mjs` an extra
+        time until the full suite came back clean), and kept every ledger
+        entry from both sides rather than picking one.
+      - >-
+        Verified post-merge: venture's own tests (both pages) passing;
+        full `platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        suite 1257/1257 (zero failures); `platform/proposal` +
+        `platform/privacy` + `platform/webcheck` 242/242; `gitops/tests`
+        581 passed/1 skipped (ENVIRONMENTAL); `router/validate.py` (279
+        ventures), `score_ventures.py --check`, `checklist_coverage.py`,
+        `check_no_payment_code.py`, `guard_state.py --require-runnable`
+        (no fixable skips), `usage_state.py --require-honest`,
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_usage.py`, `publish_surface.py --check` all clean.
     mrr_end: 0
 
   - venture: llms-txt-generator
@@ -30358,4 +30547,99 @@ entries:
         proxy (`api.indexnow.org` not allowlisted), same known limitation
         as prior sessions -- needs an Actions runner or the Hetzner host
         mode to actually reach it.
+    mrr_end: 0
+  - venture: court-reporter-transcript-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, browser-only calculator for freelance
+        court reporters and deposition stenographers -- turns page count,
+        turnaround speed, travel, certified copies, exhibits, rough draft
+        and realtime into a deposition transcript invoice total and an
+        effective hourly rate (with a copyable plain-text invoice
+        summary), plus a separate agency-offer check that turns an
+        agency's flat per-page offer into an effective hourly rate against
+        a reporter's own target. Screened per pipeline/README.md's
+        "archetype itself" section: not another <trade>-bid-calculator
+        (141/281) or SEO/security -checker (38+/281) -- a
+        professional-services niche this portfolio had not touched, with a
+        billing shape (a flat appearance fee stacked on a per-page rate
+        that itself multiplies by turnaround speed) distinct from every
+        existing venture here. `duplicate_check.py` scored the final
+        description below 0.13 against every existing venture, pipeline
+        candidate, screened-out row, and ai-first-markets idea, well under
+        the 0.45 bar -- after two adjacent niches were checked and set
+        aside first: a mobile-notary income-planning angle scored 0.26
+        against the existing notary-trip-quote venture (same audience,
+        thinner variant of its existing per-job quote), and an
+        AI-crawler-access checker scored 0.49 against the existing
+        ai-crawler-access-check venture. Named channel: r/courtreporting
+        and NCRA (National Court Reporters Association) member forums both
+        see recurring "how much should I charge for a rush transcript" and
+        "is this agency offer worth taking" threads, with real search
+        volume ("court reporter transcript rate calculator", "deposition
+        transcript pricing").
+      - >-
+        Full PRODUCT_PLAYBOOK.md slice: calculator.mjs (pure arithmetic,
+        no dependencies, 19 tests covering both calculators, negative/
+        non-finite input handling, and the plain-text invoice-summary
+        renderer), usage.mjs opt-out-capable local counter (8 tests),
+        index.html with both calculators, disclaimers, privacy line,
+        sponsor link, FAQPage + SoftwareApplication JSON-LD verified
+        character-for-character against the visible FAQ prose, and a
+        reciprocal sibling link to notary-trip-quote (15 page tests) --
+        42/42 venture tests pass. VENTURE.yaml with scored hypotheses
+        (gates: liability_containment 8, ethical_robustness 8);
+        venture-scores.yaml row (composite 5.833, both gates pass);
+        .github/workflows/court-reporter-transcript-calculator-ci.yml
+        recorded in publish-surface.yaml.
+      - >-
+        Cross-cutting fixes this shipment required, all pre-existing gaps
+        exposed by adding the 281st mirrored tool rather than defects this
+        venture introduced: mirrored-tool-count prose 271->272 in
+        infra/OWNER_CHECKLIST.md (x3), aggregate.py, default.conf,
+        test_manifests.py's pinned total; gitops/ci/README.md's
+        runs-on-switch count via sync_readme_counts.py (my new venture's
+        CI workflow added a job); platform/privacy/optout-persistence.
+        test.mjs's pinned SWITCHES_IN_THE_CATALOGUE 256->257; ran
+        launched.mjs --write and regen.mjs so the mirror/front-door/feed/
+        catalog/llms.txt are current; filed the venture under build.mjs's
+        `services` category (solo professional pricing one job for a
+        client, alongside notary-trip-quote) rather than leaving it in the
+        catch-all. Also found a genuinely pre-existing, unrelated break:
+        build.test.mjs's catch-all-size bound (5) was already exceeded by 6
+        members on `main` before this venture touched anything -- confirmed
+        via a git-stash A/B test putting the working tree back to `main`'s
+        state, where the same assertion failed identically. Before
+        re-categorizing any of the other five by hand, merged
+        `origin/main` (which had advanced during this session) and found
+        two concurrent sessions had already fixed the same break
+        independently: #4677 filed `caption-quality-check` into `ci` and
+        `security-deposit-return-calculator` into `backoffice`, and a
+        sibling `cat-adjuster-fee-calculator` session's branch (merged as
+        part of the same `origin/main` advance) filed
+        `childcare-tuition-calculator` and
+        `food-truck-event-margin-calculator` into `services`. So the bound
+        needed no raising after all -- resolved the resulting `build.mjs`
+        merge conflict by keeping both sets of category-rule additions
+        (theirs plus this venture's own) rather than picking a side, and
+        left the test's bound comment recording what actually happened
+        instead of the raise this session almost made permanent.
+      - >-
+        Verified: venture's own suite 42/42; gitops/tests 581 passed/1
+        skip (environmental -- guard_state.py --require-runnable confirmed
+        no fixable skips after installing nginx-light/openssh-client);
+        platform/ci's 25 unittest modules (932 tests) + agent_review 21/21
+        all green; portfolio/{ledger,scoring,router,usage,pipeline} +
+        infra/tests 446 passed; platform/marketing + platform/pages full
+        suite 1257/1257 (after the catch-all-bound and mirrored-count
+        fixes above); platform/proposal 101/101, platform/privacy 82/82,
+        platform/webcheck 59/59; router/validate.py (280 ventures),
+        score_ventures.py --check, publish_surface.py --check (--write
+        run for the new workflow), checklist_coverage.py,
+        validate_candidates.py, validate_doc_consistency.py,
+        validate_probe_index.py, score_sensitivity.py, validate_usage.py,
+        check_no_payment_code.py, clauses.mjs all clean. Merged as PR
+        #4689.
     mrr_end: 0
