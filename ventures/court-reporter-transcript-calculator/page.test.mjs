@@ -191,17 +191,7 @@ test("the per-page-rate explainer carries the disclaimer, sponsor link, and a ro
 });
 
 test("the explainer's FAQPage JSON-LD answer text matches its visible prose exactly", () => {
-  const html = page(RATE_PAGE);
-  const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?)<\/script>/s);
-  assert.ok(match, "expected a FAQPage JSON-LD block");
-  const data = JSON.parse(match[1]);
-  assert.ok(data.mainEntity.length >= 3);
-  for (const q of data.mainEntity) {
-    assert.ok(
-      html.includes(q.acceptedAnswer.text),
-      `FAQ answer for "${q.name}" must appear verbatim in the visible page`,
-    );
-  }
+  assertFaqMatchesVisibleProse(page(RATE_PAGE), 3);
 });
 
 // --- vs-spreadsheet-or-guessing.html ----------------------------------------

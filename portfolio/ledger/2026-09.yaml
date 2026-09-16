@@ -31573,10 +31573,23 @@ entries:
         (`&mdash;`) but the JSON spells literally, and compares on
         normalised whitespace; it also checks question text, not just
         answers. Proved by mutation: editing the visible prose alone turns
-        it red, and it is green again once reverted. This is the durable
-        half of the change -- the guard now covers both FAQ surfaces on this
-        venture, and the same defect is worth checking for wherever this
-        test was copied from.
+        it red, and it is green again once reverted.
+      - >-
+        Then went looking for where else it was copied to, rather than
+        leaving that as a follow-up nobody runs. `grep -rl
+        'html.includes(q.acceptedAnswer.text)'` found three more sites: a
+        third assertion in this venture's own file (the explainer page,
+        missed on the first pass because it was formatted differently) and
+        two in `ventures/caption-quality-check/page.test.mjs` -- one of them
+        the test named `every FAQPage question on every page is also present
+        as visible text`, which is the intent stated in the title and not
+        delivered by the body. All four assertions now compare against
+        stripped, entity-decoded visible prose. Both ventures' pages turned
+        out to be genuinely correct, which is the good outcome: the markup
+        was never wrong, it just was not being checked. Proved by mutation
+        on each venture separately -- altering one visible `<h3>` on
+        `caption-quality-check`'s comparison page, JSON-LD untouched, turns
+        it red naming the question, green again on revert.
       - >-
         Concurrency, recorded because it changed what this branch carries.
         Two reds found on `main` while verifying -- the opt-out switch count
