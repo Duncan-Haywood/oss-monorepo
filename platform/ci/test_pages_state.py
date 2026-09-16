@@ -861,3 +861,139 @@ class IndexingVerdict(unittest.TestCase):
         the same reason freshness has its own gate."""
         for verdict in ("root", "subpath-robots", "unknown"):
             self.assertEqual(ps.exit_code({"plan_verdict": "likely-up", "indexing": verdict}), 0)
+
+
+SAMPLE_ROW = '''# a leading comment the writer cares about
+readings:
+
+  github-actions-runners:
+    verdict: down
+    measured: "2026-09-01"
+    run: 1
+    how: >-
+      unrelated row, must not be touched
+
+  github-pages-branch-route:
+    verdict: down
+    measured: "2026-01-01"
+    run: 11111
+    how: >-
+      prose that carries the lesson and must survive a record
+    note: >-
+      a second prose field, also load-bearing
+
+  k3s-cluster:
+    verdict: down
+    measured: "2026-09-04"
+    run: 2
+'''
+
+
+def served_state(run_id=99, deployed="served"):
+    return {
+        "deployed": deployed,
+        "deployment": {"last_success": {"run_id": run_id}},
+    }
+
+
+class RecordReading(unittest.TestCase):
+    """`--record` writes the measured fields back into infra_state.yaml.
+
+    The reason this is code rather than a reminder is in `ORIGIN_READING`'s
+    comment: `decision_queue.py` ages this row out after three days and then
+    prints "OUTAGE: the public surface is down" about a catalogue GitHub is
+    measurably serving. The tests below pin the two halves that make the
+    automation safe to trust -- it must not overwrite a real reading with a
+    non-reading, and it must not eat the prose.
+    """
+
+    def setUp(self):
+        import tempfile, os
+        fd, self.path = tempfile.mkstemp(suffix=".yaml")
+        os.close(fd)
+        with open(self.path, "w", encoding="utf-8") as fh:
+            fh.write(SAMPLE_ROW)
+
+    def tearDown(self):
+        import os
+        os.unlink(self.path)
+
+    def body(self):
+        with open(self.path, encoding="utf-8") as fh:
+            return fh.read()
+
+    def test_it_writes_verdict_measured_and_run(self):
+        import datetime as dt
+        changed, msg = ps.record_reading(
+            served_state(run_id=35156548733), self.path, today=dt.date(2026, 9, 16)
+        )
+        self.assertTrue(changed, msg)
+        body = self.body()
+        self.assertIn('    verdict: up\n', body)
+        self.assertIn('    measured: "2026-09-16"\n', body)
+        self.assertIn("    run: 35156548733\n", body)
+
+    def test_it_preserves_every_comment_and_prose_field(self):
+        """A `yaml.safe_load`/`yaml.dump` round-trip would delete all of this.
+
+        `infra_state.yaml` is roughly nine parts dated lesson to one part data,
+        so silently dropping the prose would cost far more than the stale row
+        this function exists to fix.
+        """
+        ps.record_reading(served_state(), self.path)
+        body = self.body()
+        self.assertIn("# a leading comment the writer cares about", body)
+        self.assertIn("prose that carries the lesson and must survive a record", body)
+        self.assertIn("a second prose field, also load-bearing", body)
+
+    def test_it_touches_no_other_row(self):
+        """The block ends at the next key at the row's own indent."""
+        ps.record_reading(served_state(), self.path)
+        body = self.body()
+        self.assertIn('    measured: "2026-09-01"\n', body)  # github-actions-runners
+        self.assertIn('    measured: "2026-09-04"\n', body)  # k3s-cluster
+        self.assertIn("      unrelated row, must not be touched", body)
+
+    def test_a_failed_build_records_down(self):
+        changed, _ = ps.record_reading(served_state(deployed="failed"), self.path)
+        self.assertTrue(changed)
+        self.assertIn("    verdict: down\n", self.body())
+
+    def test_an_unknown_reading_refuses_and_changes_nothing(self):
+        """The direction the 2026-08-30..09-04 episode failed in.
+
+        `unknown` measured nothing about whether the origin serves, so writing
+        it would replace a real reading (and its run id) with a non-reading.
+        Letting the existing row age out on its own is the honest outcome.
+        """
+        before = self.body()
+        changed, msg = ps.record_reading(served_state(deployed="unknown"), self.path)
+        self.assertFalse(changed)
+        self.assertIn("age out", msg)
+        self.assertEqual(before, self.body())
+
+    def test_a_verdict_without_a_run_id_refuses(self):
+        """`infra_state.yaml`'s own rule: do not edit a verdict without one."""
+        before = self.body()
+        changed, msg = ps.record_reading(
+            {"deployed": "served", "deployment": {}}, self.path
+        )
+        self.assertFalse(changed)
+        self.assertIn("run id", msg)
+        self.assertEqual(before, self.body())
+
+    def test_a_missing_row_refuses_rather_than_appending(self):
+        with open(self.path, "w", encoding="utf-8") as fh:
+            fh.write("readings:\n\n  k3s-cluster:\n    verdict: down\n")
+        changed, msg = ps.record_reading(served_state(), self.path)
+        self.assertFalse(changed)
+        self.assertIn(ps.ORIGIN_READING, msg)
+
+    def test_the_real_file_still_carries_the_row_it_edits(self):
+        """Guards the constant against a rename in infra_state.yaml.
+
+        A recorder that silently refuses forever is the same shape as a guard
+        nobody runs, which is the defect CLAUDE.md records most often.
+        """
+        with open(ps.INFRA_STATE, encoding="utf-8") as fh:
+            self.assertIn(f"  {ps.ORIGIN_READING}:\n", fh.read())
