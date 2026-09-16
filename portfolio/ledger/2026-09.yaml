@@ -31394,3 +31394,53 @@ entries:
         `price=99`, proving the links track the item rather than the
         load-time defaults.
     mrr_end: 0
+  - venture: forestry-mulching-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real, live share-link defect surfaced by the whole-catalogue
+        `browser_checks.py --record` sweep (run because `browser_state.py`
+        reported all 8 checks stale): `roundtrip` failed on this venture with
+        `dropped 1: proposalScope`. `proposalScope` is a customer-facing scope
+        of work, auto-suggested from the job's own numbers unless the visitor
+        hand-edits it (`dataset.edited`), and is deliberately not carried in
+        the share-link payload itself -- the recipient's page is meant to
+        regenerate it from the numbers the link *does* carry, the same design
+        `garage-door-bid-calculator`'s share.mjs documents and
+        `platform/pages/roundtrip.mjs`'s own `PROSE_FIELDS` comment states as
+        intentional. The bug: the incoming-link restore loop sets every
+        field's `.value` directly, which never dispatches input/change, so the
+        page's one scope-regeneration call (at page-load, against the form's
+        *default* figures) never re-fires against the sender's actual
+        restored figures -- a recipient opening a shared link saw a scope of
+        work naming a different acreage and density than the job the sender
+        priced, under a headline that otherwise matched to the cent. Fixed by
+        calling the existing `refreshProposal()` (which runs `suggestScope`)
+        once the incoming fields are set. Also had the "Copy a link to this
+        job" button submit the form first, since this venture (unlike most
+        sibling bid calculators) only computes its headline price on submit,
+        not live on input -- so a sender who shared before ever calculating
+        was sharing a job priced they had never themselves seen priced.
+      - >-
+        Verified: `node --test ventures/forestry-mulching-bid-calculator/*.test.mjs`
+        133/133 (includes a new regression test asserting the incoming-link
+        handler calls `refreshProposal()`). Re-ran the actual browser check
+        that found the bug -- `node platform/pages/build.mjs
+        --out=platform/pages/dist` then `PLAYWRIGHT=.../playwright/index.js
+        node platform/pages/roundtrip.mjs forestry-mulching-bid-calculator` --
+        confirmed `proposalScope` no longer appears in the dropped-field list.
+        One residual note remains in that check's output, `headline — →
+        $10,506.34`: not a real drop (nothing was lost -- the sender's page
+        legitimately never computed a price before the probe copied the
+        link, since this form is submit-gated by design, unlike siblings that
+        recompute live on every keystroke), so the check still exits 1 on
+        this venture for a reason unrelated to the fix. Left the submit-gated
+        design alone rather than reworking this venture's calculation UX to
+        chase a green run on a check whose own file already special-cases an
+        analogous shape (`1099k-reconciliation-worksheet`'s reset-on-submit
+        form) rather than forcing the product to match the probe.
+        `python3 platform/ci/checklist_coverage.py` and
+        `python3 portfolio/ledger/check_ledger_only.py` both clean on the
+        rest of this diff.
+    mrr_end: 0
