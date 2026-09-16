@@ -1363,3 +1363,26 @@ candidates:
     mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; the tool does not determine adjuster licensing, appointment, or authority to handle a claim in any state, and does not evaluate an IA firm's reputation, payment timeliness, or claim-volume promises -- those disclaimers are explicit in the footer and FAQ; measure repeat use before adding any integration or AI-assisted feature.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: pdf-accessibility-tag-check
+    name: PDF accessibility tag checker
+    doc: candidates/pdf-accessibility-tag-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-16
+    initiated_path: ventures/pdf-accessibility-tag-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+      liability_containment: 6
+      ethical_robustness: 8
+    composite: 6.125
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the parsing and classification deterministic and conservative -- a stream this tool cannot decode (an unsupported filter, an encrypted PDF) is reported as "could not be checked" rather than guessed at as clean; the approximate image/alt-text count is disclosed as document-wide and approximate, never a confirmed per-image match; never claim a full PDF/UA or Section 508 conformance audit; lean on the no-upload and CLI-batch-scan differentiation explicitly rather than competing on checklist breadth against the five established free competitors (PDFix, PDF Audit, Free PDF Checker, axesCheck, PAC); measure real user reports and organic traffic before investing further, given the more crowded field behind this candidate's low defensibility score.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
