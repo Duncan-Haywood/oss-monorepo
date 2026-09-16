@@ -74,6 +74,20 @@ protected or shared are therefore reported as `uncertain`, rather than being
 treated as safe to remove. Add `--protect release` for each additional
 protected local branch.
 
+**The checkout almost never has the default branch checked out, and this tool
+accounts for that rather than guessing from `HEAD`.** A CI job checks out the
+PR head; an agent works from its own feature branch. `--repo` reads the
+remote's own default from `refs/remotes/origin/HEAD` when it is set, so the
+repository's real default branch (`main`, say) is still reported and
+protected correctly even while some other branch is checked out. If
+`origin/HEAD` was never populated locally — a shallow or branch-only CI fetch
+usually leaves it unset, and only `git remote set-head origin -a` (which
+contacts the remote) fixes that — the tool falls back to whatever is checked
+out and prints a warning to stderr saying so, rather than silently reporting
+a guess as the default branch. Pass `--default-branch main` to remove the
+guess entirely; it also covers a checkout with no `origin` remote at all, or
+one whose remote uses a name other than `main`/`master`.
+
 If the team already has the `gh` CLI, `--pr-json` closes that gap without any
 network call from this tool: export the customer's own pull-request records
 once, then resolve them against this same local checkout's ref ancestry.

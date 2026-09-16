@@ -2089,9 +2089,6 @@
     <loc>https://marisstella.dev/tools/overtime-pay-calculator/vs-doing-it-by-hand.html</loc>
   </url>
   <url>
-    <loc>https://marisstella.dev/tools/overtime-pay-calculator/vs-single-rate-calculator.html</loc>
-  </url>
-  <url>
     <loc>https://marisstella.dev/tools/overtime-pay-calculator/vs-spreadsheet.html</loc>
   </url>
   <url>
@@ -2485,6 +2482,12 @@
     <loc>https://marisstella.dev/tools/saas-seat-true-up/vs-zylo.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/sbom-diff-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sbom-diff-check/vs-diffing-the-raw-json-files.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/screened-porch-bid-calculator/</loc>
   </url>
   <url>
@@ -2768,6 +2771,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/spray-foam-bid-calculator/vs-jobber.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sql-migration-lock-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sql-migration-lock-check/vs-squawk.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sql-migration-lock-check/why-your-migration-locked-the-table.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/sri-check/</loc>

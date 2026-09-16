@@ -818,6 +818,9 @@ workflows:
 - workflow: saas-seat-true-up-ci.yml
   classification: none
   publishes: []
+- workflow: sbom-diff-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: screened-porch-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -897,6 +900,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: spray-foam-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: sql-migration-lock-check-ci.yml
   classification: none
   publishes: []
 - workflow: sri-check-ci.yml

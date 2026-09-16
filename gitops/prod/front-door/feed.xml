@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 281 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 283 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -71,6 +71,15 @@
     <summary type="text">Free calculator for independent wedding and event photographers: find real net profit for one package add-on -- an extra hour, a second shooter, an album upgrade, an engagement session -- after your own shoot/cull/edit time, gear wear, and any subcontractor or physical-goods cost, then compare two or three add-ons by effective hourly rate.</summary>
   </entry>
   <entry>
+    <title>SBOM Diff Check — What Changed Between Two CycloneDX or SPDX Builds?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sbom-diff-check/"/>
+    <id>tag:marisstella.dev,2026:tool/sbom-diff-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste two CycloneDX or SPDX SBOM JSON files and see exactly which packages were added, removed, or changed version between two builds. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>security.txt Checker — Is Your RFC 9116 File Valid, or Expired?</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/security-txt-check/"/>
     <id>tag:marisstella.dev,2026:tool/security-txt-check</id>
@@ -78,6 +87,15 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste a security.txt and check it against RFC 9116 — a missing or expired Expires field (the one that silently makes your whole file stale), a Contact that isn&#39;t a URI, a plain-http Contact, a PGP key pasted where an Encryption URI belongs, a duplicated Expires or Preferred-Languages, the British spelling of Acknowledgments, and a signed file with no Canonical. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>SQL Migration Lock Check — Will This Migration Take Your Database Down?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sql-migration-lock-check/"/>
+    <id>tag:marisstella.dev,2026:tool/sql-migration-lock-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste a PostgreSQL migration and find every statement that can lock the table and stall your app: CREATE INDEX without CONCURRENTLY, ALTER COLUMN TYPE, SET NOT NULL, a foreign key without NOT VALID, and a missing lock_timeout that turns a millisecond change into an outage. Free, runs in your browser, nothing uploaded, no database connection.</summary>
   </entry>
   <entry>
     <title>Caption Quality Checker — SRT &amp; WebVTT Reading Speed, Line Length &amp; Timing</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-10T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Price a bounce house or inflatable rental booking from the truck&#39;s two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet&#39;s replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.</summary>
-  </entry>
-  <entry>
-    <title>Cache-Control Checker — Vary: *, public + Set-Cookie, weak ETags</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cache-control-check/"/>
-    <id>tag:marisstella.dev,2026:tool/cache-control-check</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor&#39;s cookie to another), and lower-severity caching directive conflicts. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Canonical Tag Checker — Conflicting, Cross-Domain &amp; Dead-End Canonicals</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/canonical-tag-check/"/>
-    <id>tag:marisstella.dev,2026:tool/canonical-tag-check</id>
-    <published>2026-09-10T00:00:00Z</published>
-    <updated>2026-09-10T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical that 404s or is itself marked noindex. Nothing uploaded.</summary>
   </entry>
 </feed>
