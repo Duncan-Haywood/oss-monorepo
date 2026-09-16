@@ -35,6 +35,15 @@
     <summary type="text">Free calculator for independent wedding and event photographers: find real net profit for one package add-on -- an extra hour, a second shooter, an album upgrade, an engagement session -- after your own shoot/cull/edit time, gear wear, and any subcontractor or physical-goods cost, then compare two or three add-ons by effective hourly rate.</summary>
   </entry>
   <entry>
+    <title>security.txt Checker — Is Your RFC 9116 File Valid, or Expired?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/security-txt-check/"/>
+    <id>tag:marisstella.dev,2026:tool/security-txt-check</id>
+    <published>2026-09-16T00:00:00Z</published>
+    <updated>2026-09-16T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Free tool: paste a security.txt and check it against RFC 9116 — a missing or expired Expires field (the one that silently makes your whole file stale), a Contact that isn&#39;t a URI, a plain-http Contact, a PGP key pasted where an Encryption URI belongs, a duplicated Expires or Preferred-Languages, the British spelling of Acknowledgments, and a signed file with no Canonical. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Caption Quality Checker — SRT &amp; WebVTT Reading Speed, Line Length &amp; Timing</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/caption-quality-check/"/>
     <id>tag:marisstella.dev,2026:tool/caption-quality-check</id>

@@ -10236,6 +10236,76 @@ ventures:
       clean reciprocal link, and every page states plainly that a clean
       result is evidence from the pages actually fetched or pasted, not a
       full international-SEO audit or a ranking guarantee.
+  - slug: security-txt-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.000
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a field name is one RFC 9116
+      defines, whether a value parses as an RFC 3339 timestamp, and whether
+      that timestamp is before "now" are exact comparisons against a published
+      standard and a clock -- factual and deterministic, not a model judgment.
+      The tool never claims to assess the site's security, only the file's
+      conformance.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser tool in the same shape
+      as sitemap-lastmod-freshness-check and cors-misconfig-check (a real
+      network fetch the browser cannot do itself, paired with a paste-based
+      browser mode), not another <trade>-bid-calculator.
+      duplicate_check.py scored every existing venture, screened-out row and
+      pipeline candidate at 0.15 or below against the final description, far
+      under the 0.45 flag bar; the closest are structural siblings over
+      entirely different evidence classes (sitemap <lastmod> values,
+      Set-Cookie attributes, SPF/DKIM/DMARC records, response headers).
+      Nothing in screened-out.md mentions security.txt, RFC 9116, or
+      disclosure contacts. Autonomous ops 10 / gross margin 10: the CLI's
+      requests run from the user's own machine against a host of their
+      choosing, and the browser page needs no network at all, so serving one
+      more user costs a static file.
+      Distribution 6 -- one higher than sitemap-lastmod-freshness-check, and
+      the reason is the only thing that distinguishes this venture from every
+      other checker in the catalogue. RFC 9116 makes `Expires` mandatory and
+      time-bound, so a conforming file becomes a non-conforming one with no
+      commit and no deploy. That is a mechanical reason to return, and a
+      mechanical reason to wire the CLI into a schedule -- which is precisely
+      the "frequency of use and reason to return" criterion
+      portfolio/router/allocate.py reports as untested across all 283
+      ventures. The search-term anchor is a published standard with a stated
+      MUST rather than an inferred practice ("security.txt validator", "RFC
+      9116 Expires required", "security.txt expired"), and securitytxt.org is
+      general-knowledge evidence of real sustained demand in the category.
+      Time to revenue 6, defensibility 3: donations-only; a transparent
+      validator over a published standard is easy to reimplement once the
+      rules are known, same as this portfolio's other deterministic checkers,
+      so defensibility rests only on the CI-usable CLI, the paste-based
+      browser mode, the danger/notice severity split, and this portfolio's
+      disclaimer and usage conventions.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the CLI sends only ordinary, unauthenticated GET requests from the
+      user's own machine to two well-known paths on a host they named -- never
+      this portfolio's infrastructure touching a third party, and no different
+      in kind from opening a URL in a tab. It reads a file whose entire purpose
+      is to be read by strangers, so there is no access question to contain.
+      Every page states plainly that this validates one file against RFC 9116
+      and is not a security assessment, not a vulnerability scan, and not a
+      determination that anyone reads the address published. The tool
+      deliberately does not verify PGP signatures, because doing so would mean
+      fetching a key on the user's behalf. What a visitor pastes never leaves
+      their browser, which matters more here than elsewhere in the catalogue:
+      a list of which companies someone is checking is itself sensitive, and
+      the usage counters record only an event name and a day.
   - slug: sitemap-lastmod-freshness-check
     scores:
       ai_leverage: 1

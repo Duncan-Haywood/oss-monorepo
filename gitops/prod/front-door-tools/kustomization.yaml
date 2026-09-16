@@ -36,6 +36,7 @@
 #   portfolio-front-tools-0: 133 files, 555846 bytes
 #   portfolio-front-tools-1: 106 files, 554019 bytes
 #   portfolio-front-tools-2: 148 files, 556216 bytes
+<<<<<<< HEAD
 #   portfolio-front-tools-3: 139 files, 552766 bytes
 #   portfolio-front-tools-4: 122 files, 553139 bytes
 #   portfolio-front-tools-5: 137 files, 553869 bytes
@@ -49,6 +50,21 @@
 #   portfolio-front-tools-13: 112 files, 554534 bytes
 #   portfolio-front-tools-14: 94 files, 472105 bytes
 #   portfolio-front-tools-15: 52 files, 266057 bytes
+=======
+#   portfolio-front-tools-3: 138 files, 550991 bytes
+#   portfolio-front-tools-4: 123 files, 553710 bytes
+#   portfolio-front-tools-5: 137 files, 556782 bytes
+#   portfolio-front-tools-6: 123 files, 551774 bytes
+#   portfolio-front-tools-7: 124 files, 547202 bytes
+#   portfolio-front-tools-8: 113 files, 552283 bytes
+#   portfolio-front-tools-9: 113 files, 551390 bytes
+#   portfolio-front-tools-10: 121 files, 554414 bytes
+#   portfolio-front-tools-11: 132 files, 555019 bytes
+#   portfolio-front-tools-12: 102 files, 554794 bytes
+#   portfolio-front-tools-13: 112 files, 554586 bytes
+#   portfolio-front-tools-14: 94 files, 472063 bytes
+#   portfolio-front-tools-15: 52 files, 266068 bytes
+>>>>>>> origin/main
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1677,6 +1693,13 @@ configMapGenerator:
       - security-headers-check__probe.mjs.gz=security-headers-check__probe.mjs.gz
       - security-headers-check__usage.mjs.gz=security-headers-check__usage.mjs.gz
       - security-headers-check__vs-securityheaders.html.gz=security-headers-check__vs-securityheaders.html.gz
+      - security-txt-check__check.mjs.gz=security-txt-check__check.mjs.gz
+      - security-txt-check__engine.mjs.gz=security-txt-check__engine.mjs.gz
+      - security-txt-check__fetch-url.mjs.gz=security-txt-check__fetch-url.mjs.gz
+      - security-txt-check__index.html.gz=security-txt-check__index.html.gz
+      - security-txt-check__usage.mjs.gz=security-txt-check__usage.mjs.gz
+      - security-txt-check__vs-securitytxt-org-generator.html.gz=security-txt-check__vs-securitytxt-org-generator.html.gz
+      - security-txt-check__why-security-txt-expires.html.gz=security-txt-check__why-security-txt-expires.html.gz
       - self-storage-rate-increase-calculator__calc.mjs.gz=self-storage-rate-increase-calculator__calc.mjs.gz
       - self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz=self-storage-rate-increase-calculator__how-much-can-i-raise-storage-rent.html.gz
       - self-storage-rate-increase-calculator__index.html.gz=self-storage-rate-increase-calculator__index.html.gz

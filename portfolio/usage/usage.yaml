@@ -5685,6 +5685,31 @@ products:
           watching is `check_run` against `example_loaded` -- a visitor who
           only ever loads the example has not brought their own input to it,
           which is the difference between a demo and a tool.
+  - slug: security-txt-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-16
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit, so this
+          row never has to be added retroactively the way
+          sitemap-lastmod-freshness-check's was. `live_url_visitors` is
+          `null`, not zero: GitHub Pages exposes no server-side analytics,
+          this portfolio adds no third-party one, and the local counters are
+          opt-in and off by default -- so nobody has measured, which is not
+          the same as having measured nothing. The three event counts are
+          genuine zeros for a venture published minutes ago.
+          The signal worth watching here is `check_run` on a *return* visit
+          rather than its first-run total. RFC 9116 makes `Expires` mandatory
+          and time-bound, so unlike every other checker in this catalogue a
+          conforming file becomes non-conforming with no code change -- this
+          is the one venture whose hypothesis about repeat use has a
+          mechanical reason behind it rather than a hope, and the first place
+          this file could record a return visit at all.
   - slug: sitemap-lastmod-freshness-check
     surface: github-pages
     readings:
