@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HOA Reserve Fund Calculator — Special Assessment Risk</title>
+<meta name="description" content="Free calculator for HOA/condo board treasurers: project whether your current reserve contribution covers known roof, repaving, painting, pool, elevator, and HVAC replacements, or find the year a special assessment hits, then solve the minimum contribution to avoid it.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="HOA Reserve Fund Calculator">
+<meta property="og:description" content="Model your association's reserve fund against real capital component replacements and find out, in years, whether you're headed for a special assessment — then see the minimum contribution that avoids it.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"HOA Reserve Fund Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that projects an HOA/condo association's reserve fund year by year against known capital component replacements (roof, repaving, painting, pool, elevator, HVAC), names the first year a special assessment or reserve loan is likely, and solves for the minimum annual contribution that avoids it."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this the state-mandated reserve study my association needs?","acceptedAnswer":{"@type":"Answer","text":"No. This is a financial planning estimate based on your own assumptions, not a substitute for a state-mandated reserve study (e.g. Florida SB 4-D / SIRS) or advice from a licensed reserve specialist. Those studies involve a site inspection and a credentialed preparer; this tool only projects the numbers you type in."}},{"@type":"Question","name":"Why does a freshly replaced component start at 0% funded instead of 100%?","acceptedAnswer":{"@type":"Answer","text":"Percent funded measures how much of a component's wear-based obligation the fund currently covers, not whether the component itself is in good shape. A component just replaced has no wear-based obligation yet — nothing is owed toward its next replacement on day one, so its prorated share of the obligation is zero, and it climbs back toward its full replacement cost as the years pass before the next cycle."}},{"@type":"Question","name":"Why does the calculator use two different triggers for a special assessment?","acceptedAnswer":{"@type":"Answer","text":"A negative balance is the sharp trigger — the fund cannot pay a bill it owes. Falling below your target percent funded is the softer, earlier warning boards actually use in practice: most reserve studies flag anything under roughly 30% funded as a special-assessment risk long before the balance itself goes negative, because a large replacement due soon can wipe out a fund that still looks positive today."}},{"@type":"Question","name":"Does anything about my association's finances get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every number on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing about your balance, contribution, unit count, or component list is ever saved or uploaded. Usage counting only tallies anonymous feature events, and you can turn it off with the button below."}},{"@type":"Question","name":"What if I don't know a component's exact replacement cost or remaining life?","acceptedAnswer":{"@type":"Answer","text":"Use your best estimate — a contractor quote, a neighboring association's recent invoice, or a manufacturer's stated service life are reasonable starting points. This tool is for planning and does not verify any figure you enter; a formal reserve study is the credentialed version of the same exercise."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#0f2a24;background:#eef7f2}body{max-width:1020px;margin:auto;padding:28px 18px}header{max-width:740px}h1{font-size:clamp(2rem,6vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.1rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #bfe0cf;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0f2a2410;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #d7ecdf;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1c6e4e;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #a9d3bc;border-radius:8px;font:inherit;background:#fbfffc}.result{background:#0f3d2c;color:#fff;border-color:#0f3d2c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.5rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#3f6656}.result .note{color:#cfe9db}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.85rem}th,td{padding:6px 4px;text-align:left}th{font-size:.72rem;color:#1c6e4e}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #a9d3bc;background:#fff;cursor:pointer;color:#0f2a24}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}.scroll{overflow-x:auto;max-height:420px;overflow-y:auto}footer{margin-top:24px;font-size:.85rem}.warn{color:#ffb703}.ok{color:#8be0b4}@media(max-width:760px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR HOA &amp; CONDO BOARD TREASURERS</p><h1>Know the special assessment before it happens.</h1><p class="lede">A balance that looks healthy today can still be years from a roof, an elevator, or a repaving job it hasn't saved enough for. This free calculator projects your reserve fund against your actual capital components and names the first year you're headed for a special assessment or reserve loan — then solves the contribution that avoids it.</p></header>
+
+<main class="layout">
+<section><h2>Fund &amp; assumptions</h2><div class="fields">
+<label>Current reserve balance ($)<input id="currentBalance" type="number" min="0" step="100" value="150000"></label>
+<label>Current annual contribution ($)<input id="annualContribution" type="number" min="0" step="100" value="40000"></label>
+<label>Number of units<input id="unitCount" type="number" min="1" step="1" value="120"></label>
+<label>Projection horizon (years)<input id="horizonYears" type="number" min="1" max="50" step="1" value="30"></label>
+<label>Annual cost inflation (%)<input id="inflationRatePct" type="number" min="0" max="30" step="0.1" value="3.5"></label>
+<label>Interest credited on balance (%)<input id="interestRatePct" type="number" min="0" max="30" step="0.1" value="2"></label>
+<label>Target percent funded (%)<input id="targetPercentFundedPct" type="number" min="0" max="100" step="5" value="30"></label>
+</div>
+<p class="note">30% funded is a commonly used baseline threshold; raise it toward 100% ("fully funded") for a more conservative plan.</p>
+</section>
+
+<section id="results" class="result" aria-live="polite"><h2>Reserve outlook</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="verdict" class="big">—</div><p id="verdictLine" class="note"></p>
+<dl>
+<dt>First shortfall year</dt><dd id="shortfallYearOut"></dd>
+<dt>Minimum contribution to avoid it</dt><dd id="minContributionOut"></dd>
+<dt>One-time special assessment / unit</dt><dd id="oneTimeOut"></dd>
+<dt>Phased monthly dues increase / unit</dt><dd id="monthlyOut"></dd>
+</dl>
+<p class="note">This is a planning estimate from the numbers you typed, not an audited reserve study. It does not add operating-fund cushion, financing costs for a reserve loan, or contingency beyond what you enter.</p>
+</section>
+</main>
+
+<section><h2>Capital components</h2><p class="note">List each major component the association is responsible for. Blank rows, or rows with no replacement cost, are ignored.</p>
+<div class="scroll"><table><thead><tr><th>Component</th><th>Remaining useful life (yrs)</th><th>Replacement cost ($)</th><th>Full life (yrs)</th></tr></thead><tbody id="componentRows">
+<tr><td><input class="compName" data-row="1" aria-label="Component 1 name" type="text" value="Roof"></td><td><input class="compRul" data-row="1" aria-label="Component 1 remaining useful life in years" type="number" min="0" step="1" value="8"></td><td><input class="compCost" data-row="1" aria-label="Component 1 replacement cost in dollars" type="number" min="0" step="100" value="380000"></td><td><input class="compFull" data-row="1" aria-label="Component 1 full life in years" type="number" min="1" step="1" value="20"></td></tr>
+<tr><td><input class="compName" data-row="2" aria-label="Component 2 name" type="text" value="Repaving / asphalt"></td><td><input class="compRul" data-row="2" aria-label="Component 2 remaining useful life in years" type="number" min="0" step="1" value="4"></td><td><input class="compCost" data-row="2" aria-label="Component 2 replacement cost in dollars" type="number" min="0" step="100" value="210000"></td><td><input class="compFull" data-row="2" aria-label="Component 2 full life in years" type="number" min="1" step="1" value="15"></td></tr>
+<tr><td><input class="compName" data-row="3" aria-label="Component 3 name" type="text" value="Exterior painting"></td><td><input class="compRul" data-row="3" aria-label="Component 3 remaining useful life in years" type="number" min="0" step="1" value="2"></td><td><input class="compCost" data-row="3" aria-label="Component 3 replacement cost in dollars" type="number" min="0" step="100" value="95000"></td><td><input class="compFull" data-row="3" aria-label="Component 3 full life in years" type="number" min="1" step="1" value="7"></td></tr>
+<tr><td><input class="compName" data-row="4" aria-label="Component 4 name" type="text" value="Pool resurfacing"></td><td><input class="compRul" data-row="4" aria-label="Component 4 remaining useful life in years" type="number" min="0" step="1" value="6"></td><td><input class="compCost" data-row="4" aria-label="Component 4 replacement cost in dollars" type="number" min="0" step="100" value="45000"></td><td><input class="compFull" data-row="4" aria-label="Component 4 full life in years" type="number" min="1" step="1" value="12"></td></tr>
+<tr><td><input class="compName" data-row="5" aria-label="Component 5 name" type="text" value="Elevator modernization"></td><td><input class="compRul" data-row="5" aria-label="Component 5 remaining useful life in years" type="number" min="0" step="1" value="12"></td><td><input class="compCost" data-row="5" aria-label="Component 5 replacement cost in dollars" type="number" min="0" step="100" value="180000"></td><td><input class="compFull" data-row="5" aria-label="Component 5 full life in years" type="number" min="1" step="1" value="25"></td></tr>
+<tr><td><input class="compName" data-row="6" aria-label="Component 6 name" type="text" value="HVAC (common areas)"></td><td><input class="compRul" data-row="6" aria-label="Component 6 remaining useful life in years" type="number" min="0" step="1" value="5"></td><td><input class="compCost" data-row="6" aria-label="Component 6 replacement cost in dollars" type="number" min="0" step="100" value="60000"></td><td><input class="compFull" data-row="6" aria-label="Component 6 full life in years" type="number" min="1" step="1" value="15"></td></tr>
+<tr><td><input class="compName" data-row="7" aria-label="Component 7 name" type="text" value=""></td><td><input class="compRul" data-row="7" aria-label="Component 7 remaining useful life in years" type="number" min="0" step="1" value=""></td><td><input class="compCost" data-row="7" aria-label="Component 7 replacement cost in dollars" type="number" min="0" step="100" value=""></td><td><input class="compFull" data-row="7" aria-label="Component 7 full life in years" type="number" min="1" step="1" value=""></td></tr>
+<tr><td><input class="compName" data-row="8" aria-label="Component 8 name" type="text" value=""></td><td><input class="compRul" data-row="8" aria-label="Component 8 remaining useful life in years" type="number" min="0" step="1" value=""></td><td><input class="compCost" data-row="8" aria-label="Component 8 replacement cost in dollars" type="number" min="0" step="100" value=""></td><td><input class="compFull" data-row="8" aria-label="Component 8 full life in years" type="number" min="1" step="1" value=""></td></tr>
+</tbody></table></div>
+<div class="actions">
+<button type="button" id="reset">Reset to defaults</button>
+</div>
+</section>
+
+<section><h2>Year-by-year schedule</h2><p class="note">Balance and percent funded at the end of each year, after interest, the annual contribution, and any component replaced that year. Rows where a special assessment or reserve loan would be triggered are marked.</p>
+<div class="scroll"><table><thead><tr><th>Year</th><th>Balance</th><th>% funded</th><th>Replaced</th><th>Status</th></tr></thead><tbody id="scheduleBody"></tbody></table></div>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. There is no account and no server-side storage of any kind — your balance, contribution, unit count, and component list are never saved or sent anywhere, and refreshing the page clears them by design. We count only anonymous local feature events (<code>schedule_run</code>, <code>contribution_solved</code>, <code>reset</code>, <code>sponsor_link_clicked</code>) so we can tell whether the calculator gets used — no balances, contributions, or component figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="optout" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Is this the state-mandated reserve study my association needs?</h3><p>No. This is a financial planning estimate based on your own assumptions, not a substitute for a state-mandated reserve study (e.g. Florida SB 4-D / SIRS) or advice from a licensed reserve specialist. Those studies involve a site inspection and a credentialed preparer; this tool only projects the numbers you type in.</p>
+<h3>Why does a freshly replaced component start at 0% funded instead of 100%?</h3><p>Percent funded measures how much of a component's wear-based obligation the fund currently covers, not whether the component itself is in good shape. A component just replaced has no wear-based obligation yet — nothing is owed toward its next replacement on day one, so its prorated share of the obligation is zero, and it climbs back toward its full replacement cost as the years pass before the next cycle.</p>
+<h3>Why does the calculator use two different triggers for a special assessment?</h3><p>A negative balance is the sharp trigger — the fund cannot pay a bill it owes. Falling below your target percent funded is the softer, earlier warning boards actually use in practice: most reserve studies flag anything under roughly 30% funded as a special-assessment risk long before the balance itself goes negative, because a large replacement due soon can wipe out a fund that still looks positive today.</p>
+<h3>Does anything about my association's finances get uploaded?</h3><p>No. Every number on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing about your balance, contribution, unit count, or component list is ever saved or uploaded. Usage counting only tallies anonymous feature events, and you can turn it off with the button below.</p>
+<h3>What if I don't know a component's exact replacement cost or remaining life?</h3><p>Use your best estimate — a contractor quote, a neighboring association's recent invoice, or a manufacturer's stated service life are reasonable starting points. This tool is for planning and does not verify any figure you enter; a formal reserve study is the credentialed version of the same exercise.</p>
+</section>
+
+<p class="note">Also watching the association's operating cash, not just the long-term reserve? The <a href="../cash-runway-planner/">cash runway planner</a> forecasts when day-to-day cash could run short from recurring costs and collection timing — a different horizon than the multi-year reserve schedule here.</p>
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This is a financial planning estimate based on your own assumptions, not a substitute for a state-mandated reserve study (e.g. Florida SB 4-D / SIRS) or advice from a licensed reserve specialist.</p><p>MIT licensed. If it helped your board plan ahead, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { runSchedule, firstShortfallYear, minimumContributionToAvoidShortfall, perUnitImpact, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const SCALAR_IDS = ['currentBalance', 'annualContribution', 'unitCount', 'horizonYears', 'inflationRatePct', 'interestRatePct', 'targetPercentFundedPct'];
+const DEFAULT_SCALAR_VALUES = Object.fromEntries(SCALAR_IDS.map(id => [id, el(id).value]));
+const DEFAULT_COMPONENT_VALUES = readComponentInputs();
+let scheduleCounted = false;
+let solveCounted = false;
+
+function readComponentInputs() {
+  const rows = [];
+  for (let row = 1; row <= 8; row++) {
+    rows.push({
+      name: document.querySelector(`.compName[data-row="${row}"]`).value,
+      rul: document.querySelector(`.compRul[data-row="${row}"]`).value,
+      cost: document.querySelector(`.compCost[data-row="${row}"]`).value,
+      full: document.querySelector(`.compFull[data-row="${row}"]`).value,
+    });
+  }
+  return rows;
+}
+
+function applyComponentInputs(rows) {
+  rows.forEach((r, i) => {
+    const row = i + 1;
+    document.querySelector(`.compName[data-row="${row}"]`).value = r.name;
+    document.querySelector(`.compRul[data-row="${row}"]`).value = r.rul;
+    document.querySelector(`.compCost[data-row="${row}"]`).value = r.cost;
+    document.querySelector(`.compFull[data-row="${row}"]`).value = r.full;
+  });
+}
+
+function readComponents() {
+  return readComponentInputs()
+    .filter(r => r.name.trim() !== '' && parseFloat(r.cost) > 0)
+    .map(r => ({
+      name: r.name.trim(),
+      remainingUsefulLifeYears: parseFloat(r.rul),
+      replacementCost: parseFloat(r.cost),
+      fullLifeYears: parseFloat(r.full),
+    }));
+}
+
+function readInputs() {
+  return {
+    currentBalance: el('currentBalance').value,
+    annualContribution: el('annualContribution').value,
+    unitCount: el('unitCount').value,
+    horizonYears: el('horizonYears').value,
+    inflationRate: parseFloat(el('inflationRatePct').value) / 100,
+    interestRate: parseFloat(el('interestRatePct').value) / 100,
+    targetPercentFunded: parseFloat(el('targetPercentFundedPct').value) / 100,
+    components: readComponents(),
+  };
+}
+
+function renderSchedule(schedule) {
+  const body = el('scheduleBody');
+  body.textContent = '';
+  for (const row of schedule) {
+    const tr = document.createElement('tr');
+    const replaced = row.componentsReplacedThisYear.length ? row.componentsReplacedThisYear.join(', ') : '—';
+    const status = row.specialAssessmentTriggered ? 'Shortfall' : 'OK';
+    tr.innerHTML = `<td>${row.year}</td><td>${money(row.balance)}</td><td>${(row.percentFunded * 100).toFixed(0)}%</td><td>${replaced}</td><td class="${row.specialAssessmentTriggered ? 'warn' : 'ok'}">${status}</td>`;
+    body.appendChild(tr);
+  }
+}
+
+function update(count = false) {
+  try {
+    const inputs = readInputs();
+    const schedule = runSchedule(inputs);
+    const shortfallYear = firstShortfallYear(inputs);
+    const impact = perUnitImpact(inputs);
+
+    el('errors').hidden = true; el('errors').textContent = ''; el('verdict').hidden = false;
+
+    if (shortfallYear === null) {
+      el('verdict').textContent = 'On track';
+      el('verdictLine').textContent = `Your current contribution clears all ${inputs.horizonYears} years of the horizon without a special assessment or reserve loan.`;
+    } else {
+      el('verdict').textContent = `Year ${shortfallYear}`;
+      el('verdictLine').textContent = `At today's contribution, the fund is headed for a special assessment or reserve loan in year ${shortfallYear}.`;
+    }
+    el('shortfallYearOut').textContent = shortfallYear === null ? 'None in horizon' : `Year ${shortfallYear}`;
+    el('minContributionOut').textContent = impact.minimumContribution === null
+      ? 'Cannot be solved within this horizon at this component cost schedule'
+      : money(impact.minimumContribution) + '/yr';
+    el('oneTimeOut').textContent = shortfallYear === null ? '—' : `${money(impact.oneTimeSpecialAssessmentPerUnit)}/unit`;
+    el('monthlyOut').textContent = impact.monthlyDuesIncreasePerUnit === null
+      ? '—'
+      : `${money(impact.monthlyDuesIncreasePerUnit)}/mo/unit`;
+
+    renderSchedule(schedule);
+
+    if (count && !scheduleCounted) { recordEvent('schedule_run'); scheduleCounted = true; }
+    if (count && !solveCounted && impact.minimumContribution !== null) { recordEvent('contribution_solved'); solveCounted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('verdict').hidden = true;
+    el('verdictLine').textContent = '';
+    for (const id of ['shortfallYearOut', 'minContributionOut', 'oneTimeOut', 'monthlyOut']) el(id).textContent = '';
+    el('scheduleBody').textContent = '';
+  }
+}
+
+[...SCALAR_IDS].forEach(id => el(id).addEventListener('input', () => update(true)));
+document.querySelectorAll('.compName, .compRul, .compCost, .compFull').forEach(input => input.addEventListener('input', () => update(true)));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('optout').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('reset').addEventListener('click', () => {
+  for (const id of SCALAR_IDS) el(id).value = DEFAULT_SCALAR_VALUES[id];
+  applyComponentInputs(DEFAULT_COMPONENT_VALUES);
+  update(false);
+  recordEvent('reset');
+});
+
+update(false);
+</script>
+</body></html>

@@ -1645,7 +1645,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # not a URI, a key pasted where an `Encryption` URI belongs), with a
     # static `index.html` from its first commit, same shape as the rest of
     # this running count.
-    total = 277  # `infra/OWNER_CHECKLIST.md`'s own "N of the 277 tools" wording.
+    # 278 since 2026-09-16, when `hoa-reserve-fund-calculator` graduated — a
+    # browser-local calculator projecting an HOA/condo association's reserve
+    # fund year by year against known capital component replacements, naming
+    # the first year a special assessment is likely and solving for the
+    # contribution that avoids it, with a static `index.html` from its first
+    # commit, same shape as the rest of this running count.
+    total = 278  # `infra/OWNER_CHECKLIST.md`'s own "N of the 278 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
