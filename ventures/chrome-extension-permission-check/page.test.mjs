@@ -102,6 +102,18 @@ test('index links one hop to the ios-privacy-manifest-check sibling', () => {
   );
 });
 
+// Same "read a manifest you already have, name the exact undeclared
+// category" shape, for Google Play instead of the Chrome Web Store. Also
+// closes this venture's own inbound sibling link for
+// android-data-safety-check (platform/pages/siblings.mjs's orphan budget).
+test('index links one hop to the android-data-safety-check sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/android-data-safety-check\/"/,
+    'index must link ../android-data-safety-check/ so crawlers reach it in one hop',
+  );
+});
+
 // The real file input requires files the visitor may not have on hand right
 // now (or a crawler/automated check has none at all), so this is the only
 // path that demonstrates the tool actually works.

@@ -107,6 +107,9 @@ workflows:
 - workflow: amazon-fba-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: android-data-safety-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: app-store-screenshot-check-ci.yml
   classification: none
   publishes: []

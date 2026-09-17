@@ -32801,3 +32801,106 @@ entries:
         `validate_candidates.py`, `validate_probe_index.py`,
         `score_sensitivity.py`, and `usage/validate_usage.py` all clean.
     mrr_end: 0
+  - venture: android-data-safety-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, browser-local and CLI checker for
+        Android developers that scans an AndroidManifest.xml's permissions
+        and a project's Gradle dependencies for known analytics/ads/crash
+        SDKs (Firebase, AdMob, Facebook, and others), maps each one to a
+        Google Play Data safety category (Location, Contacts, Photos and
+        videos, App activity, Device or other IDs, and ten more), and
+        cross-checks the result against a plain list of the categories the
+        developer says they've already declared in Play Console's App
+        content > Data safety form -- naming the exact permission or SDK,
+        file, and line behind a category the app looks like it collects but
+        the declaration doesn't mention. This is the direct Android-side
+        counterpart to `ios-privacy-manifest-check`, closing the obvious
+        remaining gap in that pair rather than opening a new one, and a
+        genuinely different platform review gate from every other checker
+        in the portfolio.
+      - >-
+        Chosen per `portfolio/DIRECTION.md`'s "Owner direction, 2026-09-06"
+        section (new ventures rank first when the `build-now` pipeline is
+        empty, which `session_gate.py` confirmed) and
+        `portfolio/pipeline/README.md`'s archetype guidance -- not a 313th
+        `<trade>-bid-calculator` (141+ already share that shape with zero
+        recorded visitors) and read as the checker/CLI shape the playbook
+        ranks above a browser calculator on cost grounds.
+        `duplicate_check.py` (run before VENTURE.yaml existed) scored every
+        other venture, screened-out row, ai-first-markets idea, and
+        pipeline candidate at or below 0.13 against the final description
+        -- nowhere near the 0.45 read-this-first bar. Closest by score:
+        `chrome-extension-permission-check` (0.13, shares only the
+        "manifest permissions vs detected API usage" shape, a different
+        store and declaration mechanism). Named distribution channel:
+        r/androiddev and Stack Overflow's `android` / `google-play-console`
+        tags, where Data safety mismatches and Play Console policy
+        warnings are a recurring, long-documented thread topic, and organic
+        search for "google play data safety rejected" and "data safety
+        section mismatch." No external search-volume tool was queried to
+        confirm magnitude, matching this pipeline's standing caveat for
+        every checker at graduation.
+      - >-
+        Shipped with a LICENSE (MIT), the no-warranty/no-SLA/evidence-not-a-
+        determination disclaimers and privacy line on every page (`index.html`,
+        the `missing-data-safety-declaration.html` explainer, and the
+        `vs-manually-reviewing-play-console-warnings.html` comparison page,
+        the last carrying the not-affiliated-with-Google trademark
+        disclaimer since it discusses Google's own review process by name),
+        anonymous local-only usage counting (`scan_run`/`example_loaded`,
+        honouring Do Not Track/Global Privacy Control, opt-out persisted),
+        a GitHub Sponsors link, `robots.txt`/`sitemap.xml`,
+        SoftwareApplication + FAQPage JSON-LD, and a bundled worked example
+        exercising all four report states (declared, undeclared,
+        declared-but-not-detected, not-detected) for a visitor with no
+        Android project on hand. Shipped with an inbound sibling link from
+        its first commit rather than landing as a crawlable orphan:
+        `chrome-extension-permission-check`'s footer now names it back
+        (both are official-app-store permission/data declaration checkers,
+        Google Play and the Chrome Web Store), and it links
+        `ios-privacy-manifest-check` and `chrome-extension-permission-check`
+        outbound in turn -- `platform/pages/siblings.mjs --check` confirmed
+        0 orphans, within the committed budget of 0.
+      - >-
+        Registered in `venture-scores.yaml` (composite 5.667, floor 1 on
+        `ai_leverage`, both liability/ethics gates pass) and
+        `portfolio/usage/usage.yaml` (baseline reading, `live_url_visitors`
+        null per the file's standing "never measured, not measured-and-
+        zero" convention). `platform/ci/sync_tree_counts.py` re-run after
+        adding the venture's `usage.mjs` and CI workflow to fix the
+        mirrored-tool count (303 -> 304, four files) and the opt-out-switch
+        count (287 -> 288, `platform/privacy/optout-persistence.test.mjs`),
+        each with the running-comment entry this graduation moved, plus
+        `gitops/ci/sync_readme_counts.py` for the new workflow's `runs-on`
+        line (397/399 across 358 -> 398/400 across 359) -- all per
+        CLAUDE.md's collision guidance for a constant that counts the tree.
+        `platform/ci/publish_surface.py --write` recorded the new
+        `android-data-safety-check-ci.yml` workflow as publishing `none`
+        (test-only CI, no deploy step).
+      - >-
+        Verified: venture's own suite (53/53), `node platform/pages/clauses.mjs
+        android-data-safety-check` and `chrome-extension-permission-check`
+        (both clean), `python3 platform/ci/checklist_coverage.py` (clean),
+        `node platform/marketing/regen.mjs` (front-door mirror regenerated
+        and committed, run a second time after all edits landed since the
+        first run predated the sibling-link and count-fixing commits),
+        full `platform/marketing`+`platform/pages` suite (1272/1272,
+        re-run clean after `regen.mjs`'s second pass),
+        `platform/proposal` (101/101), `platform/privacy`+`platform/webcheck`
+        (140/142, 2 skipped -- the standing shallow-clone
+        `history-blob.mjs` skip this repo's own suite documents, unrelated
+        to this venture), `gitops/tests` (583 passed, 25 skipped, all
+        environmental/GitHub-hosted-runner-only per the suite's own
+        classification), all 26 `platform/ci` unittest modules plus
+        `agent_review` (`test_review`, 21/21), `portfolio/ledger`+`scoring`+
+        `router`+`usage`+`pipeline`+`infra/tests` via pytest, `router/validate.py`
+        (all 312 VENTURE.yaml files valid), `publish_surface.py --check`,
+        `score_ventures.py --check`, `validate_doc_consistency.py`,
+        `usage/validate_usage.py`, `surface-budget.mjs --check`, and
+        `sync_tree_counts.py --check` all clean. `chrome-extension-
+        permission-check`'s own suite re-run after adding its reciprocal
+        sibling link (60/60, unaffected).
+    mrr_end: 0

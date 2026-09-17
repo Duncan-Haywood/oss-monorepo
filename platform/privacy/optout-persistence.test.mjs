@@ -243,7 +243,15 @@ const RELATIVE_SELF = relative(
 // predecessor's number (285) until this merge -- same collision shape as
 // the entry immediately above: both branches independently wrote "286" for
 // what the merged tree made 287.
-const SWITCHES_IN_THE_CATALOGUE = 287;
+// 287 -> 288 on 2026-09-17, when `android-data-safety-check` graduated with
+// its own `recordUsage`/`readOptOut`/`writeOptOut` switch (opts out of the
+// `scan_run`/`example_loaded` counters), same discovery method as the rest
+// of this running count. Verified the way this file's error message
+// prescribes rather than by assuming: `git status --porcelain=v1 -uall`
+// shows exactly one added `usage.mjs` (`ventures/android-data-safety-check/
+// usage.mjs`) and no deletions, so this is a graduation and not a switch
+// that stopped being one.
+const SWITCHES_IN_THE_CATALOGUE = 288;
 
 let counter = 0;
 function fixture(source) {
