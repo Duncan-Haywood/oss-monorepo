@@ -296,6 +296,46 @@ def _shared_changed_trees(recorded: dict, head: dict) -> bool | None:
     return False
 
 
+def shared_files_changed(since: str, limit: int = 6) -> list[str] | None:
+    """Which files under SHARED_PATHS moved since `since`, for the report.
+
+    **Why this exists, measured 2026-09-17.** `_shared_changed_trees` answers
+    "did the builder move?" as one bit over the whole of `platform/pages` and
+    `platform/marketing`, and a true there invalidates every check over all
+    1145 pages -- a ~40-minute sweep. That is right when the builder's
+    *rendering* changed, and it is the common case for the wrong reason: the
+    per-venture registration data lives in those same trees. Counted over
+    2026-09-17, the files moving them were `clauses.mjs` 27 times,
+    `launched.json` 19 and `build.mjs` 18 -- essentially once per venture
+    merge, because shipping a venture appends its row.
+
+    So eleven full-catalogue sweeps were recorded that day, every one `pass`,
+    each invalidated within an hour or two by the next venture landing. At
+    roughly 40 minutes each that is over seven hours of fleet capacity spent
+    re-proving a result that had not changed, and it is capacity the mandate
+    wants spent on products.
+
+    This does **not** narrow the invalidation, and deliberately so: a change
+    to `clauses.mjs` really can alter the disclaimer every page carries, and
+    telling the difference between that and appending one slug to an exemption
+    list needs to read the diff's *meaning*, not its path. Getting that wrong
+    would let a real accessibility regression go unswept, which is the one
+    failure this check exists to prevent. Narrowing it is an owner-facing
+    design question, recorded in the ledger rather than decided here.
+
+    What it does is name the files, so a session reading `STALE` can see
+    whether the builder actually changed or whether one venture registered
+    itself, and spend its forty minutes knowingly. Returns None when the
+    question is unanswerable -- never an empty list, which would read as
+    "nothing moved".
+    """
+    code, out = _git("diff", "--name-only", f"{since}..HEAD", "--", *SHARED_PATHS)
+    if code != 0:
+        return None
+    names = [line.strip() for line in out.splitlines() if line.strip()]
+    return names[:limit]
+
+
 def _changed_slugs_trees(recorded: dict, head: dict) -> set[str] | None:
     """Venture slugs whose own files changed, by tree oid.
 
@@ -719,6 +759,28 @@ def report(st: dict) -> str:
             else:
                 why.append(f"{c}: the builder or front door changed")
         lines.append("  Needs the whole catalogue — " + "; ".join(why) + ".")
+        # Name the files behind "the builder changed". They are usually the
+        # per-venture registration rows rather than rendering logic, and a
+        # session that cannot see which is which re-runs 40 minutes blind.
+        # See shared_files_changed's docstring for the measurement.
+        anchors = [
+            st[c]["reading"].get("commit")
+            for c in full
+            if st[c].get("reading") and st[c]["reading"].get("commit")
+        ]
+        if anchors:
+            moved = shared_files_changed(anchors[0])
+            if moved:
+                lines.append("    builder files that moved: " + ", ".join(moved))
+                lines.append(
+                    "    a row appended per venture (clauses.mjs, launched.json) invalidates"
+                )
+                lines.append(
+                    "    all 1145 pages the same as a rendering change would — check which"
+                )
+                lines.append(
+                    "    this is before spending the full run."
+                )
     return "\n".join(lines)
 
 

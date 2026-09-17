@@ -260,3 +260,65 @@ test('index links one hop to the vehicle-wrap-bid-calculator sibling', () => {
   );
   assert.match(html, /vehicle wrap bid calculator/i);
 });
+
+test('index links to the flat-price-card comparison, and the page links back', () => {
+  assert.match(html, /href="\.\/vs-a-flat-per-vehicle-price\.html"/);
+  const vsPage = readFileSync(new URL('./vs-a-flat-per-vehicle-price.html', import.meta.url), 'utf8');
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /<link rel="canonical"/);
+  assert.match(vsPage, /application\/ld\+json/);
+  assert.match(vsPage, /href="\.\/"/, 'the comparison page must link back to the calculator');
+  assert.match(vsPage, /href="\.\/how-much-to-charge\.html"/, 'the comparison page must link the pricing walkthrough');
+  // This one compares against a generic method (a price card), not a
+  // product, so it carries no trademark disclaimer and must name no
+  // competitor -- the claim COMPARISON_DISCLAIMER_EXEMPT in clauses.mjs
+  // records for it.
+  assert.doesNotMatch(vsPage, /Mobile Tech RX|MobileTech|Detailer Land|Zenbooker/i);
+});
+
+test('the flat-price-card comparison is listed in robots-reachable pages', () => {
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /vs-a-flat-per-vehicle-price\.html/);
+});
+
+test('wide tables on the flat-price-card page scroll in their own box, not the page', () => {
+  const vsPage = readFileSync(new URL('./vs-a-flat-per-vehicle-price.html', import.meta.url), 'utf8');
+  const tables = [...vsPage.matchAll(/<table[\s\S]*?<\/table>/g)];
+  assert.ok(tables.length > 0);
+  const wrapped = [...vsPage.matchAll(/<div class="scroll">[\s\S]*?<\/div>/g)];
+  assert.equal(wrapped.length, tables.length, 'every table needs its own .scroll wrapper');
+  assert.match(vsPage, /\.scroll \{ overflow-x: auto; \}/);
+});
+
+test('every figure quoted on the flat-price-card page is what the calculator actually returns', () => {
+  // The page argues from two worked jobs at the calculator's own defaults
+  // (one near, one far), so it is only as credible as the arithmetic behind
+  // it. This pins every dollar figure to a live calculateBid() call so
+  // nothing else in the suite lets the calculator's math drift while the
+  // prose stands still.
+  const vsPage = readFileSync(new URL('./vs-a-flat-per-vehicle-price.html', import.meta.url), 'utf8');
+  const money = (n) => `$${n.toFixed(2)}`;
+
+  const near = calculateBid(defaults);
+  const far = calculateBid({ ...defaults, travelMiles: 60, travelHours: 1.5 });
+
+  for (const r of [near, far]) {
+    for (const figure of [
+      money(r.travelCost),
+      money(r.directCosts),
+      money(r.breakEven),
+      money(r.contribution),
+      money(r.effectiveHourly),
+      money(r.effectiveRate),
+      money(r.targetQuote),
+    ]) {
+      assert.ok(vsPage.includes(figure), `the page no longer quotes ${figure} from the calculator`);
+    }
+    assert.ok(vsPage.includes(`${r.margin.toFixed(1)}%`), `the page no longer quotes the ${r.margin.toFixed(1)}% margin`);
+  }
+
+  assert.equal(near.totalHours, 4.25);
+  assert.equal(far.totalHours, 5);
+  assert.match(vsPage, /4\.25 hours/);
+  assert.match(vsPage, /\b5 hours\b/);
+});

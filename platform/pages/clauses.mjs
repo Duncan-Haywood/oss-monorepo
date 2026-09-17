@@ -138,6 +138,10 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // treasurer already has, not a company or product this could be mistaken
   // for. Same reasoning as the other vs-spreadsheet pages above.
   'hoa-reserve-fund-calculator/vs-spreadsheet.html',
+  // Compares against "multiplying filament cost by three" -- a pricing
+  // habit passed around among makers, not a company or product this could
+  // be mistaken for. The page names no vendor at all.
+  '3d-print-price-calculator/vs-the-3x-filament-rule.html',
   // Compares against "a flat day rate" -- a generic pricing method every
   // bridal artist already knows, not a company or product this could be
   // mistaken for. Same reasoning as the other generic-method pages above.
@@ -172,6 +176,44 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the division themselves. Same reasoning as the other generic-method pages
   // above.
   'auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html',
+  // Compares against "a flat per-vehicle price card" -- sedan/SUV/truck
+  // pricing every mobile detailer already posts, not a company or product
+  // this could be mistaken for. The page names no specific detailing
+  // franchise, app, or competitor (the venture's own named-product
+  // comparison, vs-mobiletechrx, carries its own trademark disclaimer) and
+  // its copy opens by agreeing the flat card is the right tool for
+  // advertising. Same reasoning as the other generic-method pages above.
+  'mobile-detailing-bid-calculator/vs-a-flat-per-vehicle-price.html',
+  // Compares against "a flat per-size price card" -- small/medium/large/giant
+  // pricing every groomer already posts, not a company or product this could
+  // be mistaken for. The page names no specific grooming franchise, app, or
+  // competitor (the venture's own named-product comparison, vs-moego,
+  // carries its own trademark disclaimer) and its copy opens by agreeing the
+  // flat card is the right tool for a phone quote. Same reasoning as the
+  // other generic-method pages above.
+  'pet-grooming-bid-calculator/vs-a-flat-per-breed-price.html',
+  // Compares against "opening each marketplace's own fee calculator and
+  // reconciling the answers" -- the method every multi-channel seller already
+  // uses, not a company or product this could be mistaken for. It is the one
+  // entry here that names real trademarks (eBay, Etsy, Amazon), because the
+  // channels being ranked are the tool's own subject matter; what it does not
+  // do is compare against any one of them as a product. It carries the
+  // affiliation disclaimer anyway rather than leaning on this exemption, and
+  // a test asserts the disclaimer and that no rate or currency amount is
+  // attributed to any of them. Same reasoning as the other generic-method
+  // pages above, and as ai-coding-plan-cost-calculator's
+  // vs-checking-pricing-pages-yourself.html, which names vendors the same way.
+  'where-to-sell-calculator/vs-each-marketplaces-own-calculator.html',
+  // Compares against "adding up the month's bills and dividing by the miles
+  // you ran" -- the one line of arithmetic every owner-operator already runs
+  // against their own settlement statements, not a company or product this
+  // could be mistaken for. The page names no bookkeeping service or rate
+  // tool at all (the venture's two named-product comparisons, vs-atbs and
+  // vs-dat-rateview, carry their own trademark disclaimers) and its copy
+  // opens by agreeing the division is correct arithmetic and better cost
+  // data than anything typed into a form. Same reasoning as
+  // auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html.
+  'owner-operator-cpm-calculator/vs-dividing-your-bills-by-your-miles.html',
   // Compares against "your phone's built-in world clock" -- a generic
   // feature every phone platform ships, not a company or product this could
   // be mistaken for. The page itself names no specific platform or vendor
@@ -319,11 +361,29 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mistaken for. The page names no specific spreadsheet product. Same
   // reasoning as the other vs-spreadsheet / by-hand pages above.
   'security-deposit-return-calculator/vs-a-spreadsheet.html',
+  // Compares against tracking payment terms and a client's pay-run schedule
+  // in a spreadsheet formula -- a generic method every freelancer already
+  // has access to, not a company or product this could be mistaken for. The
+  // page names no specific spreadsheet or invoicing product. Same reasoning
+  // as the other vs-spreadsheet / by-hand pages above.
+  'invoice-payment-terms-calculator/vs-spreadsheet.html',
   // Compares against "opening robots.txt and reading it" -- a generic manual
   // habit every developer already has access to, not a company or product
   // this could be mistaken for. Same reasoning as the other manual-method
   // pages above.
   'subpath-robots-check/vs-checking-robots-txt-by-eye.html',
+  // Compares against "sorting an AP export by vendor in a spreadsheet and
+  // scanning for repeats" -- a generic method every small business or
+  // bookkeeper already has access to, not a company or product this could
+  // be mistaken for. The page names no specific spreadsheet product. Same
+  // reasoning as the other vs-spreadsheet / by-hand pages above.
+  'duplicate-payment-audit/vs-a-spreadsheet.html',
+  // Compares against "tracking StockX payouts in a spreadsheet" -- a
+  // generic method every reseller already has access to, not a company or
+  // product this could be mistaken for. The page's own copy says so
+  // explicitly ("Names no specific product or company"). Same reasoning as
+  // the other vs-spreadsheet / by-hand pages above.
+  'stockx-seller-payout-calculator/vs-tracking-stockx-payouts-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

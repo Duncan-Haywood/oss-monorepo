@@ -219,3 +219,71 @@ test('checkboxes and selects are read and written by the same field list as numb
 test('links to the pest control bid calculator', () => {
   assert.match(html, /href="\.\.\/pest-control-bid-calculator\/"/, 'the sibling-tool link is missing');
 });
+
+test('index links to the flat-price-card comparison, and the page links back', () => {
+  assert.match(html, /href="\.\/vs-a-flat-per-breed-price\.html"/);
+  const vsPage = readFileSync(new URL('./vs-a-flat-per-breed-price.html', import.meta.url), 'utf8');
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /<link rel="canonical"/);
+  assert.match(vsPage, /application\/ld\+json/);
+  assert.match(vsPage, /href="\.\/"/, 'the comparison page must link back to the calculator');
+  assert.match(vsPage, /href="\.\/how-much-to-charge\.html"/, 'the comparison page must link the pricing walkthrough');
+  // This one compares against a generic method (a price card), not a
+  // product, so it carries no trademark disclaimer and must name no
+  // competitor -- the claim COMPARISON_DISCLAIMER_EXEMPT in clauses.mjs
+  // records for it.
+  assert.doesNotMatch(vsPage, /MoeGo|Gingr|PetExec/i);
+});
+
+test('the flat-price-card comparison is listed in the sitemap', () => {
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /vs-a-flat-per-breed-price\.html/);
+});
+
+test('wide tables on the flat-price-card page scroll in their own box, not the page', () => {
+  const vsPage = readFileSync(new URL('./vs-a-flat-per-breed-price.html', import.meta.url), 'utf8');
+  const tables = [...vsPage.matchAll(/<table[\s\S]*?<\/table>/g)];
+  assert.ok(tables.length > 0);
+  const wrapped = [...vsPage.matchAll(/<div class="scroll">[\s\S]*?<\/div>/g)];
+  assert.equal(wrapped.length, tables.length, 'every table needs its own .scroll wrapper');
+  assert.match(vsPage, /\.scroll \{ overflow-x: auto; \}/);
+});
+
+test('every figure quoted on the flat-price-card page is what the calculator actually returns', () => {
+  // The page argues from two worked jobs at the calculator's own defaults
+  // (one simple, one with a curly coat, moderate matting, and three
+  // add-ons), so it is only as credible as the arithmetic behind it. This
+  // pins every dollar and time figure to a live calculateBid() call so
+  // nothing else in the suite lets the calculator's math drift while the
+  // prose stands still.
+  const vsPage = readFileSync(new URL('./vs-a-flat-per-breed-price.html', import.meta.url), 'utf8');
+  const money = (n) => (n < 0 ? `&minus;$${Math.abs(n).toFixed(2)}` : `$${n.toFixed(2)}`);
+
+  const simple = calculateBid(defaults);
+  const matted = calculateBid({
+    ...defaults,
+    coat: 'curly',
+    matting: 'moderate',
+    nailTrim: true,
+    earCleaning: true,
+    deshedding: true,
+  });
+
+  assert.equal(simple.groomMinutes, 69);
+  assert.equal(matted.groomMinutes, 171);
+  assert.match(vsPage, /69 minutes/);
+  assert.match(vsPage, /171 minutes/);
+
+  for (const r of [simple, matted]) {
+    for (const figure of [money(r.directCosts), money(r.breakEven), money(r.contribution)]) {
+      assert.ok(vsPage.includes(figure), `the page no longer quotes ${figure} from the calculator`);
+    }
+  }
+
+  assert.ok(vsPage.includes(money(matted.mattingSurcharge)), 'matting surcharge figure missing');
+  assert.ok(vsPage.includes(money(matted.addOnPrice)), 'add-on price figure missing');
+  assert.ok(vsPage.includes(`${simple.margin.toFixed(1)}%`), 'simple margin figure missing');
+  assert.ok(vsPage.includes(`${Math.abs(matted.margin).toFixed(1)}%`), 'matted margin figure missing');
+  assert.ok(vsPage.includes(`$${simple.effectiveHourly.toFixed(2)}`), 'simple effective hourly missing');
+  assert.ok(vsPage.includes(money(matted.effectiveHourly)), 'matted effective hourly missing');
+});

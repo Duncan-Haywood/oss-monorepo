@@ -1,0 +1,31 @@
+name: stockx-seller-payout-calculator
+description: Free browser calculator for StockX sneaker, streetwear, and card resellers to find real net payout and net profit for one sale after the seller fee (which drops by Seller Level), the Fast Shipping discount, a flat payment processing fee, and outbound shipping cost, then check a month of sales against a profit goal.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: StockX resellers will use a per-sale payout calculator that nets out the seller-level fee, Fast Shipping discount, payment processing, and shipping cost against the sale price and their own cost basis, since the headline sale price hides how much a seller-level change or a Fast Shipping enrollment moves take-home on the same item.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers asking how much StockX takes from sellers, or whether Fast Shipping is worth it, are underserved by generic marketplace fee calculators because the seller-level fee tier and Fast Shipping discount arithmetic is specific to StockX's bid/ask marketplace.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers who price one sale will also want to see whether their whole month of flips clears a profit goal, not just whether one sale clears a margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/stockx-seller-payout-calculator/
+  analytics: null

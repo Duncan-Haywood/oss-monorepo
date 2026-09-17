@@ -32801,3 +32801,572 @@ entries:
         `validate_candidates.py`, `validate_probe_index.py`,
         `score_sensitivity.py`, and `usage/validate_usage.py` all clean.
     mrr_end: 0
+  - venture: android-data-safety-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, browser-local and CLI checker for
+        Android developers that scans an AndroidManifest.xml's permissions
+        and a project's Gradle dependencies for known analytics/ads/crash
+        SDKs (Firebase, AdMob, Facebook, and others), maps each one to a
+        Google Play Data safety category (Location, Contacts, Photos and
+        videos, App activity, Device or other IDs, and ten more), and
+        cross-checks the result against a plain list of the categories the
+        developer says they've already declared in Play Console's App
+        content > Data safety form -- naming the exact permission or SDK,
+        file, and line behind a category the app looks like it collects but
+        the declaration doesn't mention. This is the direct Android-side
+        counterpart to `ios-privacy-manifest-check`, closing the obvious
+        remaining gap in that pair rather than opening a new one, and a
+        genuinely different platform review gate from every other checker
+        in the portfolio.
+      - >-
+        Chosen per `portfolio/DIRECTION.md`'s "Owner direction, 2026-09-06"
+        section (new ventures rank first when the `build-now` pipeline is
+        empty, which `session_gate.py` confirmed) and
+        `portfolio/pipeline/README.md`'s archetype guidance -- not a 313th
+        `<trade>-bid-calculator` (141+ already share that shape with zero
+        recorded visitors) and read as the checker/CLI shape the playbook
+        ranks above a browser calculator on cost grounds.
+        `duplicate_check.py` (run before VENTURE.yaml existed) scored every
+        other venture, screened-out row, ai-first-markets idea, and
+        pipeline candidate at or below 0.13 against the final description
+        -- nowhere near the 0.45 read-this-first bar. Closest by score:
+        `chrome-extension-permission-check` (0.13, shares only the
+        "manifest permissions vs detected API usage" shape, a different
+        store and declaration mechanism). Named distribution channel:
+        r/androiddev and Stack Overflow's `android` / `google-play-console`
+        tags, where Data safety mismatches and Play Console policy
+        warnings are a recurring, long-documented thread topic, and organic
+        search for "google play data safety rejected" and "data safety
+        section mismatch." No external search-volume tool was queried to
+        confirm magnitude, matching this pipeline's standing caveat for
+        every checker at graduation.
+      - >-
+        Shipped with a LICENSE (MIT), the no-warranty/no-SLA/evidence-not-a-
+        determination disclaimers and privacy line on every page (`index.html`,
+        the `missing-data-safety-declaration.html` explainer, and the
+        `vs-manually-reviewing-play-console-warnings.html` comparison page,
+        the last carrying the not-affiliated-with-Google trademark
+        disclaimer since it discusses Google's own review process by name),
+        anonymous local-only usage counting (`scan_run`/`example_loaded`,
+        honouring Do Not Track/Global Privacy Control, opt-out persisted),
+        a GitHub Sponsors link, `robots.txt`/`sitemap.xml`,
+        SoftwareApplication + FAQPage JSON-LD, and a bundled worked example
+        exercising all four report states (declared, undeclared,
+        declared-but-not-detected, not-detected) for a visitor with no
+        Android project on hand. Shipped with an inbound sibling link from
+        its first commit rather than landing as a crawlable orphan:
+        `chrome-extension-permission-check`'s footer now names it back
+        (both are official-app-store permission/data declaration checkers,
+        Google Play and the Chrome Web Store), and it links
+        `ios-privacy-manifest-check` and `chrome-extension-permission-check`
+        outbound in turn -- `platform/pages/siblings.mjs --check` confirmed
+        0 orphans, within the committed budget of 0.
+      - >-
+        Registered in `venture-scores.yaml` (composite 5.667, floor 1 on
+        `ai_leverage`, both liability/ethics gates pass) and
+        `portfolio/usage/usage.yaml` (baseline reading, `live_url_visitors`
+        null per the file's standing "never measured, not measured-and-
+        zero" convention). `platform/ci/sync_tree_counts.py` re-run after
+        adding the venture's `usage.mjs` and CI workflow to fix the
+        mirrored-tool count (303 -> 304, four files) and the opt-out-switch
+        count (287 -> 288, `platform/privacy/optout-persistence.test.mjs`),
+        each with the running-comment entry this graduation moved, plus
+        `gitops/ci/sync_readme_counts.py` for the new workflow's `runs-on`
+        line (397/399 across 358 -> 398/400 across 359) -- all per
+        CLAUDE.md's collision guidance for a constant that counts the tree.
+        `platform/ci/publish_surface.py --write` recorded the new
+        `android-data-safety-check-ci.yml` workflow as publishing `none`
+        (test-only CI, no deploy step).
+      - >-
+        Verified: venture's own suite (53/53), `node platform/pages/clauses.mjs
+        android-data-safety-check` and `chrome-extension-permission-check`
+        (both clean), `python3 platform/ci/checklist_coverage.py` (clean),
+        `node platform/marketing/regen.mjs` (front-door mirror regenerated
+        and committed, run a second time after all edits landed since the
+        first run predated the sibling-link and count-fixing commits),
+        full `platform/marketing`+`platform/pages` suite (1272/1272,
+        re-run clean after `regen.mjs`'s second pass),
+        `platform/proposal` (101/101), `platform/privacy`+`platform/webcheck`
+        (140/142, 2 skipped -- the standing shallow-clone
+        `history-blob.mjs` skip this repo's own suite documents, unrelated
+        to this venture), `gitops/tests` (583 passed, 25 skipped, all
+        environmental/GitHub-hosted-runner-only per the suite's own
+        classification), all 26 `platform/ci` unittest modules plus
+        `agent_review` (`test_review`, 21/21), `portfolio/ledger`+`scoring`+
+        `router`+`usage`+`pipeline`+`infra/tests` via pytest, `router/validate.py`
+        (all 312 VENTURE.yaml files valid), `publish_surface.py --check`,
+        `score_ventures.py --check`, `validate_doc_consistency.py`,
+        `usage/validate_usage.py`, `surface-budget.mjs --check`, and
+        `sync_tree_counts.py --check` all clean. `chrome-extension-
+        permission-check`'s own suite re-run after adding its reciprocal
+        sibling link (60/60, unaffected).
+    mrr_end: 0
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a generic-method comparison page, `vs-spreadsheet.html`,
+        against `surface-budget.mjs`'s reported room for 1 (the venture
+        already carried a QuickBooks-vs-product page and 4 guides but no
+        generic-method angle). Registered the page in
+        `COMPARISON_DISCLAIMER_EXEMPT` (`platform/pages/clauses.mjs`) so the
+        budget tool classifies it correctly -- confirmed before and after
+        (`vs/name` misclassification, then `vs/gen` at budget 1/1, portfolio
+        still 0 ventures over budget).
+      - >-
+        Same session first confirmed the open-PR queue is empty (0 open PRs)
+        and spot-checked 4 stale branches for unique work
+        (`agent/deploy-cicd-ledger-2868`, `claude/codex-governor-ask-and-
+        queue-drain-report`, `agent/marketing-distribution-gutter-guard-vs-
+        jobnimbus`, `agent/owner-operator-cpm-vs-dat-rateview2`); all four
+        were already superseded (their content already on `main`), consistent
+        with the prior exhaustive 232-branch drain recorded in
+        `infra_state.yaml`.
+      - >-
+        Verified: venture suite (109/109, including the new
+        `vs-spreadsheet.test.mjs`), `platform/marketing/*.test.mjs` +
+        `platform/pages/*.test.mjs` after `platform/marketing/regen.mjs`
+        (1272/1272 -- the committed mirror/catalog/sitemap/llms.txt/
+        kustomization diffs it wrote are the expected regen output for one
+        new page), and `gitops/tests` (583 passed, 25 skipped -- the standard
+        missing-binary skips this file's checklist already documents).
+      - >-
+        Also re-confirmed (without re-dispatching, since it was already
+        measured minutes earlier this same day): `github-actions-runners`
+        starved, `github-pages-branch-route` up and current (built from the
+        exact `main` tip), and the Hetzner/Codex dev-worker route fully
+        built and tested but blocked solely on the owner rotating
+        `HETZNERSSHKEY` from their own machine -- reported to the owner
+        directly rather than re-added to `decision_queue.py`, which already
+        carries this ask.
+    mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    mrr_end: 0
+    outcomes:
+      - >-
+        Published the live catalogue, which was two merges stale (gh-pages built
+        from 69259e37 while main was at 5a6ebe57). That put #4913 in front of
+        users: a certified-payroll calculator that had been showing a green
+        "meets the required combined rate" verdict on a week that actually
+        underpaid a worker $500. GitHub's managed builder confirmed the deploy
+        (run 35211083684).
+      - >-
+        Fixed red CI on main (#4920). A clean checkout failed
+        platform/marketing/front-door-tools.test.mjs: #4916's new comparison
+        page was absent from the front-door mirror and kustomization.yaml, so
+        the apex would 404 on a page its own sitemap advertises -- the defect
+        already paid for in #3256-#3258 and #3324-#3326. regen.mjs fixed it; the
+        drift was exactly 6 files. Affects the Hetzner front door, not the live
+        Pages site, which build.mjs builds independently.
+      - >-
+        Found and shipped a third, cheaper fix for the enumeration gap (#4920).
+        The catalogue is live -- 313 tools, 1143 pages -- and indexnow_state.py
+        reports verdict `never`: no search engine has ever been told it exists.
+        The site is on a project-Pages subpath, so crawlers read the host-root
+        robots.txt, which belongs to the owner's user Pages site. pages_state.py
+        offered only Search Console submission or a custom domain. A robots.txt
+        at that user-site root carrying this catalogue's Sitemap: line is
+        cheaper than both -- verified against origin/gh-pages that every <loc>
+        is same-host under the one subpath, so the sitemaps protocol needs no
+        verification. No registrar, no DNS, no certificate, no money, and read
+        at fetch time so it reaches crawlers nobody submits to. Now reported
+        cheapest-first with tests pinning the order; the pages-custom-domain ask
+        was corrected (it had called itself "the cheaper" of two) rather than
+        closed, since the public name and origin-root IndexNow still justify it.
+      - >-
+        usage_state.py kept a second copy of that fix list and went stale the
+        same day (#4923). It now points at pages_state.py as the owner of the
+        list -- the import-don't-restate rule CLAUDE.md records three times.
+      - >-
+        Measured a fleet-capacity leak and named it in browser_state.py. It
+        invalidates all 1145 pages when platform/pages or platform/marketing
+        moves, as one bit over the tree -- but the per-venture registration data
+        lives there, so shipping any venture appends a row. On 2026-09-17
+        clauses.mjs moved 27 times, launched.json 19, build.mjs 18, and eleven
+        full-catalogue sweeps were recorded, every one `pass`, each invalidated
+        within an hour or two. At ~40 minutes each that is 7+ hours of capacity
+        re-proving an unchanged result; three sessions collided within one hour
+        this morning, two recording byte-identical surface hashes. Deliberately
+        NOT narrowed: a clauses.mjs change really can alter every page's
+        disclaimer, and separating that from an exemption-list append needs the
+        diff's meaning, not its path -- getting it wrong lets an accessibility
+        regression through, and this check's first run found 48 critical axe
+        label violations while 1139 node assertions were green. The report now
+        names the files so the 40 minutes is a choice. Narrowing it is an
+        owner-facing design question, open.
+      - >-
+        Ran the full 8-check catalogue sweep independently: all passed over 1145
+        pages, 1143 sitemap URLs resolving with 0 bad, contrast clean, no
+        off-origin request, no console errors, no overflow at 375px. Not
+        committed -- its surface hashes are byte-identical to the reading main
+        already carries, so recording it would have rewritten a SHA and added
+        nothing.
+      - >-
+        Verified the Codex host route the owner has now asked for on three
+        consecutive runs (Hetzner CI/CD, marketing deployment on the boxes, the
+        Codex CLI on included quota): 56/56 tests pass and systemd-analyze
+        verify exits 0 on both units. Its mandate already carries the
+        product-first prompt including the three-PR quota. All three remain
+        blocked on one owner-only action, hetzner-ssh-key-is-a-public-key --
+        HETZNERSSHKEY holds a public key, so no session can SSH to the boxes.
+        14 days open. Nothing for an agent to do but keep the reading current.
+      - >-
+        Actions starved fleet-wide all day (ci_starvation.py: runner_id 0, no
+        step ran, on every run). Every red check was classified rather than
+        assumed; no re-run spent, since a re-run cannot conjure a runner.
+  - venture: branch-protection-drift-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, zero-dependency CLI + browser tool
+        that compares a repository's actual GitHub branch-protection
+        settings (pasted from `gh api repos/:owner/:repo/branches/:branch
+        /protection`) against a declared policy, flagging every rule that
+        has drifted weaker than intended -- a review requirement disabled
+        for one hotfix and never re-enabled, force pushes quietly turned
+        back on, admin enforcement silently off, or a policy-declared
+        required status check missing from the live settings. Chosen as a
+        CLI/checker shape per `PRODUCT_PLAYBOOK.md` and
+        `pipeline/README.md`'s archetype guidance, over another
+        `<trade>-bid-calculator` (roughly half of ~300 ventures already
+        share that shape with zero recorded visitors, per the fleet's own
+        `usage_state.py` reading).
+      - >-
+        Screened with `duplicate_check.py`: closest match
+        `required-checks-drift-check` at 0.13, well under the 0.45
+        near-duplicate bar. Read directly rather than trusted: that
+        venture's own README explicitly scopes out "a full review of your
+        branch-protection configuration" as out of scope, which is
+        precisely this venture's subject -- it answers whether a required
+        check *name* still matches a reporting job, this one whether the
+        surrounding *policy* (review counts, admin enforcement,
+        force-push/deletion rules, which checks are required at all)
+        still matches what was declared. The two cross-link each other in
+        their index pages, closing the crawlable-orphan gap a new venture
+        otherwise opens (`siblings.mjs --check`: 0 orphans of 304 tools
+        both before and after).
+      - >-
+        No claim goes beyond the pasted inputs: a rule the declared policy
+        does not mention is reported "not policed", never silently scored
+        as a pass or a fail, and a setting stricter than the policy
+        requires is reported "stronger than policy", never as drift. It
+        makes no network call of its own anywhere in the code (`engine.mjs`,
+        `cli.mjs`) -- it never calls the GitHub API on the user's behalf,
+        never opens a pull request, and never changes a repository
+        setting; the user fetches and pastes both inputs themselves.
+      - >-
+        Shipped with the full checklist: LICENSE, disclaimer and privacy
+        line in both the README and the product, opt-out-respecting local
+        usage counting (`check_run`, `example_loaded`), a matching
+        zero-dependency CLI (`--format json`, `--fail-on-drift`), one
+        discoverability docs page ("why branch protection drifts
+        silently"), and reciprocal Related links with
+        `required-checks-drift-check`. 50 venture assertions (19 engine,
+        19 CLI including an end-to-end child-process exit-code test, 12
+        page).
+      - >-
+        Classified into the existing `ci` category ("CI checks & developer
+        gates") in `platform/pages/build.mjs` on its first commit, beside
+        `required-checks-drift-check`, rather than left for the catch-all.
+      - >-
+        Registered in `venture-scores.yaml` (composite 6.0, floor 1 on
+        `ai_leverage`, both liability/ethics gates pass) and
+        `platform/ci/sync_tree_counts.py` re-run after merging main to
+        update the mirrored-tool (304) and opt-out-switch (288) counts it
+        derives, with the running-comment entries this graduation moved
+        (`test_manifests.py`, `optout-persistence.test.mjs`) and
+        `gitops/ci/sync_readme_counts.py` for the new workflow's `runs-on`
+        line, per CLAUDE.md's collision guidance for a constant that
+        counts the tree.
+      - >-
+        A real merge caught a real defect before it shipped: the first
+        draft linked its own `cli.mjs` at the external GitHub blob URL,
+        the same pattern `required-checks-drift-check` uses for its
+        Python CLI -- but unlike that CLI, `cli.mjs` is itself published
+        as a static file on this site, so `build.test.mjs`'s "no link to a
+        published venture is repaired out to the private repository" test
+        caught it and it was fixed to a same-site relative link before
+        commit.
+      - >-
+        Verified: venture suite (50/50), `platform/pages` build suite
+        (284/284), `platform/marketing` suite (262/262, after
+        `regen.mjs`), `platform/proposal` (101/101), `platform/privacy` +
+        `platform/webcheck` (142/142), `gitops/tests` (583 passed, 25
+        environmental skips), all `platform/ci` unittest modules plus
+        `agent_review` (21/21), and
+        `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+`infra/tests`
+        all clean. `platform/router/validate.py`, `publish_surface.py
+        --check`, `score_ventures.py --check`, `score_sensitivity.py`,
+        `checklist_coverage.py`, and `siblings.mjs --check` all clean.
+        Scoped `browser_checks.py --only branch-protection-drift-check`
+        (installed playwright@1.56.0 + axe-core): 7/8 checks pass
+        (sideways, presets, roundtrip, contrast/WCAG AA, optout, sweep via
+        the worked example, journey); `highlight` correctly skipped
+        (this venture makes no highlight promise). The whole-catalogue
+        8-check sweep was already independently stale before this branch
+        (invalidated by a concurrent `where-to-sell-calculator` merge
+        touching `clauses.mjs`) and remains a standing task for whichever
+        session next runs the full 20-30 minute record, not something
+        this venture's own scoped run could or should re-baseline.
+    mrr_end: 0
+
+  - venture: stockx-seller-payout-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture (option 3 of the pipeline's three routes):
+        the open-PR queue was empty, `session_gate.py`'s build-now pipeline
+        was empty, and no already-built product lacked a public URL, so a
+        fresh niche screened against `screened-out.md` and the
+        liability/ethical gates in `pipeline/README.md` outranked parity
+        work. Checked 3 candidates with `duplicate_check.py` (StockX,
+        Mercari, Depop seller-fee calculators); StockX scored lowest (0.26
+        against `whatnot-seller-payout`) and, on the final graduation
+        wording, 0.19 against the closest match
+        (`1099k-reconciliation-worksheet`) -- well under the 0.45
+        near-duplicate bar. No open PR or recent commit touched StockX.
+      - >-
+        Shipped `ventures/stockx-seller-payout-calculator/`: a free,
+        100%-client-side browser calculator for StockX sneaker, streetwear,
+        and card resellers. Prices one sale's net payout and net profit
+        from the sale price, a Seller-Level transaction fee, a Fast
+        Shipping discount that stacks on top of it, a flat payment
+        processing fee, an outbound shipping cost (which matters
+        proportionally more on a cheap item than an expensive one), and
+        the seller's own item cost basis, then rolls a month of sales up
+        into total profit against a target -- same two-layer shape
+        (`calculate`/`computeMonthProfit`/`incomeGap`) as this portfolio's
+        other per-item-then-roll-up marketplace calculators
+        (`ebay-fee-calculator`, `whatnot-seller-payout`). No price, rate,
+        or fee is hardcoded as fact; every one is a user-supplied,
+        illustrative placeholder, and the page states explicitly it is not
+        an authentication, inventory, or sourcing tool -- it never
+        verifies an item, tracks stock, or replaces StockX's own seller
+        dashboard and payout statements. StockX is named only to describe
+        what the tool calculates, with an explicit not-affiliated line in
+        the footer even though the page is not a `vs-<competitor>.html`
+        comparison (same convention as `ebay-fee-calculator` and
+        `whatnot-seller-payout`, neither of which carries the disclaimer
+        on its own index either).
+      - >-
+        Full file set: `calc.mjs` + `calc.test.mjs` (18 assertions,
+        including a divide-by-zero guard on a zero sale price and a zero
+        cost basis, a Fast-Shipping-discount-larger-than-the-fee clamp at
+        zero rather than going negative, and a proportional-shipping-cost
+        boundary check), `usage.mjs`/`usage.test.mjs` (anonymous, opt-out,
+        DNT/GPC-respecting local counter, copying
+        `propane-delivery-route-margin`'s pattern unchanged),
+        `share.mjs`/`share.test.mjs` (shareable link round-tripping every
+        field through the URL fragment, never the never-saved month rows),
+        `VENTURE.yaml`, `README.md`, `LICENSE` (MIT), `robots.txt`,
+        `sitemap.xml`, plus two discoverability pages:
+        `how-much-does-stockx-take-from-sellers.html` (a worked example
+        where Seller Level and Fast Shipping alone move net profit on an
+        identical $150 sale from $26.00 to $35.00 -- verified against
+        `calc.mjs` directly in `page.test.mjs`) and
+        `vs-tracking-stockx-payouts-in-a-spreadsheet.html`
+        (generic-method comparison, no named competitor, registered in
+        `clauses.mjs`'s `COMPARISON_DISCLAIMER_EXEMPT` set). `page.test.mjs`
+        adds 21 more assertions checking the page wires the module
+        correctly and both content pages carry their required clauses,
+        for 57 assertions total in the venture's own `node --test` run.
+      - >-
+        Classified the new slug into the existing `marketplace` category in
+        `platform/pages/build.mjs` (the single-channel storefront-fee shape
+        shared with `whatnot-seller-payout` and `poshmark-fee-calculator`),
+        confirmed by the full 1010-assertion `platform/pages` suite rather
+        than by inspection alone. Closed the crawlable-orphan gap the
+        portfolio's own sibling-link budget enforces (`orphanBudget: 0`,
+        verified `node platform/pages/siblings.mjs --check` at 0 of 304
+        before and after this venture): the new page links out to both
+        `whatnot-seller-payout` and `marketplace-fee-compare`, and added a
+        two-line reciprocal inbound link (plus a matching `page.test.mjs`
+        assertion) from `whatnot-seller-payout`'s own footer.
+      - >-
+        Added a scoring row in `portfolio/scoring/venture-scores.yaml`
+        (composite 6.667; `ai_leverage` floor of 1, same rationale as its
+        marketplace-fee siblings -- deterministic arithmetic, no AI
+        anywhere); `score_ventures.py --check` passes, 312 scored, matching
+        every `VENTURE.yaml`. Recorded the new
+        `stockx-seller-payout-calculator-ci.yml` workflow via
+        `publish_surface.py --write` (classified `none`: one `node --test`
+        step and the clauses check, no deploy/push).
+      - >-
+        Ran `node platform/marketing/regen.mjs` (a new browser surface,
+        303 -> 304 mirrored tools; re-ran a second time after the
+        reciprocal-link edit to `whatnot-seller-payout/index.html` picked
+        up that change too) and `python3 platform/ci/sync_tree_counts.py`
+        against the merged tree, updating the mirrored-tool count in the
+        four places it is hand-written (`infra/OWNER_CHECKLIST.md` x3,
+        `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2, and `total =` in
+        `gitops/tests/test_manifests.py`) and the opt-out-switch count
+        (287 -> 288) in `platform/privacy/optout-persistence.test.mjs`,
+        adding the running-comment "why" entry in both files. Also ran
+        `python3 gitops/ci/sync_readme_counts.py` to fix the `runs-on`
+        count the new workflow file moved (398/400 across 358 -> 399/401
+        across 359), and `node platform/pages/launched.mjs --write` /
+        `node platform/pages/siblings.mjs --check` for the launch-date and
+        crawlable-orphan guards `platform/pages/launched.test.mjs` and
+        `siblings.test.mjs` enforce.
+      - >-
+        Fixed one real defect the new venture's own markup tripped before
+        merge: the guide page's FAQPage JSON-LD said "the worked example
+        below" while the visible copy (correctly, given page order) said
+        "above" -- caught by `faq-visible.test.mjs`'s whole-portfolio scan
+        for JSON-LD/visible-text divergence, fixed by correcting the
+        JSON-LD to match the visible wording rather than the reverse.
+      - >-
+        Verified: venture suite (57/57), full `platform/pages` suite
+        (1010/1010, including `faq-visible.test.mjs`, `launched.test.mjs`
+        and `siblings.test.mjs`, all three of which caught real gaps this
+        graduation introduced and are listed above), full
+        `platform/marketing` suite (262/262), `platform/privacy` +
+        `platform/webcheck` + `platform/proposal` (243/243), `gitops/tests`
+        (607 passed, 1 environmental skip -- `test_front_door_serving.py`'s
+        GitHub-hosted-runner-only case, confirmed by `guard_state.py
+        --require-runnable` reporting no fixable skip once `nginx-light`
+        and `openssh-client` were installed), all 26 `platform/ci`
+        unittest modules (run individually from that directory, all `OK`),
+        and `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+
+        `infra/tests` (446 passed). `platform/ci/check_no_payment_code.py`,
+        `platform/router/validate.py` (311 valid), `publish_surface.py
+        --check`, `score_ventures.py --check`, `validate_doc_consistency.py`,
+        `validate_candidates.py`, `validate_probe_index.py`,
+        `score_sensitivity.py`, and `usage/validate_usage.py` all clean.
+        `checklist_coverage.py` and `guard_state.py --require-runnable`
+        both clean (no fixable skip, no missing checklist line).
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR-drain phase: the only open PR (#4914, k8s-deprecated-api-check) was
+        reviewed and independently re-verified end to end -- unshallowed the
+        repo, resolved its one binary front-door-mirror conflict by merging
+        main and regenerating fresh, then ran the full local checklist
+        (checklist_coverage, sync_tree_counts, ~2000 node assertions across
+        marketing/pages/proposal/privacy/webcheck, 607 gitops pytest, all 15
+        platform/ci unittest modules + agent_review, 446 portfolio/infra
+        pytest, every validator, clauses.mjs, build.mjs/check.mjs, and
+        targeted Playwright/axe accessibility checks) since ci_starvation.py
+        confirmed Actions was starved (`runner_id: 0`). A concurrent session
+        pushed an identical merge+regen and got it merged first -- verified
+        byte-identical via `git diff`, so nothing was lost or duplicated.
+        Zero PRs remained open afterward.
+      - >-
+        `browser_state.py` then reported the fleet's browser/accessibility
+        sweep stale (the certified-payroll-calculator fix in #4913 touches a
+        mirrored page). Ran the full 8-check sweep twice -- once after
+        merging main, again after main advanced further underneath it -- both
+        clean (no WCAG A/AA violations across 1139-1147 pages, 308/308 tools
+        swept with no errors, full journey pass). Shipped as #4933 and merged
+        after confirming the same commit's `Portfolio validate` check was
+        starved, not failing.
+  - venture: helm-values-schema-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, zero-dependency CLI + browser tool
+        that validates a Helm chart's `values.yaml` against its own
+        `values.schema.json` (JSON Schema, supported by Helm since 3.5)
+        without running Helm at all. Its core finding: Go's template engine
+        returns the zero value for an undefined `values.yaml` key rather
+        than erroring, so a typo like `repositry` instead of `repository`
+        renders silently -- and `helm lint` only catches it when the schema
+        explicitly sets `additionalProperties: false`, which most real
+        charts' schemas do not. Flags that case as informational alongside
+        every real schema violation (missing `required` field, `type`
+        mismatch, `enum`/`minimum`/`maximum` violation, or a field forbidden
+        by an explicit `additionalProperties: false`, reported at high
+        severity since `helm install --dry-run --validate` would already
+        reject it). Chosen as a CLI/checker shape per `PRODUCT_PLAYBOOK.md`
+        §2 over another `<trade>-bid-calculator`.
+      - >-
+        Screened with `duplicate_check.py` across two phrasings: closest
+        matches `obsidian-plugin-review-check` (0.22, 0.16) and
+        `openapi-breaking-change-check` (0.14), both well under the 0.45
+        near-duplicate bar and neither validating one YAML file against a
+        JSON Schema. No existing venture mentions Helm at all (grepped every
+        `VENTURE.yaml` description). Not in `screened-out.md`. Distribution
+        scored more conservatively than its `k8s-deprecated-api-check`
+        sibling (5 vs. 6): Helm's own chart documentation and specific real
+        search strings are genuine channels, but no single well-known
+        competing OSS tool was identified to draw comparison-search traffic
+        the way Pluto does for the sibling -- `vs-helm-lint.html` compares
+        against Helm's own built-in command instead.
+      - >-
+        The JSON Schema walk supports `type`, `properties`, `required`,
+        `additionalProperties`, `enum`, `minimum`/`maximum`, and `items`
+        for arrays -- verified against hand-built fixtures for every rule
+        (a typo'd field, a forbidden additional field, a missing required
+        field, a type mismatch that does not recurse further, an enum
+        violation, both range violations, and array-item recursion) before
+        writing the CLI or page around it. The YAML reader (`yaml.mjs`) is
+        adapted from `actions-minutes-estimator/workflow-yaml.mjs` --
+        credited in both the file header and README rather than silently
+        copied -- generalized off that venture's GitHub-Actions-only framing
+        since a `values.yaml` has no `on:`-as-boolean trap to work around.
+      - >-
+        The first Playwright/axe accessibility pass caught a real critical
+        `label` violation before this ever reached a user: both `<input
+        type="file">` controls had a `<label>` pointing at the neighboring
+        textarea instead of at themselves, so a screen reader announced
+        each as an unlabeled file control. Fixed by giving each file input
+        and each textarea its own label rather than sharing one, verified
+        clean on re-run -- the same defect class CLAUDE.md's history
+        records finding 48 instances of fleet-wide on this check's first
+        run, caught here on the first pass before merge rather than after.
+      - >-
+        Shipped with the full checklist: LICENSE, disclaimer and privacy
+        line in both the README and the product, opt-out-respecting local
+        usage counting (`check_run`, `example_loaded`, `file_loaded`), a
+        matching zero-dependency CLI (`--strict`, `--json`), one
+        discoverability docs page ("why Helm silently accepts a typo in
+        values.yaml") explaining the Go-template mechanism directly, and one
+        comparison page (`vs-helm-lint.html`) with the not-affiliated
+        disclaimer, verified by `node platform/pages/clauses.mjs`. 42 venture
+        assertions (`engine`, `cli`, `page`), all green.
+      - >-
+        Cross-linked `k8s-deprecated-api-check` both ways (one hop, direct
+        hrefs) since neither had an existing sibling and the orphan budget
+        in `siblings-budget.json` is 0 -- the two now sit adjacent in the
+        same Helm-chart-to-cluster delivery pipeline (does values.yaml match
+        its schema, then will the rendered manifest's apiVersion survive the
+        target cluster). Classified into the existing `ci` category in
+        `platform/pages/build.mjs` beside both siblings, confirmed via
+        `catalog.json` before and after the edit.
+      - >-
+        Registered in `venture-scores.yaml` (composite 5.833, floor 1 on
+        `ai_leverage`, both liability/ethics gates pass) and
+        `portfolio/pipeline/README.md`'s screening record. Tree-count drift
+        fixed via `sync_tree_counts.py` (mirrored-tool count 303->304,
+        opt-out-switch count 287->288) and `sync_readme_counts.py` (the
+        `runs-on` count this new workflow moved), each with a running-comment
+        entry naming which venture moved it. `node platform/marketing/
+        regen.mjs` run twice (once pre-fix, once after the accessibility
+        fix) to keep the front-door mirror current.
+      - >-
+        Full verification, all green: venture suite (42/42), full
+        `platform/pages` + `platform/marketing` (1272/1272 after regen.mjs),
+        `gitops/tests` (607/1 skip, unchanged), all 15 `platform/ci`
+        unittest modules + `agent_review`, `portfolio/ledger`+`scoring`+
+        `router`+`usage`+`pipeline`+`infra/tests` (446/446), every validator
+        (`router/validate.py`, `publish_surface.py --check`,
+        `score_ventures.py --check`, doc/candidate consistency,
+        `check_no_payment_code.py`, `sync_tree_counts.py --check`,
+        `sync_readme_counts.py --check`), `clauses.mjs` (fleet-wide),
+        `build.mjs` + `check.mjs` against the built artifact (304 products,
+        no dead links), and a targeted Playwright/axe pass on both this
+        venture and its sibling (clean after the label fix). Actions was
+        starved (`ci_starvation.py`, `runner_id: 0`) on the PR's own check,
+        confirmed before merging on local verification alone.

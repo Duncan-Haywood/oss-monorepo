@@ -62,6 +62,15 @@ test("index links one hop to the k8s-rollout-safety-check sibling", async () => 
   );
 });
 
+test("index links one hop to the helm-values-schema-check sibling", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(
+    page,
+    /href="\.\.\/helm-values-schema-check\/"/,
+    "index must link ../helm-values-schema-check/ so crawlers reach this tool in one hop from a sibling",
+  );
+});
+
 test("sitemap lists all three published pages", async () => {
   const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
   for (const loc of ["index.html", "why-a-manifest-fails-a-kubernetes-upgrade.html", "vs-pluto.html"]) {

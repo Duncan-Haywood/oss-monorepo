@@ -1,0 +1,117 @@
+name: android-data-safety-check
+description: >-
+  Free, browser-local and CLI checker for Android developers: scans an
+  AndroidManifest.xml's permissions and a project's Gradle dependencies for
+  known analytics/ads/crash SDKs (Firebase, AdMob, Facebook, and others),
+  maps each one to a Google Play Data safety category (Location, Contacts,
+  Photos and videos, App activity, Device or other IDs, and ten more), and
+  cross-checks the result against a plain list of the categories the
+  developer says they've already declared in Play Console's App content >
+  Data safety form -- naming the exact permission or SDK, file, and line
+  behind a category the app looks like it collects but the declaration
+  doesn't mention. A reference cross-check against a fixed mapping table,
+  never a determination that Play Console will accept a submission -- not
+  advice-of-record, no compliance warranty, and it says so on every page.
+stage: prototype
+owner: duncan
+
+# CLI/checker archetype, chosen deliberately per portfolio/pipeline/README.md's
+# "archetype itself" section (2026-09-07, widened 2026-09-11 for the
+# -check/-checker shape specifically): this is the same "read a manifest you
+# already have, name the exact undeclared/unused entry" shape as
+# ios-privacy-manifest-check and chrome-extension-permission-check, but for a
+# genuinely different platform review gate that neither of those two, nor any
+# other venture, reads at all -- Google Play's Data safety declaration against
+# AndroidManifest.xml permissions and Gradle SDK dependencies. It is the
+# direct Android-side counterpart the iOS venture's own README already
+# gestures at (a sibling checker "for a different supply chain"), closing the
+# obvious remaining gap in that pair rather than opening a new one.
+#
+# duplicate_check.py, run against this description before VENTURE.yaml
+# existed, scored every other venture, screened-out row, ai-first-markets
+# idea, and pipeline candidate at or below 0.13 -- nowhere near the 0.45
+# read-this-first bar (re-run after graduation naturally scores 1.00 against
+# this venture's own now-committed description; the pre-graduation reading
+# is the one that matters). Closest by score: chrome-extension-permission-check
+# (0.13, shares only the "manifest permissions vs detected API usage" shape,
+# a different store and a different declaration mechanism entirely --
+# Play Console's Data safety form vs. a manifest.json's permissions list),
+# ios-privacy-manifest-check and obsidian-plugin-review-check (0.12, the iOS
+# App Store side of the same "catch it before the store does" idea, not the
+# Android side, and pure lexical overlap on "review check" respectively),
+# wordpress-plugin-review-check and app-store-screenshot-check (0.09). A
+# hand grep of every VENTURE.yaml and screened-out.md for "android", "play
+# console", "data safety", and "google play" turned up nothing already
+# covering this.
+#
+# Liability is scored conservatively for a different reason than the
+# statutory-damages cases elsewhere in this pipeline: Google's Data safety
+# taxonomy and a given SDK's actual collected data can both change without
+# notice, and the worst case of relying on a stale reading here is a wrong
+# Play Console declaration -- app suspension exposure, not a lawsuit against
+# the user. The mitigation is the same disclosure pattern as
+# ios-privacy-manifest-check: every page states this is pattern-matching
+# against known symbols, not a determination; the permission/SDK list is
+# dated and stated as reproduced from public documentation as of 2026-09; an
+# unrecognised permission or SDK is silently *not* flagged rather than
+# guessed at (documented in the README as "silence is a gap in this list,
+# not a clean bill of health"); and the tool never picks a collection
+# purpose or sharing status on the developer's behalf -- only the developer
+# knows the real answer to those questions.
+#
+# Distribution channel, named rather than assumed: r/androiddev (one of
+# Reddit's largest active developer subreddits) and Stack Overflow's
+# `android` + `google-play-console` tags carry frequent, recurring threads
+# about Play Console Data safety mismatches and the resulting policy
+# warnings or listing suspensions -- a long-documented pain point since the
+# section became mandatory. Organic search terms with plausible recurring
+# volume: "google play data safety rejected", "data safety section
+# mismatch", "play console policy warning data safety". No external
+# search-volume tool was queried to confirm magnitude, matching this
+# pipeline's standing caveat for every checker at graduation.
+hypotheses:
+  - claim: >-
+      An Android developer who gets a Play Console Data safety policy
+      warning, or who is proactively auditing before a release, will search
+      the exact phrasing and find this tool, since no existing free tool
+      cross-checks manifest permissions and Gradle SDK dependencies against
+      a developer's own declared category list.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      r/androiddev and Stack Overflow's android / google-play-console tags
+      carry real, recurring thread volume for Data safety mismatches and
+      policy warnings, verbatim.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      A developer who gets a clean report from the CLI will wire it into
+      their own release checklist or CI as a pre-submission gate, producing
+      return usage without any action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI/repo engagement after being listed and indexed
+    for a fair run (per portfolio/usage/README.md's "fair run" definition).
+  - Google materially changes the Data safety mechanism (e.g. replaces the
+    declared-category form with a different enforcement method) such that
+    the detection/cross-check approach here no longer maps to a real policy
+    warning cause.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/android-data-safety-check/
+  analytics: null

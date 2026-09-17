@@ -136,6 +136,9 @@
     <loc>https://marisstella.dev/tools/3d-print-price-calculator/vs-slicer-cost-estimate.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/3d-print-price-calculator/vs-the-3x-filament-rule.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/3pl-quote-normalizer/</loc>
   </url>
   <url>
@@ -397,6 +400,15 @@
     <loc>https://marisstella.dev/tools/amazon-fba-calculator/vs-amazon-revenue-calculator.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/android-data-safety-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/android-data-safety-check/missing-data-safety-declaration.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/android-data-safety-check/vs-manually-reviewing-play-console-warnings.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/app-store-screenshot-check/</loc>
   </url>
   <url>
@@ -617,6 +629,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/bounce-house-rental-calculator/vs-inflatableoffice.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/branch-protection-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/branch-protection-drift-check/why-branch-protection-drifts.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/brand-deal-rate-calculator/</loc>
@@ -1145,6 +1163,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/duplicate-payment-audit/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/duplicate-payment-audit/vs-a-spreadsheet.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/duplicate-payment-audit/vs-bill-com.html</loc>
@@ -1684,6 +1705,15 @@
     <loc>https://marisstella.dev/tools/hardwood-refinishing-bid-calculator/vs-jobber.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/helm-values-schema-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/helm-values-schema-check/vs-helm-lint.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/helm-values-schema-check/why-helm-silently-accepts-a-typo-in-values-yaml.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/hoa-reserve-fund-calculator/</loc>
   </url>
   <url>
@@ -1844,6 +1874,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/invoice-payment-terms-calculator/vs-quickbooks-online-invoicing.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/invoice-payment-terms-calculator/vs-spreadsheet.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/ios-privacy-manifest-check/</loc>
@@ -2092,6 +2125,9 @@
     <loc>https://marisstella.dev/tools/mobile-detailing-bid-calculator/how-much-to-charge.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/mobile-detailing-bid-calculator/vs-a-flat-per-vehicle-price.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/mobile-detailing-bid-calculator/vs-mobiletechrx.html</loc>
   </url>
   <url>
@@ -2224,6 +2260,9 @@
     <loc>https://marisstella.dev/tools/owner-operator-cpm-calculator/vs-dat-rateview.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/owner-operator-cpm-calculator/vs-dividing-your-bills-by-your-miles.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/package-exports-drift-check/</loc>
   </url>
   <url>
@@ -2306,6 +2345,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/pet-grooming-bid-calculator/how-much-to-charge.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/pet-grooming-bid-calculator/vs-a-flat-per-breed-price.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/pet-grooming-bid-calculator/vs-moego.html</loc>
@@ -2974,6 +3016,15 @@
     <loc>https://marisstella.dev/tools/standby-generator-bid-calculator/vs-servicetitan.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/stockx-seller-payout-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/stockx-seller-payout-calculator/how-much-does-stockx-take-from-sellers.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/stockx-seller-payout-calculator/vs-tracking-stockx-payouts-in-a-spreadsheet.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/storage-auction-max-bid-calculator/</loc>
   </url>
   <url>
@@ -3383,6 +3434,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/where-to-sell-calculator/reverb-vs-ebay-for-gear.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/where-to-sell-calculator/vs-each-marketplaces-own-calculator.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/where-to-sell-calculator/vs-vendoo.html</loc>

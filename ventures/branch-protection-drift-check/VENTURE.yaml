@@ -1,0 +1,92 @@
+name: branch-protection-drift-check
+description: Free, read-only checker that compares a repository's actual GitHub branch protection settings (pasted from the branch-protection API) against a declared policy, flagging every rule that has drifted weaker than intended -- a review requirement disabled for one hotfix and never re-enabled, force pushes quietly turned back on, admin enforcement silently off, or a required status check the policy names but the live settings lack.
+stage: prototype
+
+owner: duncan
+
+# Screened 2026-09-17 with `python3 portfolio/pipeline/duplicate_check.py`
+# against every existing venture, pipeline candidate, screened-out row, and
+# ai-first-markets idea -- top score 0.13 (required-checks-drift-check),
+# well under the 0.45 flag bar. Read that closest match directly:
+# required-checks-drift-check's own VENTURE.yaml states its scope
+# explicitly -- "it never reads your branch protection settings ... and
+# never changes a repository setting" -- and its README's "What it is not"
+# section names "a full review of your branch-protection configuration" as
+# out of scope. required-checks-drift-check answers one narrow question
+# (does a required check *name* still match a job that would report on a
+# pull request today); this venture answers a different one (does the
+# *policy* -- review counts, admin enforcement, force-push/deletion rules,
+# which checks are required at all -- still match what was declared). A
+# repository can pass one check and fail the other independently: renaming
+# no jobs and dropping required reviews to zero trips only this venture;
+# renaming a job while every policy field stays correct trips only
+# required-checks-drift-check. Not a duplicate of codeowners-shadow-check
+# either (CODEOWNERS pattern-precedence, a different review-requirement
+# mechanism entirely from branch-protection settings).
+#
+# Shape rationale: portfolio/pipeline/README.md's "archetype itself"
+# section found the fleet has tried 300+ near-identical
+# <trade>-bid-calculator clones with zero measured visitors, and told
+# sessions to weigh a CLI/checker shape over another calculator absent an
+# unusually strong named channel. This is that shape, following
+# required-checks-drift-check's, pinned-actions-check's, and
+# docker-base-image-pin-check's precedent: a deterministic diff between two
+# things a repo maintainer already has (a settings export and a written
+# policy), aimed at a failure mode with genuine, recurring cost --
+# GitHub's own community forum and security-focused blog posts document
+# the "we thought reviews were required" incident repeatedly, and it is
+# the kind of gap that surfaces only after it has already mattered.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# both high -- this is a mechanical, read-only comparator with no
+# advice-of-record, no compliance claim, no data leaving the user's
+# device, and no scraping. It makes no network calls of its own anywhere
+# in the code (engine.mjs, cli.mjs): it never calls the GitHub API on the
+# user's behalf, never opens a pull request, and never changes a
+# repository setting. The user pastes both inputs; the comparison runs
+# entirely against what they provided. Comparable to
+# required-checks-drift-check, pinned-actions-check, and
+# docker-base-image-pin-check, all already graduated and live on this
+# exact reasoning.
+hypotheses:
+  - claim: >-
+      A maintainer who just finished an incident retrospective, or is
+      preparing for a compliance review, will paste their repository's
+      actual branch protection settings and a written policy to find every
+      rule that quietly drifted -- landing from a search for
+      "branch protection audit", "did branch protection get disabled", or
+      a security-blog post about the hotfix-forgot-to-revert failure mode
+      -- since no existing free tool compares live settings against a
+      user-declared policy while staying entirely local, with no
+      repository access, no login, and no install.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A team will wire `cli.mjs --actual actual.json --policy policy.txt
+      --fail-on-drift` into a scheduled CI job (fetching actual.json with
+      `gh api` first) to catch a branch-protection setting drifting out of
+      sync with policy before an incident depends on it, the same way
+      `required-checks-drift-check`'s `--fail-on-stale` convention is meant
+      to be used.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using cli.mjs or engine.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/branch-protection-drift-check/
+  analytics: null

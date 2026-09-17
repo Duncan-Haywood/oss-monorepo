@@ -9710,6 +9710,59 @@ ventures:
       required check name match a job that would report on a pull request
       today -- not a full audit of branch protection or CI configuration.
 
+  - slug: branch-protection-drift-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic field comparison between a pasted branch-protection API
+      response and a pasted declared policy. There is nothing to infer: a
+      boolean either matches, a count is either at least the declared
+      minimum, and a required-check name is either present in the actual
+      list or it is named as missing.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a zero-dependency CLI + browser page beside
+      required-checks-drift-check, not another <trade>-bid-calculator.
+      duplicate_check.py scored the closest existing venture
+      (required-checks-drift-check itself) at 0.13 against the final
+      description, well under the 0.45 flag bar; that venture's own
+      README explicitly scopes out "a full review of your
+      branch-protection configuration", which is exactly this venture's
+      subject. Autonomous ops 10 / gross margin 10: nothing to host -- the
+      browser page compares pasted text client-side and the CLI runs on
+      the user's own machine against a file already on disk, so serving
+      one more user costs a static file and needs no human review of any
+      output. Distribution 5: real but less pointed than
+      required-checks-drift-check's verbatim search string -- "branch
+      protection audit" and "did branch protection get disabled" are
+      genuine but less concentrated queries than an exact GitHub error
+      message. Time to revenue 6, defensibility 4: donations-only; a
+      transparent field comparison over a well-documented API response is
+      easy to reimplement, so defensibility rests on the specific
+      declared-policy framing and this portfolio's disclaimer/usage
+      conventions, not on any moat or first-mover position.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: a read-only comparator over a branch-protection API response
+      and a declared policy the user already has or pastes in -- no
+      network call of its own, no GitHub API credential, no data leaving
+      the browser or the user's own machine, and no repository or
+      branch-protection setting is ever changed on the user's behalf. The
+      page's footer and FAQ state plainly that a clean result answers only
+      the rules the user's own policy declares, not a full audit or
+      compliance attestation.
+
   - slug: oidc-trust-policy-check
     scores:
       ai_leverage: 1
@@ -10704,6 +10757,67 @@ ventures:
       product can't back up. Ethical robustness: gets strictly better for
       users as it scales -- more upgrade failures caught before they happen,
       free, with no paid tier gating accuracy and no adversarial dynamic.
+  - slug: helm-values-schema-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a values.yaml field
+      matches its schema's declared type, enum, range, or exists in the
+      schema's properties at all is a deterministic structural comparison
+      against two files the user supplies, not a model judgment.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free CLI + browser checker, not another
+      <trade>-bid-calculator, filed beside k8s-deprecated-api-check and
+      k8s-rollout-safety-check in the `ci` category for the same
+      "read what is actually there, report the exact evidence, never
+      fetch" shape, applied to a distinct, well-documented Helm behavior
+      rather than chosen because "checker" is underused.
+      duplicate_check.py's closest matches across two phrasings were
+      obsidian-plugin-review-check at 0.22/0.16 and
+      openapi-breaking-change-check at 0.14 -- well under the 0.45 review
+      bar, and neither validates one YAML file against a JSON Schema. No
+      existing venture mentions Helm at all. Distribution 5 (more
+      conservative than k8s-deprecated-api-check's 6): Helm's own chart
+      documentation describes values.schema.json directly, and specific
+      real search strings exist for the undeclared-field confusion, but
+      the likely subreddit audience is smaller and no single well-known
+      competing OSS tool was identified to draw comparison-search traffic
+      the way Pluto does for its sibling -- vs-helm-lint.html compares
+      against Helm's own built-in command instead, a real but narrower
+      draw. Autonomous ops 10 / gross margin 10: both the browser page and
+      the CLI parse only locally supplied YAML/JSON text, no network call
+      in either, so serving one more user costs a static file.
+      Defensibility 4: forkable like every checker in this portfolio; the
+      JSON Schema walk and the YAML reader (adapted from
+      actions-minutes-estimator's parser) are the whole product, no
+      proprietary data. Time to revenue 5: donations-only like the rest of
+      the fleet, scored against the same narrower-channel reasoning as
+      distribution above.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool reports a structural comparison between two files the
+      user supplies and fully controls -- no filing, signature, deployment
+      action, or determination made on the user's behalf, and the worst
+      case is a missed or extra flag in a text report, never an
+      infrastructure change (the tool makes no Helm call and touches no
+      chart, cluster, or release). Every claim about Helm's own template
+      behavior and helm lint's additionalProperties handling is verifiable
+      directly against Helm's public documentation and source. Ethical
+      robustness: gets strictly better for users as it scales -- more
+      typos and schema violations caught before a release, free, with no
+      paid tier gating accuracy and no adversarial dynamic.
   - slug: app-store-screenshot-check
     scores:
       ai_leverage: 1
@@ -13770,3 +13884,119 @@ ventures:
       only with no per-use fee, so nothing biases the arithmetic toward a
       higher or lower result, and the tool never touches a live delivery,
       tank safety determination, or hazmat compliance filing.
+
+  - slug: stockx-seller-payout-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model -- a Seller-Level
+      fee tier, a Fast Shipping discount that stacks on top of it, a flat
+      payment-processing percentage, and a flat outbound shipping cost that
+      matters proportionally more on a cheap item than an expensive one --
+      and it is arithmetic a reseller has to be able to re-derive whenever
+      their own seller level or shipping enrollment changes.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section and `python3 portfolio/pipeline/duplicate_check.py`:
+      the closest existing venture scored 0.19 (1099k-reconciliation-
+      worksheet), well under the 0.45 near-duplicate flag bar -- no
+      existing marketplace-fee venture (`ebay-fee-calculator`,
+      `whatnot-seller-payout`, `poshmark-fee-calculator`,
+      `faire-wholesale-calculator`) models a seller-level fee tier or a
+      Fast Shipping discount, because none of those storefronts price that
+      way. Same single-channel fee-schedule shape as `whatnot-seller-
+      payout` and `poshmark-fee-calculator`, scored the same way.
+      Defensibility 5: the seller-level-tier-plus-Fast-Shipping-discount
+      arithmetic is specific to this buyer and not modeled by a generic
+      resale-fee calculator, and it is the case (a seller whose level or
+      shipping enrollment just changed) where a stale spreadsheet formula
+      most often misprices a sale. Distribution 7: "how much does stockx
+      take" and "stockx fee calculator" are established, high-intent
+      seller queries with named communities (r/Sneakers, r/FlippingSneakers,
+      r/Sneakerheads) and no incumbent free tool modeling the seller-level
+      tier and Fast Shipping discount together, but volume is unmeasured
+      against this portfolio's own traffic, which has never recorded a
+      visitor reading for any product.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability: the page, guide page, and README state, near the
+      top and explicitly, that this is not an authentication, inventory,
+      or sourcing tool of any kind -- it never verifies an item, tracks
+      stock, or replaces the user's own StockX seller dashboard and payout
+      statements. No price, rate, or fee is hardcoded as fact; every one
+      (sale price, cost basis, seller fee, Fast Shipping discount, payment
+      processing, shipping cost) is a user-supplied, illustrative
+      placeholder, and the footer states plainly that StockX's rates
+      change over time and to verify against the user's own current
+      dashboard. The output is arithmetic on the seller's own figures,
+      never a recommended price or a claim about StockX's live fee
+      schedule. Nothing entered leaves the browser. Ethically: donations-
+      only with no per-use fee, so nothing biases the arithmetic toward a
+      higher or lower result, and the tool never touches authentication,
+      shipping, or payout processing itself.
+  - slug: android-data-safety-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a permission or a Gradle
+      SDK coordinate maps to a Play Data safety category, and whether a
+      detected category is in the developer's own declared list, is decided
+      entirely by a fixed mapping table and set comparison -- never a model
+      judgment.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's scoring
+      process, following the same CLI/checker archetype as
+      ios-privacy-manifest-check and chrome-extension-permission-check but
+      for a genuinely different platform review gate (Google Play's Data
+      safety declaration against AndroidManifest.xml permissions and
+      Gradle SDK dependencies) that no other venture reads at all.
+      duplicate_check.py scored every other venture, screened-out row, and
+      pipeline candidate at or below 0.13 against the final description
+      before this venture existed; the closest, chrome-extension-permission-
+      check, shares only the "manifest permissions vs detected API usage"
+      shape, a different store and a different declaration mechanism
+      entirely. Defensibility 2, distribution 6: scored deliberately modest
+      on defensibility -- a permission/SDK-to-category mapping table is easy
+      to reproduce once someone thinks to -- while distribution reflects a
+      real, named, recurring developer pain point (r/androiddev and Stack
+      Overflow's android / google-play-console tags discuss Data safety
+      mismatches and policy warnings regularly) rather than a channel
+      invented from nothing. No search-volume tool was queried to confirm
+      magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, comfortably above the floor. The worst case of relying on a
+      stale or incomplete reading here is a wrong Play Console declaration
+      -- app suspension/policy-warning exposure, not a lawsuit against the
+      user -- and the mitigation is the same disclosure pattern as
+      ios-privacy-manifest-check: every page states this is pattern-matching
+      against known symbols, not a determination; the permission/SDK list is
+      dated and stated as reproduced from public documentation as of
+      2026-09; an unrecognised permission or SDK is silently not flagged
+      rather than guessed at; and the tool never picks a collection purpose
+      or sharing status on the developer's behalf. Ethically: donations-only
+      with no per-use fee, so the tool has no incentive to under- or
+      over-report a category, and it gets strictly more useful to a
+      developer the more accurately they declare what they collect.

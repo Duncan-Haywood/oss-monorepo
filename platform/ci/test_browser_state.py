@@ -657,3 +657,43 @@ class ArtifactCountIsNotAttributedToAnyCheck(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SharedFilesChangedTest(unittest.TestCase):
+    """Naming the files behind "the builder changed".
+
+    Measured 2026-09-17: eleven full-catalogue sweeps landed in one day, all
+    passing, because `clauses.mjs` and `launched.json` take a row per venture
+    merge and sit in a tree whose movement invalidates all 1145 pages. The
+    report must let a session see which it is before spending ~40 minutes.
+    """
+
+    def test_it_lists_the_shared_files_that_moved(self):
+        with mock.patch.object(
+            browser_state, "_git", return_value=(0, "platform/pages/launched.json\nplatform/pages/clauses.mjs\n")
+        ):
+            self.assertEqual(
+                browser_state.shared_files_changed("abc1234"),
+                ["platform/pages/launched.json", "platform/pages/clauses.mjs"],
+            )
+
+    def test_an_unanswerable_question_is_none_not_empty(self):
+        """None and [] support opposite conclusions, as elsewhere in this tool.
+
+        [] reads as "nothing moved", which would be a claim. A failed git
+        call has measured nothing and must not read as one.
+        """
+        with mock.patch.object(browser_state, "_git", return_value=(128, "")):
+            self.assertIsNone(browser_state.shared_files_changed("abc1234"))
+
+    def test_it_caps_the_list_rather_than_printing_every_path(self):
+        many = "\n".join(f"platform/pages/f{i}.mjs" for i in range(50))
+        with mock.patch.object(browser_state, "_git", return_value=(0, many)):
+            self.assertEqual(len(browser_state.shared_files_changed("abc1234", limit=6)), 6)
+
+    def test_it_does_not_narrow_what_counts_as_stale(self):
+        """Advisory only. Narrowing invalidation would need to read the diff's
+        meaning, and getting that wrong lets a real regression go unswept."""
+        recorded = {"platform/pages": "a" * 40, "platform/marketing": "b" * 40}
+        head = {"platform/pages": "c" * 40, "platform/marketing": "b" * 40}
+        self.assertTrue(browser_state._shared_changed_trees(recorded, head))
