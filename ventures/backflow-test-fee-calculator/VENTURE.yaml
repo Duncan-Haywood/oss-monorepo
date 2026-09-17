@@ -1,0 +1,103 @@
+name: backflow-test-fee-calculator
+description: >-
+  Free browser calculator for licensed backflow-preventer testers quoting a
+  property visit with multiple devices (RPZ, double-check, PVB): a
+  per-device test fee with a multi-device discount for devices after the
+  first on the same trip, a per-device municipal report-filing fee, a
+  one-time travel fee, and a retest fee for devices that fail -- then a
+  plain-text breakdown to paste into an invoice or work order.
+
+stage: prototype
+owner: duncan
+
+# Screened as a new niche during a 2026-09-16 PROCEED-verdict session
+# (session_gate.py: build-now queue empty, new-venture-first per
+# DIRECTION.md's 2026-09-06 owner direction). duplicate_check.py scored
+# every existing venture, screened-out row, and pipeline candidate at 0.12
+# or below for "backflow preventer annual testing fee calculator for
+# licensed testers -- per-device fee (RPZ, double check, PVB) plus travel
+# and municipal report filing fee for multi-device commercial properties",
+# far under the 0.45 review bar. Not in portfolio/pipeline/screened-out.md:
+# no row mentions backflow, cross-connection control, or RPZ/PVB testing.
+# Not a repeat of the portfolio's ~140 <trade>-bid-calculator installation
+# quotes: this prices a recurring compliance *test* visit with a
+# per-device discount and filing-fee structure none of those model, closer
+# in shape to fire-extinguisher-inspection-route-margin and
+# home-inspection-fee-calculator (a recurring inspection/testing fee, not a
+# one-time installation bid).
+#
+# Not an advice-of-record product: it totals the fee schedule the tester
+# already charges against the devices on one job -- it never determines
+# whether a device passed or failed, and it does not know any specific
+# water utility's required report form, filing deadline, or device
+# requirements. That caveat is stated in the calculator's own findings, the
+# FAQ, and the footer, not only in fine print -- the same shape
+# overtime-pay-calculator and security-deposit-return-calculator use for
+# their own jurisdiction/state caveats.
+#
+# Distribution channel: annual (or biennial, by utility) backflow testing
+# is legally required almost everywhere in the US for commercial,
+# multi-unit, and irrigation water services (EPA cross-connection control
+# guidance implemented through state and municipal programs), and it is
+# performed by testers certified through state or ASSE/ABPA programs who
+# quote multi-device commercial jobs routinely. "Backflow test fee
+# calculator", "how to price backflow testing multiple devices", and
+# "backflow tester pricing" are real, recurring search phrases among that
+# population, and the American Backflow Prevention Association (ABPA) and
+# state cross-connection-control associations are the trade's own
+# discussion venues -- the same channel shape as
+# fire-extinguisher-inspection-route-margin's route-based inspection trade.
+
+hypotheses:
+  - claim: >-
+      A backflow tester quoting a multi-device commercial property will
+      search "backflow test fee calculator" or "how to price backflow
+      testing multiple devices" and use a free calculator rather than redo
+      the per-device discount, filing-fee, and retest arithmetic by hand for
+      every job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Most real jobs are multi-device (a strip mall or apartment complex
+      with several assemblies on one visit), so the multi-device discount
+      and per-device filing fee are the differentiator over a plain
+      single-fee total -- measurable by whether most calculated jobs have
+      more than one device, once usage data exists.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: >-
+      Stating the jurisdiction caveat (this tool does not know your water
+      utility's report form or filing deadline) up front, in the result
+      itself and not only the footer, reduces the chance a tester invoices
+      or files based on this tool's total without checking their utility's
+      own requirements.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  # Zero, and structurally so: all arithmetic runs in the visitor's own
+  # browser against numbers they type in. Serving one more user costs a
+  # static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic, return usage, or unsolicited feedback after being
+    listed and indexed for a fair run (per portfolio/usage/README.md's
+    "fair run" definition).
+  - A materially better free tool covering the same multi-device fee
+    arithmetic at the same zero-install, zero-signup bar becomes the
+    obvious default, such that this tool's differentiation no longer holds.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/backflow-test-fee-calculator/
+  analytics: null

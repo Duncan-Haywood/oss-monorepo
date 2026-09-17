@@ -215,3 +215,13 @@ test('index links one hop to the medical-courier-route-margin sibling', () => {
     'index must link ../medical-courier-route-margin/ so a crawler reaches that tool in one hop',
   );
 });
+
+// Reciprocal of backflow-test-fee-calculator's own inbound link to this
+// venture: the same recurring-compliance-test shape, a different trade.
+test('index links one hop to the backflow-test-fee-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/backflow-test-fee-calculator\/"/,
+    'index must link ../backflow-test-fee-calculator/ so a crawler reaches that tool in one hop',
+  );
+});

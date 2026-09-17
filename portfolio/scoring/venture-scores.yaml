@@ -12644,6 +12644,73 @@ ventures:
       has no incentive to over- or under-report a change, and it gets
       strictly more useful the more builds a team compares against it.
 
+  - slug: backflow-test-fee-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 5
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic over a fee schedule the tester already
+      charges: a per-device fee, a multi-device discount for devices after
+      the first, a per-device filing fee, a travel fee, and a retest fee.
+      There is no inference step and no judgment about whether a device
+      passed or failed -- that stays the tester's own call.
+    basis: >-
+      Graduated 2026-09-16 as a free calculator for backflow-preventer
+      testers quoting a multi-device property visit (RPZ, double-check,
+      PVB): a per-device test fee, a multi-device discount applied to every
+      device after the first on the same visit, a per-device municipal
+      report-filing fee, a one-time travel fee, and a retest fee for devices
+      that fail. A new vertical (recurring cross-connection-control testing)
+      rather than the portfolio's ~140 <trade>-bid-calculator one-time
+      installation quotes, closer in shape to
+      fire-extinguisher-inspection-route-margin and
+      home-inspection-fee-calculator (a recurring inspection/testing fee).
+      `duplicate_check.py` scored nothing >= 0.12 against any existing
+      venture, pipeline candidate, or screened-out row.
+      Autonomous ops 10 / gross margin 10: entirely client-side, no server
+      component, zero marginal cost per visitor.
+      Time to revenue 5, level with the portfolio's other free-forever
+      utilities: no direct revenue path beyond the standard voluntary
+      GitHub Sponsors link.
+      Defensibility 3, alongside ai_leverage the floor: the arithmetic
+      itself is commodity once you know the fee structure -- what is not
+      commodity is that most hand-built fee sheets drop the filing fee on a
+      discounted or failed device, or apply the multi-device discount to
+      the first device by mistake.
+      Distribution 5: annual (or biennial, by water utility) backflow
+      testing is legally required almost everywhere in the US for
+      commercial, multi-unit, and irrigation water services, performed by
+      testers certified through state or ASSE/ABPA programs who quote
+      multi-device commercial jobs routinely -- a real, narrower population
+      than the portfolio's payroll or trade-bid audiences, with the ABPA and
+      state cross-connection-control associations as the trade's own
+      discussion venues. Scored a point below overtime-pay-calculator's 6
+      for that narrower reach, not for a weaker problem fit.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool only totals the fee schedule and discount the tester
+      configures against the devices they enter -- it does not test
+      anything, does not determine whether a device passed or failed, and
+      does not know any specific water utility's required report form,
+      filing deadline, or device-type requirements. Being wrong costs one
+      party a miscalculated invoice total to double-check, not a filing or a
+      third party's safety; the page states in the calculator's own
+      findings, the FAQ, and the footer (not only the footer) that it does
+      not know the utility's requirements and does not determine pass/fail.
+      Ethically: deterministic arithmetic, no dark patterns, no data
+      collected server-side, and no incentive to over- or under-report a
+      device's status since the tool never makes that determination at all.
+
   - slug: land-survey-bid-calculator
     scores:
       ai_leverage: 1
