@@ -33,22 +33,22 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 555790 bytes
-#   portfolio-front-tools-1: 106 files, 554529 bytes
-#   portfolio-front-tools-2: 148 files, 556396 bytes
-#   portfolio-front-tools-3: 140 files, 556860 bytes
-#   portfolio-front-tools-4: 123 files, 555962 bytes
-#   portfolio-front-tools-5: 138 files, 554321 bytes
-#   portfolio-front-tools-6: 118 files, 556586 bytes
-#   portfolio-front-tools-7: 134 files, 546494 bytes
-#   portfolio-front-tools-8: 112 files, 556817 bytes
-#   portfolio-front-tools-9: 110 files, 556475 bytes
-#   portfolio-front-tools-10: 124 files, 550433 bytes
-#   portfolio-front-tools-11: 128 files, 555841 bytes
-#   portfolio-front-tools-12: 112 files, 547217 bytes
-#   portfolio-front-tools-13: 104 files, 555810 bytes
-#   portfolio-front-tools-14: 113 files, 556010 bytes
-#   portfolio-front-tools-15: 78 files, 386331 bytes
+#   portfolio-front-tools-0: 133 files, 555793 bytes
+#   portfolio-front-tools-1: 106 files, 554539 bytes
+#   portfolio-front-tools-2: 148 files, 556404 bytes
+#   portfolio-front-tools-3: 140 files, 556868 bytes
+#   portfolio-front-tools-4: 123 files, 555972 bytes
+#   portfolio-front-tools-5: 138 files, 554330 bytes
+#   portfolio-front-tools-6: 118 files, 556597 bytes
+#   portfolio-front-tools-7: 137 files, 556836 bytes
+#   portfolio-front-tools-8: 112 files, 556825 bytes
+#   portfolio-front-tools-9: 110 files, 556482 bytes
+#   portfolio-front-tools-10: 124 files, 550371 bytes
+#   portfolio-front-tools-11: 128 files, 556036 bytes
+#   portfolio-front-tools-12: 112 files, 547181 bytes
+#   portfolio-front-tools-13: 104 files, 555818 bytes
+#   portfolio-front-tools-14: 113 files, 555976 bytes
+#   portfolio-front-tools-15: 78 files, 386349 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1104,6 +1104,9 @@ configMapGenerator:
       - equipment-rental-break-even__share.mjs.gz=equipment-rental-break-even__share.mjs.gz
       - equipment-rental-break-even__usage.mjs.gz=equipment-rental-break-even__usage.mjs.gz
       - equipment-rental-break-even__vs-booqable.html.gz=equipment-rental-break-even__vs-booqable.html.gz
+      - estate-sale-net-proceeds-calculator__calc.mjs.gz=estate-sale-net-proceeds-calculator__calc.mjs.gz
+      - estate-sale-net-proceeds-calculator__index.html.gz=estate-sale-net-proceeds-calculator__index.html.gz
+      - estate-sale-net-proceeds-calculator__usage.mjs.gz=estate-sale-net-proceeds-calculator__usage.mjs.gz
       - ev-charger-bid-calculator__calc.mjs.gz=ev-charger-bid-calculator__calc.mjs.gz
       - ev-charger-bid-calculator__how-much-to-charge.html.gz=ev-charger-bid-calculator__how-much-to-charge.html.gz
       - ev-charger-bid-calculator__index.html.gz=ev-charger-bid-calculator__index.html.gz
