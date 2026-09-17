@@ -112,7 +112,7 @@ python3 check.py --required-checks names.txt --fail-on-stale   # exit 2 if any r
     <p>A dynamic matrix built from an expression like <code>fromJson(...)</code>, or one using <code>include</code>/<code>exclude</code>, cannot be enumerated statically — those jobs are reported as <strong>unverifiable</strong> rather than guessed at. A job that calls a reusable workflow (<code>uses:</code> a <code>.yml</code> file) uses a different naming convention this tool does not compute, for the same reason.</p>
     <h3>Does a clean result mean my branch protection is fully correct?</h3>
     <p>No. This checks one specific, well-documented thing: whether each required check name matches a job that would report on a pull request today. It is not a full audit of your branch protection rules or CI configuration.</p>
-    <p>More: <a href="how-required-status-checks-go-stale.html">how a required status check goes stale, and how to fix it</a>.</p>
+    <p>More: <a href="how-required-status-checks-go-stale.html">how a required status check goes stale, and how to fix it</a>, and <a href="vs-reading-every-workflow-file-by-hand.html">this checker vs. reading every workflow file by hand</a>.</p>
   </section>
 
   <footer>
