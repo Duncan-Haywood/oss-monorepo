@@ -185,7 +185,15 @@ const RELATIVE_SELF = relative(
 // `storage-auction-max-bid-calculator` and `vector-db-cost-calculator`
 // landed, so it only ever knew its own predecessor's number (279, then
 // 280) until this merge.
-const SWITCHES_IN_THE_CATALOGUE = 281;
+// 281 -> 282 on 2026-09-17, when `dog-boarding-daycare-pricing` graduated
+// with its own `toggleUsage`/`usageAllowed` switch (the same
+// `recordEvent`/`toggleUsage`/`usageAllowed` pattern as
+// `dog-walking-route-pricing`'s `usage.mjs`), same discovery method as the
+// rest of this running count. This branch was open before
+// `vector-db-cost-calculator` and `required-checks-drift-check` landed, so
+// it only ever knew its own predecessor's number (280, then 281) until
+// this merge.
+const SWITCHES_IN_THE_CATALOGUE = 282;
 
 let counter = 0;
 function fixture(source) {

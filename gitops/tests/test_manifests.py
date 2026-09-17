@@ -1783,7 +1783,17 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `vector-db-cost-calculator` landed, so it only ever knew its own
     # predecessor's number (294, then 295) until this merge -- the same
     # ordinary collision shape recorded throughout this list.
-    total = 296  # `infra/OWNER_CHECKLIST.md`'s own "N of the 296 tools" wording.
+    # 297 since 2026-09-17, when `dog-boarding-daycare-pricing` graduated --
+    # a browser-local calculator pricing a boarding/daycare reservation from
+    # staff time, supplies, and overhead, with a threshold-based long-stay
+    # discount and a multi-dog discount, plus a facility-level kennel/run
+    # occupancy break-even distinct from any one reservation's price, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count. This branch was open before
+    # `vector-db-cost-calculator` and `required-checks-drift-check` landed,
+    # so it only ever knew its own predecessor's number (295, then 296)
+    # until this merge.
+    total = 297  # `infra/OWNER_CHECKLIST.md`'s own "N of the 297 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
