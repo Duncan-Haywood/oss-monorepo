@@ -172,6 +172,22 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // the division themselves. Same reasoning as the other generic-method pages
   // above.
   'auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html',
+  // Compares against "a flat per-vehicle price card" -- sedan/SUV/truck
+  // pricing every mobile detailer already posts, not a company or product
+  // this could be mistaken for. The page names no specific detailing
+  // franchise, app, or competitor (the venture's own named-product
+  // comparison, vs-mobiletechrx, carries its own trademark disclaimer) and
+  // its copy opens by agreeing the flat card is the right tool for
+  // advertising. Same reasoning as the other generic-method pages above.
+  'mobile-detailing-bid-calculator/vs-a-flat-per-vehicle-price.html',
+  // Compares against "a flat per-size price card" -- small/medium/large/giant
+  // pricing every groomer already posts, not a company or product this could
+  // be mistaken for. The page names no specific grooming franchise, app, or
+  // competitor (the venture's own named-product comparison, vs-moego,
+  // carries its own trademark disclaimer) and its copy opens by agreeing the
+  // flat card is the right tool for a phone quote. Same reasoning as the
+  // other generic-method pages above.
+  'pet-grooming-bid-calculator/vs-a-flat-per-breed-price.html',
   // Compares against "your phone's built-in world clock" -- a generic
   // feature every phone platform ships, not a company or product this could
   // be mistaken for. The page itself names no specific platform or vendor
@@ -319,6 +335,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // mistaken for. The page names no specific spreadsheet product. Same
   // reasoning as the other vs-spreadsheet / by-hand pages above.
   'security-deposit-return-calculator/vs-a-spreadsheet.html',
+  // Compares against tracking payment terms and a client's pay-run schedule
+  // in a spreadsheet formula -- a generic method every freelancer already
+  // has access to, not a company or product this could be mistaken for. The
+  // page names no specific spreadsheet or invoicing product. Same reasoning
+  // as the other vs-spreadsheet / by-hand pages above.
+  'invoice-payment-terms-calculator/vs-spreadsheet.html',
+  // Compares against "opening robots.txt and reading it" -- a generic manual
+  // habit every developer already has access to, not a company or product
+  // this could be mistaken for. Same reasoning as the other manual-method
+  // pages above.
+  'subpath-robots-check/vs-checking-robots-txt-by-eye.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
