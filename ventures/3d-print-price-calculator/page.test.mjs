@@ -102,6 +102,41 @@ test('comparison page FAQ structured data matches the visible answers', () => {
   }
 });
 
+// The generic-method comparison page (this tool vs. the flat "filament cost
+// times three" habit makers pass around). Unlike vs-slicer-cost-estimate.html
+// it names no vendor, so it is exempt from the not-affiliated disclaimer
+// (see platform/pages/clauses.mjs's COMPARISON_DISCLAIMER_EXEMPT) but still
+// owes the standard no-warranty footer and a reachable, reciprocal link.
+test('the 3x-filament-rule comparison page carries the standard disclaimer and is reachable from index', () => {
+  const compare = readFileSync(new URL('./vs-the-3x-filament-rule.html', import.meta.url), 'utf8');
+  assert.match(compare, /No warranty\.<\/strong> This tool is provided free and as-is/);
+  assert.match(compare, /<meta property="og:title" content="[^"]+">/);
+  assert.match(compare, /<meta property="og:description" content="[^"]+">/);
+  assert.match(compare, /href="\.\/"/, 'must link back to the calculator');
+  assert.match(
+    html,
+    /href="\.\/vs-the-3x-filament-rule\.html"/,
+    'index must link the comparison page so crawlers can reach it',
+  );
+});
+
+test('the 3x-filament-rule page FAQ structured data matches the visible answers', () => {
+  const compare = readFileSync(new URL('./vs-the-3x-filament-rule.html', import.meta.url), 'utf8');
+  const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(compare)[1]);
+  assert.equal(ld['@type'], 'FAQPage');
+  const visible = compare.replace(/<script[\s\S]*?<\/script>/g, '');
+  for (const entry of ld.mainEntity) {
+    assert.ok(
+      visible.includes(`<h3>${entry.name}</h3>`),
+      `structured-data question is not on the page: ${entry.name}`,
+    );
+    assert.ok(
+      visible.includes(`<p>${entry.acceptedAnswer.text}</p>`),
+      `structured-data answer does not match the visible copy for: ${entry.name}`,
+    );
+  }
+});
+
 // Every .html in the venture must be advertised by the sitemap; the venture
 // had exactly one page until now, so nothing here enforced that yet.
 test('every page in the venture is reachable from the sitemap', () => {
