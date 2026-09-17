@@ -288,7 +288,12 @@ const RELATIVE_SELF = relative(
 // merge -- three graduations in one afternoon, which is exactly the case
 // `sync_tree_counts.py` exists to settle after the merge rather than on any
 // one of the three branches.
-const SWITCHES_IN_THE_CATALOGUE = 292;
+// 292 -> 293 on 2026-09-17, when `twitch-payout-calculator` graduated with
+// its own `toggleUsage`/`usageAllowed` switch (opts out of the
+// `month-priced`/`gap-checked` counters). Verified the same way: exactly one
+// added `usage.mjs` (`ventures/twitch-payout-calculator/usage.mjs`) against
+// `origin/main` and no deletions.
+const SWITCHES_IN_THE_CATALOGUE = 293;
 
 let counter = 0;
 function fixture(source) {

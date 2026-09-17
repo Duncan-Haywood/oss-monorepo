@@ -1911,7 +1911,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `branch-protection-drift-check` and `helm-values-schema-check` landed,
     # so it only ever knew 306 until this merge -- the same ordinary
     # collision shape recorded throughout this list, three deep this time.
-    total = 308  # `infra/OWNER_CHECKLIST.md`'s own "N of the 308 tools" wording.
+    # 309 since 2026-09-17, when `twitch-payout-calculator` graduated -- a
+    # browser-local calculator turning a streamer's Tier 1/2/3 sub counts and
+    # Bits into real monthly take-home after their revenue split, correcting
+    # the belief that a mobile-purchased subscription pays less.
+    total = 309  # `infra/OWNER_CHECKLIST.md`'s own "N of the 309 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -1,0 +1,35 @@
+name: twitch-payout-calculator
+description: A private browser calculator for Twitch streamers to find real monthly take-home from Tier 1/2/3 subscriptions and Bits after their revenue split (50% standard, 70% for Partner Plus), plus any other income they supply, then check it against a monthly payout goal and see how many more Tier 1 subs close the gap. Corrects the common belief that a mobile-purchased subscription pays less, which stopped being true after Twitch's October 2024 pricing change.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Twitch streamers will use a payout calculator that turns Tier 1/2/3 sub counts and Bits into real take-home, because the dashboard's gross revenue figure does not show the effect of their own 50% or 70% revenue split.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Streamers who believe a mobile-purchased subscription pays them less, following the outdated app-store-cut assumption, will change how they steer viewers toward a purchase platform once shown that Twitch equalized this in October 2024.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Streamers approaching Partner Plus eligibility will use this calculator to see the size of the 50%-to-70% split change on their own identical sub month, rather than estimating it from memory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Streamers will return month over month to check total payout against an income goal and see how many more Tier 1 subs close the gap, the same way sellers return to per-item payout calculators elsewhere in this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/twitch-payout-calculator/
+  analytics: null

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 308 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 309 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -177,6 +177,15 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Creator &amp; solo earner income"/>
     <summary type="text">Free calculator for independent tutors and coaches: compares a discounted prepaid session package against pay-per-session pricing on effective hourly pay, not just revenue — the package discount can quietly cost more per hour than it saves once missed sessions are made up. Entirely client-side, nothing uploaded.</summary>
+  </entry>
+  <entry>
+    <title>Twitch Payout Calculator — Real Take-Home From Subs and Bits</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/twitch-payout-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/twitch-payout-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free calculator for Twitch streamers: find real monthly take-home from Tier 1/2/3 subs (50% standard or 70% Partner Plus split) and Bits, see whether a mobile subscription really pays less (it doesn&#39;t), and check how many more subs close a monthly income gap.</summary>
   </entry>
   <entry>
     <title>Vector Database Cost Calculator (Pinecone, Weaviate, Qdrant, pgvector)</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-12T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free browser planner for trade and service fleets: cost out repair-versus-replace for every van, truck and machine including the downtime days most owners leave out, then rank which ones to replace against a fixed capital budget. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>1099-K Reconciliation Worksheet — Etsy, eBay, Poshmark, Mercari Sellers</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/1099k-reconciliation-worksheet/"/>
-    <id>tag:marisstella.dev,2026:tool/1099k-reconciliation-worksheet</id>
-    <published>2026-09-11T00:00:00Z</published>
-    <updated>2026-09-11T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free browser worksheet that reconciles one or more Form 1099-K Box 1a totals (Etsy, eBay, Poshmark, Mercari, Depop, Whatnot, StockX) down to an estimated net profit by backing out refunds, marketplace-remitted sales tax, fees, cost of goods, and shipping. Nothing uploaded.</summary>
   </entry>
 </feed>
