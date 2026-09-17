@@ -2482,6 +2482,12 @@
     <loc>https://marisstella.dev/tools/repository-branch-hygiene/vs-github-branches.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/required-checks-drift-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/required-checks-drift-check/how-required-status-checks-go-stale.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/retainage-cashflow-calculator/</loc>
   </url>
   <url>
@@ -3344,5 +3350,8 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/world-clock-widget/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/world-clock-widget/vs-your-phones-clock-app.html</loc>
   </url>
 </urlset>

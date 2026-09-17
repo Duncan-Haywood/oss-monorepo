@@ -53,6 +53,15 @@
     <summary type="text">Paste two OpenAPI 3.0/3.1 JSON documents and see exactly which changes would break an existing client — a removed endpoint, a parameter that became required, a narrowed type, a removed enum value. Free, runs in your browser, nothing uploaded.</summary>
   </entry>
   <entry>
+    <title>Required Checks Drift Check — Is a Branch Protection Check Stuck Forever?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/required-checks-drift-check/"/>
+    <id>tag:marisstella.dev,2026:tool/required-checks-drift-check</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your branch protection required status checks and your GitHub Actions workflow YAML to find every required check name no job can ever report again — the reason a pull request sits at &#39;Expected — Waiting for status to be reported&#39; forever. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Storage Auction Max Bid Calculator — What the Cost Stack Actually Supports</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/storage-auction-max-bid-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/storage-auction-max-bid-calculator</id>
