@@ -35,16 +35,16 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 133 files, 555884 bytes
 #   portfolio-front-tools-1: 106 files, 554384 bytes
-#   portfolio-front-tools-2: 147 files, 553103 bytes
-#   portfolio-front-tools-3: 140 files, 553702 bytes
+#   portfolio-front-tools-2: 147 files, 556207 bytes
+#   portfolio-front-tools-3: 141 files, 554725 bytes
 #   portfolio-front-tools-4: 125 files, 556881 bytes
 #   portfolio-front-tools-5: 135 files, 554403 bytes
 #   portfolio-front-tools-6: 126 files, 556664 bytes
 #   portfolio-front-tools-7: 135 files, 556888 bytes
 #   portfolio-front-tools-8: 112 files, 544617 bytes
 #   portfolio-front-tools-9: 113 files, 554783 bytes
-#   portfolio-front-tools-10: 119 files, 555939 bytes
-#   portfolio-front-tools-11: 123 files, 541530 bytes
+#   portfolio-front-tools-10: 118 files, 556219 bytes
+#   portfolio-front-tools-11: 126 files, 550368 bytes
 #   portfolio-front-tools-12: 131 files, 553830 bytes
 #   portfolio-front-tools-13: 102 files, 547826 bytes
 #   portfolio-front-tools-14: 113 files, 553702 bytes
@@ -445,6 +445,7 @@ configMapGenerator:
       - invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html.gz=invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html.gz
       - invoice-payment-terms-calculator__usage.mjs.gz=invoice-payment-terms-calculator__usage.mjs.gz
       - invoice-payment-terms-calculator__vs-quickbooks-online-invoicing.html.gz=invoice-payment-terms-calculator__vs-quickbooks-online-invoicing.html.gz
+      - invoice-payment-terms-calculator__vs-spreadsheet.html.gz=invoice-payment-terms-calculator__vs-spreadsheet.html.gz
       - cash-runway-planner__LICENSE.gz=cash-runway-planner__LICENSE.gz
       - cash-runway-planner__app.mjs.gz=cash-runway-planner__app.mjs.gz
       - cash-runway-planner__index.html.gz=cash-runway-planner__index.html.gz
@@ -467,12 +468,12 @@ configMapGenerator:
       - portable-restroom-event-quote__calc.mjs.gz=portable-restroom-event-quote__calc.mjs.gz
       - portable-restroom-event-quote__how-many.html.gz=portable-restroom-event-quote__how-many.html.gz
       - portable-restroom-event-quote__index.html.gz=portable-restroom-event-quote__index.html.gz
-      - portable-restroom-event-quote__usage.mjs.gz=portable-restroom-event-quote__usage.mjs.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - portable-restroom-event-quote__usage.mjs.gz=portable-restroom-event-quote__usage.mjs.gz
       - portable-restroom-event-quote__vs-servicecore.html.gz=portable-restroom-event-quote__vs-servicecore.html.gz
       - commercial-photo-license-calculator__app.mjs.gz=commercial-photo-license-calculator__app.mjs.gz
       - commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html.gz=commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html.gz
@@ -1494,6 +1495,7 @@ configMapGenerator:
       - mobile-detailing-bid-calculator__index.html.gz=mobile-detailing-bid-calculator__index.html.gz
       - mobile-detailing-bid-calculator__share.mjs.gz=mobile-detailing-bid-calculator__share.mjs.gz
       - mobile-detailing-bid-calculator__usage.mjs.gz=mobile-detailing-bid-calculator__usage.mjs.gz
+      - mobile-detailing-bid-calculator__vs-a-flat-per-vehicle-price.html.gz=mobile-detailing-bid-calculator__vs-a-flat-per-vehicle-price.html.gz
       - mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz=mobile-detailing-bid-calculator__vs-mobiletechrx.html.gz
       - mold-remediation-bid-calculator__calc.mjs.gz=mold-remediation-bid-calculator__calc.mjs.gz
       - mold-remediation-bid-calculator__how-much-to-charge-for-mold-remediation.html.gz=mold-remediation-bid-calculator__how-much-to-charge-for-mold-remediation.html.gz
@@ -1511,13 +1513,13 @@ configMapGenerator:
       - newsletter-sponsorship-rate-calculator__index.html.gz=newsletter-sponsorship-rate-calculator__index.html.gz
       - newsletter-sponsorship-rate-calculator__newsletter-sponsorship-rate-benchmarks.html.gz=newsletter-sponsorship-rate-calculator__newsletter-sponsorship-rate-benchmarks.html.gz
       - newsletter-sponsorship-rate-calculator__share.mjs.gz=newsletter-sponsorship-rate-calculator__share.mjs.gz
-      - newsletter-sponsorship-rate-calculator__usage.mjs.gz=newsletter-sponsorship-rate-calculator__usage.mjs.gz
-      - newsletter-sponsorship-rate-calculator__vs-paved.html.gz=newsletter-sponsorship-rate-calculator__vs-paved.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - newsletter-sponsorship-rate-calculator__usage.mjs.gz=newsletter-sponsorship-rate-calculator__usage.mjs.gz
+      - newsletter-sponsorship-rate-calculator__vs-paved.html.gz=newsletter-sponsorship-rate-calculator__vs-paved.html.gz
       - no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz=no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz
       - no-show-fee-calculator__app.mjs.gz=no-show-fee-calculator__app.mjs.gz
       - no-show-fee-calculator__calc.mjs.gz=no-show-fee-calculator__calc.mjs.gz
@@ -1606,6 +1608,7 @@ configMapGenerator:
       - pet-grooming-bid-calculator__index.html.gz=pet-grooming-bid-calculator__index.html.gz
       - pet-grooming-bid-calculator__share.mjs.gz=pet-grooming-bid-calculator__share.mjs.gz
       - pet-grooming-bid-calculator__usage.mjs.gz=pet-grooming-bid-calculator__usage.mjs.gz
+      - pet-grooming-bid-calculator__vs-a-flat-per-breed-price.html.gz=pet-grooming-bid-calculator__vs-a-flat-per-breed-price.html.gz
       - pet-grooming-bid-calculator__vs-moego.html.gz=pet-grooming-bid-calculator__vs-moego.html.gz
       - photo-addon-pricing-calculator__calc.mjs.gz=photo-addon-pricing-calculator__calc.mjs.gz
       - photo-addon-pricing-calculator__index.html.gz=photo-addon-pricing-calculator__index.html.gz
