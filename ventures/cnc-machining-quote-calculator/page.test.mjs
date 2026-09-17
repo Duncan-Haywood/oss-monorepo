@@ -1,15 +1,23 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
-import { BREAK_QUANTITIES, STOCK_FORMS } from "./calculator.mjs";
+import { BREAK_QUANTITIES, STOCK_FORMS, computeMachiningJob } from "./calculator.mjs";
 
 const INDEX = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const GUIDE = readFileSync(
   new URL("./setup-fee-or-in-the-part-price.html", import.meta.url),
   "utf8",
 );
-const PAGES = { "index.html": INDEX, "setup-fee-or-in-the-part-price.html": GUIDE };
+const VERSUS = readFileSync(
+  new URL("./vs-quoting-in-a-spreadsheet.html", import.meta.url),
+  "utf8",
+);
+const PAGES = {
+  "index.html": INDEX,
+  "setup-fee-or-in-the-part-price.html": GUIDE,
+  "vs-quoting-in-a-spreadsheet.html": VERSUS,
+};
 
 /** Every id the page's own script reads out of the form. Kept here rather than
  *  imported, so a field silently renamed in one place and not the other fails. */
@@ -444,4 +452,129 @@ test("robots.txt allows crawlers and points at the sitemap", () => {
   assert.match(robots, /Allow: \//);
   assert.doesNotMatch(robots, /Disallow: \/\s*$/m);
   assert.match(robots, /Sitemap:/);
+});
+
+/** The form exactly as a first-time visitor meets it: every input's shipped
+ *  `value` plus the selected `<option>`. Read out of the markup rather than
+ *  restated, so this cannot drift from the page the way a copied constant
+ *  would -- and deliberately NOT the page's `EXAMPLE` block, which is the
+ *  separate "load the worked example" set and uses different figures.
+ *  The comparison page's whole break table is drawn from these defaults. */
+function shippedFormDefaults() {
+  const values = {};
+  for (const id of FORM_FIELDS) {
+    const tag = new RegExp(`<input[^>]*\\bid="${id}"[^>]*>`).exec(INDEX);
+    assert.ok(tag, `no input with id="${id}" on the page`);
+    const value = /\bvalue="([^"]*)"/.exec(tag[0]);
+    assert.ok(value, `#${id} ships no default value`);
+    values[id] = Number(value[1]);
+  }
+  const select = /<select id="stockForm">([\s\S]*?)<\/select>/.exec(INDEX);
+  assert.ok(select, "no stockForm select on the page");
+  const selected = /<option value="([^"]+)"[^>]*\bselected\b/.exec(select[1]);
+  assert.ok(selected, "no stockForm option is selected by default");
+  values.stockForm = selected[1];
+  return values;
+}
+
+// The comparison page was added after the venture shipped, by a different
+// session than the one that built the calculator. Everything it claims is
+// arithmetic this module produces, so it is pinned here rather than trusted to
+// stay true: a page quoting figures that drifted from `calculator.mjs` is worse
+// than no page, because it is the surface a stranger reads first.
+test("the comparison page's break table is exactly what computeMachiningJob returns", () => {
+  const job = computeMachiningJob(shippedFormDefaults());
+  const shown = [
+    { quantity: 1, starts: 2, costPerPart: "$374.80", margin: "886.3%" },
+    { quantity: 5, starts: 6, costPerPart: "$81.94", margin: "115.6%" },
+    { quantity: 10, starts: 11, costPerPart: "$45.34", margin: "19.3%" },
+    { quantity: 25, starts: 26, costPerPart: "$23.37", margin: "38.5%" },
+    { quantity: 50, starts: 52, costPerPart: "$16.17", margin: "57.4%" },
+    { quantity: 100, starts: 104, costPerPart: "$12.71", margin: "66.6%" },
+    { quantity: 250, starts: 258, costPerPart: "$10.59", margin: "72.1%" },
+    { quantity: 500, starts: 516, costPerPart: "$9.90", margin: "73.9%" },
+  ];
+  assert.equal(job.table.length, shown.length, "the break table changed shape");
+  for (const [i, row] of job.table.entries()) {
+    assert.equal(row.quantity, shown[i].quantity);
+    assert.equal(row.starts, shown[i].starts, `starts at qty ${row.quantity}`);
+    assert.equal(
+      `$${row.costPerPart.toFixed(2)}`,
+      shown[i].costPerPart,
+      `cost per part at qty ${row.quantity}`,
+    );
+    assert.equal(
+      `${Math.abs(row.marginAtQuotedPrice).toFixed(1)}%`,
+      shown[i].margin,
+      `margin at qty ${row.quantity}`,
+    );
+    for (const figure of [shown[i].costPerPart, shown[i].margin]) {
+      assert.ok(
+        VERSUS.includes(figure),
+        `the comparison page is missing ${figure} from the qty ${row.quantity} row`,
+      );
+    }
+  }
+});
+
+test("the comparison page's headline claim is the sign flip the model actually produces", () => {
+  const job = computeMachiningJob(shippedFormDefaults());
+  const at = (q) => job.table.find((row) => row.quantity === q);
+  // The whole point of the page: one carried part price is profitable at one
+  // lot size and loss-making at another, so it must really change sign.
+  assert.ok(at(50).marginAtQuotedPrice > 0, "the 50-piece row should be profitable");
+  assert.ok(at(10).marginAtQuotedPrice < 0, "the 10-piece row should be a loss");
+  assert.match(VERSUS, /57\.4% margin at 50 pieces and a <strong>19\.3% loss<\/strong> at 10/);
+  assert.match(INDEX, /57\.4% margin at 50 pieces and losing 19\.3% at 10/);
+});
+
+test("the comparison page's per-lot and stock-yield figures come from the model", () => {
+  const job = computeMachiningJob(shippedFormDefaults());
+  const at = (q) => job.table.find((row) => row.quantity === q);
+  assert.equal(at(1).perLotCostPerPart.toFixed(2), "189.42");
+  assert.equal(at(500).perLotCostPerPart.toFixed(2), "0.59");
+  assert.ok(VERSUS.includes("$189.42"));
+  assert.ok(VERSUS.includes("$0.59"));
+  // The material step function, which is the error the page's third section is
+  // about: one bar at 50 parts, two at 100, so the 54th part buys a new bar.
+  assert.equal(job.partsPerStockUnit, 53);
+  assert.equal(at(50).stockUnitsNeeded, 1);
+  assert.equal(at(100).stockUnitsNeeded, 2);
+  assert.match(VERSUS, /yields 53 parts/);
+  // Scrap as an integer: 3% entered, 4% actually paid at 50.
+  assert.equal(job.effectiveScrapPct, 4);
+  assert.match(VERSUS, /starting 52, an effective 4%/);
+});
+
+test("the comparison page compares against a method and names no product", () => {
+  // PRODUCT_PLAYBOOK.md 5f: a page naming a trademark needs the
+  // not-affiliated clause. This one deliberately names none, and says so, which
+  // is what its entry in COMPARISON_DISCLAIMER_EXEMPT rests on.
+  assert.match(VERSUS, /a method,\s+not a product/);
+  assert.match(VERSUS, /names no spreadsheet\s+application/);
+  assert.doesNotMatch(VERSUS, /\bExcel\b|\bGoogle Sheets\b|\bLibreOffice\b|\bNumbers\b/);
+});
+
+test("the comparison page says what the spreadsheet is better at, not only what it is worse at", () => {
+  // A comparison that reads as an attack is both dishonest and a legal exposure
+  // on a page that costs nothing to make fair. See PRODUCT_PLAYBOOK.md 5f.
+  assert.match(VERSUS, /this page is not an argument that you should/);
+  assert.match(VERSUS, /Keep the spreadsheet\./);
+  assert.match(VERSUS, /the spreadsheet is your record/);
+});
+
+test("the comparison page and the tool page link to each other in one hop", () => {
+  assert.match(INDEX, /href="\.\/vs-quoting-in-a-spreadsheet\.html"/);
+  assert.match(VERSUS, /href="\.\/index\.html"/);
+  // And it reaches the venture's other content page, so a crawler landing on
+  // any one of the three can walk to the other two.
+  assert.match(VERSUS, /href="\.\/setup-fee-or-in-the-part-price\.html"/);
+});
+
+test("every .html file in the venture is listed in sitemap.xml", () => {
+  const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+  for (const name of readdirSync(new URL("./", import.meta.url))) {
+    if (!name.endsWith(".html")) continue;
+    assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
+  }
 });

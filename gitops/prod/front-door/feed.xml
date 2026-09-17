@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 312 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 314 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -89,6 +89,15 @@
     <summary type="text">Paste a GitHub Actions workflow and see every way it is allowed to apply an older revision over a newer one: no concurrency group, a group that changes every run, cancel-in-progress on a deploy, split groups on one environment, and a checkout of a moving branch. Free, runs entirely in your browser, nothing is uploaded.</summary>
   </entry>
   <entry>
+    <title>Docker Build Secrets Check — Is a Secret Baked Into Your Image?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/docker-build-secrets-check/"/>
+    <id>tag:marisstella.dev,2026:tool/docker-build-secrets-check</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="CI checks &amp; developer gates"/>
+    <summary type="text">Paste your Dockerfile and find every ENV or ARG instruction whose name looks like a secret, and every COPY/ADD of a credential file like .env or id_rsa into the build. Free, runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>Dog Boarding &amp; Daycare Pricing Calculator — Price a Stay, Check Occupancy</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dog-boarding-daycare-pricing/"/>
     <id>tag:marisstella.dev,2026:tool/dog-boarding-daycare-pricing</id>
@@ -132,6 +141,15 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste or load Kubernetes manifest YAML and get a deterministic report of every apiVersion + kind pair a past or future Kubernetes release has removed or will remove -- extensions/v1beta1 Ingress, batch/v1beta1 CronJob, policy/v1beta1 PodSecurityPolicy, and more -- so a platform team catches the manifest before a rolling upgrade fails on it, not during it. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>NY LLC Transparency Act Tracker — Deadline &amp; Filing Organizer</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ny-llc-transparency-act-tracker/"/>
+    <id>tag:marisstella.dev,2026:tool/ny-llc-transparency-act-tracker</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Free browser tool for New York LLCs: check whether your LLC likely owes a Beneficial Ownership Disclosure or an Attestation of Exemption under the NY LLC Transparency Act, see your filing deadline counted down, and organize the beneficial-owner details you&#39;ll need before you email NYDOS yourself. Nothing you type is uploaded.</summary>
   </entry>
   <entry>
     <title>OpenAPI Breaking Change Check — Did This API Version Break Existing Clients?</title>
@@ -348,23 +366,5 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for wedding and event florists: price a proposal from the recipe up, buying whole bunches instead of loose stems, add a shrink allowance before the rounding, price labour by the hour, and see the gross margin — plus what a per-stem markup sheet would have under-quoted.</summary>
-  </entry>
-  <entry>
-    <title>World Clock &amp; Daylight — Time, Sunrise, Sunset and Who&#39;s Awake</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/world-clock-widget/"/>
-    <id>tag:marisstella.dev,2026:tool/world-clock-widget</id>
-    <published>2026-09-16T00:00:00Z</published>
-    <updated>2026-09-16T00:00:00Z</updated>
-    <category term="More free tools"/>
-    <summary type="text">A free world clock that shows current local time, sunrise, sunset, daylight length and whether each city is awake — for as many cities as you like, side by side. Sunrise and sunset are computed in your browser from the US Naval Observatory almanac algorithm. No account, no upload, no API key.</summary>
-  </entry>
-  <entry>
-    <title>Caption Quality Checker — SRT &amp; WebVTT Reading Speed, Line Length &amp; Timing</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/caption-quality-check/"/>
-    <id>tag:marisstella.dev,2026:tool/caption-quality-check</id>
-    <published>2026-09-13T00:00:00Z</published>
-    <updated>2026-09-13T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: paste an SRT or WebVTT caption file and check it against commonly-used caption style-guide thresholds -- reading speed (characters per second), line length, lines per cue, minimum/maximum duration, overlapping cues, and too-short gaps between cues. A zero-dependency CLI runs the same checks in your own CI. Nothing uploaded.</summary>
   </entry>
 </feed>

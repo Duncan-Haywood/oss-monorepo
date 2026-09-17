@@ -67,6 +67,9 @@
     <loc>https://marisstella.dev/compare/flat-rate-per-square-foot/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/compare/gitleaks/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/compare/govwin-iq/</loc>
   </url>
   <url>
@@ -239,6 +242,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/actions-secret-leak-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-secret-leak-check/vs-reading-the-workflow-by-eye.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/actions-secret-leak-check/why-github-actions-secret-masking-fails.html</loc>
@@ -868,6 +874,9 @@
     <loc>https://marisstella.dev/tools/cnc-machining-quote-calculator/setup-fee-or-in-the-part-price.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/cnc-machining-quote-calculator/vs-quoting-in-a-spreadsheet.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/codeowners-shadow-check/</loc>
   </url>
   <url>
@@ -1127,6 +1136,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/docker-base-image-pin-check/vs-hadolint.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/docker-build-secrets-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/docker-build-secrets-check/how-to-pass-a-docker-build-secret-without-baking-it-into-the-image.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/docker-build-secrets-check/vs-gitleaks.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/dog-boarding-daycare-pricing/</loc>
@@ -2239,6 +2257,12 @@
     <loc>https://marisstella.dev/tools/npm-lifecycle-script-check/why-npm-audit-does-not-catch-a-malicious-install-script.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/ny-llc-transparency-act-tracker/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/ny-llc-transparency-act-tracker/when-is-the-ny-llc-transparency-act-deadline.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/obsidian-plugin-review-check/</loc>
   </url>
   <url>
@@ -2621,6 +2645,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/required-checks-drift-check/how-required-status-checks-go-stale.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/required-checks-drift-check/vs-reading-every-workflow-file-by-hand.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/retainage-cashflow-calculator/</loc>

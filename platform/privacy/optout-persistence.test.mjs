@@ -299,22 +299,47 @@ const RELATIVE_SELF = relative(
 // branch was open before `deploy-concurrency-check` landed, so it only
 // ever knew 291 until this merge -- both branches independently wrote
 // "292" for what the merged tree made 293.
-// 293 -> 294 on 2026-09-17, when `twitch-payout-calculator` graduated
-// concurrently with `actions-secret-leak-check` above, with its own
-// `toggleUsage`/`usageAllowed` switch (opts out of the
-// `month-priced`/`gap-checked` counters). Verified the same way: exactly
-// one added `usage.mjs` (`ventures/twitch-payout-calculator/usage.mjs`) and
-// no deletions. This branch was open before `actions-secret-leak-check`
-// landed, so it only ever knew 293 until this merge -- both branches
-// independently wrote "293" for what the merged tree made 294.
-// 294 -> 295 on 2026-09-17, when `cnc-machining-quote-calculator` and
-// `actions-transitive-pin-check` each graduated concurrently with their own
-// opt-out switch (the latter's `setUsageOptOut`/`usageOptedOut`, the same
-// `usage.mjs` shape as its sibling `pinned-actions-check`) -- two more
-// entrants into the same ordinary collision shape recorded throughout this
-// list. The number below is `sync_tree_counts.py`'s own measurement against
-// this merge's actual tree, not a hand sum of every branch's guess.
-const SWITCHES_IN_THE_CATALOGUE = 296;
+// 293 -> 294 on 2026-09-17, when `actions-transitive-pin-check` graduated
+// with its own `setUsageOptOut`/`usageOptedOut` switch, the same
+// `usage.mjs` shape as its sibling `pinned-actions-check`. Verified the
+// way this file's error message prescribes: exactly one added
+// `usage.mjs` (`ventures/actions-transitive-pin-check/usage.mjs`) and no
+// deletions, so this is a graduation and not a switch that stopped being
+// one. This branch was open before `actions-secret-leak-check` and
+// `deploy-concurrency-check` landed, so it only ever knew 292 until this
+// merge -- the same ordinary collision shape recorded throughout this
+// list.
+//
+// 294 -> 295 after merging `cnc-machining-quote-calculator` (#4957), which
+// landed on `main` with its own opt-out switch while this branch was
+// still mid-merge -- the same collision shape one more time.
+//
+// 295 -> 296 on 2026-09-17, when `ny-llc-transparency-act-tracker`
+// graduated with its own `setUsageOptOut`/`usageOptedOut` switch, the same
+// `usage.mjs` shape as `call-recording-consent-check`. Verified the way
+// this file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/ny-llc-transparency-act-tracker/usage.mjs`) and no deletions,
+// so this is a graduation and not a switch that stopped being one. This
+// branch was open before `twitch-payout-calculator` landed, so it only
+// ever knew 296 until this merge -- both branches independently wrote
+// "296" for what the merged tree makes 297. The number below is
+// `sync_tree_counts.py`'s own fresh measurement against the actual merged
+// tree, not a hand sum of either branch's guess.
+//
+// (Merged concurrently: `twitch-payout-calculator` also graduated with its
+// own `toggleUsage`/`usageAllowed` switch, opting out of the
+// `month-priced`/`gap-checked` counters -- exactly one added `usage.mjs`,
+// `ventures/twitch-payout-calculator/usage.mjs`, and no deletions.)
+//
+// 297 -> 298 on 2026-09-17, when `docker-build-secrets-check` graduated with
+// its own `setUsageOptOut`/`usageOptedOut` switch, the same `usage.mjs`
+// shape as its sibling `docker-base-image-pin-check`. Verified the way this
+// file's error message prescribes: exactly one added `usage.mjs`
+// (`ventures/docker-build-secrets-check/usage.mjs`) and no deletions, so
+// this is a graduation and not a switch that stopped being one. The number
+// below is `sync_tree_counts.py`'s own fresh measurement against the merged
+// tree, not a hand sum.
+const SWITCHES_IN_THE_CATALOGUE = 298;
 
 let counter = 0;
 function fixture(source) {
