@@ -84,6 +84,28 @@ test('an underpaid week reports the total dollar gap against paying the prevaili
   assert.ok(result.underpaymentTotal > 0);
 });
 
+test('a matching combined rate is not compliant if overtime hours are underpaid because too much of the rate is delivered as bona fide fringe instead of base pay', () => {
+  // Wage determination: $30 base + $5 fringe = $35/hr required. Paid at
+  // exactly $35/hr combined (shortfallPerHour === 0), but almost all of it
+  // as a bona fide plan contribution rather than base pay, on an
+  // all-overtime week. Overtime premium is only ever owed on base pay plus
+  // cash fringe, so this week owes far less overtime premium than the wage
+  // determination requires -- a real dollar shortfall the flat combined
+  // rate cannot see.
+  const result = calculateCertifiedPayroll({
+    requiredBaseRate: 30,
+    requiredFringeRate: 5,
+    actualBaseRate: 5,
+    bonaFideFringePerHour: 30,
+    cashFringePerHour: 0,
+    straightHours: 0,
+    overtimeHours: 40,
+  });
+  assert.equal(result.shortfallPerHour, 0);
+  assert.ok(result.underpaymentTotal > 0);
+  assert.equal(result.compliant, false);
+});
+
 test('no ratio inputs means no ratio check is returned', () => {
   assert.equal(calculateCertifiedPayroll(week()).ratio, null);
   assert.equal(calculateCertifiedPayroll({ ...week(), journeymenOnSite: 4 }).ratio, null);
