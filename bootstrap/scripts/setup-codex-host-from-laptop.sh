@@ -80,9 +80,33 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 [ -d "$repo_root/gitops/agents" ] || die \
   "gitops/agents is missing from $repo_root -- the installer needs it"
 
+# Report EVERY missing tool at once, with the line that installs them, rather
+# than dying on the first one. This runs during an outage, on whatever machine
+# the owner has to hand, and it is the first gate of the one session the whole
+# recovery gets -- so a preflight that surfaces one gap per run spends that
+# session on round trips. It is the same defect `bootstrap/restore-cluster.sh`
+# had until DRY_RUN was changed to print the half that needs no SSH first, and
+# missing local tools are the clearest case for the same treatment: they are
+# entirely knowable before any network call, so there is no reason at all to
+# discover them one at a time.
+missing=""
 for tool in ssh rsync ssh-keygen ssh-keyscan; do
-  command -v "$tool" >/dev/null 2>&1 || die "$tool is not on PATH"
+  command -v "$tool" >/dev/null 2>&1 || missing="$missing $tool"
 done
+if [ -n "$missing" ]; then
+  # `ssh`, `ssh-keygen` and `ssh-keyscan` all ship in one package, so name
+  # packages rather than binaries -- an owner missing all three should be told
+  # to install one thing, not three.
+  pkgs=""
+  case "$missing" in *" rsync"*) pkgs="rsync" ;; esac
+  case "$missing" in
+    *" ssh"*) pkgs="${pkgs:+$pkgs }openssh-client" ;;
+  esac
+  die "not on PATH:${missing}
+
+    Debian/Ubuntu:  apt-get install -y ${pkgs}
+    macOS:          brew install ${pkgs//openssh-client/openssh}"
+fi
 say "checkout    $repo_root"
 say "target      $TARGET"
 
