@@ -1853,7 +1853,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # predecessor's number (301, then 302) until this merge -- the same
     # ordinary collision shape recorded throughout this list: both branches
     # independently wrote "302" for what the merged tree made 303.
-    total = 303  # `infra/OWNER_CHECKLIST.md`'s own "N of the 303 tools" wording.
+    # 304 since 2026-09-17, when `branch-protection-drift-check` graduated --
+    # a zero-dependency CLI + browser tool comparing a repository's actual
+    # GitHub branch-protection settings against a declared policy, flagging
+    # every rule that has drifted weaker than intended (review counts, admin
+    # enforcement, force-push/deletion rules, required status checks), with
+    # a static `index.html` from its first commit, same shape as the rest
+    # of this running count. This branch was open before nothing else in
+    # flight landed, so it only ever knew its own predecessor's number
+    # (303) until this merge.
+    total = 304  # `infra/OWNER_CHECKLIST.md`'s own "N of the 304 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

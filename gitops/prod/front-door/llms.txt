@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 303 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 304 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 303 of them — and
+Every tool in the collection is listed below — all 304 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -168,6 +168,7 @@ page that hosts it.
 - [AI Coding Plan Cost Calculator — Subscription vs. API](https://marisstella.dev/tools/ai-coding-plan-cost-calculator/): Is your Claude Max, Cursor, GitHub Copilot, or ChatGPT Plus plan actually cheaper than paying per token through the API? Enter your own usage and rates and see the monthly cost both ways, plus the break-even point. Free, runs entirely in your browser, nothing is uploaded.
 - [AI Crawler Access Check — Which AI Bots Does Your robots.txt Block?](https://marisstella.dev/tools/ai-crawler-access-check/): Paste your robots.txt and find out in one click whether GPTBot, ClaudeBot, Google-Extended, PerplexityBot, and 11 other named AI crawlers are allowed, blocked, or partially blocked — plus a structural check of your llms.txt. Free, runs entirely in your browser, nothing is uploaded.
 - [App Store Screenshot Checker — Catch a Rejected Icon or Wrong-Size Screenshot Before Upload](https://marisstella.dev/tools/app-store-screenshot-check/): Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic "can't contain an alpha channel" rejection), wrong pixel dimensions, a HEIC renamed to .png, and a screenshot set whose members disagree about their own size. Runs entirely in your browser; nothing is uploaded. A zero-dependency CLI does the same in CI.
+- [Branch Protection Drift Check — Does Your Repo Still Match Its Own Policy?](https://marisstella.dev/tools/branch-protection-drift-check/): Paste a repo's actual GitHub branch protection settings (gh api branches/:branch/protection) and your declared policy to find every rule that has drifted weaker than intended — a temporarily disabled review requirement, force pushes turned back on, admin enforcement quietly off. Free, runs in your browser, nothing uploaded.
 - [Cache-Control Checker — Vary: *, public + Set-Cookie, weak ETags](https://marisstella.dev/tools/cache-control-check/): Free tool: run a CLI that sends one real request to your site, then paste the JSON here for a plain-English report on Vary: * (uncacheable forever), Cache-Control: public alongside a Set-Cookie header (a shared cache can leak one visitor's cookie to another), and lower-severity caching directive conflicts. Nothing uploaded.
 - [Canonical Tag Checker — Conflicting, Cross-Domain & Dead-End Canonicals](https://marisstella.dev/tools/canonical-tag-check/): Free tool: fetch a URL for real and get a plain-English report on canonical-tag misconfigurations -- conflicting tags, a canonical pointing at a different domain, or a canonical that 404s or is itself marked noindex. Nothing uploaded.
 - [Caption Quality Checker — SRT & WebVTT Reading Speed, Line Length & Timing](https://marisstella.dev/tools/caption-quality-check/): Free tool: paste an SRT or WebVTT caption file and check it against commonly-used caption style-guide thresholds -- reading speed (characters per second), line length, lines per cue, minimum/maximum duration, overlapping cues, and too-short gaps between cues. A zero-dependency CLI runs the same checks in your own CI. Nothing uploaded.
