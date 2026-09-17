@@ -1946,7 +1946,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # this branch thought was still unmerged was already reflected in the
     # baseline it started counting from. Recorded from the tool's own
     # measurement rather than corrected by hand a second time.
-    total = 310  # `infra/OWNER_CHECKLIST.md`'s own "N of the 310 tools" wording.
+    # 311 since 2026-09-17: `actions-transitive-pin-check` (#4959) shipped
+    # without registering itself in the front-door mirror, so the count fix
+    # above (310, made the same day) was already stale the moment the very
+    # next commit (#4969) registered it. No venture graduated between the
+    # two -- the mirror gained one entry it should have had from the start.
+    # Recorded from `sync_tree_counts.py`'s own fresh measurement.
+    total = 311  # `infra/OWNER_CHECKLIST.md`'s own "N of the 311 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
