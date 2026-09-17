@@ -33148,3 +33148,129 @@ entries:
         `score_sensitivity.py`, and `usage/validate_usage.py` all clean.
         `checklist_coverage.py` and `guard_state.py --require-runnable`
         both clean (no fixable skip, no missing checklist line).
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR-drain phase: the only open PR (#4914, k8s-deprecated-api-check) was
+        reviewed and independently re-verified end to end -- unshallowed the
+        repo, resolved its one binary front-door-mirror conflict by merging
+        main and regenerating fresh, then ran the full local checklist
+        (checklist_coverage, sync_tree_counts, ~2000 node assertions across
+        marketing/pages/proposal/privacy/webcheck, 607 gitops pytest, all 15
+        platform/ci unittest modules + agent_review, 446 portfolio/infra
+        pytest, every validator, clauses.mjs, build.mjs/check.mjs, and
+        targeted Playwright/axe accessibility checks) since ci_starvation.py
+        confirmed Actions was starved (`runner_id: 0`). A concurrent session
+        pushed an identical merge+regen and got it merged first -- verified
+        byte-identical via `git diff`, so nothing was lost or duplicated.
+        Zero PRs remained open afterward.
+      - >-
+        `browser_state.py` then reported the fleet's browser/accessibility
+        sweep stale (the certified-payroll-calculator fix in #4913 touches a
+        mirrored page). Ran the full 8-check sweep twice -- once after
+        merging main, again after main advanced further underneath it -- both
+        clean (no WCAG A/AA violations across 1139-1147 pages, 308/308 tools
+        swept with no errors, full journey pass). Shipped as #4933 and merged
+        after confirming the same commit's `Portfolio validate` check was
+        starved, not failing.
+  - venture: helm-values-schema-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture: a free, zero-dependency CLI + browser tool
+        that validates a Helm chart's `values.yaml` against its own
+        `values.schema.json` (JSON Schema, supported by Helm since 3.5)
+        without running Helm at all. Its core finding: Go's template engine
+        returns the zero value for an undefined `values.yaml` key rather
+        than erroring, so a typo like `repositry` instead of `repository`
+        renders silently -- and `helm lint` only catches it when the schema
+        explicitly sets `additionalProperties: false`, which most real
+        charts' schemas do not. Flags that case as informational alongside
+        every real schema violation (missing `required` field, `type`
+        mismatch, `enum`/`minimum`/`maximum` violation, or a field forbidden
+        by an explicit `additionalProperties: false`, reported at high
+        severity since `helm install --dry-run --validate` would already
+        reject it). Chosen as a CLI/checker shape per `PRODUCT_PLAYBOOK.md`
+        §2 over another `<trade>-bid-calculator`.
+      - >-
+        Screened with `duplicate_check.py` across two phrasings: closest
+        matches `obsidian-plugin-review-check` (0.22, 0.16) and
+        `openapi-breaking-change-check` (0.14), both well under the 0.45
+        near-duplicate bar and neither validating one YAML file against a
+        JSON Schema. No existing venture mentions Helm at all (grepped every
+        `VENTURE.yaml` description). Not in `screened-out.md`. Distribution
+        scored more conservatively than its `k8s-deprecated-api-check`
+        sibling (5 vs. 6): Helm's own chart documentation and specific real
+        search strings are genuine channels, but no single well-known
+        competing OSS tool was identified to draw comparison-search traffic
+        the way Pluto does for the sibling -- `vs-helm-lint.html` compares
+        against Helm's own built-in command instead.
+      - >-
+        The JSON Schema walk supports `type`, `properties`, `required`,
+        `additionalProperties`, `enum`, `minimum`/`maximum`, and `items`
+        for arrays -- verified against hand-built fixtures for every rule
+        (a typo'd field, a forbidden additional field, a missing required
+        field, a type mismatch that does not recurse further, an enum
+        violation, both range violations, and array-item recursion) before
+        writing the CLI or page around it. The YAML reader (`yaml.mjs`) is
+        adapted from `actions-minutes-estimator/workflow-yaml.mjs` --
+        credited in both the file header and README rather than silently
+        copied -- generalized off that venture's GitHub-Actions-only framing
+        since a `values.yaml` has no `on:`-as-boolean trap to work around.
+      - >-
+        The first Playwright/axe accessibility pass caught a real critical
+        `label` violation before this ever reached a user: both `<input
+        type="file">` controls had a `<label>` pointing at the neighboring
+        textarea instead of at themselves, so a screen reader announced
+        each as an unlabeled file control. Fixed by giving each file input
+        and each textarea its own label rather than sharing one, verified
+        clean on re-run -- the same defect class CLAUDE.md's history
+        records finding 48 instances of fleet-wide on this check's first
+        run, caught here on the first pass before merge rather than after.
+      - >-
+        Shipped with the full checklist: LICENSE, disclaimer and privacy
+        line in both the README and the product, opt-out-respecting local
+        usage counting (`check_run`, `example_loaded`, `file_loaded`), a
+        matching zero-dependency CLI (`--strict`, `--json`), one
+        discoverability docs page ("why Helm silently accepts a typo in
+        values.yaml") explaining the Go-template mechanism directly, and one
+        comparison page (`vs-helm-lint.html`) with the not-affiliated
+        disclaimer, verified by `node platform/pages/clauses.mjs`. 42 venture
+        assertions (`engine`, `cli`, `page`), all green.
+      - >-
+        Cross-linked `k8s-deprecated-api-check` both ways (one hop, direct
+        hrefs) since neither had an existing sibling and the orphan budget
+        in `siblings-budget.json` is 0 -- the two now sit adjacent in the
+        same Helm-chart-to-cluster delivery pipeline (does values.yaml match
+        its schema, then will the rendered manifest's apiVersion survive the
+        target cluster). Classified into the existing `ci` category in
+        `platform/pages/build.mjs` beside both siblings, confirmed via
+        `catalog.json` before and after the edit.
+      - >-
+        Registered in `venture-scores.yaml` (composite 5.833, floor 1 on
+        `ai_leverage`, both liability/ethics gates pass) and
+        `portfolio/pipeline/README.md`'s screening record. Tree-count drift
+        fixed via `sync_tree_counts.py` (mirrored-tool count 303->304,
+        opt-out-switch count 287->288) and `sync_readme_counts.py` (the
+        `runs-on` count this new workflow moved), each with a running-comment
+        entry naming which venture moved it. `node platform/marketing/
+        regen.mjs` run twice (once pre-fix, once after the accessibility
+        fix) to keep the front-door mirror current.
+      - >-
+        Full verification, all green: venture suite (42/42), full
+        `platform/pages` + `platform/marketing` (1272/1272 after regen.mjs),
+        `gitops/tests` (607/1 skip, unchanged), all 15 `platform/ci`
+        unittest modules + `agent_review`, `portfolio/ledger`+`scoring`+
+        `router`+`usage`+`pipeline`+`infra/tests` (446/446), every validator
+        (`router/validate.py`, `publish_surface.py --check`,
+        `score_ventures.py --check`, doc/candidate consistency,
+        `check_no_payment_code.py`, `sync_tree_counts.py --check`,
+        `sync_readme_counts.py --check`), `clauses.mjs` (fleet-wide),
+        `build.mjs` + `check.mjs` against the built artifact (304 products,
+        no dead links), and a targeted Playwright/axe pass on both this
+        venture and its sibling (clean after the label fix). Actions was
+        starved (`ci_starvation.py`, `runner_id: 0`) on the PR's own check,
+        confirmed before merging on local verification alone.

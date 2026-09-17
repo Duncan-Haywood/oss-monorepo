@@ -10704,6 +10704,67 @@ ventures:
       product can't back up. Ethical robustness: gets strictly better for
       users as it scales -- more upgrade failures caught before they happen,
       free, with no paid tier gating accuracy and no adversarial dynamic.
+  - slug: helm-values-schema-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 4
+      distribution: 5
+    composite: 5.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether a values.yaml field
+      matches its schema's declared type, enum, range, or exists in the
+      schema's properties at all is a deterministic structural comparison
+      against two files the user supplies, not a model judgment.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a free CLI + browser checker, not another
+      <trade>-bid-calculator, filed beside k8s-deprecated-api-check and
+      k8s-rollout-safety-check in the `ci` category for the same
+      "read what is actually there, report the exact evidence, never
+      fetch" shape, applied to a distinct, well-documented Helm behavior
+      rather than chosen because "checker" is underused.
+      duplicate_check.py's closest matches across two phrasings were
+      obsidian-plugin-review-check at 0.22/0.16 and
+      openapi-breaking-change-check at 0.14 -- well under the 0.45 review
+      bar, and neither validates one YAML file against a JSON Schema. No
+      existing venture mentions Helm at all. Distribution 5 (more
+      conservative than k8s-deprecated-api-check's 6): Helm's own chart
+      documentation describes values.schema.json directly, and specific
+      real search strings exist for the undeclared-field confusion, but
+      the likely subreddit audience is smaller and no single well-known
+      competing OSS tool was identified to draw comparison-search traffic
+      the way Pluto does for its sibling -- vs-helm-lint.html compares
+      against Helm's own built-in command instead, a real but narrower
+      draw. Autonomous ops 10 / gross margin 10: both the browser page and
+      the CLI parse only locally supplied YAML/JSON text, no network call
+      in either, so serving one more user costs a static file.
+      Defensibility 4: forkable like every checker in this portfolio; the
+      JSON Schema walk and the YAML reader (adapted from
+      actions-minutes-estimator's parser) are the whole product, no
+      proprietary data. Time to revenue 5: donations-only like the rest of
+      the fleet, scored against the same narrower-channel reasoning as
+      distribution above.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the tool reports a structural comparison between two files the
+      user supplies and fully controls -- no filing, signature, deployment
+      action, or determination made on the user's behalf, and the worst
+      case is a missed or extra flag in a text report, never an
+      infrastructure change (the tool makes no Helm call and touches no
+      chart, cluster, or release). Every claim about Helm's own template
+      behavior and helm lint's additionalProperties handling is verifiable
+      directly against Helm's public documentation and source. Ethical
+      robustness: gets strictly better for users as it scales -- more
+      typos and schema violations caught before a release, free, with no
+      paid tier gating accuracy and no adversarial dynamic.
   - slug: app-store-screenshot-check
     scores:
       ai_leverage: 1
