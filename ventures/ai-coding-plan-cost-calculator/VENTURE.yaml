@@ -45,9 +45,30 @@ owner: duncan
 # visitor as it scales -- it exists only to help someone pay less for a tool
 # they already use or are deciding whether to buy, with no adverse
 # incentive on our side (no affiliate link, no referral fee, donations-only
-# same as the rest of the portfolio). The trademark disclaimer keeps four
-# named vendors (Anthropic, Cursor, GitHub/Microsoft, OpenAI) clear of any
-# implied endorsement.
+# same as the rest of the portfolio). The trademark disclaimer keeps five
+# named vendors (Anthropic, Cursor, GitHub/Microsoft, Google, OpenAI) clear
+# of any implied endorsement.
+#
+# ADDED 2026-09-17: OpenAI and Google API rate presets. Found by running
+# the whole-catalogue browser sweep (`browser_checks.py --record`, all 8
+# checks clean, no defect) turned up nothing to fix, so this session read
+# the tool this venture already ships instead of only its guards. The plan
+# preset list already named ChatGPT Plus, Cursor, and GitHub Copilot as
+# subscriptions a visitor could compare -- but MODEL_PRESETS, the "same
+# usage paid per token" side, only ever offered Claude API rates, and the
+# page defaulted every visitor to claude-sonnet regardless of which plan
+# they picked. A ChatGPT Plus subscriber had no way to compare against
+# OpenAI's own API without hand-editing all four rate fields. `openai-gpt`
+# and `gemini` presets plus a `PLAN_MODEL_DEFAULT` map close that gap; rates
+# sourced via WebSearch (the egress proxy still 403s a direct vendor fetch)
+# against OpenAI's and Google's published per-million-token rates, dated,
+# editable, and disclaimed exactly like the existing Claude presets --
+# `RATES_AS_OF` moved to 2026-09-17 to reflect it. duplicate_check.py (run
+# this session) found no venture doing this cross-vendor comparison, so this
+# is a feature on the existing venture, not a new one -- the buyer (a
+# developer choosing an AI coding plan) is already this venture's buyer,
+# which is the "product line first" rule in pipeline/README.md applied one
+# level down, to a tool rather than a whole venture.
 #
 # NAMED FIRST VISITOR AND CHANNEL, checked this session (WebSearch, since
 # the agent egress proxy 403s a direct fetch -- same limitation CLAUDE.md
@@ -101,6 +122,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: The cross-link from mcp-supply-chain-watch (an existing venture serving the same AI-agent-building audience) sends this tool measurable referral traffic, the same complementary-pair pattern actions-minutes-estimator/actions-runner-starvation-check and llms-txt-generator/ai-crawler-access-check used the same day.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A ChatGPT Plus or GitHub Copilot subscriber, who previously had no matching API preset and would have had to hand-edit all four rate fields (or simply left the page comparing against the wrong vendor's Claude rate by default), completes a comparison now that openai-gpt is offered and auto-selected for their plan -- measurable as a lower drop-off between selecting one of those plans and clicking Compare.
     status: untested
     checked: null
     evidence: customer-contact
