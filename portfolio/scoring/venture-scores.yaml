@@ -6219,6 +6219,52 @@ ventures:
       negotiation guarantee, or a representation of any named processor's
       actual pricing. Nothing entered leaves the browser.
 
+  - slug: dog-boarding-daycare-pricing
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — a per-dog-day cost
+      build-up, a threshold-based long-stay discount, a multi-dog discount,
+      and a facility-level occupancy break-even distinct from any one
+      reservation's price — and that is arithmetic an operator has to be
+      able to re-derive for a customer or an investor.
+    basis: >-
+      Scored 2026-09-17 at graduation, same rubric as the sibling route/visit
+      pricing calculators (dog-walking-route-pricing, atm-route-margin,
+      vending-machine-route-margin). Defensibility 5: the long-stay-threshold
+      and multi-dog discount framing, plus the separate occupancy
+      break-even, are the things a flat nightly rate cannot see, but the
+      arithmetic itself is easy to reimplement once seen, so defensibility
+      rests on the framing and this portfolio's disclaimer/usage
+      conventions, not on a moat. Distribution 6: "how much to charge for
+      dog boarding" / "dog daycare pricing" are real, lower-volume search
+      phrases than marketplace-fee queries, and r/dogboarding, r/DogTrainingTips,
+      and pet-sitting/boarding business Facebook groups discuss pricing new
+      services routinely — one point below dog-walking-route-pricing's 7
+      because a fixed-facility operator is a smaller population than a
+      mobile walker/sitter, and no search-volume tool was queried to confirm
+      magnitude.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own inputs, never a
+      recommended market rate, an insurance, licensing, or animal-care
+      compliance determination, or a worker classification opinion. The
+      vs-a-flat-nightly-rate comparison names no competitor, product, or
+      company — it compares against the generic habit of matching a posted
+      local rate, and its own footer says so explicitly. Nothing entered
+      leaves the browser.
+
   - slug: dog-walking-route-pricing
     scores:
       ai_leverage: 1

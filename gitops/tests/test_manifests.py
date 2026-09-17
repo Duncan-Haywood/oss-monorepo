@@ -1763,7 +1763,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `asbestos-abatement-bid-calculator`, `tutor-package-pricing-calculator`
     # and `biohazard-cleanup-bid-calculator`, so the resolved total is 294
     # rather than any one branch's own count.
-    total = 294  # `infra/OWNER_CHECKLIST.md`'s own "N of the 294 tools" wording.
+    # 295 since 2026-09-17, when `dog-boarding-daycare-pricing` graduated --
+    # a browser-local calculator pricing a boarding/daycare reservation from
+    # staff time, supplies, and overhead, with a threshold-based long-stay
+    # discount and a multi-dog discount, plus a facility-level kennel/run
+    # occupancy break-even distinct from any one reservation's price, with a
+    # static `index.html` from its first commit, same shape as the rest of
+    # this running count.
+    total = 295  # `infra/OWNER_CHECKLIST.md`'s own "N of the 295 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

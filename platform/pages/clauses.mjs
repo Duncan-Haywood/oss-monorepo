@@ -224,6 +224,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // regulated-waste hauler, estimating software, or franchise"). Same
   // reasoning as the other generic-method pages above.
   'biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html',
+  // Compares against "a flat nightly rate copied from local competitors" --
+  // a generic pricing habit every independent dog boarding/daycare operator
+  // already has access to, not a company or product this could be mistaken
+  // for. The page's own footer says so explicitly ("names no specific
+  // competitor, product, or company"). Same reasoning as the other
+  // generic-method pages above.
+  'dog-boarding-daycare-pricing/vs-a-flat-nightly-rate.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
