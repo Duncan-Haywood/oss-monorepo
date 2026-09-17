@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 106 files, 554595 bytes
 #   portfolio-front-tools-2: 148 files, 556469 bytes
 #   portfolio-front-tools-3: 140 files, 556937 bytes
-#   portfolio-front-tools-4: 124 files, 547573 bytes
+#   portfolio-front-tools-4: 125 files, 552320 bytes
 #   portfolio-front-tools-5: 136 files, 552639 bytes
 #   portfolio-front-tools-6: 117 files, 546960 bytes
 #   portfolio-front-tools-7: 137 files, 554425 bytes
@@ -736,6 +736,7 @@ configMapGenerator:
       - basement-waterproofing-bid-calculator__index.html.gz=basement-waterproofing-bid-calculator__index.html.gz
       - basement-waterproofing-bid-calculator__share.mjs.gz=basement-waterproofing-bid-calculator__share.mjs.gz
       - basement-waterproofing-bid-calculator__usage.mjs.gz=basement-waterproofing-bid-calculator__usage.mjs.gz
+      - basement-waterproofing-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz=basement-waterproofing-bid-calculator__vs-a-flat-rate-per-lineal-foot.html.gz
       - basement-waterproofing-bid-calculator__vs-oblyss.html.gz=basement-waterproofing-bid-calculator__vs-oblyss.html.gz
       - biohazard-cleanup-bid-calculator__calc.mjs.gz=biohazard-cleanup-bid-calculator__calc.mjs.gz
       - biohazard-cleanup-bid-calculator__index.html.gz=biohazard-cleanup-bid-calculator__index.html.gz
