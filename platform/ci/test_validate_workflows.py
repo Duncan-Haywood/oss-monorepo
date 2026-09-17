@@ -21,6 +21,7 @@ from validate_workflows import (
     check_unique_names,
     check_venture_tests_run,
     reserved_github_refs,
+    unguarded_shallow_fetches,
 )
 
 
@@ -613,6 +614,90 @@ jobs:
         self.assertIn("vars.ROUTINE_TRIGGER_ENABLED == 'true'", condition)
         self.assertIn("github.event_name == 'workflow_dispatch'", condition)
         self.assertEqual(reserved_github_refs(data), set())
+
+
+class UnguardedShallowFetchTest(unittest.TestCase):
+    """A `--depth` fetch truncates the whole clone, not just the ref it names.
+
+    Free on a runner, where `actions/checkout` already made the checkout depth
+    1. Destructive on a full clone -- and `run_workflow_locally.py` runs these
+    same `run:` steps against one, which is how `portfolio-validate.yml`'s
+    base-ref fetch came to shallow a 7,289-commit checkout of `main` and then
+    report `main` RED at the next step, for a venture deletion that never
+    happened. See `unguarded_shallow_fetches`' docstring for the full
+    measurement.
+
+    The real-tree case at the bottom is the one that matters over time; the
+    synthetic ones above it keep the rule itself from silently stopping.
+    """
+
+    def _workflow(self, run_body):
+        return (
+            "name: CI\n"
+            "on: [push]\n"
+            "permissions:\n"
+            "  contents: read\n"
+            "jobs:\n"
+            "  build:\n"
+            "    runs-on: ubuntu-latest\n"
+            "    timeout-minutes: 10\n"
+            "    steps:\n"
+            "      - name: fetch\n"
+            f"        run: {run_body}\n"
+        )
+
+    def assert_flagged(self, run_body):
+        errors = errors_for(self._workflow(run_body))
+        self.assertEqual(len(errors), 1, f"expected exactly one error for: {run_body}")
+        self.assertIn("is-shallow-repository", errors[0])
+        self.assertIn("truncates the WHOLE repository", errors[0])
+
+    def assert_clean(self, run_body):
+        self.assertEqual(errors_for(self._workflow(run_body)), [])
+
+    def test_an_unconditional_depth_fetch_is_flagged(self):
+        self.assert_flagged(
+            "git fetch --no-tags --depth=1 origin +refs/heads/main:refs/ci/base-main"
+        )
+
+    def test_a_trailing_depth_flag_is_flagged_too(self):
+        # `opencode-high-throughput.yml` spelled it this way, after a
+        # `fetch-depth: 0` checkout -- so it discarded the full history the
+        # checkout had just been asked for, on the runner as well as locally.
+        self.assert_flagged("git fetch origin main --depth=50")
+
+    def test_a_guarded_depth_fetch_passes(self):
+        self.assert_clean(
+            '|\n'
+            '          if [ "$(git rev-parse --is-shallow-repository)" = true ]; then\n'
+            "            git fetch --no-tags --depth=1 origin main:refs/ci/base-main\n"
+            "          else\n"
+            "            git fetch --no-tags origin main:refs/ci/base-main\n"
+            "          fi"
+        )
+
+    def test_the_opposite_operations_are_not_flagged(self):
+        # `--unshallow` and `--deepen` add history rather than discarding it.
+        # Matching either would make the rule fire on the very command
+        # CLAUDE.md prescribes for getting *out* of a shallow clone.
+        self.assert_clean("git fetch --unshallow origin main")
+        self.assert_clean("git fetch --deepen=10 origin main")
+        self.assert_clean("git fetch --no-tags origin main:refs/ci/base-main")
+
+    def test_the_real_workflow_tree_has_no_unguarded_shallow_fetch(self):
+        workflows_dir = REPO_ROOT / ".github" / "workflows"
+        offenders = {}
+        for path in sorted(
+            p for p in workflows_dir.iterdir() if p.suffix in {".yml", ".yaml"}
+        ):
+            data = yaml.safe_load(path.read_text())
+            if not isinstance(data, dict):
+                continue
+            found = unguarded_shallow_fetches(data)
+            if found:
+                offenders[path.name] = found
+        self.assertEqual(offenders, {})
+
 
 if __name__ == "__main__":
     unittest.main()

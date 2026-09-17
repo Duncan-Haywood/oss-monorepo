@@ -12941,7 +12941,6 @@ ventures:
       Ethically: deterministic arithmetic, no data collected
       server-side, and no incentive to steer the comparison toward
       either company since the tool never recommends one.
-
   - slug: wedding-florist-proposal-calculator
     scores:
       ai_leverage: 1
@@ -13000,3 +12999,66 @@ ventures:
       quote is the user's to verify. Ethically: donations-only with no
       per-use fee, so the tool has no incentive to push a price up or down,
       and it helps a small business charge for costs it is already paying.
+  - slug: asbestos-abatement-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 4
+      gross_margin: 10
+      defensibility: 3
+      distribution: 4
+    composite: 5.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The containment-class-driven
+      cost breakdown, the per-area setup cost, and the flat-rate
+      comparison are all decided entirely by the numbers the contractor
+      types in, not a model judgment -- the same reasoning this portfolio
+      applies to every other deterministic bid calculator (e.g.
+      land-survey-bid-calculator, drone-mapping-job-calculator).
+    basis: >-
+      Screened 2026-09-17, same session, per
+      portfolio/pipeline/README.md's scoring process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match 0.11
+      (vehicle-wrap-bid-calculator), well below the read-this-first
+      threshold. Distinct from popcorn-ceiling-bid-calculator (a
+      residential drywall/painting contractor scraping acoustic ceiling
+      texture, for whom "asbestos test" is one $ line item among many and
+      abatement itself is explicitly out of scope) -- the two ventures
+      cross-link as siblings rather than overlapping. No screened-out.md
+      row names "asbestos", "abatement", or "hazmat".
+      Autonomous ops 10 / gross margin 10: the page runs entirely
+      client-side from typed inputs, nothing uploaded, so serving one more
+      user costs a static file -- same shape as every other browser-local
+      calculator in this portfolio.
+      Distribution 4: a real but narrower channel than a general
+      home-services trade -- licensed abatement contractors are a smaller,
+      more specialized, more regulator-facing audience than roofers or
+      painters, and no contractor-forum or subreddit search-volume signal
+      was checked to confirm a "asbestos removal cost calculator" query
+      pattern exists at meaningful volume, so scored below this
+      portfolio's typical bid-calculator distribution (6-7) rather than at
+      par with it.
+      Time to revenue 4, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable, same as the
+      portfolio's typical bid-calculator floor), and the audience's
+      professional gatekeeping (state licensing, EPA/OSHA certification)
+      slows organic discovery relative to an unlicensed trade.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool is explicitly scoped to a pricing worksheet -- the
+      product copy, FAQ, and disclaimer all state by name that it performs
+      no asbestos inspection, bulk-sample identification, or air-quality
+      analysis, checks no federal/state/local regulatory requirement, and
+      does not replace the contractor's own certification,
+      competent-person determination, or professional judgment on a given
+      job; the contractor remains solely responsible for regulatory
+      compliance. Ethically: donations-only with no per-quote fee, so the
+      tool has no incentive to steer a bid toward a cheaper containment
+      class than the job actually requires, and the flat-rate comparison
+      is disclosed methodology (FAQ: "why not just quote a flat rate per
+      square foot") rather than a black-box number.

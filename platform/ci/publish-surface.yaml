@@ -122,6 +122,9 @@ workflows:
 - workflow: artificial-turf-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: asbestos-abatement-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: asphalt-driveway-pave-bid-calculator-ci.yml
   classification: none
   publishes: []

@@ -1,0 +1,32 @@
+name: asbestos-abatement-bid-calculator
+description: Free browser calculator for licensed asbestos abatement contractors to price a removal job from OSHA/EPA containment class (Class I/II/III), square footage, containment areas, crew and supervisor rates, air monitoring samples, waste disposal volume, and permit fees, then compares the result against a flat rate per square foot for the same job.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Abatement contractors currently quote off a flat rate per square foot or gut feel, and a containment-class-driven price for the exact same job diverges from that rate often enough (in either direction) that seeing the gap changes how they write the quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The containment-class distinction is the genuinely counter-intuitive part rather than merely tedious, because a per-square-foot estimate treats a Class III glovebag job the same as a Class I full-containment job when the labor-hours-per-square-foot between them differ by 5-6x.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Search and community demand exists for abatement-specific pricing help ("asbestos removal cost calculator", "how to bid an asbestos abatement job", contractor-forum discussion of Class I vs Class II pricing) that a free, no-account tool can capture without paid acquisition.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Contractors report the containment-class distinction is not news -- the trade already prices it that way -- and the flat per-square-foot framing this tool argues against is not what real bids look like.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/asbestos-abatement-bid-calculator/
+  analytics: null

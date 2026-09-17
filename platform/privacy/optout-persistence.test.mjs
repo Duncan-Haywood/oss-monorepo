@@ -146,7 +146,11 @@ const RELATIVE_SELF = relative(
 // `record`/`readUsage` pattern `sbom-diff-check` and
 // `sql-migration-lock-check` use), same discovery method as the rest of
 // this running count.
-const SWITCHES_IN_THE_CATALOGUE = 275;
+// 275 -> 276 on 2026-09-17, when `asbestos-abatement-bid-calculator`
+// graduated with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `land-survey-bid-calculator` use), same
+// discovery method as the rest of this running count.
+const SWITCHES_IN_THE_CATALOGUE = 276;
 
 let counter = 0;
 function fixture(source) {
