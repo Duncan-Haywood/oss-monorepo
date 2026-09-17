@@ -101,7 +101,7 @@ python3 check.py --fail-on-risk   # exit 2 if any finding exists</code></pre>
     <p>No. It makes no network calls at all — nothing here can, because nothing here talks to a server. Paste your workflow YAML and the scan runs entirely in this page.</p>
     <h3>Does a clean scan mean my secrets are safe?</h3>
     <p>No. This checks two specific, well-documented patterns within a single step's YAML text. It is not a security audit and makes no claim about your secrets' overall safety. A transform split across two steps, a custom action that re-exports a secret internally, or a transform utility this tool does not recognise are all outside what a regex/indentation scan can see.</p>
-    <p>More: <a href="why-github-actions-secret-masking-fails.html">why GitHub Actions secret masking fails on a transformed value</a>.</p>
+    <p>More: <a href="why-github-actions-secret-masking-fails.html">why GitHub Actions secret masking fails on a transformed value</a>, and <a href="vs-reading-the-workflow-by-eye.html">this checker vs. reading the workflow by eye</a>.</p>
   </section>
 
   <footer>

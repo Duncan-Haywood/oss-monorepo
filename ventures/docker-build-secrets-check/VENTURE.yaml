@@ -1,0 +1,84 @@
+name: docker-build-secrets-check
+description: Free, read-only checker that scans a repository's Dockerfiles for build-time secret exposure -- ENV or ARG instructions whose name looks like a secret, and COPY/ADD of well-known credential files (.env, id_rsa, .npmrc, .aws/credentials) into the build context -- and recommends a BuildKit RUN --mount=type=secret instead.
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: screened this session with
+# `python3 portfolio/pipeline/duplicate_check.py` against every existing
+# venture, pipeline candidate, screened-out row, and ai-first-markets idea --
+# top score 0.11 (`helm-values-schema-check`), well below the 0.45
+# read-this-first bar. Not a duplicate of `docker-base-image-pin-check`
+# (that is about a Dockerfile's `FROM` line referencing a base image by a
+# mutable tag instead of a content digest -- a supply-chain integrity
+# question, not a secret-exposure one), `actions-secret-leak-check` (GitHub
+# Actions workflow YAML, not a Dockerfile), or `terraform-plan-secret-
+# exposure-check` (a Terraform plan JSON, not a Dockerfile). Direct
+# graduation of an already-obvious, low-risk dev-tool idea following the
+# same "generalized dev-tool CLI + browser port + SEO landing page +
+# comparison page" shape as its siblings, not a pipeline-candidate write-up.
+#
+# Shape rationale: portfolio/pipeline/README.md's "archetype itself" section
+# (2026-09-07) and its "checker" follow-up (2026-09-11) both say a specific
+# checker niche is still worth building when it clears the duplicate check on
+# a genuinely distinct question, and this is one: no existing venture in the
+# fleet reads a Dockerfile specifically for build-time secret exposure, a
+# well-documented, named risk (docs.docker.com/build/building/secrets/
+# states plainly that ARG/ENV secrets are "present in the final image" and
+# viewable via `docker history`/`docker inspect`) that is a different
+# question from base-image pinning.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# both high -- this is a mechanical, read-only, name-pattern linter with no
+# advice-of-record, no compliance claim, no data leaving the user's device,
+# and no scraping. It makes no network calls of its own anywhere in the code
+# (check.py, classify.mjs). It never inspects a real secret value: the
+# Dockerfile text a visitor pastes is read entirely in-browser and never
+# uploaded, and the CLI reads only local files the caller already has.
+# Comparable to `docker-base-image-pin-check`, `terraform-plan-secret-
+# exposure-check`, and `actions-secret-leak-check`, all already graduated
+# and live on this exact reasoning.
+hypotheses:
+  - claim: >-
+      A developer hardening a Dockerfile after reading Docker's own "Build
+      secrets" documentation, or after a security review flags a
+      hardcoded credential in a container image, will search the exact
+      question ("docker ARG secret exposed", "docker ENV password docker
+      history", "dockerfile copy .env into image") and find this tool --
+      landing on r/docker, r/devops, or a container-hardening blog post
+      that names the pattern -- since no existing free tool states this
+      specific ARG/ENV/COPY exposure directly, and it stays entirely
+      local, with no upload, no registry login, and no install.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A team will wire `check.py --fail-on-risk` into their own CI to
+      block a newly-added secret-looking ENV or a copied credential file
+      before it merges, the same way `docker-base-image-pin-check`'s CLI
+      convention is meant to be used, after finding that a general
+      secret scanner like gitleaks or trufflehog (regex/entropy over
+      tracked files) does not explain that an ENV instruction bakes a
+      resolved value into the image config regardless of whether that
+      value ever appears in a git-tracked file (see `vs-gitleaks.html`).
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/docker-build-secrets-check/
+  analytics: null

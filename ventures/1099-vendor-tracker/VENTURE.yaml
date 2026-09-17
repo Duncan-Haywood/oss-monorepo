@@ -1,0 +1,57 @@
+name: 1099-vendor-tracker
+description: Free local-first 1099-NEC vendor tracker for small-business bookkeepers that flags which vendors cross the 2026 $2,000 OBBBA reporting threshold (up from $600), applies the corporation exemption and its attorney-fee exception, and tracks missing W-9s before the January 31 deadline, without uploading vendor data.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      Small-business bookkeepers and owners, several of whom still expect the
+      $600 threshold, will search plain-language phrases ("1099 threshold
+      2026", "do I need to send a 1099", "1099 vendor tracker", "new 1099
+      threshold") once 2026 payments start needing 1099-NEC review ahead of
+      the January 2027 filing season, and will return to a free, no-signup
+      tracker that states the new $2,000 figure plainly rather than a paid
+      e-filing service's marketing page.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of an established paid-tool category for this exact task
+      (Track1099, Tax1099, TaxBandits, Zoho Books 1099/W-9 management) is
+      evidence of real, proven search and purchase volume for "1099 vendor
+      tracker" / "W-9 tracker" phrases; a free, private, no-signup
+      alternative for the narrower pre-filing step (who needs a form at all)
+      will draw some of that same search traffic away from the paid
+      marketing pages that currently dominate it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Bookkeepers managing several vendors will return to the tracker across
+      the year (not just once in January) because the threshold determination
+      changes as a vendor's cumulative year-to-date payment crosses $2,000,
+      and a mid-year check avoids a scramble in the last week of January.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic by the end of the
+    2027 January filing season (the first one under the new threshold, and
+    this venture's natural traffic peak).
+  - Fewer than three unsolicited signals (star, fork, referral, or feedback)
+    within 90 days of the 2027 filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/1099-vendor-tracker/
+  analytics: null
