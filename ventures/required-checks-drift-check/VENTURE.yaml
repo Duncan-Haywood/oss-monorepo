@@ -1,0 +1,85 @@
+name: required-checks-drift-check
+description: Free, read-only checker that compares a repository's branch-protection required status check names against the job names its GitHub Actions workflows would currently report, flagging every required check a renamed job, a removed job, or a workflow that dropped its pull_request trigger has left nothing can ever satisfy -- the reason a pull request sits at "Expected — Waiting for status to be reported" forever.
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: screened this session with
+# `python3 portfolio/pipeline/duplicate_check.py` against every existing
+# venture, pipeline candidate, screened-out row, and ai-first-markets idea --
+# top score 0.20 (`agent-instructions-drift-check`, a different kind of
+# drift entirely: that venture diffs an agent-instructions file against a
+# committed baseline, never a branch-protection setting). Not a duplicate of
+# `pinned-actions-check` (that is about a `uses:` reference's ref, never a
+# branch-protection required-check name), `actions-permissions-check` (a
+# workflow's `permissions:` grant, not which checks are required), or
+# `codeowners-shadow-check` (CODEOWNERS pattern precedence, a different
+# review-requirement mechanism from required status checks). Direct
+# graduation of an already-obvious, low-risk dev-tool idea following
+# `pinned-actions-check`'s and `docker-base-image-pin-check`'s precedent, not
+# a pipeline-candidate write-up.
+#
+# Shape rationale: portfolio/pipeline/README.md's "archetype itself" section
+# found the fleet has tried 141+ near-identical <trade>-bid-calculator
+# clones with zero measured visitors, and told sessions to weigh a
+# CLI/checker shape over another calculator absent an unusually strong named
+# channel. This is that shape, aimed at a problem with real, frequent
+# discussion on GitHub's own community forum and Stack Overflow (searching
+# the literal error text "Expected — Waiting for status to be reported"
+# returns years of unresolved threads asking why a PR won't merge) -- a
+# stronger organic-search signal than most of this portfolio's niches, and
+# a problem this repository's own CI has hit in a related form (the
+# runs-on-count and check-name drift documented in CLAUDE.md's CI section).
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# both high -- this is a mechanical, read-only comparator with no advice-of-
+# record, no compliance claim, no data leaving the user's device, and no
+# scraping. It makes no network calls of its own anywhere in the code
+# (check.py, classify.mjs): it never calls the GitHub API to read branch
+# protection on the user's behalf, never opens a pull request, and never
+# changes a repository setting. The user pastes both inputs; the comparison
+# runs entirely against what they provided. Comparable to
+# `pinned-actions-check`, `actions-permissions-check`, and
+# `docker-base-image-pin-check`, all already graduated and live on this
+# exact reasoning.
+hypotheses:
+  - claim: >-
+      A maintainer whose pull request is stuck at "Expected — Waiting for
+      status to be reported" after a routine job rename will search that
+      exact error text (or "required status check never runs", "branch
+      protection stuck pending") and find this tool -- landing from GitHub's
+      own community forum, Stack Overflow, or a CI-troubleshooting blog post
+      -- since no existing free tool states this specific failure mode this
+      directly and stays entirely local, with no repository access, no
+      login, and no install.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A team will wire `check.py --required-checks protection.json
+      --fail-on-stale` into their own CI (run right after a workflow or
+      branch-protection change) to catch a required-check name drifting out
+      of sync before it silently blocks every future pull request, the same
+      way `pinned-actions-check`'s `--fail-on-risk` convention is meant to
+      be used.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/required-checks-drift-check/
+  analytics: null

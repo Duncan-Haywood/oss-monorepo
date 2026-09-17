@@ -810,6 +810,9 @@ workflows:
 - workflow: repository-branch-hygiene-ci.yml
   classification: none
   publishes: []
+- workflow: required-checks-drift-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: retail-pilot-intel-ci.yml
   classification: none
   publishes: []

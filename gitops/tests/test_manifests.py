@@ -1774,7 +1774,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # and `storage-auction-max-bid-calculator` landed, so it only ever knew
     # its own predecessor's number (291) until this merge -- the same
     # ordinary collision shape recorded throughout this list.
-    total = 295  # `infra/OWNER_CHECKLIST.md`'s own "N of the 295 tools" wording.
+    # 296 since 2026-09-17, when `required-checks-drift-check` graduated -- a
+    # browser-local/CLI checker comparing a repository's branch-protection
+    # required status check names against the job names its GitHub Actions
+    # workflows would currently report, with a static `index.html` from its
+    # first commit, same shape as the rest of this running count. This
+    # branch was open before `storage-auction-max-bid-calculator` and
+    # `vector-db-cost-calculator` landed, so it only ever knew its own
+    # predecessor's number (294, then 295) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    total = 296  # `infra/OWNER_CHECKLIST.md`'s own "N of the 296 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
