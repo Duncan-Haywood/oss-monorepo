@@ -65,7 +65,13 @@ workflows:
 - workflow: actions-runner-starvation-check-ci.yml
   classification: none
   publishes: []
+- workflow: actions-secret-leak-check-ci.yml
+  classification: none
+  publishes: []
 - workflow: actions-self-hosted-exposure-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: actions-transitive-pin-check-ci.yml
   classification: none
   publishes: []
 - workflow: ada-title-ii-evidence-ci.yml
@@ -251,6 +257,9 @@ workflows:
 - workflow: cloud-egress-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cnc-machining-quote-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: codeowners-shadow-check-ci.yml
   classification: none
   publishes: []
@@ -330,6 +339,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: dependency-confusion-check-ci.yml
+  classification: none
+  publishes: []
+- workflow: deploy-concurrency-check-ci.yml
   classification: none
   publishes: []
 - workflow: dns-configuration-evidence-ci.yml

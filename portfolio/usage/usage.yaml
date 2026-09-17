@@ -5388,6 +5388,27 @@ products:
           `example_loaded` -- a visitor who only ever loads the example has not
           brought their own input to it, which is the difference between a demo
           and a tool.
+  - slug: actions-transitive-pin-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline reading recorded the same day the venture shipped, from its
+          first commit -- unlike several siblings above, this one is not a
+          retroactive catch-up. It fetches what a pinned reusable workflow or
+          composite action itself loads and flags it if that is unpinned
+          underneath, a gap `pinned-actions-check`'s own "no network calls of
+          any kind" design cannot see. Counts are local, opt-in, off by
+          default, and honor DNT/GPC, so zero is the expected reading for a
+          tool nobody has visited or switched the counter on for yet. The
+          reading worth watching is `check_run` against `example_loaded` -- a
+          visitor who only ever loads the example has not brought their own
+          input to it, which is the difference between a demo and a tool.
   - slug: affiliate-disclosure-checker
     surface: github-pages
     readings:
@@ -6485,3 +6506,59 @@ products:
           `example_loaded` is the signal worth watching -- whether a
           visitor who tried the worked example came back to check their
           own project.
+  - slug: actions-secret-leak-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool scanning GitHub Actions
+          workflow YAML for the two documented ways a secret reaches a log,
+          or a later step, unmasked despite GitHub's own log masking --
+          transforming a secret-derived value before it can be printed, and
+          exporting one to $GITHUB_ENV/$GITHUB_OUTPUT/$GITHUB_STATE without
+          ::add-mask::. Direct sibling of actions-injection-check,
+          actions-permissions-check and pinned-actions-check, closing a gap
+          none of those three cover. `live_url_visitors` is null, not zero
+          -- see the standing note on this route elsewhere in this file;
+          nobody has measured yet. Named channel to watch: r/devops,
+          r/github, and GitHub's own Security Lab / community discussions,
+          the same channel the rest of this portfolio's actions-* family
+          targets. `check_run` against `example_loaded` is the signal worth
+          watching -- whether a visitor who tried the worked example came
+          back to check their own workflows.
+  - slug: cnc-machining-quote-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          quote: 0
+          example_loaded: 0
+          inputs_saved: 0
+        note: >-
+          Baseline at publication. A browser-local job-costing calculator for
+          CNC job shops: it costs a part from whole-stock-unit material yield
+          (bar length less chuck grip over part length plus parting cut, or a
+          rectangular plate nest tried both ways round), cycle and handling
+          time, the flat per-lot block of setup, programming and first-article
+          inspection, perishable tooling per part, and an outside process with
+          its lot minimum -- then costs the same part at every standard lot
+          size from 1 to 500. `live_url_visitors` is null, not zero -- see the
+          standing note on this route elsewhere in this file; nobody has
+          measured yet, and a null is never evidence a product is unwanted.
+          Named channel to watch: r/Machinists, r/CNC and r/Manufacturing,
+          where "am I quoting this right?" and "what's your shop rate?" are
+          weekly threads, plus Practical Machinist's long-running quoting
+          threads, and organic search for "cnc machining cost per part" and
+          "how to quote cnc machining jobs". `inputs_saved` against `quote` is
+          the signal worth watching -- saving the numbers is the only act on
+          this page that implies a return visit, since the shop rates it saves
+          are the four the whole catalogue shares. A visitor who quotes once
+          and never saves got an answer; one who saves is treating it as a
+          tool.

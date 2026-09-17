@@ -238,6 +238,12 @@
     <loc>https://marisstella.dev/tools/actions-runner-starvation-check/why-is-my-github-actions-check-red-in-seconds.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-secret-leak-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-secret-leak-check/why-github-actions-secret-masking-fails.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-self-hosted-exposure-check/</loc>
   </url>
   <url>
@@ -245,6 +251,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/actions-self-hosted-exposure-check/vs-stepsecurity.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-transitive-pin-check/</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/ada-title-ii-evidence/</loc>
@@ -634,6 +643,9 @@
     <loc>https://marisstella.dev/tools/branch-protection-drift-check/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/branch-protection-drift-check/vs-manually-checking-settings.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/branch-protection-drift-check/why-branch-protection-drifts.html</loc>
   </url>
   <url>
@@ -845,6 +857,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/cloud-egress-calculator/vs-google-cloud-pricing-calculator.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cnc-machining-quote-calculator/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/cnc-machining-quote-calculator/setup-fee-or-in-the-part-price.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/codeowners-shadow-check/</loc>
@@ -1079,6 +1097,15 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/dependency-confusion-check/what-is-dependency-confusion.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/deploy-concurrency-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/deploy-concurrency-check/how-a-deploy-ships-an-older-commit.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/deploy-concurrency-check/vs-reading-your-workflows-yourself.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/dns-configuration-evidence/</loc>
@@ -2057,6 +2084,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/marketplace-fee-compare/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/marketplace-fee-compare/vs-checking-each-marketplace-separately.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/marketplace-fee-compare/vs-sellerboard.html</loc>
