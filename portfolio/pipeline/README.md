@@ -250,6 +250,7 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 43 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
 | 44 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
 | 45 | [PDF accessibility tag checker](candidates/pdf-accessibility-tag-check.md) | 6.125 | 1 | Graduated 2026-09-16 as `ventures/pdf-accessibility-tag-check`; zero-dependency CLI + no-upload browser checker reading a PDF's own tag structure, title, language, alt text, and form-field labels against PDF/UA and Section 508, with organic search demand against five established free competitors still unmeasured |
+| 46 | [Commissary kitchen cost split calculator](candidates/commissary-kitchen-cost-split-calculator.md) | 6.125 | 1 | Graduated 2026-09-16 as `ventures/commissary-kitchen-cost-split-calculator`; browser-local largest-remainder split of a shared commissary kitchen's pooled monthly costs across multiple food-truck tenants by hours booked and/or storage used, with defensibility and distribution scored deliberately modest (no regulatory driver, easily copied), repeat usage and organic search demand still unmeasured |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four

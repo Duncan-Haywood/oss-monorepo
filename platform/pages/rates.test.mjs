@@ -111,6 +111,13 @@ const NO_SHARED_SHOP_RATES = {
     'different quantity from a percentage of direct cost. Only target margin means the same ' +
     'thing, spelled `targetMarginPct` and capped at 95 rather than 99.9, and one carried field ' +
     'is below MIN_CARRIED_FIELDS, so no bar is shown and no PARTIAL_SHOP_RATE_PAGES note is due.',
+  'land-survey-bid-calculator':
+    'its per-person wage is spelled `crewHourlyRatePerPerson` rather than `hourlyWage`, but means the ' +
+    'same raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its "target margin on price" is spelled ' +
+    '`targetMarginPercentPct` and means the same net-margin-on-price concept as `targetMargin` -- ' +
+    'aliased too. It has no separate payroll-burden field, and it prices office research and drafting ' +
+    'time as their own hourly rates rather than an overhead percentage of direct cost, so it carries ' +
+    'two of the four: see PARTIAL_SHOP_RATE_PAGES.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {

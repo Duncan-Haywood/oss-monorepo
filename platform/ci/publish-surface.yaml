@@ -242,6 +242,9 @@ workflows:
 - workflow: commercial-photo-license-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: commissary-kitchen-cost-split-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: concrete-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -543,6 +546,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: land-survey-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: landscape-lighting-bid-calculator-ci.yml

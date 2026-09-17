@@ -154,3 +154,18 @@ test('index links one hop to the portable-restroom-event-quote sibling', () => {
     'index must link ../portable-restroom-event-quote/ so crawlers reach the portable restroom event quote calculator in one hop',
   );
 });
+
+// Same broad audience (independent food truck/mobile-vendor operators), a
+// different specific job: this tool prices one event booking from the
+// truck's own cost side, commissary-kitchen-cost-split-calculator splits a
+// shared kitchen's recurring pooled overhead among several tenants from the
+// commissary operator's side. Without a crawlable link here, a crawler
+// entering on the event margin calculator never reaches the cost-split
+// calculator in one hop.
+test('index links one hop to the commissary-kitchen-cost-split-calculator sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/commissary-kitchen-cost-split-calculator\/"/,
+    'index must link ../commissary-kitchen-cost-split-calculator/ so crawlers reach the commissary kitchen cost split calculator in one hop',
+  );
+});

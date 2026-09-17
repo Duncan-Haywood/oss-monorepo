@@ -1,0 +1,47 @@
+name: commissary-kitchen-cost-split-calculator CI
+
+# Zero-dependency browser calculator: `calc.mjs` is the deterministic
+# largest-remainder cost-split engine, `usage.mjs` is the opt-in local usage
+# counter, and `index.html` is the single self-contained page. Keep all of
+# it covered independently of the portfolio-wide validation workflow, which
+# only checks published pages and does not run venture unit tests. Without
+# this file, `validate_workflows.py` would fail the moment the venture's
+# `*.test.mjs` files land -- the same hole `hoa-reserve-fund-calculator-ci.yml`
+# and `pdf-accessibility-tag-check-ci.yml` document.
+on:
+  pull_request:
+    paths:
+      - "ventures/commissary-kitchen-cost-split-calculator/**"
+      - ".github/workflows/commissary-kitchen-cost-split-calculator-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/commissary-kitchen-cost-split-calculator/**"
+      - ".github/workflows/commissary-kitchen-cost-split-calculator-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: commissary-kitchen-cost-split-calculator-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/commissary-kitchen-cost-split-calculator
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # Discovered, not enumerated -- see cors-misconfig-check-ci.yml's
+      # comment on this same step for why a bare `node --test` (which walks
+      # the whole working directory) is preferred over naming files.
+      - name: Run every test in the venture
+        run: node --test
