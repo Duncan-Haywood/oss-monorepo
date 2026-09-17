@@ -247,8 +247,11 @@ const PROPOSAL_TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'propo
 async function copyShare() {
   const hash = encodeShare({
     ...readInput(),
-    actualHours: el('actualHours').value,
     ...Object.fromEntries(PROPOSAL_TERM_IDS.map(id => [id, el(id).value])),
+    // Included even when blank is fine -- decodeShare drops undefined/blank
+    // values and readInput/restore never treat an absent key as "clear this
+    // field", so this only ever adds the actual-hours figure, never erases it.
+    actualHours: el('actualHours').value,
   });
   const url = `${location.origin}${location.pathname}#${hash}`;
   await writeClipboard(url);

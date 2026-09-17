@@ -1,0 +1,31 @@
+name: import-landed-cost-calculator
+description: A private browser calculator for small e-commerce importers (Amazon/Etsy/Shopify sellers and dropshippers) to price total landed cost on an import shipment — item cost, freight, duty, Section 301/supplemental tariff, Merchandise Processing Fee, Harbor Maintenance Fee, and broker fee — and see cost per unit and the effective tariff burden as a percent of the invoice price before customs surprises turn a profitable order into a loss.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small importers will use a landed-cost calculator because pricing off item cost alone, then getting hit at customs with duty, Section 301/reciprocal tariffs, and processing fees they did not budget for, is a common and costly surprise — sharpened by the 2025 narrowing of the $800 de minimis exemption.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers searching "landed cost calculator", "customs duty calculator", "china tariff calculator", or "de minimis calculator" will land on this tool because no existing free calculator in this portfolio covers customs/tariff arithmetic, and enterprise tools (Flexport, Zonos) target larger shippers with account managers rather than a self-filing small seller.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will return to check a new shipment or a new supplier's rates because the Merchandise Processing Fee's floor/ceiling and the Harbor Maintenance Fee's ocean-only condition are easy to get wrong by hand and this tool applies them automatically.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified small-importer users use the calculator twice within 90 days.
+  - Users do not find the tariff-burden or per-unit figures materially different from what they would have priced off item cost alone.
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/import-landed-cost-calculator/
+  analytics: null

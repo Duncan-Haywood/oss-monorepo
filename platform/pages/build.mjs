@@ -753,7 +753,15 @@ const CATEGORY_RULES = [
     // bring-your-own-rates infrastructure cost estimators, and the two
     // pages already cross-link each other as Related), just for a
     // different resource (a vector index instead of object storage).
-    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db)/.test(slug),
+    //
+    // `import-landed-cost` is filed here on its first commit rather than
+    // after a spell in the catch-all -- what `build.test.mjs`'s catch-all
+    // bound is for. It normalises a shipment's total cost (item, freight,
+    // duty, MPF, HMF, broker fee) before an importer commits to an order,
+    // the same "normalise a quote ... before you sign for it" shape this
+    // section's own blurb already names, just for a customs entry instead
+    // of a freight quote or a cloud bill.
+    test: (slug) => /^(3pl|freight|cloud-egress|ifta-|ltl-|owner-operator|medical-courier|vector-db|import-landed-cost)/.test(slug),
   },
   {
     id: 'evidence',

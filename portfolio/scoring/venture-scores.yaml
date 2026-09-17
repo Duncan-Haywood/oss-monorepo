@@ -13583,3 +13583,66 @@ ventures:
       Ethically: donations-only with no per-use fee, so nothing biases the
       verdict, and the tool tells a site at an origin root that it is fine
       rather than manufacturing a finding.
+
+  - slug: import-landed-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Deterministic arithmetic on rates and fees the user supplies -- item
+      cost plus freight for customs value, a duty and supplemental rate
+      applied to it, and a CBP fee schedule (MPF floor/ceiling, HMF) that is
+      a fixed formula, not a model. There is nothing to infer: the tool
+      never determines an HTS code or a duty rate, only prices the numbers
+      once the user has them.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's "archetype
+      itself" section: a browser-local calculator for small e-commerce
+      importers pricing total landed cost, distinct from every marketplace
+      fee calculator already in the portfolio (amazon-fba-calculator,
+      shopify-fee-calculator, etc., which price a channel's own seller fees,
+      never customs duty or freight-side arithmetic) and from the logistics
+      section's existing freight/cloud-cost tools (3pl-quote-normalizer,
+      freight-accessorial-auditor, cloud-egress-calculator, ltl-freight-
+      class-estimator), none of which touch duty, tariffs, or CBP fees.
+      duplicate_check.py scored the closest existing venture at 0.17 against
+      the final description, well under the 0.45 flag bar.
+      Autonomous ops 10 / gross margin 10: nothing to host beyond a static
+      page -- the arithmetic runs client-side and serving one more user
+      costs a static file with no human review of any output.
+      Distribution 8: "landed cost calculator", "customs duty calculator",
+      "china tariff calculator", and "de minimis calculator" are recurring,
+      high-intent search terms in r/FulfillmentByAmazon, r/dropship, r/
+      AmazonSeller, r/ecommerce, and r/Alibaba, sharpened by the 2025
+      narrowing of the $800 de minimis exemption -- a current, well-
+      documented disruption that has not settled into a stable answer
+      elsewhere. Still unmeasured against this portfolio's own traffic,
+      which has never recorded a visitor reading for any product.
+      Time to revenue 7, defensibility 5: donations-only; the CBP fee
+      schedule and duty-rate arithmetic are public, so anyone could
+      reimplement the calculation, but the combined MPF-floor/ceiling,
+      HMF-conditional, and formal/informal-entry logic in one place, plus
+      the specific small-importer framing, is not a one-line clone the way
+      a single fee-percentage lookup would be.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. Liability: the page and README state, near the top and
+      explicitly, that this is not a customs broker, freight forwarder, or
+      licensed customs classification service and does not determine an
+      HTS code, a duty rate, or a compliance obligation -- it is arithmetic
+      once the user supplies the rates, matching DIRECTION.md's "no advice-
+      of-record, no compliance warranty" guardrail. No duty or tariff rate
+      is hardcoded as fact for any product category; only the published
+      CBP MPF/HMF fee-schedule figures are, each captioned to confirm
+      before relying on it. Ethically: donations-only with no per-use fee,
+      so nothing biases the arithmetic toward a higher or lower result.

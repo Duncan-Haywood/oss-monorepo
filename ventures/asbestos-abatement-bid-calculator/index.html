@@ -8,7 +8,7 @@
 <meta property="og:title" content="Asbestos Abatement Bid Calculator">
 <meta property="og:description" content="Price an abatement job by what actually drives the cost — containment class, crew hours, air monitoring, and waste disposal — and see how far off a flat rate per square foot would have been.">
 <meta property="og:type" content="website">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Asbestos Abatement Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local bid calculator for licensed asbestos abatement contractors that prices a removal job from OSHA/EPA containment class, square footage, containment areas, crew and supervisor rates, air monitoring samples, waste disposal volume, permit fees, and a target margin, then compares the result to a flat rate per square foot for the same job.","featureList":"containment-class-driven bid pricing, flat-rate-per-square-foot comparison, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Asbestos Abatement Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local bid calculator for licensed asbestos abatement contractors that prices a removal job from OSHA/EPA containment class, square footage, containment areas, crew and supervisor rates, air monitoring samples, waste disposal volume, permit fees, and a target margin, then compares the result to a flat rate per square foot for the same job.","featureList":"containment-class-driven bid pricing, flat-rate-per-square-foot comparison, shareable quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this an asbestos inspection or a substitute for my certification?","acceptedAnswer":{"@type":"Answer","text":"No. This is a pricing worksheet only. It does not perform an asbestos inspection, bulk-sample identification, or air-quality analysis, does not check any federal, state, or local regulatory requirement, and does not replace your own certification, competent-person determination, or professional judgment about scope and liability on a given job."}},{"@type":"Question","name":"Why does the calculator ask for a containment class instead of just square footage?","acceptedAnswer":{"@type":"Answer","text":"Class I friable material needs full containment, a negative-air machine, and a decon chamber, and crews move far slower doing wet removal in full PPE. Class III minor, incidental disturbance of non-friable material can be glovebagged in an afternoon. The labor hours per square foot between the two differ by five to six times, so a flat rate that only sees area gets one of them wrong."}},{"@type":"Question","name":"Why not just quote a flat rate per square foot like a lot of the trade does?","acceptedAnswer":{"@type":"Answer","text":"A flat rate does not see containment class, how many separate work areas need their own setup, or how much air monitoring and waste the job produces. A small, simple Class III job can end up overpriced by a rate calibrated to an average job mix, and a large Class I job can end up badly underpriced. The comparison panel below shows the gap on the job you just priced."}},{"@type":"Question","name":"Does anything about my job or client get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every number on this page runs in your browser only. Nothing is sent to a server, there is no account, and no job address, client name, or price is ever saved or transmitted. Usage counting only tallies anonymous feature events, and you can turn it off below."}},{"@type":"Question","name":"What if I don't know the exact air monitoring sample count or waste volume before I bid?","acceptedAnswer":{"@type":"Answer","text":"Use your best estimate from a walkthrough, the project specification, or a similar past job of the same containment class and size — the same way you would size up any job. This tool prices the numbers you enter; it does not verify them against a site inspection."}}]}</script>
 <style>
 :root{font:16px/1.5 system-ui,sans-serif;color:#241a14;background:#f7f0e8}body{max-width:1020px;margin:auto;padding:28px 18px}header{max-width:740px}h1{font-size:clamp(2rem,6vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.1rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e4cfb6;border-radius:16px;padding:20px;box-shadow:0 8px 24px #24140810;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #efe0cd;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#8a4a1c;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}.checkboxLabel{display:flex;flex-direction:row;align-items:center;gap:8px;font-weight:650}input,select{width:100%;box-sizing:border-box;padding:9px;border:1px solid #dcb98c;border-radius:8px;font:inherit;background:#fffdfb}input[type=checkbox]{width:auto}.result{background:#3d2410;color:#fff;border-color:#3d2410}.result a{color:inherit}.big{font-size:2.5rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#66503c}.result .note{color:#e9d9c7}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.85rem}th,td{padding:6px 4px;text-align:left}th{font-size:.72rem;color:#8a4a1c}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #dcb98c;background:#fff;cursor:pointer;color:#241a14}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}.warn{color:#9a351d}.ok{color:#8a4a1c}.gapBox{border:1px solid #efe0cd;border-radius:10px;padding:12px;margin-top:10px}@media(max-width:760px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
@@ -121,7 +121,7 @@
 <label>Naive rate to compare ($/sq ft)<input id="naiveRatePerSquareFoot" type="number" min="0" step="0.5" value="8.5"></label>
 </div></fieldset>
 
-<div class="actions"><button type="button" id="reset">Reset to defaults</button></div>
+<div class="actions"><button type="button" id="reset">Reset to defaults</button><button type="button" id="copyShare">Copy share link</button><span id="shareStatus" class="note" role="status" aria-live="polite"></span></div>
 </section>
 
 <section id="results" class="result" aria-live="polite"><h2>Quote</h2><p id="errors" class="err" role="alert" hidden></p>
@@ -190,7 +190,7 @@
   <div id="proposalDoc" class="pr-shell" hidden></div>
 <!-- proposal:end -->
 
-<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. There is no account and no server-side storage of any kind — your job details, rates, and price are never saved or sent anywhere, and refreshing the page clears them by design. We count only anonymous local feature events (<code>quote_calculated</code>, <code>reset</code>, <code>sponsor_link_clicked</code>) so we can tell whether the calculator gets used — no job, price, or client figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="optout" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. There is no account and no server-side storage of any kind — your job details, rates, and price are never saved or sent anywhere, and refreshing the page clears them by design. "Copy share link" encodes your containment class, footage, crew, and cost figures into this page's own URL — nothing is sent to a server, and the link is only ever built and copied in your browser. We count only anonymous local feature events (<code>quote_calculated</code>, <code>reset</code>, <code>share_link_copied</code>, <code>sponsor_link_clicked</code>) so we can tell whether the calculator gets used — no job, price, or client figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="optout" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
 
 <section><h2>Common questions</h2>
 <h3>Is this an asbestos inspection or a substitute for my certification?</h3><p>No. This is a pricing worksheet only. It does not perform an asbestos inspection, bulk-sample identification, or air-quality analysis, does not check any federal, state, or local regulatory requirement, and does not replace your own certification, competent-person determination, or professional judgment about scope and liability on a given job.</p>
@@ -207,6 +207,7 @@
 <script type="module">
 import { calculateAbatementBid, naiveFlatRateQuote, pricingGap, DEFAULTS } from './calc.mjs';
 import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeShare, decodeShare } from './share.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -289,6 +290,46 @@ function update(shouldCount = false) {
   }
 }
 
+// The proposal panel's terms (`platform/proposal/adopt.mjs`) are not part of
+// SCALAR_IDS/SELECT_IDS/CHECKBOX_IDS, so they are merged in here -- see the
+// matching SHARE_FIELDS entry in share.mjs and `platform/proposal/term-ids.test.mjs`.
+const PROPOSAL_TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+async function writeClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const fallback = document.createElement('textarea');
+    fallback.value = text;
+    fallback.setAttribute('readonly', '');
+    fallback.style.position = 'fixed';
+    fallback.style.opacity = '0';
+    document.body.append(fallback);
+    fallback.select();
+    document.execCommand('copy');
+    fallback.remove();
+  }
+}
+
+async function copyShare() {
+  // readInputs() converts the two percent fields to the decimal fraction
+  // calc.mjs wants (rushSurchargePercent, targetMarginPercent); the share
+  // link carries the raw form fields instead (…Pct) so restoring it writes
+  // straight back into the inputs without re-deriving anything.
+  const hash = encodeShare({
+    ...readInputs(),
+    rushSurchargePercentPct: el('rushSurchargePercentPct').value,
+    targetMarginPercentPct: el('targetMarginPercentPct').value,
+    ...Object.fromEntries(PROPOSAL_TERM_IDS.map(id => [id, el(id).value])),
+  });
+  const url = `${location.origin}${location.pathname}#${hash}`;
+  await writeClipboard(url);
+  history.replaceState(null, '', `#${hash}`);
+  count('share_link_copied');
+  el('shareStatus').textContent = 'Share link copied.';
+  setTimeout(() => { el('shareStatus').textContent = ''; }, 2500);
+}
+
 [...SCALAR_IDS, ...SELECT_IDS].forEach(id => el(id).addEventListener('input', () => update(true)));
 CHECKBOX_IDS.forEach(id => el(id).addEventListener('change', () => update(true)));
 el('sponsorLink').addEventListener('click', () => count('sponsor_link_clicked'));
@@ -302,6 +343,25 @@ el('reset').addEventListener('click', () => {
   update(false);
   count('reset');
 });
+el('copyShare').addEventListener('click', () => {
+  copyShare().catch(() => { el('shareStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+});
+
+// A share link takes priority over whatever is already typed in the form --
+// opening a link someone sent means seeing the job they priced, not the
+// page's own starting defaults.
+const shared = decodeShare(location.hash);
+if (shared) {
+  for (const id of [...SELECT_IDS, ...SCALAR_IDS]) {
+    if (shared[id] !== undefined) el(id).value = shared[id];
+  }
+  for (const id of CHECKBOX_IDS) {
+    if (shared[id] !== undefined) el(id).checked = Boolean(shared[id]);
+  }
+  for (const id of PROPOSAL_TERM_IDS) {
+    if (shared[id] !== undefined) el(id).value = shared[id];
+  }
+}
 
 update(false);
 // proposal:begin — generated by platform/proposal/adopt.mjs

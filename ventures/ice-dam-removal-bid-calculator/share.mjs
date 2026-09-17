@@ -29,8 +29,10 @@ export const SHARE_FIELDS = Object.freeze([
   'overheadRate',
   'targetMargin',
   'minimumServiceCharge',
-  // Not part of the rate-card form -- the reconciliation section's own
-  // input, read separately in index.html because it has no DEFAULTS entry.
+  // The post-job "check the actual on-site hours" figure -- not part of the
+  // main form's FIELD_IDS/DEFAULTS, so it has to be named here explicitly or
+  // a link sent after the job (the exact moment this field gets used) drops
+  // the one number that made it worth sending.
   'actualHours',
   // The proposal panel's terms -- see the file header and term-ids.test.mjs.
   'depositPercent', 'validDays', 'proposalExclusions', 'paymentTerms', 'proposalNotes',
