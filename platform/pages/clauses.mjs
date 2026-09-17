@@ -163,6 +163,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // has, not a company or product this could be mistaken for. Same reasoning
   // as the other vs-spreadsheet pages above.
   'tutor-package-pricing-calculator/vs-a-spreadsheet.html',
+  // Compares against "your phone's built-in world clock" -- a generic
+  // feature every phone platform ships, not a company or product this could
+  // be mistaken for. The page itself names no specific platform or vendor
+  // (asserted by a test).
+  'world-clock-widget/vs-your-phones-clock-app.html',
   // Compares against "checking a DST calendar by hand" -- a generic manual
   // habit every developer already has access to, not a company or product
   // this could be mistaken for. Same reasoning as the other manual-method
@@ -236,6 +241,13 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // regulated-waste hauler, estimating software, or franchise"). Same
   // reasoning as the other generic-method pages above.
   'biohazard-cleanup-bid-calculator/vs-a-flat-rate-per-pound-quote.html',
+  // Compares against "a flat nightly rate copied from local competitors" --
+  // a generic pricing habit every independent dog boarding/daycare operator
+  // already has access to, not a company or product this could be mistaken
+  // for. The page's own footer says so explicitly ("names no specific
+  // competitor, product, or company"). Same reasoning as the other
+  // generic-method pages above.
+  'dog-boarding-daycare-pricing/vs-a-flat-nightly-rate.html',
   // Compares against "tracking offers in a spreadsheet" -- a generic method
   // every Reverb seller already has access to, not a company or product
   // this could be mistaken for. The page's own footer says so explicitly
