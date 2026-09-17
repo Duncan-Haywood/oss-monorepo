@@ -1911,7 +1911,20 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `branch-protection-drift-check` and `helm-values-schema-check` landed,
     # so it only ever knew 306 until this merge -- the same ordinary
     # collision shape recorded throughout this list, three deep this time.
-    total = 308  # `infra/OWNER_CHECKLIST.md`'s own "N of the 308 tools" wording.
+    # 309 since 2026-09-17, when `actions-secret-leak-check` graduated
+    # concurrently with `deploy-concurrency-check` above -- a
+    # zero-dependency CLI + browser tool flagging the two documented ways a
+    # secret reaches a GitHub Actions log, or a later step, unmasked despite
+    # GitHub's own log masking: a step that transforms a secret-derived
+    # value before it can be printed, and one that exports a secret-derived
+    # value to $GITHUB_ENV/$GITHUB_OUTPUT/$GITHUB_STATE without
+    # `::add-mask::`. Direct sibling of `actions-injection-check`,
+    # `actions-permissions-check` and `pinned-actions-check`, cross-linked
+    # from all three. This branch was open before
+    # `deploy-concurrency-check` landed, so it only ever knew 308 until this
+    # merge -- both branches independently wrote "308" for what the merged
+    # tree made 309.
+    total = 309  # `infra/OWNER_CHECKLIST.md`'s own "N of the 309 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

@@ -33457,6 +33457,68 @@ entries:
         No external user contact yet -- that is the explicit next,
         non-code step named in `VENTURE.yaml`'s `kill_criteria`, not a gap
         in this session's work.
+  - venture: actions-secret-leak-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and graduated `actions-secret-leak-check`: a free,
+        zero-dependency CLI + browser checker for GitHub Actions workflow
+        YAML that flags the two documented ways a secret reaches a log, or
+        a later step, unmasked despite GitHub's own log masking --
+        transforming a secret-derived value (base64/hex/substring) before
+        it can be printed, and exporting one to
+        $GITHUB_ENV/$GITHUB_OUTPUT/$GITHUB_STATE without registering it
+        with `::add-mask::`. Direct sibling of `actions-injection-check`,
+        `actions-permissions-check` and `pinned-actions-check`, closing a
+        gap none of those three cover -- `duplicate_check.py` scored the
+        description at or below 0.11 against every venture, screened-out
+        row, and pipeline candidate before graduation.
+      - >-
+        Same paired-implementation shape as `actions-injection-check`:
+        `check.py` is the canonical CLI (stdlib only, text/json/sarif
+        output, `--fail-on-risk`), `classify.mjs` is the browser port kept
+        in lock-step, and `classify.test.mjs` pins a parity test that
+        shells out to the Python CLI and asserts identical findings on the
+        same input. Both scan step-scoped -- a step's own `env:` block is
+        tracked so a secret declared in one step's environment is never
+        mistaken for a match in an unrelated step -- deliberately not a
+        full data-flow analysis, matching this portfolio's standing design
+        choice (see `pinned-actions-check`) of a small, auditable scan over
+        a full YAML/AST parser.
+      - >-
+        Sanity-checked against this repository's own 362 real workflow
+        files: zero findings, confirming the two patterns are narrow enough
+        not to flood a clean codebase with noise.
+      - >-
+        Registered in `venture-scores.yaml` (composite 6.0, floor 1 on
+        `ai_leverage`, both liability/ethics gates pass) and
+        `portfolio/usage/usage.yaml` (baseline reading, `live_url_visitors:
+        null` -- never measured, not measured-and-zero). Sibling links
+        added both ways: the new venture's footer links
+        `actions-injection-check`, `actions-permissions-check` and
+        `pinned-actions-check`, and each of those three now links back --
+        `platform/pages/siblings.mjs --check` confirms 0 crawlable orphans
+        across 308 tools. Tree-count drift fixed via `sync_tree_counts.py`
+        (mirrored-tool count 307->308, opt-out-switch count 291->292) and
+        `sync_readme_counts.py` (the `runs-on` count this new workflow
+        moved), each with a running-comment entry naming which venture
+        moved it. `node platform/pages/launched.mjs --write` and `node
+        platform/marketing/regen.mjs` both run so the venture enters the
+        Atom feed and the front-door mirror reflects it.
+      - >-
+        Full verification, all green: venture suite (62 assertions --
+        24 Python `unittest` + 38 `node --test`, including the CLI/browser
+        parity test), full `platform/pages` + `platform/marketing`
+        (1272/1272 after `regen.mjs`), `checklist_coverage.py`,
+        `clauses.mjs`, `surface-budget.mjs --check`,
+        `sync_tree_counts.py --check`, `sync_readme_counts.py --check`,
+        `router/validate.py`, `score_ventures.py --check`,
+        `publish_surface.py --write` (registered the new CI workflow as
+        publishing `none`), and `check_duplicate_symbols.py`. Actions was
+        starved (`ci_starvation.py`, `runner_id: 0`) fleet-wide during this
+        session -- confirmed before merging on local verification alone,
+        consistent with every other PR that landed the same afternoon.
   - venture: marketplace-fee-compare
     agent_spend_usd: null
     human_hours: 0

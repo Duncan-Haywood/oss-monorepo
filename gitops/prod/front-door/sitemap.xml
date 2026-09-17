@@ -238,6 +238,12 @@
     <loc>https://marisstella.dev/tools/actions-runner-starvation-check/why-is-my-github-actions-check-red-in-seconds.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/actions-secret-leak-check/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/actions-secret-leak-check/why-github-actions-secret-masking-fails.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/actions-self-hosted-exposure-check/</loc>
   </url>
   <url>
