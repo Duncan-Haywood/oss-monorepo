@@ -280,6 +280,32 @@ test('every shipped job preset calculates without throwing', () => {
   }
 });
 
+test('extraCost never double-counts extras labor already inside laborCost', () => {
+  // Regression: extraCost used to add the loaded-wage cost of every extras
+  // hour on top of extraHardware, but those hours are already inside
+  // laborCost/totalHours -- so any job with real extras charged that labor
+  // twice in the displayed cost breakdown. extraCost must equal exactly
+  // extraHardware: the extras' material/invoice spend, no labor re-added.
+  for (const preset of JOB_PRESETS) {
+    const kit = {
+      ...suggestedScopeKit(preset.scope),
+      ...suggestedPatternKit(preset.pattern),
+      ...suggestedExtraKit(),
+    };
+    const result = calculateBid({
+      ...preset,
+      hourlyWage: 38,
+      burdenRate: 30,
+      overheadRate: 15,
+      targetMargin: 20,
+      travelAndEquipment: 55,
+      otherCost: 0,
+      ...kit,
+    });
+    assert.ok(Math.abs(result.extraCost - result.extraHardware) < 1e-9, preset.label);
+  }
+});
+
 test('the customer summary names the floor and omits wages', () => {
   const text = formatBidSummary(calculateBid(special()), 'Living room stretch');
   assert.match(text, /CARPET INSTALLATION BID/);
