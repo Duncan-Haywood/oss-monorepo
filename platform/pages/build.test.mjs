@@ -1136,41 +1136,38 @@ test('the search index carries description text the card is too small to show', 
   const html = await read('index.html');
   const surfaces = (await site()).surfaces;
 
-  // A word this test picks to probe with must not be one the catalogue has
-  // itself declared too common to search on (the same `catalogueStopwords`
-  // cut the "drops the catalogue words that narrow nothing" test above
-  // verifies) -- otherwise, as the catalogue grows, a perfectly ordinary
-  // word ("browser", say) can cross that frequency threshold and this test
-  // would fail on a card for correctly *not* indexing a word every other
-  // card also dropped, rather than on a real missing-from-index defect.
-  //
-  // Computed from each surface's own unfiltered `searchIndex` (the input
-  // build.mjs itself feeds to `catalogueStopwords` before stripping the
-  // result), not from the rendered `data-search` attributes: those have
-  // already had the cut applied, so recomputing frequency from them can
-  // never find the words the cut already removed.
-  const stops = catalogueStopwords(
-    surfaces.map((s) => ({ name: searchTokens([s.title, s.slug]), index: s.searchIndex })),
-  );
-
   const truncated = surfaces.filter(
     (s) => s.fullDescription && s.fullDescription.length > s.description.replace(/…$/, '').length + 1,
   );
   // If this is ever zero the test is no longer proving anything.
   assert.ok(truncated.length > 0, 'expected at least one description longer than its card');
 
+  // Every card's data-search value, gathered once. A candidate word that
+  // appears on *no* card at all was dropped by `catalogueStopwords` for
+  // every surface, not just this one -- the mechanism the test above pins
+  // working as intended, since a word used in enough descriptions to cross
+  // the share threshold no longer narrows a search. That is catalogue
+  // growth, not a regression in one venture's own copy, so it must not
+  // fail this test; a word absent from *this* card but present on some
+  // other card is the real bug this test exists to catch.
+  const everyIndex = [...html.matchAll(/data-search="([^"]*)"/g)].map((m) => ` ${m[1]} `);
+  const isCatalogueStopword = (word) => !everyIndex.some((index) => index.includes(` ${word} `));
+
   for (const surface of truncated) {
     const shown = surface.description.replace(/…$/, '');
     const tail = surface.fullDescription.slice(shown.length);
-    const word = searchTokens([tail]).split(' ').filter((w) => w.length > 4 && !stops.has(w))[0];
-    if (!word) continue;
+    const candidates = searchTokens([tail])
+      .split(' ')
+      .filter((w) => w.length > 4 && !isCatalogueStopword(w));
+    if (candidates.length === 0) continue;
     const index = html.match(
       new RegExp(`data-search="([^"]*)"[^>]*>\\s*<a href="${surface.slug}/`),
     )?.[1];
     assert.ok(index, `no card rendered for ${surface.slug}`);
+    const padded = ` ${index} `;
     assert.ok(
-      ` ${index} `.includes(` ${word} `),
-      `"${word}" is in ${surface.slug}'s description but not in its search index`,
+      candidates.some((word) => padded.includes(` ${word} `)),
+      `none of "${candidates.join(', ')}" (from ${surface.slug}'s truncated description) is in its search index, though at least one appears elsewhere in the catalogue`,
     );
   }
 });

@@ -1942,15 +1942,28 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # browser tool that, for every top-level `uses:` reference already
     # pinned to a commit SHA, fetches that exact file from
     # `raw.githubusercontent.com` and classifies its own `uses:` lines the
-    # same way, flagging a reference pinned at the call site but loading
-    # something unpinned underneath -- a gap `pinned-actions-check`'s own
-    # "no network calls" design cannot see into. A prior merge of these same
-    # four concurrent branches guessed 311 by hand and got it wrong (measured
-    # 310 fresh against the actual tree, most likely because one of the four
-    # was already reflected in the baseline the arithmetic started from) --
-    # recorded here as the reminder not to repeat that: the number below is
-    # `sync_tree_counts.py`'s own measurement against this merge's tree, not
-    # a hand sum of the four.
+    # same way, flagging a reference that is pinned at the call site but
+    # loads something unpinned underneath -- a gap `pinned-actions-check`'s
+    # own "no network calls" design cannot see into. Cross-linked with
+    # `pinned-actions-check` from the first commit. A prior merge of several
+    # concurrent branches guessed 311 by hand and got it wrong (measured 310
+    # fresh against the actual tree at the time, most likely because one
+    # branch's venture was already reflected in the baseline the arithmetic
+    # started from) -- recorded here as the reminder not to repeat that.
+    #
+    # 311 since 2026-09-17: `actions-transitive-pin-check` (#4959) itself
+    # shipped without registering in the front-door mirror, so that 310
+    # figure was already stale the moment the very next commit (#4969)
+    # registered it -- no venture graduated between the two, the mirror
+    # just gained the entry it should have had from the start.
+    #
+    # 312 since 2026-09-17, when `twitch-payout-calculator` graduated
+    # concurrently with all of the above -- a browser-local calculator
+    # turning a streamer's Tier 1/2/3 sub counts and Bits into real monthly
+    # take-home after their revenue split, correcting the belief that a
+    # mobile-purchased subscription pays less. The number below is
+    # `sync_tree_counts.py`'s own fresh measurement against this merge's
+    # tree, not a hand sum of any of the above.
     total = 312  # `infra/OWNER_CHECKLIST.md`'s own "N of the 312 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
