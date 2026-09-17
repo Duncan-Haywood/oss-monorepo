@@ -1,0 +1,140 @@
+name: cnc-machining-quote-calculator
+description: Free browser calculator that turns a CNC job shop's own stock, cycle time, setup and programming hours, tooling life, inspection time and outside-process rates into a cost per part, a break-even price, the margin at what they were about to quote, and the same part costed at every standard lot size from a one-off to 500 — modelling material as whole bars or sheets rather than a per-part rate, scrap as a whole number of starts, and an outside-process lot minimum as the second setup it behaves like. Entirely client-side.
+stage: prototype
+
+owner: duncan
+
+# Screened this session, not written up in portfolio/pipeline/candidates.yaml.
+# The niche is the CNC job shop -- a machine shop quoting a part against an RFQ
+# or a purchase order -- which the portfolio does not otherwise touch.
+#
+# python3 portfolio/pipeline/duplicate_check.py against two phrasings ("CNC
+# machining job quote calculator for machine shops: material stock cost, cycle
+# time per part, setup amortisation across quantity, tooling wear, quantity
+# break pricing" and "machine shop part pricing: bar stock and plate material
+# yield, spindle hours, setup hours spread over lot size, perishable tooling
+# per part, inspection time, margin floor per part") scored nothing at or above
+# 0.17 against any existing venture, pipeline candidate, screened-out row, or
+# ai-first-markets idea -- the threshold is 0.45, and the top matches on both
+# runs (forestry-mulching-bid-calculator, drone-mapping-job-calculator,
+# craft-fair-booth-calculator) are word overlap on "calculator", "job" and
+# "cost" rather than the same product. grep for
+# cnc/machining/machinist/machine.shop/lathe/milling across ventures/,
+# screened-out.md and ai-first-markets returned nothing but one unrelated
+# mention of the CNCF in license-drift-check. No open PR or remote branch
+# touches the niche.
+#
+# The three nearest ventures by shape, and why none of them is this:
+#   shop-rate-calculator derives a burdened hourly rate for a trade contractor
+#     from payroll and overhead. It is genuinely upstream of this tool rather
+#     than overlapping it -- it answers "what is an hour worth?" and this
+#     answers "what does this part cost?" -- and the two are deliberately
+#     wired together: this page uses the four canonical shared field ids
+#     (hourlyWage, burdenRate, overheadRate, targetMargin) that
+#     platform/pages/rates.mjs carries between tools, so a visitor who saved
+#     them there opens this one filled in, and the footer links back.
+#   apparel-decoration-price-calculator is the closest by *structure* -- a
+#     batch of manufactured units whose cost is a flat per-job setup plus
+#     machine time plus material with a spoilage allowance -- and that
+#     similarity is real. What it has no concept of is material bought in whole
+#     stock units with a yield (a screen-print shop buys blanks one per
+#     garment), nor an outside-process lot minimum, and both are central here.
+#   cut-list-optimizer nests parts out of sheet goods for woodworking and sign
+#     shops. It does the real 2D layout; the plate-yield figure here is a plain
+#     rectangular grid tried both ways round, which is the conservative number
+#     a shop reaches with a tape measure and the right basis for a quote. The
+#     footer points at it for the cases where the nest is the question.
+#
+# The four questions in PRODUCT_PLAYBOOK.md section 1:
+#   Who exactly? Independent CNC job shops -- one to twenty people, a few mills
+#     and lathes -- quoting a part against an RFQ, plus the large population of
+#     one-machine owner-operators and side-business machinists taking on their
+#     first production order. Tens of thousands of such shops in the US alone.
+#   What do they type into a search box? "cnc machining cost per part",
+#     "how to quote cnc machining jobs", "machine shop hourly rate calculator",
+#     "cnc quoting calculator", "how much to charge for cnc machining",
+#     "should I charge a setup fee machining".
+#   What does the problem cost them? Quoting a short run off a production
+#     price list. On the worked example a 25-piece job carries about $11.64 a
+#     part of setup, programming and first article; the identical part at 500
+#     carries $0.58. A shop that prices both from the same per-part number is
+#     either losing money on every small order or is uncompetitive on every
+#     large one, and cannot tell which. Three quieter losses, all modelled:
+#     material is bought in whole bars, so the cost per part is a step and not
+#     a rate and a shop dividing a bar price by an ideal yield is wrong at both
+#     edges; scrap is an integer, so a 3% allowance on a 10-piece order is
+#     really 10%; and an outside-process lot minimum, not its per-part rate, is
+#     what prices a short run.
+#   Why hasn't a big vendor solved it? The shop-management and quoting vendors
+#     (Paperless Parts, ProShop, JobBOSS, Fusion's quoting extensions) sell a
+#     subscription whose estimating module takes the shop's rates as an *input*
+#     -- they store and apply the numbers, they do not derive them. Deriving
+#     them is a one-off question a shop asks when it sets or resets its rates,
+#     or when a particular RFQ looks wrong, which is a bad fit for a
+#     subscription and a good fit for a free static page.
+#
+# Gate scoring (portfolio/pipeline/README.md's two non-negotiable gates, both
+# need >= 5):
+#   liability_containment: 9 -- the tool multiplies and adds numbers the shop
+#     reads off its own supplier invoices, payroll, tooling records and machine
+#     monitor. It states no market price, no benchmark, no material cost, no
+#     achievable cycle time, and no vendor's rate; it does not tell anyone what
+#     to charge, and the page, the guide and the README all say the output is a
+#     cost floor rather than a recommended price. It renders no opinion on
+#     whether a part can be made to its drawing, on any tolerance, material
+#     certification or inspection standard, or on export control -- stated
+#     explicitly in the disclaimer, because this trade's drawings are the one
+#     place a reader might expect otherwise. Nothing the visitor types leaves
+#     the browser, which matters more here than on most of these tools: a
+#     customer's part dimensions are frequently somebody else's confidential
+#     drawing. Being wrong costs the shop an arithmetic figure to double-check
+#     against its own job costing.
+#   ethical_robustness: 9 -- deterministic arithmetic, no server, no dark
+#     patterns, nothing collected, nothing asserted about any third party. It
+#     gets no worse for anyone as it scales, and the party it helps is the
+#     small shop competing against both offshore quoting and other small shops
+#     guessing. The one asymmetry worth naming is that a tool which helps a
+#     shop discover it is underquoting tends to raise prices; the counterweight
+#     is that the shop underquoting is the one going out of business, and the
+#     tool is equally willing to show that a price clears its cost comfortably.
+#
+# Distribution: r/Machinists, r/CNC and r/Manufacturing are large, active
+# owner-operator communities where "am I quoting this right?" and "what's your
+# shop rate?" are weekly threads, and Practical Machinist has decade-old
+# quoting threads still being replied to. The search phrases above are the
+# evergreen version of the same question -- a shop setting its rates, or
+# staring at an RFQ that looks wrong, asks it at a predictable moment and wants
+# a number rather than a subscription. The guide page
+# (setup-fee-or-in-the-part-price.html) targets the specific recurring argument
+# in those communities rather than competing with the tool for its own query.
+hypotheses:
+  - claim: A shop staring at an RFQ will use the quantity-break table to decide between quoting the lot as asked, proposing a larger lot, and declining it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A shop that sees the flat per-lot cost per part will move setup to a separate quote line, or set a minimum order quantity, rather than absorbing it into the part price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The whole-stock-unit material model surfaces spare parts already paid for often enough that a shop changes what it starts, not just what it charges.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct engagements (a GitHub issue, a star, an unsolicited mention, or a measurable return visit) within 90 days of being reachable from the published site.
+  - No organic search or community-referred traffic detectable within 90 days once a free, owner-approved traffic signal exists (see portfolio/usage/README.md).
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/cnc-machining-quote-calculator/
+  analytics: null

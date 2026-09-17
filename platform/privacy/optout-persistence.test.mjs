@@ -299,7 +299,7 @@ const RELATIVE_SELF = relative(
 // branch was open before `deploy-concurrency-check` landed, so it only
 // ever knew 291 until this merge -- both branches independently wrote
 // "292" for what the merged tree made 293.
-const SWITCHES_IN_THE_CATALOGUE = 293;
+const SWITCHES_IN_THE_CATALOGUE = 294;
 
 let counter = 0;
 function fixture(source) {

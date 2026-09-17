@@ -1924,7 +1924,7 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `deploy-concurrency-check` landed, so it only ever knew 308 until this
     # merge -- both branches independently wrote "308" for what the merged
     # tree made 309.
-    total = 309  # `infra/OWNER_CHECKLIST.md`'s own "N of the 309 tools" wording.
+    total = 310  # `infra/OWNER_CHECKLIST.md`'s own "N of the 310 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

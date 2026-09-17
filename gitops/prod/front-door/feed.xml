@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 309 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 310 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -60,6 +60,15 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="Compliance checks &amp; evidence records"/>
     <summary type="text">Pick the caller&#39;s and recipient&#39;s US states and get an instant one-party vs. all-party call-recording consent determination, the exact statute cited, and a ready-to-read disclosure script for your call opening. Free, deterministic, runs entirely in your browser — not legal advice.</summary>
+  </entry>
+  <entry>
+    <title>CNC Machining Quote Calculator — Cost Per Part, Setup &amp; Lot Size</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cnc-machining-quote-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/cnc-machining-quote-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Service business pricing &amp; quotes"/>
+    <summary type="text">Free CNC machining quote calculator for job shops: work out your real cost per part from bar or plate yield, cycle time, setup and programming, perishable tooling, first-article inspection and outside-process lot minimums — then see the break-even price, the margin at what you quoted, and the same part costed at 1, 5, 10, 25, 50, 100, 250 and 500 pieces. Runs entirely in your browser.</summary>
   </entry>
   <entry>
     <title>Deploy Concurrency Check — find the race that ships an older commit</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-13T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free, browser-local checker for Obsidian plugin developers: cross-checks manifest.json against versions.json, flags leftover sample-plugin template placeholder values, and scans source for innerHTML/outerHTML/insertAdjacentHTML -- the patterns behind common Obsidian community plugin review delays. Nothing is uploaded.</summary>
-  </entry>
-  <entry>
-    <title>Repair or Replace? Work Truck &amp; Equipment Planner for Small Fleets</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/fleet-repair-or-replace-planner/"/>
-    <id>tag:marisstella.dev,2026:tool/fleet-repair-or-replace-planner</id>
-    <published>2026-09-12T00:00:00Z</published>
-    <updated>2026-09-12T00:00:00Z</updated>
-    <category term="Back-office money &amp; contracts"/>
-    <summary type="text">Free browser planner for trade and service fleets: cost out repair-versus-replace for every van, truck and machine including the downtime days most owners leave out, then rank which ones to replace against a fixed capital budget. Nothing uploaded.</summary>
   </entry>
 </feed>
