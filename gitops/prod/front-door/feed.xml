@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 295 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 296 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -366,14 +366,5 @@
     <updated>2026-09-11T00:00:00Z</updated>
     <category term="Service business pricing &amp; quotes"/>
     <summary type="text">Free calculator for independent home inspectors: price a residential inspection by square footage, stories, foundation type, and home age, add radon, sewer scope, termite/WDO, and mold testing at their own fee, then check whether a week of inspections hits your income goal.</summary>
-  </entry>
-  <entry>
-    <title>hreflang Reciprocity Check — Are Your Alternate-Language Links Actually Reciprocal?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/hreflang-reciprocity-check/"/>
-    <id>tag:marisstella.dev,2026:tool/hreflang-reciprocity-check</id>
-    <published>2026-09-11T00:00:00Z</published>
-    <updated>2026-09-11T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: paste a page&#39;s HTML (or try fetching its alternates) and check its hreflang tags for missing reciprocal links, invalid language/region codes (en-uk vs en-GB), a missing x-default, a missing self-reference, and conflicting hreflang values. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
   </entry>
 </feed>
