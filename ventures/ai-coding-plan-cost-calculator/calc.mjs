@@ -170,6 +170,23 @@ export function dailyApiCostUsd(usage, rates) {
  * is how many days a month the tool is actually used (default 21, a
  * working month) -- a light user who codes three days a week should lower
  * this rather than shrink their per-day tokens.
+ *
+ * `includedTokensPerMonth` is the plan's included allowance before overflow
+ * is billed per token. Added 2026-09-17, and it corrects a modelling error
+ * rather than adding a nicety: until then this function treated every
+ * subscription as *unlimited*, so a heavy user -- the exact visitor this
+ * tool is for, and the one who hits a plan's ceiling -- was told the flat
+ * fee was their whole cost when in practice they exhaust the allowance
+ * mid-month and pay per token (or stop working) from there. The bias ran
+ * one way: it always overstated the subscription's case.
+ *
+ * It is `null` by default and on every preset, and that is deliberate.
+ * Vendors publish coding-plan limits in opaque, changing units -- messages,
+ * "premium requests", rolling five-hour windows -- not in tokens, so this
+ * repository has no honest token figure to ship for any named plan.
+ * Inventing one would be a fabricated number wearing a default's clothes.
+ * The visitor supplies their own estimate or leaves it blank, and blank
+ * behaves exactly as before.
  */
 export function compare({
   planMonthlyUsd,
@@ -177,6 +194,7 @@ export function compare({
   usage,
   rates,
   activeDaysPerMonth = 21,
+  includedTokensPerMonth = null,
 }) {
   if (!Number.isFinite(planMonthlyUsd) || planMonthlyUsd < 0) {
     throw new RangeError('planMonthlyUsd must be a non-negative number');
@@ -186,6 +204,12 @@ export function compare({
   }
   if (!Number.isFinite(activeDaysPerMonth) || activeDaysPerMonth < 0) {
     throw new RangeError('activeDaysPerMonth must be a non-negative number');
+  }
+  if (
+    includedTokensPerMonth !== null &&
+    (!Number.isFinite(includedTokensPerMonth) || includedTokensPerMonth < 0)
+  ) {
+    throw new RangeError('includedTokensPerMonth must be a non-negative number or null');
   }
   for (const field of ['inputTokens', 'outputTokens', 'cacheWriteTokens', 'cacheReadTokens']) {
     if (!Number.isFinite(usage[field]) || usage[field] < 0) {
@@ -201,14 +225,74 @@ export function compare({
   const subscriptionMonthlyUsd = planMonthlyUsd * seats;
   const dailyApiUsd = dailyApiCostUsd(usage, rates);
   const apiMonthlyUsd = dailyApiUsd * activeDaysPerMonth;
-  const deltaUsd = apiMonthlyUsd - subscriptionMonthlyUsd;
+
+  const dailyTokens =
+    usage.inputTokens + usage.outputTokens + usage.cacheWriteTokens + usage.cacheReadTokens;
+  const monthlyTokens = dailyTokens * activeDaysPerMonth;
+
+  // What share of the month's tokens the allowance actually covers. The
+  // overflow is charged at the same per-token rates as the all-API column,
+  // and every token category is scaled by the same fraction: the allowance
+  // is consumed by whatever mix the visitor entered, not preferentially by
+  // the cheap tokens or the dear ones. Assuming otherwise would need a
+  // billing rule no vendor publishes.
+  const capped = includedTokensPerMonth !== null;
+  const quotaCoveredFraction = !capped
+    ? 1
+    : monthlyTokens > 0
+      ? Math.min(1, includedTokensPerMonth / monthlyTokens)
+      : 1;
+  const overflowTokens = capped ? Math.max(0, monthlyTokens - includedTokensPerMonth) : 0;
+  const overflowMonthlyUsd = apiMonthlyUsd * (1 - quotaCoveredFraction);
+
+  // The honest total for staying on the plan: the flat fee plus whatever
+  // the month's overflow costs at API rates. With no cap this is the flat
+  // fee, so every field below keeps the meaning it had before.
+  const planTotalMonthlyUsd = subscriptionMonthlyUsd + overflowMonthlyUsd;
+  const deltaUsd = apiMonthlyUsd - planTotalMonthlyUsd;
   // deltaUsd > 0: the subscription is cheaper (API would cost more).
   const cheaper = deltaUsd > 1e-9 ? 'subscription' : deltaUsd < -1e-9 ? 'api' : 'tie';
+
+  // Which active day the allowance runs out on. Null when there is no cap,
+  // no usage, or the month ends before the allowance does -- the three
+  // cases where there is no such day rather than a day we failed to find.
+  const quotaExhaustedOnDay =
+    capped && dailyTokens > 0 && overflowTokens > 0
+      ? Math.min(activeDaysPerMonth, Math.floor(includedTokensPerMonth / dailyTokens) + 1)
+      : null;
+
   // The usage scale (as a multiple of the entered usage) at which the two
   // are equal -- e.g. 1.4 means "at 140% of the entered usage, API billing
   // catches up to the subscription's price". Null when the API cost is
   // already zero (nothing to scale).
-  const breakEvenUsageScale = apiMonthlyUsd > 0 ? subscriptionMonthlyUsd / apiMonthlyUsd : null;
+  //
+  // A cap changes the shape of this question, and the arithmetic is worth
+  // stating because the answer is counter-intuitive. Scale the usage by s.
+  // Below the cap the plan costs the flat fee P and the API costs sA, so
+  // they cross at s = P/A, exactly as before. Above the cap the overflow is
+  // sA - A*C/T, so the plan costs P + sA - A*C/T and the gap between the
+  // two columns is A*C/T - P: a CONSTANT, with no s in it. Past the
+  // allowance, growing usage no longer moves the comparison at all -- both
+  // columns rise by the same amount -- so there is no second crossing, and
+  // reporting the uncapped s = P/A there would be a straightforwardly wrong
+  // number. Null, plus the constant below, is the truthful answer.
+  const uncappedScale = apiMonthlyUsd > 0 ? subscriptionMonthlyUsd / apiMonthlyUsd : null;
+  const crossingIsBelowTheCap =
+    !capped || (uncappedScale !== null && uncappedScale * monthlyTokens <= includedTokensPerMonth);
+  const breakEvenUsageScale = crossingIsBelowTheCap ? uncappedScale : null;
+
+  // What the included allowance is worth at the entered API rates, minus
+  // what the plan costs: the fixed monthly saving (or loss) once usage is
+  // past the cap. Null without a cap, where the advantage is not fixed.
+  // `apiMonthlyUsd / monthlyTokens` is the blended $/token of the mix the
+  // visitor entered, so this is the allowance valued at their own rates.
+  // The allowance is used whole, not clamped to this month's usage: a cap
+  // larger than the month's tokens is still the constant that would apply
+  // once usage grew past it, which is the question this answers.
+  const beyondQuotaAdvantageUsd =
+    capped && monthlyTokens > 0
+      ? (apiMonthlyUsd / monthlyTokens) * includedTokensPerMonth - subscriptionMonthlyUsd
+      : null;
 
   return {
     subscriptionMonthlyUsd,
@@ -217,6 +301,14 @@ export function compare({
     cheaper,
     breakEvenUsageScale,
     dailyApiUsd,
+    includedTokensPerMonth,
+    monthlyTokens,
+    quotaCoveredFraction,
+    overflowTokens,
+    overflowMonthlyUsd,
+    planTotalMonthlyUsd,
+    quotaExhaustedOnDay,
+    beyondQuotaAdvantageUsd,
   };
 }
 

@@ -70,6 +70,40 @@ owner: duncan
 # which is the "product line first" rule in pipeline/README.md applied one
 # level down, to a tool rather than a whole venture.
 #
+# ADDED 2026-09-17 (second change the same day): an optional included-token
+# allowance, with usage past it priced at the API rates already on the page.
+# This is a correctness fix wearing a feature's clothes. Until now `compare`
+# modelled every subscription as UNLIMITED -- the flat fee was the whole
+# plan-side cost at any usage -- and the bias ran one way: it always
+# overstated the subscription's case, for precisely the visitor this venture
+# exists to serve. The heavy agentic user is the one who hits a plan's
+# ceiling, and the tool was telling them their $100 plan covered a month it
+# would not have covered. `calc.test.mjs` pins the reversal directly
+# ("a cap can flip the verdict the unlimited model got wrong").
+#
+# The arithmetic turned up something worth surfacing rather than only
+# fixing. Scale usage by s: below the cap the plan costs the flat fee P
+# against the API's sA, so they cross at s = P/A as before; above it the
+# plan costs P + sA - A*C/T, so the GAP between the two columns is
+# A*C/T - P, with no s in it. Past the allowance, usage stops being the
+# variable -- both columns rise by the same amount -- so there is no second
+# crossing and the old "your usage would need to grow N%" line would have
+# named one that does not exist. The page now reports the constant instead,
+# and a test pins the corollary that a positive beyond-cap gap always comes
+# with a reachable crossing (so the copy never offers an impossible pair).
+#
+# NO DEFAULT ALLOWANCE IS SHIPPED, and that is the load-bearing decision.
+# Vendors publish coding-plan limits in messages, "premium requests" and
+# rolling five-hour windows -- never in tokens -- so this repository has no
+# sourced token figure for any named plan, and a pre-filled number would be
+# a fabrication wearing a default's clothes. The field ships blank with a
+# placeholder, blank behaves exactly as the tool did before (pinned by
+# `omitting the allowance leaves every previous field unchanged`), and
+# `no plan preset ships an invented token allowance` fails the day someone
+# adds one without a citation. Same honesty rule as RATES_AS_OF, applied to
+# a figure that does not exist publicly at all rather than to one that goes
+# stale.
+#
 # NAMED FIRST VISITOR AND CHANNEL, checked this session (WebSearch, since
 # the agent egress proxy 403s a direct fetch -- same limitation CLAUDE.md
 # already documents for the public-surface check):
@@ -126,6 +160,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: A ChatGPT Plus or GitHub Copilot subscriber, who previously had no matching API preset and would have had to hand-edit all four rate fields (or simply left the page comparing against the wrong vendor's Claude rate by default), completes a comparison now that openai-gpt is offered and auto-selected for their plan -- measurable as a lower drop-off between selecting one of those plans and clicking Compare.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A visitor on a metered plan who enters their own allowance gets a materially different verdict from the unlimited model — and the ones most likely to enter it are the heavy users whose answer was most wrong before, so the feature should show up as a higher share of comparisons ending with the API column ahead than the tool reported in its first week.
     status: untested
     checked: null
     evidence: customer-contact
