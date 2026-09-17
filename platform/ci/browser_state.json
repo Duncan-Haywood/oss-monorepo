@@ -3,29 +3,6 @@
     {
       "checks": [
         "contrast",
-        "optout",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "887aa9c0c65f66e10ebb26f4b54981dbdb21fb5a",
-      "measured": "2026-09-13",
-      "result": "pass",
-      "scope": "ventures",
-      "slugs": [
-        "home-inspection-fee-calculator",
-        "terraform-plan-blast-radius-check"
-      ],
-      "surface": {
-        "platform/marketing": "305f16fd074673d55e48b2e5d127d18a91a667b5",
-        "platform/pages": "bde61b132e6444cdca9beccccd09e8b798de7c7a",
-        "ventures": "202da0a27465ccb3fbafae486b10c65f4075cbb5"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
         "highlight",
         "journey",
         "optout",
@@ -440,6 +417,28 @@
         "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
         "platform/pages": "11a5705ecd3d55e38c1a1a185e928c5655f9f08c",
         "ventures": "bf8a59e1f31b6a6316f9d8d6a5137cac348009c4"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "4cf6a17d08c4bee46749ba5a1fc2753e7c79adb1",
+      "measured": "2026-09-17",
+      "pages": 1144,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "2ef8716fb6ce8767f20207a69b2de6c1e0910737",
+        "ventures": "a99b0d7947f87f6a44481275a241d9368bed0fd0"
       }
     }
   ]
