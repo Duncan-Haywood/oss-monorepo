@@ -88,6 +88,10 @@ export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
 // -- and deriving that class a second time from filenames would let a page be
 // one kind for the disclaimer check and the other kind for the budget.
 export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+  // Compares against "eyeballing Settings -> Branches" -- a manual habit
+  // every repository admin already has, not a company or product this
+  // could be mistaken for.
+  'branch-protection-drift-check/vs-manually-checking-settings.html',
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
@@ -222,6 +226,17 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // data than anything typed into a form. Same reasoning as
   // auto-repair-effective-labor-rate/vs-dividing-labor-sales-by-hours.html.
   'owner-operator-cpm-calculator/vs-dividing-your-bills-by-your-miles.html',
+  // Compares against "reading your own workflow files" -- the manual habit a
+  // maintainer already has, not a company or product this could be mistaken
+  // for. It does name GitHub, unavoidably, because GitHub Actions workflow
+  // YAML is the artifact the tool reads and there is no generic way to say
+  // so; but it compares against *reading the files yourself*, never against
+  // any GitHub product. It therefore carries the affiliation disclaimer
+  // anyway rather than leaning on this exemption, and a test asserts it.
+  // Same reasoning as where-to-sell-calculator/vs-each-marketplaces-own-
+  // calculator.html and ai-coding-plan-cost-calculator/vs-checking-pricing-
+  // pages-yourself.html, which name vendors the same way.
+  'deploy-concurrency-check/vs-reading-your-workflows-yourself.html',
   // Compares against "your phone's built-in world clock" -- a generic
   // feature every phone platform ships, not a company or product this could
   // be mistaken for. The page itself names no specific platform or vendor

@@ -33435,3 +33435,192 @@ entries:
         ventures) that it was still completing in the background at merge
         time -- not a substitute for the direct verification above, which
         covers everything the sweep's remaining steps would check.
+  - venture: deploy-concurrency-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Processed the whole open-PR queue first, per the session mandate,
+        and it was two PRs deep rather than three: #4934
+        (where-to-sell-calculator comparison page) and #4935
+        (android-data-safety-check, a new venture). Both were reviewed and
+        verified locally -- Actions is starved, confirmed on this run by
+        `ci_starvation.py --run 35220632915` (runner_id 0, 3s, no steps),
+        so every red check on both PRs was a non-result rather than a
+        failure. Both merged, and both were merged by a *concurrent
+        session* while this one was mid-verification: #4934 landed as
+        0492b08ab while its test sweep was running, #4935 as 2b28d0e3b
+        while its merge conflict was being resolved here. That is the
+        4-sessions-per-15-minutes regime `session_gate.py` reports, and it
+        is worth recording as the ordinary case rather than an anomaly.
+      - >-
+        Repaired #4935's merge conflict before it merged elsewhere: 253
+        generated front-door mirror files resolved to `origin/main` and
+        regenerated in one pass; `venture-scores.yaml`, where both sides
+        had appended a venture entry at the same offset and the two had
+        interleaved through their shared `rater_b`/`floor`/`gates`
+        scaffolding, reassembled to keep both entries whole; and the three
+        counts that cannot be got right on a branch derived after the merge
+        (`sync_tree_counts.py` for the mirrored-tool and opt-out-switch
+        totals, `sync_readme_counts.py` for the `runs-on` count, which was
+        red on the merged tree and which neither branch could have got
+        right). A second session repaired the same PR in parallel; rather
+        than force-push over it, its two commits were merged in and the
+        three conflicting hunks -- all the same running-comment entry
+        written twice in different words -- resolved by taking its wording
+        and keeping the sentence only this side had. Its head also carried
+        a real drift this caught: `test_manifests.py` pinned 305 while its
+        own tree held 304, so `gitops/tests` was red there.
+      - >-
+        Graduated a new venture, `deploy-concurrency-check`: a free,
+        browser-local and CLI checker that reads GitHub Actions workflow
+        YAML and reports the five ways a deploying workflow is permitted to
+        apply an OLDER revision over a newer one -- no concurrency group, a
+        group keyed on something that changes every run, cancel-in-progress
+        on a deploy, two jobs or two workflows writing one environment
+        under different group names, and a deploying job checking out a
+        moving branch. Chosen against the account owner's stated priority
+        for this run ("deployment and cicd is a priority"), which is also
+        `gitops/agents/queue/`'s own top-ranked item. `duplicate_check.py`
+        scored every existing venture, pipeline candidate, screened-out row
+        and ai-first-markets idea at or below 0.16 (`sql-migration-lock-
+        check`), far under the 0.45 bar, and the eight existing `actions-*`
+        checkers were then read individually rather than trusted to the
+        score: none reads `concurrency:`, and none is about deployment
+        ordering.
+      - >-
+        The niche is one this repository has first-hand evidence for.
+        CLAUDE.md's "publishing backwards" note records this exact class of
+        defect happening here: two sessions overlapped, one published the
+        merge that had just landed, the other force-pushed a second later
+        holding the previous commit, and a just-shipped venture came off
+        the live site with nothing going red. In this tool's own vocabulary
+        that is findings #1 and #4.
+      - >-
+        Dogfooded before shipping, and it is the strongest evidence the
+        venture has: run against this repository's own 360 workflow files
+        it produced 3 findings and stayed quiet on the other 357. All three
+        are real -- `ai-first-markets-deploy.yml` has a deploying job with
+        no concurrency group at all; `portfolio-pages.yml` and
+        `retail-pilot-intel-deploy-docs.yml` both deploy to the
+        `github-pages` environment under different group names, which is
+        the cross-file finding no single-file review can see; and
+        `real-estate-agent-photo-app-deploy-docs.yml` sets
+        `cancel-in-progress: true` on a deploy. Those three are left as
+        found: repairing this repository's deploy workflows is a separate
+        change and bundling it here would widen the venture's diff into
+        platform work. The venture's own CI step runs the scan WITHOUT
+        `--fail-on-risk` for exactly that reason, and says so in a comment.
+      - >-
+        Two presentation defects found by that dogfooding run and fixed
+        before commit, neither of which the fixtures could have caught: the
+        cross-file finding was being attached to `reports[0]`, which put it
+        under an alphabetically-first workflow that had nothing to do with
+        it (a true finding rendered as noise), and the deploy-signal string
+        read "`deploy` job id `deploy` names a deployment" when interpolated
+        into the finding text. Fixed in both implementations.
+      - >-
+        35 assertions, roughly half of them pinning cases where the checker
+        must NOT fire: a correctly serialized deploy, a test workflow that
+        legitimately sets `cancel-in-progress: true`, a build job sitting
+        beside a deploy job, `github.ref`/`github.workflow`/`github.ref_name`
+        as group keys, a checkout pinned to `${{ github.sha }}`, and job ids
+        that merely contain the substring "deploy" (`undeploy-docs`,
+        `redeployment-notes`). A scanner that flags a correct file trains
+        its reader to ignore findings, which is the specific way a tool like
+        this does harm. One of the 35 shells out to `python3 check.py` on
+        every fixture and asserts identical findings and identical deploy-job
+        detection, so the page's verdict and the CLI's cannot drift apart.
+      - >-
+        Four real gaps caught by the platform's own guards before merge, all
+        fixed rather than worked around: `faq-visible.test.mjs` found
+        authored FAQPage Q&A on all three pages that was not visible to a
+        visitor (fixed by rendering each Q&A as a heading and prose using
+        the JSON-LD's own strings, on every page); `secondary-schema.test.mjs`
+        found the explainer page shipped no JSON-LD at all;
+        `launched.test.mjs` found the missing launch date; and
+        `router/validate.py` found the `VENTURE.yaml` description was not
+        valid YAML -- a colon inside the prose, fixed by making it a folded
+        block scalar rather than by rewording the sentence.
+      - >-
+        Wired into the platform: classified in the `ci` category
+        (`platform/pages/build.mjs`), registered in
+        `COMPARISON_DISCLAIMER_EXEMPT` with why (it names GitHub because
+        GitHub Actions YAML is the artifact it reads, and carries the
+        not-affiliated disclaimer anyway rather than leaning on the
+        exemption -- a test asserts it), scored in `venture-scores.yaml`
+        (composite 6.000, floor 1 on `ai_leverage`, both gates pass),
+        registered via `publish_surface.py --write`, mirrored via
+        `regen.mjs`, launch date recorded, and given a reciprocal sibling
+        link from `pinned-actions-check` so it opens no crawlable-orphan gap
+        (`siblings.mjs --check`: 0 orphans, budget 0). Tree counts derived
+        after the fact rather than typed: mirrored tools 305 -> 306,
+        opt-out switches 289 -> 290, `runs-on` 399/401 across 360 ->
+        400/402 across 361, each with the running-comment entry naming why
+        the count moved.
+      - >-
+        Verified: the venture's own suite (35/35, including the CLI parity
+        test), `pinned-actions-check` after its edit (55/55), the full
+        `platform/marketing` + `platform/pages` + `platform/privacy` +
+        `platform/proposal` + `platform/webcheck` suites (1605/1605, 0
+        skipped -- the shallow-clone skip cleared after `git fetch
+        --unshallow origin main`), `gitops/tests` (607 passed, 1
+        environmental skip, with `nginx-light` and `openssh-client`
+        installed so the 24 otherwise-fixable skips actually ran), all
+        `platform/ci` unittest modules individually (all OK),
+        `agent_review`'s `test_review` (OK), and `portfolio/ledger` +
+        `scoring` + `router` + `usage` + `pipeline` + `infra/tests` (446
+        passed). `router/validate.py` (313 valid), `score_ventures.py
+        --check`, `validate_doc_consistency.py`, `validate_usage.py`,
+        `publish_surface.py --check`, `checklist_coverage.py`,
+        `sync_tree_counts.py --check`, `sync_readme_counts.py --check`,
+        `surface-budget.mjs --check` and `siblings.mjs --check` all clean.
+        `build.mjs` + `check.mjs`: 306 products, 1165 pages, no dead links.
+        Every Python tool invoked as `python3 -m <tool>` per CLAUDE.md's
+        note about `uv`-installed shims on PATH; pytest installed with
+        `apt-get install python3-pytest` (pip cannot reach PyPI here).
+      - >-
+        Browser checks run, which CLAUDE.md asks for when a change touches
+        markup a user types into -- and this venture's primary surface is a
+        textarea. `npm install --no-save playwright@1.56.0 axe-core` (one
+        command, both packages, the version matching the image's
+        preinstalled build), then `browser_checks.py --only
+        deploy-concurrency-check`: 7 of 8 checks ran and all 7 passed --
+        `contrast` (axe, WCAG AA, accessible names), `sweep` (the tool
+        actually computes), `journey`, `sideways` (no horizontal overflow
+        at 375px), `optout`, `presets`, `roundtrip`. `highlight` skipped as
+        not applicable. The `journey` check independently confirmed the
+        privacy promise the pages make: "no off-origin request was made".
+        `--record` was deliberately NOT passed: it refuses a `--only` run
+        for good reason, and a filtered reading must not be laundered into
+        "the catalogue passed".
+      - >-
+        Deployment: `pages_state.py` reported the gh-pages snapshot current
+        before this change and `deployed: served` (GitHub's managed builder,
+        run 35226720098). This change touches `ventures/**`, so the snapshot
+        goes stale on merge and the publish is the deploy -- run
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+        after merging, then `pages_state.py --require-current` and
+        `--record`.
+      - >-
+        Owner priorities restated in this run's brief -- deployment/CI-CD
+        first, marketing materials deployed on the Hetzner VMs, and a Codex
+        CLI running there on the plan's included quota -- were checked
+        rather than assumed, and all three are already built and blocked on
+        one owner action. `gitops/agents/queue/` already ranks
+        `deploy-cicd-readiness` 7 and `marketing-distribution` 6, reordered
+        2026-09-01 on this same sentence. The Codex host exists
+        (`bootstrap/scripts/install-codex-host.sh`,
+        `gitops/agents/host/host_governor.py`, `workers/mandate.md`,
+        `CODEX_AUTH_JSON` rather than `OPENAI_API_KEY` so it draws on the
+        plan's included quota). Host-mode installers exist for all three
+        routes, so CLAUDE.md's "self-hosted runners need the cluster" is
+        stale -- `gitops/ci/host/` is a systemd unit, no k3s. The recovery
+        rehearsal was run here and works exactly as the queue documents:
+        `DRY_RUN=1 WITH_CODEX_HOST=1 CODEX_ENABLED=1
+        WITH_GITHUB_RUNNER_HOST=1 WITH_PORTFOLIO_SITE_HOST=1
+        bootstrap/restore-cluster.sh` printed the extras-and-credentials
+        block, named each missing credential, and exited 0. Every one of
+        the three is downstream of `hetzner-ssh-key-is-a-public-key`, which
+        no session can clear. Nothing new was queued: the ask is already
+        row 1.

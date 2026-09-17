@@ -1899,7 +1899,19 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # earlier predecessor's number until this merge -- the same ordinary
     # collision shape recorded throughout this list: both branches
     # independently wrote "306" for what the merged tree made 307.
-    total = 307  # `infra/OWNER_CHECKLIST.md`'s own "N of the 307 tools" wording.
+    # 308 since 2026-09-17, when `deploy-concurrency-check` graduated -- a
+    # browser-local and CLI checker reading GitHub Actions workflow YAML for
+    # the five ways a deploying workflow is permitted to apply an older
+    # revision over a newer one (no concurrency group, a group keyed on
+    # something that changes every run, cancel-in-progress on a deploy, two
+    # jobs or workflows writing one environment under different group names,
+    # and a deploying job checking out a moving branch), with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch was open before
+    # `branch-protection-drift-check` and `helm-values-schema-check` landed,
+    # so it only ever knew 306 until this merge -- the same ordinary
+    # collision shape recorded throughout this list, three deep this time.
+    total = 308  # `infra/OWNER_CHECKLIST.md`'s own "N of the 308 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

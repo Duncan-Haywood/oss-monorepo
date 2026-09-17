@@ -1,0 +1,72 @@
+name: deploy-concurrency-check CI
+
+# The venture is a static, browser-local checker plus a stdlib-only Python CLI:
+# plain ES modules run with node's built-in test runner, no package.json, no
+# dependencies, no network. classify.mjs holds the scanning logic, check.py is
+# its line-for-line port, and usage.mjs the anonymous local counter. Each has a
+# sibling *.test.mjs; without this runner they could rot while the page still
+# ships them.
+#
+# The parity test in classify.test.mjs shells out to `python3 check.py`, so this
+# job needs Python as well as Node -- both are already on the runner image, and
+# nothing is installed. That test is the one that matters most here: it is what
+# keeps the page's verdict and the CLI's verdict from drifting apart, and a
+# runner without Python would silently turn it into a test that cannot run.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/deploy-concurrency-check/**"
+      - ".github/workflows/deploy-concurrency-check-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/deploy-concurrency-check/**"
+      - ".github/workflows/deploy-concurrency-check-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-concurrency-check-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/deploy-concurrency-check
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run module tests
+        run: node --test
+      # Dogfooding, and it is a real check rather than a flourish: this
+      # repository's own workflows are the largest body of GitHub Actions YAML
+      # the tool has to survive, and a scan that crashes or floods on one of
+      # 360 real files is a defect the fixtures would not catch. `--quiet`
+      # keeps the log to the findings themselves. This step does NOT use
+      # --fail-on-risk: the three findings it currently reports are real
+      # defects in this repo's own deploy workflows, tracked separately, and
+      # gating this venture's CI on them would make an unrelated repair a
+      # prerequisite for every future change to this venture.
+      - name: Scan this repository's own workflows
+        working-directory: .
+        run: python3 ventures/deploy-concurrency-check/check.py .github/workflows/ --quiet
+      # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every published
+      # page, and it is the half build.mjs cannot inject: what a tool is not
+      # advice *about* is written in the venture's own voice. Checked here so
+      # the venture that needs the clause is the one that goes red, before the
+      # merge, rather than the Pages job on main afterwards.
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs deploy-concurrency-check
