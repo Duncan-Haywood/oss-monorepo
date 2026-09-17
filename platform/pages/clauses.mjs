@@ -364,6 +364,12 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // be mistaken for. The page names no specific spreadsheet product. Same
   // reasoning as the other vs-spreadsheet / by-hand pages above.
   'duplicate-payment-audit/vs-a-spreadsheet.html',
+  // Compares against "tracking StockX payouts in a spreadsheet" -- a
+  // generic method every reseller already has access to, not a company or
+  // product this could be mistaken for. The page's own copy says so
+  // explicitly ("Names no specific product or company"). Same reasoning as
+  // the other vs-spreadsheet / by-hand pages above.
+  'stockx-seller-payout-calculator/vs-tracking-stockx-payouts-in-a-spreadsheet.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
