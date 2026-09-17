@@ -32841,3 +32841,79 @@ entries:
         directly rather than re-added to `decision_queue.py`, which already
         carries this ask.
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    mrr_end: 0
+    outcomes:
+      - >-
+        Published the live catalogue, which was two merges stale (gh-pages built
+        from 69259e37 while main was at 5a6ebe57). That put #4913 in front of
+        users: a certified-payroll calculator that had been showing a green
+        "meets the required combined rate" verdict on a week that actually
+        underpaid a worker $500. GitHub's managed builder confirmed the deploy
+        (run 35211083684).
+      - >-
+        Fixed red CI on main (#4920). A clean checkout failed
+        platform/marketing/front-door-tools.test.mjs: #4916's new comparison
+        page was absent from the front-door mirror and kustomization.yaml, so
+        the apex would 404 on a page its own sitemap advertises -- the defect
+        already paid for in #3256-#3258 and #3324-#3326. regen.mjs fixed it; the
+        drift was exactly 6 files. Affects the Hetzner front door, not the live
+        Pages site, which build.mjs builds independently.
+      - >-
+        Found and shipped a third, cheaper fix for the enumeration gap (#4920).
+        The catalogue is live -- 313 tools, 1143 pages -- and indexnow_state.py
+        reports verdict `never`: no search engine has ever been told it exists.
+        The site is on a project-Pages subpath, so crawlers read the host-root
+        robots.txt, which belongs to the owner's user Pages site. pages_state.py
+        offered only Search Console submission or a custom domain. A robots.txt
+        at that user-site root carrying this catalogue's Sitemap: line is
+        cheaper than both -- verified against origin/gh-pages that every <loc>
+        is same-host under the one subpath, so the sitemaps protocol needs no
+        verification. No registrar, no DNS, no certificate, no money, and read
+        at fetch time so it reaches crawlers nobody submits to. Now reported
+        cheapest-first with tests pinning the order; the pages-custom-domain ask
+        was corrected (it had called itself "the cheaper" of two) rather than
+        closed, since the public name and origin-root IndexNow still justify it.
+      - >-
+        usage_state.py kept a second copy of that fix list and went stale the
+        same day (#4923). It now points at pages_state.py as the owner of the
+        list -- the import-don't-restate rule CLAUDE.md records three times.
+      - >-
+        Measured a fleet-capacity leak and named it in browser_state.py. It
+        invalidates all 1145 pages when platform/pages or platform/marketing
+        moves, as one bit over the tree -- but the per-venture registration data
+        lives there, so shipping any venture appends a row. On 2026-09-17
+        clauses.mjs moved 27 times, launched.json 19, build.mjs 18, and eleven
+        full-catalogue sweeps were recorded, every one `pass`, each invalidated
+        within an hour or two. At ~40 minutes each that is 7+ hours of capacity
+        re-proving an unchanged result; three sessions collided within one hour
+        this morning, two recording byte-identical surface hashes. Deliberately
+        NOT narrowed: a clauses.mjs change really can alter every page's
+        disclaimer, and separating that from an exemption-list append needs the
+        diff's meaning, not its path -- getting it wrong lets an accessibility
+        regression through, and this check's first run found 48 critical axe
+        label violations while 1139 node assertions were green. The report now
+        names the files so the 40 minutes is a choice. Narrowing it is an
+        owner-facing design question, open.
+      - >-
+        Ran the full 8-check catalogue sweep independently: all passed over 1145
+        pages, 1143 sitemap URLs resolving with 0 bad, contrast clean, no
+        off-origin request, no console errors, no overflow at 375px. Not
+        committed -- its surface hashes are byte-identical to the reading main
+        already carries, so recording it would have rewritten a SHA and added
+        nothing.
+      - >-
+        Verified the Codex host route the owner has now asked for on three
+        consecutive runs (Hetzner CI/CD, marketing deployment on the boxes, the
+        Codex CLI on included quota): 56/56 tests pass and systemd-analyze
+        verify exits 0 on both units. Its mandate already carries the
+        product-first prompt including the three-PR quota. All three remain
+        blocked on one owner-only action, hetzner-ssh-key-is-a-public-key --
+        HETZNERSSHKEY holds a public key, so no session can SSH to the boxes.
+        14 days open. Nothing for an agent to do but keep the reading current.
+      - >-
+        Actions starved fleet-wide all day (ci_starvation.py: runner_id 0, no
+        step ran, on every run). Every red check was classified rather than
+        assumed; no re-run spent, since a re-run cannot conjure a runner.
