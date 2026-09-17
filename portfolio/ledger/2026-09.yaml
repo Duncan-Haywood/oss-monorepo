@@ -32917,6 +32917,134 @@ entries:
         Actions starved fleet-wide all day (ci_starvation.py: runner_id 0, no
         step ran, on every run). Every red check was classified rather than
         assumed; no re-run spent, since a re-run cannot conjure a runner.
+
+  - venture: stockx-seller-payout-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture (option 3 of the pipeline's three routes):
+        the open-PR queue was empty, `session_gate.py`'s build-now pipeline
+        was empty, and no already-built product lacked a public URL, so a
+        fresh niche screened against `screened-out.md` and the
+        liability/ethical gates in `pipeline/README.md` outranked parity
+        work. Checked 3 candidates with `duplicate_check.py` (StockX,
+        Mercari, Depop seller-fee calculators); StockX scored lowest (0.26
+        against `whatnot-seller-payout`) and, on the final graduation
+        wording, 0.19 against the closest match
+        (`1099k-reconciliation-worksheet`) -- well under the 0.45
+        near-duplicate bar. No open PR or recent commit touched StockX.
+      - >-
+        Shipped `ventures/stockx-seller-payout-calculator/`: a free,
+        100%-client-side browser calculator for StockX sneaker, streetwear,
+        and card resellers. Prices one sale's net payout and net profit
+        from the sale price, a Seller-Level transaction fee, a Fast
+        Shipping discount that stacks on top of it, a flat payment
+        processing fee, an outbound shipping cost (which matters
+        proportionally more on a cheap item than an expensive one), and
+        the seller's own item cost basis, then rolls a month of sales up
+        into total profit against a target -- same two-layer shape
+        (`calculate`/`computeMonthProfit`/`incomeGap`) as this portfolio's
+        other per-item-then-roll-up marketplace calculators
+        (`ebay-fee-calculator`, `whatnot-seller-payout`). No price, rate,
+        or fee is hardcoded as fact; every one is a user-supplied,
+        illustrative placeholder, and the page states explicitly it is not
+        an authentication, inventory, or sourcing tool -- it never
+        verifies an item, tracks stock, or replaces StockX's own seller
+        dashboard and payout statements. StockX is named only to describe
+        what the tool calculates, with an explicit not-affiliated line in
+        the footer even though the page is not a `vs-<competitor>.html`
+        comparison (same convention as `ebay-fee-calculator` and
+        `whatnot-seller-payout`, neither of which carries the disclaimer
+        on its own index either).
+      - >-
+        Full file set: `calc.mjs` + `calc.test.mjs` (18 assertions,
+        including a divide-by-zero guard on a zero sale price and a zero
+        cost basis, a Fast-Shipping-discount-larger-than-the-fee clamp at
+        zero rather than going negative, and a proportional-shipping-cost
+        boundary check), `usage.mjs`/`usage.test.mjs` (anonymous, opt-out,
+        DNT/GPC-respecting local counter, copying
+        `propane-delivery-route-margin`'s pattern unchanged),
+        `share.mjs`/`share.test.mjs` (shareable link round-tripping every
+        field through the URL fragment, never the never-saved month rows),
+        `VENTURE.yaml`, `README.md`, `LICENSE` (MIT), `robots.txt`,
+        `sitemap.xml`, plus two discoverability pages:
+        `how-much-does-stockx-take-from-sellers.html` (a worked example
+        where Seller Level and Fast Shipping alone move net profit on an
+        identical $150 sale from $26.00 to $35.00 -- verified against
+        `calc.mjs` directly in `page.test.mjs`) and
+        `vs-tracking-stockx-payouts-in-a-spreadsheet.html`
+        (generic-method comparison, no named competitor, registered in
+        `clauses.mjs`'s `COMPARISON_DISCLAIMER_EXEMPT` set). `page.test.mjs`
+        adds 21 more assertions checking the page wires the module
+        correctly and both content pages carry their required clauses,
+        for 57 assertions total in the venture's own `node --test` run.
+      - >-
+        Classified the new slug into the existing `marketplace` category in
+        `platform/pages/build.mjs` (the single-channel storefront-fee shape
+        shared with `whatnot-seller-payout` and `poshmark-fee-calculator`),
+        confirmed by the full 1010-assertion `platform/pages` suite rather
+        than by inspection alone. Closed the crawlable-orphan gap the
+        portfolio's own sibling-link budget enforces (`orphanBudget: 0`,
+        verified `node platform/pages/siblings.mjs --check` at 0 of 304
+        before and after this venture): the new page links out to both
+        `whatnot-seller-payout` and `marketplace-fee-compare`, and added a
+        two-line reciprocal inbound link (plus a matching `page.test.mjs`
+        assertion) from `whatnot-seller-payout`'s own footer.
+      - >-
+        Added a scoring row in `portfolio/scoring/venture-scores.yaml`
+        (composite 6.667; `ai_leverage` floor of 1, same rationale as its
+        marketplace-fee siblings -- deterministic arithmetic, no AI
+        anywhere); `score_ventures.py --check` passes, 312 scored, matching
+        every `VENTURE.yaml`. Recorded the new
+        `stockx-seller-payout-calculator-ci.yml` workflow via
+        `publish_surface.py --write` (classified `none`: one `node --test`
+        step and the clauses check, no deploy/push).
+      - >-
+        Ran `node platform/marketing/regen.mjs` (a new browser surface,
+        303 -> 304 mirrored tools; re-ran a second time after the
+        reciprocal-link edit to `whatnot-seller-payout/index.html` picked
+        up that change too) and `python3 platform/ci/sync_tree_counts.py`
+        against the merged tree, updating the mirrored-tool count in the
+        four places it is hand-written (`infra/OWNER_CHECKLIST.md` x3,
+        `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2, and `total =` in
+        `gitops/tests/test_manifests.py`) and the opt-out-switch count
+        (287 -> 288) in `platform/privacy/optout-persistence.test.mjs`,
+        adding the running-comment "why" entry in both files. Also ran
+        `python3 gitops/ci/sync_readme_counts.py` to fix the `runs-on`
+        count the new workflow file moved (398/400 across 358 -> 399/401
+        across 359), and `node platform/pages/launched.mjs --write` /
+        `node platform/pages/siblings.mjs --check` for the launch-date and
+        crawlable-orphan guards `platform/pages/launched.test.mjs` and
+        `siblings.test.mjs` enforce.
+      - >-
+        Fixed one real defect the new venture's own markup tripped before
+        merge: the guide page's FAQPage JSON-LD said "the worked example
+        below" while the visible copy (correctly, given page order) said
+        "above" -- caught by `faq-visible.test.mjs`'s whole-portfolio scan
+        for JSON-LD/visible-text divergence, fixed by correcting the
+        JSON-LD to match the visible wording rather than the reverse.
+      - >-
+        Verified: venture suite (57/57), full `platform/pages` suite
+        (1010/1010, including `faq-visible.test.mjs`, `launched.test.mjs`
+        and `siblings.test.mjs`, all three of which caught real gaps this
+        graduation introduced and are listed above), full
+        `platform/marketing` suite (262/262), `platform/privacy` +
+        `platform/webcheck` + `platform/proposal` (243/243), `gitops/tests`
+        (607 passed, 1 environmental skip -- `test_front_door_serving.py`'s
+        GitHub-hosted-runner-only case, confirmed by `guard_state.py
+        --require-runnable` reporting no fixable skip once `nginx-light`
+        and `openssh-client` were installed), all 26 `platform/ci`
+        unittest modules (run individually from that directory, all `OK`),
+        and `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+
+        `infra/tests` (446 passed). `platform/ci/check_no_payment_code.py`,
+        `platform/router/validate.py` (311 valid), `publish_surface.py
+        --check`, `score_ventures.py --check`, `validate_doc_consistency.py`,
+        `validate_candidates.py`, `validate_probe_index.py`,
+        `score_sensitivity.py`, and `usage/validate_usage.py` all clean.
+        `checklist_coverage.py` and `guard_state.py --require-runnable`
+        both clean (no fixable skip, no missing checklist line).
   - venture: platform
     agent_spend_usd: null
     human_hours: 0

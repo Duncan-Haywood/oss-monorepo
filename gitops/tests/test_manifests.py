@@ -1853,7 +1853,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # predecessor's number (301, then 302) until this merge -- the same
     # ordinary collision shape recorded throughout this list: both branches
     # independently wrote "302" for what the merged tree made 303.
-    # 304 since 2026-09-17, when `helm-values-schema-check` graduated -- a
+    # 304 since 2026-09-17, when `stockx-seller-payout-calculator` graduated
+    # -- a browser-local calculator pricing a StockX sneaker/streetwear/card
+    # sale's net payout and net profit from the sale price, a Seller-Level
+    # transaction fee, a Fast Shipping discount, a flat payment processing
+    # fee, and outbound shipping cost, then rolling a month of sales up
+    # against a profit goal -- the same single-channel marketplace-fee shape
+    # as `whatnot-seller-payout` and `poshmark-fee-calculator`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    # 305 since 2026-09-17, when `helm-values-schema-check` graduated -- a
     # zero-dependency CLI + browser tool validating a Helm chart's
     # values.yaml against its own values.schema.json without running Helm,
     # flagging a field values.yaml sets that the schema does not declare
@@ -1861,8 +1870,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # sets additionalProperties: false) alongside real schema violations,
     # with a static `index.html` from its first commit, same shape as the
     # rest of this running count. Cross-links `k8s-deprecated-api-check`,
-    # its nearest sibling in the same `ci` category.
-    total = 304  # `infra/OWNER_CHECKLIST.md`'s own "N of the 304 tools" wording.
+    # its nearest sibling in the same `ci` category. This branch was open
+    # before `stockx-seller-payout-calculator` landed, so it only ever knew
+    # its own predecessor's number (303, then 304) until this merge -- the
+    # same ordinary collision shape recorded throughout this list: both
+    # branches independently wrote "304" for what the merged tree made 305.
+    total = 305  # `infra/OWNER_CHECKLIST.md`'s own "N of the 305 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

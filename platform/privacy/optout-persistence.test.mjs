@@ -243,14 +243,22 @@ const RELATIVE_SELF = relative(
 // predecessor's number (285) until this merge -- same collision shape as
 // the entry immediately above: both branches independently wrote "286" for
 // what the merged tree made 287.
-// 287 -> 288 on 2026-09-17, when `helm-values-schema-check` graduated with
+// 287 -> 288 on 2026-09-17, when `stockx-seller-payout-calculator` graduated
+// with its own `toggleUsage`/`usageAllowed` switch (the same pair
+// `hoa-reserve-fund-calculator` and `bridal-hair-makeup-pricing-calculator`
+// use), same discovery method as the rest of this running count.
+// 288 -> 289 on 2026-09-17, when `helm-values-schema-check` graduated with
 // its own `setUsageOptOut`/`usageOptedOut` switch (opts out of the
 // `check_run`/`example_loaded`/`file_loaded` counters), the same
 // `usage.mjs` shape as its sibling `k8s-deprecated-api-check`. Verified the
 // way this file's error message prescribes: exactly one added `usage.mjs`
 // (`ventures/helm-values-schema-check/usage.mjs`) and no deletions, so this
-// is a graduation and not a switch that stopped being one.
-const SWITCHES_IN_THE_CATALOGUE = 288;
+// is a graduation and not a switch that stopped being one. This branch was
+// open before `stockx-seller-payout-calculator` landed, so it only ever
+// knew its own predecessor's number (287) until this merge -- the same
+// ordinary collision shape recorded throughout this list: both branches
+// independently wrote "288" for what the merged tree made 289.
+const SWITCHES_IN_THE_CATALOGUE = 289;
 
 let counter = 0;
 function fixture(source) {
