@@ -5710,6 +5710,35 @@ products:
           is the one venture whose hypothesis about repeat use has a
           mechanical reason behind it rather than a hope, and the first place
           this file could record a return visit at all.
+  - slug: subpath-robots-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          check_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline recorded in the venture's own graduation commit rather than
+          retroactively. The visitor signal is null rather than zero: GitHub
+          Pages exposes no server-side analytics, this portfolio adds no
+          third-party one, and the local counters are opt-in and off by
+          default -- nobody has measured, which is not the same as having
+          measured nothing. The three event counts are genuine zeros for a
+          venture published minutes ago.
+          There is a reflexive reading worth naming here, because this venture
+          is about the portfolio's own discoverability defect. The reason every
+          row in this file carries a null visitor signal is partly the absent
+          analytics, and partly that the catalogue publishes from a
+          GitHub Pages project subpath -- so its sitemap is never
+          auto-discovered and its 1000-plus pages have never been enumerated by
+          a crawler. This tool names that condition. It does not fix it: the
+          fix is a custom domain or a direct sitemap submission, both owner
+          actions. If a reading on this row ever becomes non-null before that
+          happens, the arrival route is worth recording, because it would be
+          the first evidence this catalogue is reachable by anything other than
+          a direct link.
   - slug: sitemap-lastmod-freshness-check
     surface: github-pages
     readings:
