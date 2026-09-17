@@ -34434,3 +34434,267 @@ entries:
         venture over budget (257 with 0, 56 with 1, 1 with 2). HEAD matched
         `origin/main` exactly at push time -- no drift between the last
         verification run and what was pushed.
+  - venture: 1099-k-threshold-checker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First work of the session was the PR-drain phase: only one open PR
+        existed (#4998, graduating 1099-vendor-tracker). Fetched and
+        unshallowed the repo, resolved its `dirty` merge conflict against
+        `main` (1191 generated-mirror conflicts resolved by taking `main`'s
+        copy and re-running `regen.mjs`; 7 hand-authored conflicts --
+        `gitops/ci/README.md`, `gitops/prod/usage/aggregate.py`,
+        `gitops/tests/test_manifests.py`, `infra/OWNER_CHECKLIST.md`,
+        `portfolio/ledger/2026-09.yaml`, `portfolio/scoring/venture-scores.yaml`,
+        `portfolio/usage/usage.yaml` -- resolved by hand, keeping both
+        sides' entries rather than picking one where each was a distinct
+        append). While verifying, found and fixed a real pre-existing
+        `faq-visible.test.mjs` failure on two unrelated ventures
+        (`actions-secret-leak-check`, `required-checks-drift-check`, a
+        JSON-LD/visible-copy dash and parenthetical mismatch), confirmed
+        absent from a clean `origin/main` before fixing it. Before either
+        fix could be pushed, a concurrent session self-merged #4998 (and,
+        separately, its own fix for the same two pages via #4999) --
+        discarded the now-superseded local branch rather than force a
+        duplicate merge. The queue's second PR (#5001, a
+        wedding-florist-proposal-calculator guide page) was reviewed,
+        merged with `main`, verified clean (1272/1272 marketing+pages,
+        venture suite 71/71, gitops/tests 607/1 skipped-environmental,
+        all `platform/ci` unittest modules, ledger+scoring+router+usage+
+        pipeline+infra 446 passed, `guard_state.py` confirmed CI starved
+        via `ci_starvation.py` first), and was also self-merged by its own
+        originating session moments before this session could push. The
+        queue was 0 open PRs both times a merge was attempted -- both PRs
+        that existed this session were processed and landed, just not by
+        this session's own push.
+      - >-
+        A ~100-branch inventory for uncovered work was judged
+        disproportionate given the fleet's velocity (5 sessions merging to
+        `main` within 15 minutes was directly observed) and was not
+        exhaustively triaged; flagged as a known limitation rather than
+        silently skipped.
+      - >-
+        With the queue empty, screened and graduated a new venture per
+        `session_gate.py` (PROCEED, build-now pipeline empty) and
+        `DIRECTION.md`'s new-venture priority. Existing-product avenues were
+        checked first and found saturated: `guide-coverage.mjs` 315/315,
+        `siblings.mjs` 0 orphans, the two top `router/allocate.py`
+        candidates (`reverb-fee-calculator`, `where-to-sell-calculator`)
+        already carry 9+ SEO pages and full share/usage/return-flow
+        wiring, blocked only on real customer-contact evidence no session
+        can manufacture.
+      - >-
+        The niche, found via WebSearch rather than invented: Form 1099-K's
+        federal reporting threshold has changed four times since 2022
+        ($20,000/200 transactions through 2023, a real $5,000-no-minimum
+        transition threshold actually used to issue forms in 2024, back to
+        $20,000/200 from 2025 on via the One Big Beautiful Bill Act,
+        confirmed retroactive to 2022 by the IRS's own Fact Sheet 2025-08 in
+        October 2025) -- and no existing free tool answers "will I get a
+        1099-K" specifically; the competitors found ("1099 tax calculator"
+        tools from Jupid, Keeper, LevyIO, and others) estimate
+        self-employment tax liability, a different question. Live evidence
+        the confusion is current: a WebSearch AI summary during this
+        session's own research incorrectly stated the threshold "doesn't
+        vary by state" moments after a separate search had confirmed four
+        states (Maryland, Massachusetts, Vermont, Virginia) do set their own
+        stricter $600 figure. `duplicate_check.py` scored every venture,
+        screened-out row, and pipeline candidate at or below 0.28 against
+        the final description -- closest was the sibling
+        `1099k-reconciliation-worksheet`, a genuinely different mechanism
+        (reconciles a 1099-K already received; this predicts whether one
+        arrives at all).
+      - >-
+        Shipped `ventures/1099-k-threshold-checker`: a browser-local,
+        per-platform, per-tax-year checker against the federal threshold
+        history above plus the four stricter state thresholds. Caught and
+        fixed a real correctness bug in its own first draft before
+        shipping: the IRS's threshold language is "exceeds," not "at
+        least" (`>`, not `>=`), verified via a second, targeted WebSearch
+        rather than assumed -- a boundary-value test
+        (`grossPayments: 20000` at exactly the federal figure) initially
+        passed against the wrong operator and was corrected to assert the
+        right one. Also surfaces the 2024 retroactive-correction wrinkle
+        Fact Sheet 2025-08 created (a platform that already issued a 2024
+        Form 1099-K under the since-superseded $5,000 rule did not have to
+        withdraw it) as an explicit, tested UI note rather than a single
+        flattened "current threshold" figure that would misdescribe what
+        actually happened that year. Cross-linked reciprocally with
+        `1099k-reconciliation-worksheet` (this predicts whether a form
+        arrives; that reconciles one already in hand) and filed in the
+        `evidence` category on its first commit (named by exact slug match,
+        alongside its payer-side twin `1099-vendor-tracker`) rather than
+        left for the catch-all, which `build.test.mjs` bounds at 6 tools.
+        Disclaimer (not tax advice, does not know what any specific
+        platform did or will do, income is taxable regardless of whether a
+        form is issued), privacy line, opt-in local usage counting
+        (DNT/GPC-aware), GitHub Sponsors link, LICENSE, sitemap, robots.txt,
+        and JSON-LD (SoftwareApplication + FAQPage, byte-matched to visible
+        copy on both pages) from the first commit.
+      - >-
+        Graduated directly rather than through `portfolio/pipeline/
+        candidates.yaml`, following the precedent
+        `1099k-reconciliation-worksheet`'s own VENTURE.yaml comment
+        records for the same reason: reasoning documented in the
+        venture's own VENTURE.yaml comment instead of a separate
+        candidate write-up. Scored in `portfolio/scoring/venture-scores.yaml`
+        on the six standard dimensions (composite 6.167, floor 1 on
+        `ai_leverage`, both gates comfortably above the floor at 6/8).
+      - >-
+        Verified before pushing: the venture's own suite (32/32, including
+        22 calc.mjs assertions and 10 page assertions), full
+        `platform/marketing` + `platform/pages` suites (1272/1272, after
+        fixing the category-catch-all overflow this venture's addition
+        caused and re-running `regen.mjs`), `platform/proposal` (101/101),
+        `platform/privacy` + `platform/webcheck` (142/142), `gitops/tests`
+        (607 passed, 1 skipped -- environmental), all 27 `platform/ci`
+        unittest modules individually, `platform/ci/agent_review` (21/21),
+        `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+`infra/tests`
+        (446 passed), `router/validate.py` (323 valid),
+        `score_ventures.py --check` (324 scored, consistent),
+        `usage/validate_usage.py` (271 products, 457 readings),
+        `checklist_coverage.py`, `surface-budget.mjs --check` (no venture
+        over budget), `siblings.mjs` (0 of 316 orphaned),
+        `check_no_payment_code.py`, `guide-coverage.mjs` (316/316),
+        `faq-coverage.mjs` (316/316), and a `--only
+        1099-k-threshold-checker` Playwright/axe browser pass (sideways,
+        presets, roundtrip, contrast, optout, sweep, journey all `ok`;
+        `highlight` skipped as inapplicable) via `npm install --no-save
+        playwright@1.56.0 axe-core`. Repaired the tree-count drift this
+        venture's addition caused (315->316 mirrored tools, 410->411 then
+        411->412 `runs-on` lines) with `sync_tree_counts.py` and
+        `gitops/ci/sync_readme_counts.py`, plus `publish_surface.py --write`
+        for the new CI workflow, adding the running-comment entry naming
+        this venture in `test_manifests.py`.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR queue: nothing to drain. The run opened with one open PR (#4998,
+        the 1099-vendor-tracker graduation) in `dirty` state, repaired the
+        merge (1191 conflicted files) and was overtaken mid-repair -- a
+        concurrent session pushed its own resolution to the same branch and
+        #4998 merged as 9d8af0e5 before this session could push. Dropped
+        this session's duplicate merge commit rather than contest a landed
+        one, after first checking the surviving resolution for the specific
+        defect this session had hit and fixed (below); it did not have it.
+        By then the queue was empty, so the three-PR quota was met by the
+        "fewer than three exist, process all of them" branch.
+      - >-
+        Worth recording from the abandoned merge, because it is a trap in a
+        resolution any session here will face: `venture-scores.yaml`,
+        `usage.yaml` and `2026-09.yaml` are append-only lists, and when two
+        branches append at the same offset a keep-both-sides resolution
+        *interleaves* the two entries rather than concatenating them -- this
+        session's first attempt silently moved the new venture's `basis`,
+        `floor` and `gates` onto the other venture's entry. It parses
+        cleanly (PyYAML keeps the last of a duplicate key and discards the
+        rest), so only `test_no_duplicate_yaml_keys.py` and
+        `score_ventures.py` caught it. The resolution that cannot interleave
+        is to take the base file whole and splice in the branch's complete
+        entry, extracted by list-item boundary.
+      - >-
+        Then fixed four real defects on the path the account owner's
+        standing direction names -- deployment/CI-CD, marketing on the
+        Hetzner boxes, and the Codex CLI doing dev work there on its
+        included quota. All four share one shape: the Codex host stack is
+        complete and tested (2,927 lines of tests, `codex-host-mode` reads
+        `up`) and blocked on one owner action, so every defect in it is
+        latent until the single session that private SSH key buys, and then
+        expensive.
+      - >-
+        (1) `hetzner-gitops-ci.yml`'s `restore` job forwarded all three
+        `WITH_*` flags and not one of the credentials they need. Ticking
+        `with_codex_host` installed a worker with no `auth.json`;
+        `with_github_runner_host` installed a runner that cannot register.
+        `restore-cluster.sh` deliberately cannot let an extra fail the
+        restore, so an uncredentialed install and a working one are the same
+        green log -- and finishing the job needed a second SSH session,
+        behind the key the host-mode extras exist to stop needing twice. Now
+        forwards `CODEX_AUTH_JSON`, `CODEX_GH_TOKEN`, `RUNNER_TOKEN` and a
+        new `codex_enabled` input, each gated on its own box so an unchecked
+        extra asks for no credential. `OPENAI_API_KEY` is deliberately NOT
+        forwarded: it bills per token and the worker ticks indefinitely once
+        enabled, which is the unattended paid-API spend CLAUDE.md reserves
+        to the owner. `test_restore_workflow_flags.py` gains the credential
+        half of the check it already made for reachability (4 new tests,
+        3 of them verified red against the pre-fix workflow).
+      - >-
+        (2) `host_governor.py --check` told the operator to run
+        `./bootstrap/scripts/enable-codex-governor.sh` to turn the governor
+        on. That script is not in the installer's PAYLOAD, so it is not on
+        the box, and it edits a *checkout's* policy, which the timer never
+        reads -- `gitops/agents/host/README.md` already says it "was never
+        the right shape for a box". The hint pointed away from the one
+        command that works, printed to an operator who has just been told
+        the governor is disabled, during the one session that key buys. Now
+        context-aware, and deliberately does not invent an absolute on-box
+        path for the installer (there is none -- step 9 untars it to a
+        mktemp dir and removes it), since naming a file that is not there is
+        the same defect respelled. 5 new tests.
+      - >-
+        (3) `worker.sh` committed as `agent-codex@agents.local`. `.local` is
+        reserved for mDNS (RFC 6762), so no GitHub account can own it and
+        every commit the worker pushed would associate with nobody --
+        unrecognised author, no contribution history -- on a fleet whose
+        cross-review layer keys off which agent family produced a change.
+        Nothing fails; it is invisible until the first PR lands. Now
+        `codex-agent[bot]@users.noreply.github.com`, matching the repo's own
+        already-working Codex runner, and overridable via `CODEX_GIT_NAME` /
+        `CODEX_GIT_EMAIL` because the box's PAT may belong to another
+        identity and correcting it should not mean editing a payload file
+        that the next re-install reverts. 2 new tests.
+      - >-
+        (4) All six real queue items' headers said a run waits on the
+        CronJob being unsuspended. True of cluster mode; host mode -- the
+        mode the recovery actually installs, and the only one that survives
+        the current outage -- reads no CronJob at all and is gated solely by
+        the policy on the box. A reader looking for the CronJob finds no
+        such object and cannot tell whether that means "already done" or
+        "wrong thing". Headers now state both modes and which switch each
+        uses.
+      - >-
+        Corrected one of this session's own readings rather than reporting
+        it: a `--tree` sweep showed `portfolio-pages.yml`'s `Build the site`
+        and `Check the built artifact` FAILED on an `ENOENT` writing
+        `dist/ltl-freight-class-estimator/share-card.png`, which reads
+        exactly like a broken site build on `main`. It was not. Two of this
+        session's own sweeps were running concurrently against the same
+        `platform/pages/dist`. Re-ran serially: the build is clean, and
+        idempotent both against a complete `dist` and a partially deleted
+        one. Recorded because a red that means "two of your own jobs raced"
+        wearing the costume of a red that means "main is broken" is the
+        exact confusion `run_workflow_locally.py`'s `UNRUN` verdict exists
+        to prevent, arriving from a direction it does not cover -- do not
+        run two sweeps at once.
+      - >-
+        Verified, locally, Actions starved and re-confirmed this session
+        (`ci_starvation.py --run 35254012618`: `runner_id: 0`, 3s, no
+        steps; `indexnow_state.py` reports all 60 completed publish runs
+        starved, so the catalogue's 1194 URLs have still never been
+        announced): `gitops/tests` 617 passed / 1 skipped, the one skip
+        correctly classified ENVIRONMENTAL by
+        `guard_state.py --require-runnable`; all 27 `platform/ci` unittest
+        modules OK; `platform/ci/agent_review` 21/21; `validate_workflows.py`
+        370 valid; `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` 1272/1272; `platform/proposal` 101/101;
+        `platform/privacy` + `platform/webcheck` 142/142;
+        `portfolio/{ledger,scoring,router,usage,pipeline}` + `infra/tests`
+        446 passed; `router/validate.py` 322 valid;
+        `score_ventures.py --check` 323 consistent;
+        `validate_usage.py` 270 products / 456 readings;
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_probe_index.py` clean; `clauses.mjs` 1150 pages across
+        315 surfaces; `checklist_coverage.py` clean;
+        `check_no_payment_code.py` clean; `surface-budget.mjs --check` no
+        venture over budget. All pytest run as `python3 -m pytest` after
+        `apt-get update && apt-get install -y --no-install-recommends
+        python3-pytest nginx-light openssh-client`.
+      - >-
+        Not shipped, and both are owner-blocked rather than unfinished: the
+        Codex worker still is not installed anywhere, and the catalogue
+        still has not been announced to any search engine. Both are
+        downstream of `hetzner-ssh-key-is-a-public-key` (#3184, 13 days
+        old), which this run did not and cannot move -- no new ask added.

@@ -8,6 +8,15 @@
   <updated>2026-09-17T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
+    <title>1099-K Threshold Checker — Will You Get One for 2026?</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/1099-k-threshold-checker/"/>
+    <id>tag:marisstella.dev,2026:tool/1099-k-threshold-checker</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Check whether a marketplace, payment app, or platform is likely to send you a Form 1099-K, per platform and per tax year. Covers the federal threshold&#39;s four changes since 2022 ($20,000/200 transactions, $5,000 in 2024, back to $20,000/200 from 2025 on) plus the four states with their own stricter $600 rule. Runs in your browser, nothing uploaded.</summary>
+  </entry>
+  <entry>
     <title>1099-NEC Vendor Tracker — Free 2026 $2,000 Threshold Checker</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/1099-vendor-tracker/"/>
     <id>tag:marisstella.dev,2026:tool/1099-vendor-tracker</id>

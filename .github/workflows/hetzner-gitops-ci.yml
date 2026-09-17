@@ -59,17 +59,29 @@ on:
       with_codex_host:
         description: >-
           Also install the Codex worker's systemd-timer scheduler on the
-          agent box (gitops/agents/host/). Cannot fail the restore and
-          enables nothing -- the governor policy stays disabled until you
-          separately flip it. Only used when restore is set.
+          agent box (gitops/agents/host/). Cannot fail the restore. It is
+          credentialed from the CODEX_AUTH_JSON and CODEX_GH_TOKEN secrets
+          if you have set them, and stays disabled until you also tick
+          codex_enabled below. Only used when restore is set.
+        type: boolean
+        default: false
+      codex_enabled:
+        description: >-
+          Turn the Codex worker ON at the end of this same run, so its first
+          tick is ~5 minutes later instead of needing a second trip. Draws on
+          the ChatGPT plan's INCLUDED quota via the CODEX_AUTH_JSON secret --
+          a tick costs nothing extra. Ignored unless with_codex_host is also
+          ticked, and the script refuses to enable an uncredentialed worker.
+          Only used when restore is set.
         type: boolean
         default: false
       with_github_runner_host:
         description: >-
           Also install a self-hosted GitHub Actions runner as a systemd
           service on the agent box (gitops/ci/host/), independent of k3s.
-          Cannot fail the restore and registers with GitHub only once you
-          separately credential it. Only used when restore is set.
+          Cannot fail the restore. It registers with GitHub on this run if
+          you have set the RUNNER_TOKEN secret, and otherwise retries every
+          5 minutes until you credential it. Only used when restore is set.
         type: boolean
         default: false
       with_portfolio_site_host:
@@ -337,6 +349,25 @@ jobs:
   # steps 9-11, with no input here even naming the option. Defaulting all
   # three to false keeps today's behaviour unchanged; ticking one is the same
   # explicit opt-in the laptop route already requires via its env vars.
+  #
+  # The flags' *credentials* were the other half of that same gap, and they
+  # are forwarded below as of 2026-09-17. A flag reachable but uncredentialed
+  # is not the capability the flag names -- `WITH_CODEX_HOST=1` alone installs
+  # a worker with no auth.json, which the timer then ticks past every five
+  # minutes doing nothing, and `WITH_GITHUB_RUNNER_HOST=1` alone installs a
+  # runner that cannot register. Both are indistinguishable from success in
+  # this job's log, because the script deliberately cannot let an extra fail
+  # the restore.
+  #
+  # One credential is deliberately NOT forwarded: `OPENAI_API_KEY`, the Codex
+  # worker's metered fallback. `CODEX_AUTH_JSON` draws on a ChatGPT plan's
+  # included quota and a tick costs nothing extra, so it is safe to hand a
+  # dispatch that the owner typed a confirmation string into. A per-token key
+  # is not: the worker ticks every five minutes indefinitely, and CLAUDE.md's
+  # "Automation" rule reserves spending paid API budget unattended to the
+  # owner. If you genuinely have no ChatGPT plan to draw on, set
+  # `OPENAI_API_KEY` from the laptop route (`load-secrets.sh --exec`) where a
+  # project spend limit is in front of you, per infra/secrets/registry.tsv.
   restore:
     if: github.event_name == 'workflow_dispatch' && inputs.restore == 'restore-cluster'
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
@@ -365,6 +396,22 @@ jobs:
           WITH_CODEX_HOST: ${{ inputs.with_codex_host && '1' || '' }}
           WITH_GITHUB_RUNNER_HOST: ${{ inputs.with_github_runner_host && '1' || '' }}
           WITH_PORTFOLIO_SITE_HOST: ${{ inputs.with_portfolio_site_host && '1' || '' }}
+          # A WITH_* flag installs a service; the credential is what makes it
+          # do anything. Forwarding the flags alone (which is all this job did
+          # until now) installs a Codex worker with no auth.json and a runner
+          # with no registration token -- two dead systemd units, and a second
+          # trip over SSH to finish them. That second trip needs the private
+          # key, which is the one thing this whole route exists to avoid
+          # needing twice: the owner gets one session with that key, and
+          # spending it to discover the extras installed dead is the expensive
+          # version of this mistake. Each is gated on its own box being
+          # ticked, so an unchecked extra asks for no credential, and each is
+          # empty when the secret is unset -- restore-cluster.sh already
+          # handles that by installing and holding rather than failing.
+          CODEX_AUTH_JSON: ${{ inputs.with_codex_host && secrets.CODEX_AUTH_JSON || '' }}
+          CODEX_GH_TOKEN: ${{ inputs.with_codex_host && secrets.CODEX_GH_TOKEN || '' }}
+          CODEX_ENABLED: ${{ (inputs.with_codex_host && inputs.codex_enabled) && '1' || '' }}
+          RUNNER_TOKEN: ${{ inputs.with_github_runner_host && secrets.RUNNER_TOKEN || '' }}
           # Same PAT as ARGOCD_REPO_TOKEN above (asks.yaml: "one PAT covers
           # both") — empty unless the box is actually being asked to serve,
           # so an unchecked box needs no clone credential to sit unused.
