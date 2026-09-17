@@ -37,6 +37,19 @@ test('the page wires usage counting for both the quote and the actual-hours chec
   assert.match(html, /<code>quote-priced<\/code>, <code>actual-hours-checked<\/code>/);
 });
 
+test('a share link round-trips every DEFAULTS field and the proposal terms', () => {
+  assert.match(html, /import \{ encodeShare, decodeShare \} from '\.\/share\.mjs'/);
+  assert.match(html, /<button type="button" id="copyShare">Copy share link<\/button>/);
+  assert.match(html, /count\('share_link_copied'\)/);
+  assert.match(html, /<code>share_link_copied<\/code>/);
+  // The restore-on-load path must cover every calculator input, not a
+  // hand-picked subset that silently drops a field added to DEFAULTS later.
+  assert.match(html, /for \(const id of Object\.keys\(DEFAULTS\)\) \{\s*\n\s*if \(shared\[id\] === undefined\) continue;/);
+  for (const id of ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions']) {
+    assert.match(html, new RegExp(`'${id}'`), `${id} missing from PROPOSAL_TERM_IDS`);
+  }
+});
+
 test('the default inputs on the page match calc.mjs DEFAULTS and produce a profitable quote', () => {
   const result = calculateQuote(DEFAULTS);
   assert.match(html, new RegExp(`id="edgeFeet" type="number" min="1" step="1" value="${DEFAULTS.edgeFeet}"`));
