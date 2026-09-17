@@ -792,9 +792,23 @@ const CATEGORY_RULES = [
     // supply chain, not a compliance record for a document library. Slug
     // ends in `-check`, not any suffix above, and starts with `pdf`, which
     // none of the prefixes above would guess.
+    // `call-recording-consent-check` joined 2026-09-17, filed here on its
+    // first commit rather than after a spell in the catch-all -- what
+    // `build.test.mjs`'s catch-all bound is for. Its posture is this
+    // section's blurb almost verbatim: it reports a state's default
+    // call-recording consent classification and a conservative interstate
+    // reading -- an observation the caller acts on -- and says explicitly,
+    // on every page, that it is not a legal determination for their
+    // specific call. Not `ci`, even though it also ships a matching CLI:
+    // that section's buyer is a developer auditing their own supply chain
+    // or workflow file, not a sales/support/recruiting team checking a
+    // consent rule before a call. Not `services`: nothing here prices a
+    // visit, route, or booking for a customer. Slug ends in `-check`, not
+    // any suffix above, and starts with `call-`, which none of the
+    // prefixes above would guess.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check)/.test(slug),
+      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier|vpat-acr-generator|pdf-accessibility-tag-check|call-recording-consent-check)/.test(slug),
   },
   {
     id: 'backoffice',

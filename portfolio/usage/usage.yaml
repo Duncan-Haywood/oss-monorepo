@@ -6403,3 +6403,30 @@ products:
           took the itemized quote somewhere else (an invoice or work order),
           the same ratio overtime-pay-calculator watches for its own
           breakdown copy.
+  - slug: call-recording-consent-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          requirement_checked: 0
+          script_generated: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool classifying all 50 states +
+          DC as one-party or all-party call-recording consent, assessing an
+          interstate call with a cited combining rule, disclosing Nevada's
+          and Michigan's real statute-text-vs-applied-law ambiguity, and
+          generating a call-opening disclosure script. `live_url_visitors`
+          is null, not zero -- see the standing note on this route
+          elsewhere in this file; nobody has measured yet. Named channel to
+          watch: organic search for "call recording laws by state" and "is
+          [state] one-party or two-party consent," an established,
+          heavily-published compliance topic where the interstate case and
+          the disclosure-script step are the underserved gap this tool
+          targets. `requirement_checked` against `script_generated` is the
+          signal worth watching -- whether a visitor who got a
+          classification went on to generate the actual words to say,
+          rather than stopping at the lookup.

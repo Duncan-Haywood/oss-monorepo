@@ -1793,7 +1793,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # `vector-db-cost-calculator` and `required-checks-drift-check` landed,
     # so it only ever knew its own predecessor's number (295, then 296)
     # until this merge.
-    total = 297  # `infra/OWNER_CHECKLIST.md`'s own "N of the 297 tools" wording.
+    # 298 since 2026-09-17, when `call-recording-consent-check` graduated --
+    # a zero-dependency CLI + browser tool classifying US state
+    # call-recording consent (one-party vs. all-party), with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch was open before `dog-boarding-daycare-pricing`
+    # and `required-checks-drift-check` landed, so it only ever knew its own
+    # predecessor's number (296) until this merge -- the same ordinary
+    # collision shape recorded throughout this list.
+    total = 298  # `infra/OWNER_CHECKLIST.md`'s own "N of the 298 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
