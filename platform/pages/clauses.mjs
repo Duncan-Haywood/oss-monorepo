@@ -452,6 +452,11 @@ export const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // a company or product this could be mistaken for. Same reasoning as the
   // other vs-spreadsheet / by-hand pages above.
   'depreciation-recapture-calculator/vs-doing-it-by-hand.html',
+  // Compares against "looking up the 1099-K threshold yourself" -- a search
+  // or memory check every gig/marketplace seller already does, not a
+  // company or product this could be mistaken for. The page names no
+  // specific tax-prep company or competing checker at all.
+  '1099-k-threshold-checker/vs-checking-the-threshold-yourself.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */

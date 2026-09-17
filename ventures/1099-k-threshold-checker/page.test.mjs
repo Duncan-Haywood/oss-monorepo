@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const guide = readFileSync(new URL("./why-did-the-1099-k-threshold-keep-changing.html", import.meta.url), "utf8");
+const vsPage = readFileSync(new URL("./vs-checking-the-threshold-yourself.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
 
 test("the entry page wires the platform form, results table, and threshold logic without a build step", () => {
@@ -54,6 +55,29 @@ test("index links one hop to the 1099k-reconciliation-worksheet sibling", () => 
 
 test("index links to the threshold-timeline guide page", () => {
   assert.match(html, /href="why-did-the-1099-k-threshold-keep-changing\.html"/);
+});
+
+test("index links to the vs-checking-the-threshold-yourself comparison page", () => {
+  assert.match(html, /href="vs-checking-the-threshold-yourself\.html"/);
+});
+
+test("the comparison page links back to the checker and carries valid FAQPage JSON-LD matching visible text", () => {
+  assert.match(vsPage, /href="\.\/"/);
+  const blocks = [...vsPage.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  const parsed = blocks.map((b) => JSON.parse(b));
+  const faq = parsed.find((p) => p["@type"] === "FAQPage");
+  assert.ok(faq, "missing FAQPage JSON-LD on the comparison page");
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const qa of faq.mainEntity) {
+    assert.ok(vsPage.includes(qa.name), `visible question missing: ${qa.name}`);
+    assert.ok(vsPage.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);
+  }
+});
+
+test("the comparison page carries the no-warranty clause and is listed in the venture sitemap", () => {
+  assert.match(vsPage, /No warranty/);
+  assert.match(vsPage, /Nothing leaves your browser/);
+  assert.match(sitemap, /vs-checking-the-threshold-yourself\.html/);
 });
 
 test("no module in this venture can reach the network", () => {
