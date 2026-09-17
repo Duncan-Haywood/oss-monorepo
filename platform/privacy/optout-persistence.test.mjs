@@ -330,7 +330,7 @@ const RELATIVE_SELF = relative(
 // own `toggleUsage`/`usageAllowed` switch, opting out of the
 // `month-priced`/`gap-checked` counters -- exactly one added `usage.mjs`,
 // `ventures/twitch-payout-calculator/usage.mjs`, and no deletions.)
-const SWITCHES_IN_THE_CATALOGUE = 296;
+const SWITCHES_IN_THE_CATALOGUE = 297;
 
 let counter = 0;
 function fixture(source) {

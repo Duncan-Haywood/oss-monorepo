@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 312 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 313 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -366,14 +366,5 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">A free world clock that shows current local time, sunrise, sunset, daylight length and whether each city is awake — for as many cities as you like, side by side. Sunrise and sunset are computed in your browser from the US Naval Observatory almanac algorithm. No account, no upload, no API key.</summary>
-  </entry>
-  <entry>
-    <title>Caption Quality Checker — SRT &amp; WebVTT Reading Speed, Line Length &amp; Timing</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/caption-quality-check/"/>
-    <id>tag:marisstella.dev,2026:tool/caption-quality-check</id>
-    <published>2026-09-13T00:00:00Z</published>
-    <updated>2026-09-13T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Free tool: paste an SRT or WebVTT caption file and check it against commonly-used caption style-guide thresholds -- reading speed (characters per second), line length, lines per cue, minimum/maximum duration, overlapping cues, and too-short gaps between cues. A zero-dependency CLI runs the same checks in your own CI. Nothing uploaded.</summary>
   </entry>
 </feed>
