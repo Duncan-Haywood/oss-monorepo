@@ -13062,3 +13062,70 @@ ventures:
       class than the job actually requires, and the flat-rate comparison
       is disclosed methodology (FAQ: "why not just quote a flat rate per
       square foot") rather than a black-box number.
+
+  - slug: vector-db-cost-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 4
+    composite: 5.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The storage-sizing arithmetic
+      (vectorCount * dimension * 4 bytes plus metadata, times a
+      user-supplied overhead multiplier) and the per-provider cost
+      comparison are both decided entirely by numbers the visitor types
+      in -- the calculator does not fetch or assert any vendor's price,
+      the same bring-your-own-rates discipline cloud-egress-calculator
+      already uses for cloud storage pricing.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's process.
+      `python3 portfolio/pipeline/duplicate_check.py` top match 0.26
+      (terraform-plan-blast-radius-check, an existing venture with an
+      unrelated domain -- infra-as-code plans, not vector databases),
+      well under the 0.45 read-this-first bar. Distinct from every
+      existing "-check" scanner and bid calculator: no venture in the
+      tree prices vector database storage or query cost, and this is not
+      a further instance of the saturated <trade>-bid-calculator or
+      GitHub Actions security-scanner archetypes.
+      Autonomous ops 10 / gross margin 10: the page computes everything
+      client-side from typed inputs, nothing uploaded, no network call,
+      so serving one more user costs a static file -- same shape as every
+      other browser-local calculator in this portfolio.
+      Distribution 4: a real and current engineering decision (choosing a
+      vector database for a RAG or agent-memory workload) with plausible
+      channels named in VENTURE.yaml (r/vectordatabase, r/MachineLearning,
+      r/LangChain threads already asking this exact "which vector DB is
+      cheapest" question, Hacker News Show HN, and search terms like
+      "pinecone vs qdrant pricing"), but scored below this portfolio's
+      strongest distribution rows because no search-volume or existing
+      thread was actually confirmed this session -- egress from this
+      sandbox cannot reach Reddit, Hacker News, or a search engine to
+      verify the channel claim, so it is asserted from general knowledge
+      of the RAG/agent-tooling niche, not measured.
+      Time to revenue 6, defensibility 3: donations-only; the arithmetic
+      itself is not defensible (trivially cloneable), but the
+      bring-your-own-rates design plus the index-overhead explainer page
+      is a small, specific wedge over a generic two-column cost
+      calculator, matching openapi-breaking-change-check's reasoning for
+      the same pair of scores.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool never fetches or asserts a vendor's current price --
+      every rate is typed in by the visitor -- and the footer/FAQ state
+      plainly that the output is an estimate from entered rates, not a
+      live quote, to be verified against each provider's own pricing
+      before committing spend. The index-overhead multiplier is
+      explicitly user-set rather than a number this tool claims to know
+      about any vendor's internals, so a stale or wrong vendor-specific
+      figure is never presented as fact. Ethically: donations-only with no
+      per-comparison fee, so the tool has no incentive to bias the ranking
+      toward any provider, and it gets more useful the more providers a
+      visitor adds rather than steering toward fewer.

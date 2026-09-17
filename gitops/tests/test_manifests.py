@@ -1739,7 +1739,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # monitoring, and waste disposal, then comparing the result to a flat
     # rate per square foot, with a static `index.html` from its first
     # commit, same shape as the rest of this running count.
-    total = 291  # `infra/OWNER_CHECKLIST.md`'s own "N of the 291 tools" wording.
+    # 292 since 2026-09-17, when `vector-db-cost-calculator` graduated --
+    # a browser-local calculator estimating a vector embedding index's
+    # storage footprint (vector count, dimension, metadata, a user-set
+    # index-overhead multiplier) and comparing monthly cost across up to
+    # three vector database providers using rates the visitor types in,
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    total = 292  # `infra/OWNER_CHECKLIST.md`'s own "N of the 292 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
