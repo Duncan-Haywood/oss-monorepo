@@ -337,6 +337,10 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
   <p>Also worth a pass over your app: <a href="../ios-privacy-manifest-check/">iOS Privacy Manifest Checker</a>
   cross-checks Apple's Required Reason API usage against a PrivacyInfo.xcprivacy manifest -- the same
   "read a manifest you already have, name the exact undeclared permission" shape as this tool, for iOS.</p>
+  <p>Shipping an Android app too? <a href="../android-data-safety-check/">Android Data Safety Checker</a>
+  cross-checks AndroidManifest.xml permissions and Gradle SDK dependencies against your Play Console Data
+  safety declaration -- the same "read a manifest you already have, name the exact undeclared category"
+  shape as this tool, for Google Play instead of the Chrome Web Store.</p>
   <p>Building a WordPress plugin too? <a href="../wordpress-plugin-review-check/">WordPress Plugin Review Checker</a>
   cross-checks a readme.txt Stable tag against the plugin header's Version -- the same
   "read a manifest you already have, name the exact mismatch" shape as this tool, for wordpress.org Plugin

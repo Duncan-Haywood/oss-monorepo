@@ -8,6 +8,15 @@
   <updated>2026-09-17T00:00:00Z</updated>
   <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
   <entry>
+    <title>Android Data Safety Checker — permissions/SDKs vs Play Console declaration</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/android-data-safety-check/"/>
+    <id>tag:marisstella.dev,2026:tool/android-data-safety-check</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free, browser-local checker: scans your AndroidManifest.xml permissions and Gradle dependencies for known analytics/ads/crash SDKs, and compares them against the Data safety categories you say you&#39;ve already declared in Play Console -- so a missed declaration doesn&#39;t cost you a policy warning or listing removal. Nothing is uploaded.</summary>
+  </entry>
+  <entry>
     <title>Asbestos Abatement Bid Calculator — Containment-Class Pricing</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/asbestos-abatement-bid-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/asbestos-abatement-bid-calculator</id>

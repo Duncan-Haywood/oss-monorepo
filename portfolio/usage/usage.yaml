@@ -6459,3 +6459,29 @@ products:
           signal worth watching -- whether a visitor who got a
           classification went on to generate the actual words to say,
           rather than stopping at the lookup.
+  - slug: android-data-safety-check
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-17
+        signals:
+          live_url_visitors: null
+          scan_run: 0
+          example_loaded: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today: a
+          zero-dependency CLI and browser tool cross-checking an Android
+          project's AndroidManifest.xml permissions and Gradle SDK
+          dependencies against the Google Play Data safety categories the
+          developer says they've already declared -- the direct
+          Android-side counterpart to ios-privacy-manifest-check.
+          `live_url_visitors` is null, not zero -- see the standing note on
+          this route elsewhere in this file; nobody has measured yet.
+          Named channel to watch: r/androiddev and Stack Overflow's android
+          / google-play-console tags, where Data safety mismatches and
+          Play Console policy warnings are a recurring, long-documented
+          thread topic, and organic search for "google play data safety
+          rejected" and "data safety section mismatch." `scan_run` against
+          `example_loaded` is the signal worth watching -- whether a
+          visitor who tried the worked example came back to check their
+          own project.
