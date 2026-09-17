@@ -10,7 +10,8 @@ take a flat rate per square foot or a gut-feel number copied from the last
 similar job.
 
 Open `index.html` directly, or serve this directory with
-`python3 -m http.server`. Run the tests with:
+`python3 -m http.server`. See [`vs-a-flat-rate-per-square-foot.html`](vs-a-flat-rate-per-square-foot.html)
+for the worked-example comparison against a flat per-square-foot quote. Run the tests with:
 
 ```
 node --test ventures/asbestos-abatement-bid-calculator/*.test.mjs
