@@ -14327,3 +14327,70 @@ ventures:
       else's confidential drawing. The usage counter is local-only and
       switch-off-able, and honours Do Not Track and Global Privacy Control
       unprompted.
+
+  - slug: ny-llc-transparency-act-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 6
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. Whether an LLC likely falls into
+      the Reporting Company or Exempt Company category, and what its
+      initial filing deadline is, is decided entirely by a fixed rule
+      applying NYDOS's own confirmed scope narrowing (2025-12-31) to the
+      filer's own four answers -- never a model judgment.
+    basis: >-
+      Screened 2026-09-17 per portfolio/pipeline/README.md's scoring
+      process; full write-up in this venture's own VENTURE.yaml comment.
+      duplicate_check.py scored every venture, screened-out row, and
+      pipeline candidate at or below 0.08 against the final description.
+      Distribution 6 reflects a real, dated, verified channel: New York's
+      LLC Transparency Act took effect 2026-01-01 and NYDOS narrowed its
+      reporting scope to foreign-formed LLCs only in guidance confirmed
+      2025-12-31, producing a wave of 2026 law-firm client alerts (Sidley,
+      Holland & Knight, Katten, Crowell & Moring, Seyfarth, Baker
+      McKenzie, Venable, McDermott -- verified via web search this
+      session) and an acutely time-bound initial deadline (2026-12-31,
+      ~3.5 months out at graduation) rather than an evergreen-someday
+      topic. No search-volume tool was queried to confirm magnitude.
+      Defensibility 3: the classification rule and deadline arithmetic are
+      easy to reproduce once someone thinks to, offset somewhat by the
+      worksheet/organizer UX being the less obvious half of the product.
+      Time to revenue 6: donations-only, but the near-term deadline is a
+      real forcing function on a first visit within this venture's own
+      graduation window, not a distant one.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, but at the floor rather than comfortably above it, for two
+      compounding reasons this portfolio's other compliance tools don't
+      both carry: a wrong reporting/exempt classification could lead a
+      filer to skip a real obligation, and the worksheet handles a
+      beneficial owner's own PII (name, address, date of birth, ID
+      number) rather than a business's own numbers. Mitigated by design:
+      every classification is framed as "likely" with an inline
+      not-a-determination caveat (not just a footer disclaimer); the tool
+      ships no share.mjs/copy-link feature at all, the one deliberate
+      omission from this fleet's usual calculator pattern, so PII is never
+      encodable into a URL; the worksheet is held only in page memory by
+      default and needs a separate, explicit opt-in before anything is
+      written to local storage, stricter than this portfolio's own
+      baseline; and the tool never contacts New York State or claims to
+      file anything -- it produces a draft the filer reviews and emails
+      themselves. Every citable fact (bill number, effective date, the
+      2025-12-31 scope narrowing, the two-track deadline, the interim
+      email-filing address) was verified against 2026 sources this
+      session rather than asserted from memory, and no exemption category
+      or statute section is invented anywhere it could not be confirmed.
+      Ethically: donations-only with no per-use fee, so there is no
+      incentive to bias the classification in either direction, and the
+      tool gets strictly more useful to a filer the more accurately they
+      answer the four questions.

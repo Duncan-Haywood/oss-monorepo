@@ -1964,7 +1964,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # mobile-purchased subscription pays less. The number below is
     # `sync_tree_counts.py`'s own fresh measurement against this merge's
     # tree, not a hand sum of any of the above.
-    total = 312  # `infra/OWNER_CHECKLIST.md`'s own "N of the 312 tools" wording.
+    #
+    # 313 since 2026-09-17, when `ny-llc-transparency-act-tracker` graduated
+    # concurrently with `twitch-payout-calculator` above -- a browser-local
+    # eligibility check, deadline counter, and beneficial-owner worksheet
+    # for New York's LLC Transparency Act. This branch was open before
+    # `twitch-payout-calculator` landed, so it only ever knew 312 until this
+    # merge. Recorded from `sync_tree_counts.py`'s own fresh measurement
+    # against the merged tree, not a hand sum.
+    total = 313  # `infra/OWNER_CHECKLIST.md`'s own "N of the 313 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
