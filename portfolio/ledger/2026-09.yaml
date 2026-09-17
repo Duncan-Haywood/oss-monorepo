@@ -34386,3 +34386,115 @@ entries:
         venture over budget (257 with 0, 56 with 1, 1 with 2). HEAD matched
         `origin/main` exactly at push time -- no drift between the last
         verification run and what was pushed.
+  - venture: no-tax-on-tips-overtime-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Researched and graduated a fresh niche rather than reusing the
+        pipeline queue (empty) or a fleet-parity feature. Screened the OBBBA
+        "no tax on tips" and "no tax on overtime" federal deductions
+        (tax years 2025-2028): both are new for the 2025 filing season
+        underway right now, with new 2026 W-2 reporting codes (Box 12 "TP",
+        Box 14b Treasury Tipped Occupation Code, Box 14 "FLSA OT Prem"),
+        Treasury's final occupation-list regulations published 2026-04-13
+        (effective 2026-06-12), and a genuinely easy-to-miss mechanic
+        directly parallel to this portfolio's own overtime-pay-calculator
+        lesson: the overtime deduction is only the FLSA half-time premium
+        (the extra 0.5x), never the full time-and-a-half rate. Found several
+        existing free finance-blog calculators for the same search phrases
+        during WebSearch research (nationaltaxtools.com, taxstra.com,
+        usapaycheck.com, kmkventures.com, fiscalfold.com) -- read as evidence
+        of real demand per DIRECTION.md's "competitor's own traffic" test,
+        not as a reason to skip (each is single-provision, ad/content-
+        marketing supported, and most require the visitor already know the
+        overtime premium figure rather than computing it from hours). No
+        overlap found: `duplicate_check.py` scored every venture,
+        screened-out row, ai-first-markets idea, and pipeline candidate at
+        0.09 or below.
+      - >-
+        Shipped `ventures/no-tax-on-tips-overtime-calculator`: a
+        browser-local calculator (no account, no network) estimating both
+        deductions together in one MAGI phase-out pass -- $25,000 tip cap,
+        $12,500/$25,000 overtime cap (single/HoH vs. joint), the shared
+        $100-per-$1,000-over-threshold phase-out with its "or fraction
+        thereof" round-up rule, MFS ineligibility for both, and a
+        self-employed tip earner's net-profit cap. Computes the overtime
+        premium from raw hourly rate/hours/weeks rather than requiring a
+        known figure, and cross-links this portfolio's own
+        `overtime-pay-calculator` for the FLSA weighted-average/blended-rate
+        case (multiple pay rates in one week) rather than restating that
+        already-tested arithmetic. All dollar constants and the phase-out
+        zero-crossing points ($400k/$550k tips, $275k/$550k overtime) were
+        cross-checked across multiple independent sources via WebSearch,
+        since `irs.gov` and most individual finance sites are blocked by
+        this environment's egress proxy for direct WebFetch; one search
+        summary's own worked example was found internally inconsistent with
+        its stated formula and discarded in favour of the zero-crossing
+        figures every source agreed on -- both recorded as `calc.test.mjs`
+        fixtures. Disclaimer (no legal/tax/financial advice, evidence-only
+        positioning per PRODUCT_PLAYBOOK.md 5b), privacy line, opt-in local
+        usage counting honouring DNT/GPC, GitHub Sponsors link, LICENSE,
+        sitemap, robots.txt, and JSON-LD (SoftwareApplication + FAQPage,
+        byte-matched to visible copy) all in place. One generic-method
+        comparison page (`vs-estimating-the-deduction-by-hand.html`,
+        renamed from the more obvious `vs-doing-it-by-hand.html` after
+        discovering that name collided with `overtime-pay-calculator`'s own
+        existing comparison page in the front door's cross-venture
+        `vs__<product>` aggregator namespace); at budget per
+        `surface-budget.mjs --for`. Filed under the `backoffice` category in
+        `build.mjs` on this same commit (income already earned, a downstream
+        deduction) rather than left in the catch-all. Added to
+        `portfolio/pipeline/candidates.yaml` and README.md's ranked table
+        (composite 6.25, position 44, renumbering 44-48 to 45-49) and to
+        `portfolio/scoring/venture-scores.yaml` (composite 6.0 on the
+        6-dimension scale, both gates pass).
+      - >-
+        While verifying, found and fixed two real, already-latent defects
+        this venture's graduation surfaced rather than caused: (1)
+        `ventures/overtime-pay-calculator/vs-doing-it-by-hand.html` (added
+        in #4768) had never been mirrored into the Argo front door or
+        mounted in `gitops/prod/kustomization.yaml` -- `git show
+        origin/main:gitops/prod/front-door/vs__doing-it-by-hand.html.gz`
+        confirms the shard never existed on `main` at all, so
+        `front-door.test.mjs`'s per-product-comparison mount check would
+        have failed on a clean checkout of `main` for the same reason,
+        independent of this branch; fixed by hand-adding the kustomization
+        line the test file's own docstring says is hand-kept by design. (2)
+        `check_money_sign.py` caught this venture's own `money()` formatter
+        signing a negative as `$-9.24` instead of `-$9.24` -- fixed to match
+        every sibling venture's formatter (magnitude formatted first, sign
+        placed outside), even though a deduction total in this tool's own
+        flow is never actually negative.
+      - >-
+        Ran `node platform/marketing/regen.mjs` three times across the
+        session (after the initial venture commit, after renaming the
+        colliding comparison page, and after the `build.mjs` category
+        placement) and committed what it rewrote each time; ran
+        `python3 platform/ci/sync_tree_counts.py` after the venture commit
+        and wrote the running-comment entries it does not write for itself
+        (`gitops/tests/test_manifests.py` 315->316,
+        `platform/privacy/optout-persistence.test.mjs` 298->299); ran
+        `python3 gitops/ci/sync_readme_counts.py` after adding the new CI
+        workflow (409/411/370 -> 410/412/371); ran `python3
+        platform/ci/publish_surface.py --write` to register the new
+        test-only CI workflow (classified `none`).
+      - >-
+        Verified, locally, Actions starved
+        (`ci_starvation.py`, consistent with the standing starvation window
+        this month): venture's own suite 38/38; `checklist_coverage.py`
+        clean; `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs`, 1272/1272 after the kustomization and
+        category fixes (an intermediate run surfaced both real defects
+        above at 1265/1272 and 1271/1272 respectively); `node --test
+        platform/proposal/*.test.mjs`, 101/101; `node --test
+        platform/privacy/*.test.mjs platform/webcheck/*.test.mjs`, 142/142;
+        `gitops/tests` after `apt-get update && apt-get install -y
+        --no-install-recommends python3-pytest nginx-light openssh-client`,
+        run as `python3 -m pytest`, 607 passed / 1 skipped (environmental);
+        `platform/ci` 27-module unittest sweep and `agent_review`'s
+        `test_review`, both clean; `portfolio/ledger portfolio/scoring
+        portfolio/router portfolio/usage portfolio/pipeline infra/tests`,
+        446 passed; `guard_state.py --require-runnable` exit 0, no fixable
+        skips remaining; `score_ventures.py --check`, `validate_candidates.py`,
+        `validate_doc_consistency.py`, and `router/validate.py` all clean.

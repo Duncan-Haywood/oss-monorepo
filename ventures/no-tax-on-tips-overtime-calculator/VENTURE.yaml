@@ -1,0 +1,93 @@
+name: no-tax-on-tips-overtime-calculator
+description: Free browser calculator for the federal "no tax on tips" and "no tax on overtime" deductions (One Big Beautiful Bill Act, tax years 2025-2028), applying the $25,000 tip cap and $12,500/$25,000 overtime cap, the shared MAGI phase-out, and the overtime deduction's easy-to-miss half-time-premium-only rule -- entirely client-side, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened during a 2026-09-17 new-venture-first session (session_gate.py:
+# build-now queue empty, PROCEED verdict, DIRECTION.md's 2026-09-06 owner
+# direction ranks a fresh gate-cleared niche ahead of a parity feature).
+# duplicate_check.py scored every venture, screened-out row, ai-first-markets
+# idea, and pipeline candidate at 0.09 or below for "no tax on tips 2026
+# OBBBA qualified tips deduction calculator" -- far under the 0.45 review
+# bar. Not in portfolio/pipeline/screened-out.md: no row mentions tips,
+# overtime deduction, OBBBA "no tax on", or qualified overtime compensation.
+# ventures/overtime-pay-calculator computes FLSA wage arithmetic (what an
+# employer owes); this computes the separate, unrelated federal tax
+# deduction on that pay -- a different mechanism, not a restatement.
+#
+# Same regulatory-threshold-change shape that graduated 1099-vendor-tracker
+# the same week (a specific OBBBA provision nobody had built a dedicated,
+# private, no-signup tool for), with real WebSearch-verified mechanics
+# rather than screening-estimate figures: IRS/Treasury final rules
+# (occupation list effective 2026-06-12, new W-2 Box 12 code TP / Box 14b
+# TTOC / Box 14 "FLSA OT Prem" reporting for tax year 2025+), and the
+# $100-per-$1,000 MAGI phase-out cross-checked against its own
+# zero-crossing points ($400k/$550k tips, $275k/$550k overtime) across
+# several independent sources -- see calc.mjs's header comment and
+# calc.test.mjs's fixtures.
+#
+# Differentiation from the several existing finance-blog calculators found
+# for this niche during research (nationaltaxtools.com, taxstra.com,
+# usapaycheck.com and others, each single-provision and ad/content-marketing
+# supported): this combines both deductions in one MAGI-phase-out pass,
+# computes the overtime premium from raw hours/rate rather than requiring
+# the user already know the figure, points self-employed tip earners at the
+# net-profit cap those simpler tools omit, and is privacy-first with no
+# upsell -- donation-only like the rest of this portfolio.
+
+hypotheses:
+  - claim: >-
+      Tipped and hourly-overtime workers filing 2025 returns, and payroll
+      admins fielding their questions, will search plain-language phrases
+      ("no tax on tips calculator", "no tax on overtime calculator", "tip
+      deduction 2026", "overtime deduction phase out") once 2025 W-2s with
+      the new Box 12 TP / Box 14b TTOC / Box 14 "FLSA OT Prem" codes start
+      arriving, and some will prefer a free, private, no-signup, no-upsell
+      calculator over a paid tax-prep marketing page or an ad-supported
+      finance blog's embedded widget.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      The existence of several already-published finance-blog calculators
+      for this exact niche (nationaltaxtools.com, taxstra.com, usapaycheck.com,
+      kmkventures.com, fiscalfold.com, found during a single research pass)
+      is evidence of real, proven search volume for these phrases; combining
+      both deductions in one tool, computing the overtime premium from raw
+      hours rather than requiring a known figure, and handling the
+      self-employed net-profit cap those simpler tools omit is a real
+      differentiation, not just a duplicate entrant into a crowded field.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Visitors who worked at two different hourly rates in the same
+      overtime week will follow the one-hop link to this portfolio's own
+      overtime-pay-calculator to get the correct FLSA blended regular rate
+      first, then return here to estimate the deduction -- a cross-venture
+      return-visit signal this portfolio does not yet have evidence for on
+      any pair of siblings.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 5
+  protected: true
+
+kill_criteria:
+  - No measurable return usage or organic referral traffic by the end of the
+    2027 April filing season (the first full season under this deduction and
+    this venture's natural traffic peak).
+  - Fewer than three unsolicited signals (star, fork, referral, or feedback)
+    within 90 days of the 2027 April filing season closing.
+
+links:
+  production: https://duncan-haywood.github.io/monorepo-projects/no-tax-on-tips-overtime-calculator/
+  analytics: null

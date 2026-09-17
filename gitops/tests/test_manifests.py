@@ -1992,7 +1992,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # open before either of the other two landed, so it only ever knew 313
     # until this merge. Recorded from `sync_tree_counts.py`'s own fresh
     # measurement against the merged tree, not a hand sum.
-    total = 315  # `infra/OWNER_CHECKLIST.md`'s own "N of the 315 tools" wording.
+    #
+    # 316 since 2026-09-17, when `no-tax-on-tips-overtime-calculator`
+    # graduated -- a browser calculator for the federal "no tax on tips"
+    # ($25,000 cap) and "no tax on overtime" ($12,500/$25,000 cap) deductions
+    # (One Big Beautiful Bill Act, tax years 2025-2028), applying the shared
+    # MAGI phase-out and the overtime deduction's half-time-premium-only rule.
+    # Recorded from `sync_tree_counts.py`'s own fresh measurement against the
+    # merged tree, not a hand sum.
+    total = 316  # `infra/OWNER_CHECKLIST.md`'s own "N of the 316 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

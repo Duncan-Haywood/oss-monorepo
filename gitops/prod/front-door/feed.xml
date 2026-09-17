@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 315 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 316 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -150,6 +150,15 @@
     <updated>2026-09-17T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Paste or load Kubernetes manifest YAML and get a deterministic report of every apiVersion + kind pair a past or future Kubernetes release has removed or will remove -- extensions/v1beta1 Ingress, batch/v1beta1 CronJob, policy/v1beta1 PodSecurityPolicy, and more -- so a platform team catches the manifest before a rolling upgrade fails on it, not during it. Free, runs entirely in your browser, nothing is uploaded.</summary>
+  </entry>
+  <entry>
+    <title>No Tax on Tips &amp; Overtime Calculator — 2026 Deduction Estimator, Free</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/no-tax-on-tips-overtime-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/no-tax-on-tips-overtime-calculator</id>
+    <published>2026-09-17T00:00:00Z</published>
+    <updated>2026-09-17T00:00:00Z</updated>
+    <category term="Back-office money &amp; contracts"/>
+    <summary type="text">Free calculator for the federal &#39;no tax on tips&#39; and &#39;no tax on overtime&#39; deductions (2025-2028): applies the $25,000 tip cap, the $12,500/$25,000 overtime cap, and the shared MAGI phase-out, and computes the overtime deduction&#39;s easy-to-miss half-time-premium-only rule. Entirely client-side, nothing uploaded.</summary>
   </entry>
   <entry>
     <title>NY LLC Transparency Act Tracker — Deadline &amp; Filing Organizer</title>
@@ -357,14 +366,5 @@
     <updated>2026-09-16T00:00:00Z</updated>
     <category term="CI checks &amp; developer gates"/>
     <summary type="text">Free tool: paste a security.txt and check it against RFC 9116 — a missing or expired Expires field (the one that silently makes your whole file stale), a Contact that isn&#39;t a URI, a plain-http Contact, a PGP key pasted where an Encryption URI belongs, a duplicated Expires or Preferred-Languages, the British spelling of Acknowledgments, and a signed file with no Canonical. Runs in your browser or as a zero-dependency Node CLI. Nothing uploaded.</summary>
-  </entry>
-  <entry>
-    <title>SQL Migration Lock Check — Will This Migration Take Your Database Down?</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/sql-migration-lock-check/"/>
-    <id>tag:marisstella.dev,2026:tool/sql-migration-lock-check</id>
-    <published>2026-09-16T00:00:00Z</published>
-    <updated>2026-09-16T00:00:00Z</updated>
-    <category term="CI checks &amp; developer gates"/>
-    <summary type="text">Paste a PostgreSQL migration and find every statement that can lock the table and stall your app: CREATE INDEX without CONCURRENTLY, ALTER COLUMN TYPE, SET NOT NULL, a foreign key without NOT VALID, and a missing lock_timeout that turns a millisecond change into an outage. Free, runs in your browser, nothing uploaded, no database connection.</summary>
   </entry>
 </feed>
