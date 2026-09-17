@@ -11,72 +11,6 @@
         "sideways",
         "sweep"
       ],
-      "commit": "3542d8f0bf0a4a5b6cbea8b22440c60b6208ff9f",
-      "measured": "2026-09-16",
-      "pages": 1073,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
-        "platform/pages": "ed0148d932f273d62a81f92fc08eb0a64d588191",
-        "ventures": "16f3a16f5369c5d22145fb5dfd3898a100ad0701"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "optout",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "7850f29f8b756228c495b794a0ccb4b4b5b9ba74",
-      "measured": "2026-09-16",
-      "pages": 1078,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
-        "platform/pages": "76093ff3444e0c51acb21b17eda7921302f9a395",
-        "ventures": "22a41e5cd7e32097115a7caf6221433779b79825"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "optout",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
-      "commit": "b0fcbbe1b7d5f9adf412eac4b1ed5ca753864c0e",
-      "measured": "2026-09-16",
-      "pages": 1079,
-      "result": "pass",
-      "scope": "full",
-      "surface": {
-        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
-        "platform/pages": "e425b67a10ec33cbcd6b7de9a297c866548cdb0e",
-        "ventures": "6a86404b17f8553086099a3c81b21235e23849f9"
-      }
-    },
-    {
-      "checks": [
-        "contrast",
-        "highlight",
-        "journey",
-        "optout",
-        "presets",
-        "roundtrip",
-        "sideways",
-        "sweep"
-      ],
       "commit": "10501a1f4e44d9466ac9a7334269e7b7a0d9f706",
       "measured": "2026-09-17",
       "pages": 1081,
@@ -460,6 +394,50 @@
         "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
         "platform/pages": "265ecc5c969172ba5ee24d6c2907bc5ed5e05f74",
         "ventures": "c1ea7e4912f585c70bca1aeb9c5a6c3157eb2d0a"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "e9e5791eb80e5817228e4886e2c16b41d0d365dd",
+      "measured": "2026-09-17",
+      "pages": 1201,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "d775e302cc677413e8cae876dee9bc377afcebb1",
+        "ventures": "2d3342b35fd66b050f1e2d1fa4c49682a09d29eb"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "8174408d90c950b3dff846d859d525b363723710",
+      "measured": "2026-09-17",
+      "result": "pass",
+      "scope": "ventures",
+      "slugs": [
+        "no-tax-on-tips-overtime-calculator"
+      ],
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "d775e302cc677413e8cae876dee9bc377afcebb1",
+        "ventures": "40dba71abd2fcdfe4f7fe96f64acd8821cd84489"
       }
     }
   ]
