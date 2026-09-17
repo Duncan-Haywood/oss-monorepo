@@ -63,7 +63,18 @@ All in [`calc.mjs`](calc.mjs), pure functions with no dependencies:
 - **`computeSchedule`** — splits the net requirement (after withholding)
   evenly across the four quarters, compares against what's already been
   paid per quarter, and flags each quarter's status (paid, upcoming,
-  due-soon, overdue).
+  due-soon, overdue). It also returns a **`pace`** object: the running
+  requirement and running payments through the most recent due date compared
+  against each other, plus the one number that actually matters if you're
+  behind — how much the *next* payment should be to catch the safe harbor
+  back up in one shot, rather than carrying a missed quarter's shortfall
+  forward as an understated flat share on every remaining row. A filer who
+  skipped Q1 entirely still sees "suggested: $2,000" on Q2's own row (that's
+  correctly just Q2's flat quarter), but `pace.nextQuarterCatchUp` says
+  $4,000 — Q1's missed share and Q2's own share together, the number a
+  filer actually needs to send. Being ahead of pace works the same way in
+  reverse: `pace.nextQuarterCatchUp` can be lower than the flat share, down
+  to $0, and is never negative.
 - **`icsCalendar`** — an RFC 5545 calendar with one all-day event and a
   7-day-ahead reminder alarm per unpaid quarter.
 

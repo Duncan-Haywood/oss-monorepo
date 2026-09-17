@@ -391,6 +391,15 @@ export const REVIEWED_NOT_CARRIED = {
   'amazon-fba-calculator': 'the hourly figure is per-task seller time, not a crew wage',
   'walmart-marketplace-calculator':
     'the hourly figures are per-task seller time, not a crew wage',
+  // Slug ends in `bid-calculator`, which reaches this population, but the bid
+  // is for a stranger's storage-unit contents at a lien auction, not a
+  // contractor's job. `laborRatePerHour` prices cleanout hours only (sorting,
+  // hauling, dumping), not a crew wage the business pays across every job, and
+  // there is no payroll burden or overhead-on-direct-cost field here at all —
+  // `targetMarginPercent` is margin on realized resale revenue after channel
+  // fees, a different base from the spec's margin on a priced job.
+  'storage-auction-max-bid-calculator':
+    'laborRatePerHour prices cleanout hours on one unit, not a crew wage, and there is no burden or overhead-on-direct-cost field',
 };
 
 /**
