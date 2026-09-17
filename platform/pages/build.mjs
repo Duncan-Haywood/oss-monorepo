@@ -365,7 +365,15 @@ const CATEGORY_RULES = [
     // one storefront — and would otherwise sit in the catch-all for the same
     // reason those two did: the slug names the storefront, not a marketplace
     // keyword this rule already recognised.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark)/.test(slug),
+    // `storage-auction-max-bid-calculator` is `whatnot-seller-payout`'s buy
+    // side rather than its sell side: a hammer bid plus a buyer's premium
+    // (the auction-house equivalent of processing on checkout), for contents
+    // the winner then resells through the same marketplaces this section
+    // already covers. Its slug ends in `bid-calculator`, which would
+    // otherwise sweep it into the trades section as a contractor job bid —
+    // it prices a resale purchase, not a construction trade, so it is
+    // matched here first.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host|kdp|whatnot|poshmark|storage-auction)/.test(slug),
   },
   {
     id: 'trades',
