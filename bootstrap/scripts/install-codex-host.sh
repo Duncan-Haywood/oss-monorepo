@@ -303,6 +303,28 @@ install_prereqs() {
   return 0
 }
 
+# ------------------------------------------------------------------ the queue
+#
+# The queue items an install would copy onto the box: every YAML/JSON file in
+# the repository's queue directory except the schema example. Prints one path
+# per line.
+#
+# Shared by the install step and `--check` deliberately, rather than each
+# walking the directory with its own glob and its own exclusion. The report's
+# whole job is to say what an install *would* do, so a second copy of this
+# selection is a copy that can disagree with the installer while both look
+# right -- the same import-don't-restate rule the PAYLOAD list above follows,
+# and the one CLAUDE.md records against the front-door mirror three times.
+queue_items() {
+  local item
+  for item in "$SRC_AGENTS/queue"/*.yaml "$SRC_AGENTS/queue"/*.yml "$SRC_AGENTS/queue"/*.json; do
+    [[ -f "$item" ]] || continue
+    # example.item.yaml documents the schema; it is not work.
+    [[ "$(basename "$item")" == "example.item.yaml" ]] && continue
+    printf '%s\n' "$item"
+  done
+}
+
 # ------------------------------------------------------------------ reporting
 
 report() {
@@ -367,6 +389,53 @@ report() {
   else
     say "  - policy disabled; the timer will tick and hold."
     say "    Enable it on this box with: $0 --enable"
+  fi
+
+  # The queue is the other half of "will the next tick do useful work?", and
+  # until now --check answered only the switch half. That gap is the same shape
+  # as the one `--enable` refusing without a credential already closes, and it
+  # is invisible for the same reason: measured against a rehearsal install, an
+  # enabled and credentialed governor pointed at an empty queue reports
+  # `decision: hold -- queue empty` and exits 0. Nothing fails, the timer stays
+  # active, `systemctl status` is green, and a box that will never do any work
+  # is indistinguishable from one that is simply between items. The installer
+  # copies the queue (see the install step) but did not report it, so the
+  # read-only preview an operator runs *before* spending their one SSH session
+  # could not tell them whether the box would have anything to do.
+  step "queue"
+  local -a src_items=()
+  local item
+  while IFS= read -r item; do
+    [[ -n "$item" ]] || continue
+    src_items+=("$(basename "$item")")
+  done < <(queue_items)
+
+  if [[ "${#src_items[@]}" == "0" ]]; then
+    # Not fatal, for the same reason the prerequisite step is not: --check
+    # reports, and an operator reading it can see this is the checkout's
+    # problem rather than the box's.
+    warn "no queue items in the checkout ($SRC_AGENTS/queue) — an install would leave the governor with nothing to do"
+  else
+    ok "${#src_items[@]} item(s) an install would copy: ${src_items[*]}"
+  fi
+
+  # What is on the box now, which is what the timer actually reads. Allowed to
+  # differ from the checkout -- a box installed before an item shipped has the
+  # older set -- and that difference is exactly what an operator runs --check
+  # to see, so report the installed count separately rather than inferring it.
+  if [[ -d "$PREFIX/queue" ]]; then
+    local -a box_items=()
+    for item in "$PREFIX/queue"/*; do
+      [[ -f "$item" ]] || continue
+      box_items+=("$(basename "$item")")
+    done
+    if [[ "${#box_items[@]}" == "0" ]]; then
+      warn "$PREFIX/queue is installed but empty — an enabled governor here would hold on every tick with nothing to do"
+    else
+      ok "${#box_items[@]} item(s) installed on this box: ${box_items[*]}"
+    fi
+  else
+    say "  - nothing installed at $PREFIX/queue"
   fi
 }
 
@@ -542,13 +611,11 @@ do_install() {
   rm -rf "${PREFIX:?}/queue"
   install -d -m 0755 "$PREFIX/queue"
   local item count=0
-  for item in "$SRC_AGENTS/queue"/*.yaml "$SRC_AGENTS/queue"/*.yml "$SRC_AGENTS/queue"/*.json; do
-    [[ -f "$item" ]] || continue
-    # example.item.yaml documents the schema; it is not work.
-    [[ "$(basename "$item")" == "example.item.yaml" ]] && continue
+  while IFS= read -r item; do
+    [[ -n "$item" ]] || continue
     install -m 0644 "$item" "$PREFIX/queue/$(basename "$item")"
     count=$((count + 1))
-  done
+  done < <(queue_items)
   ok "$count queue item(s)"
 
   # `CODEX_ENABLED=1` finishes the job in this run rather than leaving step 3

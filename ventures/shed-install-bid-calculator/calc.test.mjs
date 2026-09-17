@@ -140,6 +140,44 @@ test('price stacks burden, material, overhead, then margin as a share of price',
   assert.equal(result.breakEvenPrice, result.totalCost);
 });
 
+test('the displayed cost breakdown sums to the total cost shown beside it', () => {
+  // Regression: extraCost used to add hoursPad/hoursAccess/hoursWindows/...
+  // times loadedWage on top of extraHardware, even though those same hours
+  // are already inside laborCost (totalHours * loadedWage). The result
+  // panel shows "Loaded labor", "Shed / lumber", "Pad, delivery, extras",
+  // "Travel & other", and "Overhead" as a breakdown of "Total cost" right
+  // below them -- a dealer reading it expects the parts to add up, and on
+  // a job with real pad/access/ramp/loft/haul-away/electrical/delivery
+  // hours they used to overshoot the printed total by a few hundred
+  // dollars, with "extras" reading far bigger than its real share.
+  for (const preset of JOB_PRESETS) {
+    const kit = {
+      ...suggestedFulfillmentKit(preset.fulfillment),
+      ...suggestedPadKit(preset.pad),
+      ...suggestedAccessKit(preset.access),
+      ...suggestedElectricalKit(preset.electrical),
+      ...suggestedExtraKit(),
+    };
+    const result = calculateBid({
+      ...preset,
+      hourlyWage: 28,
+      burdenRate: 20,
+      overheadRate: 15,
+      targetMargin: 20,
+      travelAndEquipment: 50,
+      otherCost: 0,
+      ...kit,
+    });
+    const sumOfParts = result.laborCost + result.shedMaterial + result.extraCost
+      + result.softCost + result.overhead;
+    assert.ok(Math.abs(sumOfParts - result.totalCost) < 1e-9, preset.label);
+    const shareSum = result.shares.labor + result.shares.shed + result.shares.extra
+      + result.shares.soft + result.shares.overhead;
+    assert.ok(Math.abs(shareSum - 100) < 1e-6, preset.label);
+    assert.ok(Math.abs(result.extraCost - result.extraHardware) < 1e-9, preset.label);
+  }
+});
+
 test('a zero-margin bid prices at cost', () => {
   const result = calculateBid({ ...special(), targetMargin: 0 });
   assert.ok(Math.abs(result.price - result.totalCost) < 1e-9);

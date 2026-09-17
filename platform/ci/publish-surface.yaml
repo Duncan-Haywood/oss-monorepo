@@ -350,6 +350,9 @@ workflows:
 - workflow: deploy-concurrency-check-ci.yml
   classification: none
   publishes: []
+- workflow: depreciation-recapture-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: dns-configuration-evidence-ci.yml
   classification: none
   publishes: []
