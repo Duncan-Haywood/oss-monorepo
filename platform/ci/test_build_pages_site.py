@@ -373,6 +373,34 @@ class LinkChecking(unittest.TestCase):
         )
         self.assertEqual(links.check_site(self.tmp), [])
 
+    def test_accepts_a_query_string_that_prefills_the_calculator(self):
+        """A guide page hands the reader a filled-in calculator by linking to
+        `./?itemCost=200&amp;freightCost=20&…`. Only `#fragment` is not part of
+        a path, so the query string has to come off before the lookup -- with
+        `urldefrag` it did not, the whole string was resolved as a filename, and
+        `import-landed-cost-calculator` (#4897) went red on a link that works
+        perfectly in a browser. Nobody saw it: Actions was starved, so the one
+        check that builds an artifact and follows its links never ran."""
+        (self.tmp / "index.html").write_text("ok", encoding="utf-8")
+        (self.tmp / "guide.html").write_text(
+            '<a href="./?itemCost=200&amp;freightCost=20&amp;entryType=informal">x</a>',
+            encoding="utf-8",
+        )
+        self.assertEqual(links.check_site(self.tmp), [])
+
+    def test_still_reports_a_missing_page_that_carries_a_query_string(self):
+        """Stripping the query must not turn the check off: a query string on a
+        target that genuinely is not there stays broken."""
+        (self.tmp / "index.html").write_text('<a href="gone.html?a=1">x</a>', encoding="utf-8")
+        self.assertEqual(len(links.check_site(self.tmp)), 1)
+
+    def test_resolves_an_href_whose_path_carries_an_escaped_ampersand(self):
+        """An href is HTML-escaped, so a file with `&` in its name arrives as
+        `&amp;` and must be looked up by its real name, not its entity."""
+        (self.tmp / "a&b.html").write_text("ok", encoding="utf-8")
+        (self.tmp / "index.html").write_text('<a href="a&amp;b.html">x</a>', encoding="utf-8")
+        self.assertEqual(links.check_site(self.tmp), [])
+
     def test_ignores_js_template_literal_hrefs(self):
         """tender-radar builds source links in a script: href="${escapeHtml(href)}".
         That is not a published path and must not fail the Pages link check."""
