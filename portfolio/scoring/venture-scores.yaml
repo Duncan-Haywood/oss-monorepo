@@ -12643,3 +12643,51 @@ ventures:
       plainly. Ethically: donations-only with no per-use fee, so the tool
       has no incentive to over- or under-report a change, and it gets
       strictly more useful the more builds a team compares against it.
+
+  - slug: commissary-kitchen-cost-split-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 3
+      distribution: 3
+    composite: 5.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The cost split -- itemized or
+      manual pool total, per-tenant hours/storage, a largest-remainder
+      allocation to the cent -- is decided entirely by the numbers the
+      operator types in, not a model judgment.
+    basis: >-
+      Screened 2026-09-16 per portfolio/pipeline/README.md's scoring
+      process; full write-up at
+      portfolio/pipeline/candidates/commissary-kitchen-cost-split-calculator.md.
+      Distinct from food-truck-event-margin-calculator (prices one booking
+      from a single truck's own cost side; this splits a shared kitchen's
+      recurring pooled overhead across several tenants from the commissary
+      operator's side) -- confirmed against the full ventures/ list,
+      screened-out.md, and duplicate_check.py (top overlap 0.12 against
+      food-truck-event-margin-calculator before this venture existed),
+      none of which names this job.
+      Defensibility 3, distribution 3: scored deliberately modest rather
+      than inflated to match the liability/ethics gates below. This is a
+      small, easily-copied arithmetic tool -- the largest-remainder split
+      is not hard to reimplement -- and unlike hoa-reserve-fund-calculator's
+      post-Surfside reserve-study mandate, there is no comparable regulatory
+      driver creating current search volume for this niche. The channel to
+      reach commissary operators specifically is unproven.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass. The tool performs arithmetic on the pool costs, tenant hours,
+      and tenant storage figures the operator supplies, and never drafts,
+      reviews, or enforces a shared-kitchen or tenant agreement -- the
+      footer and FAQ say so explicitly. Ethically: no fee, no PII beyond a
+      free-text tenant label entered and read only in the browser, and the
+      tool gets strictly more useful to an operator the more accurately
+      they enter tenant usage, with no incentive on either side to
+      misreport.

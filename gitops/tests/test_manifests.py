@@ -1686,7 +1686,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # version-changed packages between two builds, with a static
     # `index.html` from its first commit, same shape as the rest of this
     # running count.
-    total = 283  # `infra/OWNER_CHECKLIST.md`'s own "N of the 283 tools" wording.
+    # 284 since 2026-09-16, when `commissary-kitchen-cost-split-calculator`
+    # graduated — a browser-local calculator splitting a shared commissary
+    # kitchen's pooled monthly costs across multiple food-truck tenants by
+    # hours booked and/or storage used (a largest-remainder allocation so
+    # every tenant's total sums exactly to the pool total, to the cent),
+    # with a static `index.html` from its first commit, same shape as the
+    # rest of this running count.
+    total = 284  # `infra/OWNER_CHECKLIST.md`'s own "N of the 284 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

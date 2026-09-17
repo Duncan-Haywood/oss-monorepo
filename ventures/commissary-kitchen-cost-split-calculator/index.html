@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commissary Kitchen Cost Split Calculator — Bill Tenants Fairly</title>
+<meta name="description" content="Free calculator for commissary/shared-kitchen operators: split pooled monthly costs (rent, utilities, trash, cleaning, pest control, insurance) fairly among multiple food-truck tenants by hours booked and storage used, instead of splitting evenly, and get an itemized bill for each tenant.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Commissary Kitchen Cost Split Calculator">
+<meta property="og:description" content="Split a shared commissary kitchen's pooled monthly costs fairly among several food-truck tenants by hours booked and storage used — not an even split regardless of usage — and get an itemized bill for each tenant.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Commissary Kitchen Cost Split Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that splits a commissary or shared kitchen's pooled monthly costs (rent, utilities, trash, cleaning, pest control, insurance) among multiple food-truck or mobile-vendor tenants by hours booked, storage units used, a weighted blend of the two, or an even split, after each tenant's flat base fee, and produces an itemized per-tenant bill that sums exactly to the pool total."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How should a commissary kitchen split costs among food trucks?","acceptedAnswer":{"@type":"Answer","text":"By usage, not headcount. A tenant who books 40 hours a week and fills a walk-in shelf is using far more of the pooled rent, utilities, and cleaning than one who stops in for 5 hours to prep. Splitting by hours booked and storage units used charges each tenant roughly what their footprint actually costs; an even split charges the light user for the heavy user's share every month."}},{"@type":"Question","name":"What if one tenant barely uses the kitchen?","acceptedAnswer":{"@type":"Answer","text":"Under an hours- or storage-based split, a tenant with very little booked time and no storage owes very little of the proportional pool — their bill is close to just the flat base fee, if one is charged. That is the point of splitting by usage instead of by tenant count: a light user's bill should look light."}},{"@type":"Question","name":"Is an equal split ever fair?","acceptedAnswer":{"@type":"Answer","text":"When usage is genuinely similar — a handful of trucks each booking roughly the same hours and storage — an equal split is fair and simpler to explain, and the equal-split option here exists for exactly that case. It stops being fair the moment one tenant's usage diverges meaningfully from the rest, which is the case a usage-based split is for."}},{"@type":"Question","name":"Why do the default blend weights favor hours over storage?","acceptedAnswer":{"@type":"Answer","text":"70% hours / 30% storage is a starting point, not a rule, chosen because booked kitchen time is usually the larger driver of a commissary's variable cost (utilities, cleaning, staff oversight) while storage is a smaller, more fixed draw. Every kitchen's cost mix is different — the two weights are inputs you can set to whatever split reflects your own costs."}},{"@type":"Question","name":"Does anything about my tenants or costs get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every number on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing about your costs, tenants, hours, or storage is ever saved or uploaded. Usage counting only tallies anonymous feature events, and you can turn it off with the button below."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#0f2a24;background:#eef7f2}body{max-width:1020px;margin:auto;padding:28px 18px}header{max-width:740px}h1{font-size:clamp(2rem,6vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.1rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #bfe0cf;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0f2a2410;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #d7ecdf;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1c6e4e;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #a9d3bc;border-radius:8px;font:inherit;background:#fbfffc}.result{background:#0f3d2c;color:#fff;border-color:#0f3d2c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.5rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#3f6656}.result .note{color:#cfe9db}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.85rem}th,td{padding:6px 4px;text-align:left}th{font-size:.72rem;color:#1c6e4e}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #a9d3bc;background:#fff;cursor:pointer;color:#0f2a24}.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.privacy{margin-top:6px;font-size:.84rem}.scroll{overflow-x:auto;max-height:420px;overflow-y:auto}footer{margin-top:24px;font-size:.85rem}.radios{display:flex;flex-direction:column;gap:6px;font-size:.9rem;font-weight:600}.radios label{display:flex;flex-direction:row;align-items:center;gap:8px}.radios input{width:auto}[hidden]{display:none!important}@media(max-width:760px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR COMMISSARY &amp; SHARED-KITCHEN OPERATORS</p><h1>Split the kitchen bill by who actually uses it.</h1><p class="lede">A shared commissary bills one pooled rent, utility, trash, cleaning, and pest-control total every month, but the tenants booking it don't use it evenly. This free calculator splits that pool by hours booked and storage used instead of splitting it evenly or arguing about it, and gives you a clean itemized bill for each tenant.</p></header>
+
+<main class="layout">
+<section><h2>Pooled monthly costs</h2><p class="note">List each shared cost. Blank rows are ignored, and the amounts sum automatically.</p>
+<div class="scroll" tabindex="0" role="region" aria-label="Pooled cost rows, scrollable"><table><thead><tr><th>Cost item</th><th>Amount ($)</th></tr></thead><tbody id="costRows">
+<tr><td><input class="costLabel" data-row="1" aria-label="Cost item 1 label" type="text" value="Rent"></td><td><input class="costAmount" data-row="1" aria-label="Cost item 1 amount in dollars" type="number" min="0" step="1" value="3200"></td></tr>
+<tr><td><input class="costLabel" data-row="2" aria-label="Cost item 2 label" type="text" value="Utilities (electric, gas, water)"></td><td><input class="costAmount" data-row="2" aria-label="Cost item 2 amount in dollars" type="number" min="0" step="1" value="650"></td></tr>
+<tr><td><input class="costLabel" data-row="3" aria-label="Cost item 3 label" type="text" value="Trash and grease removal"></td><td><input class="costAmount" data-row="3" aria-label="Cost item 3 amount in dollars" type="number" min="0" step="1" value="240"></td></tr>
+<tr><td><input class="costLabel" data-row="4" aria-label="Cost item 4 label" type="text" value="Commercial cleaning service"></td><td><input class="costAmount" data-row="4" aria-label="Cost item 4 amount in dollars" type="number" min="0" step="1" value="300"></td></tr>
+<tr><td><input class="costLabel" data-row="5" aria-label="Cost item 5 label" type="text" value="Pest control"></td><td><input class="costAmount" data-row="5" aria-label="Cost item 5 amount in dollars" type="number" min="0" step="1" value="110"></td></tr>
+<tr><td><input class="costLabel" data-row="6" aria-label="Cost item 6 label" type="text" value="Liability insurance (shared)"></td><td><input class="costAmount" data-row="6" aria-label="Cost item 6 amount in dollars" type="number" min="0" step="1" value="500"></td></tr>
+<tr><td><input class="costLabel" data-row="7" aria-label="Cost item 7 label" type="text" value=""></td><td><input class="costAmount" data-row="7" aria-label="Cost item 7 amount in dollars" type="number" min="0" step="1" value=""></td></tr>
+<tr><td><input class="costLabel" data-row="8" aria-label="Cost item 8 label" type="text" value=""></td><td><input class="costAmount" data-row="8" aria-label="Cost item 8 amount in dollars" type="number" min="0" step="1" value=""></td></tr>
+</tbody></table></div>
+<label>Or enter a total pool amount directly ($) — overrides the itemized costs above<input id="manualPoolTotal" type="number" min="0" step="1" value="" aria-describedby="manualPoolTotalNote"></label>
+<p class="note" id="manualPoolTotalNote">Leave this blank to use the sum of the itemized costs above. Fill it in only if you'd rather type one total.</p>
+</section>
+
+<section><h2>Split method</h2><div class="radios">
+<label><input type="radio" name="splitMethod" id="methodHours" value="hours"> By hours booked only</label>
+<label><input type="radio" name="splitMethod" id="methodStorage" value="storage"> By storage units used only</label>
+<label><input type="radio" name="splitMethod" id="methodBlend" value="blend" checked> Weighted blend of hours and storage</label>
+<label><input type="radio" name="splitMethod" id="methodEqual" value="equal"> Equal split (baseline / comparison)</label>
+</div>
+<div class="fields" style="margin-top:10px">
+<label>Blend weight — hours (%)<input id="blendHoursPct" type="number" min="0" max="100" step="5" value="70"></label>
+<label>Blend weight — storage (%)<input id="blendStoragePct" type="number" min="0" max="100" step="5" value="30"></label>
+</div>
+<p class="note">Only used for the weighted blend method above. 70% hours / 30% storage is a starting point, not a rule — set it to whatever mix reflects your own kitchen's costs.</p>
+</section>
+
+<section><h2>Tenants</h2><p class="note">List each tenant with their hours booked and storage units used this period. Blank rows (no name) are ignored. Base fee is optional and charged before the proportional split.</p>
+<div class="scroll" tabindex="0" role="region" aria-label="Tenant rows, scrollable"><table><thead><tr><th>Tenant</th><th>Hours booked</th><th>Dry storage units</th><th>Fridge units</th><th>Freezer units</th><th>Base fee ($)</th></tr></thead><tbody id="tenantRows">
+<tr><td><input class="tenantName" data-row="1" aria-label="Tenant 1 name" type="text" value="Truck 1"></td><td><input class="tenantHours" data-row="1" aria-label="Tenant 1 hours booked" type="number" min="0" step="0.5" value="40"></td><td><input class="tenantDry" data-row="1" aria-label="Tenant 1 dry storage units" type="number" min="0" step="1" value="2"></td><td><input class="tenantFridge" data-row="1" aria-label="Tenant 1 refrigerated storage units" type="number" min="0" step="1" value="1"></td><td><input class="tenantFreezer" data-row="1" aria-label="Tenant 1 freezer storage units" type="number" min="0" step="1" value="1"></td><td><input class="tenantBaseFee" data-row="1" aria-label="Tenant 1 base fee in dollars" type="number" min="0" step="1" value="75"></td></tr>
+<tr><td><input class="tenantName" data-row="2" aria-label="Tenant 2 name" type="text" value="Truck 2"></td><td><input class="tenantHours" data-row="2" aria-label="Tenant 2 hours booked" type="number" min="0" step="0.5" value="25"></td><td><input class="tenantDry" data-row="2" aria-label="Tenant 2 dry storage units" type="number" min="0" step="1" value="1"></td><td><input class="tenantFridge" data-row="2" aria-label="Tenant 2 refrigerated storage units" type="number" min="0" step="1" value="1"></td><td><input class="tenantFreezer" data-row="2" aria-label="Tenant 2 freezer storage units" type="number" min="0" step="1" value="0"></td><td><input class="tenantBaseFee" data-row="2" aria-label="Tenant 2 base fee in dollars" type="number" min="0" step="1" value="75"></td></tr>
+<tr><td><input class="tenantName" data-row="3" aria-label="Tenant 3 name" type="text" value="Truck 3"></td><td><input class="tenantHours" data-row="3" aria-label="Tenant 3 hours booked" type="number" min="0" step="0.5" value="15"></td><td><input class="tenantDry" data-row="3" aria-label="Tenant 3 dry storage units" type="number" min="0" step="1" value="1"></td><td><input class="tenantFridge" data-row="3" aria-label="Tenant 3 refrigerated storage units" type="number" min="0" step="1" value="0"></td><td><input class="tenantFreezer" data-row="3" aria-label="Tenant 3 freezer storage units" type="number" min="0" step="1" value="0"></td><td><input class="tenantBaseFee" data-row="3" aria-label="Tenant 3 base fee in dollars" type="number" min="0" step="1" value="75"></td></tr>
+<tr><td><input class="tenantName" data-row="4" aria-label="Tenant 4 name" type="text" value=""></td><td><input class="tenantHours" data-row="4" aria-label="Tenant 4 hours booked" type="number" min="0" step="0.5" value=""></td><td><input class="tenantDry" data-row="4" aria-label="Tenant 4 dry storage units" type="number" min="0" step="1" value=""></td><td><input class="tenantFridge" data-row="4" aria-label="Tenant 4 refrigerated storage units" type="number" min="0" step="1" value=""></td><td><input class="tenantFreezer" data-row="4" aria-label="Tenant 4 freezer storage units" type="number" min="0" step="1" value=""></td><td><input class="tenantBaseFee" data-row="4" aria-label="Tenant 4 base fee in dollars" type="number" min="0" step="1" value=""></td></tr>
+<tr><td><input class="tenantName" data-row="5" aria-label="Tenant 5 name" type="text" value=""></td><td><input class="tenantHours" data-row="5" aria-label="Tenant 5 hours booked" type="number" min="0" step="0.5" value=""></td><td><input class="tenantDry" data-row="5" aria-label="Tenant 5 dry storage units" type="number" min="0" step="1" value=""></td><td><input class="tenantFridge" data-row="5" aria-label="Tenant 5 refrigerated storage units" type="number" min="0" step="1" value=""></td><td><input class="tenantFreezer" data-row="5" aria-label="Tenant 5 freezer storage units" type="number" min="0" step="1" value=""></td><td><input class="tenantBaseFee" data-row="5" aria-label="Tenant 5 base fee in dollars" type="number" min="0" step="1" value=""></td></tr>
+<tr><td><input class="tenantName" data-row="6" aria-label="Tenant 6 name" type="text" value=""></td><td><input class="tenantHours" data-row="6" aria-label="Tenant 6 hours booked" type="number" min="0" step="0.5" value=""></td><td><input class="tenantDry" data-row="6" aria-label="Tenant 6 dry storage units" type="number" min="0" step="1" value=""></td><td><input class="tenantFridge" data-row="6" aria-label="Tenant 6 refrigerated storage units" type="number" min="0" step="1" value=""></td><td><input class="tenantFreezer" data-row="6" aria-label="Tenant 6 freezer storage units" type="number" min="0" step="1" value=""></td><td><input class="tenantBaseFee" data-row="6" aria-label="Tenant 6 base fee in dollars" type="number" min="0" step="1" value=""></td></tr>
+</tbody></table></div>
+<div class="actions">
+<button type="button" id="reset">Reset to defaults</button>
+</div>
+</section>
+</main>
+
+<section id="results" class="result" aria-live="polite"><h2>Billing outlook</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="verdict" class="big">—</div><p id="verdictLine" class="note"></p>
+<dl>
+<dt>Pool total</dt><dd id="poolTotalOut"></dd>
+<dt>Base fees collected</dt><dd id="baseFeeTotalOut"></dd>
+<dt>Remaining pool (split by usage)</dt><dd id="remainingPoolOut"></dd>
+<dt>Total billed to tenants</dt><dd id="totalBilledOut"></dd>
+</dl>
+<p class="note">Total billed always equals the pool total to the cent — nothing is left over and nothing is double-counted, whatever split method you choose.</p>
+</section>
+
+<section><h2>Per-tenant breakdown</h2>
+<div class="scroll" tabindex="0" role="region" aria-label="Per-tenant breakdown, scrollable"><table><thead><tr><th>Tenant</th><th>Weight</th><th>Base fee</th><th>Proportional share</th><th>Total</th></tr></thead><tbody id="tenantBody"></tbody></table></div>
+<button type="button" id="copy-breakdown">Copy breakdown</button>
+<p class="note" id="copy-breakdown-status">Copies every tenant's base fee, proportional share, and total, plus the pool total and split method, as plain text to paste into an email or invoice.</p>
+<div id="breakdown-fallback" hidden>
+<label class="note" for="breakdown-text">Select and copy the breakdown:</label>
+<textarea id="breakdown-text" rows="12" readonly></textarea>
+</div>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser and nothing is ever uploaded. There is no account and no server-side storage of any kind — your costs, tenant names, hours, storage counts, and fees are never saved or sent anywhere, and refreshing the page clears them by design. We count only anonymous local feature events (<code>split_calculated</code>, <code>breakdown_copied</code>, <code>reset</code>, <code>sponsor_link_clicked</code>) so we can tell whether the calculator gets used — no costs, tenant names, or amounts are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="optout" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>How should a commissary kitchen split costs among food trucks?</h3><p>By usage, not headcount. A tenant who books 40 hours a week and fills a walk-in shelf is using far more of the pooled rent, utilities, and cleaning than one who stops in for 5 hours to prep. Splitting by hours booked and storage units used charges each tenant roughly what their footprint actually costs; an even split charges the light user for the heavy user's share every month.</p>
+<h3>What if one tenant barely uses the kitchen?</h3><p>Under an hours- or storage-based split, a tenant with very little booked time and no storage owes very little of the proportional pool — their bill is close to just the flat base fee, if one is charged. That is the point of splitting by usage instead of by tenant count: a light user's bill should look light.</p>
+<h3>Is an equal split ever fair?</h3><p>When usage is genuinely similar — a handful of trucks each booking roughly the same hours and storage — an equal split is fair and simpler to explain, and the equal-split option here exists for exactly that case. It stops being fair the moment one tenant's usage diverges meaningfully from the rest, which is the case a usage-based split is for.</p>
+<h3>Why do the default blend weights favor hours over storage?</h3><p>70% hours / 30% storage is a starting point, not a rule, chosen because booked kitchen time is usually the larger driver of a commissary's variable cost (utilities, cleaning, staff oversight) while storage is a smaller, more fixed draw. Every kitchen's cost mix is different — the two weights are inputs you can set to whatever split reflects your own costs.</p>
+<h3>Does anything about my tenants or costs get uploaded?</h3><p>No. Every number on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing about your costs, tenants, hours, or storage is ever saved or uploaded. Usage counting only tallies anonymous feature events, and you can turn it off with the button below.</p>
+</section>
+
+<p class="note">Also pricing a single food-truck event or catering booking, not a recurring shared kitchen bill? The <a href="../food-truck-event-margin-calculator/">food truck event margin calculator</a> finds the real price for one booking after commissary prep, travel, staff, and turnout risk — a different job than splitting this kitchen's monthly bill.</p>
+<p class="note">See <a href="./vs-splitting-evenly.html">this calculator vs. splitting the kitchen bill evenly</a> for what a usage-based split catches that dividing by tenant count doesn't.</p>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for any agreement between the commissary operator and its tenants. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This tool performs arithmetic on the costs, hours, and storage figures you enter. It does not draft, review, or enforce a shared-kitchen or tenant agreement, and it does not verify any figure you enter.</p><p>Nothing leaves your browser.</p><p>MIT licensed. If it helped you bill your tenants, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { computeSplit, DEFAULTS, SPLIT_METHODS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const COST_ROWS = 8;
+const TENANT_ROWS = 6;
+const DEFAULT_COST_VALUES = readCostRowInputs();
+const DEFAULT_TENANT_VALUES = readTenantRowInputs();
+const DEFAULT_MANUAL_TOTAL = el('manualPoolTotal').value;
+const DEFAULT_METHOD = document.querySelector('input[name="splitMethod"]:checked').value;
+const DEFAULT_BLEND = { hours: el('blendHoursPct').value, storage: el('blendStoragePct').value };
+let splitCounted = false;
+let lastResult = null;
+
+function readCostRowInputs() {
+  const rows = [];
+  for (let row = 1; row <= COST_ROWS; row++) {
+    rows.push({
+      label: document.querySelector(`.costLabel[data-row="${row}"]`).value,
+      amount: document.querySelector(`.costAmount[data-row="${row}"]`).value,
+    });
+  }
+  return rows;
+}
+
+function applyCostRowInputs(rows) {
+  rows.forEach((r, i) => {
+    const row = i + 1;
+    document.querySelector(`.costLabel[data-row="${row}"]`).value = r.label;
+    document.querySelector(`.costAmount[data-row="${row}"]`).value = r.amount;
+  });
+}
+
+function readCostItems() {
+  return readCostRowInputs()
+    .filter(r => r.label.trim() !== '')
+    .map(r => ({ label: r.label.trim(), amount: parseFloat(r.amount) }));
+}
+
+function readTenantRowInputs() {
+  const rows = [];
+  for (let row = 1; row <= TENANT_ROWS; row++) {
+    rows.push({
+      name: document.querySelector(`.tenantName[data-row="${row}"]`).value,
+      hours: document.querySelector(`.tenantHours[data-row="${row}"]`).value,
+      dry: document.querySelector(`.tenantDry[data-row="${row}"]`).value,
+      fridge: document.querySelector(`.tenantFridge[data-row="${row}"]`).value,
+      freezer: document.querySelector(`.tenantFreezer[data-row="${row}"]`).value,
+      baseFee: document.querySelector(`.tenantBaseFee[data-row="${row}"]`).value,
+    });
+  }
+  return rows;
+}
+
+function applyTenantRowInputs(rows) {
+  rows.forEach((r, i) => {
+    const row = i + 1;
+    document.querySelector(`.tenantName[data-row="${row}"]`).value = r.name;
+    document.querySelector(`.tenantHours[data-row="${row}"]`).value = r.hours;
+    document.querySelector(`.tenantDry[data-row="${row}"]`).value = r.dry;
+    document.querySelector(`.tenantFridge[data-row="${row}"]`).value = r.fridge;
+    document.querySelector(`.tenantFreezer[data-row="${row}"]`).value = r.freezer;
+    document.querySelector(`.tenantBaseFee[data-row="${row}"]`).value = r.baseFee;
+  });
+}
+
+function readTenants() {
+  return readTenantRowInputs()
+    .filter(r => r.name.trim() !== '')
+    .map(r => ({
+      name: r.name.trim(),
+      hoursBooked: parseFloat(r.hours) || 0,
+      dryStorageUnits: parseFloat(r.dry) || 0,
+      refrigeratedUnits: parseFloat(r.fridge) || 0,
+      freezerUnits: parseFloat(r.freezer) || 0,
+      baseFee: r.baseFee.trim() === '' ? 0 : parseFloat(r.baseFee),
+    }));
+}
+
+function readInputs() {
+  return {
+    costItems: readCostItems(),
+    manualPoolTotal: el('manualPoolTotal').value === '' ? null : el('manualPoolTotal').value,
+    tenants: readTenants(),
+    splitMethod: document.querySelector('input[name="splitMethod"]:checked').value,
+    blendWeights: {
+      hours: parseFloat(el('blendHoursPct').value) / 100,
+      storage: parseFloat(el('blendStoragePct').value) / 100,
+    },
+  };
+}
+
+const METHOD_LABEL = { hours: 'hours booked', storage: 'storage units used', blend: 'a weighted blend of hours and storage', equal: 'an equal split' };
+
+function renderTenantBody(result) {
+  const body = el('tenantBody');
+  body.textContent = '';
+  for (const t of result.tenants) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${t.name}</td><td>${(t.weight * 100).toFixed(1)}%</td><td>${money(t.baseFee)}</td><td>${money(t.proportionalShare)}</td><td>${money(t.total)}</td>`;
+    body.appendChild(tr);
+  }
+}
+
+function formatBreakdown(result) {
+  const lines = [];
+  lines.push(`Commissary kitchen cost split — ${METHOD_LABEL[result.splitMethod]}`);
+  lines.push(`Pool total: ${money(result.poolTotal)}`);
+  lines.push(`Base fees collected: ${money(result.baseFeeTotal)}`);
+  lines.push(`Remaining pool split by usage: ${money(result.remainingPool)}`);
+  lines.push('');
+  for (const t of result.tenants) {
+    lines.push(`${t.name}: base fee ${money(t.baseFee)} + proportional share ${money(t.proportionalShare)} (${(t.weight * 100).toFixed(1)}%) = ${money(t.total)}`);
+  }
+  lines.push('');
+  lines.push(`Total billed: ${money(result.total)} (matches pool total exactly)`);
+  lines.push('Arithmetic only — not legal, tax, or financial advice.');
+  return lines.join('\n');
+}
+
+function update(count = false) {
+  try {
+    const inputs = readInputs();
+    const result = computeSplit(inputs);
+
+    el('errors').hidden = true; el('errors').textContent = ''; el('verdict').hidden = false;
+    el('verdict').textContent = money(result.poolTotal);
+    el('verdictLine').textContent = `Split ${SPLIT_METHODS.includes(result.splitMethod) ? 'by ' + METHOD_LABEL[result.splitMethod] : ''} across ${result.tenants.length} tenant${result.tenants.length === 1 ? '' : 's'}.`;
+    el('poolTotalOut').textContent = money(result.poolTotal);
+    el('baseFeeTotalOut').textContent = money(result.baseFeeTotal);
+    el('remainingPoolOut').textContent = money(result.remainingPool);
+    el('totalBilledOut').textContent = money(result.total);
+
+    renderTenantBody(result);
+    lastResult = result;
+
+    if (count && !splitCounted) { recordEvent('split_calculated'); splitCounted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('verdict').hidden = true;
+    el('verdictLine').textContent = '';
+    for (const id of ['poolTotalOut', 'baseFeeTotalOut', 'remainingPoolOut', 'totalBilledOut']) el(id).textContent = '';
+    el('tenantBody').textContent = '';
+    lastResult = null;
+  }
+}
+
+document.querySelectorAll('.costLabel, .costAmount, .tenantName, .tenantHours, .tenantDry, .tenantFridge, .tenantFreezer, .tenantBaseFee').forEach(input => input.addEventListener('input', () => update(true)));
+el('manualPoolTotal').addEventListener('input', () => update(true));
+el('blendHoursPct').addEventListener('input', () => update(true));
+el('blendStoragePct').addEventListener('input', () => update(true));
+document.querySelectorAll('input[name="splitMethod"]').forEach(input => input.addEventListener('change', () => update(true)));
+
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('optout').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('copy-breakdown').addEventListener('click', async () => {
+  if (!lastResult) {
+    el('copy-breakdown-status').innerHTML = 'Fix the errors above, then copy the breakdown.';
+    return;
+  }
+  const text = formatBreakdown(lastResult);
+  el('breakdown-text').value = text;
+  try {
+    // Absent over plain http, in some embedded webviews, and whenever the
+    // permission is refused -- so the textarea below is the route that
+    // always works, not a nicety.
+    await navigator.clipboard.writeText(text);
+    el('breakdown-fallback').hidden = true;
+    el('copy-breakdown-status').textContent = 'Breakdown copied. Paste it into an email or invoice — read it once before sending.';
+  } catch {
+    el('breakdown-fallback').hidden = false;
+    el('copy-breakdown-status').textContent = 'This browser blocked the clipboard. The breakdown is in the box below — select it and copy.';
+    el('breakdown-text').focus();
+    el('breakdown-text').select();
+  }
+  recordEvent('breakdown_copied');
+});
+
+el('reset').addEventListener('click', () => {
+  applyCostRowInputs(DEFAULT_COST_VALUES);
+  applyTenantRowInputs(DEFAULT_TENANT_VALUES);
+  el('manualPoolTotal').value = DEFAULT_MANUAL_TOTAL;
+  el('blendHoursPct').value = DEFAULT_BLEND.hours;
+  el('blendStoragePct').value = DEFAULT_BLEND.storage;
+  document.querySelector(`input[name="splitMethod"][value="${DEFAULT_METHOD}"]`).checked = true;
+  update(false);
+  recordEvent('reset');
+});
+
+update(false);
+</script>
+</body></html>
