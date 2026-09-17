@@ -1853,7 +1853,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # predecessor's number (301, then 302) until this merge -- the same
     # ordinary collision shape recorded throughout this list: both branches
     # independently wrote "302" for what the merged tree made 303.
-    total = 303  # `infra/OWNER_CHECKLIST.md`'s own "N of the 303 tools" wording.
+    # 304 since 2026-09-17, when `stockx-seller-payout-calculator` graduated
+    # -- a browser-local calculator pricing a StockX sneaker/streetwear/card
+    # sale's net payout and net profit from the sale price, a Seller-Level
+    # transaction fee, a Fast Shipping discount, a flat payment processing
+    # fee, and outbound shipping cost, then rolling a month of sales up
+    # against a profit goal -- the same single-channel marketplace-fee shape
+    # as `whatnot-seller-payout` and `poshmark-fee-calculator`, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count.
+    total = 304  # `infra/OWNER_CHECKLIST.md`'s own "N of the 304 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
