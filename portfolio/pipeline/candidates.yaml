@@ -1478,3 +1478,26 @@ candidates:
     mitigation: Keep the split deterministic -- no AI-assisted categorization or advice of any kind -- and disclose the output as arithmetic on the operator's own numbers; measure repeat use before adding any integration or AI-assisted feature, given this candidate's currently unproven distribution and no comparable regulatory driver to the reserve-study mandates behind hoa-reserve-fund-calculator.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: call-recording-consent-check
+    name: Call recording consent check
+    doc: candidates/call-recording-consent-check.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-17
+    initiated_path: ventures/call-recording-consent-check
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 2
+      distribution: 6
+      liability_containment: 5
+      ethical_robustness: 8
+    composite: 5.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the classification purely a disclosed fixed-table lookup -- never phrase a result as a determination for the user's specific call, name the two states (Nevada, Michigan) with a real disclosed ambiguity between statute text and applied law rather than smoothing them into a flat answer, cite a specific statute only for the 14 all-party states this build is confident in rather than inventing a pinpoint citation for the other 36, and frame the interstate combining rule as the commonly recommended conservative reading backed by one cited precedent (Kearney v. Salomon Smith Barney) rather than a universal rule; measure real user engagement before adding any state-specific exception (in-person conversations, minors, industry-specific notice rules) this v0 deliberately does not model, given this candidate's currently unproven distribution and its liability_containment score sitting at the gate rather than comfortably above it.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

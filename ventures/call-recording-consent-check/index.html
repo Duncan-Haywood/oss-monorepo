@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Call Recording Consent Check — One-Party or All-Party by State</title>
+  <meta name="description" content="Pick the caller's and recipient's US states and get an instant one-party vs. all-party call-recording consent determination, the exact statute cited, and a ready-to-read disclosure script for your call opening. Free, deterministic, runs entirely in your browser — not legal advice.">
+  <meta property="og:title" content="Do you need consent to record this call?">
+  <meta property="og:description" content="A free, deterministic one-party vs. all-party call-recording consent checker covering all 50 US states and DC, with the statute cited and a ready-to-read disclosure script. No account, no upload.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Call Recording Consent Check","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Looks up the default US call-recording consent rule (one-party vs. all-party) for a caller's and recipient's states, cites the governing statute, and generates a ready-to-read call-opening disclosure script. Reference lookup only, not a legal determination. Runs entirely in the browser or as a zero-dependency Node CLI."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is call recording consent governed by federal law or state law?","acceptedAnswer":{"@type":"Answer","text":"Both. The federal Wiretap Act (18 U.S.C. § 2511(2)(d)) sets a one-party-consent floor — a person who is a party to a call may record it without telling the other party — but a state is free to require more. Fourteen states and DC do not: California, Connecticut, Delaware, Florida, Illinois, Maryland, Massachusetts, Michigan, Montana, Nevada, New Hampshire, Oregon, Pennsylvania, and Washington require every party's consent. This tool applies the stricter of the two states whenever either side of a call is in one of those fourteen."}},{"@type":"Question","name":"What happens if the caller and recipient are in different states?","acceptedAnswer":{"@type":"Answer","text":"There is no single nationwide answer, and courts have not resolved it uniformly. The commonly recommended, conservative practice — and the one this tool applies — is to require all-party consent whenever either state involved is an all-party state, because at least one court has applied the stricter state's law to protect a recipient there (Kearney v. Salomon Smith Barney, Inc., 39 Cal. 4th 95 (2006), applying California's law even though the recording company was based elsewhere). Treat this as the reason the conservative reading is conservative, not as a guarantee for every state pair."}},{"@type":"Question","name":"Is this legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. This is a reference lookup against a fixed table of each state's default rule, built from publicly available summaries of state wiretapping and eavesdropping statutes. It does not know the facts of your specific call, does not model exceptions (in-person conversations, 911 calls, law enforcement, a parent recording a minor's calls, industry-specific notice rules), and state statutes are amended and renumbered without notice. Verify the current statute text or ask a lawyer licensed in the relevant state before you rely on this for an actual call."}},{"@type":"Question","name":"Is anything I type uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The two states you pick and the script you generate are looked up and rendered entirely in your browser from a fixed table shipped with the page. Nothing is sent anywhere. The CLI makes no network call either."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1.06; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    .field-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    .field-row > div { flex: 1 1 200px; }
+    select, input[type=text] { box-sizing: border-box; width: 100%; padding: 9px 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 14px system-ui, sans-serif; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1a4560; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .8rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+    .pill.all-party { background: #fde8e8; color: #7f1d1d; }
+    .pill.one-party { background: #e6f4ea; color: #14532d; }
+    pre.cmd, pre.script { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CALL RECORDING CONSENT CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Do you need consent to record this call?</h1>
+    <p>Pick the caller's and recipient's US states and get an instant <strong>one-party</strong> vs. <strong>all-party</strong> consent determination, the exact statute cited, and a ready-to-read disclosure script for your call opening.</p>
+    <p class="note">Nothing you pick is uploaded — this is a fixed reference table evaluated entirely in this browser. <strong>Not legal advice.</strong> See the disclaimer below before you rely on this for an actual call.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Check a call between two states</h2>
+    <div class="field-row">
+      <div>
+        <label for="caller-state">Caller's state</label>
+        <select id="caller-state"></select>
+      </div>
+      <div>
+        <label for="recipient-state">Recipient's state</label>
+        <select id="recipient-state"></select>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="check-call">Check requirement</button>
+      <button type="button" class="secondary" id="load-example">Load worked example (Texas calling California)</button>
+    </p>
+    <div id="check-report" hidden aria-live="polite">
+      <p id="check-summary"></p>
+      <table>
+        <tbody>
+          <tr><th>Caller</th><td id="caller-cell"></td></tr>
+          <tr><th>Recipient</th><td id="recipient-cell"></td></tr>
+        </tbody>
+      </table>
+      <p id="check-reason" class="note"></p>
+      <p id="check-citations" class="note"></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Get a disclosure script for that requirement</h2>
+    <div class="field-row">
+      <div>
+        <label for="script-company">Your company name (optional)</label>
+        <input type="text" id="script-company" placeholder="[Your Company]">
+      </div>
+      <div>
+        <label for="script-purpose">Stated purpose (optional)</label>
+        <input type="text" id="script-purpose" placeholder="quality and training purposes">
+      </div>
+    </div>
+    <p><button type="button" id="generate-script">Generate script</button></p>
+    <pre class="script" id="script-output" hidden></pre>
+    <p class="note">Run "Check requirement" first — the script matches whichever result it last showed. Copy it, adapt the bracketed parts, and read it verbatim if all-party consent is required.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in a script?</h2>
+    <p>Same table, zero dependencies, one file:</p>
+    <pre class="cmd">node cli.mjs check California Texas
+node cli.mjs check CA TX --json
+node cli.mjs states
+node cli.mjs script all-party --company "Acme Inc." --purpose "training purposes"</pre>
+    <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install, no network call ever. <code>check</code> exits 1 when all-party consent is required, so it doubles as a one-line reminder in an onboarding or call-script build step.</p>
+  </section>
+
+  <section class="card">
+    <h2>All 51 jurisdictions</h2>
+    <p class="note">The fourteen all-party states are listed with their statute; every other state and DC follows the federal one-party baseline. Full table, sourced and with per-state notes on any known ambiguity: <a href="why-call-recording-consent-laws-differ-by-state.html">why this varies by state</a>.</p>
+    <table>
+      <thead><tr><th>State</th><th>Rule</th><th>Statute</th></tr></thead>
+      <tbody id="states-rows"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Is call recording consent governed by federal law or state law?</h3>
+    <p>Both. The federal Wiretap Act (18 U.S.C. § 2511(2)(d)) sets a one-party-consent floor — a person who is a party to a call may record it without telling the other party — but a state is free to require more. Fourteen states and DC do not: California, Connecticut, Delaware, Florida, Illinois, Maryland, Massachusetts, Michigan, Montana, Nevada, New Hampshire, Oregon, Pennsylvania, and Washington require every party's consent. This tool applies the stricter of the two states whenever either side of a call is in one of those fourteen.</p>
+    <h3>What happens if the caller and recipient are in different states?</h3>
+    <p>There is no single nationwide answer, and courts have not resolved it uniformly. The commonly recommended, conservative practice — and the one this tool applies — is to require all-party consent whenever either state involved is an all-party state, because at least one court has applied the stricter state's law to protect a recipient there (Kearney v. Salomon Smith Barney, Inc., 39 Cal. 4th 95 (2006), applying California's law even though the recording company was based elsewhere). Treat this as the reason the conservative reading is conservative, not as a guarantee for every state pair.</p>
+    <h3>Is this legal advice?</h3>
+    <p>No. This is a reference lookup against a fixed table of each state's default rule, built from publicly available summaries of state wiretapping and eavesdropping statutes. It does not know the facts of your specific call, does not model exceptions (in-person conversations, 911 calls, law enforcement, a parent recording a minor's calls, industry-specific notice rules), and state statutes are amended and renumbered without notice. Verify the current statute text or ask a lawyer licensed in the relevant state before you rely on this for an actual call.</p>
+    <h3>Is anything I type uploaded anywhere?</h3>
+    <p>No. The two states you pick and the script you generate are looked up and rendered entirely in your browser from a fixed table shipped with the page. Nothing is sent anywhere. The CLI makes no network call either.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal advice, and it does not replace a qualified attorney licensed in the relevant state. It reports each state's default call-recording consent classification and a conservative combined reading for interstate calls — nothing more — and it does not model exceptions (in-person conversations, emergency calls, law enforcement, minors, industry-specific notice rules) or know the facts of your specific call. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including checking the current statute text. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
+    <p>Everything runs in your browser. Nothing you type is ever uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>requirement_checked</code>, <code>script_generated</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Also worth a pass on the same repo: <a href="../consent-change-record/">Consent Change Record</a> covers a different consent problem entirely (cookie/tracking consent on a website, not call recording). If you're comparing this to just looking each state up yourself, see <a href="vs-checking-each-states-statute-by-hand.html">how this compares to a manual state-by-state lookup</a>.</p>
+    <p class="support">Free and open source. If this saved you a compliance headache, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { listStates, getRule, assessCall, disclosureScript } from "./engine.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    const states = listStates();
+    for (const select of [$("#caller-state"), $("#recipient-state")]) {
+      select.innerHTML = states.map((s) => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("");
+    }
+    $("#caller-state").value = "Texas";
+    $("#recipient-state").value = "Texas";
+
+    $("#states-rows").innerHTML = states.map((name) => {
+      const rule = getRule(name);
+      return `<tr><td>${escapeHtml(name)}</td><td><span class="pill ${rule.type}">${rule.type}</span></td><td>${rule.statute ? escapeHtml(rule.statute) : "—"}</td></tr>`;
+    }).join("");
+
+    let lastRequirement = null;
+
+    function renderCheck() {
+      const callerState = $("#caller-state").value;
+      const recipientState = $("#recipient-state").value;
+      let result;
+      try {
+        result = assessCall(callerState, recipientState);
+      } catch (err) {
+        $("#check-summary").innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        $("#check-report").hidden = false;
+        return;
+      }
+      lastRequirement = result.requirement;
+      const pillClass = result.requirement === "all-party" ? "all-party" : "one-party";
+      const pillText = result.requirement === "all-party" ? "ALL-PARTY CONSENT REQUIRED" : "ONE-PARTY CONSENT SUFFICIENT";
+      $("#check-summary").innerHTML = `<span class="pill ${pillClass}">${pillText}</span>`;
+      $("#caller-cell").innerHTML = `${escapeHtml(result.caller.state)} — ${result.caller.type}${result.caller.statute ? ` (${escapeHtml(result.caller.statute)})` : ""}`;
+      $("#recipient-cell").innerHTML = `${escapeHtml(result.recipient.state)} — ${result.recipient.type}${result.recipient.statute ? ` (${escapeHtml(result.recipient.statute)})` : ""}`;
+      $("#check-reason").textContent = result.reason;
+      $("#check-citations").textContent = "Reference lookup only, not a legal determination for this specific call. Not legal advice.";
+      $("#check-report").hidden = false;
+      record("requirement_checked");
+    }
+
+    function renderScript() {
+      const requirement = lastRequirement || "all-party";
+      const script = disclosureScript(requirement, {
+        company: $("#script-company").value,
+        purpose: $("#script-purpose").value,
+      });
+      const out = $("#script-output");
+      out.textContent = script;
+      out.hidden = false;
+      record("script_generated");
+    }
+
+    $("#check-call").addEventListener("click", renderCheck);
+    $("#generate-script").addEventListener("click", renderScript);
+
+    $("#load-example").addEventListener("click", () => {
+      $("#caller-state").value = "Texas";
+      $("#recipient-state").value = "California";
+      renderCheck();
+      record("example_loaded");
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById('optout');
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>
