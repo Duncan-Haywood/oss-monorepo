@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biohazard Cleanup Bid Calculator — Trauma & Crime-Scene Job Pricing</title>
+<meta name="description" content="Free calculator for biohazard and trauma-scene remediation technicians: price a job from crew labor, PPE decon cycles, and regulated-waste disposal billed per container (not per pound), then check whether a quote you're already giving clears cost.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Biohazard Cleanup Bid Calculator">
+<meta property="og:description" content="A day-rate-plus-hazmat-fee guess skips two costs that actually move the number: PPE that scales with decon cycles, not headcount, and disposal billed per container, not per pound. Find the real number before you quote it.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Biohazard Cleanup Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a biohazard or trauma-scene remediation job from crew labor, PPE decon cycles, regulated-waste disposal rounded up to whole containers, supplies, equipment, and travel, applies a target margin with a minimum-job floor, and checks a quoted price against the true direct cost."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does PPE cost scale with decon cycles instead of just one set per technician?","acceptedAnswer":{"@type":"Answer","text":"Because a technician who leaves the contaminated area — for a break, to run equipment out, or across a shift change — has to doff the PPE they were wearing before re-entering. Used PPE cannot be re-donned, so re-entry needs a fresh set. A count that assumes one set per technician undercounts every job with more than one decon cycle per tech."}},{"@type":"Question","name":"Why is disposal billed per container instead of per pound?","acceptedAnswer":{"@type":"Answer","text":"Because that is how a licensed regulated-waste hauler actually invoices: a per-container pickup charge, not a per-pound rate. A container that is 10% full costs the same as one that is completely full, up to its rated capacity. This calculator rounds your waste estimate up to the next whole container before pricing it, the way your hauler's invoice will, instead of multiplying pounds by a linear per-pound rate that undercounts whenever a container isn't full."}},{"@type":"Question","name":"What does the minimum job fee do?","acceptedAnswer":{"@type":"Answer","text":"It floors the quoted price at your company's stated minimum. A very small scope — one room, a short on-site window, little waste — can price below a sensible minimum on cost-plus-margin arithmetic alone, even though the job still needs a full truck roll, a hauler pickup, and travel regardless of size."}},{"@type":"Question","name":"Does anything I type get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere unless you choose to save it. Usage counting only tallies anonymous feature events, and you can turn it off with the button above. The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#151a24;background:#eef1f6}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #cfd9e8;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a1a3a08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #dbe4f0;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1f5ab8;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #b7c7e0;border-radius:8px;font:inherit;background:#fbfdff}.result{background:#0e2a5c;color:#fff;border-color:#0e2a5c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4a5468}.result .note{color:#c9d7ee}.err{color:#ffd0a6;font-weight:700}.warn{background:#fff0e0;border:1px solid #f0b987;color:#7a3f06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650;margin:0 0 8px}.result .warn{background:#3a1f08;border-color:#c9843b;color:#ffdcb0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #b7c7e0;background:#fff;cursor:pointer;color:#151a24}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR BIOHAZARD / TRAUMA-SCENE REMEDIATION TECHNICIANS</p><h1>"Day rate plus a hazmat fee" isn't a quote. It's a guess.</h1><p class="lede">Two costs quietly move a biohazard cleanup job past a flat day-rate-plus-hazmat-fee guess: PPE that has to be replaced every time a technician re-enters the scene, and regulated-waste disposal that your hauler bills per container, not per pound. This free calculator prices one job from crew labor, PPE decon cycles, container-rounded disposal, supplies, equipment, and travel, applies your target margin with a minimum-job floor, and lets you check a price you're already quoting against the real direct cost.</p><p class="note"><a href="./vs-a-flat-rate-per-pound-quote.html">Already pricing off a flat day rate and a per-pound hazmat estimate? Here's what it misses.</a></p></header>
+
+<main class="layout">
+<section><h2>Price one job</h2>
+<fieldset><legend>Crew</legend><div class="fields">
+<label>Technicians<input id="technicianCount" type="number" min="1" step="1" value="2"></label>
+<label>Hours on site (per tech)<input id="hoursOnSitePerTechnician" type="number" min="0.5" step="0.5" value="5"></label>
+<label>Labor rate ($/hr)<input id="laborRatePerHour" type="number" min="0" step="1" value="45"></label>
+</div></fieldset>
+<fieldset><legend>PPE</legend><div class="fields">
+<label>Decon cycles per technician<input id="deconCyclesPerTechnician" type="number" min="1" step="1" value="1"></label>
+<label>PPE cost per set ($)<input id="ppeCostPerSet" type="number" min="0" step="1" value="38"></label>
+</div></fieldset>
+<fieldset><legend>Regulated waste disposal</legend><div class="fields">
+<label>Biohazard waste (lb)<input id="biohazardWastePounds" type="number" min="0" step="1" value="55"></label>
+<label>Container capacity (lb)<input id="containerCapacityPounds" type="number" min="1" step="1" value="40"></label>
+<label>Cost per container ($)<input id="costPerContainer" type="number" min="0" step="1" value="110"></label>
+</div></fieldset>
+<fieldset><legend>Supplies, equipment &amp; travel</legend><div class="fields">
+<label>Supplies ($)<input id="suppliesCost" type="number" min="0" step="1" value="120"></label>
+<label>Equipment rental ($)<input id="equipmentRentalCost" type="number" min="0" step="1" value="90"></label>
+<label>Travel fee ($)<input id="travelFee" type="number" min="0" step="1" value="75"></label>
+</div></fieldset>
+<fieldset><legend>Pricing</legend><div class="fields">
+<label>Target margin (%)<input id="targetMarginPercent" type="number" min="0" max="99" step="1" value="25"></label>
+<label>Minimum job fee ($)<input id="minimumJobFee" type="number" min="0" step="1" value="650"></label>
+</div></fieldset>
+<p class="note">
+<button type="button" id="save">Save this scenario on this device</button>
+<button type="button" id="forget">Forget my saved scenario</button>
+<button type="button" id="copyLink">Copy shareable link</button>
+</p>
+<span id="linkStatus" class="note" role="status" aria-live="polite"></span>
+</section>
+
+<section class="result" aria-live="polite"><h2>Price to quote</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="price" class="big">$0.00</div><p class="note">Covers direct cost at your target margin, floored at your minimum job fee</p>
+<dl>
+<dt>Labor</dt><dd id="laborOut"></dd>
+<dt>PPE (<span id="ppeSetsOut"></span> sets)</dt><dd id="ppeOut"></dd>
+<dt>Disposal (<span id="containersOut"></span> containers)</dt><dd id="disposalOut"></dd>
+<dt>Supplies</dt><dd id="suppliesOut"></dd>
+<dt>Equipment</dt><dd id="equipmentOut"></dd>
+<dt>Travel</dt><dd id="travelOut"></dd>
+<dt>Direct cost</dt><dd id="directCostOut"></dd>
+<dt>Profit at this price</dt><dd id="profitOut"></dd>
+</dl>
+<p id="minimumNote" class="warn" hidden>Margin-based price was below your minimum job fee — quoted at the minimum instead.</p>
+<p class="note">This is a planning number from what you typed, not an audited invoice. It does not add sales tax, an insurance-billing adjustment, or a manifest fee unless you fold those into supplies or equipment yourself.</p>
+</section>
+</main>
+
+<section><h2>Check a price you're actually quoting</h2><p class="note">Already gave a number, or matching what another company quoted? Enter it to see the real profit it leaves against the direct cost, instead of the suggested price.</p>
+<div class="fields">
+<label>Quoted price ($)<input id="proposedPrice" type="number" min="0" step="1" value=""></label>
+</div>
+<p id="proposedErrors" class="err" role="alert" hidden></p>
+<dl id="proposedResult" hidden>
+<dt>Profit</dt><dd id="proposedProfitOut"></dd>
+<dt>Margin</dt><dd id="proposedMarginOut"></dd>
+<dt>Below direct cost?</dt><dd id="proposedBelowOut"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your crew rates, waste estimates, and quotes are never uploaded, there is no account, and nothing is saved when you close the tab unless you choose to save it. We count only anonymous local feature events (<code>bid-calculated</code>, <code>price-checked</code>) so we can tell whether the calculator gets used — no rates or quotes are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p><p class="privacy">The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it.</p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does PPE cost scale with decon cycles instead of just one set per technician?</h3><p>Because a technician who leaves the contaminated area — for a break, to run equipment out, or across a shift change — has to doff the PPE they were wearing before re-entering. Used PPE cannot be re-donned, so re-entry needs a fresh set. A count that assumes one set per technician undercounts every job with more than one decon cycle per tech.</p>
+<h3>Why is disposal billed per container instead of per pound?</h3><p>Because that is how a licensed regulated-waste hauler actually invoices: a per-container pickup charge, not a per-pound rate. A container that is 10% full costs the same as one that is completely full, up to its rated capacity. This calculator rounds your waste estimate up to the next whole container before pricing it, the way your hauler's invoice will, instead of multiplying pounds by a linear per-pound rate that undercounts whenever a container isn't full.</p>
+<h3>What does the minimum job fee do?</h3><p>It floors the quoted price at your company's stated minimum. A very small scope — one room, a short on-site window, little waste — can price below a sensible minimum on cost-plus-margin arithmetic alone, even though the job still needs a full truck roll, a hauler pickup, and travel regardless of size.</p>
+<h3>Does anything I type get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere unless you choose to save it. Usage counting only tallies anonymous feature events, and you can turn it off with the button above. The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it.</p>
+</section>
+
+<p>Pricing a mold job instead of a biohazard one? See the <a href="../mold-remediation-bid-calculator/">mold remediation bid calculator</a>, which prices containment, demo, and dry-out days the same way this tool prices crew, PPE, and disposal.</p>
+<p>Pricing a radon mitigation install? The <a href="../radon-mitigation-bid-calculator/">radon mitigation bid calculator</a> prices suction points, the membrane, and the circuit the job needs.</p>
+<p>Handling regulated waste at a septic job instead? The <a href="../septic-pumping-bid-calculator/">septic pumping bid calculator</a> prices a pump-out and haul from tank size and disposal fees the same cost-plus way.</p>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, determine your regulated-waste hauler's actual per-container price, verify your state or OSHA bloodborne-pathogen decon requirements, or replace your own pricing judgment, accountant, or hauler contract.</p><p>MIT licensed. If it helped you price a job, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { computeJobBid } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+import { encodeInputs, decodeInputs, formValues, REQUIRED_FIELD_IDS } from './share.mjs';
+const DRAFT_KEY = 'biohazard-cleanup-bid-calculator-draft';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const FIELD_IDS = REQUIRED_FIELD_IDS;
+let counted = false;
+let proposedCounted = false;
+
+function fieldInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+function writeInputs(values) {
+  for (const id of FIELD_IDS) {
+    if (Object.prototype.hasOwnProperty.call(values, id)) el(id).value = values[id];
+  }
+}
+
+function updateBid(count = false) {
+  try {
+    const r = computeJobBid(fieldInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('price').hidden = false;
+    el('price').textContent = money(r.price);
+    el('laborOut').textContent = money(r.laborCost);
+    el('ppeSetsOut').textContent = r.ppeSets;
+    el('ppeOut').textContent = money(r.ppeCost);
+    el('containersOut').textContent = r.containersNeeded;
+    el('disposalOut').textContent = money(r.disposalCost);
+    el('suppliesOut').textContent = money(r.suppliesCost);
+    el('equipmentOut').textContent = money(r.equipmentRentalCost);
+    el('travelOut').textContent = money(r.travelFee);
+    el('directCostOut').textContent = money(r.directCost);
+    el('profitOut').textContent = money(r.profit);
+    el('minimumNote').hidden = !r.minimumApplied;
+    if (count && !counted) { recordEvent('bid-calculated'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('price').hidden = true;
+    for (const id of ['laborOut', 'ppeOut', 'disposalOut', 'suppliesOut', 'equipmentOut', 'travelOut', 'directCostOut', 'profitOut']) el(id).textContent = '';
+    el('ppeSetsOut').textContent = ''; el('containersOut').textContent = '';
+    el('minimumNote').hidden = true;
+  }
+}
+
+function updateProposed(count = false) {
+  const raw = el('proposedPrice').value;
+  if (raw === '') {
+    el('proposedResult').hidden = true;
+    el('proposedErrors').hidden = true; el('proposedErrors').textContent = '';
+    return;
+  }
+  try {
+    const r = computeJobBid({ ...fieldInputs(), proposedPrice: raw });
+    el('proposedErrors').hidden = true; el('proposedErrors').textContent = '';
+    el('proposedResult').hidden = false;
+    el('proposedProfitOut').textContent = money(r.proposed.profit);
+    el('proposedMarginOut').textContent = `${r.proposed.marginPercent.toFixed(1)}%`;
+    el('proposedBelowOut').textContent = r.proposed.belowDirectCost ? 'Yes — below direct cost' : 'No';
+    if (count && !proposedCounted) { recordEvent('price-checked'); proposedCounted = true; }
+  } catch (e) {
+    el('proposedErrors').textContent = e.message; el('proposedErrors').hidden = false;
+    el('proposedResult').hidden = true;
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { updateBid(true); updateProposed(false); }));
+el('proposedPrice').addEventListener('input', () => updateProposed(true));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+
+el('save').addEventListener('click', () => {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(fieldInputs()));
+    el('linkStatus').textContent = 'Saved to this browser on this device. Nothing was uploaded.';
+    recordEvent('scenario_saved');
+  } catch {
+    el('linkStatus').textContent = 'This browser refused to save (private mode or blocked storage) — your numbers are still on screen.';
+  }
+});
+
+el('forget').addEventListener('click', () => {
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+  } catch { /* storage is optional */ }
+  el('linkStatus').textContent = 'Saved scenario deleted from this browser.';
+});
+
+el('copyLink').addEventListener('click', async () => {
+  const query = encodeInputs({ ...fieldInputs(), proposedPrice: el('proposedPrice').value });
+  const url = `${location.pathname}${location.search}${query ? `#${query}` : ''}`;
+  history.replaceState(null, '', url);
+  try {
+    await navigator.clipboard.writeText(location.href);
+    el('linkStatus').textContent = 'Link copied. Nothing was uploaded to make it.';
+  } catch {
+    el('linkStatus').textContent = 'Copy was blocked — the link is now in your address bar.';
+  }
+  recordEvent('link_copied');
+});
+
+// A shared link wins over a saved draft, which wins over the form's own
+// shipped defaults -- and `formValues` writes every field the form owns
+// rather than only the ones present, so a link opened over a saved draft
+// (or mid-edit values) cannot leave a stranger's number sitting in a field
+// the link did not carry. See share.mjs for the full reasoning.
+try {
+  const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+  if (saved && typeof saved === 'object') writeInputs(saved);
+} catch { /* storage is optional */ }
+
+const fromLink = decodeInputs(location.hash || location.search);
+if (Object.keys(fromLink).length > 0) {
+  const shared = formValues(fromLink);
+  writeInputs(shared);
+  // formValues clears proposedPrice too when the link didn't carry one,
+  // the same reasoning as writeInputs above -- see share.mjs.
+  el('proposedPrice').value = shared.proposedPrice;
+  el('linkStatus').textContent = 'Opened a shared scenario. Review the numbers before you use them.';
+}
+
+updateBid(false);
+updateProposed(false);
+</script>
+</body></html>
