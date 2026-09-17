@@ -32207,3 +32207,223 @@ entries:
         `share_link_copied` event is counted locally, opt-out, and never
         transmitted, per portfolio/usage/README.md.
     mrr_end: 0
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, designated branch
+        `claude/clever-bohr-xqssob`. PR queue at start: 2 open PRs (#4883,
+        #4884). Reviewed both; both were sound, generic-method comparison
+        page and share-link additions respectively. Both were merged by
+        concurrent sessions/the author while this session verified them
+        locally (CI was starved -- `ci_starvation.py` showed `runner_id: 0`
+        on every red check on #4883). Queue was empty of repairable PRs by
+        the time this session finished verification, so the 3-PR quota
+        reduces to "process what exists" and that was done.
+      - >-
+        Checked the two explicit asks in this session's brief against
+        current state rather than duplicating them: (1) Hetzner
+        deployment/CI-CD -- `decision_queue.py` already carries
+        `hetzner-ssh-key-is-a-public-key` as item #1/17, gating the k3s
+        cluster, self-hosted runners, and the Codex worker, blocked solely
+        on the owner pasting a private SSH key + tokens from their own
+        machine (`bootstrap/restore-cluster.sh`); the GitHub Pages route
+        (`duncan-haywood.github.io/monorepo-projects/`) is separately live
+        and its snapshot was confirmed `current` via `pages_state.py
+        --require-current`, so marketing/front-door content is being built
+        and served today via that route. (2) "Codex CLI on the Hetzner VM
+        using its built-in quota" -- already fully built and queued in the
+        same decision-queue row (`enable-codex-governor.sh`, `worker.sh`
+        preferring `CODEX_AUTH_JSON` over a billed API key, RBAC via
+        `policy.json`), gated on the same owner-only secret paste. Did not
+        re-add either ask to the queue.
+      - >-
+        Added a "Copy share link" feature to
+        ventures/asbestos-abatement-bid-calculator (one of ~130 ventures
+        with an index.html but no share.mjs at the start of this session):
+        containment class, square footage, crew/supervisor rates, air
+        monitoring, waste disposal, permit, and the proposal panel's
+        deposit/terms now round-trip through the page's own URL fragment.
+        Modeled directly on the just-merged
+        ice-dam-removal-bid-calculator/share.mjs pattern (same
+        SHARE_FIELDS/encodeShare/decodeShare shape, same allowlist and
+        injection tests) rather than inventing a new shape. Nothing is
+        transmitted -- the link is built and copied entirely in the
+        visitor's own browser.
+      - >-
+        Checked for overlap first: 0 open PRs; the only branch touching
+        this venture (`asbestos-abatement-venture`) is stale orphan history
+        whose unique content (the venture's original creation commit)
+        already shipped to `main` under the same slug via a different path
+        -- confirmed by `git merge-base --is-ancestor` failing only because
+        of a shallow single-branch fetch, and by the venture already
+        existing in full on `main` with its comparison page.
+      - >-
+        Updated the existing `page.test.mjs` usage-counting assertion (it
+        matched an exact substring of the privacy paragraph that the new
+        `share_link_copied` event name would otherwise have broken) and
+        added a new test asserting the share import/button/counting wiring,
+        following the same split ice-dam-removal-bid-calculator's own
+        `page.test.mjs` already uses.
+      - >-
+        Verified locally rather than by CI, which is starved this cycle
+        (`ci_starvation.py`; `runner_id: 0` on every job of #4883's checks):
+        93/93 venture assertions (8 new in `share.test.mjs`, 2 changed/new
+        in `page.test.mjs`), 101/101 `platform/proposal`, and the full
+        `platform/marketing` + `platform/pages` suite.
+        `checklist_coverage.py` clean.
+      - >-
+        No usage signal yet, and none is claimed: `usage.yaml` has never
+        recorded a visitor measurement for this or any product in the
+        portfolio (`live_url_visitors: null`, not zero). The new
+        `share_link_copied` event is counted locally, opt-out, and never
+        transmitted, per portfolio/usage/README.md.
+    mrr_end: 0
+  - venture: dental-ppo-writeoff-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Set out to add a share.mjs (matching the pattern completed on
+        call-recording-consent-check and ice-dam-removal-bid-calculator
+        earlier this session) and found `page.test.mjs`'s own
+        "there is deliberately no shareable link" test first -- this
+        venture holds a practice's production, payroll and overhead
+        figures, and a prior session had already decided that data does
+        not belong in a URL, asserted rather than left to reviewer memory.
+        Did not add one; the test is why this venture stays off the
+        `share.mjs` list the router otherwise ranks it against.
+      - >-
+        Reading the page's restore path to confirm the no-share decision
+        surfaced a real, separate defect: `fillForm()` only wrote as many
+        plan rows as the incoming state named, so restoring a saved
+        scenario with fewer plans than the shipped four-plan worked
+        example left the extra rows still holding the example's names and
+        dollar figures. `calc.mjs`'s `readPlan()` counts a row as blank
+        only when all three fields are empty, so those leftover example
+        rows (still filled in, never touched) would be silently folded
+        into a real practice's totals on the next calculation -- the same
+        clear-not-leave-stale shape
+        `platform/ci/check_shared_link_clears.py` guards for a shared
+        link, here in a saved-scenario restore instead.
+      - >-
+        Fixed by extracting the row-resolution logic into a pure,
+        independently-tested `form.mjs` (`resolvePlanRows`), so restoring
+        any state now writes every row currently in the table -- clearing
+        the ones a shorter incoming list doesn't name -- rather than
+        leaving a previous fill's data sitting in them. Verified against
+        the live page with Playwright: saved a one-plan scenario, reloaded
+        (the exact path where four example rows were loaded first), and
+        confirmed only row 0 is filled and rows 1-5 are blank.
+      - >-
+        Also added `usage.test.mjs` (previously absent, unlike its
+        siblings): direct coverage of event counting, opt-out, DNT/GPC,
+        no-storage safety, and confirmed the counter never carries a plan
+        name or dollar figure -- and documented, rather than "fixed", that
+        a corrupt stored value here fails the write silently instead of
+        self-healing the way some sibling usage.mjs modules do (a single
+        try/catch wraps the parse and the write together); a design
+        difference worth a test either way.
+      - >-
+        Verified locally rather than by CI, which is starved
+        (`ci_starvation.py`, `runner_id: 0`): the venture's own 76
+        assertions (was 62); `platform/marketing` + `platform/pages`
+        (1271/1271); `platform/privacy` + `platform/webcheck` (142/142);
+        `gitops/tests` (596 passed, 1 skipped, environmental); all 27
+        `platform/ci` unittest modules + `agent_review`; the portfolio
+        Python suites (446 passed); `checklist_coverage.py`,
+        `sync_tree_counts.py --check`, `surface-budget.mjs --check`
+        (unaffected, no new count); a scoped
+        `browser_checks.py --only dental-ppo-writeoff-calculator` pass
+        (contrast, optout, sweep all clean); `regen.mjs` (front-door
+        mirror rebuilt, committed).
+      - >-
+        No usage signal yet, and none is claimed: `usage.yaml` has never
+        recorded a visitor measurement for this product
+        (`live_url_visitors: null`, not zero). All three hypotheses in
+        `VENTURE.yaml` remain untested.
+    mrr_end: 0
+  - venture: egress-window-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a generic-method comparison page ("vs. a flat '$1,800
+        installed' egress window special"), the angle this calculator's
+        own `VENTURE.yaml` hypothesis already names: a postcard per-window
+        rate cannot see whether the job is a vinyl hopper retrofit into an
+        existing opening with a plastic well or a slider/casement in a new
+        masonry or poured-concrete cut with a steel or stone well, a
+        drain, a cover, a ladder, and a haul. `surface-budget.mjs --for
+        egress-window-bid-calculator` showed room for one (0
+        generic-method pages, 1 named-product page against JobNimbus
+        already shipped) -- and this venture's other two guide pages
+        (Saturday cutting, customer-supplied sash) cover different
+        angles, so no duplicate-angle risk the way basement-finishing's,
+        carpet-install's, and crown-molding's own $-per-unit guide pages
+        already do (checked and passed over as already-covered before
+        picking this venture). The three worked-example rows are computed
+        from `calc.mjs`'s own shipped presets and defaults (not invented),
+        and a new test asserts they match calc.mjs's output so the page
+        cannot drift silently if the calculator's rates ever change.
+        Registered in `clauses.mjs`'s `COMPARISON_DISCLAIMER_EXEMPT` set
+        (generic method, not a named competitor) and linked from the tool
+        page and the sitemap so it is not an orphan.
+      - >-
+        Before picking this venture, ruled out the router's top three
+        candidates: `auto-repair-effective-labor-rate` (rank 3) turned out
+        to have a deliberate, tested, documented design decision *against*
+        a shareable link at all -- the page's own FAQ, footer, and JS
+        comments explain that a shop's labor/payroll/overhead figures
+        should never ride in a URL -- so adding one would have reverted an
+        intentional privacy choice and broken `page.test.mjs`'s "writes no
+        shared link" guard; caught by reading the venture before touching
+        it, not by trial and error. `basement-finishing-bid-calculator`
+        (rank 4) already covers its own flat-rate angle in guide-page form
+        (`should-i-charge-30-a-square-foot-to-finish-a-basement.html`),
+        which `surface-budget.mjs`'s own warning flags as a competing
+        angle; confirmed by reading the guide's content, not just its
+        title. Same finding for carpet-install (rank 6,
+        `should-i-charge-2-a-yard...`) and crown-molding (rank 7,
+        `should-i-charge-8-a-foot...`).
+      - >-
+        Checked for overlap first: sampled 13 branches across the
+        venture/*, loose-named, and session/agent_* naming patterns among
+        the ~588 branches without an open PR via
+        `portfolio/ledger/supersede_check.py` -- all 13 were cleanly
+        superseded or stale early drafts whose fuller version already
+        shipped on `main` under the same slug, matching the pattern this
+        file already documents extensively for this fleet. None touched
+        `egress-window-bid-calculator`; confirmed directly via `git log
+        --all -- ventures/egress-window-bid-calculator`, which shows no
+        commit anywhere in the fleet's history ever added a
+        generic-method comparison page for this venture.
+      - >-
+        Verified locally rather than by CI, which is starved
+        (`ci_starvation.py`; 0 open PRs and no check runs on the PR this
+        session merged first): the venture's own 148 assertions (was
+        122, including the new page's own test file); the full
+        1271-assertion `platform/marketing` + `platform/pages` suite;
+        101/101 `platform/proposal`; 142/142 `platform/privacy` +
+        `platform/webcheck`; `gitops/tests` (596 passed, 1 skipped,
+        environmental); all 15 `platform/ci` unittest modules +
+        `agent_review`; the portfolio Python suites (446 passed);
+        `checklist_coverage.py`; `sync_tree_counts.py` (300 mirrored
+        tools / 285 opt-out switches, both already in agreement -- this
+        page did not change either count); `surface-budget.mjs --check`
+        (264 with 0 / 35 with 1 / 1 with 2 generic-method pages, reflects
+        the new page); `router/validate.py` (307 valid);
+        `validate_doc_consistency.py`, `validate_candidates.py`,
+        `validate_probe_index.py`, `score_sensitivity.py`,
+        `score_ventures.py --check`, `usage/validate_usage.py` (all
+        clean); `regen.mjs` (front-door mirror rebuilt, committed). No
+        interactive form markup changed (a static comparison page and a
+        text fix only), so the whole-catalogue Playwright/axe sweep was
+        judged disproportionate for this change and not run.
+      - >-
+        No usage signal yet, and none is claimed: `usage.yaml` has never
+        recorded a visitor measurement for this product
+        (`live_url_visitors: null`, not zero). All three hypotheses in
+        `VENTURE.yaml` remain untested.
+    mrr_end: 0

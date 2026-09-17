@@ -23,6 +23,7 @@ const sample = {
   proposalExclusions: 'Gutter repair',
   paymentTerms: 'Due on completion',
   proposalNotes: 'Weather permitting',
+  actualHours: 10,
   secret: 'must-not-round-trip',
 };
 
@@ -34,6 +35,14 @@ test('a shared link keeps every rate, footage, and crew figure', () => {
   assert.equal(restored.emergencyCall, true);
   assert.equal(restored.emergencyPct, 40);
   assert.equal(restored.minimumServiceCharge, 400);
+});
+
+test('the actual on-site hours figure rides in the same link', () => {
+  // A setter fills this field in after the job, to see the real profit
+  // against the phone estimate -- exactly the moment a link gets sent back
+  // to the office, so losing it here defeats the feature's own purpose.
+  const restored = decodeShare(encodeShare(sample));
+  assert.equal(restored.actualHours, 10);
 });
 
 test('the proposal panel deposit and terms ride in the same link', () => {
@@ -90,6 +99,7 @@ test('SHARE_FIELDS includes every pricing input and every proposal term', () => 
     'edgeFeet', 'ratePerFoot', 'crewSize', 'estimatedHours', 'crewHourlyRate',
     'travelHours', 'travelMiles', 'mileageRate', 'steamerFuelCost', 'equipmentCostPerJob',
     'emergencyCall', 'emergencyPct', 'overheadRate', 'targetMargin', 'minimumServiceCharge',
+    'actualHours',
     'depositPercent', 'validDays', 'proposalExclusions', 'paymentTerms', 'proposalNotes',
   ]) {
     assert.ok(SHARE_FIELDS.includes(key), `missing ${key}`);

@@ -41,7 +41,14 @@ test('the page wires usage counting for the quote, reset, and the sponsor link',
   assert.match(html, /count\('quote_calculated'\)/);
   assert.match(html, /count\('reset'\)/);
   assert.match(html, /count\('sponsor_link_clicked'\)/);
-  assert.match(html, /<code>quote_calculated<\/code>, <code>reset<\/code>, <code>sponsor_link_clicked<\/code>/);
+  assert.match(html, /<code>quote_calculated<\/code>, <code>reset<\/code>/);
+  assert.match(html, /<code>share_link_copied<\/code>, <code>sponsor_link_clicked<\/code>/);
+});
+
+test('the page wires the share link: import, button, and usage counting', () => {
+  assert.match(html, /import \{ encodeShare, decodeShare \} from '\.\/share\.mjs'/);
+  assert.match(html, /id="copyShare"/);
+  assert.match(html, /count\('share_link_copied'\)/);
 });
 
 test('every scalar, select, and checkbox input from calc.mjs has a matching id on the page', () => {

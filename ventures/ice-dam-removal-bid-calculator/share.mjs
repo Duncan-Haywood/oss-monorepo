@@ -29,6 +29,11 @@ export const SHARE_FIELDS = Object.freeze([
   'overheadRate',
   'targetMargin',
   'minimumServiceCharge',
+  // The post-job "check the actual on-site hours" figure -- not part of the
+  // main form's FIELD_IDS/DEFAULTS, so it has to be named here explicitly or
+  // a link sent after the job (the exact moment this field gets used) drops
+  // the one number that made it worth sending.
+  'actualHours',
   // The proposal panel's terms -- see the file header and term-ids.test.mjs.
   'depositPercent', 'validDays', 'proposalExclusions', 'paymentTerms', 'proposalNotes',
 ]);
