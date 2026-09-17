@@ -1472,8 +1472,21 @@ const CATEGORY_RULES = [
     // that link is reciprocal, closing the same crawlable-orphan gap a new
     // venture with no existing sibling otherwise opens. Listed by exact
     // slug rather than a new prefix, for the same reason as its neighbors.
+    //
+    // `subpath-robots-check` joined 2026-09-17, and it is filed here rather
+    // than with the SEO tools for a specific reason: what it checks is a
+    // deployment property, not a content one. Whether a site sits at an
+    // origin root or under a path prefix is decided by where it was
+    // published, so the reader who needs it is the person who set up the
+    // hosting, and the fix (a custom domain, a CI gate on
+    // `--fail-on-critical`) lives in the deploy pipeline. It cross-links
+    // `sitemap-lastmod-freshness-check`, `ai-crawler-access-check` and
+    // `canonical-tag-check` as Related -- all three assume the robots.txt or
+    // sitemap they read is the governing one, which is the assumption this
+    // venture tests -- closing the crawlable-orphan gap a new venture
+    // otherwise opens. Listed by exact slug, same reason as its neighbors.
     test: (slug) =>
-      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check)/.test(
+      /^(actions-|pinned-actions|coverage-drop-check|flaky-test-finder|ai-crawler-access|license-drift-check|npm-lifecycle-script-check|vscode-extension-drift-check|dependency-confusion-check|ios-privacy-manifest-check|structured-data-drift-check|env-example-drift-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|pwa-installability-check|security-headers-check|docker-base-image-pin-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|app-store-screenshot-check|llms-txt-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check)/.test(
         slug,
       ),
   },

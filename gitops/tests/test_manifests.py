@@ -1813,7 +1813,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # landed, so it only ever knew its own predecessor's number (297) until
     # this merge -- the same ordinary collision shape recorded throughout
     # this list.
-    total = 299  # `infra/OWNER_CHECKLIST.md`'s own "N of the 299 tools" wording.
+    # 300 since 2026-09-17, when `subpath-robots-check` graduated -- a
+    # browser-local checker plus a zero-dependency CLI reporting whether a
+    # site published at a URL subpath can govern its own robots.txt, and the
+    # sitemap auto-discovery gap that follows when it cannot, with a static
+    # `index.html` from its first commit, same shape as the rest of this
+    # running count. This branch was open before
+    # `podcast-sponsorship-rate-calculator` landed, so it only ever knew its
+    # own predecessor's number (298, then 299) until this merge -- the same
+    # ordinary collision shape recorded throughout this list.
+    total = 300  # `infra/OWNER_CHECKLIST.md`'s own "N of the 300 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
