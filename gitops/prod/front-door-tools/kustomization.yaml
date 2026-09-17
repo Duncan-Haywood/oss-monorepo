@@ -38,12 +38,12 @@
 #   portfolio-front-tools-2: 149 files, 544193 bytes
 #   portfolio-front-tools-3: 137 files, 556830 bytes
 #   portfolio-front-tools-4: 127 files, 554425 bytes
-#   portfolio-front-tools-5: 131 files, 553536 bytes
-#   portfolio-front-tools-6: 128 files, 553064 bytes
+#   portfolio-front-tools-5: 131 files, 556339 bytes
+#   portfolio-front-tools-6: 129 files, 554087 bytes
 #   portfolio-front-tools-7: 132 files, 554445 bytes
 #   portfolio-front-tools-8: 119 files, 547321 bytes
 #   portfolio-front-tools-9: 115 files, 550872 bytes
-#   portfolio-front-tools-10: 115 files, 548821 bytes
+#   portfolio-front-tools-10: 116 files, 554958 bytes
 #   portfolio-front-tools-11: 122 files, 553937 bytes
 #   portfolio-front-tools-12: 133 files, 549103 bytes
 #   portfolio-front-tools-13: 101 files, 553740 bytes
@@ -782,6 +782,7 @@ configMapGenerator:
       - branch-protection-drift-check__engine.mjs.gz=branch-protection-drift-check__engine.mjs.gz
       - branch-protection-drift-check__index.html.gz=branch-protection-drift-check__index.html.gz
       - branch-protection-drift-check__usage.mjs.gz=branch-protection-drift-check__usage.mjs.gz
+      - branch-protection-drift-check__vs-manually-checking-settings.html.gz=branch-protection-drift-check__vs-manually-checking-settings.html.gz
       - branch-protection-drift-check__why-branch-protection-drifts.html.gz=branch-protection-drift-check__why-branch-protection-drifts.html.gz
       - brand-deal-rate-calculator__brand-deal-rate-benchmarks.html.gz=brand-deal-rate-calculator__brand-deal-rate-benchmarks.html.gz
       - brand-deal-rate-calculator__calculator.mjs.gz=brand-deal-rate-calculator__calculator.mjs.gz
@@ -877,12 +878,12 @@ configMapGenerator:
       - cnc-machining-quote-calculator__calculator.mjs.gz=cnc-machining-quote-calculator__calculator.mjs.gz
       - cnc-machining-quote-calculator__index.html.gz=cnc-machining-quote-calculator__index.html.gz
       - cnc-machining-quote-calculator__setup-fee-or-in-the-part-price.html.gz=cnc-machining-quote-calculator__setup-fee-or-in-the-part-price.html.gz
-      - cnc-machining-quote-calculator__usage.mjs.gz=cnc-machining-quote-calculator__usage.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cnc-machining-quote-calculator__usage.mjs.gz=cnc-machining-quote-calculator__usage.mjs.gz
       - codeowners-shadow-check__codeowners.mjs.gz=codeowners-shadow-check__codeowners.mjs.gz
       - codeowners-shadow-check__index.html.gz=codeowners-shadow-check__index.html.gz
       - codeowners-shadow-check__usage.mjs.gz=codeowners-shadow-check__usage.mjs.gz
@@ -1492,6 +1493,7 @@ configMapGenerator:
       - marketplace-fee-compare__index.html.gz=marketplace-fee-compare__index.html.gz
       - marketplace-fee-compare__share.mjs.gz=marketplace-fee-compare__share.mjs.gz
       - marketplace-fee-compare__usage.mjs.gz=marketplace-fee-compare__usage.mjs.gz
+      - marketplace-fee-compare__vs-checking-each-marketplace-separately.html.gz=marketplace-fee-compare__vs-checking-each-marketplace-separately.html.gz
       - marketplace-fee-compare__vs-sellerboard.html.gz=marketplace-fee-compare__vs-sellerboard.html.gz
       - marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz=marketplace-fee-compare__which-marketplace-has-the-lowest-fees.html.gz
       - mcp-supply-chain-watch__compare.mjs.gz=mcp-supply-chain-watch__compare.mjs.gz

@@ -440,6 +440,50 @@
         "platform/pages": "dfb06b625e75cb8c5083e9fb7959dce5d442b01e",
         "ventures": "8ce399e06080cc5b02ebec07f2fa10e545c0b66c"
       }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "a25f124f040a66018f98acdb0b7ad80cc9db0c52",
+      "measured": "2026-09-17",
+      "pages": 1149,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "f2e106a0ea31646a230f1b8804778ef767e234fc",
+        "ventures": "3202607bfd9fec6ba9b292dee611262dbb534c13"
+      }
+    },
+    {
+      "checks": [
+        "contrast",
+        "highlight",
+        "journey",
+        "optout",
+        "presets",
+        "roundtrip",
+        "sideways",
+        "sweep"
+      ],
+      "commit": "d5b23d8f869f48a6125b2bcdf1196847090d7257",
+      "measured": "2026-09-17",
+      "pages": 1167,
+      "result": "pass",
+      "scope": "full",
+      "surface": {
+        "platform/marketing": "77163327ca781c38d4512241f6c9a30e96d04942",
+        "platform/pages": "bb758c0f09bc43ccc07aaca28e06b262883e74ad",
+        "ventures": "e712c0dc86377c30058a9aac620e670f28952a18"
+      }
     }
   ]
 }
