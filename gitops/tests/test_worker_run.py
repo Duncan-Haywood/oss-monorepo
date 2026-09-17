@@ -1191,3 +1191,45 @@ def test_a_binary_outside_the_cache_is_never_second_guessed(world) -> None:
     calls = world["log"].read_text()
     assert "curl " not in calls, f"a PATH-provided gh was reinstalled anyway:\n{calls}"
     assert "npm " not in calls, f"a PATH-provided codex was reinstalled anyway:\n{calls}"
+
+
+# ------------------------------------------------- git identity (2026-09-17)
+#
+# The worker used `agent-codex@agents.local`. `.local` is reserved for mDNS
+# (RFC 6762): it is not a deliverable domain, so no GitHub account can ever
+# own it. Every commit the worker pushed was therefore authored by an address
+# GitHub cannot resolve to anyone -- unrecognised author, no account link, no
+# contribution history -- on a fleet whose cross-review layer keys off which
+# agent family produced a change. Nothing failed; the commits just arrived
+# anonymous, which is only visible once a PR has already landed.
+
+
+def test_the_worker_commits_as_a_resolvable_github_identity() -> None:
+    # The configured line, not the whole file: the comment above the fix names
+    # the old address on purpose, and a substring scan of the source would
+    # read that explanation as the defect it explains.
+    line = next(
+        l for l in WORKER.read_text().splitlines()
+        if l.strip().startswith("git config user.email")
+    )
+    assert ".local" not in line, (
+        "`.local` is reserved for mDNS (RFC 6762) and can belong to no GitHub "
+        f"account, so commits authored there associate with nobody: {line}"
+    )
+    assert "users.noreply.github.com" in line, (
+        f"use a noreply address: GitHub resolves it and it leaks no mailbox: {line}"
+    )
+
+
+def test_the_git_identity_is_overridable_without_editing_the_box() -> None:
+    """The box's PAT may not belong to whoever the default name names.
+
+    `worker.sh` is installed by `install -m 0755` onto the box, so a
+    hard-coded identity can only be corrected by editing a payload file in
+    place -- which the next re-install silently reverts.
+    """
+    source = WORKER.read_text()
+    for var in ("CODEX_GIT_NAME", "CODEX_GIT_EMAIL"):
+        assert f"${{{var}:-" in source, (
+            f"{var} should override the default identity"
+        )

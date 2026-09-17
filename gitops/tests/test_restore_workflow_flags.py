@@ -92,6 +92,92 @@ def test_portfolio_site_host_env_reuses_the_argocd_token_not_a_new_secret():
     assert "secrets.ARGOCDREPOTOKEN" in str(env["SITE_GH_TOKEN"])
 
 
+# The credential half of the same gap, pinned 2026-09-17.
+#
+# The two tests above check that a WITH_* flag is *reachable* from a dispatch.
+# They passed while the job forwarded all three flags and not one of the
+# credentials any of them needs, which installs a Codex worker with no
+# auth.json and a runner with no registration token -- two systemd units that
+# come up dead and tick past forever. Nothing went red, and nothing could:
+# restore-cluster.sh deliberately refuses to let an extra fail the restore, so
+# an uncredentialed install and a working one are the same green log.
+#
+# That matters more here than the reachability half it completes. The owner
+# gets one session with the private SSH key (`asks.yaml`:
+# hetzner-ssh-key-is-a-public-key), and the entire point of the host-mode
+# extras is to survive an outage without a second trip. Discovering at the end
+# of that session that the extras need one is the expensive failure.
+#
+# Keyed by flag, so a WITH_* flag added later with its own credential is
+# covered by the reachability tests above but must be added here by hand --
+# which is the intent: only a reader can say which env var is the credential
+# that makes a given service live, and which is a knob.
+FLAG_CREDENTIALS = {
+    "WITH_CODEX_HOST": ["CODEX_AUTH_JSON", "CODEX_GH_TOKEN"],
+    "WITH_GITHUB_RUNNER_HOST": ["RUNNER_TOKEN"],
+    "WITH_PORTFOLIO_SITE_HOST": ["SITE_GH_TOKEN"],
+}
+
+
+def test_each_with_flag_forwards_the_credentials_that_make_it_live():
+    env = _restore_step_env()
+    for flag in _script_flags():
+        for credential in FLAG_CREDENTIALS.get(flag, []):
+            assert credential in env, (
+                f"{flag} is forwarded but {credential} is not, so ticking it "
+                "installs a service that cannot do anything -- and the script "
+                "cannot fail the restore over an extra, so this reads as a "
+                "green run. See the note above this test."
+            )
+
+
+def test_credentials_are_gated_on_their_own_flag():
+    """An unchecked extra must ask for no credential of its own."""
+    env = _restore_step_env()
+    for flag, credentials in FLAG_CREDENTIALS.items():
+        for credential in credentials:
+            expression = str(env.get(credential, ""))
+            assert f"inputs.{flag.lower()}" in expression, (
+                f"{credential} should be empty unless {flag.lower()} is "
+                f"ticked, so an owner who wants only a cluster restore needs "
+                f"no {credential}; got {expression!r}"
+            )
+
+
+def test_the_metered_openai_key_is_never_forwarded_from_a_dispatch():
+    """`CODEX_AUTH_JSON` is included quota; `OPENAI_API_KEY` bills per token.
+
+    The worker ticks every five minutes indefinitely once enabled, so handing
+    the dispatch route a metered key would be exactly the unattended paid-API
+    spend CLAUDE.md's "Automation" rule reserves to the owner. The included
+    quota has no such problem -- `worker.sh` prefers auth.json and `unset`s
+    the API key when both are present, so forwarding only the former cannot
+    bill. The metered key stays on the laptop route, where a project spend
+    limit is in front of whoever sets it.
+    """
+    env = _restore_step_env()
+    assert "OPENAI_API_KEY" not in env, (
+        "the restore dispatch must not be able to start metered Codex spend; "
+        "set OPENAI_API_KEY from the laptop route instead"
+    )
+
+
+def test_codex_enabled_requires_the_codex_box_to_be_ticked_too():
+    """`CODEX_ENABLED=1` without `WITH_CODEX_HOST=1` enables nothing.
+
+    Forwarding it unconditionally would be harmless to the script and
+    misleading on the form: a dispatch with only `codex_enabled` ticked would
+    read as "the worker is on" and install no worker at all.
+    """
+    env = _restore_step_env()
+    assert "CODEX_ENABLED" in env, "codex_enabled input is not forwarded"
+    expression = str(env["CODEX_ENABLED"])
+    for required in ("inputs.with_codex_host", "inputs.codex_enabled"):
+        assert required in expression, (
+            f"CODEX_ENABLED should read {required}; got {expression!r}"
+        )
+
+
 def test_unchecked_flags_default_to_false_so_todays_behaviour_is_unchanged():
     inputs = _dispatch_inputs()
     for flag in _script_flags():

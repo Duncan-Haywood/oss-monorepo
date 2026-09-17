@@ -57,6 +57,21 @@ test('every named trademark is disclaimed as not affiliated', async () => {
   }
 });
 
+test('index names Google alongside the other four vendors in the trademark disclaimer, now that a Gemini preset exists', async () => {
+  const page = await read('index.html');
+  const disclaimer = page.match(/Not affiliated with, endorsed by, or sponsored by ([^.]+)\./i);
+  assert.ok(disclaimer, 'disclaimer sentence not found');
+  for (const vendor of ['Anthropic', 'Cursor', 'GitHub', 'Google', 'Microsoft', 'OpenAI']) {
+    assert.ok(disclaimer[1].includes(vendor), `disclaimer is missing ${vendor}`);
+  }
+});
+
+test('the plan selector is wired to a model default for every plan, so switching plans switches the API rates too', async () => {
+  const page = await read('index.html');
+  assert.match(page, /PLAN_MODEL_DEFAULT/, 'index.html must import and use PLAN_MODEL_DEFAULT');
+  assert.match(page, /applyPlanPreset/);
+});
+
 test('the page imports the same calculator module the tests exercise', async () => {
   const page = await read('index.html');
   assert.match(page, /from '\.\/calc\.mjs'/);

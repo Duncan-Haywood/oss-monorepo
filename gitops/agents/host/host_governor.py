@@ -113,6 +113,61 @@ def policy_file() -> Path:
     return _env_path("CODEX_HOST_POLICY", str(AGENTS / "governor" / "policy.json"))
 
 
+def enable_hint(policy: Path) -> str:
+    """How to turn this governor on, for the place it is actually running.
+
+    Corrected 2026-09-17. This used to print
+    `./bootstrap/scripts/enable-codex-governor.sh` unconditionally, and that
+    is the one route `gitops/agents/host/README.md` says explicitly "was never
+    the right shape for a box whose policy arrives by `install -m 0644`": it
+    edits the policy in a *checkout* and commits, so on the box it would need
+    a re-install to take effect -- a second SSH session, behind the private
+    key the owner spends one session on.
+
+    The wrong hint lands at the worst moment. `--check` exists to be run on
+    the box, by an operator who has just been told the governor is disabled,
+    during that one session. Sending them to a script that is not installed
+    there (the installer's payload is `gitops/agents` and the installer
+    itself, not `bootstrap/scripts/enable-codex-governor.sh`) and that would
+    not flip this file if it were is how that session gets spent.
+
+    The context is read from whether a checkout is present around this file,
+    not from a flag and not from the policy's own path. The installer's
+    PAYLOAD deliberately does *not* include `install-codex-host.sh` itself --
+    `restore-cluster.sh` untars it to a mktemp dir and `rm -rf`s that at the
+    end of step 9 -- so there is no absolute path on the box this function
+    could honestly print for it. Naming the command and letting the operator
+    use the copy they have is accurate; inventing
+    `/opt/codex-agents/install-codex-host.sh` would not be, and a hint that
+    names a file that is not there fails the same way the old one did.
+
+    Both routes leave the committed default `false`.
+    """
+    repo_root = AGENTS.parent.parent
+    in_checkout = (repo_root / "bootstrap" / "scripts" / "enable-codex-governor.sh").exists()
+    if in_checkout:
+        return (
+            f"the governor is disabled ({policy}).\n"
+            "This is a checkout, so the flip here is the cluster route -- edit,\n"
+            "commit, and let Argo roll it out:\n"
+            "  ./bootstrap/scripts/enable-codex-governor.sh\n"
+            "On a host-mode box that script is the wrong shape: the timer reads\n"
+            "the policy installed on the box, not this one. There it is\n"
+            "`install-codex-host.sh --enable` instead."
+        )
+    return (
+        f"the governor is disabled ({policy}).\n"
+        "The flip is one command on this box, using whichever copy of the\n"
+        "installer you have (it is not installed alongside this file):\n"
+        "  CONFIRM=install-codex-host install-codex-host.sh --enable\n"
+        "It edits the policy above in place and refuses while no credential is\n"
+        "installed, so an enabled governor always has something to\n"
+        "authenticate with. `--disable` stops it and keeps it installed.\n"
+        "Do NOT use bootstrap/scripts/enable-codex-governor.sh here: it edits a\n"
+        "checkout's policy, which this timer never reads."
+    )
+
+
 def mandate_file() -> Path:
     return _env_path("CODEX_HOST_MANDATE", str(AGENTS / "workers" / "mandate.md"))
 
@@ -343,10 +398,7 @@ def main(argv: list[str] | None = None) -> int:
         decision, _ = g.tick(policy, state, [], queue, now)
         print(describe(decision, state, policy))
         if not policy.enabled:
-            print(
-                "\nthe governor is disabled. To turn it on:\n"
-                "  ./bootstrap/scripts/enable-codex-governor.sh"
-            )
+            print("\n" + enable_hint(policy_file()))
         return 0
 
     try:
