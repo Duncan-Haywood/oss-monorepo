@@ -5,6 +5,7 @@ import { readdirSync } from 'node:fs';
 
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const comparison = await readFile(new URL('./vs-diffing-the-raw-json-files.html', import.meta.url), 'utf8');
+const cyclonedxComparison = await readFile(new URL('./vs-cyclonedx-cli-diff.html', import.meta.url), 'utf8');
 
 test('the entry page is a working tool, not a landing page', () => {
   assert.match(index, /<textarea/);
@@ -116,6 +117,50 @@ test('every .html file in the venture is reachable from the sitemap', async () =
     if (name === 'index.html') continue;
     assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
+});
+
+test('index links to the cyclonedx-cli comparison page', () => {
+  assert.match(
+    index,
+    /href="vs-cyclonedx-cli-diff\.html"/,
+    'index must link the cyclonedx-cli comparison page so crawlers can reach it',
+  );
+});
+
+test('the cyclonedx-cli comparison page links back to the tool, carries the disclaimers, and names its trademark affiliation', () => {
+  assert.match(cyclonedxComparison, /href="\.\/"/);
+  assert.match(cyclonedxComparison, /No warranty/);
+  assert.match(cyclonedxComparison, /Nothing leaves your browser/);
+  // Compares against a real named product (cyclonedx-cli), unlike the
+  // generic-method page above -- so it needs the affiliation disclaimer
+  // clauses.mjs requires for a vs-<competitor> page, rather than the
+  // "names no specific product" line that page carries.
+  assert.match(cyclonedxComparison, /not\s+affiliated\s+with/i);
+});
+
+test('the cyclonedx-cli comparison page has valid FAQPage JSON-LD matching visible text', () => {
+  const blocks = [...cyclonedxComparison.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(
+    (m) => JSON.parse(m[1]),
+  );
+  const faq = blocks.find((b) => b['@type'] === 'FAQPage');
+  assert.ok(faq, 'missing FAQPage JSON-LD on the cyclonedx-cli comparison page');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const { name, acceptedAnswer } of faq.mainEntity) {
+    assert.ok(cyclonedxComparison.includes(name), `visible question missing: ${name}`);
+    assert.ok(cyclonedxComparison.includes(acceptedAnswer.text), `visible answer missing for: ${name}`);
+  }
+});
+
+test('the cyclonedx-cli comparison page does not repeat a question the index or the other comparison page already answers', () => {
+  const faqOf = (html) => {
+    const block = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .map((m) => JSON.parse(m[1]))
+      .find((b) => b['@type'] === 'FAQPage');
+    return new Set(block.mainEntity.map((q) => q.name));
+  };
+  const own = faqOf(cyclonedxComparison);
+  const overlap = [...own].filter((q) => faqOf(index).has(q) || faqOf(comparison).has(q));
+  assert.deepEqual(overlap, [], `duplicated FAQ question(s): ${overlap.join(', ')}`);
 });
 
 // Closest siblings: same "what does this build actually contain" family of
