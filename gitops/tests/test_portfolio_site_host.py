@@ -448,6 +448,108 @@ def _prune_block() -> str:
 _PRUNE_ONLY = "set -euo pipefail\nlog() { :; }\n" + _prune_block()
 
 
+# The swap block, lifted the same way and for the same reason as the prune
+# block above. Driving it directly is what makes the test below deterministic:
+# reaching this code through a full refresh needs `main` to have moved, and a
+# test that silently took the no-op exit instead would pass without ever
+# executing the lines it is about.
+def _swap_block() -> str:
+    src = REFRESH.read_text()
+    start = src.index("# Atomic swap")
+    end = src.index("# Keep a few predecessors")
+    return src[start:end]
+
+
+_SWAP_ONLY = "set -euo pipefail\nlog() { :; }\n" + _swap_block()
+
+
+def test_a_stale_current_new_does_not_freeze_the_site_on_the_old_release(tmp_path):
+    """`$CURRENT.new` left by an interrupted run must not survive the swap.
+
+    The name is meant to exist only between the `ln -s` and the `mv -T`, but a
+    hard stop in that window (OOM kill under `MemoryMax=4G`, `systemctl stop`,
+    power loss) leaves it behind pointing at the *previous* release.
+
+    `ln -s` does not then fail. It dereferences the stale link and creates the
+    new name *inside* the old release directory, exits 0, and leaves
+    `$CURRENT.new` pointing exactly where it did -- so the `mv -T` renames the
+    stale link over `current` and the box serves the previous release while the
+    script logs "serving <the new one>" and exits 0.
+
+    That is the worst shape a failure can take here: no error, no failed unit, a
+    truthful-looking log line, and a catalogue frozen at an old commit. Verified
+    against the unfixed script: `current` resolved to `old` and `new/` was never
+    served.
+    """
+    releases = tmp_path / "releases"
+    releases.mkdir()
+    current = tmp_path / "current"
+
+    old = releases / "20260917T000000Z-aaaaaaaa"
+    new = releases / "20260917T001000Z-bbbbbbbb"
+    old.mkdir()
+    new.mkdir()
+    current.symlink_to(old)
+
+    # What an interrupted run leaves on disk.
+    (tmp_path / "current.new").symlink_to(old)
+
+    subprocess.run(
+        ["bash", "-c", _SWAP_ONLY],
+        env={
+            **os.environ,
+            "RELEASES": str(releases),
+            "CURRENT": str(current),
+            "release": str(new),
+            # Only reached by the block's closing `log` line, which is stubbed
+            # out above -- but `set -u` expands it before `log` is called.
+            "target": "b" * 40,
+        },
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert current.resolve() == new.resolve(), (
+        "the swap served the previous release: a stale current.new was renamed "
+        "over current instead of the new link"
+    )
+    assert not (old / new.name).exists(), (
+        "ln -s dereferenced the stale link and wrote inside the old release"
+    )
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="needs node")
+def test_a_staging_tree_from_an_interrupted_run_is_reclaimed(tmp_path):
+    """A hard stop mid-build leaks a whole copy of the site, and nothing took it.
+
+    The `rm -rf "$staging"` calls cover the failures the script handles itself;
+    they do not cover being killed. The leaked name is `.staging-<stamp>`, which
+    the prune's `-name '2*'` never matches, so before the fix it survived every
+    later refresh -- an unbounded leak on the disk nginx serves from.
+
+    The reclaim has to run before the no-op exit, which is what this asserts by
+    leaving `main` alone: every refresh below is a no-op tick, which is the
+    common case on a box whose `main` has gone quiet.
+    """
+    repo = _fake_repo(tmp_path)
+    state = tmp_path / "state"
+    assert _run_refresh(repo, state).returncode == 0
+
+    leaked = state / "releases" / ".staging-20260101T000000Z-deadbeef"
+    leaked.mkdir(parents=True)
+    (leaked / "index.html").write_text("a whole site")
+
+    result = _run_refresh(repo, state)
+    assert result.returncode == 0, result.stderr
+    assert "already serving" in result.stdout, (
+        "this test is only meaningful on a no-op tick"
+    )
+    assert not leaked.exists(), (
+        "a staging tree from an interrupted run survived a later refresh"
+    )
+
+
 @pytest.mark.skipif(shutil.which("node") is None, reason="needs node")
 def test_releases_are_world_readable_so_nginx_can_serve_them(tmp_path):
     """nginx's workers run unprivileged. A release tree built under a
