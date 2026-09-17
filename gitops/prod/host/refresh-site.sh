@@ -127,6 +127,55 @@ else
   log "building from the local checkout at $target so this box serves something."
   log "it will move onto origin/$BRANCH as soon as a fetch succeeds."
 fi
+# Reclaim staging trees an interrupted run left behind.
+#
+# The three `rm -rf "$staging"` calls below cover every way a refresh can fail
+# while still executing its own cleanup. They do not cover a refresh that stops
+# executing: an OOM kill (the unit runs under `MemoryMax=4G` and `build.mjs`
+# renders the whole catalogue), a `systemctl stop`, a `TimeoutStartSec` expiry,
+# or the box losing power. Each of those leaves a complete copy of the site
+# behind under `.staging-<stamp>`.
+#
+# Nothing else reclaims it. The `rm -rf "$staging"` before the build only
+# removes *this* run's stamp, and the prune matches `-name '2*'`, which a
+# dotted `.staging-` name never matches -- so a leaked tree is invisible to both
+# and survives every later refresh. On a box that is also serving the
+# catalogue, that is an unbounded leak on the one disk nginx reads from.
+#
+# It runs *before* the no-op exit below on purpose. The common case is a box
+# that is already up to date and ticking every ten minutes, and putting this
+# after that exit would mean a leak is only ever reclaimed on the ticks where
+# `main` happens to have moved -- so a box whose `main` went quiet would hold
+# the leak forever.
+#
+# Safe to do unconditionally: systemd runs this unit as a `oneshot` and will
+# not start a second concurrently, so any `.staging-*` present at the top of a
+# run belongs to a run that is already over. `nullglob` makes a missing or
+# empty releases directory a no-op rather than a literal-glob `rm`.
+reclaim_leaked_staging() {
+  local leaked
+  # Saved and restored rather than switched off at the end: leaving `nullglob`
+  # unset unconditionally would be this function quietly deciding the setting
+  # for every glob added to this script later.
+  #
+  # The `|| true` is load-bearing under this script's `set -e`. `shopt -p`
+  # exits *non-zero when the option is unset*, which is the normal case here,
+  # and it only survives today because the exit status of a `local x=$(...)`
+  # is the status of `local` rather than of the substitution. Splitting the
+  # declaration from the assignment -- an ordinary tidy-up -- would therefore
+  # abort the refresh on every tick, on the box, with no output. Made explicit
+  # rather than left resting on that masking.
+  local nullglob_was
+  nullglob_was="$(shopt -p nullglob)" || true
+  shopt -s nullglob
+  for leaked in "$RELEASES"/.staging-*; do
+    rm -rf "$leaked"
+    log "reclaimed staging tree from an interrupted run: $(basename "$leaked")"
+  done
+  eval "$nullglob_was"
+}
+reclaim_leaked_staging
+
 live_stamp="$CURRENT/.built-from"
 if [[ -L "$CURRENT" && -f "$live_stamp" ]] && [[ "$(cat "$live_stamp")" == "$target" ]]; then
   log "already serving $target -- nothing to do."
@@ -158,6 +207,7 @@ release="$RELEASES/$stamp"
 mkdir -p "$RELEASES"
 rm -rf "$staging"
 
+
 # The build and the check both run against the staging directory, so a failure
 # below leaves `current` pointing exactly where it did.
 if [[ -n "${SITE_BASE_URL:-}" ]]; then
@@ -185,6 +235,25 @@ mv "$staging" "$release"
 # the old one. `ln -sfn` on an existing symlink-to-a-directory would put the
 # link *inside* the target directory rather than replacing it, which is the
 # classic way this idiom breaks.
+#
+# The `rm -f` is what makes that true on the second run as well, and without it
+# this idiom breaks in exactly the way it was written to avoid. `$CURRENT.new`
+# is meant to exist only between the two lines below, but a hard stop in that
+# window (OOM kill, power loss, `systemctl stop`) leaves it behind pointing at
+# the *previous* release -- and then `ln -s` does not fail. It dereferences the
+# stale link and creates the new name inside the old release directory,
+# succeeding with exit 0 and leaving `$CURRENT.new` still pointing where it
+# did. The `mv -T` below then renames that stale link over `current`, so the
+# box goes on serving the previous release while this script logs "serving
+# <the new one>" and exits 0.
+#
+# That is the worst shape a failure can take here: no error, no failed unit,
+# a truthful-looking log line, and a catalogue frozen at an old commit until
+# somebody compares `readlink current` against `.built-from` by hand. Removing
+# the name first costs nothing on the normal path, where there is nothing to
+# remove. `rm -f` does not follow the symlink, so it unlinks the stale name
+# rather than touching the release it points at.
+rm -f "$CURRENT.new"
 ln -s "$release" "$CURRENT.new"
 mv -T "$CURRENT.new" "$CURRENT"
 log "serving $release (built from $target)"
